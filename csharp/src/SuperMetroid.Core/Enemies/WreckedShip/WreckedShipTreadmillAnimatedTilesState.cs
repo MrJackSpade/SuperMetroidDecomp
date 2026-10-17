@@ -4,29 +4,23 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// Translates the two cartridge animated-tile objects spawned by Wrecked Ship entrance
-/// door setup. This is an object/list interpreter for the shared bank-$87 behavior, not a
-/// room-coordinate animation: the door chooses a direction and the object owns its VRAM
-/// destination, boss-bit wait, one-frame cadence, and source-frame order.
+/// Runs the two animated-tile objects spawned by Wrecked Ship entrance door setup. The door
+/// chooses a direction; the object then waits for Phantoon's area-boss bit and afterwards
+/// shows its four treadmill frames in a loop, one frame per pass, each a transfer of the frame's
+/// art to the treadmill's tiles for the following NMI.
 /// </summary>
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
-
-    /// <summary>Bank-87 object identity selected by the room's entrance-door setup.</summary>
-    private AnimatedTileObject _objectPointer;
-    /// <summary>Next compiled instruction word to interpret for this animated-tile object.</summary>
-    private ushort _instructionPointer;
-    /// <summary>Actor-pass countdown before interpreting another frame or command.</summary>
+    /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>
     private NativeCountdown _instructionTimer;
-    /// <summary>Number of source bytes queued for each treadmill tile DMA transfer.</summary>
-    private ushort _transferByteCount;
-    /// <summary>Native VRAM destination word retained for queued DMA conversion.</summary>
-    private ushort _encodedVramDestination;
+    /// <summary>Whether the object is still waiting for Phantoon's area-boss bit before its first frame.</summary>
+    private bool _waitingForAreaBoss;
 
     /// <summary>The queued-DMA destination the treadmill object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: Wrecked Ship treadmill animated-tile object's native VRAM destination")]
-    private VramDmaDestination Destination => VramDmaDestination.FromNative(_encodedVramDestination);
-    /// <summary>Resolved object/list mechanics used after the stock direction and pointer are checked.</summary>
+    private static VramDmaDestination Destination =>
+        VramDmaDestination.FromNative(WreckedShipTreadmillRomData.EncodedVramDestination);
+    /// <summary>The selected direction's object definition, which names its frame art.</summary>
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
@@ -48,11 +42,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         Direction = default;
         NextFrameIndex = 0;
         LastSourceAddress = null;
-        _objectPointer = AnimatedTileObject.None;
-        _instructionPointer = 0;
+        _waitingForAreaBoss = false;
         _instructionTimer = NativeCountdown.Start(0);
-        _transferByteCount = 0;
-        _encodedVramDestination = 0;
         _compiledMechanics = null;
     }
 
@@ -68,8 +59,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     /// <summary>
-    /// Starts one bank-$87 definition. Stock pointers bind compiled mechanics; this seam
-    /// retains strict generic-dispatch tests for deliberately constructed definitions.
+    /// Starts one bank-$87 object. Only the two treadmill objects are compiled, and each only
+    /// for its own direction; any other object is rejected before it can run.
     /// </summary>
     internal void StartDefinition(
         WreckedShipTreadmillDirection direction,
@@ -80,28 +71,19 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         Direction = direction;
         NextFrameIndex = 0;
         LastSourceAddress = null;
-        _objectPointer = objectPointer;
         if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(objectPointer, out _compiledMechanics))
             throw new InvalidDataException($"Wrecked Ship treadmill $87:{(int)objectPointer:X4} is not compiled.");
         if (_compiledMechanics.Direction != direction)
             throw new InvalidDataException(
                 $"Wrecked Ship treadmill $87:{(int)objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
-        _instructionPointer = _compiledMechanics.WaitInstructionPointer;
-        _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
-        _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
+        _waitingForAreaBoss = true;
         _instructionTimer = NativeCountdown.Start(1);
-
-        if (_transferByteCount == 0)
-        {
-            throw new InvalidDataException(
-                $"Animated-tile object $87:{(int)objectPointer:X4} has a zero transfer size.");
-        }
     }
 
     /// <summary>
     /// Runs one bank-$87 handler pass and publishes the source selected for the following
-    /// NMI. While Phantoon's area-boss bit is clear, $87:81BA rewinds onto itself and no
-    /// source exists; after the bit is set, the four one-frame entries loop forever.
+    /// NMI. While Phantoon's area-boss bit is clear, the wait ($87:81BA) holds the object for
+    /// another pass and no source exists; once the bit is set, the four frames loop forever.
     /// </summary>
     public void Step(
         bool areaBossDefeated,
@@ -116,73 +98,25 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         if (!_instructionTimer.IsZero)
             return;
 
-        ushort cursor = _instructionPointer;
-        for (int guard = 0; guard < 64; guard++)
+        if (_waitingForAreaBoss)
         {
-            ushort word = ReadMechanicsWord(cursor);
-            if (!EnemyMath.IsNegative16(word))
+            if (!areaBossDefeated)
             {
-                if (word == 0)
-                {
-                    throw new InvalidDataException(
-                        $"Animated-tile object $87:{(int)_objectPointer:X4} has a zero-duration " +
-                        $"frame at $87:{cursor:X4}.");
-                }
-                _instructionTimer = NativeCountdown.FromRaw(word);
-                int sourceAddress = (_compiledMechanics ?? throw new InvalidOperationException(
-                    "Wrecked Ship treadmill lost its compiled mechanics.")).FrameSourceAddress(cursor);
-                _instructionPointer = unchecked((ushort)(cursor + 4));
-                LastSourceAddress = sourceAddress;
-                writes.Enqueue(
-                    _transferByteCount,
-                    LastSourceAddress.Value,
-                    Destination);
-                NextFrameIndex = (NextFrameIndex + 1) & 3;
+                _instructionTimer = NativeCountdown.Start(1);
                 return;
             }
-
-            switch (ClosedNativeWords.Decode<AnimatedTileInstruction>(word, "animated-tile instruction"))
-            {
-                case AnimatedTileInstruction.Delete:
-                    Reset();
-                    return;
-
-                case AnimatedTileInstruction.Goto:
-                    cursor = ReadMechanicsWord(unchecked((ushort)(cursor + 2)));
-                    break;
-
-                case AnimatedTileInstruction.WaitUntilAreaBossIsDead:
-                    if (!areaBossDefeated)
-                    {
-                        _instructionTimer = NativeCountdown.Start(1);
-                        return;
-                    }
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-
-                default:
-                    throw new NotSupportedException(
-                        $"Animated-tile object $87:{(int)_objectPointer:X4} instruction " +
-                        $"$87:{word:X4} at $87:{cursor:X4} is not translated.");
-            }
+            _waitingForAreaBoss = false;
         }
 
-        throw new InvalidDataException(
-            $"Animated-tile object $87:{(int)_objectPointer:X4} exceeded 64 leading " +
-            $"instructions at $87:{cursor:X4}.");
+        WreckedShipTreadmillObjectDefinition definition = _compiledMechanics ?? throw new InvalidOperationException(
+            "Wrecked Ship treadmill lost its compiled mechanics.");
+        _instructionTimer = NativeCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
+        int source = definition.FrameSource(NextFrameIndex);
+        LastSourceAddress = source;
+        writes.Enqueue(
+            WreckedShipTreadmillRomData.TransferByteCount,
+            source,
+            Destination);
+        NextFrameIndex = (NextFrameIndex + 1) % WreckedShipTreadmillMechanicsDefinitions.FrameCount;
     }
-
-    /// <summary>Reads a word from the selected compiled list and rejects pointers outside its authored mechanics.</summary>
-    private ushort ReadMechanicsWord(ushort pointer)
-    {
-        if (_compiledMechanics is null)
-            throw new InvalidOperationException("Wrecked Ship treadmill requires compiled animation mechanics.");
-        if (_compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
-            return value;
-
-        throw new InvalidDataException(
-            $"Wrecked Ship treadmill object $87:{(int)_objectPointer:X4} reached non-catalog " +
-            $"mechanics word $87:{pointer:X4}.");
-    }
-
 }

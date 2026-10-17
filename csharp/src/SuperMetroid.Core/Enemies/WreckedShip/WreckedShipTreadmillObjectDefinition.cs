@@ -66,10 +66,17 @@ public sealed class WreckedShipTreadmillObjectDefinition
         if (listIndex < 0)
             throw new InvalidDataException(
                 $"Treadmill $87:{(int)ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
-        return WreckedShipTreadmillRomData.FrameSource(
-            Direction == WreckedShipTreadmillDirection.Rightwards
-                ? listIndex : 3 - listIndex);
+        return FrameSource(listIndex);
     }
+
+    /// <summary>
+    /// The artwork identity of loop frame <paramref name="frameIndex"/>, 0 through 3: the leftward loop shows the
+    /// rightward loop's art in reverse order.
+    /// </summary>
+    public int FrameSource(int frameIndex) =>
+        WreckedShipTreadmillRomData.FrameSource(
+            Direction == WreckedShipTreadmillDirection.Rightwards
+                ? frameIndex : WreckedShipTreadmillMechanicsDefinitions.FrameCount - 1 - frameIndex);
 
     /// <summary>The terminal loop command after the fourth frame.</summary>
     public ushort GotoInstructionPointer =>
@@ -87,7 +94,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
         else if (pointer == WaitInstructionPointer)
             value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
         else if (FrameIndex(pointer) >= 0)
-            value = 1;
+            value = WreckedShipTreadmillMechanicsDefinitions.FrameDuration;
         else if (pointer == GotoInstructionPointer)
             value = (ushort)AnimatedTileInstruction.Goto;
         else if (pointer == unchecked((ushort)(GotoInstructionPointer + 2)))

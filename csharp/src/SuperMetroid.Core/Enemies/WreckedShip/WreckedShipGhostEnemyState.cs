@@ -38,34 +38,38 @@ public sealed class WreckedShipGhostEnemyState
         internal set => _slot.VariableB = value.RawValue;
     }
 
-    /// <summary>Enemy variable C: byte offset into the ROM flicker-duration table.</summary>
-    public ushort FlickerTableOffset
+    /// <summary>
+    /// Enemy variable C: the flicker-duration table's byte offset, two per interval. It starts at two, steps by two
+    /// with each interval and returns to zero at the table's terminator; its second bit selects whether the interval
+    /// just started shows the ghost. An offset past the table's seventeen intervals is rejected before it can grow
+    /// further, and the slot variable keeps the same value for other enemies' aliased enemy-RAM reads.
+    /// </summary>
+    public int FlickerTableOffset
     {
         get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        internal set => _slot.VariableC = checked((ushort)value);
     }
 
-    /// <summary>Extended word $00: Y coordinate about which the visible ghost oscillates.</summary>
-    public ushort BobbingOriginY { get; internal set; }
-
-    /// <summary>Extended word $01: low 16 bits of the signed 16.16 vertical velocity.</summary>
-    public ushort VerticalVelocityFraction { get; internal set; }
-
-    /// <summary>Extended word $02: signed whole part of the 16.16 vertical velocity.</summary>
-    public ushort VerticalVelocityWhole { get; internal set; }
+    /// <summary>
+    /// Extended word $00: the position about which the visible ghost oscillates; only its Y is meaningful. Positions
+    /// compare with it by the wrapped spatial difference.
+    /// </summary>
+    public Position16<RoomPixels> BobbingOrigin { get; internal set; }
 
     /// <summary>
-    /// Extended word $05: Samus's horizontal movement class as the spawn-offset table's column
-    /// byte offset: 0 left, 4 stationary, or 8 right. Added to <see cref="SpawnRowOffset"/> it
-    /// indexes the native nine-entry spawn-offset table; it is a table offset, not a coordinate.
+    /// Extended words $01 (fraction) and $02 (whole pixels): the visible ghost's signed 16.16 vertical speed in pixels
+    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the cartridge's carry and wraparound.
     /// </summary>
-    public ushort SpawnColumnOffset { get; internal set; }
+    public SnesSignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>
-    /// Extended word $09: Samus's vertical movement class as the spawn-offset table's row byte
-    /// offset: 0 up, 12 stationary, or 24 down.
+    /// Extended word $05: Samus's horizontal movement class, 0 moving left, 1 stationary or 2 moving right. With
+    /// <see cref="SpawnRow"/> it selects one of the nine spawn offsets.
     /// </summary>
-    public ushort SpawnRowOffset { get; internal set; }
+    public int SpawnColumn { get; internal set; }
+
+    /// <summary>Extended word $09: Samus's vertical movement class, 0 moving up, 1 stationary or 2 moving down.</summary>
+    public int SpawnRow { get; internal set; }
 
     /// <summary>Extended words $06/$0A: Samus's previous whole-pixel position.</summary>
     public Position16<RoomPixels> PreviousSamusPosition { get; internal set; }

@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.Reporting;
@@ -29,7 +30,11 @@ internal static class ReachabilityAnalysis
         var roots = new RootCollector(identity, graph);
         var json = new JsonSerializationScan(identity);
         var reflection = new ReflectionScan(identity, graph);
-        var references = new ReferenceCollector(identity, graph, roots, json, reflection);
+        var treeOwners = new Dictionary<SyntaxTree, Compilation>();
+        foreach (var (_, compilation) in solution.Projects)
+            foreach (var tree in compilation.SyntaxTrees)
+                treeOwners.TryAdd(tree, compilation);
+        var references = new ReferenceCollector(identity, graph, roots, json, reflection, treeOwners);
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
 
         foreach (var (project, compilation) in analyzed)

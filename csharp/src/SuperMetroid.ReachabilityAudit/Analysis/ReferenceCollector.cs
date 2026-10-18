@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,7 +14,7 @@ namespace SuperMetroid.ReachabilityAudit.Analysis;
 /// indexers and base constructors). nameof and documentation crefs are not references.
 /// </summary>
 internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGraph graph, RootCollector roots,
-    JsonSerializationScan json, ReflectionScan reflection)
+    JsonSerializationScan json, ReflectionScan reflection, IReadOnlyDictionary<SyntaxTree, Compilation> treeOwners)
 {
     /// <summary>Every repository symbol referenced anywhere, reachable or not.</summary>
     public HashSet<string> Referenced { get; } = [];
@@ -124,6 +125,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         if (conversion.IsUserDefined)
             targets.Add(conversion.MethodSymbol);
         AddRecordValueReads(model, expression, info, targets);
+        AddWrappedRecordValueReads(expression, info, targets);
         AddEnumNameReads(model, expression, info, targets);
         switch (expression)
         {
@@ -178,6 +180,71 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 AddRecordMembers(argument, targets);
         if (expression.Parent is InterpolationSyntax && model.GetTypeInfo(expression).Type is { } formatted)
             AddRecordMembers(formatted, targets);
+    }
+
+    /// <summary>
+    /// A repository generic type that hashes or compares one of its type parameters (a table wrapping a dictionary keyed
+    /// by it, say) reads a record type argument's members through that equality just as the framework collection does.
+    /// Naming the constructed type, or calling a member of it, therefore reaches those members.
+    /// </summary>
+    private void AddWrappedRecordValueReads(ExpressionSyntax expression, SymbolInfo info, List<ISymbol?> targets)
+    {
+        INamedTypeSymbol? constructed = info.Symbol switch
+        {
+            INamedTypeSymbol { IsGenericType: true } type when expression is GenericNameSyntax => type,
+            IMethodSymbol { ContainingType: { IsGenericType: true } owner } => owner,
+            IPropertySymbol { ContainingType: { IsGenericType: true } owner } => owner,
+            _ => null,
+        };
+        if (constructed is null)
+            return;
+        foreach (int ordinal in HashedTypeParameters(constructed.OriginalDefinition, 0))
+            AddRecordMembers(constructed.TypeArguments[ordinal], targets);
+    }
+
+    /// <summary>Per generic repository type, the ordinals of the type parameters its own declaration hashes or compares.</summary>
+    private readonly Dictionary<INamedTypeSymbol, int[]> _hashedTypeParameters = new(SymbolEqualityComparer.Default);
+
+    /// <summary>
+    /// The ordinals of <paramref name="definition"/>'s type parameters that its declaration passes to an equality-sensitive
+    /// framework type or method, or to another repository generic that hashes them.
+    /// </summary>
+    private int[] HashedTypeParameters(INamedTypeSymbol definition, int depth)
+    {
+        if (_hashedTypeParameters.TryGetValue(definition, out int[]? known))
+            return known;
+        if (depth > 4 || definition.DeclaringSyntaxReferences.Length == 0)
+            return [];
+        // A recursive reference sees no hashed parameters until the declaration is scanned.
+        _hashedTypeParameters[definition] = [];
+        var hashed = new SortedSet<int>();
+        foreach (var reference in definition.DeclaringSyntaxReferences)
+        {
+            var syntax = reference.GetSyntax();
+            // A generic declared in another project binds in the compilation that owns its tree.
+            var model = treeOwners[syntax.SyntaxTree].GetSemanticModel(syntax.SyntaxTree);
+            foreach (var name in syntax.DescendantNodes().OfType<GenericNameSyntax>())
+            {
+                var symbol = model.GetSymbolInfo(name).Symbol;
+                (ImmutableArray<ITypeSymbol> arguments, IEnumerable<int> sensitive) = symbol switch
+                {
+                    INamedTypeSymbol type when EqualitySensitiveTypes.Contains(type.Name) =>
+                        (type.TypeArguments, Enumerable.Range(0, type.TypeArguments.Length)),
+                    IMethodSymbol method when EqualitySensitiveMethods.Contains(method.Name) =>
+                        (method.TypeArguments, Enumerable.Range(0, method.TypeArguments.Length)),
+                    INamedTypeSymbol { IsGenericType: true } type when !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, definition) =>
+                        (type.TypeArguments, HashedTypeParameters(type.OriginalDefinition, depth + 1)),
+                    _ => (ImmutableArray<ITypeSymbol>.Empty, []),
+                };
+                foreach (int index in sensitive)
+                    if (arguments[index] is ITypeParameterSymbol parameter &&
+                        SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, definition))
+                        hashed.Add(parameter.Ordinal);
+            }
+        }
+        int[] result = [.. hashed];
+        _hashedTypeParameters[definition] = result;
+        return result;
     }
 
     /// <summary>Generic types that hash or compare their type arguments' values.</summary>

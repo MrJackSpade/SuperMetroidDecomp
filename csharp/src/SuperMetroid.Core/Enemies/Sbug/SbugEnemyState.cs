@@ -4,56 +4,44 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Typed debugger view of Sbug's common-slot words and its parallel WRAM extension arrays.
-/// The names follow the behavior established by $A3:A14D-$A67C rather than the anonymous
-/// var00/var20 labels required by the raw decompilation.
+/// The state of an Sbug, with its parallel WRAM extension arrays. The names follow the behavior established by
+/// $A3:A14D-$A67C rather than the anonymous var00/var20 labels required by the raw decompilation. The values the
+/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class SbugEnemyState
 {
-    /// <summary>Live enemy slot backing Sbug's four common variables and population parameters.</summary>
+    /// <summary>The Sbug's slot, whose population parameters the state reads.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Projects Sbug's existing slot into named AI and motion state.</summary>
+    /// <summary>Creates the state for an Sbug's slot.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Variable A; the long lifetime used only by behavior four.</summary>
-    public NativeCountdown StraightMovementTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableA);
-        internal set => _slot.VariableA = value.RawValue;
-    }
+    /// <summary>The long lifetime used only by behavior four.</summary>
+    public NativeCountdown StraightMovementTimer { get; internal set; }
 
-    /// <summary>Variable B; the current same-bank AI dispatch pointer.</summary>
-    public SbugEnemyFunction Function
-    {
-        get => (SbugEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
+    /// <summary>The current same-bank AI dispatch pointer; none once a kill has emptied the record.</summary>
+    public SbugEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Variable C's custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The
-    /// cartridge adds random turns to the whole variable word, so whole turns carry into its high byte, which nothing
-    /// steers by; the heading is its low byte. The word changes only through <see cref="FaceCustomHeading"/> and
-    /// <see cref="TurnCustomHeading"/>, so other enemies' aliased enemy-RAM reads see the cartridge's exact word.
+    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The cartridge
+    /// adds random turns to a whole word whose high byte nothing steers by; the heading is its low byte. It changes
+    /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
     /// </summary>
-    public SnesAngle CustomHeading => SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(_slot.VariableC));
+    public SnesAngle CustomHeading { get; private set; }
 
     /// <summary>Sets the custom heading outright, as the toward- and away-from-Samus activations do.</summary>
-    internal void FaceCustomHeading(SnesAngle heading) => _slot.VariableC = heading.TableIndex;
+    internal void FaceCustomHeading(SnesAngle heading) => CustomHeading = heading;
 
     /// <summary>
-    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), added to the whole
-    /// variable word with wraparound as the cartridge does, so a whole turn carries into its high byte.
+    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), wrapping around the
+    /// turn.
     /// </summary>
     internal void TurnCustomHeading(int tableUnits) =>
-        _slot.VariableC = unchecked((ushort)(_slot.VariableC + tableUnits));
+        CustomHeading = CustomHeading.AddTableUnits(Ensure.BetweenInclusive(0, byte.MaxValue, tableUnits));
 
-    /// <summary>Variable F; the 32-frame segment/wait countdown.</summary>
-    public NativeCountdown MovementTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
-    }
+    /// <summary>The 32-frame segment/wait countdown.</summary>
+    public NativeCountdown MovementTimer { get; internal set; }
 
     /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
     public int Speed => SnesLittleEndian.LowByte(_slot.Parameter1);
@@ -104,4 +92,13 @@ public sealed class SbugEnemyState
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<SbugProgram> Program { get; set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        StraightMovementTimer = NativeCountdown.Start(0);
+        Function = null;
+        CustomHeading = SnesAngle.FromTableIndex(0);
+        MovementTimer = NativeCountdown.Start(0);
+    }
 }

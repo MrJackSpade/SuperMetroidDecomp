@@ -3,66 +3,66 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// Bull's state: its six common slot variables and its per-slot extension words. Speed and acceleration stay the exact
-/// words the cartridge keeps, because a deceleration that overshoots leaves a wrapped word that the next update reads by
-/// its sign; they change only through <see cref="Accelerate"/> and <see cref="Decelerate"/>.
+/// The state of a Bull, with its per-slot extension words. Speed and acceleration stay the exact words the cartridge
+/// keeps, because a deceleration that overshoots leaves a wrapped word that the next update reads by its sign; they
+/// change only through <see cref="Accelerate"/> and <see cref="Decelerate"/>. The values the cartridge keeps in the
+/// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BullEnemyState
 {
-    /// <summary>Common slot words carrying Bull's dispatcher, flight speed, acceleration, and timers.</summary>
-    private readonly RoomEnemySlot _slot;
     /// <summary>The slot's words that outlive the occupant.</summary>
     private readonly BullExtensionWords _words;
 
-    /// <summary>Exposes one Bull slot's common words and its extension words without copying state.</summary>
-    internal BullEnemyState(RoomEnemySlot slot, BullExtensionWords words)
+    /// <summary>Creates the state over one Bull slot's extension words.</summary>
+    internal BullEnemyState(BullExtensionWords words)
     {
         _words = words;
-        _slot = slot;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
-    /// <summary>Native variable A ($0FA8 plus slot byte index): the current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer.</summary>
-    public BullEnemyFunction Function
-    {
-        get => (BullEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// The current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer; none once a kill has
+    /// emptied the record.
+    /// </summary>
+    public BullEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Variable B: the speed change applied at each interval expiry, in 256ths of a pixel per update, as the exact word
-    /// the cartridge keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through
-    /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; a word with its sign bit set reads as below zero.
+    /// The speed change applied at each interval expiry, in 256ths of a pixel per update, as the exact word the
+    /// cartridge keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through <see
+    /// cref="Accelerate"/> and <see cref="Decelerate"/>; a word with its sign bit set reads as below zero.
     /// </summary>
     public int Acceleration
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = checked((ushort)value);
-    }
-
-    /// <summary>Variable C: the change in <see cref="Acceleration"/> at each interval expiry, 24 (a 256th of a pixel per update each) while flying and zero once the flight cycle stops.</summary>
-    public int AccelerationDelta
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// Variable D: the flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
+    /// The change in <see cref="Acceleration"/> at each interval expiry, 24 (a 256th of a pixel per update each) while
+    /// flying and zero once the flight cycle stops.
+    /// </summary>
+    public int AccelerationDelta
+    {
+        get;
+        internal set => field = checked((ushort)value);
+    }
+
+    /// <summary>
+    /// The flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
     /// displacements, as the exact word the cartridge keeps (0 through 65535). A deceleration that overshoots leaves a
     /// word with its sign bit set, which the next decelerating update reads as stopped (<see cref="HasStopped"/>).
     /// </summary>
     public int Speed
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the cartridge
-    /// does; an overshooting update is not clamped.
+    /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the
+    /// cartridge does; an overshooting update is not clamped.
     /// </summary>
     internal bool IsBelowMaximumSpeed => EnemyMath.IsNegative16(Speed - MaxSpeed);
 
@@ -76,33 +76,32 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Accelerate()
     {
-        _slot.VariableB = unchecked((ushort)(_slot.VariableB + _slot.VariableC));
-        _slot.VariableD = unchecked((ushort)(_slot.VariableD + _slot.VariableB));
+        Acceleration = unchecked((ushort)(Acceleration + AccelerationDelta));
+        Speed = unchecked((ushort)(Speed + Acceleration));
     }
 
     /// <summary>
-    /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the acceleration.
-    /// Both are word subtractions that wrap as the cartridge's do, so an overshoot leaves a word that reads as below zero.
+    /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the
+    /// acceleration. Both are word subtractions that wrap as the cartridge's do, so an overshoot leaves a word that
+    /// reads as below zero.
     /// </summary>
     internal void Decelerate()
     {
-        _slot.VariableB = unchecked((ushort)(_slot.VariableB - _slot.VariableC));
-        _slot.VariableD = unchecked((ushort)(_slot.VariableD - _slot.VariableB));
+        Acceleration = unchecked((ushort)(Acceleration - AccelerationDelta));
+        Speed = unchecked((ushort)(Speed - Acceleration));
     }
 
-    /// <summary>Native variable E: wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement reaches exactly zero.</summary>
-    public NativeCountdown ActivationTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableE);
-        internal set => _slot.VariableE = value.RawValue;
-    }
+    /// <summary>
+    /// Wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement
+    /// reaches exactly zero.
+    /// </summary>
+    public NativeCountdown ActivationTimer { get; internal set; }
 
-    /// <summary>Native variable F: shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded from the current phase's reset value on exact-zero expiry.</summary>
-    public NativeCountdown AccelerationIntervalTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
-    }
+    /// <summary>
+    /// Shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded
+    /// from the current phase's reset value on exact-zero expiry.
+    /// </summary>
+    public NativeCountdown AccelerationIntervalTimer { get; internal set; }
 
     /// <summary>Native extension offset $00: maximum-speed threshold in 256ths of a pixel per update, 1023 through 2815, selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
     public int MaxSpeed
@@ -158,5 +157,16 @@ public sealed class BullEnemyState
     {
         get => _words.PreviousHealth;
         internal set => _words.PreviousHealth = value;
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        Acceleration = 0;
+        AccelerationDelta = 0;
+        Speed = 0;
+        ActivationTimer = NativeCountdown.Start(0);
+        AccelerationIntervalTimer = NativeCountdown.Start(0);
     }
 }

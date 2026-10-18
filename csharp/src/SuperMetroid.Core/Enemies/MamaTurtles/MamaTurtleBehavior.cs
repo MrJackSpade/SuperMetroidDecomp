@@ -133,14 +133,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
     private static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
-        var state = new BabyTurtleEnemyState(slot)
+        var state = new BabyTurtleEnemyState
         {
             SpawnTopCenter = new Position16<RoomPixels>(
                 slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Parameter1), 0),
         };
-        slot.SetSpeciesState<BabyTurtleEnemyState>(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -579,7 +579,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Baby Turtle main-AI pointer {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

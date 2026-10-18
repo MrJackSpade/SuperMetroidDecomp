@@ -416,6 +416,26 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
     ];
 
+    /// <summary>Runs only the installed Zebetite pulse-colour comparison against retail.</summary>
+    [VerificationCommand("--zebetite-colors")]
+    internal static int ZebetiteColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledZebetiteColors(bus, directory, stock);
+        return 0;
+    }
+
+    /// <summary>Runs only the installed Dachora palette-colour comparison against retail.</summary>
+    [VerificationCommand("--dachora-colors")]
+    internal static int DachoraColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledDachoraColors(bus, directory, stock);
+        return 0;
+    }
+
     /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
     [VerificationCommand("--enemy-tile-artwork")]
     internal static int EnemyTileArtworkCommand()

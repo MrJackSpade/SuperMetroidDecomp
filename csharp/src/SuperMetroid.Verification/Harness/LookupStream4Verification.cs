@@ -2957,7 +2957,7 @@ internal static class LookupStream4Verification
                 enemies.Presentation._cgram = cgram;
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
-                var state = new BotwoonEnemyState(head) { PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor };
+                var state = new BotwoonEnemyState() { PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor };
                 for (int band = 0; band < 8; band++)
                 {
                     for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));

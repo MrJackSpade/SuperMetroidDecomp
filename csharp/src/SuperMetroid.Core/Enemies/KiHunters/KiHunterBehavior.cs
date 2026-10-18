@@ -198,7 +198,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Ki-Hunter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -807,7 +807,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
-        slot.SetSpeciesState<KiHunterEnemyState>(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 

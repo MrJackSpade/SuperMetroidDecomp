@@ -188,7 +188,7 @@ internal static class BotwoonAnimationsVerification
         Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
         Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head);
+        var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior._botwoonState = state;
         spawnBody(head, state, 2);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
@@ -211,7 +211,7 @@ internal static class BotwoonAnimationsVerification
         var enemies = new RoomEnemySystem();
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
-        var state = new BotwoonEnemyState(head);
+        var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior._botwoonState = state;
         return (enemies, head, state);
     }

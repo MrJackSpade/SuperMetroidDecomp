@@ -173,7 +173,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
             VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransferPointer),
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         CorpseRottingTableProcessor.Initialize(state.RotTable);
         InitializeDeadSidehopperGraphics(graphicsVariant);
@@ -268,7 +268,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper function $A9:{(ushort)state.Function:X4} is not translated.");
+                    $"Dead sidehopper function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

@@ -18,13 +18,13 @@ internal static class EtecoonRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new EtecoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
-        state.FunctionTimer = NativeCountdown.Start(1);
+        state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
+        state.FunctionTimer = NativeCountdown.Start(1);
         state.Function = Enum.GetValues<EtecoonAiFunction>()[^1];
 
         slot.Clear();
-        AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
+        AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
+        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
         AssertEqual<EtecoonAiFunction?>(null, state.Function, "a kill empties Function");
         Console.WriteLine("Etecoon record state: a kill empties every value the record holds.");
     }

@@ -86,8 +86,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Dachora</c> at <c>$A7:F4DD</c>.</summary>
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
-        var state = new DachoraEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new DachoraEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
@@ -160,7 +160,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Dachora function $A7:{(ushort)state.Function:X4} is not translated.");
+                    $"Dachora function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

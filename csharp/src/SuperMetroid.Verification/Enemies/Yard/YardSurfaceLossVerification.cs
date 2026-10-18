@@ -29,7 +29,7 @@ internal static class YardSurfaceLossVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(512, 512));
             slot.Radius = new(8, 8);
-            var state = new YardEnemyState(slot)
+            var state = new YardEnemyState()
             {
                 MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
@@ -41,7 +41,6 @@ internal static class YardSurfaceLossVerification
 
             string context = $"Yard missing its surface after {counted} misses";
             AssertEqual(expected, state.ConsecutiveTurnCounter, $"{context}: count");
-            AssertEqual(checked((ushort)expected), slot.VariableE, $"{context}: slot variable");
             AssertEqual(expectedBehavior, state.Behavior, $"{context}: behavior");
             AssertEqual(expectedMovement, state.MovementFunction, $"{context}: movement");
         }

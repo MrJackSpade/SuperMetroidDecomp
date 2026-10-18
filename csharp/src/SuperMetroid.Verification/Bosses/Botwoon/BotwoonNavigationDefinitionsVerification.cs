@@ -41,7 +41,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             foreach (int x in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeX((ushort)x);
-                var state = new BotwoonEnemyState(head);
+                var state = new BotwoonEnemyState();
                 detect(head, state);
                 AssertEqual(x < native, state.InsideHole, "Botwoon right boundary is exclusive");
             }
@@ -64,7 +64,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             foreach (int y in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeY((ushort)y);
-                var state = new BotwoonEnemyState(head);
+                var state = new BotwoonEnemyState();
                 detect(head, state);
                 AssertEqual(y < native, state.InsideHole, "Botwoon bottom boundary is exclusive");
             }
@@ -83,7 +83,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
-            var state = new BotwoonEnemyState(head) { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
+            var state = new BotwoonEnemyState() { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoice = offset / RecordBytes, Speed = 0 };
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
@@ -168,7 +168,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
-            var state = new BotwoonEnemyState(head)
+            var state = new BotwoonEnemyState()
             {
                 MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoice = choice,
@@ -207,7 +207,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             foreach (short direction in new short[] { 0, -1 })
             {
                 movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
-                var state = new BotwoonEnemyState(movementHead)
+                var state = new BotwoonEnemyState()
                 {
                     MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
                     PathSampleIndex = sampleIndex,
@@ -252,7 +252,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
             var head = new RoomEnemySystem().SlotTable.Slots[0];
-            var state = new BotwoonEnemyState(head) { RingIndex = 141 };
+            var state = new BotwoonEnemyState() { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {holeIndex} includes left/top");
@@ -280,7 +280,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
-            var state = new BotwoonEnemyState(head)
+            var state = new BotwoonEnemyState()
             {
                 MovementFunction = BotwoonMovementFunction.MoveTowardHole,
                 TargetHoleIndex = holeIndex,
@@ -317,7 +317,7 @@ internal static class BotwoonNavigationDefinitionsVerification
 
         var invalidEnemies = new RoomEnemySystem();
         RoomEnemySlot invalidHead = invalidEnemies.SlotTable.Slots[0];
-        var invalidState = new BotwoonEnemyState(invalidHead)
+        var invalidState = new BotwoonEnemyState()
         {
             MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
             PathChoice = BotwoonNavigationDefinitions.PathChoiceCount,

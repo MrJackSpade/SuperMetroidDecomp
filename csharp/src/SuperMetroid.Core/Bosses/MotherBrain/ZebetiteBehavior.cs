@@ -82,7 +82,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot);
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -136,7 +136,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Zebetite function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Zebetite function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -197,13 +197,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (PaletteChangeNumber != 0 || slot.Parameter1 != 0)
             return;
 
-        // This is intentionally slot zero rather than the current actor. Later generations
-        // occupy higher slots while retaining the original's vacated WRAM word as the shared
-        // palette counter, exactly matching Get_Zebetites(0)->zebet_var_C.
-        RoomEnemySlot firstPhysicalSlot = _slotTable._slots[0];
-        ushort paletteCycle = unchecked((ushort)((firstPhysicalSlot.VariableC + 1) &
-            ZebetiteDefinitions.PaletteCycleMask));
-        firstPhysicalSlot.VariableC = paletteCycle;
+        // The counter is the primary Zebetite's, in physical slot zero, rather than the current actor's, exactly
+        // matching Get_Zebetites(0)->zebet_var_C: every Zebetite in the room advances that one counter.
+        ZebetiteEnemyState primary = _slotTable._slots[0].SpeciesState<ZebetiteEnemyState>()
+            ?? throw new InvalidOperationException("The Zebetite palette counter belongs to physical slot zero, which has held no Zebetite this room.");
+        int paletteCycle = (primary.PaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
+        primary.PaletteCycle = paletteCycle;
         (_room.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
             .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);

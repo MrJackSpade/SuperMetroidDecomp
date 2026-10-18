@@ -49,7 +49,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
     {
-        var state = new ZoaEnemyState(slot)
+        var state = new ZoaEnemyState
         {
             Function = ZoaEnemyFunction.WaitForSamus,
             InstructionListTableIndex = ZoaAnimationSelector.None,
@@ -57,7 +57,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             XSpeedTableIndex = 0,
             SpawnPosition = slot.Position.Whole,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
@@ -88,7 +88,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Zoa function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Zoa function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -132,7 +132,6 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InstructionListTableIndex &= ZoaAnimationSelector.FacingRight;
         SetZoaProgram(slot, state);
-        slot.VariableE = 0; // Native Enemy.var5; shared instruction-loop scratch word.
         state.Function = ZoaEnemyFunction.Shooting;
     }
 

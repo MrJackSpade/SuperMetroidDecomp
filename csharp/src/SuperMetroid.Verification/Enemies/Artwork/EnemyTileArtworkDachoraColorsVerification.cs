@@ -93,7 +93,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         slot.PaletteIndex = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
-        var state = new DachoraEnemyState(slot);
+        var state = new DachoraEnemyState();
         enemies.DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
         CheckLive(DachoraPalettePhase.Default, 0);
 

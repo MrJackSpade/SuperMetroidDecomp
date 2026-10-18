@@ -90,8 +90,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
     private void InitializeBotwoon(RoomEnemySlot head)
     {
-        var state = new BotwoonEnemyState(head);
+        var state = new BotwoonEnemyState();
         _botwoonState = state;
+        head.SetSpeciesState(state, state.ClearWithRecord);
         // `$B3:9583` installs InstList_Botwoon_Hide: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
         state.HeadAnimationPosition = 0;

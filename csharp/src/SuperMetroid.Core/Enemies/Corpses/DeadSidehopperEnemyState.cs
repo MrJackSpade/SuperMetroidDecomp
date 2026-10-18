@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>One dead sidehopper's corpse state: its silhouette, rot table and schedule, hop, palette and contact progress.</summary>
+/// <summary>
+/// One dead sidehopper's corpse state: its silhouette, rot table and schedule, hop, palette and contact progress. The
+/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class DeadSidehopperEnemyState
 {
     /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
@@ -28,12 +32,10 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Byte displacement, 148, added to the destination of pixel rows 6 and 7 so their two-pixel fall lands in the next tile row.</summary>
     public int WrapOffset { get; }
 
-    /// <summary>Native variable A ($0FA8 plus the slot byte index), holding the current bank-$A9 dead-sidehopper AI function pointer.</summary>
-    public DeadSidehopperAiFunction Function
-    {
-        get => (DeadSidehopperAiFunction)Slot.VariableA;
-        internal set => Slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// Holding the current bank-$A9 dead-sidehopper AI function pointer; none once a kill has emptied the record.
+    /// </summary>
+    public DeadSidehopperAiFunction? Function { get; internal set; }
 
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
     public int JumpPhase { get; internal set; }
@@ -52,21 +54,24 @@ public sealed class DeadSidehopperEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Pre-rot AI calls counted in slot variable B, deliberately retained across repeated corpse contacts: the
-    /// sixteenth call starts rotting. Every later contact counts on from the retained value, so the count can
-    /// reach <see cref="LargestPreRotDelayCount"/> and wrap to zero, restoring the full sixteen-call delay.
+    /// Pre-rot AI calls counted, deliberately retained across repeated corpse contacts: the sixteenth call starts
+    /// rotting. Every later contact counts on from the retained value, so the count can reach <see
+    /// cref="LargestPreRotDelayCount"/> and wrap to zero, restoring the full sixteen-call delay.
     /// </summary>
-    public int PreRotDelayCounter => Slot.VariableB;
+    public int PreRotDelayCounter
+    {
+        get;
+        internal set => field = checked((ushort)value);
+    }
 
     /// <summary>The largest pre-rot count; the next call counts zero.</summary>
     internal const int LargestPreRotDelayCount = 65535;
 
-    /// <summary>Native AI variable F initialized to $0040 for the post-landing pause; expiry requires decrementing through zero to $FFFF, giving 65 delay-state calls.</summary>
-    public NativeCountdown StateTimer
-    {
-        get => NativeCountdown.FromRaw(Slot.VariableF);
-        internal set => Slot.VariableF = value.RawValue;
-    }
+    /// <summary>
+    /// The countdown initialized to $0040 for the post-landing pause; expiry requires decrementing through zero
+    /// to $FFFF, giving 65 delay-state calls.
+    /// </summary>
+    public NativeCountdown StateTimer { get; internal set; }
 
     /// <summary>Host diagnostic count of shared rotting-processor calls for this slot since initialization, including the call that completes the final entry.</summary>
     public uint ProcessCallCount { get; internal set; }
@@ -77,5 +82,13 @@ public sealed class DeadSidehopperEnemyState
 
     /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
     internal void CountPreRotDelayCall() =>
-        Slot.VariableB = checked((ushort)(PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1));
+        PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        PreRotDelayCounter = 0;
+        StateTimer = NativeCountdown.Start(0);
+    }
 }

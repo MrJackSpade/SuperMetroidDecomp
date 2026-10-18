@@ -3,19 +3,16 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction stay in the physical
-/// enemy record's variable words; the rest is per-family state the cartridge kept in its extended $7E:7800 words.
-/// Each property belongs to the family its summary names; the others never read it.
+/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the cartridge
+/// keeps in the enemy's common record, emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the
+/// rest is per-family state the cartridge kept in its extended $7E:7800 words. Each property belongs to the family its
+/// summary names; the others never read it.
 /// </summary>
 public sealed class PipeBugEnemyState
 {
-    /// <summary>Physical enemy record whose A-F words are shared by the three Pipe Bug variants.</summary>
-    private readonly RoomEnemySlot _slot;
-
     /// <summary>Captures the original enemy identity before generic death can clear its live definition word.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
-        _slot = slot;
         DefinitionAtInitialization = slot.EnemyDefinitionPointer;
     }
 
@@ -31,28 +28,14 @@ public sealed class PipeBugEnemyState
     public EnemyDefinitionId DefinitionAtInitialization { get; }
 
     /// <summary>
-    /// Whether a Brinstar Pipe Bug flies left: the sign bit of variable A, set from Samus's side of the bug every
-    /// update it waits with Samus in its vertical band. The other bits of the word are kept as they are, since other
-    /// enemies' aliased enemy-RAM reads can observe the whole word.
+    /// Whether a Brinstar Pipe Bug flies left, set from Samus's side of the bug every update it waits with Samus in its
+    /// vertical band. The cartridge keeps it as the sign bit of the record word the other two species use for their
+    /// function.
     /// </summary>
-    public bool BrinstarFliesLeft
-    {
-        get => EnemyMath.IsNegative16(_slot.VariableA);
-        internal set => _slot.VariableA = unchecked((ushort)((_slot.VariableA & EnemyWordMasks.BelowSignBits) | (value ? EnemyWordMasks.SignBit : 0)));
-    }
+    public bool BrinstarFliesLeft { get; internal set; }
 
-    /// <summary>Native variable F for Brinstar bugs; variable A for the other two species.</summary>
-    public PipeBugEnemyFunction Function
-    {
-        get => (PipeBugEnemyFunction)(IsBrinstar ? _slot.VariableF : _slot.VariableA);
-        internal set
-        {
-            if (IsBrinstar)
-                _slot.VariableF = (ushort)value;
-            else
-                _slot.VariableA = (ushort)value;
-        }
-    }
+    /// <summary>The current bank-$B3 AI function; none once a kill has emptied the record.</summary>
+    public PipeBugEnemyFunction? Function { get; internal set; }
 
     /// <summary>Gets whether the initialized owner is either Brinstar Pipe Bug variant.</summary>
     public bool IsBrinstar =>
@@ -123,4 +106,11 @@ public sealed class PipeBugEnemyState
     public bool ArcRising { get; internal set; }
     /// <summary>Gets whether a yellow Pipe Bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        BrinstarFliesLeft = false;
+        Function = null;
+    }
 }

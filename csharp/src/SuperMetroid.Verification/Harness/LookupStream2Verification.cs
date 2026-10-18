@@ -1075,7 +1075,7 @@ internal static class LookupStream2Verification
         Func<RoomEnemySlot, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
         Action<RoomEnemySlot, YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
-        var yard = new YardEnemyState(slot);
+        var yard = new YardEnemyState();
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));

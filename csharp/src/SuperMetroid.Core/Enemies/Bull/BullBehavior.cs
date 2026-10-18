@@ -31,8 +31,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
     internal void InitializeBull(RoomEnemySlot slot)
     {
-        var state = new BullEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new BullEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -105,7 +105,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Bull function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Bull function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

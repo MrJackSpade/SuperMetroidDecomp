@@ -74,7 +74,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.SlotTable.Slots[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
-        var state = new YardEnemyState(yard) { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
+        var state = new YardEnemyState() { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
         yard.SetSpeciesState(state);
         return enemies;
     }

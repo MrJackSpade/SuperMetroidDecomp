@@ -62,7 +62,6 @@ internal static class BullBehaviorVerification
         BullBehavior.RunBullMain(slot, state, samus: null);
         AssertEqual(24, state.Acceleration, "the expiring interval shrinks the acceleration by its delta");
         AssertEqual(65522, state.Speed, "the overshooting deceleration leaves the wrapped speed word");
-        AssertEqual(65522, slot.VariableD, "the wrapped speed word stays in the slot variable");
         AssertEqual(BullEnemyFunction.Decelerating, state.Function, "the overshoot is read on the following update");
 
         BullBehavior.RunBullMain(slot, state, samus: null);

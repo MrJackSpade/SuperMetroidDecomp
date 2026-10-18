@@ -3,95 +3,101 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// Typed view of the six native Dachora variables. Their meanings intentionally change
-/// between phases: A/B are horizontal speed while running and vertical speed after the
-/// shinespark; D is vertical subacceleration on the body but echo lifetime on echo slots.
-/// Every view writes the slot variables exactly, so other enemies' aliased enemy-RAM reads
-/// see the cartridge's words.
+/// The state of a Dachora body or echo. The cartridge reuses its common-record words between phases: the run speed's
+/// whole pixels and the phase countdown are one word, so a run that begins after a countdown starts from the
+/// countdown's last value; the body's vertical subacceleration and an echo's lifetime are one word. The state keeps
+/// each shared word once, so every meaning sees the others' writes as the cartridge's do. The values the cartridge
+/// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DachoraEnemyState
 {
-    /// <summary>Physical Dachora body or echo slot carrying its phase-dependent variables.</summary>
-    private readonly RoomEnemySlot _slot;
+    /// <summary>The speed's whole pixels while running, falling or shinesparking, and the phase countdown otherwise.</summary>
+    private int _speedWholeOrPhaseTime;
 
-    /// <summary>Projects Dachora's six native words from its occupied enemy slot.</summary>
-    internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
+    /// <summary>The speed's fraction in 65536ths of a pixel, 0 through 65535.</summary>
+    private int _speedFraction;
+
+    /// <summary>The vertical acceleration's whole pixels.</summary>
+    private int _accelerationWhole;
+
+    /// <summary>The body's vertical acceleration fraction in 65536ths of a pixel, and an echo's lifetime.</summary>
+    private int _accelerationFractionOrEchoLifetime;
+
+    /// <summary>The palette cycle: the frame shown next in the high byte and the updates before it in the low byte.</summary>
+    private int _paletteCycle;
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<DachoraProgram> Program { get; set; }
 
     /// <summary>
-    /// Variables A (whole pixels) and B (fraction) while running, falling or shinesparking: the signed 16.16 speed in
-    /// pixels per update, horizontal while running and vertical after the launch. It accumulates with the cartridge's
-    /// carry and 32-bit wraparound.
+    /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and
+    /// vertical after the launch. It accumulates with the cartridge's carry and 32-bit wraparound, and its whole pixels
+    /// are the word <see cref="PhaseTimer"/> counts.
     /// </summary>
     public SnesSignedSixteenSixteen Speed
     {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableA), _slot.VariableB);
+        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_speedWholeOrPhaseTime), checked((ushort)_speedFraction));
         internal set
         {
-            _slot.VariableA = value.WholeWord;
-            _slot.VariableB = value.Fraction;
+            _speedWholeOrPhaseTime = value.WholeWord;
+            _speedFraction = value.Fraction;
         }
     }
 
     /// <summary>
-    /// Variable A while blinking or charging: the native wrapping countdown to the next phase
-    /// (<c>DEC</c>, <c>BNE</c>).
+    /// While blinking or charging: the native wrapping countdown to the next phase (<c>DEC</c>, <c>BNE</c>), kept in
+    /// the word that holds <see cref="Speed"/>'s whole pixels.
     /// </summary>
     public NativeCountdown PhaseTimer
     {
-        get => NativeCountdown.FromRaw(_slot.VariableA);
-        internal set => _slot.VariableA = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
+        internal set => _speedWholeOrPhaseTime = value.RawValue;
     }
 
-    /// <summary>Variable A on the first echo slot: frames until the echo positions next advance.</summary>
+    /// <summary>On the first echo: frames until the echo positions next advance.</summary>
     public NativeCountdown EchoPositionTimer
     {
-        get => NativeCountdown.FromRaw(_slot.VariableA);
-        internal set => _slot.VariableA = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
+        internal set => _speedWholeOrPhaseTime = value.RawValue;
     }
 
     /// <summary>
-    /// Variables C (whole pixels) and D (fraction) on the body during the shinespark: the signed 16.16 vertical
-    /// acceleration per update, which gravity accumulates into with the cartridge's carry and 32-bit wraparound.
+    /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
+    /// into with the cartridge's carry and 32-bit wraparound.
     /// </summary>
     public SnesSignedSixteenSixteen VerticalAcceleration
     {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableC), _slot.VariableD);
+        get => SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)_accelerationWhole), checked((ushort)_accelerationFractionOrEchoLifetime));
         internal set
         {
-            _slot.VariableC = value.WholeWord;
-            _slot.VariableD = value.Fraction;
+            _accelerationWhole = value.WholeWord;
+            _accelerationFractionOrEchoLifetime = value.Fraction;
         }
     }
 
     /// <summary>
-    /// Variable D on an echo slot: the updates the echo stays visible, counted down to zero and never below it
-    /// (<c>LDA</c>, <c>BEQ</c>, <c>DEC</c>); zero marks the echo free for the next trail position.
+    /// On an echo: the updates the echo stays visible, counted down to zero and never below it (<c>LDA</c>,
+    /// <c>BEQ</c>, <c>DEC</c>); zero marks the echo free for the next trail position.
     /// </summary>
     public NativeCountdown EchoLifetime
     {
-        get => NativeCountdown.FromRaw(_slot.VariableD);
-        internal set => _slot.VariableD = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_accelerationFractionOrEchoLifetime));
+        internal set => _accelerationFractionOrEchoLifetime = value.RawValue;
     }
 
-    /// <summary>
-    /// Variable E's high byte: the speed or shine palette frame the cycle shows next.
-    /// </summary>
-    public int PaletteFrame => SnesLittleEndian.HighByte(_slot.VariableE);
+    /// <summary>The speed or shine palette frame the cycle shows next.</summary>
+    public int PaletteFrame => SnesLittleEndian.HighByte(_paletteCycle);
 
-    /// <summary>
-    /// Variable E's low byte: the updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.
-    /// </summary>
-    public int PaletteTicks => SnesLittleEndian.LowByte(_slot.VariableE);
+    /// <summary>The updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.</summary>
+    public int PaletteTicks => SnesLittleEndian.LowByte(_paletteCycle);
 
     /// <summary>
     /// Sets the palette cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through
     /// 255, as the run, wall, launch and ceiling phases restart or clear it.
     /// </summary>
     internal void SetPaletteCycle(int frame, int ticks) =>
-        _slot.VariableE = SnesLittleEndian.Word(
+        _paletteCycle = SnesLittleEndian.Word(
             checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, ticks)),
             checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, frame)));
 
@@ -102,7 +108,7 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal bool TickPaletteCycle()
     {
-        _slot.VariableE = NativeWordCounter.Decrement(_slot.VariableE).Value;
+        _paletteCycle = NativeWordCounter.Decrement(checked((ushort)_paletteCycle)).Value;
         return PaletteTicks == 0;
     }
 
@@ -113,9 +119,9 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal void AdvanceSpeedPaletteCycle()
     {
-        _slot.VariableE = unchecked((ushort)(_slot.VariableE + DachoraPaletteDefinitions.SpeedStep));
-        if (unchecked((short)(_slot.VariableE - DachoraPaletteDefinitions.SpeedEnd)) >= 0)
-            _slot.VariableE = DachoraPaletteDefinitions.SpeedRestart;
+        _paletteCycle = unchecked((ushort)(_paletteCycle + DachoraPaletteDefinitions.SpeedStep));
+        if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.SpeedEnd)) >= 0)
+            _paletteCycle = DachoraPaletteDefinitions.SpeedRestart;
     }
 
     /// <summary>
@@ -124,15 +130,22 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal void AdvanceShinePaletteCycle()
     {
-        _slot.VariableE = unchecked((ushort)(_slot.VariableE + DachoraPaletteDefinitions.ShineStep));
-        if (unchecked((short)(_slot.VariableE - DachoraPaletteDefinitions.ShineEnd)) >= 0)
-            _slot.VariableE = 0;
+        _paletteCycle = unchecked((ushort)(_paletteCycle + DachoraPaletteDefinitions.ShineStep));
+        if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.ShineEnd)) >= 0)
+            _paletteCycle = 0;
     }
 
-    /// <summary>Variable F: bank-$A7 indirect main-AI address.</summary>
-    public DachoraAiFunction Function
+    /// <summary>The bank-$A7 indirect main-AI behaviour; none once a kill has emptied the record.</summary>
+    public DachoraAiFunction? Function { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (DachoraAiFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        _speedWholeOrPhaseTime = 0;
+        _speedFraction = 0;
+        _accelerationWhole = 0;
+        _accelerationFractionOrEchoLifetime = 0;
+        _paletteCycle = 0;
+        Function = null;
     }
 }

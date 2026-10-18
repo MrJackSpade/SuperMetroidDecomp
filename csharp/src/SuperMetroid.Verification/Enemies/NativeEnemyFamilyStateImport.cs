@@ -1,4 +1,15 @@
+using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Enemies.Sbug;
+using SuperMetroid.Core.Enemies.KiHunters;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Enemies.Zoa;
+using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Cacatac;
@@ -62,6 +73,125 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
+        {
+            deadSidehopperRecord.Function = slot.VariableA == 0 ? null : (DeadSidehopperAiFunction)slot.VariableA;
+            deadSidehopperRecord.PreRotDelayCounter = slot.VariableB;
+            deadSidehopperRecord.StateTimer = NativeCountdown.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
+        {
+            botwoonRecord.Function = slot.VariableD == 0 ? null : (BotwoonEnemyFunction)slot.VariableD;
+            botwoonRecord.MovementFunction = slot.VariableE == 0 ? null : (BotwoonMovementFunction)slot.VariableE;
+            botwoonRecord.HeadFunction = slot.VariableF == 0 ? null : (BotwoonHeadFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
+        {
+            shitroidRecord.Function = slot.VariableA == 0 ? null : (ShitroidAiFunction)slot.VariableA;
+            shitroidRecord.Velocity = new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC));
+            shitroidRecord.PalettePhase = SnesLittleEndian.LowByte(slot.VariableD);
+            shitroidRecord.PaletteTimer = SnesLittleEndian.HighByte(slot.VariableD);
+            shitroidRecord.PaletteDelay = slot.VariableE;
+            shitroidRecord.StateTimer = NativeCountdown.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
+        {
+            dachoraRecord.Speed = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableA), slot.VariableB);
+            dachoraRecord.VerticalAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableC), slot.VariableD);
+            dachoraRecord.SetPaletteCycle(frame: SnesLittleEndian.HighByte(slot.VariableE), ticks: SnesLittleEndian.LowByte(slot.VariableE));
+            dachoraRecord.Function = slot.VariableF == 0 ? null : (DachoraAiFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<PipeBugEnemyState>() is { } pipeBugRecord)
+        {
+            ushort pipeBugFunction = pipeBugRecord.IsBrinstar ? slot.VariableF : slot.VariableA;
+            pipeBugRecord.Function = pipeBugFunction == 0 ? null : (PipeBugEnemyFunction)pipeBugFunction;
+            pipeBugRecord.BrinstarFliesLeft = pipeBugRecord.IsBrinstar && EnemyMath.IsNegative16(slot.VariableA);
+        }
+        if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
+        {
+            magdolliteRecord.Function = slot.VariableF == 0 ? null : (MagdolliteEnemyFunction)slot.VariableF;
+            magdolliteRecord.BodyPhase = slot.VariableB / 2;
+            magdolliteRecord.ThrowsRight = slot.VariableB != 0;
+            magdolliteRecord.RiseDisplacement = new(0, unchecked((short)slot.VariableE));
+        }
+        if (slot.SpeciesState<SbugEnemyState>() is { } sbugRecord)
+        {
+            sbugRecord.StraightMovementTimer = NativeCountdown.FromRaw(slot.VariableA);
+            sbugRecord.Function = slot.VariableB == 0 ? null : (SbugEnemyFunction)slot.VariableB;
+            sbugRecord.FaceCustomHeading(SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableC)));
+            sbugRecord.MovementTimer = NativeCountdown.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
+        {
+            kiHunterRecord.Function = slot.VariableA == 0 ? null : (KiHunterEnemyFunction)slot.VariableA;
+            kiHunterRecord.SwoopTarget = new(slot.VariableB, 0);
+            kiHunterRecord.DetachedSpeedIndex = slot.VariableB;
+            kiHunterRecord.SwoopOrigin = new(0, slot.VariableC);
+            kiHunterRecord.DetachedSpeedAccumulator = slot.VariableD;
+            kiHunterRecord.AnimationChangeAngle = slot.VariableE;
+            kiHunterRecord.SwoopAngle = slot.VariableF;
+            kiHunterRecord.WingArcAngle = SnesAngle.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
+        {
+            zebetiteRecord.Function = slot.VariableA == 0 ? null : (ZebetiteAiFunction)slot.VariableA;
+            zebetiteRecord.PaletteCycle = slot.VariableC;
+            zebetiteRecord.Generation = slot.VariableD;
+            zebetiteRecord.GenerationFlags = (ZebetiteGenerationFlags)slot.VariableF;
+        }
+        if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
+        {
+            chozoStatueRecord.CarryRecord = slot.VariableC / 2;
+            chozoStatueRecord.PreInstruction = slot.VariableF == 0 ? null : (ChozoStatuePreInstruction)slot.VariableF;
+        }
+        if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
+        {
+            yardRecord.CrawlingVelocity = new(new SnesSignedEightEight(slot.VariableA), new SnesSignedEightEight(slot.VariableB));
+            yardRecord.AirborneFacingDirection = slot.VariableC;
+            yardRecord.ConsecutiveTurnCounter = slot.VariableE;
+            yardRecord.MovementFunction = slot.VariableF == 0 ? null : (YardMovementFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
+        {
+            zoaRecord.SpawnPosition = new(slot.VariableA, slot.VariableB);
+            zoaRecord.InstructionListTableIndex = (ZoaAnimationSelector)slot.VariableC;
+            zoaRecord.PreviousInstructionListTableIndex = (ZoaAnimationSelector)slot.VariableD;
+            zoaRecord.Function = slot.VariableF == 0 ? null : (ZoaEnemyFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
+        {
+            babyTurtleRecord.Function = slot.VariableA == 0 ? null : (BabyTurtleAiFunction)slot.VariableA;
+            babyTurtleRecord.ParentSlotIndex = slot.VariableB % RoomEnemySystem.NativeSlotSize == 0
+            ? slot.VariableB / RoomEnemySystem.NativeSlotSize
+            : throw new InvalidDataException($"Baby Turtle parent offset {slot.VariableB} is not a slot boundary.");
+            babyTurtleRecord.SpawnTopCenter = new(slot.VariableC, slot.VariableD);
+            babyTurtleRecord.Velocity = new(unchecked((short)slot.VariableE), babyTurtleRecord.Velocity.Y);
+        }
+        if (slot.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
+        {
+            owtchRecord.RightVelocity = owtchRecord.RightVelocity.WithWholePixels(unchecked((short)slot.VariableA));
+            owtchRecord.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableC), slot.VariableB);
+            owtchRecord.Behavior = (OwtchBehaviorState)slot.VariableD;
+            owtchRecord.BurialDepth = slot.VariableE;
+        }
+        if (slot.SpeciesState<BullEnemyState>() is { } bullRecord)
+        {
+            bullRecord.Function = slot.VariableA == 0 ? null : (BullEnemyFunction)slot.VariableA;
+            bullRecord.Acceleration = slot.VariableB;
+            bullRecord.AccelerationDelta = slot.VariableC;
+            bullRecord.Speed = slot.VariableD;
+            bullRecord.ActivationTimer = NativeCountdown.FromRaw(slot.VariableE);
+            bullRecord.AccelerationIntervalTimer = NativeCountdown.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
+        {
+            boyonRecord.SpeedMultiplier = slot.VariableA;
+            boyonRecord.Speed = slot.VariableB;
+            boyonRecord.JumpHeight = slot.VariableC;
+            boyonRecord.DistanceAccumulator = slot.VariableD;
+            boyonRecord.SpeedTableIndex = slot.VariableE;
+            boyonRecord.Bouncing = slot.VariableF != 0;
+        }
         if (slot.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
         {
             growingShutterRecord.Function = slot.VariableA == 0 ? null : (GrowingShutterFunction)slot.VariableA;

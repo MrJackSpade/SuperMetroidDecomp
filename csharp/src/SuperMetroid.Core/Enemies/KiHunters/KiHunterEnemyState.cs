@@ -3,20 +3,15 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// Ki-Hunter's body or wing state. Variables A-F live in the common enemy record, whose words other enemies can read
-/// as enemy RAM, so each typed view over them keeps its word exact; a body and a detached wing put different meanings
-/// in the same word, and each meaning has its own view. The remaining state is the Ki-Hunter's own, which nothing else
-/// reads.
+/// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same common-record word,
+/// and each meaning has its own value; detachment sets each detached value before reading it. The values the cartridge
+/// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class KiHunterEnemyState
 {
-    /// <summary>Live body or wing slot carrying Ki-Hunter's six common variable words.</summary>
-    private readonly RoomEnemySlot _slot;
-
     /// <summary>Captures the slot's body or wing role before native deletion can clear its definition identity.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
-        _slot = slot;
         // The definition word is mutable native storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue using physical +/-$40 slot aliases.
@@ -29,80 +24,76 @@ public sealed class KiHunterEnemyState
     /// <summary>Role fixed by the initializer, retained even if deletion clears the native definition word; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }
 
-    /// <summary>Native variable A: main-AI dispatcher.</summary>
-    public KiHunterEnemyFunction Function
-    {
-        get => (KiHunterEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>Main-AI dispatcher; none once a kill has emptied the record.</summary>
+    public KiHunterEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// A body's swoop target in native variable B: Samus's room position when the swoop begins, around which the dive's
-    /// ellipse is centred. Only the X axis is stored and meaningful.
+    /// A body's swoop target: Samus's room position when the swoop begins, around which the dive's ellipse is centred.
+    /// Only the X axis is stored and meaningful.
     /// </summary>
     public Position16<RoomPixels> SwoopTarget
     {
-        get => new(_slot.VariableB, 0);
-        internal set => _slot.VariableB = value.X;
+        get;
+        internal set => field = new(value.X, 0);
     }
 
     /// <summary>
-    /// A detached wing's speed index in native variable B, in 1/256 records of the shared quadratic speed table: reset
-    /// to <see cref="DetachedSpeedReset"/> at each arc and lowered by 384 per update, landing on 256 when the step would
-    /// go below zero, so it stays from zero to 24,319.
+    /// A detached wing's speed index, in 1/256 records of the shared quadratic speed table: reset to <see
+    /// cref="DetachedSpeedReset"/> at each arc and lowered by 384 per update, landing on 256 when the step would go
+    /// below zero, so it stays from zero to 24,319.
     /// </summary>
     public int DetachedSpeedIndex
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// A body's swoop origin in native variable C: its room position when the swoop begins, from which the dive's
-    /// ellipse hangs. Only the Y axis is stored and meaningful.
+    /// A body's swoop origin: its room position when the swoop begins, from which the dive's ellipse hangs. Only the Y
+    /// axis is stored and meaningful.
     /// </summary>
     public Position16<RoomPixels> SwoopOrigin
     {
-        get => new(0, _slot.VariableC);
-        internal set => _slot.VariableC = value.Y;
+        get;
+        internal set => field = new(0, value.Y);
     }
 
     /// <summary>
-    /// A detached wing's quadratic speed sum in native variable D, accumulated at detachment until it reaches the
-    /// detached-speed threshold. It is never reset, so it continues from whatever the wing's record held; its sum wraps
-    /// as the cartridge's word does, through <see cref="AccumulateDetachedSpeed"/>.
+    /// A detached wing's quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
+    /// Detachment never resets it: it continues from zero or the earlier sum, and a kill empties it. Its sum wraps as
+    /// the cartridge's word does, through <see cref="AccumulateDetachedSpeed"/>.
     /// </summary>
-    public int DetachedSpeedAccumulator => _slot.VariableD;
+    public int DetachedSpeedAccumulator
+    {
+        get;
+        internal set => field = checked((ushort)value);
+    }
 
     /// <summary>
-    /// A body's animation-change angle in native variable E, in whole table units of the swoop angle: 240 for a leftward
-    /// swoop or 144 for a rightward one. Passing it installs the swoop animation.
+    /// A body's animation-change angle, in whole table units of the swoop angle: 240 for a leftward swoop or 144 for a
+    /// rightward one. Passing it installs the swoop animation.
     /// </summary>
     public int AnimationChangeAngle
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// A body's swoop angle in native variable F, in whole table units: 128 or 255 when a swoop begins, stepped by the
-    /// whole angular velocity, and ending the swoop at 256 or below 128, so it stays from zero to 257.
+    /// A body's swoop angle, in whole table units: 128 or 255 when a swoop begins, stepped by the whole angular
+    /// velocity, and ending the swoop at 256 or below 128, so it stays from zero to 257.
     /// </summary>
     public int SwoopAngle
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// A detached wing's arc angle in native variable F, which wraps over the whole turn: seeded below zero for each
-    /// arc and advanced by an unaligned quadratic-table read. The arc changes when the angle crosses a quarter turn.
+    /// A detached wing's arc angle, which wraps over the whole turn: seeded below zero for each arc and advanced by an
+    /// unaligned quadratic-table read. The arc changes when the angle crosses a quarter turn.
     /// </summary>
-    public SnesAngle WingArcAngle
-    {
-        get => SnesAngle.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
-    }
+    public SnesAngle WingArcAngle { get; internal set; }
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
@@ -150,5 +141,18 @@ public sealed class KiHunterEnemyState
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the cartridge's word does.</summary>
-    internal void AccumulateDetachedSpeed(ushort step) => _slot.VariableD = unchecked((ushort)(_slot.VariableD + step));
+    internal void AccumulateDetachedSpeed(ushort step) => DetachedSpeedAccumulator = unchecked((ushort)(DetachedSpeedAccumulator + step));
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        SwoopTarget = Position16<RoomPixels>.Zero;
+        DetachedSpeedIndex = 0;
+        SwoopOrigin = Position16<RoomPixels>.Zero;
+        DetachedSpeedAccumulator = 0;
+        AnimationChangeAngle = 0;
+        SwoopAngle = 0;
+        WingArcAngle = SnesAngle.FromTableIndex(0);
+    }
 }

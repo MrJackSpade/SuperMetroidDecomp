@@ -18,15 +18,15 @@ internal static class FakeKraidRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new FakeKraidEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.WalkDelta = 1;
-        state.FacingDelta = 1;
-        state.WalkStepTimer = NativeCountdown.Start(1);
+        state.WalkDelta = 1;
+        state.FacingDelta = 1;
+        state.WalkStepTimer = NativeCountdown.Start(1);
         state.SpitDecisionTimer = NativeCountdown.Start(1);
 
         slot.Clear();
-        AssertEqual<short>(0, state.WalkDelta, "a kill empties WalkDelta");
-        AssertEqual<short>(0, state.FacingDelta, "a kill empties FacingDelta");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.WalkStepTimer, "a kill empties WalkStepTimer");
+        AssertEqual<short>(0, state.WalkDelta, "a kill empties WalkDelta");
+        AssertEqual<short>(0, state.FacingDelta, "a kill empties FacingDelta");
+        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.WalkStepTimer, "a kill empties WalkStepTimer");
         AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.SpitDecisionTimer, "a kill empties SpitDecisionTimer");
         Console.WriteLine("FakeKraid record state: a kill empties every value the record holds.");
     }

@@ -121,11 +121,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Parameter1 = 0;
         statue.PaletteIndex = 0;
 
-        var state = new ChozoStatueState(statue)
+        var state = new ChozoStatueState
         {
             PreInstruction = ChozoStatuePreInstruction.Idle,
         };
-        statue.SetSpeciesState<ChozoStatueState>(state);
+        statue.SetSpeciesState(state, state.ClearWithRecord);
 
         // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
@@ -227,14 +227,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);
-                    state.UnresolvedWakeValueA = -256;
-                    state.UnresolvedWakeValueB = 256;
                 }
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Chozo statue pre-instruction $AA:{(ushort)state.PreInstruction:X4} is not translated.");
+                    $"Chozo statue pre-instruction {state.PreInstruction?.ToString() ?? "none"} is not translated.");
         }
     }
 

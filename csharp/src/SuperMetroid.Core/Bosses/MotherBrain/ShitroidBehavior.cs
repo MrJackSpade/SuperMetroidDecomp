@@ -125,6 +125,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Parameter2 = 0;
         _shitroid = state;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
             ShitroidColorRomData.SidehopperDestination);
@@ -167,7 +168,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
         slot.Health = short.MaxValue;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
-        DeadTorizoBehavior.MoveBankA9EnemyWithVelocity(slot);
+        DeadTorizoBehavior.MoveBankA9EnemyWithVelocity(slot, state.Velocity);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)
             StepShitroidNormalPalette(state);
     }
@@ -386,7 +387,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shitroid state $A9:{(ushort)state.Function:X4} is not translated.");
+                    $"Shitroid state {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

@@ -13,8 +13,7 @@ internal static class OwtchPatrolStateVerification
     /// Runs the production main AI. A rightward speed of one and a half pixels carries its fraction into the whole
     /// pixel, and a leftward speed of minus one and a half pixels wraps its whole word, exactly as the cartridge's paired
     /// additions do. Sinking counts the depth up to sixteen and then goes underground. Rising from depth one reaches
-    /// zero and walks again, while an Owtch that starts rising unburied wraps its depth to 65535 and keeps rising. The
-    /// depth's slot variable holds the same word.
+    /// zero and walks again, while an Owtch that starts rising unburied wraps its depth to 65535 and keeps rising.
     /// </summary>
     internal static void VerifyOwtchPatrolState()
     {
@@ -31,8 +30,6 @@ internal static class OwtchPatrolStateVerification
 
         (enemies, slot, state) = NewOwtch(OwtchBehaviorState.MovingLeft);
         state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(-2, 32768);
-        AssertEqual((ushort)65534, slot.VariableC, "Owtch leftward whole speed's slot variable");
-        AssertEqual((ushort)32768, slot.VariableB, "Owtch leftward speed fraction's slot variable");
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64)).WithFractionX(16384);
         enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
         AssertEqual((ushort)98, slot.Position.X.Whole, "Owtch leftward speed wraps its whole word");
@@ -60,7 +57,6 @@ internal static class OwtchPatrolStateVerification
         (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Rising);
         AssertEqual(0, state.BurialDepth, "Owtch spawned rising starts unburied");
         enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
-        AssertEqual(ushort.MaxValue, slot.VariableE, "Owtch rising from depth zero wraps its slot variable");
         AssertEqual((int)ushort.MaxValue, state.BurialDepth, "Owtch rising from depth zero wraps its depth");
         AssertEqual(OwtchBehaviorState.Rising, state.Behavior, "Owtch keeps rising after the wrap");
         AssertEqual((ushort)63, slot.Position.Y.Whole, "Owtch rose one pixel");

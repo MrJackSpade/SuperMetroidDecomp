@@ -79,8 +79,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Magdollite slot {slot.SlotIndex} has invalid part parameter ${slot.Parameter1:X4}.");
         }
 
-        var state = new MagdolliteEnemyState(slot, (MagdollitePart)slot.Parameter1);
-        slot.SetSpeciesState(state);
+        var state = new MagdolliteEnemyState((MagdollitePart)slot.Parameter1);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         switch (state.Part)
         {
@@ -212,7 +212,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Magdollite function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

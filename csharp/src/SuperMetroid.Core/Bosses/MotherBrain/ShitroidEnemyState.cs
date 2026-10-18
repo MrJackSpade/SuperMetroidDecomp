@@ -4,79 +4,65 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
+/// <summary>
+/// The state of the Shitroid, with its extended enemy WRAM. The values the cartridge keeps in the enemy's common record
+/// are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class ShitroidEnemyState
 {
     /// <summary>Target palette image staged across the encounter's palette transitions.</summary>
     internal readonly Bgr555[] _targetPalette = new Bgr555[256];
 
-    /// <summary>Projects Shitroid's common variables through its owning physical enemy slot.</summary>
+    /// <summary>Creates the state for the Shitroid's slot.</summary>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 
-    /// <summary>Gets the physical enemy slot that owns the projected common words.</summary>
+    /// <summary>The Shitroid's enemy slot.</summary>
     public RoomEnemySlot Slot { get; }
 
     /// <summary>Where the Shitroid's program resumes (#641).</summary>
     internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
 
-    /// <summary>Gets the current bank-$A9 Shitroid AI function pointer.</summary>
-    public ShitroidAiFunction Function
-    {
-        get => (ShitroidAiFunction)Slot.VariableA;
-        internal set => Slot.VariableA = (ushort)value;
-    }
-
-    /// <summary>Signed 8.8 velocity: X in native enemy variable B, Y in variable C.</summary>
-    public EightEightVector<RoomPixels> Velocity
-    {
-        get => new(new SnesSignedEightEight(Slot.VariableB), new SnesSignedEightEight(Slot.VariableC));
-        internal set
-        {
-            Slot.VariableB = value.X.RawValue;
-            Slot.VariableC = value.Y.RawValue;
-        }
-    }
-
     /// <summary>
-    /// Membrane palette-cycle phase, 0 through 7. It shares variable D with <see cref="PaletteTimer"/>; each view
-    /// rewrites only its own half so the slot word stays exact for code that reads the slot by offset.
+    /// Gets the current bank-$A9 Shitroid AI function pointer; none once a kill has emptied the record.
     /// </summary>
+    public ShitroidAiFunction? Function { get; internal set; }
+
+    /// <summary>Signed 8.8 velocity: X, Y.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+
+    /// <summary>Membrane palette-cycle phase, 0 through 7, held in a byte.</summary>
     public int PalettePhase
     {
-        get => SnesLittleEndian.LowByte(Slot.VariableD);
-        internal set => Slot.VariableD = SnesLittleEndian.Word(checked((byte)value), SnesLittleEndian.HighByte(Slot.VariableD));
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>
-    /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero,
-    /// and the advance reloads it from <see cref="PaletteDelay"/>. It shares variable D with <see cref="PalettePhase"/>.
+    /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero, and
+    /// the advance reloads it from <see cref="PaletteDelay"/>. It is held in a byte.
     /// </summary>
     public int PaletteTimer
     {
-        get => SnesLittleEndian.HighByte(Slot.VariableD);
-        internal set => Slot.VariableD = SnesLittleEndian.Word(SnesLittleEndian.LowByte(Slot.VariableD), checked((byte)value));
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>Updates between palette-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
     public int PaletteDelay
     {
-        get => Slot.VariableE;
-        internal set => Slot.VariableE = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
-    public NativeCountdown StateTimer
-    {
-        get => NativeCountdown.FromRaw(Slot.VariableF);
-        internal set => Slot.VariableF = value.RawValue;
-    }
+    public NativeCountdown StateTimer { get; internal set; }
 
     /// <summary>Native extended word 01: randomized vertical-follow duration.</summary>
     public NativeCountdown HoverTimer { get; internal set; }
 
     /// <summary>
-    /// Horizontal-lock accumulator (native extended word 02): gains two each update the Shitroid
-    /// is horizontally aligned with its target and loses one, never below zero, otherwise.
+    /// Horizontal-lock accumulator (native extended word 02): gains two each update the Shitroid is horizontally
+    /// aligned with its target and loses one, never below zero, otherwise.
     /// </summary>
     public int HorizontalLockAccumulator { get; internal set; }
 
@@ -87,11 +73,22 @@ public sealed class ShitroidEnemyState
     public int CryCounter { get; internal set; }
 
     /// <summary>
-    /// Diagnostic mirror of native word 08 in physical slot one. Shitroid writes the actual
-    /// dead-sidehopper palette stage through <c>ActivateDeadSidehopperVictim</c>; retaining
-    /// this value on the boss state makes that cross-slot side effect directly auditable.
+    /// Diagnostic mirror of native word 08 in physical slot one. Shitroid writes the actual dead-sidehopper palette
+    /// stage through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
+    /// side effect directly auditable.
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }
     /// <summary>Mutable target palette storage used by encounter palette updates.</summary>
     internal Span<Bgr555> MutableTargetPalette => _targetPalette;
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        Velocity = default;
+        PalettePhase = 0;
+        PaletteTimer = 0;
+        PaletteDelay = 0;
+        StateTimer = NativeCountdown.Start(0);
+    }
 }

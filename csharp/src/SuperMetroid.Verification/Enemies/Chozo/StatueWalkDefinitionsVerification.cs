@@ -26,7 +26,7 @@ internal static class StatueWalkDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
-        var statue = new ChozoStatueState(slot);
+        var statue = new ChozoStatueState();
         var samus = new SamusState();
         for (ushort offset = 0; offset < 40; offset += 2)
         {
@@ -51,7 +51,6 @@ internal static class StatueWalkDefinitionsVerification
             uint start = 0x01008123;
             carry(slot, statue, samus, level, record);
             AssertEqual(record, statue.CarryRecord, "Chozo carry record");
-            AssertEqual(checked((ushort)offset), slot.VariableC, "Chozo carry record keeps the native byte offset in its slot variable");
             uint x = unchecked(start + (uint)(SnesSixteenSixteen.FromEightEight(velocity)));
             uint y = start + (uint)(SnesSixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");

@@ -87,7 +87,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
 
-        var state = new YardEnemyState(slot)
+        var state = new YardEnemyState
         {
             MovementFunction = YardMovementFunction.InstructionPending,
             // The population word selects the initial lists/velocity signs, but
@@ -98,7 +98,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -174,7 +174,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard function $A3:{(ushort)state.MovementFunction:X4} is not translated.");
+                    $"Yard function {state.MovementFunction?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -271,7 +271,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardMovementFunction.CrawlingUpsideRightMovingDown or
             YardMovementFunction.CrawlingUpsideLeftMovingUp;
         YardTurnDefinition turn = YardTurnDefinitions.ForMovement(
-            state.MovementFunction,
+            state.MovementFunction ?? throw new InvalidOperationException("A turning Yard has no movement function."),
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.

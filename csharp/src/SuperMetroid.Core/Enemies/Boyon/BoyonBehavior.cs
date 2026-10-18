@@ -64,7 +64,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // empty map; the first processed instruction frame installs real bank-$A2 art.
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
 
-        var state = new BoyonEnemyState(slot)
+        var state = new BoyonEnemyState
         {
             BounceMovement = BoyonBounceMovement.Rising,
             SpeedMultiplier = BoyonSpeedDefinitions.InitialMultiplier(multiplierIndex),
@@ -78,7 +78,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleDisabled = false,
             BounceSpeedCalculated = false,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 

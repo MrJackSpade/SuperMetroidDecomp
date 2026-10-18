@@ -76,7 +76,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
-        var state = new OwtchEnemyState(slot)
+        var state = new OwtchEnemyState
         {
             RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
             LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
@@ -86,7 +86,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
             MaximumPosition = new(unchecked((ushort)(slot.Position.X.Whole + travelDistance)), 0),
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetOwtchProgram(slot, state, initialProgram);
 
         // State two is the cartridge's special initially-buried form. It moves only the

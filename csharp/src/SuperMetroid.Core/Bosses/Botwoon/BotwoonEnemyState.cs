@@ -3,39 +3,30 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Debugger-facing projection of Botwoon's large extra-RAM allocation. The original uses
-/// several disjoint WRAM pages and aliases thirteen segment records through enemy-shaped
-/// structures. Named host fields retain those exact meanings without pretending the words
-/// belong to thirteen ordinary enemy slots.
+/// Debugger-facing projection of Botwoon's large extra-RAM allocation. The original uses several disjoint WRAM pages
+/// and aliases thirteen segment records through enemy-shaped structures. Named host fields retain those exact meanings
+/// without pretending the words belong to thirteen ordinary enemy slots. The values the cartridge keeps in the head's
+/// common record are emptied with it when the head is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BotwoonEnemyState
 {
-    /// <summary>Botwoon's live head slot, whose variables D through F select three independent callbacks.</summary>
-    private readonly RoomEnemySlot _head;
+    /// <summary>
+    /// The bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death
+    /// progression; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Attaches the named boss state to its physical head enemy slot.</summary>
-    internal BotwoonEnemyState(RoomEnemySlot head) => _head = head;
+    /// <summary>
+    /// The independent bank-$B3 movement callback, choosing direct hole movement or descriptor-driven signed path
+    /// samples; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
-    /// <summary>Variable D's bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.</summary>
-    public BotwoonEnemyFunction Function
-    {
-        get => (BotwoonEnemyFunction)_head.VariableD;
-        internal set => _head.VariableD = (ushort)value;
-    }
-
-    /// <summary>Variable E's independent bank-$B3 movement callback, choosing direct hole movement or descriptor-driven signed path samples.</summary>
-    public BotwoonMovementFunction MovementFunction
-    {
-        get => (BotwoonMovementFunction)_head.VariableE;
-        internal set => _head.VariableE = (ushort)value;
-    }
-
-    /// <summary>Variable F's independent bank-$B3 head callback, controlling movement orientation, aiming, spit-frame admission, and cooldown.</summary>
-    public BotwoonHeadFunction HeadFunction
-    {
-        get => (BotwoonHeadFunction)_head.VariableF;
-        internal set => _head.VariableF = (ushort)value;
-    }
+    /// <summary>
+    /// The independent bank-$B3 head callback, controlling movement orientation, aiming, spit-frame admission, and
+    /// cooldown; none once a kill has emptied the record.
+    /// </summary>
+    public BotwoonHeadFunction? HeadFunction { get; internal set; }
 
     /// <summary>Cursor 0-255 into the X/Y history ring; each moving frame writes its head position and advances modulo 256.</summary>
     public int RingIndex { get; internal set; }
@@ -46,14 +37,14 @@ public sealed class BotwoonEnemyState
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
     public NativeCountdown AttackTimer { get; internal set; }
     /// <summary>
-    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per
-    /// update until it reaches 256, when the head starts falling; it stays within 240..256.
+    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
+    /// until it reaches 256, when the head starts falling; it stays within 240..256.
     /// </summary>
     public int DeathTimer { get; internal set; }
     /// <summary>
-    /// Head-fall acceleration in 256ths of a quadratic-speed step: each still-airborne update adds 192, and the
-    /// whole steps select the fall speed. The fall reaches the floor before the speed table runs out, so it stays
-    /// well below 95 whole steps.
+    /// Head-fall acceleration in 256ths of a quadratic-speed step: each still-airborne update adds 192, and the whole
+    /// steps select the fall speed. The fall reaches the floor before the speed table runs out, so it stays well below
+    /// 95 whole steps.
     /// </summary>
     public int DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
@@ -71,8 +62,8 @@ public sealed class BotwoonEnemyState
     /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
     public SnesAngle SpitAngle { get; internal set; }
     /// <summary>
-    /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the
-    /// visible half of the table or, from inside a hole, the hidden half.
+    /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the visible
+    /// half of the table or, from inside a hole, the hidden half.
     /// </summary>
     public int PathChoice { get; internal set; }
     /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
@@ -135,8 +126,8 @@ public sealed class BotwoonEnemyState
         throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
 
     /// <summary>
-    /// Native variable 10 for each aliased segment record. One means that body point is
-    /// travelling inside the wall/hole; crossing the head's saved ring offset toggles it.
+    /// Native variable 10 for each aliased segment record. One means that body point is travelling inside the
+    /// wall/hole; crossing the head's saved ring offset toggles it.
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
@@ -145,4 +136,12 @@ public sealed class BotwoonEnemyState
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        MovementFunction = null;
+        HeadFunction = null;
+    }
 }

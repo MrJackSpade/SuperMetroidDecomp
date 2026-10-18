@@ -52,7 +52,7 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             var selector = (ZoaAnimationSelector)index;
             var slot = NewZoaAnimationSlot();
-            var state = new ZoaEnemyState(slot)
+            var state = new ZoaEnemyState()
             {
                 InstructionListTableIndex = selector,
                 PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None

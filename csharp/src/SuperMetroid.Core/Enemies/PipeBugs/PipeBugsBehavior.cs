@@ -208,7 +208,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Pipe Bug function $B3:{(ushort)state.Function:X4} is not translated.");
+                    $"Pipe Bug function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -654,7 +654,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
-        slot.SetSpeciesState<PipeBugEnemyState>(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 

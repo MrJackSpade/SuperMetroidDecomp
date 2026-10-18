@@ -34,7 +34,7 @@ internal static class BoyonSpeedDefinitionsVerification
         actor.Parameter1 = 0x900;
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected height unchanged");
         Func<BoyonEnemyState, int> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
-        var state = new BoyonEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
+        var state = new BoyonEnemyState();
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;

@@ -68,7 +68,7 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
-        var state = new BotwoonEnemyState(head)
+        var state = new BotwoonEnemyState()
         {
             PalettePhase = BotwoonHealthPaletteDefinitions.CompletePhase,
             SegmentSpacingEntries = 3,

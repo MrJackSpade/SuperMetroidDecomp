@@ -55,7 +55,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
@@ -160,7 +160,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Sbug function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Sbug function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -289,8 +289,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         bool reverseWhenFar)
     {
-        // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta. Adding
-        // that to the full word is intentional; all later trigonometry masks the low byte.
+        // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta; the later
+        // trigonometry reads only the heading's low byte, which the turn wraps within.
         int randomLow = unchecked((byte)_room.Random.Generate());
         int angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
         state.TurnCustomHeading(angleDelta);

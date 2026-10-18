@@ -34,10 +34,7 @@ internal static class DachoraMotionStateVerification
         enemies.DachoraBehavior.AccelerateDachora(slot, state, level);
         AssertEqual(255, state.PaletteFrame, "a cleared palette cycle's tick borrows from its frame");
         AssertEqual(255, state.PaletteTicks, "a cleared palette cycle's ticks wrap");
-        AssertEqual(ushort.MaxValue, slot.VariableE, "the palette cycle's slot variable is the decremented word");
         AssertEqual(SnesSignedSixteenSixteen.FromParts(8, 0), state.Speed, "the run speed stays at its cap");
-        AssertEqual((ushort)8, slot.VariableA, "the capped whole speed's slot variable");
-        AssertEqual((ushort)0, slot.VariableB, "the capped speed fraction's slot variable");
 
         var samus = new SamusState();
         samus.Kinematics.YAcceleration = 0;
@@ -60,8 +57,8 @@ internal static class DachoraMotionStateVerification
             fallEnemies.DachoraBehavior.RunDachoraMainAi(fallSlot, frame);
 
             string context = $"Dachora falling at {whole} and {fraction}/65536 pixels";
-            AssertEqual(expectedWhole, fallSlot.VariableA, $"{context}: whole speed word");
-            AssertEqual(expectedFraction, fallSlot.VariableB, $"{context}: speed fraction word");
+            AssertEqual(expectedWhole, fall.Speed.WholeWord, $"{context}: whole speed word");
+            AssertEqual(expectedFraction, fall.Speed.Fraction, $"{context}: speed fraction word");
             AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), fall.Speed, context);
         }
 
@@ -85,7 +82,7 @@ internal static class DachoraMotionStateVerification
 
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);
 
-            AssertEqual(expected, slot.VariableD, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(NativeCountdown.Start(expected), state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, slot.Properties.HasAny(EnemyProperties.Invisible), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");

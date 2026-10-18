@@ -57,12 +57,10 @@ internal static class BoyonBehaviorVerification
 
         BoyonBehavior.RunBoyonMain(slot, state, samus);
         AssertEqual(BoyonEnemyState.LargestSpeedTableIndex, state.SpeedTableIndex, "rising past entry zero wraps the curve index");
-        AssertEqual(BoyonEnemyState.LargestSpeedTableIndex, slot.VariableE, "the wrapped curve index stays in the slot variable");
         AssertEqual(BoyonBounceMovement.Falling, state.BounceMovement, "rising past entry zero selects falling");
 
         BoyonBehavior.RunBoyonMain(slot, state, samus);
         AssertEqual(0, state.SpeedTableIndex, "the first falling update advances the wrapped index to entry zero");
-        AssertEqual(0, slot.VariableE, "the advanced curve index stays in the slot variable");
         AssertEqual(BoyonBounceMovement.Falling, state.BounceMovement, "entry zero is above the baseline, so falling continues");
         Console.WriteLine("  Boyon curve index: rising wraps it from zero to 65535 and falling advances it back to zero.");
     }

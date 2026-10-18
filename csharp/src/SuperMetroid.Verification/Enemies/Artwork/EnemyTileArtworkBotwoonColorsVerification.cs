@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         enemies.Presentation._cgram = cgram;
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head)
+        var state = new BotwoonEnemyState()
         {
             PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,
         };

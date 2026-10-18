@@ -18,19 +18,19 @@ internal static class MaridiaLargeSnailRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MaridiaLargeSnailEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.Function = Enum.GetValues<MaridiaLargeSnailEnemyFunction>()[^1];
-        state.YSpeedTableIndex = 1;
-        state.AttackCooldown = NativeCountdown.Start(1);
-        state.MovingLeft = true;
-        state.RemainingBounces = NativeCountdown.Start(1);
+        state.Function = Enum.GetValues<MaridiaLargeSnailEnemyFunction>()[^1];
+        state.YSpeedTableIndex = 1;
+        state.AttackCooldown = NativeCountdown.Start(1);
+        state.MovingLeft = true;
+        state.RemainingBounces = NativeCountdown.Start(1);
         state.BounceFunction = Enum.GetValues<MaridiaLargeSnailBounceFunction>()[^1];
 
         slot.Clear();
-        AssertEqual<MaridiaLargeSnailEnemyFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.AttackCooldown, "a kill empties AttackCooldown");
-        AssertEqual<bool>(false, state.MovingLeft, "a kill empties MovingLeft");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.RemainingBounces, "a kill empties RemainingBounces");
+        AssertEqual<MaridiaLargeSnailEnemyFunction?>(null, state.Function, "a kill empties Function");
+        AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
+        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.AttackCooldown, "a kill empties AttackCooldown");
+        AssertEqual<bool>(false, state.MovingLeft, "a kill empties MovingLeft");
+        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.RemainingBounces, "a kill empties RemainingBounces");
         AssertEqual<MaridiaLargeSnailBounceFunction?>(null, state.BounceFunction, "a kill empties BounceFunction");
         Console.WriteLine("MaridiaLargeSnail record state: a kill empties every value the record holds.");
     }

@@ -20,7 +20,7 @@ internal static class CrawlerSpeedsVerification
             CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
         var setYard = new Action<RoomEnemySlot, YardEnemyState, int>(YardEnemyBehavior.SetYardCrawlingVelocities);
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
-        var yard = new YardEnemyState(slot);
+        var yard = new YardEnemyState();
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));

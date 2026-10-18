@@ -79,14 +79,11 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
             state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
-            slot.VariableA = 5;
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(28, 78)));
             AssertTrue(state.BrinstarFliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
-            AssertEqual(EnemyWordMasks.SignBit + 5, slot.VariableA, "Brinstar Pipe Bug direction is variable A's sign bit alone");
             AssertEqual(PipeBugEnemyFunction.BrinstarWaitForSamus, state.Function, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
             AssertTrue(!state.BrinstarFliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
-            AssertEqual(5, slot.VariableA, "Brinstar Pipe Bug clears only the sign bit");
             AssertEqual(PipeBugEnemyFunction.BrinstarEmerge, state.Function, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugAnimationSelector.FacingRight, state.AnimationState, "Brinstar Pipe Bug emerges facing right");
         }

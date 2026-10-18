@@ -18,17 +18,17 @@ internal static class WallSpacePirateRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.Function = Enum.GetValues<WallSpacePirateFunction>()[^1];
-        state.WallJumpDestination = new Position16<RoomPixels>(1, 0);
-        state.ClimbDirection = Enum.GetValues<WallSpacePirateClimbDirection>()[^1];
-        state.WallJumpArcCenter = new Position16<RoomPixels>(1, 0);
+        state.Function = Enum.GetValues<WallSpacePirateFunction>()[^1];
+        state.WallJumpDestination = new Position16<RoomPixels>(1, 0);
+        state.ClimbDirection = Enum.GetValues<WallSpacePirateClimbDirection>()[^1];
+        state.WallJumpArcCenter = new Position16<RoomPixels>(1, 0);
         state.WallJumpArcAngle = SnesAngle.FromTableIndex(1);
 
         slot.Clear();
-        AssertEqual<WallSpacePirateFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpDestination, "a kill empties WallJumpDestination");
-        AssertEqual<WallSpacePirateClimbDirection>(default(WallSpacePirateClimbDirection), state.ClimbDirection, "a kill empties ClimbDirection");
-        AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpArcCenter, "a kill empties WallJumpArcCenter");
+        AssertEqual<WallSpacePirateFunction?>(null, state.Function, "a kill empties Function");
+        AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpDestination, "a kill empties WallJumpDestination");
+        AssertEqual<WallSpacePirateClimbDirection>(default(WallSpacePirateClimbDirection), state.ClimbDirection, "a kill empties ClimbDirection");
+        AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.WallJumpArcCenter, "a kill empties WallJumpArcCenter");
         AssertEqual<SnesAngle>(SnesAngle.FromTableIndex(0), state.WallJumpArcAngle, "a kill empties WallJumpArcAngle");
         Console.WriteLine("WallSpacePirate record state: a kill empties every value the record holds.");
     }

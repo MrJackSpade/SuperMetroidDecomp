@@ -101,9 +101,8 @@ internal static class SbugMovementDefinitionsVerification
     }
 
     /// <summary>
-    /// The production random-direction chooser adds an unsigned byte turn to the custom heading's whole variable word:
-    /// from heading 240, random 96 turns by 32, so the word becomes 272 with the whole turn carried into its high byte,
-    /// and the heading, its low byte, is 16, facing down-right. A later reversal, with Samus at least six blocks away on
+    /// The production random-direction chooser adds an unsigned byte turn to the custom heading: from heading 240,
+    /// random 96 turns by 32, so the heading wraps around the turn to 16, facing down-right. A later reversal, with Samus at least six blocks away on
     /// both axes, advances that facing by two and folds it into the first four facings: down-right becomes up-right.
     /// </summary>
     internal static void VerifySbugCustomHeadingCarriesAndFolds()
@@ -122,8 +121,7 @@ internal static class SbugMovementDefinitionsVerification
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
-        AssertEqual(272, slot.VariableC, "the turn carries a whole turn into the heading word's high byte");
-        AssertEqual(SnesAngle.FromTableIndex(16), state.CustomHeading, "the heading is the word's low byte");
+        AssertEqual(SnesAngle.FromTableIndex(16), state.CustomHeading, "the turn wraps the heading around the turn");
         AssertEqual(7, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
 

@@ -20,7 +20,7 @@ internal static class DeadCorpseCounterVerification
             new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
 
         state.Function = DeadSidehopperAiFunction.PreRotDelay;
-        slot.VariableB = DeadSidehopperEnemyState.LargestPreRotDelayCount - 1;
+        state.PreRotDelayCounter = DeadSidehopperEnemyState.LargestPreRotDelayCount - 1;
         enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
         AssertEqual(DeadSidehopperEnemyState.LargestPreRotDelayCount, state.PreRotDelayCounter,
             "a retained count below the wrap advances to the largest count");
@@ -29,7 +29,7 @@ internal static class DeadCorpseCounterVerification
 
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Function = DeadSidehopperAiFunction.PreRotDelay;
-        slot.VariableB = DeadSidehopperEnemyState.LargestPreRotDelayCount;
+        state.PreRotDelayCounter = DeadSidehopperEnemyState.LargestPreRotDelayCount;
         enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
         AssertEqual(0, state.PreRotDelayCounter, "the largest retained count wraps to zero");
         AssertEqual(DeadSidehopperAiFunction.PreRotDelay, state.Function, "the wrapped count restarts the pre-rot delay");

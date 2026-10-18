@@ -85,7 +85,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = null;
         state.Falling = false;
         state.AttachedToSamus = false;
-        slot.VariableA = 0;
         state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
         state.PreviousController1Input = controllerInput;
 

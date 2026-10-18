@@ -18,15 +18,15 @@ internal static class HopperRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new HopperEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.Function = Enum.GetValues<HopperEnemyFunction>()[^1];
-        state.YSpeedTableIndex = 1;
-        state.XVelocity = 1;
+        state.Function = Enum.GetValues<HopperEnemyFunction>()[^1];
+        state.YSpeedTableIndex = 1;
+        state.XVelocity = 1;
         state.YSpeedTableIndexDelta = 1;
 
         slot.Clear();
-        AssertEqual<HopperEnemyFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
-        AssertEqual<short>(0, state.XVelocity, "a kill empties XVelocity");
+        AssertEqual<HopperEnemyFunction?>(null, state.Function, "a kill empties Function");
+        AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
+        AssertEqual<short>(0, state.XVelocity, "a kill empties XVelocity");
         AssertEqual<int>(0, state.YSpeedTableIndexDelta, "a kill empties YSpeedTableIndexDelta");
         Console.WriteLine("Hopper record state: a kill empties every value the record holds.");
     }

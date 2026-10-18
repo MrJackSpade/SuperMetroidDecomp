@@ -155,7 +155,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.VariableC = unchecked((ushort)(slot.VariableC + 1));
-        MoveBankA9EnemyWithVelocity(slot);
+        MoveBankA9EnemyWithVelocity(slot, new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC)));
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
             state.RotTable,
@@ -340,14 +340,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// both call the same cartridge helper; retaining one implementation also makes its
     /// unusual use of the high byte of the subposition explicit.
     /// </summary>
-    internal static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot)
+    internal static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {
         SnesFixedPosition x = new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction)
-            .AddEightEightToHighFraction(slot.VariableB);
+            .AddEightEightToHighFraction(velocity.X.RawValue);
         slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         SnesFixedPosition y = new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction)
-            .AddEightEightToHighFraction(slot.VariableC);
+            .AddEightEightToHighFraction(velocity.Y.RawValue);
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 

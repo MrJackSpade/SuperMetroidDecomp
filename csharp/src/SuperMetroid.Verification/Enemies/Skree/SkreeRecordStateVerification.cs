@@ -18,17 +18,17 @@ internal static class SkreeRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SkreeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.BurrowTimer = NativeCountdown.Start(1);
-        state.Function = Enum.GetValues<SkreeEnemyFunction>()[^1];
-        state.RequestedInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
-        state.InstalledInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
+        state.BurrowTimer = NativeCountdown.Start(1);
+        state.Function = Enum.GetValues<SkreeEnemyFunction>()[^1];
+        state.RequestedInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
+        state.InstalledInstructionIndex = Enum.GetValues<SkreeMetareeAnimationPhase>()[^1];
         state.AttackReady = true;
 
         slot.Clear();
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.BurrowTimer, "a kill empties BurrowTimer");
-        AssertEqual<SkreeEnemyFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.RequestedInstructionIndex, "a kill empties RequestedInstructionIndex");
-        AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.InstalledInstructionIndex, "a kill empties InstalledInstructionIndex");
+        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.BurrowTimer, "a kill empties BurrowTimer");
+        AssertEqual<SkreeEnemyFunction?>(null, state.Function, "a kill empties Function");
+        AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.RequestedInstructionIndex, "a kill empties RequestedInstructionIndex");
+        AssertEqual<SkreeMetareeAnimationPhase>(default(SkreeMetareeAnimationPhase), state.InstalledInstructionIndex, "a kill empties InstalledInstructionIndex");
         AssertEqual<bool>(false, state.AttackReady, "a kill empties AttackReady");
         Console.WriteLine("Skree record state: a kill empties every value the record holds.");
     }

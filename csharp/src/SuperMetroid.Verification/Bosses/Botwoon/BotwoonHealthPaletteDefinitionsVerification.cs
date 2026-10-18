@@ -49,7 +49,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         enemies.Presentation._cgram = new SnesCgram();
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState(head)
+        var state = new BotwoonEnemyState()
         {
             // Sprite palette seven starts at CGRAM color 240.
             PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,

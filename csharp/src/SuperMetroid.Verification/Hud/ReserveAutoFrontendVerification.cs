@@ -171,8 +171,9 @@ internal static class ReserveAutoFrontendVerification
         samus = runtime.Player.Samus;
         AssertTrue(!runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.SlotTable.Slots[0];
-        ship.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
-        ship.VariableA = 100;
+        GunshipPartState shipPart = GunshipPartState.Of(ship);
+        shipPart.Function = GunshipFunction.WaitForEntranceToOpen;
+        shipPart.FunctionTimer = 100;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;
         audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);

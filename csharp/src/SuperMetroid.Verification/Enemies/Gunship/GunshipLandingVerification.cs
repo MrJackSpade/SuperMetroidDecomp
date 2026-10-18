@@ -58,7 +58,7 @@ internal static class GunshipLandingVerification
         RoomEnemySlot pad = enemies.SlotTable.Slots[2];
         AssertEqual(0x006f, top.Position.Y.Whole, "post-Ceres top begins seventeen pixels above Samus");
         AssertEqual(0x0097, bottom.Position.Y.Whole, "post-Ceres bottom begins twenty-three pixels below Samus");
-        AssertEqual(0xa80c, top.VariableF, "post-Ceres top selects descent function three");
+        AssertEqual(GunshipFunction.DescendAfterCeres, GunshipPartState.Of(top).Function, "post-Ceres top selects descent function three");
 
         int frames = 0;
         bool observedSlowDescent = false;
@@ -70,7 +70,7 @@ internal static class GunshipLandingVerification
         {
             ushort previousTopY = top.Position.Y.Whole;
             ushort previousTopSubY = top.Position.Y.Fraction;
-            ushort previousFunction = top.VariableF;
+            GunshipFunction previousFunction = GunshipPartState.Of(top).Function;
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
@@ -79,7 +79,7 @@ internal static class GunshipLandingVerification
             observedEngineSound |= enemies.Audio.SoundRequests.Contains(
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
 
-            if (top.VariableF == 0xa80c)
+            if (GunshipPartState.Of(top).Function == GunshipFunction.DescendAfterCeres)
             {
                 AssertEqual(
                     unchecked((ushort)(top.Position.Y.Whole + 17)),
@@ -97,7 +97,7 @@ internal static class GunshipLandingVerification
                 }
             }
 
-            if (previousFunction == 0xa80c && top.VariableF != 0xa80c)
+            if (previousFunction == GunshipFunction.DescendAfterCeres && GunshipPartState.Of(top).Function != GunshipFunction.DescendAfterCeres)
             {
                 // $A2:A8B2 clamps whole Y positions only; each hull keeps this call's subpixel sum.
                 ushort carriedSubY = unchecked((ushort)(previousTopSubY + 0x8000));
@@ -142,7 +142,7 @@ internal static class GunshipLandingVerification
         AssertEqual(GunshipFrameEvent.LandingCompleted, enemies.LastEnemyFrame.Gunship,
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
-        AssertEqual(0xa9bd, top.VariableF, "gunship installs ordinary idle function");
+        AssertEqual(GunshipFunction.Idle, GunshipPartState.Of(top).Function, "gunship installs ordinary idle function");
         AssertTrue(!samus.InputLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 

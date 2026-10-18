@@ -30,7 +30,9 @@ internal static class GunshipMotionDefinitionsVerification
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            top.VariableE = frame;
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
+            part.LandingBrakeStep = frame;
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
@@ -57,17 +59,19 @@ internal static class GunshipMotionDefinitionsVerification
             enemies.BindFixtureDefinitions(new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
-            top.VariableC = phase;
-            top.VariableD = 1;
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
+            part.BobPhase = phase;
+            part.BobTimer = 1;
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
-            AssertEqual((ushort)expectedTimer, top.VariableD,
+            AssertEqual((int)expectedTimer, part.BobTimer,
                 $"gunship production bob timer {phase}");
-            AssertEqual(unchecked((ushort)((phase + 1) & 3)), top.VariableC,
+            AssertEqual((phase + 1) & 3, part.BobPhase,
                 $"gunship production bob phase {phase}");
             AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.Position.Y.Whole,
                 $"gunship production bob top Y {phase}");

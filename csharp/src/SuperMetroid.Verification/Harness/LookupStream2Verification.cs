@@ -1650,6 +1650,8 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
         var enemies = new RoomEnemySystem();
         var slot = enemies.SlotTable.Slots[0];
+        var part = new GunshipPartState();
+        slot.SetSpeciesState(part, part.ClearWithRecord);
         var queue = new VramWriteQueue();
         var append = new Action<RoomEnemySlot, VramWriteQueue>(enemies.GunshipBehavior.QueueGunshipTakeoffTiles);
         int enumerated = 0;
@@ -1667,8 +1669,8 @@ internal static class LookupStream2Verification
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
-        AssertEqual((ushort)0, slot.VariableB, "Gunship completes transfer phase");
-        AssertEqual((ushort)GunshipFunction.FireUpEngines, slot.VariableF, "Gunship starts engines after fifth transfer");
+        AssertEqual(0, part.LiftoffTransferIndex, "Gunship completes transfer phase");
+        AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[-1], "Gunship lower transfer bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");

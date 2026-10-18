@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -77,6 +78,15 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
+        {
+            gunshipRecord.FunctionTimer = slot.VariableA;
+            gunshipRecord.LiftoffTransferIndex = slot.VariableB;
+            gunshipRecord.BobPhase = slot.VariableC;
+            gunshipRecord.BobTimer = slot.VariableD;
+            gunshipRecord.BaseY = slot.VariableE;
+            gunshipRecord.EscapeVelocity = slot.VariableF;
+        }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
             ceresSteamRecord.Function = slot.VariableA == 0 ? null : (CeresSteamFunction)slot.VariableA;

@@ -337,7 +337,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
         }
 
-        Part(top).LandingBrakeStep++;
+        Part(top).LandingBrakeStep = unchecked((ushort)(Part(top).LandingBrakeStep + 1));
         if (Part(top).LandingBrakeStep < 17)
             return;
 
@@ -543,7 +543,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             vramWriteQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
                 transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
 
-        Part(top).LiftoffTransferIndex++;
+        Part(top).LiftoffTransferIndex = unchecked((ushort)(Part(top).LiftoffTransferIndex + 1));
         if (Part(top).LiftoffTransferIndex >= GunshipLiftoffTransferDefinitions.Frames.Length)
         {
             Part(top).Function = GunshipFunction.FireUpEngines;
@@ -567,7 +567,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
         bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 23)));
 
-        Part(bottom).RumbleFrame++;
+        Part(bottom).RumbleFrame = unchecked((ushort)(Part(bottom).RumbleFrame + 1));
         if (Part(bottom).RumbleFrame == 64)
         {
             // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches

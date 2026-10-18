@@ -467,7 +467,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 body.SpeedWhole = PhantoonMotionDefinitions.ForwardFastCap;
                 body.SpeedFraction = 0;
-                body.SpeedPhase++;
+                body.SpeedPhase = unchecked((ushort)(body.SpeedPhase + 1));
             }
             return;
         }
@@ -515,7 +515,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 body.SpeedWhole = unchecked((ushort)(cap + 1));
                 body.SpeedFraction = 0;
-                body.SpeedPhase++;
+                body.SpeedPhase = unchecked((ushort)(body.SpeedPhase + 1));
             }
             return;
         }

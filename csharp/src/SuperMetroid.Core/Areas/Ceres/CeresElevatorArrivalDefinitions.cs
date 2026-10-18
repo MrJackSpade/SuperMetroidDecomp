@@ -9,12 +9,10 @@ internal static class CeresElevatorArrivalDefinitions
 
     /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
-        DefinitionPointer: 0xa387,
         Program: CeresElevatorArrivalProgram.Pad);
 
     /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
-        DefinitionPointer: 0xa395,
         Program: CeresElevatorArrivalProgram.Platform);
 
     /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>

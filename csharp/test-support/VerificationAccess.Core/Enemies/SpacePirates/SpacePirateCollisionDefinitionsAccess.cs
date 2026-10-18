@@ -10,7 +10,7 @@ internal static class SpacePirateCollisionDefinitionsAccess
     extension(SpacePirateCollisionDefinitions)
     {
         /// <summary>Number of compiled Space Pirate collision component frames.</summary>
-        internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count;
+        internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count();
 
         /// <summary>Number of compiled Space Pirate hitbox lists.</summary>
         internal static int ListCount => SpacePirateCollisionDefinitions.HitboxLists.Length;

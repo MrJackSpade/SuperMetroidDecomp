@@ -276,8 +276,6 @@ internal static class EnemyProjectileDefinitionsVerification
             EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), EnemyProjectilePreInstructionAccess.Word(definition.PreInstruction),
                 $"{kind} pre-instruction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.InitialInstructionList,
-                $"{kind} initial list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), definition.RadiusWord,
                 $"{kind} radius word");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), definition.Properties,

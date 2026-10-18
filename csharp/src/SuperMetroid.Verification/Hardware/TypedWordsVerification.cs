@@ -543,7 +543,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!new SamusProjectileDirectionWord(0x0017).IsValidInitialDirection,
         "projectile low-byte lifecycle state rejects initial movement");
 
-    var beams = new SamusBeamLoadoutWord(0x9009);
+    var beams = new SamusBeamLoadoutWord((SamusBeamFlags)0x9009);
     AssertTrue(beams.HasAny(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
         "beam loadout exposes verified flags");
     AssertEqual(0x9002, beams.WithCombinationIndex(2),

@@ -66,7 +66,7 @@ internal static class ImportedSpritemapOracle
         for (int part = 0; part < parts.Length; part++)
         {
             int offset = 2 + part * 5;
-            parts[part] = new(new SnesSpritemapXWord(Word(offset)), Byte(offset + 2),
+            parts[part] = new(new SnesSpritemapXWord(Word(offset)), new SnesSpritemapYByte(Byte(offset + 2)),
                 new SnesObjAttributeWord(Word(offset + 3)));
         }
         return parts;

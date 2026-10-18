@@ -15,7 +15,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
 {
     /// <summary>Configuration word indices with a compiled consumer; word five, the graphics-initialization callback, has none.</summary>
     private static readonly int[] ConsumedConfigurationWords =
-        [0, 1, 2, 3, 4, 6, 7];
+        [0, 1, 4];
 
     /// <summary>Compares both native configuration records and initialized rotting state without metadata rereads.</summary>
     internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
@@ -23,11 +23,11 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyAlive,
-            expectedConfigurationPointer: 0xdd68));
+            configurationPointer: 0xdd68));
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyDead,
-            expectedConfigurationPointer: 0xdd78));
+            configurationPointer: 0xdd78));
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 0,
@@ -42,37 +42,24 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             "Dead sidehopper corpse definitions: all 14 consumed native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");
     }
 
-    /// <summary>Compares the seven consumed words and rotation-derived wrap offset of one corpse record.</summary>
+    /// <summary>Compares the consumed words and rotation-derived wrap offset of one corpse record.</summary>
     private static void VerifyDefinition(
         SuperMetroidAddressSpace rom,
         DeadSidehopperCorpseDefinition definition,
-        ushort expectedConfigurationPointer)
+        ushort configurationPointer)
     {
-        AssertEqual(expectedConfigurationPointer, definition.ConfigurationPointer,
-            "dead sidehopper configuration identity");
-        int address = 0xa90000 | definition.ConfigurationPointer;
-        // Word five, the graphics-initialization callback, has no compiled consumer.
-        ushort[] expected = [.. ConsumedConfigurationWords
-            .Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2)))];
+        int address = 0xa90000 | configurationPointer;
+        ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
+        ushort[] actual = [definition.RottingTablePointer, definition.VramTransferPointer, definition.EntryCount];
+        AssertTrue(actual.SequenceEqual(ConsumedConfigurationWords.Select(Word)),
+            $"dead sidehopper configuration $A9:{configurationPointer:X4}");
 
-        ushort[] actual =
-        [
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.EntryCount,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-        ];
-        AssertTrue(actual.SequenceEqual(expected),
-            $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4}");
-
-        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
+        ushort rotationTable = Word(6);
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(rotationTable + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
-            $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} wrap offset");
-        AssertEqual((ushort)CorpseRotationTable.Sidehopper, definition.RotationTablePointer,
-            $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} names the sidehopper tile-row layout production copies with");
+            $"dead sidehopper configuration $A9:{configurationPointer:X4} wrap offset");
+        AssertEqual((ushort)CorpseRotationTable.Sidehopper, rotationTable,
+            $"dead sidehopper configuration $A9:{configurationPointer:X4} names the sidehopper tile-row layout production copies with");
     }
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>

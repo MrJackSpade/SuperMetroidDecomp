@@ -285,16 +285,17 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Offset of the shot-reaction list in a native <c>EprojDef</c>, which production never reads.</summary>
     private const int ShotListOffset = 12;
 
+    /// <summary>Offset of the initial instruction list in a native <c>EprojDef</c>, which production starts as a typed program.</summary>
+    private const int InitialListOffset = 4;
+
     /// <summary>Runs a typed projectile beside the native list of its kind for fifty updates and compares every observable.</summary>
     private static void CompareProjectile(IImportCartridgeSource cartridge, RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile,
         RoomEnemyProjectileKind kind, bool shot, string label)
     {
         AssertTrue(projectile.Animation is CrocomireProjectileAnimation, $"Crocomire {label} runs a typed program");
         AssertTrue(projectile.Animation is not null, $"Crocomire {label} keeps no native list");
-        EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
-        var native = new NativeProjectileList(shot
-                ? cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + ShotListOffset))
-                : definition.InitialInstructionList,
+        var native = new NativeProjectileList(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank |
+                ((ushort)kind + (shot ? ShotListOffset : InitialListOffset))),
             projectile.InstructionTimer.RawValue);
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)

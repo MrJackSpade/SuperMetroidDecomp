@@ -56,12 +56,7 @@ internal static class DeadTourianCorpseDefinitions
         int rotationIndex = species == DeadTourianCorpseSpecies.Zoomer ? 0 : species == DeadTourianCorpseSpecies.Ripper ? 1 : 2;
         return new(
             CorpseProgram(ordinal),
-            (ushort)(FirstConfiguration+16*ordinal),
             (ushort)((skree ? FirstSkreeRottingArea : FirstWideRottingArea)+(skree ? 128 : 64)*layout),
-            (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),
-            (ushort)(move+(skree ? 53 : 79)),move,
-            skree ? (ushort)32 : (ushort)16,
-            (ushort)(FirstRotation+6*rotationIndex),Finish,
-            (ushort)(32*rowTiles-12));
+            (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),            skree ? (ushort)32 : (ushort)16,            (ushort)(32*rowTiles-12));
     }
 }

@@ -88,13 +88,13 @@ internal static class CeresElevatorArrivalVerification
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        foreach (CeresElevatorProjectileDefinition definition in new[]
+        foreach ((CeresElevatorProjectileDefinition definition, ushort definitionPointer) in new[]
         {
-            CeresElevatorArrivalDefinitions.MovingPad,
-            CeresElevatorArrivalDefinitions.StationaryPlatform,
+            (CeresElevatorArrivalDefinitions.MovingPad, (ushort)0xa387),
+            (CeresElevatorArrivalDefinitions.StationaryPlatform, (ushort)0xa395),
         })
         {
-            int address = CeresElevatorArrivalDefinitions.BankBase | definition.DefinitionPointer;
+            int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;
             VerificationAssert.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
                 NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
                 "Ceres elevator definition names its program's native list");

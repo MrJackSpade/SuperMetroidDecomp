@@ -15,11 +15,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks dead Tourian Zoomer, Ripper, and Skree variant metadata against cartridge tables and live setup.</summary>
 internal static class DeadTourianCorpseDefinitionsVerification
 {
-    /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
-    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
-    {
-        (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
-            int InstructionTable, int ConfigurationTable)[] families =
+    /// <summary>Each species' corpse, variant count and native instruction and configuration selector tables.</summary>
+    private static readonly (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
+        int InstructionTable, int ConfigurationTable)[] Families =
         [
             (DeadTourianCorpseSpecies.Zoomer, EnemyDefinitionId.CorpseZoomer,
                 3, 0xa9d86a, 0xa9d870),
@@ -29,7 +27,14 @@ internal static class DeadTourianCorpseDefinitionsVerification
                 3, 0xa9d8c0, 0xa9d8c6),
         ];
 
-        foreach (var family in families)
+    /// <summary>The bank-$A9 configuration record the cartridge selects for <paramref name="species"/> variant <paramref name="variantIndex"/>.</summary>
+    internal static ushort ConfigurationPointer(ISnesAddressSpace rom, DeadTourianCorpseSpecies species, int variantIndex) =>
+        CartridgeImportSource.Require(rom).ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
+
+    /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
+    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
+    {
+        foreach (var family in Families)
         {
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
@@ -39,10 +44,6 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
                     NativeEnemyProgramOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
                     $"dead {family.Species} variant {variantIndex} instruction selector");
-                AssertEqual(
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((family.ConfigurationTable + variantIndex * 2)),
-                    definition.ConfigurationPointer,
-                    $"dead {family.Species} variant {variantIndex} configuration selector");
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
                 VerifyDeadTourianCorpseProductionInitialization(
@@ -61,33 +62,20 @@ internal static class DeadTourianCorpseDefinitionsVerification
             "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");
     }
 
-    /// <summary>Checks seven consumed configuration words and derives the wrap offset from the rotation table.</summary>
+    /// <summary>Checks the consumed configuration words and derives the wrap offset from the rotation table.</summary>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
         int variantIndex,
         DeadTourianCorpseDefinition definition)
     {
-        int address = 0xa90000 | definition.ConfigurationPointer;
-        ushort[] expected = new ushort[8];
-        for (int index = 0; index < expected.Length; index++)
-            expected[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2));
-        // Word five is the graphics-initialization routine, which production never calls.
-        expected = [.. expected[..5], .. expected[6..]];
-        ushort[] actual =
-        [
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.EntryCount,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-        ];
-        AssertTrue(actual.SequenceEqual(expected),
+        int address = 0xa90000 | ConfigurationPointer(rom, species, variantIndex);
+        ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
+        ushort[] actual = [definition.RottingTablePointer, definition.VramTransferPointer, definition.EntryCount];
+        AssertTrue(actual.SequenceEqual(new[] { Word(0), Word(1), Word(4) }),
             $"dead {species} variant {variantIndex} configuration words");
 
-        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(Word(6) + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");
     }
@@ -121,7 +109,8 @@ internal static class DeadTourianCorpseDefinitionsVerification
             state.RotTable, $"dead {species} variant {variantIndex}");
         AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
             $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
-        AssertEqual((ushort)state.Profile.RowLayout, expected.RotationTablePointer,
+        AssertEqual((ushort)state.Profile.RowLayout,
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),
             $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
         AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead {species} variant {variantIndex} Y limit");

@@ -14,9 +14,6 @@ internal sealed class EnemyFrameCollision<TElement> : IEnumerable<KeyValuePair<E
     /// <summary>Records <paramref name="frame"/>'s collision elements; a frame is recorded once.</summary>
     internal void Add(EnemyFrameId frame, TElement[] elements) => _elements.Add(frame, elements);
 
-    /// <summary>The number of frames with compiled collision.</summary>
-    internal int Count => _elements.Count;
-
     /// <summary>Whether <paramref name="frame"/> has compiled collision; no frame has none.</summary>
     internal bool Contains(EnemyFrameId? frame) => frame is { } shown && _elements.ContainsKey(shown);
 

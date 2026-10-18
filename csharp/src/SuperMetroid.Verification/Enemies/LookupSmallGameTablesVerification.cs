@@ -108,11 +108,11 @@ internal static class LookupSmallGameTablesVerification
             for (int variant = 0; variant < profile.Variants.Length; variant++)
             {
                 var layout = profile.Variants[variant];
-                DeadTourianCorpseDefinition definition = DeadTourianCorpseDefinitions.For(species, variant);
                 string name = $"Dead {species} variant {variant}";
 
                 // Rot-entry copy routine: per column, LDA rotEntryYOffset / CMP #limit / BPL / LDA src,X ...
-                int copy = bank | definition.CopyFunction;
+                int configuration = bank | Corpses.DeadTourianCorpseDefinitionsVerification.ConfigurationPointer(rom, species, variant);
+                int copy = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 4);
                 for (int column = 0; column < layout.ColumnWordOffsets.Length; column++)
                 {
                     int block = copy + 20 * column;
@@ -128,7 +128,7 @@ internal static class LookupSmallGameTablesVerification
                 // Initialization routine: per tile row, PHB / LDX #sheet / LDY #work / LDA #length-1 / MVN / PLB.
                 // Production does not call the graphics-initialization routine; locate it through
                 // the native configuration record's sixth word.
-                int init = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((bank | (definition.ConfigurationPointer + 10)));
+                int init = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 10);
                 for (int row = 0; row < layout.InitialGraphicsCopies.Length; row++)
                 {
                     var expected = layout.InitialGraphicsCopies[row];

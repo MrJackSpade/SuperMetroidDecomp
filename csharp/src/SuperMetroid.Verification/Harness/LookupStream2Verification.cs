@@ -997,7 +997,7 @@ internal static class LookupStream2Verification
         // stock tile coverage. Native staging must still copy the same artwork rows.
         var displayParts = new Dictionary<int, EnemySpritemapParts>
         {
-            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), 33,
+            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
         var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };

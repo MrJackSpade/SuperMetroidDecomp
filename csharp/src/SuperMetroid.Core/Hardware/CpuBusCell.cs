@@ -30,13 +30,6 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
         ? ByteCount
         : throw new ArgumentOutOfRangeException(nameof(ByteCount), ByteCount, "A bus cell holds at least one byte.");
 
-    /// <summary>Requires this to be a <paramref name="region"/> cell of exactly <paramref name="byteCount"/> bytes.</summary>
-    internal void Require(CpuBusRegion region, int byteCount)
-    {
-        if (Region != region || ByteCount != byteCount)
-            throw new ArgumentException($"{this} is not a {byteCount}-byte {region} cell.");
-    }
-
     /// <inheritdoc />
     public override string ToString() =>
         $"{Name} ({Region} ${SnesAddressMath.BankNumber(Address):X2}:{SnesAddressMath.OffsetInBank(Address):X4}, {ByteCount} bytes, {Encoding}" +

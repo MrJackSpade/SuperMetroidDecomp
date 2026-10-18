@@ -76,7 +76,7 @@ internal static class BossDisplayBindingsOracleVerification
                 // Native unused X bits are not presentation; compare the canonical
                 // signed offset and size that actually reach packed OAM.
                 parts[index] = new EnemySpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
-                    source.ReadCartridgeByte(address + 2), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
+                    new SnesSpritemapYByte(source.ReadCartridgeByte(address + 2)), new SnesObjAttributeWord(source.ReadCartridgeWord((address + 3))));
             }
             oam.Add(new EnemyExtendedDrawComponent(new(x, y), EnemySpritemapParts.FromOwnedArray(parts)));
         }

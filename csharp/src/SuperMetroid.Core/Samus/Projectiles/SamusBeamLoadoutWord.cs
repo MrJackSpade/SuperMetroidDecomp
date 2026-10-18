@@ -22,14 +22,6 @@ public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
         SamusBeamFlags.Charge;
 
     /// <summary>
-    /// Views a native equipped-beam word, as a debugger edit or a native snapshot supplies it. Every bit is kept,
-    /// including those without a verified meaning.
-    /// </summary>
-    public SamusBeamLoadoutWord(ushort nativeWord) : this((SamusBeamFlags)nativeWord)
-    {
-    }
-
-    /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
     /// <see cref="SamusProjectileTypeWord.BeamCombination"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.

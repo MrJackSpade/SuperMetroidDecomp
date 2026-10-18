@@ -30,7 +30,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         var state = new GrowingShutterEnemyState(slot);
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
@@ -98,7 +98,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Growing shutter function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Growing shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -237,8 +237,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
     {
-        var state = new HorizontalShutterEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new HorizontalShutterEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
@@ -343,7 +343,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Horizontal shutter function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Horizontal shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         // $A2:F1E4-$A2:F211: an idle shutter reacts when Samus's four solid-enemy collision
@@ -802,8 +802,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Definition ${(int)slot.EnemyDefinitionPointer:X4} does not use vertical-shutter initialization.");
         }
 
-        var state = new VerticalShutterEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new VerticalShutterEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
@@ -914,7 +914,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Vertical shutter function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Vertical shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         // $A2:EED7-$A2:EF04: an idle shutter reacts when Samus's four solid-enemy collision

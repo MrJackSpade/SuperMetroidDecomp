@@ -3,57 +3,34 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// Typed host representation of the vertical shutter's ordinary and extended enemy words.
-/// Values not backed by variables A-F correspond one-for-one with the native $7800/$8800
-/// arrays; keeping them explicit avoids another opaque bag of numbered scratch fields.
+/// The state of a vertical shutter. Its extended values correspond one-for-one with the native $7800/$8800 arrays;
+/// keeping them explicit avoids another opaque bag of numbered scratch fields. The values the cartridge keeps in the
+/// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
-    /// <summary>Backs native variable A-F access for one vertical shutter slot.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Creates the typed view over a room-owned vertical shutter slot.</summary>
-    internal VerticalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
-    /// <summary>Enemy variable A's bank-$A2 dispatcher pointer, shared by shootable/destroyable shutters and the Kamer vertical platform.</summary>
-    public VerticalShutterFunction Function
-    {
-        get => (VerticalShutterFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
-
-    /// <summary>Variable B: wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed underflow.</summary>
-    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableB); internal set => _slot.VariableB = value.RawValue; }
     /// <summary>
-    /// Downward signed 16.16 velocity in pixels per update, from the common linear-speed table. Its fraction and
-    /// whole halves stay in variables C and D, which other enemies' aliased enemy-RAM reads can observe.
+    /// The bank-$A2 dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform;
+    /// none once a kill has emptied the record.
     /// </summary>
-    public SnesSignedSixteenSixteen DownVelocity
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableD), _slot.VariableC);
-        internal set
-        {
-            _slot.VariableC = value.Fraction;
-            _slot.VariableD = value.WholeWord;
-        }
-    }
+    public VerticalShutterFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Upward signed 16.16 velocity in pixels per update; its fraction is added together with the negative whole
-    /// part, not negated independently. The halves stay in variables E and F for the same aliased reads.
+    /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed
+    /// underflow.
     /// </summary>
-    public SnesSignedSixteenSixteen UpVelocity
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
-        internal set
-        {
-            _slot.VariableE = value.Fraction;
-            _slot.VariableF = value.WholeWord;
-        }
-    }
+    public NativeCountdown FunctionTimer { get; internal set; }
+    /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>
+    public SnesSignedSixteenSixteen DownVelocity { get; internal set; }
+
+    /// <summary>
+    /// Upward signed 16.16 velocity in pixels per update; its fraction is added together with the negative whole part,
+    /// not negated independently.
+    /// </summary>
+    public SnesSignedSixteenSixteen UpVelocity { get; internal set; }
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record containing the downward and upward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
@@ -87,4 +64,13 @@ public sealed class VerticalShutterEnemyState
     public Position16<RoomPixels> LowerEndpoint { get; internal set; }
     /// <summary>Next reaction's direction selector, 0 through 255, initially the primary direction: zero moves up, any other value moves down, then bit zero is toggled.</summary>
     public int ReactionDirection { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        FunctionTimer = NativeCountdown.Start(0);
+        DownVelocity = SnesSignedSixteenSixteen.Zero;
+        UpVelocity = SnesSignedSixteenSixteen.Zero;
+    }
 }

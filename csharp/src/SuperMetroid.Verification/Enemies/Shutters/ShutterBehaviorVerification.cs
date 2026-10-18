@@ -80,7 +80,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
-        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry))
+        var state = new VerticalShutterEnemyState()
         {
             Function = VerticalShutterFunction.Initial,
         };
@@ -104,7 +104,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
-        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        var state = new HorizontalShutterEnemyState();
         for (ushort offset = 0; offset <= 8; offset += 2)
         {
             state.Function = HorizontalShutterFunction.Initial;
@@ -219,7 +219,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyHorizontalShutterVelocityWords()
     {
-        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        var state = new HorizontalShutterEnemyState();
         SnesSignedSixteenSixteen right = SnesSignedSixteenSixteen.FromParts(-2, 40000);
         SnesSignedSixteenSixteen left = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.RightVelocity = right;
@@ -271,7 +271,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyVerticalShutterVelocityWords()
     {
-        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        var state = new VerticalShutterEnemyState();
         SnesSignedSixteenSixteen down = SnesSignedSixteenSixteen.FromParts(-2, 40000);
         SnesSignedSixteenSixteen up = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.DownVelocity = down;

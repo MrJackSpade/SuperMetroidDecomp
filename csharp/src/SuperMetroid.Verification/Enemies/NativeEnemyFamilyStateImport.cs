@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.Kzan;
@@ -60,6 +62,36 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
+        {
+            growingShutterRecord.Function = slot.VariableA == 0 ? null : (GrowingShutterFunction)slot.VariableA;
+            growingShutterRecord.GrowthLevel0Origin = new(0, slot.VariableB);
+            growingShutterRecord.GrowthLevel1Origin = new(0, slot.VariableC);
+            growingShutterRecord.GrowthLevel2Origin = new(0, slot.VariableD);
+            growingShutterRecord.GrowthLevel3Origin = new(0, slot.VariableE);
+            growingShutterRecord.GrowthLevel = slot.VariableF;
+        }
+        if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
+        {
+            firefleaRecord.AngularSpeed = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableB), slot.VariableA);
+            firefleaRecord.Radius = slot.VariableC;
+            firefleaRecord.Angle = SnesAngle.FromRaw(slot.VariableD);
+            firefleaRecord.Center = new(slot.VariableE, slot.VariableF);
+        }
+        if (slot.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
+        {
+            verticalShutterRecord.Function = slot.VariableA == 0 ? null : (VerticalShutterFunction)slot.VariableA;
+            verticalShutterRecord.FunctionTimer = NativeCountdown.FromRaw(slot.VariableB);
+            verticalShutterRecord.DownVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableD), slot.VariableC);
+            verticalShutterRecord.UpVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableF), slot.VariableE);
+        }
+        if (slot.SpeciesState<HorizontalShutterEnemyState>() is { } horizontalShutterRecord)
+        {
+            horizontalShutterRecord.Function = slot.VariableA == 0 ? null : (HorizontalShutterFunction)slot.VariableA;
+            horizontalShutterRecord.FunctionTimer = NativeCountdown.FromRaw(slot.VariableB);
+            horizontalShutterRecord.RightVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableD), slot.VariableC);
+            horizontalShutterRecord.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableF), slot.VariableE);
+        }
         if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
             cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)slot.VariableA));

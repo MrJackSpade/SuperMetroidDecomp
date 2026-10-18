@@ -2,56 +2,35 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>Typed state for the cartridge's complete, though retail-unused, horizontal shutter.</summary>
+/// <summary>The state of the cartridge's complete, though retail-unused, horizontal shutter. The values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).</summary>
 public sealed class HorizontalShutterEnemyState
 {
-    /// <summary>Backs native variable A-F access for one horizontal shutter slot.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Creates the typed view over a room-owned horizontal shutter slot.</summary>
-    internal HorizontalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
-    /// <summary>Enemy variable A's bank-$A2 dispatcher pointer for the retail-unused horizontal shutter, retained across wait, movement, and endpoint-rest updates.</summary>
-    public HorizontalShutterFunction Function
-    {
-        get => (HorizontalShutterFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// The bank-$A2 dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and
+    /// endpoint-rest updates; none once a kill has emptied the record.
+    /// </summary>
+    public HorizontalShutterFunction? Function { get; internal set; }
 
-    /// <summary>Variable B: wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for signed underflow.</summary>
-    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableB); internal set => _slot.VariableB = value.RawValue; }
+    /// <summary>
+    /// Wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for
+    /// signed underflow.
+    /// </summary>
+    public NativeCountdown FunctionTimer { get; internal set; }
 
     /// <summary>
     /// Rightward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X
-    /// displacement. Its fraction and whole halves stay in variables C and D, which other enemies' aliased
-    /// enemy-RAM reads can observe.
+    /// displacement.
     /// </summary>
-    public SnesSignedSixteenSixteen RightVelocity
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableD), _slot.VariableC);
-        internal set
-        {
-            _slot.VariableC = value.Fraction;
-            _slot.VariableD = value.WholeWord;
-        }
-    }
+    public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
     /// Leftward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X
-    /// displacement. Its fraction and whole halves stay in variables E and F for the same aliased reads.
+    /// displacement.
     /// </summary>
-    public SnesSignedSixteenSixteen LeftVelocity
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
-        internal set
-        {
-            _slot.VariableE = value.Fraction;
-            _slot.VariableF = value.WholeWord;
-        }
-    }
+    public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record holding the rightward and leftward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
@@ -87,4 +66,13 @@ public sealed class HorizontalShutterEnemyState
     /// therefore never reacts leftward.
     /// </summary>
     public int ReactionDirection { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        FunctionTimer = NativeCountdown.Start(0);
+        RightVelocity = SnesSignedSixteenSixteen.Zero;
+        LeftVelocity = SnesSignedSixteenSixteen.Zero;
+    }
 }

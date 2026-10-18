@@ -42,7 +42,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,

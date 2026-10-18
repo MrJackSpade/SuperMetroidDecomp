@@ -3,10 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Typed debugger view of Fireflea's six common-slot words and three per-slot words in
-/// extra WRAM <c>$7E:7800</c>. The latter stay in parallel arrays because they are genuinely
-/// outside the 64-byte enemy record on the cartridge; flattening them into generic vars
-/// would misrepresent the memory contract this decompilation is intended to expose.
+/// The state of a Fireflea, with its three per-slot words in extra WRAM <c>$7E:7800</c>, which stay in parallel arrays
+/// because they are genuinely outside the 64-byte enemy record on the cartridge. The values the cartridge keeps in the
+/// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class FirefleaEnemyState
 {
@@ -28,48 +27,26 @@ public sealed class FirefleaEnemyState
 
     /// <summary>
     /// The signed angular speed selected from the linear speed table, in 256ths of a turn per update with a 16-bit
-    /// fraction. Its fraction and whole halves stay in variables A and B, which other enemies' aliased enemy-RAM reads
-    /// can observe. The circle advances by its middle sixteen bits, an 8.8 turn delta.
+    /// fraction.  The circle advances by its middle sixteen bits, an 8.8 turn delta.
     /// </summary>
-    public SnesSignedSixteenSixteen AngularSpeed
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableB), _slot.VariableA);
-        internal set
-        {
-            _slot.VariableA = value.Fraction;
-            _slot.VariableB = value.WholeWord;
-        }
-    }
+    public SnesSignedSixteenSixteen AngularSpeed { get; internal set; }
 
-    /// <summary>
-    /// Variable C: the movement radius in pixels, 8 through 64, selected by parameter two's high byte. The slot variable
-    /// keeps the exact value for other enemies' aliased enemy-RAM reads.
-    /// </summary>
+    /// <summary>The movement radius in pixels, 8 through 64, selected by parameter two's high byte.</summary>
     public int Radius
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// Variable D: the circle angle, wrapping around the turn. Main AI uses its table index as the eight-bit circle angle.
+    /// The circle angle, wrapping around the turn. Main AI uses its table index as the eight-bit circle angle.
     /// </summary>
-    public SnesAngle Angle
-    {
-        get => SnesAngle.FromRaw(_slot.VariableD);
-        internal set => _slot.VariableD = value.RawValue;
-    }
+    public SnesAngle Angle { get; internal set; }
 
-    /// <summary>Native Fireflea.XCenter/YCenter (variables E/F at $0FB0/$0FB2 plus slot offset): initial whole-pixel room position used as the fixed circular-motion center.</summary>
-    public Position16<RoomPixels> Center
-    {
-        get => new(_slot.VariableE, _slot.VariableF);
-        internal set
-        {
-            _slot.VariableE = value.X;
-            _slot.VariableF = value.Y;
-        }
-    }
+    /// <summary>
+    /// Native Fireflea.XCenter/YCenter: initial whole-pixel room position used as the fixed circular-motion center.
+    /// </summary>
+    public Position16<RoomPixels> Center { get; internal set; }
 
     /// <summary>Per-slot upper extent of vertical motion, the spawn Y minus the radius with room-coordinate wraparound; only its Y is meaningful. Passing above it, by the wrapped spatial difference, reverses speed after movement.</summary>
     public Position16<RoomPixels> MinimumYExtent
@@ -94,4 +71,13 @@ public sealed class FirefleaEnemyState
 
     /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
     public bool UsesCircularMovement => (_slot.Parameter1 & FirefleaMovementDefinitions.CircularMovementParameterBit) != 0;
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        AngularSpeed = SnesSignedSixteenSixteen.Zero;
+        Radius = 0;
+        Angle = SnesAngle.FromTableIndex(0);
+        Center = Position16<RoomPixels>.Zero;
+    }
 }

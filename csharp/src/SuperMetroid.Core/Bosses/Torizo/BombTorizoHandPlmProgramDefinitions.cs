@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class BombTorizoHandPlmProgramDefinitions
 {
-    /// <summary><c>$84:D33B</c>: the pre-instruction that wakes the hand once Samus has Bombs.</summary>
-    internal const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
     /// <summary>How many words into the OBJ character table the debris tiles load.</summary>
     internal const int DebrisObjectCharacterWordOffset = 0x0e00;
     /// <summary>How many fragments the hand drops.</summary>

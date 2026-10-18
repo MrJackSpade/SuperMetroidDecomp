@@ -32,8 +32,6 @@ public sealed class SamusBombProjectileSlot
     }
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
-    /// <summary>The bank-$93 instruction pointer at <c>$0C4A + 2*Index</c> the cursor stands for; zero marks an inactive slot.</summary>
-    public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>

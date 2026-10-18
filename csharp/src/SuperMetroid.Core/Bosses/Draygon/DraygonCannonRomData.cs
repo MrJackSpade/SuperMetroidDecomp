@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Named bank-$84 and WRAM identities used by the retail Draygon cannon family.</summary>
 internal static class DraygonCannonRomData
 {
-    /// <summary>Pre-instruction <c>$84:DB64</c>, accepting missiles and Super Missiles.</summary>
-    public const ushort MissileHitPreInstruction = 0xdb64;
 
     /// <summary>Native collision/BTS word installed at a live cannon origin.</summary>
     public const ushort CannonCollisionWord = 0xc044;

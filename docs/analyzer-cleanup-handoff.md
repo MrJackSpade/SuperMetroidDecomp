@@ -624,18 +624,28 @@ Commit and push that update too.
     members); the collision walker holds no callback words. The enum still carries address values and Core still
     decodes header words through `EnemyAiCodePointers`; neither is an open census finding.
   - A boss-selected drop keeps its `EnemyDropChances` table on the projectile slot instead of the bank-$B4 word.
-  - PLM campaign (the 17 PLM findings): the q9 probe's `plm-lists` mode decodes every bank-$84 list the generic
-    interpreter can still enter. Block reactions (44 lists plus 8 bomb-block tails) run as the typed
-    `BlockReactionPlmProgram` family, oracle-checked. Remaining native lists: elevator platform, Shaktool, Maridia
-    elevatube, old Tourian wall (wake past sleep), escape animals, Crateria passage, Mother Brain escape gate (two
-    lists), breakable terrain. Scroll and treadmill slots store uncompiled list words as markers their family steps
-    read. When those are typed, the interpreter, `RoomPlmProgramDefinitions` with its compiled word catalogs,
-    `RoomPlmInstructionLists`, `PlmSlot.InstructionPointer` and `PlmProgramStart.NativeList` go.
-  - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
-    run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
-    other production projects still reach into test-support), so it was discarded; those findings need a
-    relocation that respects production references, done per area. Frame records' positional fields (for
-    example `PhantoonPartFrame.Kind`) are reported unread but carry identity through record equality.
+  - PLM campaign, finished. Block reactions (`0c42a4c84`) and the scripted room PLMs (`19fdff900`: elevator
+    platform, Shaktool, Maridia elevatube, old Tourian wall, escape animals, Crateria passage, Mother Brain escape
+    gate and its closing, breakable terrain, Chozo plug/hand/slopes) run typed, oracle-checked programs. `380801b5e`
+    deleted the generic bank-$84 interpreter, `RoomPlmProgramDefinitions`, `PlmSlot.InstructionPointer`,
+    `PlmProgramStart.NativeList`, the scroll/treadmill marker writes and the static PLM program audit (with its CI
+    workflow and release-gate flag); a slot that runs neither a typed program nor a family step throws.
+    `a87b8ab92` took pre-instruction routine addresses out of Core (test support's
+    `PlmPreInstructionNativeRoutines` maps instances to routines). `5226c7ef1` and `460f01a00` widened room
+    arguments, compiled scroll sources and the visual records. `ea724b79a` pruned the compiled-word catalogs the
+    interpreter left dead into test-support.
+  - Samus projectiles (`045a6e8f1`): slot type/direction/program/spritemap state, the trail pointer and the timed
+    record are int quantities; `SamusProjectileTypeWord`/`SamusProjectileDirectionWord` are `[SnesEncodingOwner]`
+    views. Storing the typed words in the slots would mean replacing about 80 raw bit-field reads with named
+    operations, a separate representation change.
+  - **SME census: zero findings** from `045a6e8f1` on.
+  - Reachability gate: the interpreter removal raised it from about 465 to 549; the targeted prunes bring it back
+    down. The reachability audit's prune takes comma-separated `--path-prefix` values, so a run can cover a
+    scattered file set. A prune over all of `SuperMetroid.Core/` is not usable: it deletes the CPU-bus interfaces
+    (`ISnesMemoryBus`, `SnesWordReads`) that the import pipeline and tests build on, and the move step does not
+    repair the type hierarchies (3291 compile errors), so the remaining findings need per-area relocation that
+    respects production and tool references. Frame records' positional fields (for example
+    `PhantoonPartFrame.Kind`) are reported unread but carry identity through record equality.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

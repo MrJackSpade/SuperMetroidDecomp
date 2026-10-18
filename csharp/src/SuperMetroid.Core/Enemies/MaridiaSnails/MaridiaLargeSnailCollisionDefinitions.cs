@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
@@ -27,70 +28,78 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     /// <summary>Bank-$A0 no-op callback on Oum hitboxes that do not react to shots.</summary>
     private const ushort NoShot = EnemyAiCodePointers.BankA0.NoOp;
 
-    /// <summary>First consecutive hitbox record, Hitbox_Oum_FacingLeft_0 at $A2:D034.</summary>
-    private const ushort FirstHitboxList = 0xd034;
+    /// <summary>The 30 hitbox lists, one per frame in frame order; the rectangles are fitted to the drawings.</summary>
+    internal static readonly MaridiaLargeSnailCollisionHitbox[][] Lists =
+    [
+        [new(-16, -17, -8, 16, SafeTouch, Shot), new(-8, -17, 14, 16, SafeTouch, NoShot)],
+        [new(-16, -17, 14, 16, SafeTouch, NoShot)],
+        [new(-1, -17, 14, 16, SafeTouch, NoShot), new(-17, -17, 0, 16, SafeTouch, Shot)],
+        [new(-20, -8, 0, 8, DamageTouch, Shot), new(0, -17, 13, 16, DamageTouch, NoShot)],
+        [new(-22, -8, 0, 7, DamageTouch, Shot), new(0, -17, 14, 16, DamageTouch, NoShot)],
+        [new(-25, -9, 0, 8, DamageTouch, Shot), new(0, -18, 14, 16, DamageTouch, NoShot)],
+        [new(-24, -8, 0, 9, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)],
+        [new(-27, -8, 0, 8, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)],
+        [new(-16, 0, 0, 16, SafeTouch, Shot), new(-16, -16, 0, 0, SafeTouch, NoShot), new(0, -16, 14, 16, SafeTouch, NoShot)],
+        [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)],
+        [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, NoShot), new(0, 0, 15, 16, SafeTouch, Shot)],
+        [new(-16, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 16, SafeTouch, Shot)],
+        [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, Shot), new(0, 0, 15, 16, SafeTouch, NoShot)],
+        [new(-16, -18, 15, 0, SafeTouch, Shot), new(-16, 0, 15, 16, SafeTouch, NoShot)],
+        [new(-16, 0, 0, 16, SafeTouch, NoShot), new(-16, -17, 0, 0, SafeTouch, Shot), new(0, -17, 14, 16, SafeTouch, NoShot)],
+        [new(-16, -17, 8, 16, SafeTouch, NoShot), new(8, -17, 16, 16, SafeTouch, Shot)],
+        [new(-16, -17, 16, 16, SafeTouch, NoShot)],
+        [new(-16, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 16, SafeTouch, Shot)],
+        [new(-16, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 20, 8, DamageTouch, Shot)],
+        [new(-16, -17, -1, 16, DamageTouch, NoShot), new(0, -8, 22, 8, DamageTouch, Shot)],
+        [new(-16, -18, 0, 16, DamageTouch, NoShot), new(0, -8, 24, 8, DamageTouch, Shot)],
+        [new(-15, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 24, 8, DamageTouch, Shot)],
+        [new(-16, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 25, 8, DamageTouch, Shot)],
+        [new(-15, -16, 0, 16, SafeTouch, NoShot), new(0, -16, 16, 0, SafeTouch, NoShot), new(0, 0, 16, 16, SafeTouch, Shot)],
+        [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)],
+        [new(-16, 0, 0, 17, SafeTouch, Shot), new(-16, -17, 0, 0, SafeTouch, NoShot), new(0, -17, 14, 17, SafeTouch, NoShot)],
+        [new(-16, -17, 0, 16, SafeTouch, Shot), new(0, -17, 14, 16, SafeTouch, NoShot)],
+        [new(-16, -17, 0, 0, SafeTouch, Shot), new(-16, 0, 0, 16, SafeTouch, NoShot), new(0, -17, 14, 16, SafeTouch, NoShot)],
+        [new(-16, -17, 15, 0, SafeTouch, Shot), new(-16, 0, 15, 16, SafeTouch, NoShot)],
+        [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 0, SafeTouch, Shot), new(0, 0, 16, 16, SafeTouch, NoShot)],
+    ];
 
-    /// <summary>
-    /// The 30 contiguous hitbox lists from $A2:D034, one per frame in frame order. List
-    /// addresses derive from their order; the rectangles are fitted to the drawings.
-    /// </summary>
-    internal static readonly CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox> Lists = CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>.HitboxLists(
-        new CollisionRecordRun<MaridiaLargeSnailCollisionHitbox>(FirstHitboxList,
-        [
-            [new(-16, -17, -8, 16, SafeTouch, Shot), new(-8, -17, 14, 16, SafeTouch, NoShot)],
-            [new(-16, -17, 14, 16, SafeTouch, NoShot)],
-            [new(-1, -17, 14, 16, SafeTouch, NoShot), new(-17, -17, 0, 16, SafeTouch, Shot)],
-            [new(-20, -8, 0, 8, DamageTouch, Shot), new(0, -17, 13, 16, DamageTouch, NoShot)],
-            [new(-22, -8, 0, 7, DamageTouch, Shot), new(0, -17, 14, 16, DamageTouch, NoShot)],
-            [new(-25, -9, 0, 8, DamageTouch, Shot), new(0, -18, 14, 16, DamageTouch, NoShot)],
-            [new(-24, -8, 0, 9, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)],
-            [new(-27, -8, 0, 8, DamageTouch, Shot), new(0, -18, 15, 16, DamageTouch, NoShot)],
-            [new(-16, 0, 0, 16, SafeTouch, Shot), new(-16, -16, 0, 0, SafeTouch, NoShot), new(0, -16, 14, 16, SafeTouch, NoShot)],
-            [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)],
-            [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, NoShot), new(0, 0, 15, 16, SafeTouch, Shot)],
-            [new(-16, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 16, SafeTouch, Shot)],
-            [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 15, 0, SafeTouch, Shot), new(0, 0, 15, 16, SafeTouch, NoShot)],
-            [new(-16, -18, 15, 0, SafeTouch, Shot), new(-16, 0, 15, 16, SafeTouch, NoShot)],
-            [new(-16, 0, 0, 16, SafeTouch, NoShot), new(-16, -17, 0, 0, SafeTouch, Shot), new(0, -17, 14, 16, SafeTouch, NoShot)],
-            [new(-16, -17, 8, 16, SafeTouch, NoShot), new(8, -17, 16, 16, SafeTouch, Shot)],
-            [new(-16, -17, 16, 16, SafeTouch, NoShot)],
-            [new(-16, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 16, SafeTouch, Shot)],
-            [new(-16, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 20, 8, DamageTouch, Shot)],
-            [new(-16, -17, -1, 16, DamageTouch, NoShot), new(0, -8, 22, 8, DamageTouch, Shot)],
-            [new(-16, -18, 0, 16, DamageTouch, NoShot), new(0, -8, 24, 8, DamageTouch, Shot)],
-            [new(-15, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 24, 8, DamageTouch, Shot)],
-            [new(-16, -17, 0, 16, DamageTouch, NoShot), new(0, -8, 25, 8, DamageTouch, Shot)],
-            [new(-15, -16, 0, 16, SafeTouch, NoShot), new(0, -16, 16, 0, SafeTouch, NoShot), new(0, 0, 16, 16, SafeTouch, Shot)],
-            [new(-15, -17, 15, 0, SafeTouch, NoShot), new(-15, 0, 15, 16, SafeTouch, Shot)],
-            [new(-16, 0, 0, 17, SafeTouch, Shot), new(-16, -17, 0, 0, SafeTouch, NoShot), new(0, -17, 14, 17, SafeTouch, NoShot)],
-            [new(-16, -17, 0, 16, SafeTouch, Shot), new(0, -17, 14, 16, SafeTouch, NoShot)],
-            [new(-16, -17, 0, 0, SafeTouch, Shot), new(-16, 0, 0, 16, SafeTouch, NoShot), new(0, -17, 14, 16, SafeTouch, NoShot)],
-            [new(-16, -17, 15, 0, SafeTouch, Shot), new(-16, 0, 15, 16, SafeTouch, NoShot)],
-            [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 0, SafeTouch, Shot), new(0, 0, 16, 16, SafeTouch, NoShot)],
-        ]));
+    /// <summary>Each of the 30 one-component Oum frames, whose single zero-offset component holds its hitbox list.</summary>
+    internal static EnemyFrameCollision<MaridiaLargeSnailCollisionHitbox> Frames { get; } = new()
+    {
+        { EnemyFrameId.OumOamCB87, Lists[0] },
+        { EnemyFrameId.OumOamCB91, Lists[1] },
+        { EnemyFrameId.OumOamCB9B, Lists[2] },
+        { EnemyFrameId.OumOamCBA5, Lists[3] },
+        { EnemyFrameId.OumOamCBAF, Lists[4] },
+        { EnemyFrameId.OumOamCBB9, Lists[5] },
+        { EnemyFrameId.OumOamCBC3, Lists[6] },
+        { EnemyFrameId.OumOamCBCD, Lists[7] },
+        { EnemyFrameId.OumOamCBD7, Lists[8] },
+        { EnemyFrameId.OumOamCBE1, Lists[9] },
+        { EnemyFrameId.OumOamCBEB, Lists[10] },
+        { EnemyFrameId.OumOamCBF5, Lists[11] },
+        { EnemyFrameId.OumOamCBFF, Lists[12] },
+        { EnemyFrameId.OumOamCC09, Lists[13] },
+        { EnemyFrameId.OumOamCC13, Lists[14] },
+        { EnemyFrameId.OumOamCC1D, Lists[15] },
+        { EnemyFrameId.OumOamCC27, Lists[16] },
+        { EnemyFrameId.OumOamCC31, Lists[17] },
+        { EnemyFrameId.OumOamCC3B, Lists[18] },
+        { EnemyFrameId.OumOamCC45, Lists[19] },
+        { EnemyFrameId.OumOamCC4F, Lists[20] },
+        { EnemyFrameId.OumOamCC59, Lists[21] },
+        { EnemyFrameId.OumOamCC63, Lists[22] },
+        { EnemyFrameId.OumOamCC6D, Lists[23] },
+        { EnemyFrameId.OumOamCC77, Lists[24] },
+        { EnemyFrameId.OumOamCC81, Lists[25] },
+        { EnemyFrameId.OumOamCC8B, Lists[26] },
+        { EnemyFrameId.OumOamCC95, Lists[27] },
+        { EnemyFrameId.OumOamCC9F, Lists[28] },
+        { EnemyFrameId.OumOamCCA9, Lists[29] },
+    };
 
     /// <summary>Enumerates all thirty one-component Oum frames in native address order.</summary>
     internal static FramePointerSequence FramePointers => default;
-
-    /// <summary>Accepts only aligned ten-byte frame starts within Oum's compiled range.</summary>
-    internal static bool HasFrame(ushort frame) =>
-        frame >= FirstFrame && frame <= LastFrame &&
-        (frame - FirstFrame) % FrameStride == 0;
-
-    /// <summary>Selects the frame's corresponding hitbox list, rejecting other bank-$A2 frame pointers.</summary>
-    internal static ushort HitboxListAt(ushort frame)
-    {
-        if (!HasFrame(frame))
-            throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
-        return Lists.PointerAt((frame - FirstFrame) / FrameStride);
-    }
-
-    /// <summary>Resolves a compiled Oum hitbox-list pointer without reading editable presentation art.</summary>
-    internal static ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> HitboxesAt(ushort list) =>
-        Lists.TryGet(list, out MaridiaLargeSnailCollisionHitbox[] hitboxes)
-            ? hitboxes
-            : throw new InvalidDataException(
-                $"Oum hitbox list $A2:{list:X4} is not compiled.");
 
     /// <summary>Consecutive ten-byte one-component frame identities at $A2:CB87-$CCA9.</summary>
     internal readonly struct FramePointerSequence : IReadOnlyList<ushort>

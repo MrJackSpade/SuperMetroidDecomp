@@ -571,6 +571,11 @@ Commit and push that update too.
     `EnemyPresentationNativeDrawAccess`.
   - Q5.2b: the Ceres elevator arrival projectile holds its `CeresElevatorArrivalPose?` instead of a bank-$8D word
     and $8000 sentinel; test support keeps the word view.
+  - Q5.2c: collision data names its frames. Crocomire's body, the Space Pirates, Ceres steam and Oum key their frame
+    records by `EnemyFrameId` in `EnemyFrameCollision<TElement>` tables (`Contains`/`TryGet`/`Of` take the slot's
+    nullable frame); steam components hold their hitbox list directly and the steam and Oum lists are plain arrays.
+    `CollisionRecordRun`/`CollisionRecordRuns` (run starts and record strides) moved to test support, where the
+    `*CollisionDefinitionsAccess` views answer the ROM oracles by native address.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

@@ -13,8 +13,7 @@ internal static class SpacePirateHitboxes
     {
         callback = 0;
         foreach (SpacePirateCollisionComponent component in
-                 SpacePirateCollisionDefinitions.ComponentsAt(
-                     EnemyFrames.Spritemap(enemy.Frame)))
+                 SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             IReadOnlyList<SpacePirateCollisionHitbox> hitboxes = component.Hitboxes;

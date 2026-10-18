@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -52,78 +53,68 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Lower central body rectangle using the alternate shot callback.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
 
-    /// <summary>Four native frame runs containing the fifty physical component lists, with presentation art excluded.</summary>
-    private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Frames = CollisionRecordRuns<CrocomireBodyCollisionComponent>.Frames(
-        new(0xbfc4,
-        [
-            [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, -1), CentralBody)],
-            [new(new(1, 11), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(0, 8), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)],
-            [new(new(1, 10), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)],
-            [new(new(1, 10), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 12), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 13), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)],
-        ]),
-        new(0xc2ec,
-        [
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), UpperMouth), new(new(0, 37), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 8), HighMouth), new(new(0, 39), EmptyLowComponent), new(new(-29, 39), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 8), RaisedMouth), new(new(0, 41), EmptyLowComponent), new(new(-29, 32), EmptyLowComponent), new(new(0, -4), CentralBody), new(new(0, -4), CentralBody), new(new(0, -4), CentralBody)],
-            [new(new(0, 10), JawStrip), new(new(0, 39), EmptyLowComponent), new(new(-29, 37), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 12), LowerFrontBody), new(new(0, 37), EmptyLowComponent), new(new(-29, 40), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)],
-            [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), UpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-        ]),
-        new(0xc6a4,
-        [
-            [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, -1), CentralBody)],
-        ]),
-        new(0xc752,
-        [
-            [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)],
-            [new(new(1, 10), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 10), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 10), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 12), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 13), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), UpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), UpperMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 6), HighMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 4), RaisedMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 8), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-            [new(new(0, 0), JawStrip)],
-        ]));
+    /// <summary>The fifty living-body frames' physical component lists, with presentation art excluded.</summary>
+    private static EnemyFrameCollision<CrocomireBodyCollisionComponent> Frames { get; } = new()
+    {
+        { EnemyFrameId.CrocomireBodyOamBFC4, [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, -1), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamBFF6, [new(new(1, 11), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC028, [new(new(0, 8), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC05A, [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC08C, [new(new(1, 10), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC0BE, [new(new(1, 10), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC0F0, [new(new(1, 10), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC122, [new(new(1, 10), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC154, [new(new(1, 10), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC186, [new(new(1, 12), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC1B8, [new(new(1, 13), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC1EA, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC2EC, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC326, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC360, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC39A, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC3D4, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC40E, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(-3, -28), EmptyAttackUpperComponent), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC448, [new(new(0, 11), LowerBodyOtherMouthPose), new(new(0, 41), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC47A, [new(new(1, 11), UpperMouth), new(new(0, 37), EmptyLowComponent), new(new(-29, 41), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC4AC, [new(new(0, 8), HighMouth), new(new(0, 39), EmptyLowComponent), new(new(-29, 39), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC4DE, [new(new(1, 8), RaisedMouth), new(new(0, 41), EmptyLowComponent), new(new(-29, 32), EmptyLowComponent), new(new(0, -4), CentralBody), new(new(0, -4), CentralBody), new(new(0, -4), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC510, [new(new(0, 10), JawStrip), new(new(0, 39), EmptyLowComponent), new(new(-29, 37), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC542, [new(new(1, 12), LowerFrontBody), new(new(0, 37), EmptyLowComponent), new(new(-29, 40), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody), new(new(0, -1), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC574, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC5AE, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), UpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC5E8, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC6A4, [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), BroadHighBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, -1), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC752, [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC78C, [new(new(1, 10), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC7C6, [new(new(1, 10), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, -2), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC800, [new(new(1, 10), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC83A, [new(new(1, 10), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -1), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC874, [new(new(1, 10), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC8AE, [new(new(1, 12), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), RaisedUpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC8E8, [new(new(1, 13), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), UpperBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC922, [new(new(1, 11), LowerBodyOtherMouthPose), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), BroadHighBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC95C, [new(new(1, 11), UpperMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC996, [new(new(0, 6), HighMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamC9D0, [new(new(1, 4), RaisedMouth), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamCA0A, [new(new(0, 8), JawStrip), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamCA44, [new(new(1, 11), LowerFrontBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), RaisedUpperBody), new(new(0, 0), CentralBody), new(new(0, 0), LowerCentralBody), new(new(0, 0), CentralBody)] },
+        { EnemyFrameId.CrocomireBodyOamCA7E, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCA88, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCA92, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCA9C, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCAA6, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCAB0, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCABA, [new(new(0, 0), JawStrip)] },
+        { EnemyFrameId.CrocomireBodyOamCAC4, [new(new(0, 0), JawStrip)] },
+    };
 
     /// <summary>Accepts a living-body frame or delegates defeated-body frames to the corpse catalog.</summary>
-    internal static bool HasFrame(ushort frame) => Frames.TryGet(frame, out _) ||
-        CrocomireCorpseCollisionDefinitions.HasFrame(frame);
+    internal static bool HasFrame(EnemyFrameId? frame) => Frames.Contains(frame) ||
+        CrocomireCorpseCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(frame));
 
     /// <summary>Finds the physical components, each with its own hitbox list, for a living or defeated frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
+    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
             ? components
-            : CrocomireCorpseCollisionDefinitions.ComponentsAt(frame);
+            : CrocomireCorpseCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(frame));
 }

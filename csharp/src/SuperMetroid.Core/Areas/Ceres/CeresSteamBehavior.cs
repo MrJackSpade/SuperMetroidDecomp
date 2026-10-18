@@ -213,7 +213,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     {
         callback = 0;
         if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
-            (CeresSteamCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
+            (CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) ||
              probe.ArtworkInstalled)))
             return null;
 
@@ -221,11 +221,11 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // metadata, not an extra component. Both damaging rectangles and
         // callbacks remain fixed even if its installed OAM is edited.
         foreach (CeresSteamCollisionComponent component in
-                 CeresSteamCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+                 CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CeresSteamCollisionHitbox hitbox in
-                     CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+                     component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
                 ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));

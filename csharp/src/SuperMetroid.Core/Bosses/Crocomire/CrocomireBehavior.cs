@@ -2383,14 +2383,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         callback = 0;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
-            CrocomireBodyCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame))))
+            CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
             return null;
 
         // Physical body components and their callback lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
         foreach (CrocomireBodyCollisionComponent component in
-                 CrocomireBodyCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)

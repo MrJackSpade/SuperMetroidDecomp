@@ -645,17 +645,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         callback = 0;
         if (!(enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
-            (MaridiaLargeSnailCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
+            (MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) ||
              probe.ArtworkInstalled)))
             return null;
 
         // Oum's 30 native frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep
         // those rectangles and callback identities independent of OAM.
-        ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(
-            EnemyFrames.Spritemap(enemy.Frame));
         foreach (MaridiaLargeSnailCollisionHitbox hitbox in
-                 MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
+                 MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
             ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));

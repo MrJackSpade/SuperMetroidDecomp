@@ -81,7 +81,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         int probes = 0;
         foreach (ushort frame in CeresSteamCollisionDefinitions.FramePointers)
         {
-            CeresSteamCollisionDefinitions.ComponentSequence components =
+            CeresSteamCollisionComponent[] components =
                 CeresSteamCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(1, components.Length,
                 $"Ceres steam $A6:{frame:X4} has one physical component");

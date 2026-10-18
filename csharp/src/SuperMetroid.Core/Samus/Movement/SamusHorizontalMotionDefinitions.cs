@@ -7,21 +7,30 @@ internal static class SamusHorizontalMotionDefinitions
     private const int AirRecordCount = 26;
     /// <summary>$90:A08D and A1DD water/lava records additionally include held and special movement.</summary>
     private const int LiquidRecordCount = 28;
-    /// <summary>
-    /// Resolves exact records in the three adjacent native tables. Address-based selection
-    /// deliberately lets air movement bytes 26/27 read water rows 0/1. Addresses outside
-    /// the authored records are not treated as additional mechanics definitions.
-    /// </summary>
-    internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
+    /// <summary>Records across the three adjacent tables: air, then water, then lava/acid.</summary>
+    internal const int RowCount = AirRecordCount + 2 * LiquidRecordCount;
+
+    /// <summary>The row of <paramref name="medium"/>'s table's first record among the three adjacent tables.</summary>
+    internal static int FirstRow(SamusLiquidMedium medium) => medium switch
     {
-        int offset = address - (SamusMovementRomData.Banks.Movement | SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable);
-        int count = AirRecordCount + 2 * LiquidRecordCount;
-        if (offset < 0 || offset >= count * SpeedTableEntry.ByteCount || offset % SpeedTableEntry.ByteCount != 0)
+        SamusLiquidMedium.Air => 0,
+        SamusLiquidMedium.Water => AirRecordCount,
+        SamusLiquidMedium.LavaOrAcid => AirRecordCount + LiquidRecordCount,
+        _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
+    };
+
+    /// <summary>
+    /// Resolves exact records in the three adjacent native tables by row. Table selection adds the
+    /// movement type to the table's first row, so air movement types 26/27 deliberately read water rows
+    /// 0/1. Rows past the authored records are not treated as additional mechanics definitions.
+    /// </summary>
+    internal static bool TryResolveRow(int row, out SpeedTableEntry entry)
+    {
+        if ((uint)row >= RowCount)
         {
             entry = default;
             return false;
         }
-        int row = offset / SpeedTableEntry.ByteCount;
         bool air = row < AirRecordCount;
         bool water = false;
         ushort decelerationFraction;
@@ -95,24 +104,12 @@ internal static class SamusHorizontalMotionDefinitions
         MaximumSpeed: SnesSignedSixteenSixteen.FromParts(15, 0),
         Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x1000));
 
-    /// <summary>
-    /// Recognizes exact standalone entry addresses. Unknown/unaligned addresses are not
-    /// clamped to a known record.
-    /// </summary>
-    internal static bool TryResolveStandalone(int address, out SpeedTableEntry entry)
+    /// <summary>The authored standalone record <paramref name="record"/> names.</summary>
+    internal static SpeedTableEntry Standalone(SamusStandaloneSpeedRecord record) => record switch
     {
-        if (!Enum.IsDefined((SamusStandaloneSpeedRecord)address))
-        {
-            entry = default;
-            return false;
-        }
-        entry = (SamusStandaloneSpeedRecord)address switch
-        {
-            SamusStandaloneSpeedRecord.DiagonalBombJump => DiagonalBombJump,
-            SamusStandaloneSpeedRecord.GrappleReleaseAir or SamusStandaloneSpeedRecord.GrappleReleaseWater or
-                SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid => GrappleRelease,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SamusStandaloneSpeedRecord)} {address:X6}."),
-        };
-        return true;
-    }
+        SamusStandaloneSpeedRecord.DiagonalBombJump => DiagonalBombJump,
+        SamusStandaloneSpeedRecord.GrappleReleaseAir or SamusStandaloneSpeedRecord.GrappleReleaseWater or
+            SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid => GrappleRelease,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusStandaloneSpeedRecord)} {record}."),
+    };
 }

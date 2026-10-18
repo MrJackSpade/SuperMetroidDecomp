@@ -21,11 +21,12 @@ internal static class MechanicsWorkRamBoundaryVerification
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SamusHorizontalSpeedState), "ReadMappedByte", privateStatic),
             "horizontal speed must not retain a mapped CPU-byte reader");
 
-        var readSpeed = new Func<int, SpeedTableEntry>(SamusHorizontalSpeedState.ReadEntryAtAddress);
-        AssertThrows<InvalidDataException>(() => readSpeed(0x900100), "a low-window speed address is not authored physics data");
-        AssertThrows<InvalidDataException>(() => readSpeed(0x902000), "a peripheral offset is not authored physics data");
-        AssertThrows<InvalidDataException>(() => readSpeed(0x90ffff),
-            "an uncompiled cartridge offset is rejected without reading it");
+        var readSpeed = new Func<int, SpeedTableEntry>(SamusHorizontalSpeedState.ReadEntryAtRow);
+        AssertThrows<InvalidDataException>(() => readSpeed(-1), "a row before the tables is not authored physics data");
+        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotionDefinitions.RowCount),
+            "a row past the tables is not authored physics data");
+        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotionDefinitions.FirstRow(SamusLiquidMedium.LavaOrAcid) + byte.MaxValue),
+            "the furthest movement-type overread is rejected without reading it");
         Console.WriteLine("Mechanics WRAM boundary: generic PLM/speed readers absent; only authored speed records resolve.");
     }
 

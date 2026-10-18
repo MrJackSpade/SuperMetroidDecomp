@@ -225,32 +225,24 @@ public sealed class SamusHorizontalSpeedState
     private int _decelerationMultiplier;
 
     /// <summary>
-    /// Bank-$90 offset stored by the current inside-block/environment reaction. Normal air,
-    /// water, and lava/acid select three complete ROM tables before movement type is added.
+    /// The table the current inside-block/environment reaction selected. Normal air, water, and
+    /// lava/acid select three complete tables before movement type is added.
     /// </summary>
-    public ushort ActiveSpeedTableBaseAddress { get; internal set; } =
-        SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
+    public SamusLiquidMedium ActiveSpeedTable { get; internal set; } = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Reproduces the ordinary-air assignment made by <c>$94:97D0</c> before movement.
     /// </summary>
-    public void SelectNormalAirSpeedTable() =>
-        ActiveSpeedTableBaseAddress = SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
+    public void SelectNormalAirSpeedTable() => ActiveSpeedTable = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
-    /// at <c>$90:9BD1</c>. The returned table still contains 12-byte records indexed later
-    /// by movement type; compiled definitions preserve that native address selection.
+    /// at <c>$90:9BD1</c>. The selected table's records are indexed later by movement type.
     /// </summary>
     public void SelectEnvironmentSpeedTable(SamusLiquidMedium liquidMedium)
     {
-        ActiveSpeedTableBaseAddress = liquidMedium switch
-        {
-            SamusLiquidMedium.Water => SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
-            SamusLiquidMedium.LavaOrAcid => SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
-            SamusLiquidMedium.Air => SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {liquidMedium}."),
-        };
+        _ = SamusHorizontalMotionDefinitions.FirstRow(liquidMedium);
+        ActiveSpeedTable = liquidMedium;
     }
 
     /// <summary>
@@ -840,38 +832,25 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Resolves the exact 12-byte entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c>
-    /// at <c>$90:9BD1</c>, assuming the already-modeled inside-block reaction chose the base.
+    /// Resolves the row of the entry selected by <c>Samus_DetermineSpeedTableEntryPtr_X</c> at
+    /// <c>$90:9BD1</c> among the three adjacent tables, assuming the already-modeled inside-block
+    /// reaction chose the table.
     /// </summary>
-    public int ResolveEntryAddress(SamusMovementType movementType)
-    {
-        ushort bankOffset = unchecked((ushort)(
-            ActiveSpeedTableBaseAddress + SpeedTableEntry.ByteCount * (byte)movementType));
-        return SamusMovementRomData.Banks.Movement | bankOffset;
-    }
+    public int ResolveEntryRow(SamusMovementType movementType) =>
+        SamusHorizontalMotionDefinitions.FirstRow(ActiveSpeedTable) + (byte)movementType;
 
     /// <summary>
     /// Resolves authored speed entries without ROM access. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
-    public SpeedTableEntry ReadEntry(SamusMovementType movementType)
-    {
-        int address = ResolveEntryAddress(movementType);
-        return ReadEntryAtAddress(address);
-    }
+    public SpeedTableEntry ReadEntry(SamusMovementType movementType) => ReadEntryAtRow(ResolveEntryRow(movementType));
 
-    /// <summary>Resolves an authored speed record; any other address is corrupt state.</summary>
-    internal static SpeedTableEntry ReadEntryAtAddress(int address)
-    {
-        if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
-            SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out compiled))
-            return compiled;
-
-        // The cartridge writes $0A6C only with constants, and the port assigns only compiled tables, so any other
-        // address is corrupt state.
-        throw new InvalidDataException(
-            $"Samus horizontal speed entry {SnesAddress.FromBusAddress(address)} is not an authored mechanics record.");
-    }
+    /// <summary>Resolves an authored speed record by row; a row past the tables reads beyond the authored records.</summary>
+    internal static SpeedTableEntry ReadEntryAtRow(int row) =>
+        SamusHorizontalMotionDefinitions.TryResolveRow(row, out SpeedTableEntry compiled)
+            ? compiled
+            : throw new InvalidDataException(
+                $"Samus horizontal speed row {row} is past the {SamusHorizontalMotionDefinitions.RowCount} authored mechanics records.");
 
     /// <summary>
     /// Ports <c>Samus_CalcBaseSpeed_X</c> at <c>$90:9A7E</c> and returns its unsigned
@@ -884,13 +863,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes `$90:9A7E` against a literal bank-$90 table address. Bomb jumps use the
-    /// standalone record at `$90:9F25` instead of the movement-type-indexed normal table.
+    /// Executes `$90:9A7E` against a standalone record. Bomb jumps use the standalone record at
+    /// `$90:9F25` instead of the movement-type-indexed normal table.
     /// </summary>
-    public uint CalculateBaseSpeedAtAddress(int address)
-    {
-        return CalculateBaseSpeed(ReadEntryAtAddress(address));
-    }
+    public uint CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
+        CalculateBaseSpeed(SamusHorizontalMotionDefinitions.Standalone(record));
 
     /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>
     internal uint CalculateBaseSpeed(SpeedTableEntry entry)

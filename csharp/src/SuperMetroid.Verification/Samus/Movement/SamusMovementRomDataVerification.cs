@@ -93,13 +93,7 @@ internal static class SamusMovementRomDataVerification
             TouchRange(bus, table, liquidTableByteCount, $"liquid-indexed table ${table:X6}");
         }
 
-        foreach (int speedRecord in new[]
-        {
-            (int)SamusStandaloneSpeedRecord.DiagonalBombJump,
-            (int)SamusStandaloneSpeedRecord.GrappleReleaseAir,
-            (int)SamusStandaloneSpeedRecord.GrappleReleaseWater,
-            (int)SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
-        })
+        foreach (int speedRecord in Enum.GetValues<SamusStandaloneSpeedRecord>().Select(SamusHorizontalMotionDefinitions.StandaloneAddressOf))
         {
             TouchRange(bus, speedRecord, SpeedTableEntry.ByteCount,
                 $"standalone speed record ${speedRecord:X6}");

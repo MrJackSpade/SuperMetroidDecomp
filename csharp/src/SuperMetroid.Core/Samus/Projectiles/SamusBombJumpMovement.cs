@@ -72,8 +72,8 @@ public static class SamusBombJumpMovement
             // `$90:8EF4` bypasses the normal movement-type pointer and feeds `$90:9F25`
             // directly to the deceleration-allowed calculator. Direction one is left;
             // direction three is right. Existing base words intentionally participate.
-            uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
-                (int)SamusStandaloneSpeedRecord.DiagonalBombJump);
+            uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
+                SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The native direction-aware X mover clears momentum on a wall hit

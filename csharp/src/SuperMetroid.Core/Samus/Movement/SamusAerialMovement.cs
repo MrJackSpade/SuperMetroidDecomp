@@ -523,16 +523,14 @@ public static class SamusAerialMovement
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = 2;
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        int speedRecordAddress = medium switch
+        SamusStandaloneSpeedRecord speedRecord = medium switch
         {
-            SamusLiquidMedium.Water =>
-                (int)SamusStandaloneSpeedRecord.GrappleReleaseWater,
-            SamusLiquidMedium.LavaOrAcid =>
-                (int)SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
-            SamusLiquidMedium.Air => (int)SamusStandaloneSpeedRecord.GrappleReleaseAir,
+            SamusLiquidMedium.Water => SamusStandaloneSpeedRecord.GrappleReleaseWater,
+            SamusLiquidMedium.LavaOrAcid => SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
+            SamusLiquidMedium.Air => SamusStandaloneSpeedRecord.GrappleReleaseAir,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
-        uint baseSpeed = speed.CalculateBaseSpeedAtAddress(speedRecordAddress);
+        uint baseSpeed = speed.CalculateBaseSpeed(speedRecord);
 
         bool horizontalInput = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;

@@ -56,13 +56,25 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
     public ushort PreInstruction { get; internal set; }
     /// <summary>Gets the native combined sprite tile-base and palette word used when composing projectile OAM.</summary>
-    public ushort GraphicsIndex { get; internal set; }
+    public int GraphicsIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Gets the collision half-extents in pixels, decoded from the definition's native packed radii.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Gets the contact-damage value decoded from the native properties word, before Samus's suit reduction.</summary>
-    public ushort Damage { get; internal set; }
+    public int Damage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Gets the invincibility timer written to Samus on a damaging collision; definition initialization uses ninety-six frames.</summary>
-    public ushort InvincibilityFrames { get; internal set; }
+    public int InvincibilityFrames
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// Draw pass selected by native enemy-projectile property bit <c>$1000</c>.
     /// This is independent of the two-bit priority stored in each spritemap's OAM word.
@@ -73,17 +85,37 @@ public sealed class RoomEnemyProjectileSlot
     /// instruction timer: projectile bytecode explicitly initializes and decrements this
     /// value for counted loops and randomized impact animations.
     /// </summary>
-    public ushort GeneralTimer { get; internal set; }
+    public int GeneralTimer
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Gets Ridley's afterburn-chain counter; continuation decrements only its low byte and stops on signed underflow.</summary>
-    public ushort RemainingAfterburns { get; internal set; }
+    public int RemainingAfterburns
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Gets the native definition offset used to spawn the next directional afterburn in the chain.</summary>
     public ushort NextAfterburnKind { get; internal set; }
     /// <summary>Gets the family-specific direction or initializer parameter, retaining its native word representation rather than imposing a shared angle format.</summary>
-    public ushort DirectionParameter { get; internal set; }
+    public int DirectionParameter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Native generic enemy-projectile variable E at WRAM <c>$1AFF,x</c>.</summary>
-    public ushort Variable0 { get; internal set; }
+    public int Variable0
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Native generic enemy-projectile variable F at WRAM <c>$1B23,x</c>.</summary>
-    public ushort Variable1 { get; internal set; }
+    public int Variable1
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Gets whether this actor participates in damaging Samus-contact checks, independently of persistence and shot-blocking properties.</summary>
     public bool CanDamageSamus { get; internal set; }
     /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
@@ -96,18 +128,30 @@ public sealed class RoomEnemyProjectileSlot
     /// This is deliberately separate from property $8000: Kago enables that property only
     /// after its bug has moved far enough from the source shell, while retaining flag zero.
     /// </summary>
-    public ushort CollisionOption { get; internal set; }
+    public int CollisionOption
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// Native <c>eproj_G</c> collision word after a destructible projectile is shot. Kago
     /// reuses the same word as its idle timer before collision, so the typed bug wrapper is
     /// the authority on which meaning is currently active.
     /// </summary>
-    public ushort CollidedProjectileType { get; internal set; }
+    public int CollidedProjectileType
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// Native <c>eproj_killed_enemy_index</c>. Enemy-death explosions set bit $8000 when
     /// their terminal instruction must rebuild this physical enemy slot.
     /// </summary>
-    public ushort KilledEnemyNativeIndex { get; internal set; }
+    public int KilledEnemyNativeIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// Native bank-$A0 enemy-header pointer retained in the parallel bank-$7E projectile
     /// metadata. Death explosions use offset $3A of this record to find their six-byte

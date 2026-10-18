@@ -1033,7 +1033,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                    SpawnMotherBrainHandBeamFired(checked((ushort)projectile.Variable0));
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     projectile.Clear();
@@ -1240,7 +1240,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         bomb.Position = bomb.Position.WithWholeY(208);
         bomb.Velocity = new(new SnesSignedEightEight(unchecked((short)bomb.Velocity.X.RawValue) < 0
             ? unchecked((ushort)-bomb.Variable0)
-            : bomb.Variable0), SnesSignedEightEight.FromSignedRaw(-512));
+            : checked((ushort)bomb.Variable0)), SnesSignedEightEight.FromSignedRaw(-512));
         return true;
     }
 
@@ -1768,7 +1768,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathRomData.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime counts down in variable zero and expires when it passes zero.
-        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(fragment.Variable0).Decrement();
+        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
         fragment.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsNonNegative) return;
         ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathRomData.DoorDustYOffset));
@@ -3712,7 +3712,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             "Mother Brain onion ring ran without its multipart encounter state.");
 
         // The ring stays pinned to the mouth while its attach delay in variable zero runs out.
-        NativeCountdown attachDelay = NativeCountdown.FromRaw(ring.Variable0);
+        NativeCountdown attachDelay = NativeCountdown.FromRaw(checked((ushort)ring.Variable0));
         if (!attachDelay.IsZero)
         {
             ring.Variable0 = attachDelay.DecrementToZero().RawValue;

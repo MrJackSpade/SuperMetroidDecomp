@@ -272,7 +272,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(projectile.Variable0, "Fune/Namihe fireball function"))
+        switch (ClosedNativeWords.Decode<NamiFuneFireballFunction>(checked((ushort)projectile.Variable0), "Fune/Namihe fireball function"))
         {
             case NamiFuneFireballFunction.MovingLeft:
                 // Yes, this is YVelocity. The retail initializer and mover agree on this

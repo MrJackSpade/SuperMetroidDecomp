@@ -593,7 +593,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        ushort ownerNativeIndex = projectile.Variable0;
+        ushort ownerNativeIndex = checked((ushort)projectile.Variable0);
         if ((ownerNativeIndex & 1) != 0 ||
             ownerNativeIndex >= _projectiles.EnemyProjectiles.Count * 2 ||
             !_projectiles.EnemyProjectiles[ownerNativeIndex >> 1].IsActive)

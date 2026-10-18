@@ -153,7 +153,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
-        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(source.RemainingAfterburns);
+        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(checked((ushort)source.RemainingAfterburns));
         source.RemainingAfterburns = step.Remaining;
         if (step.IsNegative)
             return;
@@ -183,7 +183,7 @@ internal sealed class RidleyProjectiles
             if (horizontalCollision || verticalCollision)
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
-                ushort count = context.Projectile.RemainingAfterburns;
+                ushort count = checked((ushort)context.Projectile.RemainingAfterburns);
                 context.Projectile.Clear();
                 if (count != 0)
                 {

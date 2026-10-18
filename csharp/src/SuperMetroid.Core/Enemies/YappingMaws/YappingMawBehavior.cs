@@ -477,7 +477,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (body is not null)
             {
-                body.GraphicsIndex = new SnesObjAttributeWord(body.GraphicsIndex)
+                body.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)body.GraphicsIndex))
                     .WithPaletteBits(paletteBits);
             }
         }

@@ -250,7 +250,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
-        NativeCountdown soundTimer = NativeCountdown.FromRaw(projectile.Variable0);
+        NativeCountdown soundTimer = NativeCountdown.FromRaw(checked((ushort)projectile.Variable0));
         if (soundTimer.IsZero)
             return;
 
@@ -266,7 +266,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);
+        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
         int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
@@ -282,7 +282,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // of one therefore decrements to zero and remains idle until the following frame.
         if (projectile.CollidedProjectileType != 0)
         {
-            projectile.CollidedProjectileType = NativeWordCounter.Decrement(projectile.CollidedProjectileType).Value;
+            projectile.CollidedProjectileType = NativeWordCounter.Decrement(checked((ushort)projectile.CollidedProjectileType)).Value;
             return;
         }
 
@@ -358,7 +358,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
-        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);
+        RoomEnemySlot source = _slotTable.SlotFromNativeIndex(checked((ushort)projectile.Variable1));
         short sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
         bool jumpLeft;
         if (Math.Abs((int)sourceDelta) >= KagoBugSourceHomingDistance)

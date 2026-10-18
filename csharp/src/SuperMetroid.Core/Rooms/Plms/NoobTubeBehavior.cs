@@ -138,7 +138,7 @@ internal sealed class NoobTubeBehavior
                     projectile.Variable0 = projectile.Position.X.Whole;
                 projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
                     ? NoobTubeProjectileRomData.HiddenXPosition
-                    : projectile.Variable0);
+                    : checked((ushort)projectile.Variable0));
                 return;
 
             case NoobTubeProjectilePreInstruction.CrackFalling:
@@ -147,8 +147,8 @@ internal sealed class NoobTubeBehavior
 
             case NoobTubeProjectilePreInstruction.ShardFlying:
                 (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
-                    projectile.Variable1,
-                    projectile.Variable0,
+                    checked((ushort)projectile.Variable1),
+                    checked((ushort)projectile.Variable0),
                     projectile.Velocity.X.RawValue);
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
@@ -186,8 +186,8 @@ internal sealed class NoobTubeBehavior
         short sine = EnemyTrigonometryTables.SignedSine(unchecked((byte)((projectile.Velocity.X.RawValue >> 1) | 64)));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
         (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
-            projectile.Variable1,
-            projectile.Variable0,
+            checked((ushort)projectile.Variable1),
+            checked((ushort)projectile.Variable0),
             horizontalVelocity);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
@@ -195,7 +195,7 @@ internal sealed class NoobTubeBehavior
     /// <summary>Advances the bubble by its vertical velocity and publishes its separately accumulated horizontal word.</summary>
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.Variable1);
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(checked((ushort)projectile.Variable1));
     }
 
     /// <summary>Connects all six native projectile pre-instruction identities to the shared room callback.</summary>
@@ -220,12 +220,12 @@ internal sealed class NoobTubeBehavior
             case NoobTubeProjectileCueKind.FlickerReflected:
                 // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
                 projectile.Position = projectile.Position.WithWholeX(oddFrame
-                    ? projectile.Variable1
+                    ? checked((ushort)projectile.Variable1)
                     : unchecked((ushort)(NoobTubeProjectileRomData.ShardMirrorSpan - projectile.Variable1)));
                 ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
                 break;
             case NoobTubeProjectileCueKind.FlickerHidden:
-                projectile.Position = projectile.Position.WithWholeX(oddFrame ? projectile.Variable1 : NoobTubeProjectileRomData.HiddenXPosition);
+                projectile.Position = projectile.Position.WithWholeX(oddFrame ? checked((ushort)projectile.Variable1) : NoobTubeProjectileRomData.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
                 projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));

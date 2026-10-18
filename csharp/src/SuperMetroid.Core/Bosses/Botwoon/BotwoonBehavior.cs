@@ -1027,7 +1027,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
-        if (animation.Install(BotwoonSegmentProgram.FromSelector(segment.DirectionParameter)))
+        if (animation.Install(BotwoonSegmentProgram.FromSelector(checked((ushort)segment.DirectionParameter))))
             segment.InstructionTimer = NativeCountdown.Start(1);
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
@@ -1037,11 +1037,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
+        segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
             .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
         RoomEnemySlot head = _slotTable._slots[0];
         if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
-            segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
+            segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
                 .WithPaletteIndex(0);
     }
 
@@ -1110,8 +1110,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)
     {
-        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.X.RawValue, spit.Variable0)));
-        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.Y.RawValue, spit.Variable1)));
+        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.X.RawValue, checked((ushort)spit.Variable0))));
+        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.Y.RawValue, checked((ushort)spit.Variable1))));
         int xDisplacement = EnemyMath.CosineIsNegative(spit.DirectionParameter) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(spit.DirectionParameter) ? -yMagnitude : yMagnitude;
         spit.Position = spit.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));

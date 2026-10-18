@@ -2140,7 +2140,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(projectile.DirectionParameter);
+        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(checked((ushort)projectile.DirectionParameter));
         byte angle = EnemyMath.CalculateCartridgeAngle(new(-64, gradient));
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
@@ -2248,7 +2248,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int slot = projectile.SlotIndex;
         ushort maximumAcceleration = CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot);
-        ushort acceleration = projectile.Variable0;
+        ushort acceleration = checked((ushort)projectile.Variable0);
         if (acceleration != maximumAcceleration)
         {
             acceleration = unchecked((ushort)(
@@ -2277,7 +2277,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1));
+        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1)));
         velocity = unchecked(velocity + 12288u);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)))));
         projectile.Variable1 = unchecked((ushort)velocity);

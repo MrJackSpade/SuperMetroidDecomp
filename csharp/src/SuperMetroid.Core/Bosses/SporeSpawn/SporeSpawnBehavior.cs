@@ -800,7 +800,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
             spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() % 512));
         }
-        spawner.Variable1 = NativeWordCounter.Decrement(spawner.Variable1).Value;
+        spawner.Variable1 = NativeWordCounter.Decrement(checked((ushort)spawner.Variable1)).Value;
     }
 
     /// <summary>Ports projectile instruction $86:DC5A's complete property-word replace.</summary>

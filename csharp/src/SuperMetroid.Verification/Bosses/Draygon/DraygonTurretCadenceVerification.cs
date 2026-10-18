@@ -48,7 +48,7 @@ internal static class DraygonTurretCadenceVerification
             runtime.Enemies.DraygonBehavior.SpawnDraygonGoop(boss, false);
             RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            var velocity = (goop.Velocity.X.RawValue, goop.Variable0, goop.Velocity.Y.RawValue, goop.Variable1, goop.DirectionParameter);
+            var velocity = (goop.Velocity.X.RawValue, checked((ushort)goop.Variable0), goop.Velocity.Y.RawValue, checked((ushort)goop.Variable1), checked((ushort)goop.DirectionParameter));
             goop.Clear();
             return velocity;
         }

@@ -1965,8 +1965,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
     internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile)
     {
-        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, projectile.Variable0)));
-        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1)));
+        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, checked((ushort)projectile.Variable0))));
+        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1))));
         int xDisplacement = EnemyMath.CosineIsNegative(projectile.DirectionParameter) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(projectile.DirectionParameter) ? -yMagnitude : yMagnitude;
         projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
@@ -2048,7 +2048,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12))));
         // The attachment lifetime counts down in variable zero (DEC then BNE): the goop falls off when it reaches zero.
-        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(goop.Variable0).Decrement();
+        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)goop.Variable0)).Decrement();
         goop.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsZero)
             RemoveAttachedDraygonGoop(goop, samus);

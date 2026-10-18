@@ -149,7 +149,7 @@ internal sealed class TourianUnlockBehavior
         switch ((TourianStatueInstruction)code)
         {
             case TourianStatueInstruction.ResetDustPosition:
-                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
+                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                 break;
             case TourianStatueInstruction.SpawnParticle:
                 SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);

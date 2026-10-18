@@ -792,7 +792,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 _projectiles.Scatter(projectile, cue.Scatter);
                 return null;
             case TorizoProjectileCueKind.ReturnToOrigin:
-                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
+                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                 return null;
             case TorizoProjectileCueKind.RaiseDust:
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
@@ -1953,7 +1953,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        NativeWordCounterStep hatch = NativeCountdown.FromRaw(projectile.Variable1).Decrement();
+        NativeWordCounterStep hatch = NativeCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
         projectile.Variable1 = hatch.Value;
         if (hatch.IsNegative)
         {

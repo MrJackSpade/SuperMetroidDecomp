@@ -128,7 +128,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             TourianEntranceStatueFinished = true;
         }
 
-        projectile.Position = projectile.Position.WithWholeX(projectile.Variable0);
+        projectile.Position = projectile.Position.WithWholeX(checked((ushort)projectile.Variable0));
 
         // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.

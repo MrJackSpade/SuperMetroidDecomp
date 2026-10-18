@@ -1904,7 +1904,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         flame.Variable0 = unchecked((byte)(directionIndex * 32));
-        PositionPhantoonFlameAroundBody(flame, body, flame.Variable0, radius: 48);
+        PositionPhantoonFlameAroundBody(flame, body, checked((ushort)flame.Variable0), radius: 48);
         flame.PreInstruction = PhantoonStartingFlameWaitingPreInstruction;
         return true;
     }
@@ -2020,7 +2020,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            flame.Variable0,
+            checked((ushort)flame.Variable0),
             unchecked((byte)flame.Velocity.Y.RawValue));
     }
 
@@ -2048,7 +2048,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot flame,
         int nmiFrameCounter)
     {
-        NativeWordCounterStep pauseStep = NativeWordCounter.Decrement(flame.Variable0);
+        NativeWordCounterStep pauseStep = NativeWordCounter.Decrement(checked((ushort)flame.Variable0));
         flame.Variable0 = pauseStep.Value;
         if (!pauseStep.IsZeroOrNegative)
             return;
@@ -2108,7 +2108,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            flame.Variable0,
+            checked((ushort)flame.Variable0),
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }
@@ -2152,7 +2152,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
-            flame.Variable0,
+            checked((ushort)flame.Variable0),
             unchecked((byte)flame.Velocity.Y.RawValue));
         DeletePhantoonFlameOutsideRoom(flame);
     }

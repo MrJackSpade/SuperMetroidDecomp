@@ -198,7 +198,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (ClosedNativeWords.Decode<PolypRockFunction>(projectile.Variable0, "Polyp rock function"))
+        switch (ClosedNativeWords.Decode<PolypRockFunction>(checked((ushort)projectile.Variable0), "Polyp rock function"))
         {
             case PolypRockFunction.Rising:
                 StepRisingPolypRock(projectile);

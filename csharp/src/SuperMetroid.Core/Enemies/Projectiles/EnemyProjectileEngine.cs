@@ -113,7 +113,7 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, cue.Scatter);
                 break;
             case EnemyProjectileCommonCueKind.ReturnToOrigin:
-                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
+                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue.Kind}.");
@@ -425,7 +425,7 @@ internal sealed class EnemyProjectileEngine
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
             oam.AddEnemySpritemap(parts.Span, screen.ToOam(),
-                new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
+                new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: (SnesLittleEndian.HighByte(screen.Y)) == 0);
         }
@@ -729,11 +729,11 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        ushort damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
+        ushort damage = SamusSuitDamage.Reduce(checked((ushort)projectile.Damage), samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = NativeCountdown.FromRaw(projectile.InvincibilityFrames);
+        samus.InvincibilityTimer = NativeCountdown.FromRaw(checked((ushort)projectile.InvincibilityFrames));
         KnockbackHorizontalDirection knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
             ? KnockbackHorizontalDirection.Right
@@ -924,7 +924,7 @@ internal sealed class EnemyProjectileEngine
                         $"Projectile relative branch at $86:{cursor:X4} is outside the compiled program domain.");
                 case EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero:
                 {
-                    ushort before = projectile.GeneralTimer;
+                    ushort before = checked((ushort)projectile.GeneralTimer);
                     projectile.GeneralTimer = unchecked((ushort)(before - 1));
                     cursor = before == 1
                         ? unchecked((ushort)(cursor + 4))
@@ -953,7 +953,7 @@ internal sealed class EnemyProjectileEngine
                             (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? 2 : 4))));
                     break;
                 case EnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
-                    projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
+                    projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

@@ -100,7 +100,7 @@ internal sealed class FallingSparksBehavior
     internal static void AddFallingSparkHorizontalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
-        uint fraction = (uint)projectile.Position.X.Fraction + projectile.Variable0;
+        uint fraction = (uint)projectile.Position.X.Fraction + checked((ushort)projectile.Variable0);
         projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)fraction));
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
             projectile.Position.X.Whole + projectile.Variable1 + SnesCarry.OutOfWord(fraction))));
@@ -137,7 +137,7 @@ internal sealed class FallingSparksBehavior
         _ = _spriteObjects.SpawnRoomSpriteObject(
             projectile.Position.Whole,
             RoomSpriteObjectKind.FallingSparkTrail,
-            projectile.GraphicsIndex);
+            checked((ushort)projectile.GraphicsIndex));
     }
 
     /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>

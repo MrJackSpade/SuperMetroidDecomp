@@ -378,7 +378,7 @@ internal static class NativeSnapshotImportVerification
                 projectile, unchecked((ushort)(instruction - 2)));
             AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
                 $"initial enemy projectile {projectile.SlotIndex} radii");
-            ushort properties = projectile.Damage;
+            ushort properties = checked((ushort)projectile.Damage);
             if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
             if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;
             if (projectile.PersistsOnSamusContact) properties |= NativeSnapshotMemory.EnemyProjectilePersistent;

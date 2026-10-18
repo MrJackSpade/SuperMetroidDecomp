@@ -1542,13 +1542,13 @@ internal static class RidleyFullMovieVerification
                 }
                 Check(owner + " InstructionTimer", projectile.InstructionTimer.RawValue, NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
                 Check(owner + " radii", SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
-                ushort properties = projectile.Damage;
+                ushort properties = checked((ushort)projectile.Damage);
                 if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
                 if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;
                 if (projectile.PersistsOnSamusContact) properties |= NativeSnapshotMemory.EnemyProjectilePersistent;
                 if (projectile.BlocksSamusProjectiles) properties |= NativeSnapshotMemory.EnemyProjectileShotCollision;
                 Check(owner + " properties", properties, NativeSnapshotMemory.EnemyProjectileProperties + index);
-                ushort variableE = projectile.Variable0, variableF = projectile.Variable1;
+                ushort variableE = checked((ushort)projectile.Variable0), variableF = checked((ushort)projectile.Variable1);
                 switch (projectile.Kind)
                 {
                     case RoomEnemyProjectileKind.CeresRidleyFireball:
@@ -1564,7 +1564,7 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
-                        variableE = projectile.RemainingAfterburns;
+                        variableE = checked((ushort)projectile.RemainingAfterburns);
                         variableF = projectile.NextAfterburnKind;
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:

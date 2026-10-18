@@ -275,7 +275,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(projectile.Variable0, "Stoke projectile movement function") switch
+        ushort horizontalVelocity = ClosedNativeWords.Decode<StokeProjectileFunction>(checked((ushort)projectile.Variable0), "Stoke projectile movement function") switch
         {
             // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
             StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,

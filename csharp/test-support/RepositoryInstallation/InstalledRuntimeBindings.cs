@@ -48,6 +48,7 @@ internal static class InstalledRuntimeBindings
         var assetRoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
         var assetEnemyTileArtwork = installation.LoadEnemyTiles();
         var projectiles = installation.LoadProjectiles();
+        var assetSamusOverreads = installation.LoadSamusOverreads();
         return runtime =>
         {
             runtime.Artwork.MapPresentation = assetMapPresentation;
@@ -93,6 +94,7 @@ internal static class InstalledRuntimeBindings
             runtime.Artwork.ProjectileFrameBindings = projectiles.FrameBindings;
             runtime.Artwork.BeamArtwork = projectiles.BeamTiles;
             runtime.Artwork.TrailArtwork = projectiles.Trails;
+            runtime.Artwork.SamusOverreads = assetSamusOverreads;
             runtime.Artwork.ChargeFlarePlacement = projectiles.FlarePlacement;
             runtime.Artwork.ChargeFlareCompositions = projectiles.FlareCompositions;
             runtime.Artwork.GrappleArtwork = projectiles.GrappleTiles;

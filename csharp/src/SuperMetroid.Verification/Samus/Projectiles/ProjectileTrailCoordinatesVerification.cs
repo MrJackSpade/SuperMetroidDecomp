@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -15,16 +16,16 @@ internal static class ProjectileTrailCoordinatesVerification
         int bytes = 0;
         for (int address = 0x9b8000; address <= 0x9bffff; address++)
         {
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out byte value))
+            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, RepositoryInstallation.SamusOverreads, out byte value))
             { AssertEqual(ReadRetailTrailOperandByte(bus, address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
             int next = SnesAddressMath.AddWithinBank(address, 1);
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
-                ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
-                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
+            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, RepositoryInstallation.SamusOverreads, out _) &&
+                ProjectileTrailCoordinateDefinitions.TryReadByte(next, RepositoryInstallation.SamusOverreads, out _))
+                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address, RepositoryInstallation.SamusOverreads), "Compiled trail pointer word preserves authored odd and wrapped words");
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress, RepositoryInstallation.SamusOverreads), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
             }
         }
         AssertEqual(4342, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations, 485 further reflected-list-start bytes and the empty-family wrapped byte cover the reachable native region");
@@ -34,9 +35,9 @@ internal static class ProjectileTrailCoordinatesVerification
         {
             int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
             int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
-            bool compiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &
-                ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _);
-            bool resolved = ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(operand, (ushort)index, out ushort word);
+            bool compiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, RepositoryInstallation.SamusOverreads, out _) &
+                ProjectileTrailCoordinateDefinitions.TryReadByte(next, RepositoryInstallation.SamusOverreads, out _);
+            bool resolved = ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(operand, (ushort)index, RepositoryInstallation.SamusOverreads, out ushort word);
             AssertEqual(compiled, resolved, "A trail coordinate word resolves exactly when both bytes are compiled");
             if (compiled)
                 AssertEqual(ReadNativeTrailOperandWord(bus, operand, (ushort)index), word, "A compiled coordinate operand reads the native word");
@@ -54,7 +55,7 @@ internal static class ProjectileTrailCoordinatesVerification
             .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
-        var system = new SamusProjectileSystem();
+        var system = new SamusProjectileSystem { Overreads = RepositoryInstallation.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 37, 0x100, 0x200 })
@@ -143,18 +144,18 @@ internal static class ProjectileTrailCoordinatesVerification
     /// </summary>
     private static bool TrailSpawnResolves(ushort type, ushort y) =>
         TrailProgramsCompiled(type) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, out _);
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), RepositoryInstallation.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, RepositoryInstallation.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, RepositoryInstallation.SamusOverreads, out _) &&
+        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, RepositoryInstallation.SamusOverreads, out _);
 
     /// <summary>Whether both trail programs <paramref name="type"/> selects are compiled.</summary>
     private static bool TrailProgramsCompiled(ushort type)
     {
         int family = SnesLittleEndian.HighByte(type);
         int index = family == 0 ? type & 63 : family + 31;
-        ushort left = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.LeftInstructionPointers + index * 2);
-        ushort right = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.RightInstructionPointers + index * 2);
+        ushort left = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.LeftInstructionPointers + index * 2, RepositoryInstallation.SamusOverreads);
+        ushort right = ProjectileTrailDefinitions.ReadSelector(SamusProjectileRomData.Trails.RightInstructionPointers + index * 2, RepositoryInstallation.SamusOverreads);
         return ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | left, out _) &&
             ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | right, out _);
     }

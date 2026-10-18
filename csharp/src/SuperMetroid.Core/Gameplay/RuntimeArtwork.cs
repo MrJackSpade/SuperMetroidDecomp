@@ -280,6 +280,14 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set { field = value; BindProjectileObjects(); }
     }
 
+    /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
+    [field: NonSerialized]
+    public SamusOverreadCatalog? SamusOverreads
+    {
+        get;
+        set { field = value; _projectiles.Overreads = value; }
+    }
+
     /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
     [NonSerialized] private BeamTileCatalog? pendingBeamPalette;
 

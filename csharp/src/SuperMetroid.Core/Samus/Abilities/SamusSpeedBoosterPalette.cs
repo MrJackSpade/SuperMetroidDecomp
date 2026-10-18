@@ -12,7 +12,7 @@ internal static class SamusSpeedBoosterPalette
     /// CGRAM port, preserving the unrolled cartridge read behavior.
     /// </summary>
     internal static void Apply(SnesCgram cgram, ushort pointer,
-        SamusFullBodyCycleColorCatalog? colors)
+        SamusFullBodyCycleColorCatalog? colors, SamusOverreadCatalog? overreads)
     {
         if (Enum.IsDefined((SpeedBoosterPaletteOverrun)pointer))
         {
@@ -24,7 +24,9 @@ internal static class SamusSpeedBoosterPalette
                 ushort word = overrun switch
                 {
                     SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
-                    SpeedBoosterPaletteOverrun.GrappleCode => SpeedBoosterPaletteOverrunDefinitions.GrappleInstructionWord(index),
+                    SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(
+                            "The Speed Booster grapple-code overrun needs the installed Samus overread catalog."))
+                        .SpeedBoosterGrappleCodeWord(index),
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
                 };
                 // Arbitrary bus words reach CGRAM through its fifteen-bit data port.

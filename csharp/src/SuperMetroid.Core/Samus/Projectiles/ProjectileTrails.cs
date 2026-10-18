@@ -7,6 +7,10 @@ internal sealed class ProjectileTrails
     /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>The installed cartridge bytes a trail reads past its selector and coordinate tables; null until bound.</summary>
+    [field: NonSerialized]
+    internal SamusOverreadCatalog? Overreads { get; set; }
+
     /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
     internal ProjectileTrails(ProjectileSlotTable slotTable)
     {
@@ -34,9 +38,9 @@ internal sealed class ProjectileTrails
         }
 
         ushort leftProgram = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2);
+            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2, Overreads);
         ushort rightProgram = ProjectileTrailDefinitions.ReadSelector(
-            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2);
+            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2, Overreads);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
@@ -48,7 +52,7 @@ internal sealed class ProjectileTrails
                 ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
                 : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
         ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
-            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2);
+            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2, Overreads);
 
         // An empty trail family (a glitch beam) points its programs, direction list or coordinate operands into the
         // low halves of banks $90/$9B, which hold direct-page scratch. Its exact appearance would need direct-page
@@ -58,13 +62,13 @@ internal sealed class ProjectileTrails
             !ProjectileTrailProgramDefinitions.TryRead(SamusProjectileRomData.Banks.Movement | rightProgram, out _) ||
             !ProjectileTrailCoordinateDefinitions.TryReadDirectionPointer(
                 SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(directionTable + direction * 2)),
-                out ushort offsetList))
+                Overreads, out ushort offsetList))
             return;
         ushort y = (ushort)(SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(offsetList + animationFrame * 4)));
-        if (!ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, out ushort leftYWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), out ushort leftXWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, out ushort rightYWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, out ushort rightXWord))
+        if (!ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, Overreads, out ushort leftYWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), Overreads, out ushort leftXWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, Overreads, out ushort rightYWord) ||
+            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, Overreads, out ushort rightXWord))
             return;
         byte leftY = SnesLittleEndian.HighByte(leftYWord);
         byte leftX = SnesLittleEndian.HighByte(leftXWord);

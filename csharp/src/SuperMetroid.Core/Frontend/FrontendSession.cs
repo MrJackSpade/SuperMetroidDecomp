@@ -385,6 +385,7 @@ internal sealed class FrontendSession
         runtime.Artwork.ProjectileCompositions = Artwork.ProjectileCompositions;
         runtime.Artwork.ProjectileFrameBindings = Artwork.ProjectileFrameBindings;
         runtime.Artwork.TrailArtwork = Artwork.TrailArtwork;
+        runtime.Artwork.SamusOverreads = Artwork.SamusOverreads;
         runtime.Artwork.ChargeFlarePlacement = Artwork.ChargeFlarePlacement;
         runtime.Artwork.ChargeFlareCompositions = Artwork.ChargeFlareCompositions;
         runtime.Artwork.GrappleArtwork = Artwork.GrappleArtwork;

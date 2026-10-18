@@ -408,7 +408,8 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
+    public bool UpdateSpeedBoosterPalette(SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
+        SamusOverreadCatalog? overreads = null)
     {
         Ensure.NotNull(cgram);
 
@@ -488,7 +489,7 @@ public sealed class SamusHorizontalSpeedState
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
-        SamusSpeedBoosterPalette.Apply(cgram, palettePointer, cycleColors);
+        SamusSpeedBoosterPalette.Apply(cgram, palettePointer, cycleColors, overreads);
 
         // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
         // in this shared word; retain that one bounded overrun before pinning phase six.

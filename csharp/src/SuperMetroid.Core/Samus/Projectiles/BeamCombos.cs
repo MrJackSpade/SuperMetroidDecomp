@@ -223,6 +223,7 @@ internal sealed class BeamCombos
     /// </returns>
     internal static bool RunSpacetimePaletteCopyTail(
         SuperMetroid.Core.Saves.SaveMirrorImage? progressionMirror,
+        SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {
         ushort inheritedY = slot.SpritemapPointer == 0
@@ -236,8 +237,11 @@ internal sealed class BeamCombos
 
         while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
         {
-            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(progressionMirror ?? throw new InvalidOperationException(
-                "SpaceTime's palette-copy overwrite writes the progression mirror; the frame must pass it.")).CopyPaletteWord(x, y);
+            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(
+                progressionMirror ?? throw new InvalidOperationException(
+                    "SpaceTime's palette-copy overwrite writes the progression mirror; the frame must pass it."),
+                overreads ?? throw new InvalidOperationException(
+                    "SpaceTime's palette-copy overwrite reads cartridge bytes; the Samus overread catalog must be installed.")).CopyPaletteWord(x, y);
             x = unchecked((ushort)(x + sizeof(ushort)));
             y = unchecked((ushort)(y + sizeof(ushort)));
         }

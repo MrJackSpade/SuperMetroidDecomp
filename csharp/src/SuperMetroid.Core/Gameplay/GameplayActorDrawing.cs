@@ -155,7 +155,8 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_cgram, new SpeedBoosterPaletteFrame { MovementType = _player.Samus.PoseMetadata.ReadMovementType(), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         _player.Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
-                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors);
+                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors,
+                        overreads: _artwork.SamusOverreads);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.

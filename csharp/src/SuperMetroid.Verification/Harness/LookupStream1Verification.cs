@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -1485,15 +1486,15 @@ internal static class LookupStream1Verification
         for (int pose = 0; pose < 256; pose++)
         {
             if (pose < 0xDB)
-                AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
+                AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((SamusPoseId)pose, RepositoryInstallation.SamusOverreads),
                     $"HUD exact bounded posture observation {pose:X2}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((SamusPoseId)pose),
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((SamusPoseId)pose, RepositoryInstallation.SamusOverreads),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
-                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple),
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple, RepositoryInstallation.SamusOverreads),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }

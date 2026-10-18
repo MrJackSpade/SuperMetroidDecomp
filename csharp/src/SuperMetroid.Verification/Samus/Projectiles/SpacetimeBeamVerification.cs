@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -41,9 +42,10 @@ internal static class SpacetimeBeamVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         VerifySpacetimeCopySourceAgainstRetailRom(bus);
-        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x009130),
+        AssertThrows<ArgumentOutOfRangeException>(() => RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(-1),
             "adjacent instruction before bounded source is not admitted");
-        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x010000),
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
             "word carry must return to the mutable-memory owner");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
@@ -103,6 +105,7 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
+        projectiles.Overreads = RepositoryInstallation.SamusOverreads;
         var mirror = new SaveMirrorImage();
         system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
@@ -168,17 +171,17 @@ internal static class SpacetimeBeamVerification
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
-    /// <summary>Checks each byte in the bounded copy source against the supported ROM before replaying the beam.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
+    /// <summary>Checks each installed copy-source byte against the supported ROM before replaying the beam.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed SpaceTime copy source")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
-            SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
-        for (int offset = 0; offset < SpacetimeBeamCopyDefinitions.SourceBytes.Length; offset++)
+            SamusOverreadDefinitions.SpacetimeCopySourceByteCount, "bounded native copy source size");
+        for (int offset = 0; offset < SamusOverreadDefinitions.SpacetimeCopySourceByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                SpacetimeBeamCopyDefinitions.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                "SpaceTime copy source agrees with supported cartridge");
+                RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(offset),
+                "installed SpaceTime copy source agrees with supported cartridge");
     }
 
     /// <summary>

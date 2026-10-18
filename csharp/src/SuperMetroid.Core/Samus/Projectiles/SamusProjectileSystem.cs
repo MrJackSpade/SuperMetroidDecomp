@@ -66,6 +66,21 @@ public sealed class SamusProjectileSystem
     /// <summary>Allocates and advances the two-sided trail records left by moving projectiles.</summary>
     internal ProjectileTrails Trails { get; }
 
+    /// <summary>
+    /// The installed cartridge bytes the trail, HUD-admission and SpaceTime glitch paths read; null until the host binds
+    /// the installation.
+    /// </summary>
+    [field: NonSerialized]
+    internal SamusOverreadCatalog? Overreads
+    {
+        get;
+        set
+        {
+            field = value;
+            Trails.Overreads = value;
+        }
+    }
+
     /// <summary>Creates the five projectile slots, eighteen trail slots and the owners that run them.</summary>
     public SamusProjectileSystem()
     {
@@ -348,7 +363,7 @@ public sealed class SamusProjectileSystem
         // ordinary crouch/stand transitions still run their native beam producer.
         bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
-                grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive);
+                grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive, Overreads);
         if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
@@ -471,7 +486,7 @@ public sealed class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.ProgressionMirror, slot);
+                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.ProgressionMirror, Overreads, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {

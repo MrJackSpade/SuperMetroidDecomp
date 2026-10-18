@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -62,6 +63,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePaletteCatalog LoadGameplayBasePalettes() =>
         GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
+    /// <summary>Stock cartridge bytes Samus's glitch paths read; not editable, so there is no override directory.</summary>
+    public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
+    /// <summary>Loads the validated cartridge bytes Samus's glitch paths read.</summary>
+    public SamusOverreadCatalog LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
     /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
     /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
@@ -449,6 +454,7 @@ public sealed record GameInstallation(string Root)
             ChargeFlarePlacement = projectiles.FlarePlacement,
             ChargeFlareCompositions = projectiles.FlareCompositions,
             GrappleArtwork = projectiles.GrappleTiles,
+            SamusOverreads = LoadSamusOverreads(),
         };
     }
 }

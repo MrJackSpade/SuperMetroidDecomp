@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// progression and level data. Owner decision on #1318: only the progression slice (<c>$7E:D820-D91B</c>) is kept,
 /// exactly; the other regions are not replicated.
 /// </summary>
-internal readonly struct SpacetimeBeamCorruptionMemory(SaveMirrorImage progressionMirror)
+internal readonly struct SpacetimeBeamCorruptionMemory(SaveMirrorImage progressionMirror, SamusOverreadCatalog overreads)
 {
     /// <summary>
     /// Copies one word from <c>[$00],Y</c> (Y = <paramref name="sourceIndex"/>) to <c>$7E:C1C0,X</c> (X =
     /// <paramref name="destinationIndex"/>) with the native 24-bit address wrap, writing only the bytes that land in the
-    /// progression slice. Those are reached only with a large inherited Y, so their sources are compiled bank-$00
-    /// cartridge bytes.
+    /// progression slice. Those are reached only with a large inherited Y, so their sources are bank-$00 cartridge bytes,
+    /// which the installed overread catalog holds.
     /// </summary>
     /// <returns>True when the written word touched a translated persistent-progression or saved-entry byte.</returns>
     internal bool CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
@@ -29,7 +29,8 @@ internal readonly struct SpacetimeBeamCorruptionMemory(SaveMirrorImage progressi
             if (!SaveMirrorImage.HoldsOffset(mirrorOffset))
                 continue;
             progressionMirror.WriteRawByte(mirrorOffset,
-                SpacetimeBeamCopyDefinitions.ReadCartridgeByte((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask));
+                overreads.SpacetimeCopySourceByte(
+                    ((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask) - SpacetimeBeamCopyDefinitions.FirstSourceAddress));
             progression = true;
         }
         return progression;

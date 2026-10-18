@@ -21,6 +21,8 @@ public static class GameInstallationLayout
     public const string EnemyTileDirectoryName = "enemy-tiles";
     /// <summary>Content child directory for room character-tile atlases.</summary>
     public const string RoomCharacterDirectoryName = "room-characters";
+    /// <summary>Content child directory for the cartridge bytes Samus's glitch paths read.</summary>
+    public const string SamusOverreadDirectoryName = "samus-overreads";
     /// <summary>Content child directory for Samus body PNGs and visual selectors.</summary>
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>

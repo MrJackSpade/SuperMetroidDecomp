@@ -308,6 +308,8 @@ public sealed class SuperMetroidGame
             if (Session.runtime is not null) Session.runtime.Artwork.TrailArtwork = artwork.TrailArtwork;
             if (Session.intro is not null) Session.intro.TrailArtwork = artwork.TrailArtwork;
         }
+        if (!ReferenceEquals(previous.SamusOverreads, artwork.SamusOverreads) && Session.runtime is not null)
+            Session.runtime.Artwork.SamusOverreads = artwork.SamusOverreads;
         if (!ReferenceEquals(previous.ChargeFlarePlacement, artwork.ChargeFlarePlacement))
         {
             if (Session.runtime is not null) Session.runtime.Artwork.ChargeFlarePlacement = artwork.ChargeFlarePlacement;

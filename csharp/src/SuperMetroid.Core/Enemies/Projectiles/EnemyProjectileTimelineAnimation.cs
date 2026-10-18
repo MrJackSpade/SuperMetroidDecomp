@@ -25,10 +25,10 @@ internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyPr
 
     /// <summary>Plays the timeline, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFramePresentation presentation)
     {
         int position = Position;
-        AnimationAdvance<TFrame> advance = Timeline.Advance(ref position, cue => handlers.PublishCue(projectile, samus, cue));
+        AnimationAdvance<TFrame> advance = Timeline.Advance(ref position, cue => handlers.PublishCue(context, cue));
         Position = position;
         duration = advance.Duration;
         presentation = advance.Held ? default : Present(advance.Frame);

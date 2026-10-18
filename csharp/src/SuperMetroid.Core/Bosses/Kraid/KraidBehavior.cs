@@ -450,8 +450,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.RegisterShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
             () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
-        table.RegisterCue<KraidRockCue>((projectile, samus, cue) =>
+        table.RegisterCue<KraidRockCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case KraidRockCue.UsePaletteZero:

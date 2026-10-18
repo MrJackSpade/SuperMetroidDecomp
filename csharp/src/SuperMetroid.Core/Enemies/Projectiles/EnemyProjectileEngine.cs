@@ -88,7 +88,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectilePreInstruction.RTS_86E6D1,
             EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
-        table.RegisterCue<EnemyProjectileCommonCue>(ApplyCommonCue);
+        table.RegisterCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, context.Samus, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.RegisterEnemyProjectileHandlers(table);
         return table;
@@ -766,7 +766,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(projectile, Handlers, samus);
+            animation.Advance(new(projectile, samus, camera), Handlers);
             return;
         }
 
@@ -1139,8 +1139,9 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Deletes a gunship dust cloud when its program ends.</summary>
     internal static void RegisterGunshipDustCues(EnemyProjectileHandlerTable table) =>
-        table.RegisterCue<GunshipDustCue>((projectile, _, cue) =>
+        table.RegisterCue<GunshipDustCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case GunshipDustCue.Delete:

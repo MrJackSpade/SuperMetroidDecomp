@@ -135,18 +135,18 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
-    internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
+    internal void PublishCue<TCue>(EnemyProjectileCueContext context, TCue cue)
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
-        ((EnemyProjectileCueHandler<TCue>)handler)(projectile, samus, cue);
+        ((EnemyProjectileCueHandler<TCue>)handler)(context, cue);
     }
 
     /// <summary>
     /// Carries out <paramref name="cue"/> of a program animation with its family's registered handler, returning the
     /// program a branching handler redirects to, or null.
     /// </summary>
-    internal TProgram? PublishProgramCue<TProgram, TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
+    internal TProgram? PublishProgramCue<TProgram, TCue>(EnemyProjectileCueContext context, TCue cue)
         where TProgram : struct, Enum
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
@@ -154,9 +154,9 @@ internal sealed class EnemyProjectileHandlerTable
         switch (handler)
         {
             case EnemyProjectileBranchingCueHandler<TProgram, TCue> branching:
-                return branching(projectile, samus, cue);
+                return branching(context, cue);
             case EnemyProjectileCueHandler<TCue> plain:
-                plain(projectile, samus, cue);
+                plain(context, cue);
                 return null;
             default:
                 throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}'s handler does not run {typeof(TProgram).Name} programs.");

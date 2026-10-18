@@ -715,7 +715,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MagdolliteLava);
 
-        table.RegisterCue<MagdolliteLavaCue>(ApplyMagdolliteLavaCue);
+        table.RegisterCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, context.Samus, cue));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
     }
 

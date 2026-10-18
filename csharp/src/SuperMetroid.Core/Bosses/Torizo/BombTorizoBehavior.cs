@@ -731,7 +731,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             RunGoldenTorizoEyeBeamPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.GoldenTorizoEyeBeam);
 
-        table.RegisterBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>(ApplyTorizoProjectileCue);
+        table.RegisterBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
         // The egg's definition names the Chozo orb's wall-impact list as its shot list.

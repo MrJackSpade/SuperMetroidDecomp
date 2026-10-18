@@ -1074,8 +1074,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.DraygonGoop,
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
-        table.RegisterCue<DraygonProjectileCue>((projectile, samus, cue) =>
+        table.RegisterCue<DraygonProjectileCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
+            SamusState? samus = context.Samus;
             switch (cue)
             {
                 case DraygonProjectileCue.StickToSamus:

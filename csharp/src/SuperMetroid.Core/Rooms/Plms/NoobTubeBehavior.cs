@@ -207,7 +207,7 @@ internal sealed class NoobTubeBehavior
 
     /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>
     internal void RegisterNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
-        table.RegisterCue<NoobTubeProjectileCue>(ApplyNoobTubeProjectileCue);
+        table.RegisterCue<NoobTubeProjectileCue>((context, cue) => ApplyNoobTubeProjectileCue(context.Projectile, context.Samus, cue));
 
     /// <summary>Carries out one cue of the crack, shard and bubble programs.</summary>
     private void ApplyNoobTubeProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, NoobTubeProjectileCue cue)

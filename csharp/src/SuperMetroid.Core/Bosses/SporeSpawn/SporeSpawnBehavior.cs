@@ -369,8 +369,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
-        table.RegisterCue<SporeSpawnProjectileCue>((projectile, samus, cue) =>
+        table.RegisterCue<SporeSpawnProjectileCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case SporeSpawnProjectileCue.SpawnSpore:

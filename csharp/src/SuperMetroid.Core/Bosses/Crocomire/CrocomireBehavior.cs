@@ -2361,8 +2361,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.RegisterShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
-        table.RegisterCue<CrocomireProjectileCue>((projectile, samus, cue) =>
+        table.RegisterCue<CrocomireProjectileCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:

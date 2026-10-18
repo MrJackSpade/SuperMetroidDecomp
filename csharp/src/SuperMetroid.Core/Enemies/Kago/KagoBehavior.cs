@@ -147,7 +147,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             RunKagoBugFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Falling);
 
-        table.RegisterCue<KagoBugProjectileCue>(ApplyKagoBugCue);
+        table.RegisterCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, context.Samus, cue));
         // A shot bug runs its typed shot program, the list its definition names.
         table.RegisterShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
     }

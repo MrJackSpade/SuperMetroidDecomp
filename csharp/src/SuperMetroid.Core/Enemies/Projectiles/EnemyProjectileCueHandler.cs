@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
+﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Projectiles;
-
-/// <summary>Carries out one cue a typed projectile animation published on <paramref name="projectile"/>.</summary>
-internal delegate void EnemyProjectileCueHandler<in TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue);
+/// <summary>Carries out one cue a typed projectile animation published on the context's projectile.</summary>
+internal delegate void EnemyProjectileCueHandler<in TCue>(EnemyProjectileCueContext context, TCue cue);

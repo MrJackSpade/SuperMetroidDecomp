@@ -928,8 +928,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
         table.RegisterShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.RegisterCue<MotherBrainTurretCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainTurretCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainTurretCue.UsePaletteZero:
@@ -945,8 +946,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
             }
         });
-        table.RegisterCue<MotherBrainGlassCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainGlassCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainGlassCue.Delete:
@@ -1024,13 +1026,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             PinMotherBrainEscapeSubtitle(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
 
-        table.RegisterCue<MotherBrainEffectCue>(ApplyMotherBrainEffectCue);
+        table.RegisterCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, context.Samus, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
 
-        table.RegisterCue<MotherBrainHandBeamCue>((projectile, samus, cue) =>
+        table.RegisterCue<MotherBrainHandBeamCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:

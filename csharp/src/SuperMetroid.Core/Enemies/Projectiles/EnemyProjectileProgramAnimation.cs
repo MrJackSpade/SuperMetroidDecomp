@@ -33,14 +33,15 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
 
     /// <summary>Runs the program, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFramePresentation presentation)
     {
+        RoomEnemyProjectileSlot projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
         // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
         ushort timerBefore = checked((ushort)projectile.GeneralTimer);
         NativeCountdown counter = NativeCountdown.FromRaw(timerBefore);
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(projectile, samus, cue));
+            (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(context, cue));
         Cursor = cursor;
         // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
         if (projectile.Animation == this && counter.RawValue != timerBefore)

@@ -767,8 +767,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableShot));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.PhantoonStartingFlame,
             () => new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
-        table.RegisterCue<PhantoonFlameCue>((projectile, samus, cue) =>
+        table.RegisterCue<PhantoonFlameCue>((context, cue) =>
         {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
             switch (cue)
             {
                 case PhantoonFlameCue.SpawnDrop:

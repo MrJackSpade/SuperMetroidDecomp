@@ -610,7 +610,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
-        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>(ApplyEnemyDeathProjectileCue);
+        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, context.Samus, cue));
 
     /// <summary>
     /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or

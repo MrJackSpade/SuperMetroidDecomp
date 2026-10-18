@@ -20,13 +20,14 @@ internal abstract class EnemyProjectileAnimation
     /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
     /// then stops, as the native instruction that did so would.
     /// </summary>
-    internal void Advance(RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus)
+    internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
+        RoomEnemyProjectileSlot projectile = context.Projectile;
         ushort oldTimer = projectile.InstructionTimer.RawValue;
         projectile.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
-        bool shown = TryShowNextFrame(projectile, handlers, samus, out int duration, out EnemyProjectileFramePresentation presentation);
+        bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFramePresentation presentation);
         if (projectile.Animation != this)
             return;
         if (!shown)
@@ -41,11 +42,10 @@ internal abstract class EnemyProjectileAnimation
     }
 
     /// <summary>Advances the timeline to its next frame, or reports that it holds.</summary>
-    /// <param name="projectile">The slot the animation runs on, for cues that act on it.</param>
+    /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
-    /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
     /// <param name="duration">How many projectile passes the frame lasts.</param>
     /// <param name="presentation">How the frame is drawn.</param>
     private protected abstract bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation);
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFramePresentation presentation);
 }

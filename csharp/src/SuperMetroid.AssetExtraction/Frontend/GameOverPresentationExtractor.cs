@@ -99,7 +99,7 @@ public static class GameOverPresentationExtractor
         {
             int destinationByteOffset = stream.DestinationByteOffset;
             int initialColumn = destinationByteOffset;
-            int sourceAddress = GameOverRomData.TextBank | stream.SourcePointer;
+            int sourceAddress = GameOverRomData.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);

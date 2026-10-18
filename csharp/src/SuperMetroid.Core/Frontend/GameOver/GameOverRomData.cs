@@ -44,11 +44,11 @@ public static class GameOverRomData
         /// <summary>Selects one native text element; unsupported selectors retain span-style rejection.</summary>
         public static GameOverTextStream Get(GameOverTextElement element) => element switch
         {
-            GameOverTextElement.Title => new(0x0156, 0x92dc, "GAME OVER"),
-            GameOverTextElement.Objective => new(0x038a, 0x9304, "FIND THE METROID LARVA"),
-            GameOverTextElement.Prompt => new(0x0414, 0x9334, "TRY AGAIN"),
-            GameOverTextElement.ReturnToGame => new(0x04ce, 0x934c, "YES - RETURN TO GAME"),
-            GameOverTextElement.ReturnToTitle => new(0x05ce, 0x93a0, "NO - GO TO TITLE"),
+            GameOverTextElement.Title => new(element, 0x0156, "GAME OVER"),
+            GameOverTextElement.Objective => new(element, 0x038a, "FIND THE METROID LARVA"),
+            GameOverTextElement.Prompt => new(element, 0x0414, "TRY AGAIN"),
+            GameOverTextElement.ReturnToGame => new(element, 0x04ce, "YES - RETURN TO GAME"),
+            GameOverTextElement.ReturnToTitle => new(element, 0x05ce, "NO - GO TO TITLE"),
             _ => throw new IndexOutOfRangeException(),
         };
 

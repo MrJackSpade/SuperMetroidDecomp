@@ -265,7 +265,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             return;
         var state = RequireNorfairLavaJumpingEnemyState(slot);
         AnimationProgramCursor<NorfairLavaJumperProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.Frame,
                 (cue, _) => ApplyNorfairLavaJumperCue(state, cue));
         state.Program = cursor;
     }

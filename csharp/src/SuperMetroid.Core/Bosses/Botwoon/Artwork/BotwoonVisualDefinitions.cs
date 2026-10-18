@@ -50,6 +50,35 @@ internal static class BotwoonVisualDefinitions
         return frame.MouthOpen ? OpenMouth(frame.Facing) : ClosedMouth(frame.Facing);
     }
 
+    /// <summary>
+    /// The installed frame the head shows: the visible frames are named in the physical order of <see cref="Frames"/>,
+    /// closed then open; the hidden head shows the shared empty frame.
+    /// </summary>
+    internal static EnemyFrameId HeadFrame(BotwoonHeadFrame frame) => frame.Visible
+        ? HeadFrames[(frame.MouthOpen ? PhysicalOrder.Length : 0) + Array.IndexOf(PhysicalOrder, frame.Facing)]
+        : EnemyFrameId.Empty;
+
+    /// <summary>The sixteen visible head frames' identities, closed then open, in physical order.</summary>
+    private static readonly EnemyFrameId[] HeadFrames =
+    [
+        EnemyFrameId.BotwoonHead00,
+        EnemyFrameId.BotwoonHead01,
+        EnemyFrameId.BotwoonHead02,
+        EnemyFrameId.BotwoonHead03,
+        EnemyFrameId.BotwoonHead04,
+        EnemyFrameId.BotwoonHead05,
+        EnemyFrameId.BotwoonHead06,
+        EnemyFrameId.BotwoonHead07,
+        EnemyFrameId.BotwoonHead08,
+        EnemyFrameId.BotwoonHead09,
+        EnemyFrameId.BotwoonHead10,
+        EnemyFrameId.BotwoonHead11,
+        EnemyFrameId.BotwoonHead12,
+        EnemyFrameId.BotwoonHead13,
+        EnemyFrameId.BotwoonHead14,
+        EnemyFrameId.BotwoonHead15,
+    ];
+
     /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [

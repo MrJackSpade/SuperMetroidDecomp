@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Reproduces a Super Missile pair striking Mother Brain's first-form glass.</summary>
 internal static class MotherBrainGlassSuperMissileVerification
@@ -32,7 +33,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.Bind(head.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer));
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
-        head.SpritemapPointer = 1;
+        head.Frame = EnemyFrameId.MotherBrainBodyOamInitialDummy;
         head.Health = 3000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.MotherBrain = state;

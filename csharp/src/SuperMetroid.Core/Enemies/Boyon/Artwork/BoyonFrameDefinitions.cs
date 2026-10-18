@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Boyon.Artwork;
 
 /// <summary>
@@ -18,5 +20,18 @@ internal static class BoyonFrameDefinitions
         5 => 0x88fd,
         6 => 0x8904,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Boyon pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(BoyonFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.BoyonIdle0,
+        { Pose: 1 } => EnemyFrameId.BoyonIdle1,
+        { Pose: 2 } => EnemyFrameId.BoyonIdle2,
+        { Pose: 3 } => EnemyFrameId.BoyonBounce0,
+        { Pose: 4 } => EnemyFrameId.BoyonBounce1,
+        { Pose: 5 } => EnemyFrameId.BoyonBounce2,
+        { Pose: 6 } => EnemyFrameId.BoyonBounce3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BoyonFrame programs show."),
     };
 }

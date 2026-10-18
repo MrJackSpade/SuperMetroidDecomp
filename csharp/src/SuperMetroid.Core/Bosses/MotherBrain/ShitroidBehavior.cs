@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -889,7 +890,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Kind != AnimationProgramAdvanceKind.Show)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance.Kind} step.");
         slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        slot.SpritemapPointer = BabyMetroidVisualDefinitions.Spritemap(advance.Frame.Index);
+        slot.Frame = BabyMetroidVisualDefinitions.Frame(advance.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

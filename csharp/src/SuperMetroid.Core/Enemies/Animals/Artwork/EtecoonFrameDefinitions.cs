@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 
 /// <summary>
@@ -42,5 +44,42 @@ internal static class EtecoonFrameDefinitions
         29 => 0xf1e5,
         30 => 0xf20a,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Etecoon pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(EtecoonFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.Etecoon02,
+        { Pose: 1 } => EnemyFrameId.Etecoon03,
+        { Pose: 10 } => EnemyFrameId.Etecoon12,
+        { Pose: 11 } => EnemyFrameId.Etecoon13,
+        { Pose: 12 } => EnemyFrameId.Etecoon00,
+        { Pose: 13 } => EnemyFrameId.Etecoon01,
+        { Pose: 14 } => EnemyFrameId.Etecoon14,
+        { Pose: 15 } => EnemyFrameId.Etecoon17,
+        { Pose: 16 } => EnemyFrameId.Etecoon18,
+        { Pose: 17 } => EnemyFrameId.Etecoon19,
+        { Pose: 18 } => EnemyFrameId.Etecoon21,
+        { Pose: 19 } => EnemyFrameId.Etecoon22,
+        { Pose: 2 } => EnemyFrameId.Etecoon04,
+        { Pose: 20 } => EnemyFrameId.Etecoon23,
+        { Pose: 21 } => EnemyFrameId.Etecoon24,
+        { Pose: 22 } => EnemyFrameId.Etecoon20,
+        { Pose: 23 } => EnemyFrameId.Etecoon25,
+        { Pose: 24 } => EnemyFrameId.Etecoon26,
+        { Pose: 25 } => EnemyFrameId.Etecoon27,
+        { Pose: 26 } => EnemyFrameId.Etecoon28,
+        { Pose: 27 } => EnemyFrameId.Etecoon30,
+        { Pose: 28 } => EnemyFrameId.Etecoon16,
+        { Pose: 29 } => EnemyFrameId.Etecoon15,
+        { Pose: 3 } => EnemyFrameId.Etecoon06,
+        { Pose: 30 } => EnemyFrameId.Etecoon29,
+        { Pose: 4 } => EnemyFrameId.Etecoon07,
+        { Pose: 5 } => EnemyFrameId.Etecoon08,
+        { Pose: 6 } => EnemyFrameId.Etecoon09,
+        { Pose: 7 } => EnemyFrameId.Etecoon05,
+        { Pose: 8 } => EnemyFrameId.Etecoon10,
+        { Pose: 9 } => EnemyFrameId.Etecoon11,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the EtecoonFrame programs show."),
     };
 }

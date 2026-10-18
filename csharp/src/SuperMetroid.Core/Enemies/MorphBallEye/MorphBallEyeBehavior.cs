@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
@@ -57,7 +58,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -337,7 +338,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMorphBallEyeState(slot);
         AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

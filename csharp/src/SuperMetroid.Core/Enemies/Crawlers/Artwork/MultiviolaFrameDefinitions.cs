@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Crawlers.Artwork;
 
 /// <summary>
@@ -19,5 +21,19 @@ internal static class MultiviolaFrameDefinitions
         6 => 0xb4d4,
         7 => 0xb4db,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Multiviola pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(MultiviolaFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.MultiviolaSpin0,
+        { Pose: 1 } => EnemyFrameId.MultiviolaSpin1,
+        { Pose: 2 } => EnemyFrameId.MultiviolaSpin2,
+        { Pose: 3 } => EnemyFrameId.MultiviolaSpin3,
+        { Pose: 4 } => EnemyFrameId.MultiviolaSpin4,
+        { Pose: 5 } => EnemyFrameId.MultiviolaSpin5,
+        { Pose: 6 } => EnemyFrameId.MultiviolaSpin6,
+        { Pose: 7 } => EnemyFrameId.MultiviolaSpin7,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MultiviolaFrame programs show."),
     };
 }

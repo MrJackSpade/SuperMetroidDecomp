@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -114,8 +116,8 @@ public sealed class RoomEnemySlot
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Enemy.health at +$14: mutable remaining enemy health, initialized from the definition and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
-    /// <summary>Enemy.spritemap at +$16: current bank-relative drawing frame or extended-map identity selected by the actor.</summary>
-    public ushort SpritemapPointer { get; internal set; }
+    /// <summary>Enemy.spritemap at +$16: the frame the actor shows, an installed spritemap or extended frame; null before any.</summary>
+    public EnemyFrameId? Frame { get; internal set; }
     /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
     public NativeCountdown Timer { get; internal set; }
     /// <summary>
@@ -207,7 +209,7 @@ public sealed class RoomEnemySlot
         InstructionTimer = NativeCountdown.Start(0);
         CurrentInstruction = 0;
         Timer = NativeCountdown.Start(0);
-        SpritemapPointer = 0;
+        Frame = null;
         FrozenTimer = NativeCountdown.Start(0);
         FlashTimer = NativeCountdown.Start(0);
         Layer = 0;

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -342,7 +343,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Held)
             return;
         tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        tongue.SpritemapPointer = (ushort)advance.Frame;
+        tongue.Frame = CrocomireTongueFrameDefinitions.Frame(advance.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -624,7 +625,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = state.Body;
         if (includeVerticalPosition)
             CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
-                body.Position.Y.Whole, body.SpritemapPointer));
+                body.Position.Y.Whole, EnemyFrames.Spritemap(body.Frame)));
 
         // The tongue is a normal second enemy actor placed at its body-relative X offset.
         // $8BA4 updates it even while the body's bulk is represented by BG2.
@@ -1429,7 +1430,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         state.BodyFrame = advance.Frame;
-        body.SpritemapPointer = CrocomireBodyFrameSpritemaps.Spritemap(advance.Frame);
+        body.Frame = CrocomireBodyFrameSpritemaps.Frame(advance.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -2382,14 +2383,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         callback = 0;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
-            CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer)))
+            CrocomireBodyCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame))))
             return null;
 
         // Physical body components and their callback lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
         foreach (CrocomireBodyCollisionComponent component in
-                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 CrocomireBodyCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
@@ -2414,7 +2415,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         callback = 0;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
             enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
-            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            (CrocomireTongueCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -2422,7 +2423,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // referenced native hitbox lists are empty. Validate the exact
         // engine-owned frame identity and return no touch/shot callback.
         CrocomireTongueCollisionComponent component =
-            CrocomireTongueCollisionDefinitions.ComponentAt(enemy.SpritemapPointer);
+            CrocomireTongueCollisionDefinitions.ComponentAt(EnemyFrames.Spritemap(enemy.Frame));
         _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
             component.HitboxPointer);
         return false;

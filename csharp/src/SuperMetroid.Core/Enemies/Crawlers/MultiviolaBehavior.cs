@@ -147,7 +147,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMultiviolaState(slot);
         AnimationProgramCursor<MultiviolaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

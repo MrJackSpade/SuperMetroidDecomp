@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Puyo.Artwork;
 
 /// <summary>
@@ -19,5 +21,19 @@ internal static class PuyoFrameDefinitions
         6 => 0x9e4d,
         7 => 0x9e5e,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Puyo pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(PuyoFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.PuyoGround0,
+        { Pose: 1 } => EnemyFrameId.PuyoGround1,
+        { Pose: 2 } => EnemyFrameId.PuyoGround2,
+        { Pose: 3 } => EnemyFrameId.PuyoAir0,
+        { Pose: 4 } => EnemyFrameId.PuyoAir1,
+        { Pose: 5 } => EnemyFrameId.PuyoAir2,
+        { Pose: 6 } => EnemyFrameId.PuyoAir3,
+        { Pose: 7 } => EnemyFrameId.PuyoAir4,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PuyoFrame programs show."),
     };
 }

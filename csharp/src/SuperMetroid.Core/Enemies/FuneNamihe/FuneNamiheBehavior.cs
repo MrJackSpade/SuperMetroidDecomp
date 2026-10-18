@@ -221,7 +221,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireFuneNamiheState(slot);
         AnimationProgramCursor<FuneNamiheProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.Frame,
                 (cue, _) => ApplyFuneNamiheCue(slot, state, cue));
         state.Program = cursor;
     }

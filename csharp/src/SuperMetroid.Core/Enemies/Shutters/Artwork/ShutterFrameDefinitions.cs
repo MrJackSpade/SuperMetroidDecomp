@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Shutters.Artwork;
 
 /// <summary>
@@ -20,5 +22,20 @@ internal static class ShutterFrameDefinitions
         7 => 0xf480,
         8 => 0xf48c,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined shutter pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(ShutterFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.ShutterGrowing10px,
+        { Pose: 1 } => EnemyFrameId.ShutterGrowing20px,
+        { Pose: 2 } => EnemyFrameId.ShutterGrowing30px,
+        { Pose: 3 } => EnemyFrameId.ShutterVertical40px,
+        { Pose: 4 } => EnemyFrameId.ShutterHorizontal,
+        { Pose: 5 } => EnemyFrameId.KamerPlatform0,
+        { Pose: 6 } => EnemyFrameId.KamerPlatform1,
+        { Pose: 7 } => EnemyFrameId.KamerPlatform2,
+        { Pose: 8 } => EnemyFrameId.KamerPlatform3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ShutterFrame programs show."),
     };
 }

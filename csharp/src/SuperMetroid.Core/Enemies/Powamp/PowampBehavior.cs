@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
@@ -60,7 +61,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -529,7 +530,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePowampState(slot);
         AnimationProgramCursor<PowampProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

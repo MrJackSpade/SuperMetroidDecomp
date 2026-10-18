@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Bounded cartridge comparison for the left-facing Murder Beam setup and its explicitly unsupported unsafe variants.</summary>
 internal static class MurderBeamVerification
@@ -107,7 +108,7 @@ internal static class MurderBeamVerification
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);
         target.Health = 1000;
-        target.SpritemapPointer = 0x8000;
+        target.Frame = EnemyFrameId.SkulteraSwimLeft0;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
 
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(

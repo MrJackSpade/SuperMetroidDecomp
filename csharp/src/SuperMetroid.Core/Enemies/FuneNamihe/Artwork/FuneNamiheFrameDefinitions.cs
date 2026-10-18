@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 
 /// <summary>
@@ -33,5 +35,33 @@ internal static class FuneNamiheFrameDefinitions
         20 => 0x9958,
         21 => 0x9982,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Fune or Namihe pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(FuneNamiheFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.FuneLeftIdle,
+        { Pose: 1 } => EnemyFrameId.FuneLeftActive0,
+        { Pose: 10 } => EnemyFrameId.NamiheLeftIdle,
+        { Pose: 11 } => EnemyFrameId.NamiheLeftActive0,
+        { Pose: 12 } => EnemyFrameId.NamiheLeftActive1,
+        { Pose: 13 } => EnemyFrameId.NamiheLeftActive2,
+        { Pose: 14 } => EnemyFrameId.NamiheLeftActive3,
+        { Pose: 15 } => EnemyFrameId.NamiheLeftActive4,
+        { Pose: 16 } => EnemyFrameId.NamiheRightIdle,
+        { Pose: 17 } => EnemyFrameId.NamiheRightActive0,
+        { Pose: 18 } => EnemyFrameId.NamiheRightActive1,
+        { Pose: 19 } => EnemyFrameId.NamiheRightActive2,
+        { Pose: 2 } => EnemyFrameId.FuneLeftActive1,
+        { Pose: 20 } => EnemyFrameId.NamiheRightActive3,
+        { Pose: 21 } => EnemyFrameId.NamiheRightActive4,
+        { Pose: 3 } => EnemyFrameId.FuneLeftActive2,
+        { Pose: 4 } => EnemyFrameId.FuneLeftActive3,
+        { Pose: 5 } => EnemyFrameId.FuneRightIdle,
+        { Pose: 6 } => EnemyFrameId.FuneRightActive0,
+        { Pose: 7 } => EnemyFrameId.FuneRightActive1,
+        { Pose: 8 } => EnemyFrameId.FuneRightActive2,
+        { Pose: 9 } => EnemyFrameId.FuneRightActive3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the FuneNamiheFrame programs show."),
     };
 }

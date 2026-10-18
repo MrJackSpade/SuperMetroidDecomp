@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -125,7 +126,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 tube.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                tube.SpritemapPointer = MotherBrainVisualDefinitions.TubeFrame(advance.Frame.Index).Pointer;
+                tube.Frame = MotherBrainVisualDefinitions.Frame(advance.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -676,7 +677,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = MotherBrainBodyVisualDefinitions.Frame(advance.Frame.Index).Pointer;
+                slot.Frame = MotherBrainBodyVisualDefinitions.Frame(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -1094,7 +1095,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     throw new InvalidDataException(
                         $"Mother Brain's body selected shot AI $A9:{c.HitboxShotAiPointer:X4} from " +
-                        $"frame $A9:{c.Enemy.SpritemapPointer:X4}; only $A9:B503 is ported.");
+                        $"frame $A9:{c.Enemy.Frame}; only $A9:B503 is ported.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -2237,9 +2238,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(tube, population, definition);
         _dispatch.RunInitializationAi(tube);
-        tube.SpritemapPointer = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
-            : (ushort)0;
+        tube.Frame = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            ? EnemyFrameId.Empty
+            : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
         if (_motherBrainEncounter.MotherBrain is not null)
@@ -4537,7 +4538,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
         foreach (MotherBrainCollisionComponent component in
-                 MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 MotherBrainCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

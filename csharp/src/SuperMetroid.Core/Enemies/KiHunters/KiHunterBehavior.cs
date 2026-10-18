@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
@@ -618,7 +619,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings,
             state,
             KiHunterProgram.DetachedWings);
-        wings.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        wings.Frame = EnemyFrameId.Empty;
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
@@ -909,7 +910,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireKiHunterState(slot);
         AnimationProgramCursor<KiHunterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.Frame,
                 (cue, _) => ApplyKiHunterCue(slot, cue));
         state.Program = cursor;
     }

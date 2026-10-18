@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 /// <summary>
@@ -12,5 +14,12 @@ internal static class DeadTorizoFrameDefinitions
     {
         0 => 0xd6e2,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Dead Torizo pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(DeadTorizoFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.DeadTorizoStationaryA9D6e2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the DeadTorizoFrame programs show."),
     };
 }

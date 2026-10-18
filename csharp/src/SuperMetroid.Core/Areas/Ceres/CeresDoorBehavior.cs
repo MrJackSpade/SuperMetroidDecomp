@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -60,7 +61,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresDoorProgram> cursor = _doorPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.Frame,
             (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
         _doorPrograms[slot.SlotIndex] = cursor;
     }
@@ -156,7 +157,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);
 
-        slot.SpritemapPointer = CeresDoorFrameDefinitions.InitialSpritemap;
+        slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.VramTilesIndex = 0;

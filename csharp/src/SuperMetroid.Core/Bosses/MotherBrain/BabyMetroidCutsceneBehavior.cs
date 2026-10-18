@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -82,9 +83,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
-        babySlot.SpritemapPointer = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
-            : (ushort)0;
+        babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            ? EnemyFrameId.Empty
+            : null;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
     }
@@ -332,7 +333,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = BabyMetroidVisualDefinitions.Spritemap(advance.Frame.Index);
+                slot.Frame = BabyMetroidVisualDefinitions.Frame(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

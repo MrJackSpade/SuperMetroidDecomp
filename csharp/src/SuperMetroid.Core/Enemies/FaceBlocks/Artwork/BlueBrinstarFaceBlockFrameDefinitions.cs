@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 
 /// <summary>
@@ -16,5 +18,16 @@ internal static class BlueBrinstarFaceBlockFrameDefinitions
         3 => 0xe96e,
         4 => 0xe984,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Blue Brinstar face block pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(BlueBrinstarFaceBlockFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.FaceBlockNeutral,
+        { Pose: 1 } => EnemyFrameId.FaceBlockSamusLeft1,
+        { Pose: 2 } => EnemyFrameId.FaceBlockSamusLeft2,
+        { Pose: 3 } => EnemyFrameId.FaceBlockSamusRight1,
+        { Pose: 4 } => EnemyFrameId.FaceBlockSamusRight2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BlueBrinstarFaceBlockFrame programs show."),
     };
 }

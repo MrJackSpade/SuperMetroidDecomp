@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -419,7 +420,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationProgramCursor<SporeSpawnBodyProgram> cursor = state.BodyProgram;
         // The open-pulse and death-burst repeats count the body's timer word, as the native timer commands do.
-        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.Frame,
             (cue, continuation) =>
             {
                 ApplySporeSpawnCue(body, state, cue);
@@ -862,7 +863,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         callback = 0;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer)))
+            SporeSpawnCollisionDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame))))
             return null;
 
         // These twelve OAM frames are selected by Spore Spawn. Old visual
@@ -870,7 +871,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // and callback comes from the compiled gameplay catalog.
         foreach (SporeSpawnCollisionComponent component in
                  SporeSpawnCollisionDefinitions.ComponentsAt(
-                     enemy.SpritemapPointer))
+                     EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

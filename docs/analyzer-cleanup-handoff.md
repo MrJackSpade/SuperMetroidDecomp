@@ -545,9 +545,41 @@ Commit and push that update too.
       AssetExtraction's `PaletteFxRecordSources` maps record addresses to frames for extraction, and test support's
       `PaletteFxColorLayoutAccess`/`PaletteFxColorAddressAccess`/`PaletteFxProgramLayoutAccess` keep the ROM oracles
       comparing words.
-  - Boss frames (this commit, 71 -> 61): Draygon, Kraid, Mother Brain body/head/tube, Baby Metroid, Zebetite, Phantoon
+  - Boss frames (`c186f04a2`, 71 -> 61): Draygon, Kraid, Mother Brain body/head/tube, Baby Metroid, Zebetite, Phantoon
     and Crocomire frame records hold identity only; their spritemaps are looked up at the presentation boundary
     (`*FrameDefinitions`/`*VisualDefinitions`, `PhantoonPartFrameSpritemaps`, `CrocomireBodyFrameSpritemaps`), and
     Crocomire's body frames are a computed list instead of a pointer enumerator.
+  - Boss frames is an interim step only: owner question 5 records that converting a frame's address property to a
+    method was rejected as evasion, and the shared `RoomEnemySlot.SpritemapPointer` still stores the address. Q5
+    proper replaces it.
+  - Q5.1 (61 -> 60): `RoomEnemySlot` holds `EnemyFrameId? Frame` instead of the spritemap word. `EnemyFrameId`
+    names every installed spritemap and extended frame after its composition (plus the shared `Empty` and
+    `EmptyExtended`), and `EnemyFrames.Spritemap` binds identities to installed words by name. Every typed program
+    runner takes a generated `Frame(TFrame)` table (81 families, Ridley's body and Crocomire's tongue included);
+    named writers install identities. Test support's `RoomEnemySlotFrameAccess` keeps the native word view, mapping
+    (bank, word) back to a frame.
+  - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
+    (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
+    checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at
+    a time (their frame domains are enum roots, fixed strides and switches), then the words move to extraction.
+  - Remaining work, assessed (61 sites):
+    - Q5, enemy frame identity: `RoomEnemySlot.SpritemapPointer` is written by every family (typed programs through
+      `EnemyProgramAnimation.Run(..., Func<TFrame, ushort>)`, named constants such as the common empty frame,
+      `(ushort)32847` in `EnemyPopulationLoader`, Crocomire's address-valued tongue enum, Phantoon's collision-only
+      selectors) and read by drawing (`EnemySpritemapDraw`, the extended-frame catalog and BG2 frames), collision
+      (empty-frame checks, extended hitboxes and family `CollisionRecordRuns` keyed by address) and family logic.
+      Design, following Q8: the slot holds an address-free frame identity (an ordinal into the installed frame schema,
+      `EnemySpritemapDefinitions.Frames`, plus the extended-frame set); presentation and collision resolve it at their
+      boundary catalogs; native snapshot import and the oracles map words to frames in test support. The draw request,
+      `CompiledEnemyVisualSelector`, `EnemyProjectileFramePresentation`, the Ceres steam and Maridia snail hitbox
+      keys and `CollisionRecordRun.Start` follow from it.
+    - Enemy interaction AI words (`Enemy*Context` raw callback words, Dead Tourian functions): every hitbox callback
+      word must resolve to a named `EnemyInteractionCallback`, whose values are themselves addresses.
+    - Interpreters still running native lists by address: about 68 enemy-projectile kinds (Draygon, Crocomire,
+      Ceres Ridley, Phantoon, Kraid, Fake Kraid, pirates, Torizos, Tourian statues, Mother Brain, Spore Spawn,
+      Botwoon and others) through `EnemyProjectileEngine`, and the PLMs not yet on `PlmAnimation`. These carry the
+      projectile-slot, PLM and `Instruction*` word sites.
+    - Q2, Samus projectiles: typed type/direction state, then programs and the trail, per the owner's order.
+    - Q13, the Ceres Mode 7 transfer residue.
   - Next: Q5 with the enemy AI pointers, Q2, PLM words, the enemy projectile slot and Q13. The palette-FX setup and
     pre-instruction enums still carry bank-$8D values.

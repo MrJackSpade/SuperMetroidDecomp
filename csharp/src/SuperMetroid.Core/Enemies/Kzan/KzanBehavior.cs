@@ -272,7 +272,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireKzanState(slot);
         AnimationProgramCursor<KzanProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

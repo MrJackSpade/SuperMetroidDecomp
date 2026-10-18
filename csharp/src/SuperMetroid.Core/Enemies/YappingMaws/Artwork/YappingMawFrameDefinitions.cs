@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 
 /// <summary>
@@ -35,5 +37,35 @@ internal static class YappingMawFrameDefinitions
         22 => 0xaad2,
         23 => 0xaaed,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Yapping Maw pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(YappingMawFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.YappingMawA8A8ee,
+        { Pose: 1 } => EnemyFrameId.YappingMawA8A909,
+        { Pose: 10 } => EnemyFrameId.YappingMawA8A9ca,
+        { Pose: 11 } => EnemyFrameId.YappingMawA8A9e5,
+        { Pose: 12 } => EnemyFrameId.YappingMawA8A9f6,
+        { Pose: 13 } => EnemyFrameId.YappingMawA8Aa11,
+        { Pose: 14 } => EnemyFrameId.YappingMawA8Aa22,
+        { Pose: 15 } => EnemyFrameId.YappingMawA8Aa3d,
+        { Pose: 16 } => EnemyFrameId.YappingMawA8Aa4e,
+        { Pose: 17 } => EnemyFrameId.YappingMawA8Aa69,
+        { Pose: 18 } => EnemyFrameId.YappingMawA8Aa7a,
+        { Pose: 19 } => EnemyFrameId.YappingMawA8Aa95,
+        { Pose: 2 } => EnemyFrameId.YappingMawA8A91a,
+        { Pose: 20 } => EnemyFrameId.YappingMawA8Aaa6,
+        { Pose: 21 } => EnemyFrameId.YappingMawA8Aac1,
+        { Pose: 22 } => EnemyFrameId.YappingMawA8Aad2,
+        { Pose: 23 } => EnemyFrameId.YappingMawA8Aaed,
+        { Pose: 3 } => EnemyFrameId.YappingMawA8A935,
+        { Pose: 4 } => EnemyFrameId.YappingMawA8A946,
+        { Pose: 5 } => EnemyFrameId.YappingMawA8A961,
+        { Pose: 6 } => EnemyFrameId.YappingMawA8A972,
+        { Pose: 7 } => EnemyFrameId.YappingMawA8A98d,
+        { Pose: 8 } => EnemyFrameId.YappingMawA8A99e,
+        { Pose: 9 } => EnemyFrameId.YappingMawA8A9b9,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the YappingMawFrame programs show."),
     };
 }

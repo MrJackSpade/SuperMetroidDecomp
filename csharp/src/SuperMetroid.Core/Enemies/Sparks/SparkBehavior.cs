@@ -187,7 +187,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
         AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
             "Spark selector three starts at the main-AI function pointer, which is not an animation list.");
-        EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.Frame,
             (cue, _) => ApplySparkCue(slot, cue));
         state.Program = cursor;
     }

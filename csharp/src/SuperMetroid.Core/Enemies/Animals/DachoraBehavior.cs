@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -92,7 +93,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -553,7 +554,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireDachoraState(slot);
         AnimationProgramCursor<DachoraProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

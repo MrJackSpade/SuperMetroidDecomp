@@ -163,7 +163,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireWaverState(slot);
         AnimationProgramCursor<WaverProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.Frame,
                 (cue, _) => ApplyWaverCue(state, cue));
         state.Program = cursor;
     }

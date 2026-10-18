@@ -324,7 +324,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireBoulderState(slot);
         AnimationProgramCursor<BoulderProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

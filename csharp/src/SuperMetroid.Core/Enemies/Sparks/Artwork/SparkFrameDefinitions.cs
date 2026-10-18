@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Sparks.Artwork;
 
 /// <summary>
@@ -20,5 +22,20 @@ internal static class SparkFrameDefinitions
         7 => 0xe785,
         8 => 0xe79b,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Spark pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(SparkFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.NorfairLavaJumper804d,
+        { Pose: 1 } => EnemyFrameId.Spark04,
+        { Pose: 2 } => EnemyFrameId.Spark05,
+        { Pose: 3 } => EnemyFrameId.Spark06,
+        { Pose: 4 } => EnemyFrameId.Spark07,
+        { Pose: 5 } => EnemyFrameId.Spark00,
+        { Pose: 6 } => EnemyFrameId.Spark01,
+        { Pose: 7 } => EnemyFrameId.Spark02,
+        { Pose: 8 } => EnemyFrameId.Spark03,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the SparkFrame programs show."),
     };
 }

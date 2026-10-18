@@ -351,7 +351,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireDragonState(slot);
         AnimationProgramCursor<DragonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.Frame,
                 (cue, _) => ApplyDragonCue(slot, cue));
         state.Program = cursor;
     }

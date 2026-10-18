@@ -23,7 +23,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         ZoaEnemyState state = RequireZoaState(slot);
         AnimationProgramCursor<ZoaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ZoaAnimations.Programs, ref cursor, ZoaFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, ZoaAnimations.Programs, ref cursor, ZoaFrameDefinitions.Frame,
             (cue, _) => ApplyZoaCue(state, cue));
         state.Program = cursor;
     }

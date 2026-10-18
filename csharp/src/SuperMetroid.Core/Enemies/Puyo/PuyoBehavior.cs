@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Puyo;
 
@@ -40,7 +41,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native initializer writes the common empty map and clears Enemy.var0 before
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
         // per-family variable words; no later Puyo routine reads it.
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
 
         var state = new PuyoEnemyState
         {
@@ -436,7 +437,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePuyoState(slot);
         AnimationProgramCursor<PuyoProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -166,7 +167,7 @@ internal static class ShotCallbackDefinitionsVerification
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);
             enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
-            enemy.SpritemapPointer = 1;
+            enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);
             enemy.Health = 100;

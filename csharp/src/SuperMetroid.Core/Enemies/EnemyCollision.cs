@@ -23,6 +23,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -106,7 +107,7 @@ internal sealed class EnemyCollision
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
             // not yet publishing its map must not erase the timer. The reset still precedes
             // overlap testing, so a distant actor with a map can legitimately clear it.
-            if (slot.SpritemapPointer == 0)
+            if (slot.Frame is null)
                 continue;
             bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
             // Multibox entry rejects the two shared no-op callback identities before
@@ -206,7 +207,7 @@ internal sealed class EnemyCollision
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
-                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.SpritemapPointer) ||
+                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(EnemyFrames.Spritemap(enemy.Frame)) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
@@ -251,7 +252,7 @@ internal sealed class EnemyCollision
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
-                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.SpritemapPointer))
+                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame)))
                     continue;
                 if (usesExtendedHitboxes &&
                     IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
@@ -487,7 +488,7 @@ internal sealed class EnemyCollision
                 admission.AdmitsNormalBombs(usesExtendedHitboxes);
             if ((!usesCommonShotAi && !usesLiteralNoOpShotAi &&
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
-                enemy.SpritemapPointer == 0 ||
+                enemy.Frame is null ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted) ||
                 headerSuppressesMultiboxShotCollision ||
@@ -894,7 +895,7 @@ internal sealed class EnemyCollision
         // Native multibox collision only accepts negative 16-bit spritemap pointers.
         // The common visually empty map `$804F` still owns a point hitbox, so it
         // must enter the same collision walker as other extended frames.
-        if (!EnemyExtendedSpritemapPointers.IsExtended(enemy.SpritemapPointer))
+        if (!EnemyExtendedSpritemapPointers.IsExtended(EnemyFrames.Spritemap(enemy.Frame)))
             return false;
 
         var target = new EnemyHitboxProbe(
@@ -908,7 +909,7 @@ internal sealed class EnemyCollision
             ArtworkInstalled: _room.Artwork is not null);
 
         if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
-                enemy.Definition.Bank, enemy.SpritemapPointer))
+                enemy.Definition.Bank, EnemyFrames.Spritemap(enemy.Frame)))
         {
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before
@@ -925,7 +926,7 @@ internal sealed class EnemyCollision
 
         throw new InvalidDataException(
             $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} extended collision frame " +
-            $"${enemy.Definition.Bank:X2}:{enemy.SpritemapPointer:X4} has no compiled geometry.");
+            $"${enemy.Definition.Bank:X2}:{enemy.Frame} has no compiled geometry.");
     }
 
     /// <summary>

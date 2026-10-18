@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Crawlers.Artwork;
 
 /// <summary>
@@ -67,5 +69,67 @@ internal static class CrawlerFrameDefinitions
         54 => 0xe550,
         55 => 0xe566,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined crawler pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(CrawlerFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.SciserUpsideUp0,
+        { Pose: 1 } => EnemyFrameId.SciserUpsideUp1,
+        { Pose: 10 } => EnemyFrameId.SciserUpsideLeft1,
+        { Pose: 11 } => EnemyFrameId.SciserUpsideLeft2,
+        { Pose: 12 } => EnemyFrameId.ZeroCrawler12,
+        { Pose: 13 } => EnemyFrameId.ZeroCrawler13,
+        { Pose: 14 } => EnemyFrameId.ZeroCrawler14,
+        { Pose: 15 } => EnemyFrameId.ZeroCrawler15,
+        { Pose: 16 } => EnemyFrameId.ZeroCrawler04,
+        { Pose: 17 } => EnemyFrameId.ZeroCrawler05,
+        { Pose: 18 } => EnemyFrameId.ZeroCrawler06,
+        { Pose: 19 } => EnemyFrameId.ZeroCrawler07,
+        { Pose: 2 } => EnemyFrameId.SciserUpsideUp2,
+        { Pose: 20 } => EnemyFrameId.ZeroCrawler08,
+        { Pose: 21 } => EnemyFrameId.ZeroCrawler09,
+        { Pose: 22 } => EnemyFrameId.ZeroCrawler10,
+        { Pose: 23 } => EnemyFrameId.ZeroCrawler11,
+        { Pose: 24 } => EnemyFrameId.ZeroCrawler00,
+        { Pose: 25 } => EnemyFrameId.ZeroCrawler01,
+        { Pose: 26 } => EnemyFrameId.ZeroCrawler02,
+        { Pose: 27 } => EnemyFrameId.ZeroCrawler03,
+        { Pose: 28 } => EnemyFrameId.ViolaSpinB689,
+        { Pose: 29 } => EnemyFrameId.ViolaSpinB690,
+        { Pose: 3 } => EnemyFrameId.SciserUpsideRight0,
+        { Pose: 30 } => EnemyFrameId.ViolaSpinB697,
+        { Pose: 31 } => EnemyFrameId.ViolaSpinB69e,
+        { Pose: 32 } => EnemyFrameId.ViolaSpinB6a5,
+        { Pose: 33 } => EnemyFrameId.ViolaSpinB6ac,
+        { Pose: 34 } => EnemyFrameId.ViolaSpinB6b3,
+        { Pose: 35 } => EnemyFrameId.ViolaSpinB6ba,
+        { Pose: 36 } => EnemyFrameId.HzoomerUpsideUp0,
+        { Pose: 37 } => EnemyFrameId.HzoomerUpsideUp1,
+        { Pose: 38 } => EnemyFrameId.HzoomerUpsideUp2,
+        { Pose: 39 } => EnemyFrameId.HzoomerUpsideUp3,
+        { Pose: 4 } => EnemyFrameId.SciserUpsideRight1,
+        { Pose: 40 } => EnemyFrameId.HzoomerUpsideUp4,
+        { Pose: 41 } => EnemyFrameId.HzoomerUpsideLeft0,
+        { Pose: 42 } => EnemyFrameId.HzoomerUpsideLeft1,
+        { Pose: 43 } => EnemyFrameId.HzoomerUpsideLeft2,
+        { Pose: 44 } => EnemyFrameId.HzoomerUpsideLeft3,
+        { Pose: 45 } => EnemyFrameId.HzoomerUpsideLeft4,
+        { Pose: 46 } => EnemyFrameId.HzoomerUpsideDown0,
+        { Pose: 47 } => EnemyFrameId.HzoomerUpsideDown1,
+        { Pose: 48 } => EnemyFrameId.HzoomerUpsideDown2,
+        { Pose: 49 } => EnemyFrameId.HzoomerUpsideDown3,
+        { Pose: 5 } => EnemyFrameId.SciserUpsideRight2,
+        { Pose: 50 } => EnemyFrameId.HzoomerUpsideDown4,
+        { Pose: 51 } => EnemyFrameId.HzoomerUpsideRight0,
+        { Pose: 52 } => EnemyFrameId.HzoomerUpsideRight1,
+        { Pose: 53 } => EnemyFrameId.HzoomerUpsideRight2,
+        { Pose: 54 } => EnemyFrameId.HzoomerUpsideRight3,
+        { Pose: 55 } => EnemyFrameId.HzoomerUpsideRight4,
+        { Pose: 6 } => EnemyFrameId.SciserUpsideDown0,
+        { Pose: 7 } => EnemyFrameId.SciserUpsideDown1,
+        { Pose: 8 } => EnemyFrameId.SciserUpsideDown2,
+        { Pose: 9 } => EnemyFrameId.SciserUpsideLeft0,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CrawlerFrame programs show."),
     };
 }

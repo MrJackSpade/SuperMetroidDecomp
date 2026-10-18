@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Ripper;
 
@@ -179,9 +180,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.FrozenTimer.IsZero)
             return;
-        slot.SpritemapPointer = RequireRipperState(slot).XVelocity.WholePixels < 0
-            ? RipperFrameDefinitions.FrozenFacingLeftSpritemap
-            : RipperFrameDefinitions.FrozenFacingRightSpritemap;
+        slot.Frame = RequireRipperState(slot).XVelocity.WholePixels < 0
+            ? EnemyFrameId.RipperSharedFrozenLeft
+            : EnemyFrameId.RipperSharedFrozenRight;
     }
 
     /// <summary>Binds a Ripper-family slot to its per-room words and retains its AI state.</summary>
@@ -228,7 +229,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<RipperProgram> cursor = _extensions[slot.SlotIndex].Program;
-        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Frame);
         _extensions[slot.SlotIndex].Program = cursor;
     }
 

@@ -422,7 +422,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireAlcoonState(slot);
         AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Frame,
                 (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
         state.Program = cursor;
     }

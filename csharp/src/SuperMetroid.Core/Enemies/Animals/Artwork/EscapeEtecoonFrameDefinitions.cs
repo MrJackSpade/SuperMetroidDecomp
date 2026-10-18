@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 
 /// <summary>
@@ -21,5 +23,21 @@ internal static class EscapeEtecoonFrameDefinitions
         8 => 0xe8fa,
         9 => 0xe91f,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined escape Etecoon pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(EscapeEtecoonFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.EscapeEtecoon00,
+        { Pose: 1 } => EnemyFrameId.EscapeEtecoon01,
+        { Pose: 2 } => EnemyFrameId.EscapeEtecoon02,
+        { Pose: 3 } => EnemyFrameId.EscapeEtecoon03,
+        { Pose: 4 } => EnemyFrameId.EscapeEtecoon04,
+        { Pose: 5 } => EnemyFrameId.EscapeEtecoon05,
+        { Pose: 6 } => EnemyFrameId.EscapeEtecoon06,
+        { Pose: 7 } => EnemyFrameId.EscapeEtecoon07,
+        { Pose: 8 } => EnemyFrameId.EscapeEtecoon09,
+        { Pose: 9 } => EnemyFrameId.EscapeEtecoon08,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the EscapeEtecoonFrame programs show."),
     };
 }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
@@ -130,7 +131,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         var state = new ElevatorEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
@@ -307,7 +308,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         var state = RequireElevatorState(slot);
         AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

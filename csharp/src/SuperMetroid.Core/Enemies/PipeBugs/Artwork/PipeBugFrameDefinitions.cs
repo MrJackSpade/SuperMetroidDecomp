@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 
 /// <summary>
@@ -55,5 +57,55 @@ internal static class PipeBugFrameDefinitions
         42 => 0x92f3,
         43 => 0x92fa,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Pipe Bug pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(PipeBugFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.PipeBrinstarNormalLeft0,
+        { Pose: 1 } => EnemyFrameId.PipeBrinstarNormalLeft1,
+        { Pose: 10 } => EnemyFrameId.PipeBrinstarStrongShootLeft0,
+        { Pose: 11 } => EnemyFrameId.PipeBrinstarStrongShootLeft1,
+        { Pose: 12 } => EnemyFrameId.PipeBrinstarStrongShootLeft2,
+        { Pose: 13 } => EnemyFrameId.PipeBrinstarStrongRiseLeft0,
+        { Pose: 14 } => EnemyFrameId.PipeBrinstarStrongRiseLeft1,
+        { Pose: 15 } => EnemyFrameId.PipeBrinstarStrongRiseLeft2,
+        { Pose: 16 } => EnemyFrameId.PipeBrinstarStrongShootRight0,
+        { Pose: 17 } => EnemyFrameId.PipeBrinstarStrongShootRight1,
+        { Pose: 18 } => EnemyFrameId.PipeBrinstarStrongShootRight2,
+        { Pose: 19 } => EnemyFrameId.PipeBrinstarStrongRiseRight0,
+        { Pose: 2 } => EnemyFrameId.PipeBrinstarNormalLeft2,
+        { Pose: 20 } => EnemyFrameId.PipeBrinstarStrongRiseRight1,
+        { Pose: 21 } => EnemyFrameId.PipeBrinstarStrongRiseRight2,
+        { Pose: 22 } => EnemyFrameId.PipeNorfairLeft0,
+        { Pose: 23 } => EnemyFrameId.PipeNorfairLeft1,
+        { Pose: 24 } => EnemyFrameId.PipeNorfairLeft2,
+        { Pose: 25 } => EnemyFrameId.PipeNorfairLeft3,
+        { Pose: 26 } => EnemyFrameId.PipeNorfairLeft4,
+        { Pose: 27 } => EnemyFrameId.PipeNorfairRight0,
+        { Pose: 28 } => EnemyFrameId.PipeNorfairRight1,
+        { Pose: 29 } => EnemyFrameId.PipeNorfairRight2,
+        { Pose: 3 } => EnemyFrameId.PipeBrinstarNormalLeft3,
+        { Pose: 30 } => EnemyFrameId.PipeNorfairRight3,
+        { Pose: 31 } => EnemyFrameId.PipeNorfairRight4,
+        { Pose: 32 } => EnemyFrameId.PipeYellowFlyLeft0,
+        { Pose: 33 } => EnemyFrameId.PipeYellowFlyLeft1,
+        { Pose: 34 } => EnemyFrameId.PipeYellowFlyLeft2,
+        { Pose: 35 } => EnemyFrameId.PipeYellowArcLeft0,
+        { Pose: 36 } => EnemyFrameId.PipeYellowArcLeft1,
+        { Pose: 37 } => EnemyFrameId.PipeYellowArcLeft2,
+        { Pose: 38 } => EnemyFrameId.PipeYellowFlyRight0,
+        { Pose: 39 } => EnemyFrameId.PipeYellowFlyRight1,
+        { Pose: 4 } => EnemyFrameId.PipeBrinstarNormalLeft4,
+        { Pose: 40 } => EnemyFrameId.PipeYellowFlyRight2,
+        { Pose: 41 } => EnemyFrameId.PipeYellowArcRight0,
+        { Pose: 42 } => EnemyFrameId.PipeYellowArcRight1,
+        { Pose: 43 } => EnemyFrameId.PipeYellowArcRight2,
+        { Pose: 5 } => EnemyFrameId.PipeBrinstarNormalRight0,
+        { Pose: 6 } => EnemyFrameId.PipeBrinstarNormalRight1,
+        { Pose: 7 } => EnemyFrameId.PipeBrinstarNormalRight2,
+        { Pose: 8 } => EnemyFrameId.PipeBrinstarNormalRight3,
+        { Pose: 9 } => EnemyFrameId.PipeBrinstarNormalRight4,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PipeBugFrame programs show."),
     };
 }

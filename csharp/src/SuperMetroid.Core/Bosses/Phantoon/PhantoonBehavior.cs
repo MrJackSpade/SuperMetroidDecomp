@@ -131,7 +131,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonEnemyState state = Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
-        part.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        part.Frame = EnemyFrameId.Empty;
         part.InstructionTimer = NativeCountdown.Start(1);
         part.Timer = NativeCountdown.Start(0);
         part.PaletteIndex = state.Body.PaletteIndex;
@@ -816,7 +816,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot body = state.Body;
         if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.SpritemapPointer) ||
+            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(EnemyFrames.Spritemap(body.Frame)) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
@@ -1785,7 +1785,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<PhantoonPartProgram> cursor = state.PartProgram(part);
         // Writing the cursor back after the cues lets the program's own sleep overwrite a cue's install on this
         // part, as the native Sleep does. Phantoon's part lists load no loop counter.
-        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, frame => PhantoonPartFrameSpritemaps.Spritemap(frame),
+        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, PhantoonPartFrameSpritemaps.Frame,
             (cue, continuation) =>
             {
                 ApplyPhantoonPartCue(part, cue);
@@ -2343,7 +2343,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // data. Preserve the native component and rectangle order from
         // the compiled bank-$A7 definitions, including point no-ops.
         foreach (PhantoonCollisionComponent component in
-                 PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 PhantoonCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)

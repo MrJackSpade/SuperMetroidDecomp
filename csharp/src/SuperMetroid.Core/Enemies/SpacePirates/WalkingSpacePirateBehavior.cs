@@ -513,7 +513,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         var state = RequireWalkingSpacePirateState(slot);
         AnimationProgramCursor<WalkingSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.Frame,
                 (cue, _) => ApplyWalkingSpacePirateCue(slot, cue, context.Samus));
         state.Program = cursor;
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
@@ -32,5 +34,24 @@ internal static class CeresDoorFrameDefinitions
         11 => 0xface,
         12 => 0xfb2f,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ceres door pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(CeresDoorFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.CeresDoorRotatingOverlay,
+        { Pose: 1 } => EnemyFrameId.CeresDoorLeftHold,
+        { Pose: 10 } => EnemyFrameId.CeresDoorRightTransition3,
+        { Pose: 11 } => EnemyFrameId.CeresDoorMode7LeftWall,
+        { Pose: 12 } => EnemyFrameId.CeresDoorMode7RightWall,
+        { Pose: 2 } => EnemyFrameId.CeresDoorLeftTransition0,
+        { Pose: 3 } => EnemyFrameId.CeresDoorLeftTransition1,
+        { Pose: 4 } => EnemyFrameId.CeresDoorLeftTransition2,
+        { Pose: 5 } => EnemyFrameId.CeresDoorLeftTransition3,
+        { Pose: 6 } => EnemyFrameId.CeresDoorRightHold,
+        { Pose: 7 } => EnemyFrameId.CeresDoorRightTransition0,
+        { Pose: 8 } => EnemyFrameId.CeresDoorRightTransition1,
+        { Pose: 9 } => EnemyFrameId.CeresDoorRightTransition2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CeresDoorFrame programs show."),
     };
 }

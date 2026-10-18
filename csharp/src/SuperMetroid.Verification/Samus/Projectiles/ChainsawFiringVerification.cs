@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>
 internal static class ChainsawFiringVerification
@@ -158,7 +159,7 @@ internal static class ChainsawFiringVerification
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;
-        target.SpritemapPointer = 0x8000;
+        target.Frame = EnemyFrameId.SkulteraSwimLeft0;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combatProjectiles, combatShared, samus),

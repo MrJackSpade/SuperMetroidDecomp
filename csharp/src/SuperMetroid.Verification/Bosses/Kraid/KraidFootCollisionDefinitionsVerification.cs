@@ -51,7 +51,8 @@ internal static class KraidFootCollisionDefinitionsVerification
         KraidFootCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
-        foreach (ushort frame in frames)
+        // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.
+        foreach (ushort frame in frames.Where(frame => RoomEnemySlotFrameAccess.Shows(0xa7, frame)))
         foreach ((ushort originX, ushort originY) in
                  new (ushort, ushort)[]
                  {

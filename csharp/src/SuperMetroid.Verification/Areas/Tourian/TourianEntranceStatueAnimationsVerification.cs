@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
@@ -14,7 +15,7 @@ internal static class TourianEntranceStatueAnimationsVerification
     internal static void VerifyTourianEntranceStatueAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, TourianEntranceStatueAnimations.Programs,
-            TourianEntranceStatueFrameDefinitions.Spritemap,
+            frame => EnemyFrames.Spritemap(TourianEntranceStatueFrameDefinitions.Frame(frame)),
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Tourian entrance statue programs: {Entries.Length} programs ({steps} steps) match bank $AA.");

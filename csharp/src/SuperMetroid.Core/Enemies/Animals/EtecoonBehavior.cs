@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -98,7 +99,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // same raw bit to admit the ROM instruction interpreter, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
@@ -778,7 +779,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireEtecoonState(slot);
         AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

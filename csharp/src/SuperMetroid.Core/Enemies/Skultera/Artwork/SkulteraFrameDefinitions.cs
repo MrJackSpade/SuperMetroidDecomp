@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Skultera.Artwork;
 
 /// <summary>
@@ -33,5 +35,33 @@ internal static class SkulteraFrameDefinitions
         20 => 0x9474,
         21 => 0x948f,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Skultera pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(SkulteraFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.SkulteraSwimLeft0,
+        { Pose: 1 } => EnemyFrameId.SkulteraSwimLeft1,
+        { Pose: 10 } => EnemyFrameId.SkulteraTurnRight7,
+        { Pose: 11 } => EnemyFrameId.SkulteraSwimRight0,
+        { Pose: 12 } => EnemyFrameId.SkulteraSwimRight1,
+        { Pose: 13 } => EnemyFrameId.SkulteraSwimRight2,
+        { Pose: 14 } => EnemyFrameId.SkulteraTurnLeft0,
+        { Pose: 15 } => EnemyFrameId.SkulteraTurnLeft1,
+        { Pose: 16 } => EnemyFrameId.SkulteraTurnLeft2,
+        { Pose: 17 } => EnemyFrameId.SkulteraTurnLeft3,
+        { Pose: 18 } => EnemyFrameId.SkulteraTurnLeft4,
+        { Pose: 19 } => EnemyFrameId.SkulteraTurnLeft5,
+        { Pose: 2 } => EnemyFrameId.SkulteraSwimLeft2,
+        { Pose: 20 } => EnemyFrameId.SkulteraTurnLeft6,
+        { Pose: 21 } => EnemyFrameId.SkulteraTurnLeft7,
+        { Pose: 3 } => EnemyFrameId.SkulteraTurnRight0,
+        { Pose: 4 } => EnemyFrameId.SkulteraTurnRight1,
+        { Pose: 5 } => EnemyFrameId.SkulteraTurnRight2,
+        { Pose: 6 } => EnemyFrameId.SkulteraTurnRight3,
+        { Pose: 7 } => EnemyFrameId.SkulteraTurnRight4,
+        { Pose: 8 } => EnemyFrameId.SkulteraTurnRight5,
+        { Pose: 9 } => EnemyFrameId.SkulteraTurnRight6,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the SkulteraFrame programs show."),
     };
 }

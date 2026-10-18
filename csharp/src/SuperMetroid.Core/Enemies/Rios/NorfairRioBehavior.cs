@@ -359,7 +359,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireNorfairRioState(slot);
         AnimationProgramCursor<NorfairRioProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.Frame,
                 (cue, _) => ApplyNorfairRioCue(state, cue));
         state.Program = cursor;
     }

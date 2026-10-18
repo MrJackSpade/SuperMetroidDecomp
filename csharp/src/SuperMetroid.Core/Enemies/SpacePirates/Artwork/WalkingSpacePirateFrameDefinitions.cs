@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 /// <summary>
@@ -48,5 +50,48 @@ internal static class WalkingSpacePirateFrameDefinitions
         35 => 0x8f92,
         36 => 0x8fa6,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Walking Space Pirate pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(WalkingSpacePirateFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.WalkingPirateWalkLeft0,
+        { Pose: 1 } => EnemyFrameId.WalkingPirateWalkLeft1,
+        { Pose: 10 } => EnemyFrameId.WalkingPirateWalkRight2,
+        { Pose: 11 } => EnemyFrameId.WalkingPirateWalkRight3,
+        { Pose: 12 } => EnemyFrameId.WalkingPirateWalkRight4,
+        { Pose: 13 } => EnemyFrameId.WalkingPirateWalkRight5,
+        { Pose: 14 } => EnemyFrameId.WalkingPirateWalkRight6,
+        { Pose: 15 } => EnemyFrameId.WalkingPirateWalkRight7,
+        { Pose: 16 } => EnemyFrameId.WalkingPirateFireLeft0,
+        { Pose: 17 } => EnemyFrameId.WalkingPirateFireLeft1,
+        { Pose: 18 } => EnemyFrameId.WalkingPirateFireLeft2,
+        { Pose: 19 } => EnemyFrameId.WalkingPirateFireLeft3,
+        { Pose: 2 } => EnemyFrameId.WalkingPirateWalkLeft2,
+        { Pose: 20 } => EnemyFrameId.WalkingPirateFireLeft4,
+        { Pose: 21 } => EnemyFrameId.WalkingPirateFireLeft5,
+        { Pose: 22 } => EnemyFrameId.WalkingPirateFireRight0,
+        { Pose: 23 } => EnemyFrameId.WalkingPirateFireRight1,
+        { Pose: 24 } => EnemyFrameId.WalkingPirateFireRight2,
+        { Pose: 25 } => EnemyFrameId.WalkingPirateFireRight3,
+        { Pose: 26 } => EnemyFrameId.WalkingPirateFireRight4,
+        { Pose: 27 } => EnemyFrameId.WalkingPirateFireRight5,
+        { Pose: 28 } => EnemyFrameId.WalkingPirateLookLeft0,
+        { Pose: 29 } => EnemyFrameId.WalkingPirateLookLeft1,
+        { Pose: 3 } => EnemyFrameId.WalkingPirateWalkLeft3,
+        { Pose: 30 } => EnemyFrameId.WalkingPirateLookLeft2,
+        { Pose: 31 } => EnemyFrameId.WalkingPirateLookRight0,
+        { Pose: 32 } => EnemyFrameId.WalkingPirateLookRight1,
+        { Pose: 33 } => EnemyFrameId.WalkingPirateLookRight2,
+        { Pose: 34 } => EnemyFrameId.WalkingPirateLookShared,
+        { Pose: 35 } => EnemyFrameId.WalkingPirateFlinchLeft,
+        { Pose: 36 } => EnemyFrameId.WalkingPirateFlinchRight,
+        { Pose: 4 } => EnemyFrameId.WalkingPirateWalkLeft4,
+        { Pose: 5 } => EnemyFrameId.WalkingPirateWalkLeft5,
+        { Pose: 6 } => EnemyFrameId.WalkingPirateWalkLeft6,
+        { Pose: 7 } => EnemyFrameId.WalkingPirateWalkLeft7,
+        { Pose: 8 } => EnemyFrameId.WalkingPirateWalkRight0,
+        { Pose: 9 } => EnemyFrameId.WalkingPirateWalkRight1,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the WalkingSpacePirateFrame programs show."),
     };
 }

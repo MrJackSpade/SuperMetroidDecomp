@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -872,7 +873,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AnimationProgramAdvanceKind.Show:
                 state.SetCursor(part, cursor);
                 part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                part.SpritemapPointer = DraygonFrameDefinitions.Spritemap(advance.Frame);
+                part.Frame = DraygonFrameDefinitions.Frame(advance.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Wait:
@@ -2187,7 +2188,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // component offsets and hitbox pointers remain fixed gameplay data.
         foreach (DraygonCollisionComponent component in
                  DraygonCollisionDefinitions.ComponentsAt(
-                     enemy.SpritemapPointer))
+                     EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)

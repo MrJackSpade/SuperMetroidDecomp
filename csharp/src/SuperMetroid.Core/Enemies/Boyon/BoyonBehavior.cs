@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Boyon.Artwork;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
@@ -62,7 +63,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Initialization writes the ordinary common-bank empty map before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
         // empty map; the first processed instruction frame installs real bank-$A2 art.
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState
         {
@@ -238,7 +239,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireBoyonState(slot);
         AnimationProgramCursor<BoyonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Frame,
                 (cue, _) => ApplyBoyonCue(slot, state, cue));
         state.Program = cursor;
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>The presentation boundary of the Ceres Baby's poses (#641): the bank-$A6 spritemap each pose shows.</summary>
@@ -22,5 +24,14 @@ internal static class CeresBabyFrameDefinitions
         CeresBabyPose.Round => RoundFrame,
         CeresBabyPose.Vertical => VerticalFrame,
         _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres Baby pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(CeresBabyPose frame) => frame switch
+    {
+        CeresBabyPose.Horizontal => EnemyFrameId.CeresBabyHorizontal,
+        CeresBabyPose.Round => EnemyFrameId.CeresBabyRound,
+        CeresBabyPose.Vertical => EnemyFrameId.CeresBabyVertical,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CeresBabyPose programs show."),
     };
 }

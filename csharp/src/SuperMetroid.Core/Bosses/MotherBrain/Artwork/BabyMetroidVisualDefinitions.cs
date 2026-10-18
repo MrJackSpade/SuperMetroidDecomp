@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>The presentation boundary of the Baby Metroid (#641): the bank-$A9 spritemaps of its pulse, shared by the Tourian Shitroid and the cutscene Baby.</summary>
@@ -17,5 +19,14 @@ internal static class BabyMetroidVisualDefinitions
         1 => HalfOpen,
         2 => WideOpen,
         _ => throw new ArgumentOutOfRangeException(nameof(index), index, "The Baby Metroid has three pulse poses."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(BabyMetroidFrame frame) => frame switch
+    {
+        { Index: 0 } => EnemyFrameId.Shitroid02,
+        { Index: 1 } => EnemyFrameId.Shitroid01,
+        { Index: 2 } => EnemyFrameId.Shitroid00,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BabyMetroidFrame programs show."),
     };
 }

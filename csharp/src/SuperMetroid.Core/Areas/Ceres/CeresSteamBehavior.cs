@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -43,7 +44,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresSteamProgram> cursor = _ventPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Frame,
             (cue, _) => ApplyCeresSteamCue(slot, cue));
         _ventPrograms[slot.SlotIndex] = cursor;
     }
@@ -189,7 +190,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Ceres steam requires extended touch AI $A6:{EnemyAiCodePointers.BankA6.CeresSteamTouch:X4}; " +
                         $"extended={context.UsesExtendedHitboxes}, selected=$A6:{context.HitboxTouchAiPointer:X4}, " +
-                        $"map=$A6:{context.Slot.SpritemapPointer:X4}.");
+                        $"map=$A6:{context.Slot.Frame}.");
                 }
 
                 // `$A6:F03F` restores health immediately before entering common touch AI.
@@ -212,7 +213,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     {
         callback = 0;
         if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
-            (CeresSteamCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            (CeresSteamCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
              probe.ArtworkInstalled)))
             return null;
 
@@ -220,7 +221,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // metadata, not an extra component. Both damaging rectangles and
         // callbacks remain fixed even if its installed OAM is edited.
         foreach (CeresSteamCollisionComponent component in
-                 CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 CeresSteamCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (CeresSteamCollisionHitbox hitbox in

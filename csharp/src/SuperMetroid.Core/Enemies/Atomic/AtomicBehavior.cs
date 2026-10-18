@@ -121,7 +121,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireAtomicState(slot);
         AnimationProgramCursor<AtomicProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 
 /// <summary>
@@ -24,5 +26,24 @@ internal static class GunshipFrameDefinitions
         11 => 0xafc7,
         12 => 0xafdd,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined gunship pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(GunshipFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.GunshipTopHull,
+        { Pose: 1 } => EnemyFrameId.GunshipBottomHull,
+        { Pose: 10 } => EnemyFrameId.GunshipEntrance10,
+        { Pose: 11 } => EnemyFrameId.GunshipEntrance01,
+        { Pose: 12 } => EnemyFrameId.GunshipEntrance00,
+        { Pose: 2 } => EnemyFrameId.GunshipEntrance02,
+        { Pose: 3 } => EnemyFrameId.GunshipEntrance03,
+        { Pose: 4 } => EnemyFrameId.GunshipEntrance04,
+        { Pose: 5 } => EnemyFrameId.GunshipEntrance05,
+        { Pose: 6 } => EnemyFrameId.GunshipEntrance06,
+        { Pose: 7 } => EnemyFrameId.GunshipEntrance07,
+        { Pose: 8 } => EnemyFrameId.GunshipEntrance08,
+        { Pose: 9 } => EnemyFrameId.GunshipEntrance09,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the GunshipFrame programs show."),
     };
 }

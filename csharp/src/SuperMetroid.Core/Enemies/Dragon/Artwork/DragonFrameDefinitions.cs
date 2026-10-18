@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
 
 /// <summary>
@@ -23,5 +25,23 @@ internal static class DragonFrameDefinitions
         10 => 0xe96a,
         11 => 0xe971,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Dragon pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(DragonFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.DragonBodyIdleLeft,
+        { Pose: 1 } => EnemyFrameId.DragonBodyAttackLeft0,
+        { Pose: 10 } => EnemyFrameId.DragonWingRight0,
+        { Pose: 11 } => EnemyFrameId.DragonWingRight1,
+        { Pose: 2 } => EnemyFrameId.DragonBodyAttackLeft1,
+        { Pose: 3 } => EnemyFrameId.DragonBodyAttackLeft2,
+        { Pose: 4 } => EnemyFrameId.DragonWingLeft0,
+        { Pose: 5 } => EnemyFrameId.DragonWingLeft1,
+        { Pose: 6 } => EnemyFrameId.DragonBodyIdleRight,
+        { Pose: 7 } => EnemyFrameId.DragonBodyAttackRight0,
+        { Pose: 8 } => EnemyFrameId.DragonBodyAttackRight1,
+        { Pose: 9 } => EnemyFrameId.DragonBodyAttackRight2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the DragonFrame programs show."),
     };
 }

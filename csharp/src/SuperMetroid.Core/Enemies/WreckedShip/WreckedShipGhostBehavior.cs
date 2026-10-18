@@ -426,7 +426,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         var state = RequireWreckedShipGhostState(slot);
         AnimationProgramCursor<WreckedShipGhostProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

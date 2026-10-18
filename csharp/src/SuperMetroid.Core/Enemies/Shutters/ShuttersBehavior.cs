@@ -649,7 +649,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         GrowingShutterEnemyState state = RequireGrowingShutterState(slot);
         AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Frame);
         state.Program = cursor;
     }
 
@@ -660,7 +660,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         VerticalShutterEnemyState state = RequireVerticalShutterState(slot);
         AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Frame);
         state.Program = cursor;
     }
 
@@ -671,7 +671,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         HorizontalShutterEnemyState state = RequireHorizontalShutterState(slot);
         AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

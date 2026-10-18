@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Owtch.Artwork;
 
 /// <summary>
@@ -14,5 +16,14 @@ internal static class OwtchFrameDefinitions
         1 => 0xa590,
         2 => 0xa597,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Owtch pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(OwtchFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.OwtchLeft0,
+        { Pose: 1 } => EnemyFrameId.OwtchLeft1,
+        { Pose: 2 } => EnemyFrameId.OwtchLeft2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the OwtchFrame programs show."),
     };
 }

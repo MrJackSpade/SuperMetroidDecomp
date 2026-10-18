@@ -6,6 +6,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
@@ -71,7 +72,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             : slot.CurrentInstruction) & 3);
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             animationFamily, orientation));
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
@@ -125,7 +126,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
@@ -556,7 +557,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireCrawlerState(slot);
         AnimationProgramCursor<CrawlerProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.Frame,
                 (cue, _) => ApplyCrawlerCue(state, cue));
         state.Program = cursor;
     }

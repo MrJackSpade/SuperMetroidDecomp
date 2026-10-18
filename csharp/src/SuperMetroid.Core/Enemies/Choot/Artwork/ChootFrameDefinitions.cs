@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Choot.Artwork;
 
 /// <summary>
@@ -15,5 +17,15 @@ internal static class ChootFrameDefinitions
         2 => 0xe168,
         3 => 0xe16f,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Choot pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(ChootFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.ChootIdle,
+        { Pose: 1 } => EnemyFrameId.ChootJump,
+        { Pose: 2 } => EnemyFrameId.ChootJumpApex,
+        { Pose: 3 } => EnemyFrameId.ChootFallEnd,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ChootFrame programs show."),
     };
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Yard;
 
@@ -100,7 +101,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
@@ -199,7 +200,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.HidingProgram is { } hiding)
             {
                 state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
-                slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+                slot.Frame = EnemyFrameId.Empty;
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.Timer = NativeCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
@@ -469,7 +470,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
         state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingVelocity);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
@@ -657,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireYardState(slot);
         AnimationProgramCursor<YardProgram> cursor = state.Program;
-        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Frame,
                 (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
         state.Program = cursor;
     }

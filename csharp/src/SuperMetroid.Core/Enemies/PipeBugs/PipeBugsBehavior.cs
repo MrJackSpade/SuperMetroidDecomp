@@ -685,7 +685,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePipeBugState(slot);
         AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

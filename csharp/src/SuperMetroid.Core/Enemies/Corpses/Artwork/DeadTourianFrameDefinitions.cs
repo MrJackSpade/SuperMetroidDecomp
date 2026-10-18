@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 /// <summary>
@@ -24,5 +26,24 @@ internal static class DeadTourianFrameDefinitions
         11 => 0xee61,
         12 => 0xee86,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined dead Tourian enemy pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(DeadTourianFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.DeadSidehopperCorpse,
+        { Pose: 1 } => EnemyFrameId.DeadSidehopperInitiallyDead,
+        { Pose: 10 } => EnemyFrameId.DeadSidehopperHopBody,
+        { Pose: 11 } => EnemyFrameId.DeadSidehopperHopAlt,
+        { Pose: 12 } => EnemyFrameId.DeadSidehopperIdle,
+        { Pose: 2 } => EnemyFrameId.DeadZoomerCorpse0,
+        { Pose: 3 } => EnemyFrameId.DeadZoomerCorpse2,
+        { Pose: 4 } => EnemyFrameId.DeadZoomerCorpse4,
+        { Pose: 5 } => EnemyFrameId.DeadRipperCorpse0,
+        { Pose: 6 } => EnemyFrameId.DeadRipperCorpse2,
+        { Pose: 7 } => EnemyFrameId.DeadSkreeCorpse0,
+        { Pose: 8 } => EnemyFrameId.DeadSkreeCorpse2,
+        { Pose: 9 } => EnemyFrameId.DeadSkreeCorpse4,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the DeadTourianFrame programs show."),
     };
 }

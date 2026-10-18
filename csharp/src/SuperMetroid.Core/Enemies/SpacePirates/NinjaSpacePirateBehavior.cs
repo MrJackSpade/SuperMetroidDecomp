@@ -696,7 +696,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         var state = RequireNinjaSpacePirateState(slot);
         AnimationProgramCursor<NinjaSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.Frame,
                 (cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
         state.Program = cursor;
     }

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -33,20 +34,20 @@ internal static class EnemyProgramAnimation
     /// <param name="slot">The enemy the program animates.</param>
     /// <param name="programs">The owner's program set.</param>
     /// <param name="cursor">Where the program resumes; updated in place.</param>
-    /// <param name="spritemap">The spritemap a frame shows.</param>
+    /// <param name="frame">The installed frame a program frame shows.</param>
     /// <param name="publish">Carries out a cue, returning the program a goto cue continues at.</param>
     internal static void Run<TProgram, TFrame, TCue>(
         RoomEnemySlot slot,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, ushort> spritemap,
+        Func<TFrame, EnemyFrameId> frame,
         Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
     {
         Ensure.NotNull(publish);
-        RunTo(slot, programs, ref cursor, spritemap,
+        RunTo(slot, programs, ref cursor, frame,
             (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
     }
 
@@ -55,10 +56,10 @@ internal static class EnemyProgramAnimation
         RoomEnemySlot slot,
         AnimationProgramSet<TProgram, TFrame, NoAnimationCue> programs,
         ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, ushort> spritemap)
+        Func<TFrame, EnemyFrameId> frame)
         where TProgram : struct, Enum
         where TFrame : struct =>
-        Run(slot, programs, ref cursor, spritemap,
+        Run(slot, programs, ref cursor, frame,
             static (cue, _) => throw new InvalidOperationException($"A cue-free program published {cue}."));
 
     /// <summary>
@@ -69,7 +70,7 @@ internal static class EnemyProgramAnimation
         RoomEnemySlot slot,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         ref AnimationProgramCursor<TProgram> cursor,
-        Func<TFrame, ushort> spritemap,
+        Func<TFrame, EnemyFrameId> frame,
         Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish)
         where TProgram : struct, Enum
         where TFrame : struct
@@ -77,7 +78,7 @@ internal static class EnemyProgramAnimation
     {
         Ensure.NotNull(slot);
         Ensure.NotNull(programs);
-        Ensure.NotNull(spritemap);
+        Ensure.NotNull(frame);
         // A counting set keeps its loop counter in the enemy's timer word, as the native timer-load and countdown
         // commands do; a set that never counts leaves that word to its owner.
         NativeCountdown loopCounter = programs.CountsLoops ? slot.Timer : NativeCountdown.Start(0);
@@ -88,7 +89,7 @@ internal static class EnemyProgramAnimation
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = spritemap(advance.Frame);
+                slot.Frame = frame(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Wait:

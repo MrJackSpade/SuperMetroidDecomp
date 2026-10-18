@@ -369,7 +369,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         HopperEnemyState state = RequireHopperState(slot);
         AnimationProgramCursor<HopperProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.Frame,
             (cue, _) => ApplyHopperCue(slot, state, cue));
         state.Program = cursor;
     }

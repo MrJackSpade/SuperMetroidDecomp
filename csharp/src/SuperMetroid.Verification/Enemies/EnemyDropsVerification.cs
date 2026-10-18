@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification
@@ -68,7 +69,7 @@ internal static class EnemyDropsVerification
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
-        enemy.SpritemapPointer = 0x8000;
+        enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });

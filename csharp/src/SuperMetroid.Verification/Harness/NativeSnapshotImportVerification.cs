@@ -276,7 +276,8 @@ internal static class NativeSnapshotImportVerification
             slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(W(address + 16)));
             slot.AiStates = (EnemyAiStates)W(address + 18);
             slot.Health = W(address + 20);
-            slot.SpritemapPointer = W(address + 22);
+            // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.
+            slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
             slot.Timer = NativeCountdown.FromRaw(W(address + 24));
             slot.CurrentInstruction = W(address + 26);
             slot.InstructionTimer = NativeCountdown.FromRaw(W(address + 28));

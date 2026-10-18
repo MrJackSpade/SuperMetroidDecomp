@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 
 /// <summary>
@@ -35,5 +37,35 @@ internal static class HopperFrameDefinitions
         22 => 0xb339,
         23 => 0xb368,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Hopper pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(HopperFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.SidehopperLandFloor0,
+        { Pose: 1 } => EnemyFrameId.SidehopperLandFloor1,
+        { Pose: 10 } => EnemyFrameId.DessgeegaLandCeiling1,
+        { Pose: 11 } => EnemyFrameId.DessgeegaJumpCeiling,
+        { Pose: 12 } => EnemyFrameId.LargeSidehopperLandFloor0,
+        { Pose: 13 } => EnemyFrameId.LargeSidehopperLandFloor1,
+        { Pose: 14 } => EnemyFrameId.LargeSidehopperJumpFloor,
+        { Pose: 15 } => EnemyFrameId.LargeSidehopperLandCeiling0,
+        { Pose: 16 } => EnemyFrameId.LargeSidehopperLandCeiling1,
+        { Pose: 17 } => EnemyFrameId.LargeSidehopperJumpCeiling,
+        { Pose: 18 } => EnemyFrameId.LargeDessgeegaLandFloor0,
+        { Pose: 19 } => EnemyFrameId.LargeDessgeegaLandFloor1,
+        { Pose: 2 } => EnemyFrameId.SidehopperJumpFloor,
+        { Pose: 20 } => EnemyFrameId.LargeDessgeegaJumpFloor,
+        { Pose: 21 } => EnemyFrameId.LargeDessgeegaLandCeiling0,
+        { Pose: 22 } => EnemyFrameId.LargeDessgeegaLandCeiling1,
+        { Pose: 23 } => EnemyFrameId.LargeDessgeegaJumpCeiling,
+        { Pose: 3 } => EnemyFrameId.SidehopperLandCeiling0,
+        { Pose: 4 } => EnemyFrameId.SidehopperLandCeiling1,
+        { Pose: 5 } => EnemyFrameId.SidehopperJumpCeiling,
+        { Pose: 6 } => EnemyFrameId.DessgeegaLandFloor0,
+        { Pose: 7 } => EnemyFrameId.DessgeegaLandFloor1,
+        { Pose: 8 } => EnemyFrameId.DessgeegaJumpFloor,
+        { Pose: 9 } => EnemyFrameId.DessgeegaLandCeiling0,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the HopperFrame programs show."),
     };
 }

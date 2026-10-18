@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
@@ -123,7 +124,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
@@ -902,7 +903,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
         AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Frame,
             (cue, _) => ApplyMamaTurtleCue(slot, cue));
         state.Program = cursor;
     }
@@ -914,7 +915,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
         AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Frame,
             (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
         state.Program = cursor;
     }

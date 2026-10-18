@@ -14,6 +14,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -1382,7 +1383,7 @@ internal sealed class CeresRidleyBehavior
             return false;
         }
 
-        if (slot.SpritemapPointer == 0 ||
+        if (slot.Frame is null ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
                 EnemyProperties.Deleted |
@@ -1406,7 +1407,7 @@ internal sealed class CeresRidleyBehavior
         {
             throw new InvalidDataException(
                 $"Ridley extended body selected touch AI $A6:{touchAiPointer:X4}, expected " +
-                $"$A6:{EnemyAiCodePointers.BankA6.RidleyExtendedTouch:X4} from map $A6:{slot.SpritemapPointer:X4}.");
+                $"$A6:{EnemyAiCodePointers.BankA6.RidleyExtendedTouch:X4} from map $A6:{slot.Frame}.");
         }
 
         // $A6:DF59 enters the common no-death-check handler. That distinction matters for
@@ -1435,7 +1436,7 @@ internal sealed class CeresRidleyBehavior
         int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
         int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
         var components =
-            RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
+            RidleyCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(slot.Frame));
         foreach (RidleyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -173,7 +174,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         torizo.InstructionTimer = NativeCountdown.Start(1);
         torizo.Timer = NativeCountdown.Start(0);
         torizo.PaletteIndex = 0;
-        torizo.SpritemapPointer = TorizoFrameDefinitions.InitialSpritemap;
+        torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;
         state.PreInstruction = TorizoPreInstruction.Idle;
@@ -904,7 +905,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TorizoEnemyState state = RequireBombTorizoState(torizo);
         AnimationProgramCursor<TorizoBodyProgram> cursor = state.BodyProgram;
         // The death and wake repeats count the body's timer word, as the native timer commands do.
-        EnemyProgramAnimation.RunTo(torizo, TorizoAnimations.Programs, ref cursor, TorizoFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.RunTo(torizo, TorizoAnimations.Programs, ref cursor, TorizoFrameDefinitions.Frame,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyProgram = cursor;
     }
@@ -2288,7 +2289,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
 
         foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 TorizoCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 
 /// <summary>
@@ -38,5 +40,38 @@ internal static class WorkRobotFrameDefinitions
         25 => 0xd7e1,
         26 => 0xd801,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Work Robot pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(WorkRobotFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.WorkRobotLeft00,
+        { Pose: 1 } => EnemyFrameId.WorkRobotLeft01,
+        { Pose: 10 } => EnemyFrameId.WorkRobotLeft10,
+        { Pose: 11 } => EnemyFrameId.WorkRobotLeft11,
+        { Pose: 12 } => EnemyFrameId.WorkRobotRight00,
+        { Pose: 13 } => EnemyFrameId.WorkRobotRight01,
+        { Pose: 14 } => EnemyFrameId.WorkRobotRight02,
+        { Pose: 15 } => EnemyFrameId.WorkRobotRight03,
+        { Pose: 16 } => EnemyFrameId.WorkRobotRight04,
+        { Pose: 17 } => EnemyFrameId.WorkRobotRight05,
+        { Pose: 18 } => EnemyFrameId.WorkRobotRight06,
+        { Pose: 19 } => EnemyFrameId.WorkRobotRight07,
+        { Pose: 2 } => EnemyFrameId.WorkRobotLeft02,
+        { Pose: 20 } => EnemyFrameId.WorkRobotRight08,
+        { Pose: 21 } => EnemyFrameId.WorkRobotRight09,
+        { Pose: 22 } => EnemyFrameId.WorkRobotRight10,
+        { Pose: 23 } => EnemyFrameId.WorkRobotRight11,
+        { Pose: 24 } => EnemyFrameId.WorkRobotUnpoweredLeft,
+        { Pose: 25 } => EnemyFrameId.WorkRobotUnpoweredNeutral,
+        { Pose: 26 } => EnemyFrameId.WorkRobotUnpoweredRight,
+        { Pose: 3 } => EnemyFrameId.WorkRobotLeft03,
+        { Pose: 4 } => EnemyFrameId.WorkRobotLeft04,
+        { Pose: 5 } => EnemyFrameId.WorkRobotLeft05,
+        { Pose: 6 } => EnemyFrameId.WorkRobotLeft06,
+        { Pose: 7 } => EnemyFrameId.WorkRobotLeft07,
+        { Pose: 8 } => EnemyFrameId.WorkRobotLeft08,
+        { Pose: 9 } => EnemyFrameId.WorkRobotLeft09,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the WorkRobotFrame programs show."),
     };
 }

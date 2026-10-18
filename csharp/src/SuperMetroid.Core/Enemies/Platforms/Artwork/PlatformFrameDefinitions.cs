@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Platforms.Artwork;
 
 /// <summary>
@@ -27,5 +29,27 @@ internal static class PlatformFrameDefinitions
         14 => 0xa039,
         15 => 0xa045,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Tripper or Kamer pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(PlatformFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.TripperMovingLeft0,
+        { Pose: 1 } => EnemyFrameId.TripperMovingLeft1,
+        { Pose: 10 } => EnemyFrameId.TripperStillMovingRight1,
+        { Pose: 11 } => EnemyFrameId.TripperStillMovingRight2,
+        { Pose: 12 } => EnemyFrameId.TripperKamerPlatform0,
+        { Pose: 13 } => EnemyFrameId.TripperKamerPlatform1,
+        { Pose: 14 } => EnemyFrameId.TripperKamerPlatform2,
+        { Pose: 15 } => EnemyFrameId.TripperKamerPlatform3,
+        { Pose: 2 } => EnemyFrameId.TripperMovingLeft2,
+        { Pose: 3 } => EnemyFrameId.TripperMovingRight0,
+        { Pose: 4 } => EnemyFrameId.TripperMovingRight1,
+        { Pose: 5 } => EnemyFrameId.TripperMovingRight2,
+        { Pose: 6 } => EnemyFrameId.TripperStillMovingLeft0,
+        { Pose: 7 } => EnemyFrameId.TripperStillMovingLeft1,
+        { Pose: 8 } => EnemyFrameId.TripperStillMovingLeft2,
+        { Pose: 9 } => EnemyFrameId.TripperStillMovingRight0,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PlatformFrame programs show."),
     };
 }

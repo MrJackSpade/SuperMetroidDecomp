@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
 
 /// <summary>
@@ -12,5 +14,12 @@ internal static class PolypFrameDefinitions
     {
         0 => 0xb5fb,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Polyp pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(PolypFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.Polyp00,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PolypFrame programs show."),
     };
 }

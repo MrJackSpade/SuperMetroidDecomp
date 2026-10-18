@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -172,7 +173,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         lint.PaletteIndex = _slotTable._slots[0].PaletteIndex;
         lint.InstructionTimer = NativeCountdown.Start(KraidStillPartTimer);
         SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
-        lint.SpritemapPointer = KraidLintVisualDefinitions.InitialFrame;
+        lint.Frame = EnemyFrameId.KraidLint00;
         state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
         state.Parts[lint.SlotIndex].LintXOffset = expectedSlot == 2 ? (ushort)0 : unchecked((ushort)-16);
     }
@@ -211,7 +212,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.InstructionTimer = NativeCountdown.Start(KraidStillPartTimer);
         SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
-        nail.SpritemapPointer = KraidVisualDefinitions.InitialNailFrame;
+        nail.Frame = EnemyFrameId.KraidNail0;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
         state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
         state.Parts[nail.SlotIndex].FunctionTimer = 64;
@@ -492,7 +493,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KraidPartState partState = RequireKraidState(part).Parts[part.SlotIndex];
         AnimationProgramCursor<KraidPartProgram> cursor = partState.Cursor;
-        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, frame => KraidPartFrameDefinitions.Spritemap(frame),
+        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, KraidPartFrameDefinitions.Frame,
             (cue, continuation) => ApplyKraidPartCue(cue));
         partState.Cursor = cursor;
     }
@@ -1703,7 +1704,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
                     SetKraidPartProgram(_slotTable._slots[lintSlot], KraidPartProgram.LintPostGrowth);
-                    _slotTable._slots[lintSlot].SpritemapPointer = KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
+                    _slotTable._slots[lintSlot].Frame = KraidPartFrameDefinitions.Frame(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
                 }
                 TransferKraidBottomTilemap(state);
                 return;
@@ -2634,7 +2635,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
             enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
             KraidFootCollisionDefinitions.TryGetComponents(
-            enemy.SpritemapPointer, out var footComponents)))
+            EnemyFrames.Spritemap(enemy.Frame), out var footComponents)))
             return null;
 
         // Kraid's foot art is replaceable, but each native extended frame
@@ -2667,7 +2668,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
             enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
             KraidArmCollisionDefinitions.TryGetComponents(
-            enemy.SpritemapPointer, out var kraidComponents)))
+            EnemyFrames.Spritemap(enemy.Frame), out var kraidComponents)))
             return null;
 
         // Kraid's arm art is editable, but the native extended spritemap

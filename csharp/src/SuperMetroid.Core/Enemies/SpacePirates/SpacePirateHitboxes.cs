@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
@@ -12,7 +14,7 @@ internal static class SpacePirateHitboxes
         callback = 0;
         foreach (SpacePirateCollisionComponent component in
                  SpacePirateCollisionDefinitions.ComponentsAt(
-                     enemy.SpritemapPointer))
+                     EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             IReadOnlyList<SpacePirateCollisionHitbox> hitboxes = component.Hitboxes;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
 
@@ -84,7 +85,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (slot.Parameter1 != 0)
         {
@@ -242,7 +243,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireStokeState(slot);
         AnimationProgramCursor<StokeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Frame,
                 (cue, _) => ApplyStokeCue(slot, state, cue));
         state.Program = cursor;
     }

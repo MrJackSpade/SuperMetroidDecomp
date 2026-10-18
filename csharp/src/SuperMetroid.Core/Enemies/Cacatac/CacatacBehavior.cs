@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
@@ -80,7 +81,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacMovementDefinitions.TravelDistance((byte)distanceIndex)), 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
@@ -221,7 +222,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireCacatacState(slot);
         AnimationProgramCursor<CacatacProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Frame,
                 (cue, _) => ApplyCacatacCue(slot, state, cue));
         state.Program = cursor;
     }

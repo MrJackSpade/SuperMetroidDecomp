@@ -569,7 +569,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = RequireEvirState(slot);
         AnimationProgramCursor<EvirProgram> cursor = state.Program ??
             throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
-        EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.Frame,
                 (cue, _) => ApplyEvirCue(slot, state, cue));
         state.Program = cursor;
     }

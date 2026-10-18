@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Evir.Artwork;
 
 /// <summary>
@@ -35,5 +37,35 @@ internal static class EvirFrameDefinitions
         22 => 0x8f1b,
         23 => 0x8f3b,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Evir pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(EvirFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.EvirBodyLeft0,
+        { Pose: 1 } => EnemyFrameId.EvirBodyLeft1,
+        { Pose: 10 } => EnemyFrameId.EvirArmsLeft4,
+        { Pose: 11 } => EnemyFrameId.EvirProjectileRegenerating,
+        { Pose: 12 } => EnemyFrameId.EvirProjectileFlight,
+        { Pose: 13 } => EnemyFrameId.EvirBodyRight0,
+        { Pose: 14 } => EnemyFrameId.EvirBodyRight1,
+        { Pose: 15 } => EnemyFrameId.EvirBodyRight2,
+        { Pose: 16 } => EnemyFrameId.EvirBodyRight3,
+        { Pose: 17 } => EnemyFrameId.EvirBodyRight4,
+        { Pose: 18 } => EnemyFrameId.EvirBodyRight5,
+        { Pose: 19 } => EnemyFrameId.EvirArmsRight0,
+        { Pose: 2 } => EnemyFrameId.EvirBodyLeft2,
+        { Pose: 20 } => EnemyFrameId.EvirArmsRight1,
+        { Pose: 21 } => EnemyFrameId.EvirArmsRight2,
+        { Pose: 22 } => EnemyFrameId.EvirArmsRight3,
+        { Pose: 23 } => EnemyFrameId.EvirArmsRight4,
+        { Pose: 3 } => EnemyFrameId.EvirBodyLeft3,
+        { Pose: 4 } => EnemyFrameId.EvirBodyLeft4,
+        { Pose: 5 } => EnemyFrameId.EvirBodyLeft5,
+        { Pose: 6 } => EnemyFrameId.EvirArmsLeft0,
+        { Pose: 7 } => EnemyFrameId.EvirArmsLeft1,
+        { Pose: 8 } => EnemyFrameId.EvirArmsLeft2,
+        { Pose: 9 } => EnemyFrameId.EvirArmsLeft3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the EvirFrame programs show."),
     };
 }

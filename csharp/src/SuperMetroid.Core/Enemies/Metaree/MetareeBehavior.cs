@@ -257,7 +257,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMetareeState(slot);
         AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Frame,
                 (cue, _) => ApplyMetareeCue(slot, state, cue));
         state.Program = cursor;
     }

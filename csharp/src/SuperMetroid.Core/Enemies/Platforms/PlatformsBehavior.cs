@@ -350,7 +350,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (!c.Enemy.FrozenTimer.IsZero)
-                    c.Enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperKamerVisualDefinitions.FrozenFrameId(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }
@@ -374,7 +374,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePlatformState(slot);
         AnimationProgramCursor<PlatformProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.Frame,
                 (cue, _) => ApplyPlatformCue(slot, cue));
         state.Program = cursor;
     }
@@ -390,7 +390,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = (c, froze) =>
             {
                 if (froze)
-                    c.Enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperKamerVisualDefinitions.FrozenFrameId(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }

@@ -754,7 +754,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMagdolliteState(slot);
         AnimationProgramCursor<MagdolliteProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MagdolliteAnimations.Programs, ref cursor, MagdolliteFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, MagdolliteAnimations.Programs, ref cursor, MagdolliteFrameDefinitions.Frame,
                 (cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
         state.Program = cursor;
     }

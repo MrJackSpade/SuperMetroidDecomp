@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -77,7 +78,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationProgramCursor<RidleyBodyProgram> cursor = state.BodyProgram;
         // Ridley's body lists load no loop counter.
-        EnemyProgramAnimation.Run(slot, RidleyAnimations.Programs, ref cursor, frame => (ushort)frame,
+        EnemyProgramAnimation.Run(slot, RidleyAnimations.Programs, ref cursor, RidleyBodyFrameDefinitions.Frame,
             (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue));
         state.BodyProgram = cursor;
     }
@@ -1468,7 +1469,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             _dispatch.InitializeSlotFromDefinition(fragment, population, definition);
             InitializeNorfairRidleyExplosion(fragment, body, state);
             // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
-            fragment.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+            fragment.Frame = EnemyFrameId.Empty;
             _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
             _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
         }
@@ -1536,7 +1537,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             $"Ridley breakup fragment in slot {fragment.SlotIndex} requires Ridley's encounter state.");
         if (!state.BreakupPrograms.TryGetValue(fragment.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
             throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no program.");
-        EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.Frame,
             (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
         state.BreakupPrograms[fragment.SlotIndex] = cursor;
     }
@@ -1654,7 +1655,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     throw new InvalidDataException(
                         $"Lower Norfair Ridley requires extended shot AI " +
                         $"$A6:{EnemyAiCodePointers.BankA6.RidleyShot:X4}; extended={c.UsesExtendedHitboxes}, " +
-                        $"selected=$A6:{c.HitboxShotAiPointer:X4}, map=$A6:{c.Enemy.SpritemapPointer:X4}.");
+                        $"selected=$A6:{c.HitboxShotAiPointer:X4}, map=$A6:{c.Enemy.Frame}.");
                 }
                 return false;
             },
@@ -1693,7 +1694,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         callback = 0;
         if (!(RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
             enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
-            (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            (RidleyCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
             probe.ArtworkInstalled)))
             return null;
 
@@ -1701,7 +1702,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // Contact and shot collision instead use the eleven fixed cartridge
         // body frames and their engine-owned hitbox lists.
         foreach (RidleyCollisionComponent component in
-                 RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+                 RidleyCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

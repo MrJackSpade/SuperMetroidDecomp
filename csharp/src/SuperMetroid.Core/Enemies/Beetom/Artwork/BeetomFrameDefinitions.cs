@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Beetom.Artwork;
 
 /// <summary>
@@ -33,5 +35,33 @@ internal static class BeetomFrameDefinitions
         20 => 0xc103,
         21 => 0xc123,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Beetom pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(BeetomFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.BeetomLeftCrawl0,
+        { Pose: 1 } => EnemyFrameId.BeetomLeftCrawl1,
+        { Pose: 10 } => EnemyFrameId.BeetomLeftDrain5,
+        { Pose: 11 } => EnemyFrameId.BeetomRightCrawl0,
+        { Pose: 12 } => EnemyFrameId.BeetomRightCrawl1,
+        { Pose: 13 } => EnemyFrameId.BeetomRightCrawl2,
+        { Pose: 14 } => EnemyFrameId.BeetomRightHop0,
+        { Pose: 15 } => EnemyFrameId.BeetomRightHop1,
+        { Pose: 16 } => EnemyFrameId.BeetomRightDrain0,
+        { Pose: 17 } => EnemyFrameId.BeetomRightDrain1,
+        { Pose: 18 } => EnemyFrameId.BeetomRightDrain2,
+        { Pose: 19 } => EnemyFrameId.BeetomRightDrain3,
+        { Pose: 2 } => EnemyFrameId.BeetomLeftCrawl2,
+        { Pose: 20 } => EnemyFrameId.BeetomRightDrain4,
+        { Pose: 21 } => EnemyFrameId.BeetomRightDrain5,
+        { Pose: 3 } => EnemyFrameId.BeetomLeftHop0,
+        { Pose: 4 } => EnemyFrameId.BeetomLeftHop1,
+        { Pose: 5 } => EnemyFrameId.BeetomLeftDrain0,
+        { Pose: 6 } => EnemyFrameId.BeetomLeftDrain1,
+        { Pose: 7 } => EnemyFrameId.BeetomLeftDrain2,
+        { Pose: 8 } => EnemyFrameId.BeetomLeftDrain3,
+        { Pose: 9 } => EnemyFrameId.BeetomLeftDrain4,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BeetomFrame programs show."),
     };
 }

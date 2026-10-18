@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks later-form Mother Brain contact and projectile blocking.</summary>
 internal static class MotherBrainLaterContactVerification
@@ -53,7 +54,7 @@ internal static class MotherBrainLaterContactVerification
         // Shot blocking is native behavior and must remain a dud, not body damage.
         body.Position = body.Position.WithWhole(new(128, 128));
         body.Radius = new(16, 16);
-        body.SpritemapPointer = 1;
+        body.Frame = EnemyFrameId.MotherBrainBodyOamStanding;
         body.Health = 1000;
         var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
         interactive.Add(body.NativeIndex);

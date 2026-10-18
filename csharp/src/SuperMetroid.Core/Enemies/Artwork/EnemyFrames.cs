@@ -1,0 +1,40 @@
+using SuperMetroid.Core.Enemies.Drawing;
+
+namespace SuperMetroid.Core.Enemies.Artwork;
+
+/// <summary>
+/// The presentation boundary of enemy frames: the installed spritemap or extended frame an <see cref="EnemyFrameId"/>
+/// shows, bound to the installed schemas by composition name.
+/// </summary>
+internal static class EnemyFrames
+{
+    /// <summary>Each catalogued frame's installed spritemap or extended-frame word.</summary>
+    private static readonly Lazy<Dictionary<EnemyFrameId, ushort>> Words = new(Bind);
+
+    /// <summary>Binds the shared empty frames, then every installed composition to the identity its name gives.</summary>
+    private static Dictionary<EnemyFrameId, ushort> Bind()
+    {
+        var words = new Dictionary<EnemyFrameId, ushort>
+        {
+            [EnemyFrameId.Empty] = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap,
+            [EnemyFrameId.EmptyExtended] = CommonEnemyEmptyExtendedFrameDefinitions.Frame,
+        };
+        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
+            words.Add(Identity(frame.Name), frame.Pointer);
+        foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
+            words.Add(Identity(frame.Name), frame.Pointer);
+        return words;
+    }
+
+    /// <summary>The identity named after installed composition <paramref name="name"/>.</summary>
+    private static EnemyFrameId Identity(string name) =>
+        Enum.Parse<EnemyFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
+
+    /// <summary>The bank-local word of the frame an enemy shows, zero before it shows any.</summary>
+    internal static ushort Spritemap(EnemyFrameId? frame) => frame is { } shown ? Spritemap(shown) : (ushort)0;
+
+    /// <summary>The bank-local word of the spritemap or extended frame <paramref name="frame"/> shows, in the enemy's bank.</summary>
+    internal static ushort Spritemap(EnemyFrameId frame) => Words.Value.TryGetValue(frame, out ushort word)
+        ? word
+        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No installed composition shows this enemy frame.");
+}

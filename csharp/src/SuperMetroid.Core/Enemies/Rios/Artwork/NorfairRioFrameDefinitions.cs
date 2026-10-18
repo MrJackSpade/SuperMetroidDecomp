@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Rios.Artwork;
 
 /// <summary>
@@ -31,5 +33,31 @@ internal static class NorfairRioFrameDefinitions
         18 => 0xc5e2,
         19 => 0xc5ee,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Norfair Rio pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(NorfairRioFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.NorfairRioC427,
+        { Pose: 1 } => EnemyFrameId.NorfairRioC442,
+        { Pose: 10 } => EnemyFrameId.NorfairRioC523,
+        { Pose: 11 } => EnemyFrameId.NorfairRioC534,
+        { Pose: 12 } => EnemyFrameId.NorfairRioC54f,
+        { Pose: 13 } => EnemyFrameId.NorfairRioC56a,
+        { Pose: 14 } => EnemyFrameId.NorfairRioC585,
+        { Pose: 15 } => EnemyFrameId.NorfairRioC5a0,
+        { Pose: 16 } => EnemyFrameId.NorfairRioC5bb,
+        { Pose: 17 } => EnemyFrameId.NorfairRioC5d6,
+        { Pose: 18 } => EnemyFrameId.NorfairRioC5e2,
+        { Pose: 19 } => EnemyFrameId.NorfairRioC5ee,
+        { Pose: 2 } => EnemyFrameId.NorfairRioC45d,
+        { Pose: 3 } => EnemyFrameId.NorfairRioC493,
+        { Pose: 4 } => EnemyFrameId.NorfairRioC49f,
+        { Pose: 5 } => EnemyFrameId.NorfairRioC4ab,
+        { Pose: 6 } => EnemyFrameId.NorfairRioC4b7,
+        { Pose: 7 } => EnemyFrameId.NorfairRioC4d2,
+        { Pose: 8 } => EnemyFrameId.NorfairRioC4ed,
+        { Pose: 9 } => EnemyFrameId.NorfairRioC508,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the NorfairRioFrame programs show."),
     };
 }

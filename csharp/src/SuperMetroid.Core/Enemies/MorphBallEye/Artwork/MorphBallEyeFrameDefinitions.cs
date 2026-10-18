@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 
 /// <summary>
@@ -33,5 +35,33 @@ internal static class MorphBallEyeFrameDefinitions
         20 => 0x92b1,
         21 => 0x92bd,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Morph Ball eye pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(MorphBallEyeFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.MorphEyeActive13,
+        { Pose: 1 } => EnemyFrameId.MorphEyeActive12,
+        { Pose: 10 } => EnemyFrameId.MorphEyeActive3,
+        { Pose: 11 } => EnemyFrameId.MorphEyeActive4,
+        { Pose: 12 } => EnemyFrameId.MorphEyeActive5,
+        { Pose: 13 } => EnemyFrameId.MorphEyeActive6,
+        { Pose: 14 } => EnemyFrameId.MorphEyeRightClosed,
+        { Pose: 15 } => EnemyFrameId.MorphEyeRightTransition,
+        { Pose: 16 } => EnemyFrameId.MorphEyeLeftClosed,
+        { Pose: 17 } => EnemyFrameId.MorphEyeLeftTransition,
+        { Pose: 18 } => EnemyFrameId.MorphEyeMountRight,
+        { Pose: 19 } => EnemyFrameId.MorphEyeMountDown,
+        { Pose: 2 } => EnemyFrameId.MorphEyeActive11,
+        { Pose: 20 } => EnemyFrameId.MorphEyeMountLeft,
+        { Pose: 21 } => EnemyFrameId.MorphEyeMountUp,
+        { Pose: 3 } => EnemyFrameId.MorphEyeActive10,
+        { Pose: 4 } => EnemyFrameId.MorphEyeActive9,
+        { Pose: 5 } => EnemyFrameId.MorphEyeActive8,
+        { Pose: 6 } => EnemyFrameId.MorphEyeActive7,
+        { Pose: 7 } => EnemyFrameId.MorphEyeActive0,
+        { Pose: 8 } => EnemyFrameId.MorphEyeActive1,
+        { Pose: 9 } => EnemyFrameId.MorphEyeActive2,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MorphBallEyeFrame programs show."),
     };
 }

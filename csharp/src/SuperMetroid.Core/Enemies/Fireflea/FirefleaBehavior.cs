@@ -174,7 +174,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireFirefleaState(slot);
         AnimationProgramCursor<FirefleaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

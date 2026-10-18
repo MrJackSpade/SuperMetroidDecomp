@@ -6,6 +6,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -92,7 +93,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         RequireEscapeDachoraState(slot).Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
@@ -171,14 +172,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
             AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.Spritemap,
+            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.Frame,
                 (cue, _) => ApplyEscapeEtecoonCue(slot, state, samus, cue));
             state.Program = cursor;
             return;
         }
         EscapeDachoraEnemyState dachora = RequireEscapeDachoraState(slot);
         AnimationProgramCursor<EscapeDachoraProgram> dachoraCursor = dachora.Program;
-        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.Frame,
             (cue, _) => ApplyEscapeDachoraCue(slot, samus, cue));
         dachora.Program = dachoraCursor;
     }

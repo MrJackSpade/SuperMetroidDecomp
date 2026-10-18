@@ -79,4 +79,27 @@ internal static class MotherBrainBodyVisualDefinitions
         int offset = pointer - start;
         return offset >= 0 && offset < count * stride && offset % stride == 0;
     }
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(MotherBrainBodyFrame frame) => frame switch
+    {
+        { Index: 0 } => EnemyFrameId.MotherBrainBodyOamStanding,
+        { Index: 1 } => EnemyFrameId.MotherBrainBodyOamWalking0,
+        { Index: 10 } => EnemyFrameId.MotherBrainBodyOamUncrouching,
+        { Index: 11 } => EnemyFrameId.MotherBrainBodyOamLeaningDown,
+        { Index: 12 } => EnemyFrameId.MotherBrainBodyOamInitialDummy,
+        { Index: 13 } => EnemyFrameId.MotherBrainBodyOamDeathBeam0,
+        { Index: 14 } => EnemyFrameId.MotherBrainBodyOamDeathBeam1,
+        { Index: 15 } => EnemyFrameId.MotherBrainBodyOamDeathBeam2,
+        { Index: 16 } => EnemyFrameId.MotherBrainBodyOamDeathBeam3,
+        { Index: 2 } => EnemyFrameId.MotherBrainBodyOamWalking1,
+        { Index: 3 } => EnemyFrameId.MotherBrainBodyOamWalking2,
+        { Index: 4 } => EnemyFrameId.MotherBrainBodyOamWalking3,
+        { Index: 5 } => EnemyFrameId.MotherBrainBodyOamWalking4,
+        { Index: 6 } => EnemyFrameId.MotherBrainBodyOamWalking5,
+        { Index: 7 } => EnemyFrameId.MotherBrainBodyOamWalking6,
+        { Index: 8 } => EnemyFrameId.MotherBrainBodyOamWalking7,
+        { Index: 9 } => EnemyFrameId.MotherBrainBodyOamCrouched,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MotherBrainBodyFrame programs show."),
+    };
 }

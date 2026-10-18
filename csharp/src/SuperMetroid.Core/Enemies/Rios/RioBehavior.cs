@@ -296,7 +296,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireRioState(slot);
         AnimationProgramCursor<RioProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.Frame,
                 (cue, _) => ApplyRioCue(state, cue));
         state.Program = cursor;
     }

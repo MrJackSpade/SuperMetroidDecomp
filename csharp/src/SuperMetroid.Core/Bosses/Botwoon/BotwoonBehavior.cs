@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -657,7 +658,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Held)
             return;
         head.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        head.SpritemapPointer = BotwoonVisualDefinitions.HeadSpritemap(advance.Frame);
+        head.Frame = BotwoonVisualDefinitions.HeadFrame(advance.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

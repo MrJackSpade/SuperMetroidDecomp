@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -151,11 +152,11 @@ internal sealed class EnemyPopulationLoader
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
             // first instruction-list tick replaces it. Gunship properties contain $2000.
-            slot.SpritemapPointer = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
                 ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
-                    ? (ushort)32847
-                    : CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
-                : (ushort)0;
+                    ? EnemyFrameId.EmptyExtended
+                    : EnemyFrameId.Empty
+                : null;
 
         }
 

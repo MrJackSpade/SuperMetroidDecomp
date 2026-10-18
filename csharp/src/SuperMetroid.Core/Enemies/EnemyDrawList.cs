@@ -114,19 +114,19 @@ internal sealed class EnemyDrawList
                     drawHooks.DrawBeforeBody(oam, camera);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
+                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = EnemyFrames.Spritemap(slot.Frame), Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
                     continue;
                 }
 
                 if (_room.Artwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
-                        slot.SpritemapPointer,
+                        EnemyFrames.Spritemap(slot.Frame),
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {
                     // Resolve both halves through one presentation binding. Validate
                     // the composition before any BG2 side effects; physical selectors
                     // continue to belong to compiled animation and collision programs.
                     ushort selected = _room.Artwork.ExtendedFrames.GetDisplayPointer(
-                        slot.Definition.Bank, slot.SpritemapPointer);
+                        slot.Definition.Bank, EnemyFrames.Spritemap(slot.Frame));
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
                     // This installed frame owns only the composite's visual offsets
                     // and OAM parts. Collision still uses the original engine-owned
@@ -146,7 +146,7 @@ internal sealed class EnemyDrawList
 
                 throw new InvalidDataException(
                     $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} extended frame " +
-                    $"${slot.Definition.Bank:X2}:{slot.SpritemapPointer:X4} has no installed presentation.");
+                    $"${slot.Definition.Bank:X2}:{slot.Frame} has no installed presentation.");
             }
 
             // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother

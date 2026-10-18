@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
@@ -39,7 +40,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
-        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -172,7 +173,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         FlyEnemyState state = RequireFlyState(slot);
         AnimationProgramCursor<FlyProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.Spritemap);
+        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.Frame);
         state.Program = cursor;
     }
 

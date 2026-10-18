@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
@@ -115,7 +116,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.SolidToSamus |
             EnemyProperties.ProcessInstructions |
             EnemyProperties.ProcessOffScreen);
-        statue.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        statue.Frame = EnemyFrameId.Empty;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
         statue.Parameter1 = 0;
@@ -445,7 +446,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireChozoStatueState(slot);
         AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Frame,
                 (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
         state.Program = cursor;
     }

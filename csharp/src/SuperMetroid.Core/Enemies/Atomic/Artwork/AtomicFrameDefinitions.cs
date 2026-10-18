@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Atomic.Artwork;
 
 /// <summary>
@@ -23,5 +25,23 @@ internal static class AtomicFrameDefinitions
         10 => 0xe560,
         11 => 0xe571,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Atomic pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(AtomicFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.AtomicUpRight0,
+        { Pose: 1 } => EnemyFrameId.AtomicUpRight1,
+        { Pose: 10 } => EnemyFrameId.AtomicUpLeft4,
+        { Pose: 11 } => EnemyFrameId.AtomicUpLeft5,
+        { Pose: 2 } => EnemyFrameId.AtomicUpRight2,
+        { Pose: 3 } => EnemyFrameId.AtomicUpRight3,
+        { Pose: 4 } => EnemyFrameId.AtomicUpRight4,
+        { Pose: 5 } => EnemyFrameId.AtomicUpRight5,
+        { Pose: 6 } => EnemyFrameId.AtomicUpLeft0,
+        { Pose: 7 } => EnemyFrameId.AtomicUpLeft1,
+        { Pose: 8 } => EnemyFrameId.AtomicUpLeft2,
+        { Pose: 9 } => EnemyFrameId.AtomicUpLeft3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the AtomicFrame programs show."),
     };
 }

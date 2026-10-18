@@ -554,7 +554,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireShaktoolState(slot);
         AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Frame,
                 (cue, _) => ApplyShaktoolCue(slot, state, cue));
         state.Program = cursor;
     }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 
 /// <summary>
@@ -41,5 +43,41 @@ internal static class MaridiaLargeSnailFrameDefinitions
         28 => 0xcc9f,
         29 => 0xcca9,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Oum pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(MaridiaLargeSnailFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.OumOamCB87,
+        { Pose: 1 } => EnemyFrameId.OumOamCB91,
+        { Pose: 10 } => EnemyFrameId.OumOamCBEB,
+        { Pose: 11 } => EnemyFrameId.OumOamCBF5,
+        { Pose: 12 } => EnemyFrameId.OumOamCBFF,
+        { Pose: 13 } => EnemyFrameId.OumOamCC09,
+        { Pose: 14 } => EnemyFrameId.OumOamCC13,
+        { Pose: 15 } => EnemyFrameId.OumOamCC1D,
+        { Pose: 16 } => EnemyFrameId.OumOamCC27,
+        { Pose: 17 } => EnemyFrameId.OumOamCC31,
+        { Pose: 18 } => EnemyFrameId.OumOamCC3B,
+        { Pose: 19 } => EnemyFrameId.OumOamCC45,
+        { Pose: 2 } => EnemyFrameId.OumOamCB9B,
+        { Pose: 20 } => EnemyFrameId.OumOamCC4F,
+        { Pose: 21 } => EnemyFrameId.OumOamCC59,
+        { Pose: 22 } => EnemyFrameId.OumOamCC63,
+        { Pose: 23 } => EnemyFrameId.OumOamCC6D,
+        { Pose: 24 } => EnemyFrameId.OumOamCC77,
+        { Pose: 25 } => EnemyFrameId.OumOamCC81,
+        { Pose: 26 } => EnemyFrameId.OumOamCC8B,
+        { Pose: 27 } => EnemyFrameId.OumOamCC95,
+        { Pose: 28 } => EnemyFrameId.OumOamCC9F,
+        { Pose: 29 } => EnemyFrameId.OumOamCCA9,
+        { Pose: 3 } => EnemyFrameId.OumOamCBA5,
+        { Pose: 4 } => EnemyFrameId.OumOamCBAF,
+        { Pose: 5 } => EnemyFrameId.OumOamCBB9,
+        { Pose: 6 } => EnemyFrameId.OumOamCBC3,
+        { Pose: 7 } => EnemyFrameId.OumOamCBCD,
+        { Pose: 8 } => EnemyFrameId.OumOamCBD7,
+        { Pose: 9 } => EnemyFrameId.OumOamCBE1,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MaridiaLargeSnailFrame programs show."),
     };
 }

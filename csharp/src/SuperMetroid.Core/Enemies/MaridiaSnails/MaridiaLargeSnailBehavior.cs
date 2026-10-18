@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
@@ -558,7 +559,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         var state = RequireMaridiaLargeSnailState(slot);
         AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.Spritemap,
+        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.Frame,
                 (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
         state.Program = cursor;
     }
@@ -644,7 +645,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         callback = 0;
         if (!(enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
-            (MaridiaLargeSnailCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            (MaridiaLargeSnailCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
              probe.ArtworkInstalled)))
             return null;
 
@@ -652,7 +653,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         // ordered regions change with roll and attack direction. Keep
         // those rectangles and callback identities independent of OAM.
         ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(
-            enemy.SpritemapPointer);
+            EnemyFrames.Spritemap(enemy.Frame));
         foreach (MaridiaLargeSnailCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
         {

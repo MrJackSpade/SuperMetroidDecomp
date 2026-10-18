@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Enemies.Metroids.Artwork;
 
 /// <summary>
@@ -15,5 +17,15 @@ internal static class MetroidFrameDefinitions
         2 => 0xf157,
         3 => 0xf181,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Metroid pose."),
+    };
+
+    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
+    internal static EnemyFrameId Frame(MetroidFrame frame) => frame switch
+    {
+        { Pose: 0 } => EnemyFrameId.MetroidBody0,
+        { Pose: 1 } => EnemyFrameId.MetroidBody1,
+        { Pose: 2 } => EnemyFrameId.MetroidBody2,
+        { Pose: 3 } => EnemyFrameId.MetroidBody3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MetroidFrame programs show."),
     };
 }

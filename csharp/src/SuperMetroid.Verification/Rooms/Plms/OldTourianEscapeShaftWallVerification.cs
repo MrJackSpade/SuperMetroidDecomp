@@ -7,6 +7,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -18,6 +21,7 @@ internal static class OldTourianEscapeShaftWallVerification
     internal static void VerifyOldTourianEscapeShaftWall()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        VerifyWallExplosionProgramAgainstRom(bus);
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -41,6 +45,8 @@ internal static class OldTourianEscapeShaftWallVerification
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
         AssertEqual((ushort)0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
         AssertEqual((ushort)0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
+        AssertTrue(explosion.Animation is OldTourianWallExplosionAnimation, "the explosion plays its typed program");
+        AssertEqual((ushort)0, explosion.InstructionPointer, "the explosion runs no native list");
         RoomLevelData level = runtime.Room.LoadedLevelData;
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)
@@ -49,6 +55,60 @@ internal static class OldTourianEscapeShaftWallVerification
             AssertEqual((ushort)0x00ff, word, $"wall block ({column},{row}) opens to $00FF");
         }
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");
+    }
+
+    /// <summary>
+    /// The typed wall-explosion programs against the retail list at $86:B443-$B46F, word by word: the cleared
+    /// movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
+    /// counted repeat back to $86:B449 and the delete.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the old Tourian wall explosion list")]
+    private static void VerifyWallExplosionProgramAgainstRom(SuperMetroidAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
+        var programs = OldTourianWallExplosionAnimation.AllPrograms;
+
+        var start = programs.Steps(OldTourianWallExplosionProgram.Start);
+        AssertEqual(3, start.Count, "the setup has three steps");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.InitialInstructionList, (ushort)0xb443, "the setup starts the list");
+        AssertEqual((ushort)EnemyProjectileInstruction.ClearPreInstruction, Word(0xb443), "the list first clears the movement");
+        AssertEqual(OldTourianWallExplosionCue.ClearPreInstruction, start[0].PublishedCue, "the setup clears the movement");
+        AssertEqual((ushort)EnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
+        AssertEqual(AnimationProgramStepKind.SetCounter, start[1].Kind, "the setup loads the counter");
+        AssertEqual((int)Word(0xb447), start[1].Duration, "the burst count");
+        AssertEqual(AnimationProgramStepKind.FallInto, start[2].Kind, "the setup runs on into the burst");
+        AssertEqual(OldTourianWallExplosionProgram.Burst, start[2].Target, "the setup's next program");
+
+        var burst = programs.Steps(OldTourianWallExplosionProgram.Burst);
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
+        AssertEqual((ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
+        AssertEqual(OldTourianWallExplosionCue.Scatter, burst[0].PublishedCue, "the burst scatters");
+        EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter;
+        AssertEqual(SnesLittleEndian.Word(checked((byte)scatter.Range.X), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
+        AssertEqual(SnesLittleEndian.Word(checked((byte)scatter.Range.Y), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
+        AssertEqual((ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
+        AssertEqual(OldTourianWallExplosionCue.ExplosionSound, burst[1].PublishedCue, "the burst sounds");
+
+        int cursor = 0xb452;
+        for (int frame = 0; frame < 6; frame++, cursor += 4)
+        {
+            var step = burst[2 + frame];
+            AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"pose {frame} is shown");
+            AssertEqual(frame, step.Frame, $"pose {frame} order");
+            AssertEqual((int)Word(cursor), step.Duration, $"pose {frame} duration");
+            AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
+                $"pose {frame} operand follows its duration");
+        }
+
+        AssertEqual((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
+        AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, burst[8].Kind, "the burst repeats while counting");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
+        AssertEqual(OldTourianWallExplosionProgram.Burst, burst[8].Target, "the repeat returns to the burst");
+        AssertEqual((ushort)EnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
+        AssertEqual(OldTourianWallExplosionCue.Delete, burst[9].PublishedCue, "the burst deletes the explosion");
+        AssertEqual(AnimationProgramStepKind.Hold, burst[10].Kind, "the deleted explosion holds");
+        AssertEqual(11, burst.Count, "the burst has eleven steps");
     }
 
     /// <summary>Runs the focused old Tourian escape shaft wall verification command.</summary>

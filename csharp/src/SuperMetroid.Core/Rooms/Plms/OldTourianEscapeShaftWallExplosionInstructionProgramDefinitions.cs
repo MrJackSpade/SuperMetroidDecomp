@@ -4,10 +4,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Compiled control for enemy projectile $86:B4B1, the old Tourian escape shaft fake-wall
-/// explosion, and its list <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion</c>
-/// at $86:B443-$B46F. Its six small-explosion spritemap operands resolve through extracted
-/// presentation art.
+/// Enemy projectile $86:B4B1, the old Tourian escape shaft fake-wall explosion, and its list
+/// <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion</c> at $86:B443-$B46F, which
+/// <see cref="OldTourianWallExplosionAnimation"/> plays typed. Its six small-explosion spritemap operands resolve
+/// through extracted presentation art.
 /// </summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions
 {
@@ -25,52 +25,30 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>
     internal const ushort YPosition = 0x0888;
 
+    /// <summary>$86:B447: the loop count the list loads into the general timer; the burst plays once.</summary>
+    internal const int BurstCount = 1;
+
+    /// <summary>$86:B44B: the random scatter's masks, seven pixels across and fifteen down, each centred on zero.</summary>
+    internal static EnemyProjectileScatter Scatter => new(new(7, 15), new(0, 0));
+
     /// <summary>$86:B44F-$B451: library-two small explosion $24, Max6.</summary>
     internal static SoundEffectId ExplosionSound => SoundEffectLibrary2Sounds.SmallExplosion;
     /// <summary>Native maximum of six queued library-two small-explosion sounds.</summary>
     internal const byte ExplosionSoundMaximum = 6;
 
     /// <summary>$86:B452-$B468: six small-explosion poses holding 4, 6, 5, 5, 5 and 6 frames.</summary>
-    private static ReadOnlySpan<ushort> FrameDurations => [4, 6, 5, 5, 5, 6];
+    internal static ReadOnlySpan<int> FrameDurations => [4, 6, 5, 5, 5, 6];
 
-    /// <summary>First timed small-explosion frame in the counted loop.</summary>
-    private const ushort FirstFrame = 0xb452;
-
-    /// <summary>Recognizes the old Tourian fake-wall explosion projectile kind.</summary>
-    internal static bool Owns(RoomEnemyProjectileKind kind) =>
-        kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion;
-
-    /// <summary>Reads one mechanics word of the list; spritemap operands are presentation.</summary>
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        switch (address)
-        {
-            case 0xb443: return (ushort)EnemyProjectileInstruction.ClearPreInstruction;
-            case 0xb445: return (ushort)EnemyProjectileInstruction.TimerInY;
-            case 0xb447: return 0x0001;
-            case Loop: return (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius;
-            // $86:B44B: packed bytes $07,$00,$0F,$00 — X mask 7 and Y mask 15, both centred on zero.
-            case 0xb44b: return 0x0007;
-            case 0xb44d: return 0x000f;
-            case 0xb44f: return (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6;
-            case 0xb46a: return (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero;
-            case 0xb46c: return Loop;
-            case 0xb46e: return (ushort)EnemyProjectileInstruction.Delete;
-        }
-        int offset = address - FirstFrame;
-        if (offset >= 0 && offset < FrameDurations.Length * 4 && offset % 4 == 0)
-            return FrameDurations[offset / 4];
-        throw new InvalidDataException(
-            $"Old Tourian escape-shaft wall explosion has no mechanics word at $86:{address:X4}.");
-    }
-
-    /// <summary>One separately installed spritemap operand for each explosion pose.</summary>
-    internal static int PresentationWordCount => FrameDurations.Length;
-
-    /// <summary>Locates a bounded visual operand among the six timed explosion frames.</summary>
-    internal static ushort PresentationWordAddress(int index)
-    {
-        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
-        return (ushort)(FirstFrame + 2 + 4 * index);
-    }
+    /// <summary>The first pose's installed visual operand at $86:B454.</summary>
+    internal const ushort FirstFrameOperand = 0xb454;
+    /// <summary>The second pose's installed visual operand at $86:B458.</summary>
+    internal const ushort SecondFrameOperand = 0xb458;
+    /// <summary>The third pose's installed visual operand at $86:B45C.</summary>
+    internal const ushort ThirdFrameOperand = 0xb45c;
+    /// <summary>The fourth pose's installed visual operand at $86:B460.</summary>
+    internal const ushort FourthFrameOperand = 0xb460;
+    /// <summary>The fifth pose's installed visual operand at $86:B464.</summary>
+    internal const ushort FifthFrameOperand = 0xb464;
+    /// <summary>The sixth pose's installed visual operand at $86:B468.</summary>
+    internal const ushort SixthFrameOperand = 0xb468;
 }

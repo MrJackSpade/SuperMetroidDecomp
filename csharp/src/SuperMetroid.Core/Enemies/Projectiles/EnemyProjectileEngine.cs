@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -995,9 +994,6 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
-        if (OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Owns(projectile.Kind))
-            return OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
@@ -1007,11 +1003,6 @@ internal sealed class EnemyProjectileEngine
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

@@ -1371,7 +1371,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EnemyProjectileEngine.RegisterGunshipDustCues(table);
 
 
-        OldTourianEscapeShaftWallBehavior.RegisterWallExplosionSoundInstruction(table);
+        OldTourianEscapeShaftWallBehavior.RegisterWallExplosionCues(table);
 
         NoobTubeBehavior.RegisterNoobTubeProjectileCues(table);
 

@@ -255,6 +255,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+        projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(xOffset, -16));
         projectile.Velocity = velocity;
@@ -279,6 +280,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             kind,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
+        projectile.StartAnimation(new FakeKraidProjectileAnimation(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
+            ? FakeKraidProjectilePose.SpikeLeft
+            : FakeKraidProjectilePose.SpikeRight));
         short yOffset = FakeKraidProjectileDefinitions.SpikeYOffset(row);
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(source.Position.X.Whole, unchecked((ushort)(source.Position.Y.Whole + yOffset))));
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft

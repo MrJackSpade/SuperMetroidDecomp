@@ -9,27 +9,52 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [ToolingFor(typeof(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions))]
 internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>
-    /// The control words of $86:B443-$B46F and each pose's duration. $86:B451 is the sound
-    /// instruction's one-byte operand and each pose's following word is its spritemap.
-    /// </summary>
-    private static readonly ushort[] WordAddresses =
+    /// <summary>The six pose operands, in list order.</summary>
+    private static readonly ushort[] FrameOperands =
     [
-        0xb443, 0xb445, 0xb447, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, 0xb44b, 0xb44d, 0xb44f,
-        .. Enumerable.Range(0, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordCount)
-            .Select(index => (ushort)(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordAddress(index) - 2)),
-        0xb46a, 0xb46c, 0xb46e,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FirstFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.SecondFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ThirdFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FourthFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FifthFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.SixthFrameOperand,
     ];
 
+    /// <summary>
+    /// The control words of $86:B443-$B46F and each pose's duration, with the values the typed program plays.
+    /// $86:B451 is the sound instruction's one-byte operand and each pose's following word is its spritemap.
+    /// </summary>
+    private static readonly InstructionMechanicsWord[] Words =
+    [
+        new(0xb443, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+        new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
+        new(0xb447, checked((ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
+        new(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
+        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.X, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
+        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.Y, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),
+        new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
+        .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
+            (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FrameDurations[frame])),
+        new(0xb46a, (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
+        new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop),
+        new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),
+    ];
+
+    /// <summary>The scatter command's packed operand word for one axis: its mask in the low byte, its centre in the high.</summary>
+    private static ushort ScatterWord(int mask, int center) => SnesLittleEndian.Word(checked((byte)mask), checked((byte)center));
+
+    /// <summary>The control words' addresses.</summary>
+    private static readonly ushort[] WordAddresses = [.. Words.Select(word => word.Address)];
+
     /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
-    public static int MechanicsWordCount => WordAddresses.Length;
-    /// <summary>Pairs a selected $86 instruction address with its compiled mechanic value.</summary>
-    public static InstructionMechanicsWord MechanicsWord(int index) =>
-        new(WordAddresses[index], OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ReadMechanicsWord(WordAddresses[index]));
+    public static int MechanicsWordCount => Words.Length;
+    /// <summary>Pairs a selected $86 instruction address with the value the typed program plays.</summary>
+    public static InstructionMechanicsWord MechanicsWord(int index) => Words[index];
     /// <summary>Bounds pose spritemap operands, excluding the sound operand at $86:B451.</summary>
-    public static int PresentationWordCount => OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordCount;
+    public static int PresentationWordCount => FrameOperands.Length;
     /// <summary>Locates the spritemap word following a wall-explosion pose duration.</summary>
-    public static ushort PresentationWordAddress(int index) => OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordAddress(index);
+    public static ushort PresentationWordAddress(int index) =>
+        (uint)index < (uint)FrameOperands.Length ? FrameOperands[index] : throw new IndexOutOfRangeException();
 
     /// <summary>Matches both bytes of each enumerated control or duration word in bank $86.</summary>
     public static bool IsCompiledMechanicsByte(int address)

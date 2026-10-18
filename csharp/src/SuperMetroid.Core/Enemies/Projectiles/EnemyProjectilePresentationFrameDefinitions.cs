@@ -183,8 +183,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
 
         Add(frames, "ceres_ridley", RidleyFireballVisualDefinitions.ProjectileFrameCount,
             index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordCount,
-            OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "old_tourian_escape_wall_explosion", OldTourianWallExplosionAnimation.PoseCount,
+            OldTourianWallExplosionAnimation.PresentationKey);
         Add(frames, "cacatac_spike", CacatacProjectileFrameDefinitions.PoseCount,
             index => CacatacProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,
@@ -197,8 +197,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             index => DownwardGateProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "eye_door", EyeDoorProjectileFrameDefinitions.PoseCount,
             index => EyeDoorProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "fake_kraid", FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
-            FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "fake_kraid", FakeKraidProjectileAnimation.Poses.Count,
+            index => FakeKraidProjectileAnimation.PresentationKey(FakeKraidProjectileAnimation.Poses[index]));
         Add(frames, "kago_bug", KagoBugProjectileFrameDefinitions.PoseCount,
             index => KagoBugProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "kraid_rock", KraidRockVisualDefinitions.ProjectileFrameCount,

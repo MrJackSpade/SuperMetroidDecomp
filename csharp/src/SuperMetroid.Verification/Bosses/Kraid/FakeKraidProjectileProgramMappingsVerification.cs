@@ -19,8 +19,6 @@ internal static class FakeKraidProjectileProgramMappingsVerification
             var actual = FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Fake Kraid projectile control enumeration address");
             AssertEqual(expected, actual.Value, "Fake Kraid projectile enumerated native control");
-            AssertEqual(expected, FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "Fake Kraid projectile direct native control");
         }
         var words = addresses.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
@@ -35,15 +33,6 @@ internal static class FakeKraidProjectileProgramMappingsVerification
             AssertTrue(!FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa60000 | address),
                 "Fake Kraid projectile rejects other banks");
         }
-        for (int address = 0x9dd8; address <= 0x9dee; address++)
-            if (!words.Contains((ushort)address))
-                AssertThrows<InvalidDataException>(
-                    () => FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
-                    "Fake Kraid projectile rejects visual operands, odd bytes and adjacent routines");
-        foreach (ushort address in new ushort[] { 0, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(
-                () => FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "Fake Kraid projectile rejects distant control addresses");
         foreach (int index in new[] { int.MinValue, -1, 6, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(
                 () => FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index),
@@ -54,14 +43,14 @@ internal static class FakeKraidProjectileProgramMappingsVerification
     internal static void VerifyFakeKraidProjectilePresentationAddresses()
     {
         ushort[] addresses = [0x9ddc, 0x9de2, 0x9de8];
-        AssertEqual(addresses.Length, FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(addresses.Length, FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,
             "Fake Kraid projectile visual operand count");
         for (int index = 0; index < addresses.Length; index++)
-            AssertEqual(addresses[index], FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress(index),
+            AssertEqual(addresses[index], FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Fake Kraid projectile native visual operand position");
         foreach (int index in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(
-                () => FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress(index),
+                () => FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
                 "Fake Kraid projectile visual enumeration bounds");
     }
 }

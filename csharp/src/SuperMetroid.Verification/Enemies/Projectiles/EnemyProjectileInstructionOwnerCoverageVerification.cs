@@ -86,7 +86,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.FakeKraidSpit or
                 RoomEnemyProjectileKind.FakeKraidSpikeLeft or
                 RoomEnemyProjectileKind.FakeKraidSpikeRight or
-                RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion ||
+                RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
+                // The Pirate/Mother Brain laser and the Ninja Pirate claw run typed programs.
+                RoomEnemyProjectileKind.PirateMotherBrainLaser or
+                RoomEnemyProjectileKind.PirateClaw ||
                 // The regular enemies' projectiles whose definitions start typed programs (#1291).
                 EnemyProjectileTypedStarts.Initial(kind) is not null;
             if (!typed)

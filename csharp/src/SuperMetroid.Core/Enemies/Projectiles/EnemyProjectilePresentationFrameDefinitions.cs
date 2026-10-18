@@ -56,6 +56,7 @@ using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -211,8 +212,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             index => PhantoonFlameVisualDefinitions.PresentationKey(PhantoonFlameVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "shaktool", ShaktoolProjectileFrameDefinitions.PoseCount,
             index => ShaktoolProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "space_pirate", SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,
-            SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "space_pirate", SpacePirateProjectileFrameDefinitions.PoseCount,
+            index => SpacePirateProjectileFrameDefinitions.PresentationKeys[new(index)]);
         Add(frames, "spore_spawn", SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount,
             index => SporeSpawnProjectileVisualDefinitions.PresentationKey(SporeSpawnProjectileVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "stoke", StokeProjectileFrameDefinitions.PoseCount,

@@ -394,10 +394,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             graphicsIndex: 0);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.InstructionPointer = movingRight
-            ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight
-            : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(movingRight
+            ? SpacePirateProjectileProgram.LaserRight
+            : SpacePirateProjectileProgram.LaserLeft));
 
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
@@ -458,22 +457,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 context.Camera);
         }, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.PreInstructionInY_ExecuteY, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                projectile.PreInstruction = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(projectile, unchecked((ushort)(cursor + 2))), "enemy-projectile pre-instruction");
-
-                // A050 returns the argument cursor unchanged. The common interpreter
-                // consequently sees A05C/A07A as the next instruction, dispatches that
-                // movement routine once immediately, then resumes after the operand.
-                // Merely installing the pointer would leave every laser four/two pixels
-                // behind the cartridge for its entire lifetime.
-                RunPirateMotherBrainLaserPreInstruction(projectile, camera);
-                if (!projectile.IsActive)
-                    return EnemyProjectileInstructionOutcome.Stop;
-                cursor = unchecked((ushort)(cursor + 4));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+        table.RegisterCue<SpacePirateProjectileCue>((context, cue) =>
+        {
+            context.Projectile.PreInstruction = cue.Movement;
+            // A050 returns the argument cursor unchanged, so the common interpreter dispatches the installed
+            // movement once at once: the laser moves on the update it starts and may leave the screen then.
+            if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
+                RunPirateMotherBrainLaserPreInstruction(context.Projectile, context.Camera);
+        });
     }
 
     /// <summary>Ports WalkingSpacePirate's initialization AI.</summary>

@@ -554,10 +554,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
-        projectile.InstructionPointer = throwsRight
-            ? SpacePirateProjectileInstructionProgramDefinitions.ClawRight
-            : SpacePirateProjectileInstructionProgramDefinitions.ClawLeft;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
+            ? SpacePirateProjectileProgram.ClawRight
+            : SpacePirateProjectileProgram.ClawLeft));
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = 2048;
         projectile.Variable1 = 1;

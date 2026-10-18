@@ -992,12 +992,6 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
-        if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);

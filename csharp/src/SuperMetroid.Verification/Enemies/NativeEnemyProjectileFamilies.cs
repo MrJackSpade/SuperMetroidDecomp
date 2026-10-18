@@ -25,6 +25,7 @@ internal static class NativeEnemyProjectileFamilies
         global::SuperMetroid.Verification.Enemies.Projectiles.MiscDustProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Skree.SkreeMetareeParticleAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Stoke.StokeProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBodyProjectileAnimationsVerification.Family,

@@ -346,6 +346,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(NuclearWaffleProjectileBehaviorVerification.VerifyNuclearWaffleProjectileBehavior), () => NuclearWaffleProjectileBehaviorVerification.VerifyNuclearWaffleProjectileBehavior(LoadRepositoryRom())),
         new(nameof(KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations), () => KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations(LoadRepositoryRom())),
         new(nameof(KagoBugProjectileBehaviorVerification.VerifyKagoBugProjectileBehavior), () => KagoBugProjectileBehaviorVerification.VerifyKagoBugProjectileBehavior(LoadRepositoryRom())),
+        new(nameof(SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileAnimationsVerification.VerifySpacePirateProjectileAnimations), () => SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileAnimationsVerification.VerifySpacePirateProjectileAnimations(LoadRepositoryRom())),
         new(nameof(YappingMawBodyProjectileAnimationsVerification.VerifyYappingMawBodyProjectileAnimations), () => YappingMawBodyProjectileAnimationsVerification.VerifyYappingMawBodyProjectileAnimations(LoadRepositoryRom())),
         new(nameof(YappingMawBodyProjectileBehaviorVerification.VerifyYappingMawBodyProjectileBehavior), () => YappingMawBodyProjectileBehaviorVerification.VerifyYappingMawBodyProjectileBehavior(LoadRepositoryRom())),
         new(nameof(VerifyCrocomireProjectileAnimations), () => VerifyCrocomireProjectileAnimations(LoadRepositoryRom())),

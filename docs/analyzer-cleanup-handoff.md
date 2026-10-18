@@ -582,6 +582,12 @@ Commit and push that update too.
     addresses because the Pirates' A050 and the shared Y-operand install decode list words at the native
     interpreter; the values go when those lists are typed. Test support's `EnemyProjectilePreInstructionAccess` owns
     the word view (`Word`, `FromWord`, slot `PreInstructionWord`).
+  - Projectile cue handlers take an `EnemyProjectileCueContext` (projectile, Samus, the pass's camera).
+  - The Pirate/Mother Brain laser and the Ninja Pirate claw play `SpacePirateProjectileAnimation` programs; the laser's
+    A050 is the `StartMovingNow` cue, which runs the movement once through the cue context's camera. The Core catalog
+    keeps only the list entries, its Tooling partner owns the mechanics layout, and the engine no longer reads Pirate
+    mechanics words. Native lists still run for the Tourian statue projectiles and Mother Brain's top tubes; when
+    those are typed, the engine's native interpreter, the A050/8161 decodes and the pre-instruction values can go.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

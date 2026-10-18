@@ -26,9 +26,9 @@ internal static class PhantoonMotionDefinitionsVerification
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
         }
-        Action<RoomEnemySlot> forward = PhantoonBehavior.AdjustPhantoonForwardFigureEightSpeed;
-        Action<RoomEnemySlot> reverse = PhantoonBehavior.AdjustPhantoonReverseFigureEightSpeed;
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        Action<PhantoonPartState> forward = PhantoonBehavior.AdjustPhantoonForwardFigureEightSpeed;
+        Action<PhantoonPartState> reverse = PhantoonBehavior.AdjustPhantoonReverseFigureEightSpeed;
+        var words = new PhantoonPartState();
         ushort[] phases = [0, 1, 2, 3, 0xffff];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
         foreach (bool backwards in new[] { false, true })
@@ -36,14 +36,14 @@ internal static class PhantoonMotionDefinitionsVerification
         foreach (ushort fraction in fractions)
         for (int whole = 0; whole <= ushort.MaxValue; whole++)
         {
-            slot.VariableB = fraction;
-            slot.VariableC = (ushort)whole;
-            slot.VariableD = phase;
+            words.SpeedFraction = fraction;
+            words.SpeedWhole = (ushort)whole;
+            words.SpeedPhase = phase;
             (ushort low, ushort high, ushort next) = Expected(fraction, (ushort)whole, phase, backwards);
-            (backwards ? reverse : forward)(slot);
-            AssertEqual(low, slot.VariableB, "Phantoon real fractional speed after adjustment");
-            AssertEqual(high, slot.VariableC, "Phantoon real signed whole speed after adjustment");
-            AssertEqual(next, slot.VariableD, "Phantoon real acceleration phase transition");
+            (backwards ? reverse : forward)(words);
+            AssertEqual(low, words.SpeedFraction, "Phantoon real fractional speed after adjustment");
+            AssertEqual(high, words.SpeedWhole, "Phantoon real signed whole speed after adjustment");
+            AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
         }
         Console.WriteLine("Phantoon motion: 14 native words and 5,898,240 real speed/phase adjustments match without a bus.");
 

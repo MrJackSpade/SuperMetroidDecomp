@@ -23,12 +23,12 @@ internal static class PhantoonPositionVerification
         var capBody = capEnemies.SlotTable.Slots[0];
         var capTentacles = capEnemies.SlotTable.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
+        capEnemies.PhantoonBehavior.Phantoon = capState;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
-        capTentacles.VariableC = 0xf800;
-        capTentacles.VariableD = 0xfa00;
+        capState.Parts[capTentacles.SlotIndex].SwoopVelocity = new(new SnesSignedEightEight(0xf800), new SnesSignedEightEight(0xfa00));
         PhantoonBehavior.MovePhantoonInSwoop(capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, false);
-        AssertEqual((ushort)0xf800, capTentacles.VariableC, "Native NTSC negative swoop X cap");
-        AssertEqual((ushort)0xfa00, capTentacles.VariableD, "Native NTSC negative swoop Y cap");
+        AssertEqual((ushort)0xf800, capState.Parts[capTentacles.SlotIndex].SwoopVelocity.X.RawValue, "Native NTSC negative swoop X cap");
+        AssertEqual((ushort)0xfa00, capState.Parts[capTentacles.SlotIndex].SwoopVelocity.Y.RawValue, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");
         AssertEqual((ushort)122, capBody.Position.Y.Whole, "Native capped swoop Y displacement");
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
@@ -39,18 +39,20 @@ internal static class PhantoonPositionVerification
             boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomHeaderPointers.Phantoon);
             var state = boundary.Enemies.PhantoonBehavior.Phantoon;
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-            state.Eye.VariableA = timer;
+            PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
+            boundaryState.Parts[boundaryState.Body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
+            boundaryState.Parts[boundaryState.Eye.SlotIndex].ClosedTimer = timer;
             boundary.StepFrame(0);
-            AssertEqual((ushort)(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation),
-                state.Body.VariableF, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
+            AssertEqual(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation,
+                boundaryState.Parts[boundaryState.Body.SlotIndex].Function, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xcd13);
-        AssertEqual((ushort)120, (runtime.Enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.")).Body.VariableE,
+        PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
+        AssertEqual(120, loaded.Parts[loaded.Body.SlotIndex].FunctionTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));

@@ -17,6 +17,9 @@ public sealed class PhantoonEnemyState
 
     /// <summary>Gets physical slot zero, the native $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>
     public RoomEnemySlot Body { get; }
+
+    /// <summary>The common-record words of the body, eye, tentacles and mouth, in slot order.</summary>
+    public PhantoonPartState[] Parts { get; } = [new(), new(), new(), new()];
     /// <summary>Gets the native $40 eye record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set; }
     /// <summary>Gets the native $80 tentacle record, attached by part initialization and positioned from the body after its AI pass.</summary>

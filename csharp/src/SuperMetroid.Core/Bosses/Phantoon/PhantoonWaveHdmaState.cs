@@ -62,8 +62,8 @@ public sealed class PhantoonWaveHdmaState
             Active = false; // Native deletes the channel, retaining its last data words.
             return;
         }
-        Phase = (Phase + 2 * boss.Mouth.VariableF) & PhantoonWaveRomData.PhaseMask;
-        PhantoonWaveTable.Build(checked((ushort)boss.Eye.Parameter1), checked((ushort)Phase), boss.Mouth.VariableD,
+        Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
+        PhantoonWaveTable.Build(checked((ushort)boss.Eye.Parameter1), checked((ushort)Phase), checked((ushort)boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude),
             boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
     }
 

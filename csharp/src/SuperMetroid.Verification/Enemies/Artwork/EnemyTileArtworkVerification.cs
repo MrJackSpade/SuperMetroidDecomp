@@ -426,6 +426,16 @@ internal static class EnemyTileArtworkVerification
         return 0;
     }
 
+    /// <summary>Runs only the installed Phantoon colour comparison against retail.</summary>
+    [VerificationCommand("--phantoon-colors")]
+    internal static int PhantoonColorsCommand()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        VerifyInstalledPhantoonColors(bus, directory, stock);
+        return 0;
+    }
+
     /// <summary>Runs only the installed Dachora palette-colour comparison against retail.</summary>
     [VerificationCommand("--dachora-colors")]
     internal static int DachoraColorsCommand()

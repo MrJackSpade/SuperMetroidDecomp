@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Areas.Ceres;
@@ -78,6 +79,14 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<PhantoonPartState>() is { } phantoonPartRecord)
+        {
+            phantoonPartRecord.PathCursor = slot.VariableA;
+            phantoonPartRecord.SpeedFraction = slot.VariableB;
+            phantoonPartRecord.SwoopVelocity = new(new SnesSignedEightEight(slot.VariableC), new SnesSignedEightEight(slot.VariableD));
+            phantoonPartRecord.FunctionTimer = slot.VariableE;
+            phantoonPartRecord.WavyPhaseDelta = slot.VariableF;
+        }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
             kraidPartRecord.Function = (KraidAiFunction)slot.VariableA;

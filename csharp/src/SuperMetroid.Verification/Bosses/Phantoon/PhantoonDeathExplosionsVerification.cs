@@ -33,10 +33,11 @@ internal static class PhantoonDeathExplosionsVerification
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
+            enemies.PhantoonBehavior.Phantoon = state;
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
-            body.VariableE = 15;
-            body.VariableF = (ushort)PhantoonAiFunction.DyingExplosions;
+            state.Parts[body.SlotIndex].FunctionTimer = 15;
+            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
@@ -53,12 +54,12 @@ internal static class PhantoonDeathExplosionsVerification
                     if (++index == 13) { index = 5; passes++; }
                 }
                 step(body, state);
-                AssertEqual((ushort)timer, body.VariableE, "Exact death explosion frame timer");
-                AssertEqual((ushort)index, tentacles.VariableF, "Exact death record cursor and repeat");
-                AssertEqual((ushort)passes, body.VariableA, "Exact death repeat counter");
+                AssertEqual((ushort)timer, state.Parts[body.SlotIndex].FunctionTimer, "Exact death explosion frame timer");
+                AssertEqual((ushort)index, state.Parts[tentacles.SlotIndex].ExplosionIndex, "Exact death record cursor and repeat");
+                AssertEqual((ushort)passes, state.Parts[body.SlotIndex].ExplosionPass, "Exact death repeat counter");
                 AssertEqual(requests, state.DeathExplosionRequests, "Exact death request frame");
                 AssertEqual(full ? 0 : requests, state.DeathExplosionsSpawned, "Allocation pressure does not alter schedule");
-                AssertEqual((ushort)(passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), body.VariableF, "Exact final death phase handoff");
+                AssertEqual((passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), state.Parts[body.SlotIndex].Function, "Exact final death phase handoff");
                 if (due)
                 {
                     AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), state.LastCombatSoundEffect, "Death sound choice survives pool exhaustion");

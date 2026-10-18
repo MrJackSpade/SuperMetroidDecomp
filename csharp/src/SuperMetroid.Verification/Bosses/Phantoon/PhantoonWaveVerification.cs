@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
+using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks Phantoon HDMA wave, palette fade, and blending state across display latches.</summary>
 internal static class PhantoonWaveVerification
@@ -19,8 +20,8 @@ internal static class PhantoonWaveVerification
         {
             Eye = new RoomEnemySlot(1, EnemySlotFixtures.Registry), Mouth = new RoomEnemySlot(3, EnemySlotFixtures.Registry),
         };
-        boss.Mouth.VariableD = 3072;
-        boss.Mouth.VariableF = 8;
+        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
+        boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
         wave.Begin(PhantoonWaveRomData.IntroMode);
         AssertTrue(!wave.Active, "wave spawn waits for HDMA setup");
@@ -128,5 +129,13 @@ internal static class PhantoonWaveVerification
         restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
         AssertEqual(5, restored.DisplayedMosaicBlockSize, "display mosaic size survives debugger roundtrip");
+    }
+
+    /// <summary>Runs only the Phantoon wave lifecycle check.</summary>
+    [VerificationCommand("--phantoon-wave-lifecycle")]
+    internal static int PhantoonWaveLifecycleCommand()
+    {
+        VerifyPhantoonWaveLifecycle();
+        return 0;
     }
 }

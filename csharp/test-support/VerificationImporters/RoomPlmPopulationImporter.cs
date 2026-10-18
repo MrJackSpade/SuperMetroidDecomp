@@ -25,7 +25,7 @@ internal static class RoomPlmPopulationImporter
         {
             PlmHeaderId header = (PlmHeaderId)Word(0x8f, cursor);
             if (header == 0)
-                return new RoomPlmPopulationDefinition(pointer, records);
+                return new RoomPlmPopulationDefinition($"$8F:{pointer:X4}", records);
             var metadata = new RoomPlmHeaderDefinition(header,
                 Word(0x84, (ushort)header), Word(0x84, unchecked((ushort)(header + 2))));
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));

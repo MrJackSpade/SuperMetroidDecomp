@@ -63,19 +63,11 @@ internal static class LookupRetailPopulationsVerification
         {
             ushort pointer = (ushort)value;
             bool expected = original.Contains(pointer);
-            AssertEqual(expected, RoomPlmPopulationDefinitions.TryPlace(pointer, null),
+            AssertEqual(expected, RoomPlmPopulationDefinitions.Contains(pointer),
                 $"population identity {pointer:X4}");
             if (expected)
-                AssertEqual(pointer, RoomPlmPopulationDefinition.FromCompiled(pointer).Pointer,
-                    "typed population preserves selected source identity");
-            else
-            {
-                bool invoked = false;
-                AssertTrue(!RoomPlmPopulationDefinitions.TryPlace(pointer, (_, _, _, _) => invoked = true) && !invoked,
-                    "unknown population performs no setup operations");
-                AssertThrows<InvalidDataException>(() => RoomPlmPopulationDefinition.FromCompiled(pointer),
-                    "unknown population is rejected by the production factory");
-            }
+                AssertEqual(pointer, RoomPlmPopulationDefinitions.Get(pointer).Pointer,
+                    "named population keeps its source identity");
         }
     }
 
@@ -96,7 +88,7 @@ internal static class LookupRetailPopulationsVerification
         int total = 0;
         foreach (ushort pointer in OriginalRetailPopulationPointers)
         {
-            ReadOnlySpan<RoomPlmPlacement> actual = RoomPlmPopulationDefinition.FromCompiled(pointer).Placements.Span;
+            ReadOnlySpan<RoomPlmPlacement> actual = RoomPlmPopulationDefinitions.Get(pointer).Placements.Span;
             int count = 0;
             int address = 0x8f0000 | pointer;
             while (ReadSamusEaterPlmWord(rom, address) != 0)

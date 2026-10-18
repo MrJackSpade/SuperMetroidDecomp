@@ -27,7 +27,7 @@ internal static class PlmPopulationInputBoundaryVerification
             new(4, 3), 0x8000);
         var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = new byte[] { 0x80 } };
         RoomPlmPlacement[] records = [trigger, extension, second];
-        var population = new RoomPlmPopulationDefinition(0xfffa, records);
+        var population = new RoomPlmPopulationDefinition($"$8F:{0xfffa:X4}", records);
         pairs[0] = 49;
         pairs[1] = 0;
         records[0] = second;
@@ -54,19 +54,19 @@ internal static class PlmPopulationInputBoundaryVerification
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = new byte[] { 0, 3, 0x80 } }]), "invalid decoded scroll states are rejected");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             Enumerable.Repeat(second, RoomPlmPopulationFormat.MaximumParserIterations)),
             "typed records cannot evade the native bounded terminator limit");
-        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
+        AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
             [extension with { ScrollProgram = new byte[] { 0x80 } }]), "an extension cannot own a resident scroll program");
 
         int count = 0;
         foreach (ushort pointer in RoomPlmPopulationDefinitions.Pointers)
-            count += RoomPlmPopulationDefinition.FromCompiled(pointer).Placements.Length;
+            count += RoomPlmPopulationDefinitions.Get(pointer).Placements.Length;
         AssertEqual(RoomPlmPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
         Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");

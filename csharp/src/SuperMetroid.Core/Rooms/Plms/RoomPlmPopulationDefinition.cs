@@ -11,41 +11,34 @@ public sealed class RoomPlmPopulationDefinition
     /// <summary>Owned placement records kept in the order the PLM allocator consumes them.</summary>
     private readonly RoomPlmPlacement[] placements;
 
-    /// <summary>Bank-$8F native population-list pointer retained as identity and diagnostic context, not as a runtime bus-read capability.</summary>
-    public ushort Pointer { get; }
+    /// <summary>The population's name, the disassembly's label for it without its prefix, or a fixture's description.</summary>
+    public string Name { get; }
     /// <summary>Validated placement records in native allocation order, excluding the zero header terminator; scroll and collectible payloads are owned copies.</summary>
     public ReadOnlyMemory<RoomPlmPlacement> Placements => placements;
 
     /// <summary>Copies an ordered, bounded decoded population and validates setup-specific scroll and collectible payloads before any PLM slots are allocated.</summary>
-    /// <param name="pointer">Native bank-$8F population identity used in diagnostics; construction does not read from it.</param>
+    /// <param name="name">The population's name, used in diagnostics.</param>
     /// <param name="records">Placement sequence without a native zero terminator; at most 255 records may be supplied.</param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">The record limit is exceeded, a header is the zero terminator, or a setup-specific payload is invalid.</exception>
-    public RoomPlmPopulationDefinition(ushort pointer, IEnumerable<RoomPlmPlacement> records)
+    public RoomPlmPopulationDefinition(string name, IEnumerable<RoomPlmPlacement> records)
     {
         Ensure.NotNull(records);
-        Pointer = pointer;
+        Name = Ensure.NotNull(name);
         // A native population is bounded by its 256-record parser. Never enumerate
         // an unbounded caller sequence before enforcing that same upper limit.
         placements = records.Take(RoomPlmPopulationFormat.MaximumParserIterations).Select(CopyPlacement).ToArray();
         if (placements.Length > RoomPlmPopulationFormat.MaximumRecordCount)
-            throw new InvalidDataException($"PLM population $8F:{pointer:X4} exceeds the bounded native record count.");
+            throw new InvalidDataException($"PLM population {name} exceeds the bounded native record count.");
     }
 
-    /// <summary>Resolves the complete fixed placement list before allocation begins.</summary>
-    /// <param name="pointer">Compiled retail bank-$8F population-list identity.</param>
-    /// <returns>The ordered decoded population, with retail scroll triggers bound to their compiled program identities.</returns>
-    public static RoomPlmPopulationDefinition FromCompiled(ushort pointer)
-    {
-        var records = new List<RoomPlmPlacement>();
-        RoomPlmPopulationDefinitions.Place(pointer, (header, x, y, argument) =>
-        {
-            records.Add(new RoomPlmPlacement(
-                RoomPlmHeaderDefinitions.Get(header), new(x, y), argument)
-                { CompiledScrollSource = header == PlmHeaderId.ScrollTrigger ? argument : null });
-        });
-        return new RoomPlmPopulationDefinition(pointer, records);
-    }
+    /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
+    /// <param name="name">The population's name.</param>
+    /// <param name="records">Each record's PLM header, block coordinates and room argument, in native order.</param>
+    internal static RoomPlmPopulationDefinition FromRecords(string name, (PlmHeaderId Header, byte X, byte Y, ushort Argument)[] records) =>
+        new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
+            RoomPlmHeaderDefinitions.Get(record.Header), new(record.X, record.Y), record.Argument)
+            { CompiledScrollSource = record.Header == PlmHeaderId.ScrollTrigger ? record.Argument : null }));
 
     /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)

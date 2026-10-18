@@ -63,16 +63,13 @@ internal sealed class PlmPopulationLoader
         // the same cartridge/runtime state owner.
         _bindings.Install(room, services);
 
-        ushort populationPointer = population.Pointer;
         int spawnedRecordCount = 0;
         for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
         {
             RoomPlmPlacement placement = population.Placements.Span[recordIndex];
             PlmHeaderId header = placement.Header.Header;
             var record = new RoomPlmPopulationRecord(
-recordIndex,
-                unchecked((ushort)(populationPointer + recordIndex * RoomPlmPopulationFormat.RecordByteCount)),
-                header, placement.Block, placement.RoomArgument);
+                recordIndex, header, placement.Block, placement.RoomArgument);
 
             int blockIndex;
             try
@@ -87,7 +84,7 @@ recordIndex,
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
-                    $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
+                    $"Room PLM population {population.Name} record {recordIndex} " +
                     $"header $84:{(int)header:X4} has block outside safe native allocation " +
                     $"({record.Block.X},{record.Block.Y}) and argument ${record.RoomArgument:X4}.",
                     error);
@@ -107,8 +104,8 @@ recordIndex,
                 ushort setupPointer = placement.Header.Setup;
                 ushort instructionList = placement.Header.InitialInstruction;
                 throw new NotSupportedException(
-                    $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
-                    $"at $8F:{record.RecordPointer:X4} uses untranslated header " +
+                    $"Room PLM population {population.Name} record {recordIndex} " +
+                    $"uses untranslated header " +
                     $"$84:{(int)header:X4} (setup $84:{setupPointer:X4}, list " +
                     $"$84:{instructionList:X4}) at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument ${record.RoomArgument:X4}.");

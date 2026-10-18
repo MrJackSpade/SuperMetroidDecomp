@@ -1,20 +1,34 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Verification access to <see cref="RoomPlmPopulationDefinitions"/> members production does not use.</summary>
+/// <summary>Verification's view of the import pipeline's population pointers (<see cref="RoomPlmPopulationSources"/>).</summary>
 internal static class RoomPlmPopulationDefinitionsAccess
 {
-    /// <summary>Scans bank-$84 header pointers accepted by the room PLM population loader.</summary>
+    /// <summary>Resolves and enumerates compiled populations by list pointer.</summary>
     extension(RoomPlmPopulationDefinitions)
     {
-        /// <summary>Scans bank-offset values for PLM headers accepted by the room population loader.</summary>
-        internal static IEnumerable<ushort> Pointers
-        {
-            get
-            {
-                for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                    if (RoomPlmPopulationDefinitions.TryPlace((ushort)pointer, null))
-                        yield return (ushort)pointer;
-            }
-        }
+        /// <inheritdoc cref="RoomPlmPopulationSources.Population"/>
+        internal static RoomPlmPopulationDefinition Get(ushort pointer) => RoomPlmPopulationSources.Population(pointer);
+
+        /// <inheritdoc cref="RoomPlmPopulationSources.Contains"/>
+        internal static bool Contains(ushort pointer) => RoomPlmPopulationSources.Contains(pointer);
+
+        /// <inheritdoc cref="RoomPlmPopulationSources.Pointers"/>
+        internal static IEnumerable<ushort> Pointers => RoomPlmPopulationSources.Pointers;
+    }
+
+    /// <summary>The list pointer of a compiled population.</summary>
+    extension(RoomPlmPopulationDefinition self)
+    {
+        /// <summary>The bank-$8F list pointer of this population.</summary>
+        internal ushort Pointer => RoomPlmPopulationSources.PointerOf(self);
+    }
+
+    /// <summary>The population pointer of a room state.</summary>
+    extension(CartridgeRoomState self)
+    {
+        /// <summary>The bank-$8F list pointer of this state's population.</summary>
+        internal ushort PlmPointer => RoomPlmPopulationSources.PointerOf(self.PlmPopulation);
     }
 }

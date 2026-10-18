@@ -35,7 +35,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
     internal static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
-        int sourceLength = RoomPlmPopulationDefinition.FromCompiled(populatedPointer).Placements.Length * 6 + 2;
+        int sourceLength = RoomPlmPopulationDefinitions.Get(populatedPointer).Placements.Length * 6 + 2;
         int forbiddenHeaderReadAttempts = 0;
         var guarded = NewRoomPlmPopulationReadGuard(rom, populatedPointer,
             sourceLength, headerRead: () => forbiddenHeaderReadAttempts++);
@@ -71,7 +71,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         const int height = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        int count = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), (useCompiled ? RoomPlmPopulationDefinition.FromCompiled(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
+        int count = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), (useCompiled ? RoomPlmPopulationDefinitions.Get(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
         return (count, plms.PopulationSlots.ToArray());
     }
 

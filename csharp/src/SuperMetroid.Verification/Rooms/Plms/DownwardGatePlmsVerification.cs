@@ -260,7 +260,7 @@ internal static class DownwardGatePlmsVerification
         ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = new RoomPlmPopulationDefinition(populationPointer,
+        var population = new RoomPlmPopulationDefinition($"$8F:{populationPointer:X4}",
         [
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGate),
                 new(gateX, gateY), 0),

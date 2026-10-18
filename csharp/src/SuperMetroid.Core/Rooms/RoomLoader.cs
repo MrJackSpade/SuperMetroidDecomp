@@ -1000,7 +1000,7 @@ internal sealed class RoomLoader
         var plmServices = new RoomPlmRuntimeServices(_enemies, _player, _room, _system);
         _plms.PopulationLoader.LoadRoomPopulation(
             new PlmRoom(_room.LevelData, _room.BackgroundStreamer, _vram, _system, room.AreaIndex),
-            RoomPlmPopulationDefinition.FromCompiled(room.State.PlmPointer),
+            room.State.PlmPopulation,
             new RoomPlmServices
             {
                 Samus = plmServices,

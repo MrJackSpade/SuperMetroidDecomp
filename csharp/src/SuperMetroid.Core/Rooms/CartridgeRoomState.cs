@@ -14,7 +14,7 @@ public sealed record CartridgeRoomState(
     Scrolling.RoomScrollDefinition Scroll,
     ushort XrayPointer,
     RoomMainCallback MainCallback,
-    ushort PlmPointer,
+    Plms.RoomPlmPopulationDefinition PlmPopulation,
     ushort BackgroundDataPointer,
     RoomSetupCallback SetupCallback)
 {

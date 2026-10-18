@@ -19,7 +19,7 @@ internal static class RetailCrocomireCaptureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));

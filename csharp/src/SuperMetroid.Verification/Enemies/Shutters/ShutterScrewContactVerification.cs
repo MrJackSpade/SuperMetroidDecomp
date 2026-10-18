@@ -22,7 +22,7 @@ internal static class ShutterScrewContactVerification
         static void Confirm(SamusContactDamageIndex contactDamage, bool reacts)
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

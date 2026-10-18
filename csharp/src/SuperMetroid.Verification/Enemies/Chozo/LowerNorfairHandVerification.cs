@@ -25,7 +25,7 @@ internal static class LowerNorfairHandVerification
         var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmChozoStatueVisualEntry(
                 ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),

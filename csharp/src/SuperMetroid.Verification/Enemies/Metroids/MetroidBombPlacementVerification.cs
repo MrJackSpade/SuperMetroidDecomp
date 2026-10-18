@@ -80,7 +80,7 @@ internal static class MetroidBombPlacementVerification
     {
         // Use the dry-floor setup from the full-alpha native capture, not the
         // former submerged fixture or a hand-positioned already-exploding bomb.
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

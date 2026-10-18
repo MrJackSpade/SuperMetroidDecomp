@@ -32,9 +32,8 @@ internal static class RoomDefinitionIntegrationVerification
         var guard = NewCompiledRoomDefinitionReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
 
-        var expected = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
-        var actual = CreateRetailRuntimeFixture(guard);
+        var expected = CreateRetailRuntimeFixture();
+        var actual = CreateRetailRuntimeFixture();
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
 

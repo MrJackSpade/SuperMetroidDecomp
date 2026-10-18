@@ -32,7 +32,7 @@ internal static class SaveLoadRandomAudit
             };
             var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
             saves.SaveSlot(0, save);
-            var game = new SuperMetroidGame(bus, saves);
+            var game = new SuperMetroidGame(saves);
             bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;

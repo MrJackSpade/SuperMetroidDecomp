@@ -26,12 +26,11 @@ internal static class RetailRuntimeFixtureVerification
     /// <summary>Creates an isolated retail runtime with the host's installed presentation contract and requested gameplay options.</summary>
     /// <remarks>Each fixture retains its own bus and mutable runtime.</remarks>
     internal static SuperMetroidRuntime CreateRetailRuntimeFixture(
-        ISnesAddressSpace addressSpace,
         bool playerInvincibilityEnabled = false,
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false) =>
-        RepositoryInstallation.CreateRuntime(addressSpace, playerInvincibilityEnabled,
+        RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled,
             infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout);
 
     /// <summary>Binds the shared installation's runtime catalogs to a restored or bare runtime.</summary>

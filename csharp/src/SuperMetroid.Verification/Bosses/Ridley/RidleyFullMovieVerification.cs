@@ -57,7 +57,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleySpinFireball()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -85,7 +85,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyContactOrdering()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -114,7 +114,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleySwoopTimer()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -138,7 +138,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyDeathFinish()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -160,7 +160,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -230,7 +230,7 @@ internal static class RidleyFullMovieVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool defeated in new[] { false, true })
         {
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -298,11 +298,11 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyPauseDispatcherRandom()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
@@ -330,7 +330,7 @@ internal static class RidleyFullMovieVerification
             SamusPoseId.SpaceJumpRightPose, SamusPoseId.SpaceJumpLeftPose,
             SamusPoseId.ScrewAttackRightPose, SamusPoseId.ScrewAttackLeftPose })
         {
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
@@ -420,7 +420,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyFireballSquareSlope()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -447,7 +447,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyFireballDamage()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -474,7 +474,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyTailImpact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -518,7 +518,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifySpringBallRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
@@ -683,7 +683,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPaletteSelection()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
@@ -703,7 +703,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
@@ -737,7 +737,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.SourceRoom);
@@ -763,7 +763,7 @@ internal static class RidleyFullMovieVerification
         samus.InputLocked = false;
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;

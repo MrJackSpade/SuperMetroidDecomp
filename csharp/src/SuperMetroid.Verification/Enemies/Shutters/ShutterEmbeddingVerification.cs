@@ -27,7 +27,7 @@ internal static class ShutterEmbeddingVerification
         {
             int offset = slot == 0 ? 32 : -32;
             SnesButton direction = slot == 0 ? SnesButton.Left : SnesButton.Right;
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

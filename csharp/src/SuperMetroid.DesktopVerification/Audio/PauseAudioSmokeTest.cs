@@ -26,7 +26,6 @@ public static class PauseAudioSmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SaveSlotStore saves = SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
-            bus,
             saves,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         // A bare game draws the title and file screens from installed artwork, as the hosts bind it.

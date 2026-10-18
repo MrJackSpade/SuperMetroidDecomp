@@ -37,7 +37,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(bus, SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
 
         int framesExecuted = 0;
@@ -149,7 +149,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(bus, SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
@@ -190,7 +190,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        var game = new SuperMetroidGame(bus, SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
+        var game = new SuperMetroidGame(SuperMetroid.Core.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();

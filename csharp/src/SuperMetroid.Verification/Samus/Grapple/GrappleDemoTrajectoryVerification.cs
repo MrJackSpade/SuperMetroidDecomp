@@ -22,7 +22,7 @@ internal static class GrappleDemoTrajectoryVerification
         var scene = SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 4);
         AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
             "retail basic grapple demo identity");
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.AttractDemo.InitializeAttractDemo(scene);
         var samus = runtime.Player.IntroducedSamus;
         var level = runtime.Room.LoadedLevelData;

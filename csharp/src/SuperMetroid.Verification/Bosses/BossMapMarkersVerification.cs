@@ -83,7 +83,7 @@ internal static class BossMapMarkersVerification
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
                     savedGraphics.Render(new(scrollX, scrollY), marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
-                var runtime = CreateRetailRuntimeFixture(restored);
+                var runtime = CreateRetailRuntimeFixture();
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -22,7 +22,7 @@ internal static class PauseHudLocationVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -48,7 +48,7 @@ internal static class PauseHudLocationVerification
             nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));
             var native = SnesBgTilemapRenderer.Render2Bpp(nativeVram, expectedColors,
                 0x5800, 0x4000, 4, true, true);
-            var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             game.Session.runtime = runtime;
             game.Session.pauseMenu = pause;
             game.GameState = SuperMetroidGameState.PausedB;

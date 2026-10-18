@@ -63,7 +63,7 @@ internal static class BombTorizoHandArtworkVerification
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(memory, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
         runtime.Enemies.TileArtwork = stock;
         // Already-pending native-address descriptors must use the rebound current
         // PNG, not stale byte blobs captured with the original simulation graph.
@@ -71,7 +71,7 @@ internal static class BombTorizoHandArtworkVerification
         queue.Enqueue(checked((ushort)page.ByteCount), page.SourceAddress,
             VramDmaDestination.FromNative(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
         runtime.Enemies.TileArtwork = edited;
-        queue.DrainTo(runtime.Vram, memory, runtime.Artwork);
+        queue.DrainTo(runtime.Vram, runtime.Artwork);
         AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> original),
             "stock debris page remains installed");
         AssertEqual((byte)(original.Span[0] ^ 0x80),

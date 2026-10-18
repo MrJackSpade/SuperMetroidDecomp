@@ -33,7 +33,7 @@ internal static class KiHunterSpitAudioVerification
         AssertSequenceEqual(nativeQueueCall, Enumerable.Range(0, nativeQueueCall.Length)
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
             "retail spit instruction loads $4C and calls QueueSfx2_Max6 once");
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -52,7 +52,7 @@ internal static class KiHunterSpitAudioVerification
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;

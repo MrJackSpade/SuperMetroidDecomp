@@ -30,7 +30,7 @@ internal static class DraygonGoopTouchOrderVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((bool powerBombed, ushort goopX, ushort samusX) in new[] { (true, (ushort)170, (ushort)178), (false, (ushort)514, (ushort)504) })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

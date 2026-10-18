@@ -20,7 +20,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         const ushort sonicBoomsFacingLeft = 0xcbed;
         const ushort chozoOrbsFacingLeft = 0xcb41;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

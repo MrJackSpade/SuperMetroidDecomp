@@ -100,8 +100,7 @@ internal static class RoomScrollDefinitionsVerification
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
         CartridgeRoomHeader ceres = CartridgeRoomHeader.LoadUsingCompiledSelection(
             ceresPointer);
-        var guardedCeres = CreateRetailRuntimeFixture(NewRoomScrollSourceReadGuard(
-            bus, ceres.State.ScrollPointer));
+        var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll allocation starts zeroed, so Ceres's tail past its cells reads zero.
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
         guardedCeres.RoomLoader.InitializeStartingCeresRoom();

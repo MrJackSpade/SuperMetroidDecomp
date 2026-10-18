@@ -152,7 +152,7 @@ internal static class SpikeShinesparkSuitVerification
         SuperMetroidAddressSpace bus,
         bool underwater)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

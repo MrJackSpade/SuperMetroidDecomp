@@ -80,7 +80,7 @@ internal static class CeresRidleyColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.Presentation.CeresRidleyColors),
             "installed runtime binds Ceres Ridley colors to enemy owner");

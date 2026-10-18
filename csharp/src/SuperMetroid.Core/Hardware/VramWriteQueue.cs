@@ -121,13 +121,12 @@ public sealed class VramWriteQueue
 
     /// <summary>
     /// Executes every queued transfer in insertion order, then clears the table just as
-    /// the NMI consumer does at <c>$80:8CC9</c>.
+    /// the NMI consumer does at <c>$80:8CC9</c>. Every native-source record names cartridge artwork, which the
+    /// installed artwork must resolve; a record it does not resolve fails rather than reading memory.
     /// </summary>
-    [CpuBusBoundary("CPU-bus implementation: the NMI drain hands address-sourced entries to DMA channel 1")]
-    public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null)
+    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null)
     {
         Ensure.NotNull(vram);
-        Ensure.NotNull(memory);
 
         // Use an index rather than foreach to make append-during-drain behavior explicit:
         // this object is single-threaded like the original main-loop/NMI handshake.
@@ -142,13 +141,11 @@ public sealed class VramWriteQueue
                 vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.Destination.Encoded);
             else if (entry.AssetId == VramAssetId.None)
             {
-                if (assets is IInstalledArtworkTransferSource artwork &&
-                    artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
-                        out ReadOnlyMemory<byte> selected))
-                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
-                else
-                    vram.ExecuteQueuedMemoryWrite(memory, entry.SourceAddress, entry.SizeInBytes,
-                        entry.Destination.Encoded);
+                if (assets is not IInstalledArtworkTransferSource artwork ||
+                    !artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes, out ReadOnlyMemory<byte> selected))
+                    throw new InvalidOperationException(
+                        $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
+                vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
             }
             else
             {

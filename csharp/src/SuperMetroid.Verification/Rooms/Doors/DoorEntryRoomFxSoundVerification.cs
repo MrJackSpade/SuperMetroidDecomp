@@ -39,14 +39,14 @@ internal static class DoorEntryRoomFxSoundVerification
             });
         var runtime = LoadRisingTide(entry);
         var samus = runtime.Player.IntroducedSamus;
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
         {
-            var loaded = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();

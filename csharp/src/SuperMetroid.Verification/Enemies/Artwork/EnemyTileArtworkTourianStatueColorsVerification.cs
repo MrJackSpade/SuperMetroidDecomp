@@ -232,7 +232,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         static SuperMetroidRuntime CreateGreyRoom(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var runtime = CreateRetailRuntimeFixture(source, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.Enemies.TileArtwork = artwork;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();

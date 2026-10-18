@@ -32,7 +32,7 @@ internal static class CrocomirePresentation1193Verification
     {
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);

@@ -659,7 +659,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

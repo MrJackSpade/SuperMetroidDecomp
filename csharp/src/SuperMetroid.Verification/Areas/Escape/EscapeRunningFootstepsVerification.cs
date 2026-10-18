@@ -42,7 +42,7 @@ internal static class EscapeRunningFootstepsVerification
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Player.Samus = samus;
             var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
             runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;

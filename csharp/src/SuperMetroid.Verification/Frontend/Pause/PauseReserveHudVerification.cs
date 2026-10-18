@@ -28,7 +28,7 @@ internal static class PauseReserveHudVerification
     internal static void VerifyPauseReserveHud()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -41,7 +41,7 @@ internal static class PauseReserveHudVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         pause.Step(0, SnesButton.Up);
-        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
         game.Session.runtime = runtime;

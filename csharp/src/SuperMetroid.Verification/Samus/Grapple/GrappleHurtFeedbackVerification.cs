@@ -25,7 +25,7 @@ internal static class GrappleHurtFeedbackVerification
     {
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(false);
         var runtime=game.Session.runtime;

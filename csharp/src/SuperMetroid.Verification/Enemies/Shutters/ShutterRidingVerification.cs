@@ -20,7 +20,7 @@ internal static class ShutterRidingVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

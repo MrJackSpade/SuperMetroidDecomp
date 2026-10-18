@@ -20,18 +20,6 @@ internal static class DmaSourceRoutingVerification
         source.SetWorkRam(0x800000, 0x33);
         source.SetWorkRam(0x800001, 0x44);
 
-        var vram = new SnesVram();
-        AssertThrows<InvalidOperationException>(
-            () => vram.ExecuteQueuedMemoryWrite(source, 0x80fffe, 4, 0),
-            "runtime VRAM rejects cartridge transfer sources");
-        vram.ExecuteQueuedMemoryWrite(source, 0x800000, 2, 0);
-        AssertEqual((byte)0x33, vram.ReadByte(0), "DMA reads WRAM mirror low byte");
-        AssertEqual((byte)0x44, vram.ReadByte(1), "DMA reads WRAM mirror high byte");
-        // Saves are SaveSlotStore state (#1322): an SRAM window is not a DMA source.
-        AssertThrows<InvalidOperationException>(
-            () => vram.ExecuteQueuedMemoryWrite(source, 0x700010, 2, 2),
-            "VRAM rejects an SRAM window source");
-
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
         AssertEqual((ushort)0x3322, cgram.Colors[0],
@@ -41,15 +29,12 @@ internal static class DmaSourceRoutingVerification
             "CGRAM rejects an SRAM window source");
 
         AssertEqual(1, source.CartridgeReads, "only import-time palette transfer reads cartridge");
-        AssertEqual(3, source.WorkRamReads, "only WRAM windows use mutable reads");
-        AssertThrows<InvalidOperationException>(
-            () => vram.ExecuteQueuedMemoryWrite(source, 0x806000, 1, 0),
-            "VRAM rejects unmapped expansion source");
+        AssertEqual(1, source.WorkRamReads, "only WRAM windows use mutable reads");
         AssertThrows<InvalidOperationException>(
             () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x802000, colorCount: 1),
             "CGRAM rejects unmapped hardware source");
 
-        Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM windows are unmapped.");
+        Console.WriteLine("  Import palette sources: the importer resolves the ROM/WRAM wrap, and SRAM and hardware windows are unmapped.");
     }
 
     /// <summary>Sparse region stores and read counters reveal which source API each PPU transfer uses.</summary>

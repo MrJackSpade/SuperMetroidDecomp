@@ -47,7 +47,7 @@ internal static class RidleyPlayerOpeningVerification
         ushort[] Read(int frame) => rows[frame];
         ushort W(ushort[] words, int address) => words[Array.IndexOf(addresses, address)];
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));

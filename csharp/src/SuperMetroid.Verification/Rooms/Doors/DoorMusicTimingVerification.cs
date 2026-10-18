@@ -22,7 +22,7 @@ internal static class DoorMusicTimingVerification
     internal static void VerifyDoorMusicTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -49,7 +49,7 @@ internal static class DoorMusicTimingVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;

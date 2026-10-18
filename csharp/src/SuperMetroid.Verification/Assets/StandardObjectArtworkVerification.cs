@@ -39,10 +39,10 @@ internal static class StandardObjectArtworkVerification
 
             var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             runtime.Artwork.StandardObjectArt = baseline;
             runtime.HudSetup.QueueStandardObjectTiles();
-            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guard), runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
                 "actual queued gameplay DMA uses installed OBJ bytes without reading ROM");
@@ -63,10 +63,10 @@ internal static class StandardObjectArtworkVerification
             RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
             AssertTrue(!edited.Transfer.Span.SequenceEqual(baseline.Transfer.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");
-            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
+            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             editedRuntime.Artwork.StandardObjectArt = edited;
             editedRuntime.HudSetup.QueueStandardObjectTiles();
-            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, ReferenceMutableMemory.From(guard), editedRuntime.Artwork);
+            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, editedRuntime.Artwork);
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),
                 "edited OBJ tile reaches live VRAM through production DMA queue");

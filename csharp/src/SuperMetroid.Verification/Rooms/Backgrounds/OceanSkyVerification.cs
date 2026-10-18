@@ -21,7 +21,7 @@ internal static class OceanSkyVerification
     internal static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -43,7 +43,7 @@ internal static class OceanSkyVerification
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
             (runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Verification requires runtime.Room.ScrollingSky.")).ProcessFrame(cameraY, false, writes, runtime.Room.LoadedRoom.State.MainCallback);
-            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus), runtime.Artwork);
+            writes.DrainTo(runtime.Vram, runtime.Artwork);
             if (cameraY < 256) continue;
             for (int line = 32; line < 224; line += 8)
             {

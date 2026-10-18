@@ -22,7 +22,7 @@ internal static class TorizoLandingLifetimeVerification
     {
         var installation=GameAssetInstaller.EnsureInstalled(Path.GetFullPath("out/workbook-investigation/crocomire-install"));
         var bus=(installation ?? throw new InvalidOperationException("Verification requires installation.")).OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(false);
         var runtime=game.Session.runtime;

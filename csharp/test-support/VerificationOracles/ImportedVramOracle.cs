@@ -41,7 +41,7 @@ internal static class ImportedVramOracle
 
     /// <summary>Drains queued transfers with mutable-memory reads and an import-only cartridge resolver.</summary>
     public static void Drain(VramWriteQueue queue, SnesVram vram, ISnesAddressSpace source) =>
-        queue.DrainTo(vram, ReferenceMutableMemory.From(source), new ImportedTransfers(source));
+        queue.DrainTo(vram, new ImportedTransfers(source));
 
     /// <summary>Reads a bank-contained DMA span from the cartridge, WRAM, or SRAM region named by each address.</summary>
     [CpuBusBoundary("exact bus test: reference DMA source read (cartridge, WRAM or SRAM) for installed-artwork VRAM comparisons")]

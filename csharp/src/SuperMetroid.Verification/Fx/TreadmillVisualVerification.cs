@@ -26,7 +26,7 @@ internal static class TreadmillVisualVerification
         {
             if (placement.GetProperty("Area").GetString() != "WreckedShip") continue;
             ushort pointer = Convert.ToUInt16((placement.GetProperty("RoomHeader").GetString() ?? throw new InvalidOperationException("Verification requires placement.GetProperty(\"RoomHeader\").GetString()."))[2..], 16);
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

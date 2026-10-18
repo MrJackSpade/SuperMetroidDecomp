@@ -154,7 +154,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[a.AreaByteIndexes.Count], "packed index end rejected");
             }
 
-            var game = new SuperMetroidGame(memory, editedSaves);
+            var game = new SuperMetroidGame(editedSaves);
             game.BindArtwork(game.Artwork with
             {
                 MapPresentation = original,

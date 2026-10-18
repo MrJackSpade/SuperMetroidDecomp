@@ -498,7 +498,7 @@ internal static class SamusFullBodyCycleColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

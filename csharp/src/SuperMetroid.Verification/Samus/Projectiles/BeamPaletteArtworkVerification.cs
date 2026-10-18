@@ -74,7 +74,7 @@ internal static class BeamPaletteArtworkVerification
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -104,7 +104,7 @@ internal static class BeamPaletteArtworkVerification
 
         // Debug grapple selection uses the same palette index as native firing, but
         // installed artwork must win over the cartridge pointer table after binding.
-        var nativeRuntime = CreateRetailRuntimeFixture(bus);
+        var nativeRuntime = CreateRetailRuntimeFixture();
         nativeRuntime.LoadDebugGrapplePalette();
         var grappleExpected = new SnesCgram();
         palettes.LoadTo(grappleExpected, SamusBeamCombination.Ice);

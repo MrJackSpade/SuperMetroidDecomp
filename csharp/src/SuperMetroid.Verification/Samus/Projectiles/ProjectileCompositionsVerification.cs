@@ -180,14 +180,14 @@ internal static class ProjectileCompositionsVerification
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ProjectileCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {

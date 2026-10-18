@@ -54,7 +54,7 @@ internal sealed class AndroidSessionData : IDisposable
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
         saves = AndroidFileImport.ActivatePendingSave(root, savePath, maps) ?? saves;
-        Game = new SuperMetroidGame(Bus, saves, Options);
+        Game = new SuperMetroidGame(saves, Options);
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();

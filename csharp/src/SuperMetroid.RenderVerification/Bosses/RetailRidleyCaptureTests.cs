@@ -19,7 +19,7 @@ internal static class RetailRidleyCaptureTests
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

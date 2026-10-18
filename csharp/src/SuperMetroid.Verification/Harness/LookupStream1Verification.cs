@@ -201,7 +201,7 @@ internal static class LookupStream1Verification
             queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, VramDmaDestination.FromNative(pages[page].EncodedVramDestination));
             var actual = new SnesVram(); var expected = new SnesVram();
             expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
-            queue.DrainTo(actual, ReferenceMutableMemory.From(rom), new DeathTileAssetProvider(stock));
+            queue.DrainTo(actual, new DeathTileAssetProvider(stock));
             AssertTrue(actual.ImageEquals(expected), "Actual five-page NMI transport matches native");
         }
         AssertTrue(!stock.TryResolve(0, pageBytes, out _), "Unknown death source remains unresolved");

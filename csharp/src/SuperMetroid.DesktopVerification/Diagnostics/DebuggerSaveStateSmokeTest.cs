@@ -30,7 +30,7 @@ public static class DebuggerSaveStateSmokeTest
         {
             GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
                 Path.Combine(temporaryDirectory, "installed"));
-            var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions());
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions());
             var maps = installation.LoadMaps();
             game.BindArtwork(game.Artwork with
             {

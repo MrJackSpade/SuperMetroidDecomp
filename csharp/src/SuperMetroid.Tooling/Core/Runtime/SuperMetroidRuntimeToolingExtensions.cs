@@ -12,14 +12,12 @@ internal static class SuperMetroidRuntimeToolingExtensions
     extension(SuperMetroidRuntime)
     {
         /// <summary>Creates the frame-steppable runtime with its own frame clock and Mode 7 queue residue.</summary>
-        /// <param name="addressSpace">Cartridge definition source and mutable WRAM owner used by translated systems.</param>
         /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime (#633).</param>
         /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
         internal static SuperMetroidRuntime Create(
-            SuperMetroid.Core.Hardware.ISnesAddressSpace addressSpace,
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
             SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null) =>
-            new(addressSpace, overrides, initialPaletteArt, new SuperMetroid.Core.Gameplay.FrameClock(),
+            new(overrides, initialPaletteArt, new SuperMetroid.Core.Gameplay.FrameClock(),
                 new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue());
     }
 

@@ -188,7 +188,5 @@ internal static class SuperMetroidRuntimeAccess
             else
                 self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
         }
-        /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
-        internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(self._addressSpace);
     }
 }

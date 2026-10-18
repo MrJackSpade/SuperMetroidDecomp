@@ -17,7 +17,7 @@ internal static class ProjectileContactPhaseVerification
     internal static void VerifyProjectileRuntimePhase()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -72,7 +72,7 @@ internal static class ProjectileContactPhaseVerification
         var failures = new List<string>();
         foreach (SamusEquipmentFlags suit in new[] { SamusEquipmentFlags.None, SamusEquipmentFlags.VariaSuit, SamusEquipmentFlags.GravitySuit })
         {
-            var runtime = CreateRetailRuntimeFixture(bus);
+            var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

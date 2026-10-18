@@ -127,7 +127,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     // State-$05's direct BG3-page DMA is part of HUD initialization even though only its
     // first four rows contain the visible HUD. The remaining rows must name blank
     // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
-    var runtime = CreateRetailRuntimeFixture(bus);
+    var runtime = CreateRetailRuntimeFixture();
     runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
     runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
@@ -274,7 +274,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
     AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
-    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
+    queue.DrainTo(vram);
     AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
     AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 

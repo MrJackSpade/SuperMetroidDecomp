@@ -74,7 +74,7 @@ internal static class ChargeFlareProductionVerification
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
@@ -87,7 +87,7 @@ internal static class ChargeFlareProductionVerification
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
-        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with

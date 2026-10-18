@@ -59,7 +59,7 @@ internal static class BeamTileArtworkVerification
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             SamusProjectileSystem.LoadBeamPalette(actualPalette, (SamusBeamFlags)selection, catalog.Palettes);
             var legacyVram = new SnesVram();
-            nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
+            nativeQueue.DrainTo(legacyVram, catalog);
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // The page the selection binds shows the native beam characters at their DMA destination.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
@@ -129,7 +129,7 @@ internal static class BeamTileArtworkVerification
         IndexedPng.Write(png, new(64, 8), image.Pixels, image.Palette);
         var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
         var edited = BeamTileCatalog.Load(changed, stock.Palettes);
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

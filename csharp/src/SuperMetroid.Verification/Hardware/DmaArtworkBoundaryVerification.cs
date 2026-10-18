@@ -71,7 +71,7 @@ internal static class DmaArtworkBoundaryVerification
                     AssertEqual(1, writes.Entries.Count, "Kraid quarter produces one NMI record");
                     AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                         writes.Entries[0].AssetId, "Kraid restoration queues a typed installed resource");
-                    writes.DrainTo(actual, memory, maps);
+                    writes.DrainTo(actual, maps);
                 }
                 ImportedVramOracle.ExecuteQueued(expected, reference,
                     KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,

@@ -14,7 +14,7 @@ internal static class ZebesEscapeFadeVerification
     internal static void VerifyZebesEscapeFade()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.CreateGameplayRuntime(false);
         var runtime = game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

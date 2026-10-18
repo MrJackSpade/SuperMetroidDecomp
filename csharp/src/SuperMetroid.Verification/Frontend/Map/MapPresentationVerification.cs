@@ -617,7 +617,7 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain rainbow edit changes installed-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         var stockOutput = new SnesCgram();
         var editedOutput = new SnesCgram();
@@ -779,7 +779,7 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain health palette override changes installed-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         var output = new SnesCgram();
         var stockOutput = new SnesCgram();
@@ -1190,9 +1190,9 @@ internal static class MapPresentationVerification
         void AssertOverride(ushort definitionPointer, ushort colorByteIndex,
             string description)
         {
-            var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+            var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             stockRuntime.Artwork.MapPresentation = original;
-            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             editedRuntime.Artwork.MapPresentation = edited;
             stockRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
             editedRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
@@ -1433,7 +1433,7 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         using var withoutContent = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
         game.BindArtwork(game.Artwork with
@@ -1453,7 +1453,7 @@ internal static class MapPresentationVerification
         AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
         var guard = NewMapDataGuard(bus, rules);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

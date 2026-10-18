@@ -26,7 +26,7 @@ internal static class DoorWaitsForMessageBoxVerification
     internal static void VerifyDoorWaitsForMessageBox()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -35,7 +35,7 @@ internal static class DoorWaitsForMessageBoxVerification
         CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First(candidate => (candidate.DestinationRoomPointer & 0x8000) != 0);
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;

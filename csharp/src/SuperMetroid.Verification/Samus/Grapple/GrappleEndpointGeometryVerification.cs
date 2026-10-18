@@ -63,7 +63,7 @@ internal static class GrappleEndpointGeometryVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);

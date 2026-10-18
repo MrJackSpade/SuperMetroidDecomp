@@ -272,7 +272,7 @@ public sealed class PlayableGameControl : UserControl
         if (gameOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
-        game = new SuperMetroidGame(addressSpace, saves, gameOptions);
+        game = new SuperMetroidGame(saves, gameOptions);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         game.BindAudio(selectedAudioAssets);

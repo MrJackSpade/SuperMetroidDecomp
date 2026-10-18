@@ -132,19 +132,15 @@ public sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
-    /// <summary>Mutable emulated address space shared by translated gameplay owners.</summary>
-    internal readonly ISnesAddressSpace _addressSpace;
-
-    /// <summary>Executes the queued video transfers, whose address-sourced entries read the live memory bus.</summary>
-    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, RuntimeMemory.RequireBus(_addressSpace), Artwork);
+    /// <summary>Executes the queued video transfers from the installed artwork.</summary>
+    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
-    /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
-    internal SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt,
+    internal SuperMetroidRuntime(HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt,
         FrameClock clock, SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue)
     {
         Display = new GameplayDisplayState();
@@ -152,7 +148,6 @@ public sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        _addressSpace = Ensure.NotNull(addressSpace);
         Mode7QueueResidue = Ensure.NotNull(mode7QueueResidue);
         Enemies.Room.Mode7QueueResidue = Mode7QueueResidue;
 

@@ -85,7 +85,7 @@ internal static class CeresHazeVerification
         Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
         Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
 
-        var runtime = CreateRetailRuntimeFixture(rom);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

@@ -22,7 +22,7 @@ internal static class BeamImpactSoundVerification
     internal static void VerifyBeamImpactSound()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

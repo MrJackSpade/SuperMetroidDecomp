@@ -64,7 +64,7 @@ internal static class SandAnimatedTilesVerification
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
-            queue.DrainTo(vram, ReferenceMutableMemory.From(bus), provider);
+            queue.DrainTo(vram, provider);
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(

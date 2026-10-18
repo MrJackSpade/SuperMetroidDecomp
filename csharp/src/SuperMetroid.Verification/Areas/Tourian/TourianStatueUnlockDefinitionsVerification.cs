@@ -125,7 +125,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
                 address => $"Installed Tourian statue artwork read cartridge byte ${address:X6}.")
             .Forbid(address => IsTourianStatueProgramByte(programOffsets, address),
                 address => $"Production read Tourian statue program byte {SnesAddress.FromBusAddress(address)}.");
-        var runtime = CreateRetailRuntimeFixture(guarded, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -134,14 +134,14 @@ internal static class TourianStatueUnlockDefinitionsVerification
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
-        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
+        runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
         forbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
             runtime.TourianStatues.StepTiles();
-            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),

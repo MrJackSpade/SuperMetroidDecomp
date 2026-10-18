@@ -142,7 +142,7 @@ internal static class RoomArtworkRenderParityVerification
             SuperMetroidRuntime LoadRoom(bool installedArt)
             {
                 var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-                var runtime = CreateRetailRuntimeFixture(bus);
+                var runtime = CreateRetailRuntimeFixture();
                 if (installedArt)
                 {
                     runtime.Artwork.RoomCharacterArt = installation.LoadRoomCharacters();

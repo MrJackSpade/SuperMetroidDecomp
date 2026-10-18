@@ -30,7 +30,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             room.Identity,
             "Power Bomb renderer integration retail room");
 
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

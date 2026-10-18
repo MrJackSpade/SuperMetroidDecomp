@@ -23,8 +23,8 @@ internal static class RetailAttractTests
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore());
-            var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore());
+            var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
+            var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false;
             Rgba32[]? held = null;

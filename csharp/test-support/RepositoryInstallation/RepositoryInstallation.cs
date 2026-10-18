@@ -61,11 +61,11 @@ internal static class RepositoryInstallation
     internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
-    internal static SuperMetroidRuntime CreateRuntime(ISnesAddressSpace addressSpace,
+    internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
         BindRuntime(runtime);
         return runtime;
     }

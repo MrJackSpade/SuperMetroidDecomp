@@ -328,16 +328,12 @@ public sealed class SuperMetroidGame
     public SuperMetroidGameOptions ConfiguredOptions { get => Session.ConfiguredOptions; }
 
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry before any dispatcher frame runs.</summary>
-    /// <param name="bus">Retained cartridge address space with <see cref="ISnesMutableMemory"/> support for WRAM changes throughout the session.</param>
     /// <param name="saves">The battery-backed saves the session owns; the host loads them and persists them on <see cref="SaveRamChanged"/>.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="bus"/> does not implement <see cref="ISnesMutableMemory"/>.</exception>
     public SuperMetroidGame(
-        ISnesAddressSpace bus,
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null)
-        : this(bus, saves, gameOptions, renderGameplayFrames: true)
+        : this(saves, gameOptions, renderGameplayFrames: true)
     {
     }
 
@@ -351,12 +347,11 @@ public sealed class SuperMetroidGame
     /// production callers always enter through the public rendering constructor above.
     /// </remarks>
     internal SuperMetroidGame(
-        ISnesAddressSpace bus,
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions,
         bool renderGameplayFrames)
     {
-        Session = new FrontendSession(bus, saves, gameOptions, renderGameplayFrames);
+        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames);
     }
 
     /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>

@@ -24,7 +24,7 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -34,7 +34,7 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
-        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         game.Session.pauseMenu = pause;
         game.GameState = SuperMetroidGameState.PausedB;

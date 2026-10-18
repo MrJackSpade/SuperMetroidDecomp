@@ -120,7 +120,7 @@ internal static class FullMovieReplayVerification
         else
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            game = CreateRetailGameFixture(bus, SuperMetroid.Core.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+            game = CreateRetailGameFixture(SuperMetroid.Core.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
                 renderGameplayFrames: false);
         }
 
@@ -227,7 +227,7 @@ internal static class FullMovieReplayVerification
             bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
             if (consoleReset)
             {
-                game = CreateRetailGameFixture(game.Session.bus, game.Saves, renderGameplayFrames: false);
+                game = CreateRetailGameFixture(game.Saves, renderGameplayFrames: false);
                 game.DoorMusicUploadNmis = uploadNmis;
                 game.Session.DoorLoaderProgress = loaderProgress;
                 game.SoundAcknowledgements = soundAcknowledgements;

@@ -113,12 +113,12 @@ internal static class BombTorizoHandVerification
             // Drain that exact production request through the runtime's installed-art
             // provider and RAM-only memory boundary, as the accepted NMI does.
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(memory, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,
                 VramDmaDestination.FromNative(request.EncodedVramDestination));
-            runtime.VramWrites.DrainTo(runtime.Vram, memory, runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),
                 "Bomb Torizo PLM transfer resolves installed artwork");

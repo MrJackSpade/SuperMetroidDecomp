@@ -41,13 +41,13 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         // A queue restored from before presentation was bound still sources the row from $80:988B; binding the
         // presentation rebinds that pending transfer to the installed asset, as a fresh HUD setup queues it.
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
         topRowRuntime.Artwork.MapPresentation = original;
-        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime.Artwork);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, topRowRuntime.Artwork);
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
@@ -116,12 +116,12 @@ internal static class GameplayHudPresentationVerification
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         editedTopRowRuntime.Artwork.MapPresentation = edited;
         // With presentation bound, the HUD setup queues the immutable row as its installed asset.
         editedTopRowRuntime.VramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
             VramDmaDestination.FromNative(0x5800));
-        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, ReferenceMutableMemory.From(guard),
+        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram,
             editedTopRowRuntime.Artwork);
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
                 GameplayHudDefinitions.TopRowByteCount)

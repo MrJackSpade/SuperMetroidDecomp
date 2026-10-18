@@ -33,7 +33,7 @@ internal static class RetailRoomPublicationTests
         long sequence = 0;
         foreach ((ushort room, PublishedFx fx) in rooms)
         {
-            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom();

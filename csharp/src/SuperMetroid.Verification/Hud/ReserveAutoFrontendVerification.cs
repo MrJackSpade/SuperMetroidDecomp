@@ -40,7 +40,7 @@ internal static class ReserveAutoFrontendVerification
     internal static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -51,7 +51,7 @@ internal static class ReserveAutoFrontendVerification
         samus.Presentation.InitializeAnimation();
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
-        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         var recovery = game.Session.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:

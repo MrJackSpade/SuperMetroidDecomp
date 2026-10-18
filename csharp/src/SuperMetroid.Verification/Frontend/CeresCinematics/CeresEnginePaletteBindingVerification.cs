@@ -31,7 +31,7 @@ internal static class CeresEnginePaletteBindingVerification
         IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
         int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
-        var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge(), new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = stock,

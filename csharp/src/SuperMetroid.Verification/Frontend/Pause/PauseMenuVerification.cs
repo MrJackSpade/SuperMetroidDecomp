@@ -194,7 +194,7 @@ internal static class PauseMenuVerification
         AssertEqual(SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");
 
-        var resumeRuntime = CreateRetailRuntimeFixture(bus);
+        var resumeRuntime = CreateRetailRuntimeFixture();
         // Keep the fixture's distinctive Wave sheet and palette through the real
         // installed transfer queue; no synthetic native DMA fallback is involved.
         var beamFiles = SuperMetroid.AssetExtraction.Samus.BeamTileExtractor.Extract(

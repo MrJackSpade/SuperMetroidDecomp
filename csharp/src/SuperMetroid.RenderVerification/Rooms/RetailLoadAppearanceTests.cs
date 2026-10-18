@@ -29,8 +29,8 @@ internal static class RetailLoadAppearanceTests
             saves.SaveSlot(0, save);
             return saves;
         }
-        var legacy = InstalledFixtures.CreateGame(left, Saves(left));
-        var captured = InstalledFixtures.CreateGame(right, Saves(right));
+        var legacy = InstalledFixtures.CreateGame(Saves(left));
+        var captured = InstalledFixtures.CreateGame(Saves(right));
         bool sawMap = false, sawAppearance = false, completed = false;
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)

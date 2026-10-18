@@ -52,7 +52,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertEqual(5, installedQueue.Entries.Count,
             "Ceres production queues English title and four Japanese subtitle rows");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, ReferenceMutableMemory.From(guarded),
+        installedQueue.DrainTo(installedVram,
             new CeresEscapeOverlayProvider(stock));
 
         var nativeQueue = new VramWriteQueue();
@@ -106,7 +106,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var editedQueue = new VramWriteQueue();
         editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
+        editedQueue.DrainTo(editedVram,
             new CeresEscapeOverlayProvider(edited));
         AssertEqual((ushort)(nativeVram.ReadWord(
                 CeresEscapeOverlayTilemapDefinitions.EmergencyDestination) ^ 1),

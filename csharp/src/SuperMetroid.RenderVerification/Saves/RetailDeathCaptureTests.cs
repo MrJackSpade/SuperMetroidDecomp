@@ -28,8 +28,8 @@ internal static class RetailDeathCaptureTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore(), options);
-        var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);

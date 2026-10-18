@@ -200,34 +200,25 @@ internal static void VerifyMultiplicationExhaustively()
 }
 
 /// <summary>
-/// Verifies both VMAIN modes used by the queue, packed-tail accounting, source-bank wrap,
-/// ordered overwrite behavior, and the NMI consumer's unconditional queue reset.
+/// Verifies both VMAIN modes used by the queue, packed-tail accounting, ordered overwrite behavior, the drain's
+/// refusal of a native-source record no installed artwork resolves, and the NMI consumer's unconditional queue reset.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-[CpuBusBoundary("exact bus test: VRAM queue and channel DMA A-bus source reads that wrap within WRAM bank $7E")]
+[CpuBusBoundary("exact bus test: a full DAS-zero channel DMA's A-bus source reads that wrap within WRAM bank $7E")]
 internal static void VerifyVramWriteQueue()
 {
-    var bus = new TestAddressSpace();
     var vram = new SnesVram();
     var queue = new VramWriteQueue();
 
-    bus.WriteBytes(0x7e1000, [0x10, 0x11, 0x12, 0x13]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0001));
+    queue.EnqueueWords(sizeInBytes: 4, nativeSourceAddress: 0x7e1000, [0x1110, 0x1312], VramDmaDestination.FromNative(0x0001));
     AssertEqual(VramWriteQueue.EntryByteCount, queue.TailInBytes, "one packed VRAM queue tail");
 
     // Setting destination bit 15 selects VMAIN=$81. The physical start remains word one,
-    // but the next source pair lands 32 words later at word $0021.
-    bus.WriteBytes(0x7e2000, [0x20, 0x21, 0x22, 0x23]);
-    queue.Enqueue(sizeInBytes: 4, sourceAddress: 0x7e2000, destination: VramDmaDestination.FromNative(0x8001));
+    // but the next word lands 32 words later at word $0021.
+    queue.EnqueueWords(sizeInBytes: 4, nativeSourceAddress: 0x7e2000, [0x2120, 0x2322], VramDmaDestination.FromNative(0x8001));
     AssertEqual(VramWriteQueue.EntryByteCount * 2, queue.TailInBytes, "two packed VRAM queue tails");
 
-    // This transfer crosses $7E:FFFF. DMA keeps bank $7E fixed, so its second byte
-    // comes from $7E:0000 rather than the linear address $7F:0000.
-    bus.WriteByte(0x7effff, 0xa0);
-    bus.WriteByte(0x7e0000, 0xa1);
-    queue.Enqueue(sizeInBytes: 2, sourceAddress: 0x7effff, destination: VramDmaDestination.FromNative(0x0100));
-
-    queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
+    queue.DrainTo(vram);
 
     // The later column transfer intentionally overwrites the first pair at word one. This
     // proves insertion order is preserved, while word two retains the ordinary transfer.
@@ -237,8 +228,12 @@ internal static void VerifyVramWriteQueue()
     AssertEqual(0x13, vram.ReadByte(0x0002 * 2 + 1), "linear transfer high byte");
     AssertEqual(0x22, vram.ReadByte(0x0021 * 2), "column transfer increments 32 words");
     AssertEqual(0x23, vram.ReadByte(0x0021 * 2 + 1), "column transfer second high byte");
-    AssertEqual(0xa0, vram.ReadByte(0x0100 * 2), "bank-wrap transfer first byte");
-    AssertEqual(0xa1, vram.ReadByte(0x0100 * 2 + 1), "bank-wrap transfer wrapped byte");
+
+    // A native-source record names cartridge artwork; without installed artwork that resolves it, the drain fails
+    // rather than reading memory.
+    var unresolved = new VramWriteQueue();
+    unresolved.Enqueue(sizeInBytes: 2, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0100));
+    AssertThrows<InvalidOperationException>(() => unresolved.DrainTo(vram), "an unresolved native-source record fails at the drain");
 
     AssertEqual(0, queue.TailInBytes, "drain clears packed tail");
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
@@ -254,6 +249,7 @@ internal static void VerifyVramWriteQueue()
     // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD
     // wrap independently inside their fixed banks/address widths. Start at xx:FFFE so the
     // first four bytes prove the A-bus wrap, then mark the final source pair as well.
+    var bus = new TestAddressSpace();
     var fullDmaVram = new SnesVram();
     var dirtyVram = new byte[SnesVram.ByteCount];
     Array.Fill(dirtyVram, (byte)0x7e);
@@ -521,9 +517,8 @@ internal static void VerifyFrameRuntime()
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var bus = new TestAddressSpace();
-    SeedRuntimeNmiDmaSource(bus);
-    var runtime = CreateRetailRuntimeFixture(bus);
-    runtime.VramWrites.Enqueue(2, 0x7e1234, VramDmaDestination.FromNative(0x0020));
+    var runtime = CreateRetailRuntimeFixture();
+    runtime.VramWrites.EnqueueWords(2, 0x7e1234, [0xfeca], VramDmaDestination.FromNative(0x0020));
     runtime.EscapeTimer.RequestCeresStart();
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
@@ -773,13 +768,6 @@ internal static void VerifyOamSpritemapPacking()
 // Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
 // checks palette placement, split tile DMA, position math, and native OAM attributes.
 
-/// <summary>Places the two bytes the runtime's queued NMI VRAM DMA reads from the $7E:1234 A-bus source.</summary>
-[CpuBusBoundary("exact bus test: WRAM A-bus source bytes for the runtime NMI VRAM DMA drain")]
-static void SeedRuntimeNmiDmaSource(TestAddressSpace bus)
-{
-    bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
-}
-
 /// <summary>Seeds a two-part bank-$80 spritemap with distinct OAM positions and attributes.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
 static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
@@ -855,4 +843,12 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
         return 0;
     }
+
+/// <summary>Runs the frame runtime's NMI, controller, Mode 7 and VRAM-drain checks.</summary>
+[VerificationCommand("--frame-runtime")]
+internal static int FrameRuntimeCommand()
+{
+    Suite(nameof(VerifyFrameRuntime), () => VerifyFrameRuntime());
+    return 0;
+}
 }

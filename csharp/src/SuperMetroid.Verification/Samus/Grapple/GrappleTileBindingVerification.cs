@@ -21,7 +21,7 @@ internal static class GrappleTileBindingVerification
     /// </summary>
     internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var samus = runtime.Player.IntroducedSamus;
@@ -34,7 +34,7 @@ internal static class GrappleTileBindingVerification
         // A connected rope with on-screen endpoint, so the beam's draws exist to bind.
         samus.Grapple.RopeLength = 32;
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
         AssertBoundTo(runtime, stock, "Actual actor pass binds the installed grapple tiles");

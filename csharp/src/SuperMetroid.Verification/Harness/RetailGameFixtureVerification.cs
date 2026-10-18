@@ -14,9 +14,9 @@ namespace SuperMetroid.Verification.Harness;
 internal static class RetailGameFixtureVerification
 {
     /// <summary>Creates a game host from a single retail import over <paramref name="saves"/>, with optional game settings and raster rendering.</summary>
-    internal static SuperMetroidGame CreateRetailGameFixture(ISnesAddressSpace bus, SuperMetroid.Core.Saves.SaveSlotStore saves,
+    internal static SuperMetroidGame CreateRetailGameFixture(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true) =>
-        InstalledFixtures.CreateGame(bus, saves, gameOptions, renderGameplayFrames);
+        InstalledFixtures.CreateGame(saves, gameOptions, renderGameplayFrames);
 
     /// <summary>Creates a Ceres destruction state with optional supplied audio and cinematic artwork.</summary>
     internal static CeresDestructionCinematicState CreateRetailDestructionFixture(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>

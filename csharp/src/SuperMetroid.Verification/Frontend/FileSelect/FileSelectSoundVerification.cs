@@ -54,7 +54,7 @@ internal static class FileSelectSoundVerification
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         if (existingSave)
             saves.SaveSlot(0, new SuperMetroidSaveSnapshot());
-        var game = CreateRetailGameFixture(bus, saves);
+        var game = CreateRetailGameFixture(saves);
         var assets = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(assets);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];

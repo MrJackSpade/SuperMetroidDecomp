@@ -51,7 +51,7 @@ internal static class AndroidBundleReplay
             SuperMetroidGame game;
             if (seed is null)
             {
-                game = new SuperMetroidGame(bus, journalSaves, recording.GameOptions);
+                game = new SuperMetroidGame(journalSaves, recording.GameOptions);
             }
             else
             {

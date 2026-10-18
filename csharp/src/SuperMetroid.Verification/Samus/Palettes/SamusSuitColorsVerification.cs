@@ -198,7 +198,7 @@ internal static class SamusSuitColorsVerification
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

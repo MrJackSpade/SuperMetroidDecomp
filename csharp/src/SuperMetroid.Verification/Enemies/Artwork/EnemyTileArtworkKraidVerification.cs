@@ -205,7 +205,7 @@ internal static class EnemyTileArtworkKraidVerification
         GameplayBasePaletteCatalog initial = GameplayBasePaletteCatalog.Load(new EnemyIdentityFixture().Json(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
         runtime.Artwork.MapPresentation = stock;
         runtime.Enemies.TileArtwork = enemyArtwork;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.Presentation.HudTileArtwork),
@@ -218,7 +218,7 @@ internal static class EnemyTileArtworkKraidVerification
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
-        var restored = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial);
+        var restored = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             restored.VramWrites.Enqueue(
@@ -233,8 +233,7 @@ internal static class EnemyTileArtworkKraidVerification
             AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                 restored.VramWrites.Entries[quarter].AssetId,
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
-        restored.VramWrites.DrainTo(restored.Vram,
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), restored.Artwork);
+        restored.VramWrites.DrainTo(restored.Vram, restored.Artwork);
         AssertTrue(restored.Vram.ImageEquals(baselineQueued),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
@@ -298,7 +297,7 @@ internal static class EnemyTileArtworkKraidVerification
                 AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                     queue.Entries[0].AssetId,
                     $"Kraid BG3 quarter {quarter} queues installed art");
-                queue.DrainTo(vram, bus, map);
+                queue.DrainTo(vram, map);
             }
             AssertEqual(quarter + 1, state.DeathBg3TransferCount,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");

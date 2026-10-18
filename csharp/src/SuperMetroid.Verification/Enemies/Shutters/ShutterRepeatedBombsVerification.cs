@@ -21,7 +21,7 @@ internal static class ShutterRepeatedBombsVerification
         foreach (int interval in new[] { 2, 4, 8, 12, 16, 20, 32, 48, 64 })
         foreach (int unmorphAt in new[] { -1, 45, 75, 105 })
         {
-            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

@@ -319,7 +319,7 @@ internal static class FileSelectRoomMapVerification
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
-        var game = CreateRetailGameFixture(bus, saves, gameOptions: null, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(saves, gameOptions: null, renderGameplayFrames: false);
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = RetailPresentationFixture(),

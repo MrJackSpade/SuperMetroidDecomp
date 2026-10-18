@@ -200,7 +200,7 @@ internal static class ProjectileTrailArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
-        var runtime = CreateRetailRuntimeFixture(bus);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Freeze.GameplayTimeFrozen = true;
@@ -208,7 +208,7 @@ internal static class ProjectileTrailArtworkVerification
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
-        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);

@@ -136,7 +136,7 @@ internal static class RoomSkyTilemapsVerification
         var nativeRowVram = new SnesVram();
         var installedRowVram = new SnesVram();
         ImportedVramOracle.Drain(nativeRows, nativeRowVram, bus);
-        installedRows.DrainTo(installedRowVram, ReferenceMutableMemory.From(guard), new SkyPageProvider(stock));
+        installedRows.DrainTo(installedRowVram, new SkyPageProvider(stock));
         AssertTrue(nativeRowVram.ImageEquals(installedRowVram),
             "per-frame sky rows use installed pages without ROM visual reads");
         foreach (ushort cameraY in new ushort[] { 0x0000, 0x04f0 })
@@ -148,7 +148,7 @@ internal static class RoomSkyTilemapsVerification
             var nativeEdgeVram = new SnesVram();
             var installedEdgeVram = new SnesVram();
             ImportedVramOracle.Drain(nativeEdgeRows, nativeEdgeVram, bus);
-            installedEdgeRows.DrainTo(installedEdgeVram, ReferenceMutableMemory.From(guard),
+            installedEdgeRows.DrainTo(installedEdgeVram,
                 new SkyPageProvider(stock));
             AssertTrue(nativeEdgeVram.ImageEquals(installedEdgeVram),
                 $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
@@ -167,7 +167,7 @@ internal static class RoomSkyTilemapsVerification
             var nativeOceanVram = new SnesVram();
             var installedOceanVram = new SnesVram();
             ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
-            installedOceanRows.DrainTo(installedOceanVram, ReferenceMutableMemory.From(guard),
+            installedOceanRows.DrainTo(installedOceanVram,
                 new SkyPageProvider(stock));
             AssertTrue(nativeOceanVram.ImageEquals(installedOceanVram),
                 $"ocean camera Y=${cameraY:X4} uses installed sky rows and a blank wrapped top row");
@@ -195,7 +195,7 @@ internal static class RoomSkyTilemapsVerification
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
         var editedRowVram = new SnesVram();
-        editedQueue.DrainTo(editedRowVram, ReferenceMutableMemory.From(guard),
+        editedQueue.DrainTo(editedRowVram,
             new SkyPageProvider(new RoomSkyTilemapCatalog(pages)));
         AssertTrue(editedRowVram.ReadWord(firstRow.Destination.Encoded) !=
                 nativeRowVram.ReadWord(firstRow.Destination.Encoded),

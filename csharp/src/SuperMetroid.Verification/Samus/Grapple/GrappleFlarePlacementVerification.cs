@@ -117,7 +117,7 @@ internal static class GrappleFlarePlacementVerification
             }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
-        var runtime = CreateRetailRuntimeFixture(rom);
+        var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);

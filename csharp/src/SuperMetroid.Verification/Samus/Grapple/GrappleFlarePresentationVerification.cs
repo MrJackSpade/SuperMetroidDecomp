@@ -161,7 +161,7 @@ internal static class GrappleFlarePresentationVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleArtwork = grappleArtwork;
@@ -173,7 +173,7 @@ internal static class GrappleFlarePresentationVerification
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);
-        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         byte[] original = Draw(runtime);
         samus.Grapple.FlareCounter = 0;

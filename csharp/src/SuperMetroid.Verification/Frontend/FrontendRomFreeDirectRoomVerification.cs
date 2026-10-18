@@ -37,9 +37,8 @@ internal static class FrontendRomFreeDirectRoomVerification
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
             "direct-room fixture has no installed cartridge allocation");
-        var native = CreateRetailGameFixture(nativeBus, new SuperMetroid.Core.Saves.SaveSlotStore());
-        var installed = new SuperMetroidGame(
-            NewFrontendCartridgeReadGuard(installedMemory), new SuperMetroid.Core.Saves.SaveSlotStore());
+        var native = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
+        var installed = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         PrepareRomFreeBindings(installation)(installed, false);
         native.InitializeDirectRoomVerification();
         installed.InitializeDirectRoomVerification();

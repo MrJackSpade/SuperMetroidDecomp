@@ -17,7 +17,7 @@ internal static class ShutterMorphApproachesVerification
         string[] nativeArc = File.ReadAllLines(Path.Combine(ShutterBombArcScenario.FixtureDirectory, "bomb-arc.csv"));
         AssertEqual(ShutterBombArcScenario.FrameCount - ShutterBombArcScenario.FirstArcFrame, nativeArc.Length,
             "native-checked shutter trajectory covers frames 117..259");
-        var scenario = ShutterBombArcScenario.Reproduced(CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true));
+        var scenario = ShutterBombArcScenario.Reproduced(CreateRetailRuntimeFixture(playerInvincibilityEnabled: true));
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame));

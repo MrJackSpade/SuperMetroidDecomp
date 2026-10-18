@@ -69,7 +69,7 @@ internal static class FileMapSnapshotTestsVerification
             saves.SaveSlot(0, save);
             return saves;
         }
-        var game = CreateRetailGameFixture(leftBus, Saves()); var capturedGame = CreateRetailGameFixture(rightBus, Saves());
+        var game = CreateRetailGameFixture(Saves()); var capturedGame = CreateRetailGameFixture(Saves());
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         game.BindArtwork(game.Artwork with
         {

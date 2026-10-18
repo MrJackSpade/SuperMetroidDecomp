@@ -29,7 +29,7 @@ internal static class LookupTourianSpawnVerification
         }
         AssertEqual(4, expected.Count, "Four native calls before RTS");
 
-        var sequence = RepositoryInstallation.CreateRuntime(RepositoryInstallation.Installation.OpenRuntimeAddressSpace()).TourianStatues;
+        var sequence = RepositoryInstallation.CreateRuntime().TourianStatues;
         sequence.SpawnAnimatedObjects();
         var objects = sequence.objects;
         AssertEqual(expected.Count, objects.Count, "Production spawn count");

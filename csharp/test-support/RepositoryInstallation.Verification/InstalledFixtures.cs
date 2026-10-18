@@ -182,10 +182,10 @@ internal static class InstalledFixtures
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
     /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
-    internal static SuperMetroidGame CreateGame(ISnesAddressSpace addressSpace, SuperMetroid.Core.Saves.SaveSlotStore saves,
+    internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true)
     {
-        var game = new SuperMetroidGame(addressSpace, saves, gameOptions, renderGameplayFrames);
+        var game = new SuperMetroidGame(saves, gameOptions, renderGameplayFrames);
         gameBindings.Value(game);
         return game;
     }

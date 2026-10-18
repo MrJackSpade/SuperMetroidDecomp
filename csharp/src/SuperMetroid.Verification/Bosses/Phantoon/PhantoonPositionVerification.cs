@@ -33,7 +33,7 @@ internal static class PhantoonPositionVerification
         AssertEqual((ushort)122, capBody.Position.Y.Whole, "Native capped swoop Y displacement");
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
         {
-            var boundary = CreateRetailRuntimeFixture(bus);
+            var boundary = CreateRetailRuntimeFixture();
             boundary.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             boundary.RoomLoader.InitializeStartingCeresRoom();
             boundary.RoomLoader.InitializeCeresStartSamus();
@@ -46,7 +46,7 @@ internal static class PhantoonPositionVerification
             AssertEqual(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation,
                 boundaryState.Parts[boundaryState.Body.SlotIndex].Function, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
-        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

@@ -20,7 +20,7 @@ internal static class BootDemoSetCountVerification
         AssertTrue(saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null,
             "fixture has no valid slot");
 
-        var game = new SuperMetroidGame(bus, saveRam);
+        var game = new SuperMetroidGame(saveRam);
         AssertEqual("madadameyohn", ReadMarker(saveRam),
             "boot with no valid slot overwrites the completion marker with 'madadameyohn'");
         AssertTrue(!saveRam.HasCompletedGame, "the overwritten marker no longer reads as a completed game");
@@ -38,7 +38,7 @@ internal static class BootDemoSetCountVerification
         saveRam.SetGameCompleted(true);
         AssertEqual(DemoSetUnlockRomData.DefaultSetCount, game.Session.AvailableDemoSetCount(),
             "a mid-session completion marker does not change the boot demo-set count");
-        var completedBoot = new SuperMetroidGame(bus, saveRam);
+        var completedBoot = new SuperMetroidGame(saveRam);
         AssertEqual("supermetroid", ReadMarker(saveRam),
             "boot with a valid slot leaves the completion marker intact");
         AssertEqual(DemoSetUnlockRomData.SetCount, completedBoot.Session.AvailableDemoSetCount(),

@@ -131,7 +131,7 @@ internal static class DesktopTimerSoakTests
         SuperMetroidGameOptions options, bool paused)
     {
         var bus = installation.OpenRuntimeAddressSpace();
-        var game = InstalledFixtures.CreateGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         game.BindAudio(DesktopAccess.LoadAudioClips());
         long sequence = 0;
         void Step(SnesButton input) => game.StepCaptured(input, ++sequence, 1);

@@ -20,7 +20,7 @@ internal static class MinimapBlinkAudit
     /// <summary>Keeps Samus on one map cell and compares the rendered HUD cell through two blink cycles.</summary>
     private static void VerifyRoom(string romPath, ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
     {
-        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
+        var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();

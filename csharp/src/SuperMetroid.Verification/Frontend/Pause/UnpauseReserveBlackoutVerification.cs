@@ -27,13 +27,13 @@ internal static class UnpauseReserveBlackoutVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
             runtime.Player.IntroducedSamus.InputLocked = false;
-            var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
             game.Session.runtime = runtime;
             game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
             return (game, runtime);

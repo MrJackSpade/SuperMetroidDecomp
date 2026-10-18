@@ -30,7 +30,7 @@ internal static class FileSelectMapLoadTimingVerification
         save.UsedSaveStationBytes[8] = 1;
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, save);
-        var game = CreateRetailGameFixture(bus, saves);
+        var game = CreateRetailGameFixture(saves);
         game.BindArtwork(game.Artwork with { MapPresentation = RetailPresentationFixture() });
 
         var states = new List<SuperMetroidGameState>();

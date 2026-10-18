@@ -19,7 +19,7 @@ internal static class PaletteFxColorAddressAccess
     private static Dictionary<ushort, PaletteFxColorKey> BuildKeys()
     {
         var keys = new Dictionary<ushort, PaletteFxColorKey>();
-        for (int record = 0; record < PaletteFxRecordSources.RecordCount; record++)
+        for (int record = 0; record < PaletteFxRecordSourcesConstants.RecordCount; record++)
         {
             var frame = new PaletteFxFrame(record);
             int colors = PaletteFxRecordDefinitions.Layout(frame).Where(part => !part.Skip).Sum(part => part.Count);

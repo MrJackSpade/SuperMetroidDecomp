@@ -48,8 +48,8 @@ internal static class RoomFxDefinitionsAccess
         /// <inheritdoc cref="RoomFxSources.Fx"/>
         internal static RoomFxDefinition Get(ushort pointer) => RoomFxSources.Fx(pointer);
 
-        /// <inheritdoc cref="RoomFxSources.PointerOf"/>
-        internal static ushort PointerOf(RoomFxDefinition fx) => RoomFxSources.PointerOf(fx);
+        /// <inheritdoc cref="RoomFxSourcesConstants.PointerOf"/>
+        internal static ushort PointerOf(RoomFxDefinition fx) => RoomFxSourcesConstants.PointerOf(fx);
 
         /// <summary>Every compiled record's pointer, in ascending order.</summary>
         internal static IEnumerable<ushort> RecordPointers => RecordsByPointer.Keys;
@@ -79,6 +79,6 @@ internal static class RoomFxDefinitionsAccess
     extension(CartridgeRoomState self)
     {
         /// <summary>The bank-$83 pointer of this state's FX header, or zero for none.</summary>
-        internal ushort FxPointer => self.Fx is { } fx ? RoomFxSources.PointerOf(fx) : (ushort)0;
+        internal ushort FxPointer => self.Fx is { } fx ? RoomFxSourcesConstants.PointerOf(fx) : (ushort)0;
     }
 }

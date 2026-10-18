@@ -17,11 +17,4 @@ public static class RoomFxSources
         RoomFxSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomFxDefinition? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 285 retail room FX headers.");
-
-    /// <summary>The header pointer of <paramref name="fx"/>.</summary>
-    public static ushort PointerOf(RoomFxDefinition fx)
-    {
-        Ensure.NotNull(fx);
-        return RoomFxSourceDefinitions.ByPointer.Single(pair => ReferenceEquals(pair.Value, fx)).Key;
-    }
 }

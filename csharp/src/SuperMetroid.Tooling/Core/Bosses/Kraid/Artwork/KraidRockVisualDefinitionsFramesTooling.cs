@@ -15,8 +15,5 @@ internal static class KraidRockVisualDefinitionsFramesTooling
             new KraidRockFrame(KraidRockProgram.RisingRightPose, 0),
             .. Enumerable.Range(0, KraidRockAnimations.ShotPhaseCount).Select(phase => new KraidRockFrame(KraidRockProgram.SpitRockShot, phase)),
         ];
-
-        /// <summary>Distinct frames: the two still poses and five burst frames.</summary>
-        internal static int ProjectileFrameCount => 7;
     }
 }

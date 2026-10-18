@@ -76,7 +76,7 @@ internal static class LibraryBackgroundProgramImporter
         {
             switch (instruction.Command)
             {
-                case LibraryBackgroundCommand.TransferForDoor when instruction.Door is not { } door || DoorHeaderSources.PointerOf(door) != activeDoorPointer:
+                case LibraryBackgroundCommand.TransferForDoor when instruction.Door is not { } door || DoorHeaderSourcesConstants.PointerOf(door) != activeDoorPointer:
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                 case LibraryBackgroundCommand.TransferToVram:

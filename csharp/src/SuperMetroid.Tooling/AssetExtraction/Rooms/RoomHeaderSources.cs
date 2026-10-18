@@ -13,14 +13,4 @@ public static class RoomHeaderSources
     public static RoomHeaderDefinition Room(ushort pointer) => RoomHeaderSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomHeaderDefinition? found)
         ? found
         : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 262 retail room headers.");
-
-    /// <summary>Whether <paramref name="pointer"/> is exactly one of the compiled room headers.</summary>
-    public static bool Contains(ushort pointer) => RoomHeaderSourceDefinitions.ByPointer.ContainsKey(pointer);
-
-    /// <summary>The header pointer of the room named like <paramref name="room"/>.</summary>
-    public static ushort PointerOf(RoomHeaderDefinition room)
-    {
-        Ensure.NotNull(room);
-        return RoomHeaderSourceDefinitions.ByPointer.Single(pair => pair.Value.Name == room.Name).Key;
-    }
 }

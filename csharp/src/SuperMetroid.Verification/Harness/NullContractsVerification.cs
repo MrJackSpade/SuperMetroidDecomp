@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Checks the #623 required-value wrappers and representative lifecycle contracts.</summary>
 internal static class NullContractsVerification
 {
-    /// <summary>A public constant for <see cref="RequiredReflection.RequiredConstant{T}"/>.</summary>
+    /// <summary>A public constant for <see cref="RequiredReflectionConstants.RequiredConstant{T}"/>.</summary>
     public const ushort ReflectedConstant = 4660;
 
     /// <summary>

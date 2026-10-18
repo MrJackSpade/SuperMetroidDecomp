@@ -7,7 +7,7 @@ internal static class EnemyProjectilePreInstructionAccess
     internal static ushort Word(EnemyProjectilePreInstruction preInstruction) => EnemyProjectilePreInstructionWords.Word(preInstruction);
 
     /// <summary>The pre-instruction whose bank-$86 routine is <paramref name="word"/>.</summary>
-    internal static EnemyProjectilePreInstruction FromWord(ushort word) => EnemyProjectilePreInstructionWords.FromWord(word);
+    internal static EnemyProjectilePreInstruction FromWord(ushort word) => EnemyProjectilePreInstructionWordsConstants.FromWord(word);
 
     /// <summary>Native views of a projectile slot.</summary>
     extension(RoomEnemyProjectileSlot self)

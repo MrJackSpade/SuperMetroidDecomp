@@ -11,24 +11,24 @@ internal static class RoomHeaderDefinitionsAccess
         /// <inheritdoc cref="RoomHeaderSources.Room"/>
         internal static RoomHeaderDefinition Get(ushort pointer) => RoomHeaderSources.Room(pointer);
 
-        /// <inheritdoc cref="RoomHeaderSources.Contains"/>
-        internal static bool Contains(ushort pointer) => RoomHeaderSources.Contains(pointer);
+        /// <inheritdoc cref="RoomHeaderSourcesConstants.Contains"/>
+        internal static bool Contains(ushort pointer) => RoomHeaderSourcesConstants.Contains(pointer);
 
-        /// <inheritdoc cref="RoomHeaderSources.PointerOf"/>
-        internal static ushort PointerOf(RoomHeaderDefinition definition) => RoomHeaderSources.PointerOf(definition);
+        /// <inheritdoc cref="RoomHeaderSourcesConstants.PointerOf"/>
+        internal static ushort PointerOf(RoomHeaderDefinition definition) => RoomHeaderSourcesConstants.PointerOf(definition);
     }
 
     /// <summary>The header pointer of a compiled room.</summary>
     extension(RoomHeaderDefinition self)
     {
         /// <summary>The bank-$8F header pointer of this room.</summary>
-        internal ushort Pointer => RoomHeaderSources.PointerOf(self);
+        internal ushort Pointer => RoomHeaderSourcesConstants.PointerOf(self);
     }
 
     /// <summary>The header pointer of a loaded room.</summary>
     extension(CartridgeRoomHeader self)
     {
         /// <summary>The bank-$8F header pointer of this room.</summary>
-        internal ushort Pointer => RoomHeaderSources.PointerOf(self.Definition);
+        internal ushort Pointer => RoomHeaderSourcesConstants.PointerOf(self.Definition);
     }
 }

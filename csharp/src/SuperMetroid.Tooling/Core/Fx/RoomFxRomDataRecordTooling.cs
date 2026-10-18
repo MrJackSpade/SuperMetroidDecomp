@@ -3,8 +3,6 @@
 /// <summary>Development-tool members of <see cref="RoomFxToolingRomData.Record"/>; never linked by player hosts.</summary>
 internal static class RoomFxRomDataRecordTooling
 {
-        /// <summary>Byte offset of the two-byte door selector that begins a native room-FX record.</summary>
-        public const int DoorPointerOffset = 0;
         /// <summary>Door word that terminates an FX list without selecting a record.</summary>
         public const ushort TerminatorDoorPointer = ushort.MaxValue;
         /// <summary>Byte offset of the liquid's starting Y position word.</summary>

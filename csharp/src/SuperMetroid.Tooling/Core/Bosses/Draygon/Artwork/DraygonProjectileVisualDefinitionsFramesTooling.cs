@@ -20,8 +20,5 @@ internal static class DraygonProjectileVisualDefinitionsFramesTooling
         /// <summary>The <paramref name="count"/> frames of <paramref name="kind"/>.</summary>
         private static IEnumerable<DraygonProjectileFrame> Frames(DraygonProjectileFrameKind kind, int count) =>
             Enumerable.Range(0, count).Select(phase => new DraygonProjectileFrame(kind, phase));
-
-        /// <summary>Distinct frames: six goop, two goop-burst, sixteen bloom and three flight frames.</summary>
-        internal static int ProjectileFrameCount => 27;
     }
 }

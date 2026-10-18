@@ -13,11 +13,4 @@ public static class DoorHeaderSources
     public static CartridgeDoorHeader Door(ushort pointer) => DoorHeaderSourceDefinitions.ByPointer.TryGetValue(pointer, out CartridgeDoorHeader? found)
         ? found
         : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 597 physical retail door records.");
-
-    /// <summary>The record pointer of the door named like <paramref name="door"/>.</summary>
-    public static ushort PointerOf(CartridgeDoorHeader door)
-    {
-        Ensure.NotNull(door);
-        return DoorHeaderSourceDefinitions.ByPointer.Single(pair => pair.Value.Name == door.Name).Key;
-    }
 }

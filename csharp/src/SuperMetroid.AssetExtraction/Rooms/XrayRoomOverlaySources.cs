@@ -17,11 +17,4 @@ public static class XrayRoomOverlaySources
         XrayRoomOverlaySourceDefinitions.ByPointer.TryGetValue(pointer, out XrayRoomOverlayDefinition? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room X-ray overlay.");
-
-    /// <summary>The pointer of <paramref name="overlay"/>.</summary>
-    public static ushort PointerOf(XrayRoomOverlayDefinition overlay)
-    {
-        Ensure.NotNull(overlay);
-        return XrayRoomOverlaySourceDefinitions.ByPointer.Single(pair => ReferenceEquals(pair.Value, overlay)).Key;
-    }
 }

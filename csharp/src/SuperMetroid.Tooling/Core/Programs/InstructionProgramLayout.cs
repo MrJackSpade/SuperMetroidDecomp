@@ -75,18 +75,6 @@ internal sealed class InstructionProgramLayout
         return this.index.Value.Words[this.index.Value.Presentation[index]].Address;
     }
 
-    /// <summary>Reads a compiled control word while refusing artwork operand slots.</summary>
-    internal bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        if (index.Value.TryGet(address, out InstructionWord word))
-        {
-            value = word.Value;
-            return !word.IsPresentation;
-        }
-        value = 0;
-        return false;
-    }
-
     /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
     internal sealed class WordIndex
     {

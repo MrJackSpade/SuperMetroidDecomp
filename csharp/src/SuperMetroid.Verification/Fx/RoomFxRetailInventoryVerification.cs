@@ -545,7 +545,7 @@ internal static class RoomFxRetailInventoryVerification
             ushort candidateDoor = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomDataRecordTooling.DoorPointerOffset);
+                RoomFxRomDataRecordToolingConstants.DoorPointerOffset);
             if (candidateDoor == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 return 0;
             if (candidateDoor == 0 || candidateDoor == doorPointer)
@@ -571,7 +571,7 @@ internal static class RoomFxRetailInventoryVerification
             ushort doorPointer = ReadRetailFxRecordWord(
                 bus,
                 cursor,
-                RoomFxRomDataRecordTooling.DoorPointerOffset);
+                RoomFxRomDataRecordToolingConstants.DoorPointerOffset);
             if (doorPointer is 0 or RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;

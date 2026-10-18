@@ -10,7 +10,7 @@ internal static class RoomFxRecordDefinitionAccess
     extension(RoomFxRecordDefinition self)
     {
         /// <summary>The record's native door word: FFFF for a terminator, zero for a default record, else the door's pointer.</summary>
-        internal ushort DoorPointer => self.Terminates ? ushort.MaxValue : self.Door is { } door ? DoorHeaderSources.PointerOf(door) : (ushort)0;
+        internal ushort DoorPointer => self.Terminates ? ushort.MaxValue : self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : (ushort)0;
 
         /// <summary>Exposes one native byte for consumers that use offset-based FX fields.</summary>
         internal byte ReadByte(int offset) => offset switch

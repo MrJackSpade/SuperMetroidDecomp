@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class EnemyProjectilePreInstructionWords
 {
     /// <summary>Each pre-instruction's routine address; no pre-instruction is the word zero.</summary>
-    private static readonly Dictionary<EnemyProjectilePreInstruction, ushort> Words = new()
+    internal static readonly Dictionary<EnemyProjectilePreInstruction, ushort> Words = new()
     {
         [EnemyProjectilePreInstruction.None] = 0x0000,
         [EnemyProjectilePreInstruction.PrePhantoonRoom] = 0xa3a3,
@@ -125,15 +125,6 @@ internal static class EnemyProjectilePreInstructionWords
         [EnemyProjectilePreInstruction.TourianStatueSoulMotion] = 0xb9fd,
     };
 
-    /// <summary>Each routine address's pre-instruction.</summary>
-    private static readonly Dictionary<ushort, EnemyProjectilePreInstruction> Identities =
-        Words.ToDictionary(pair => pair.Value, pair => pair.Key);
-
     /// <summary>The bank-$86 routine address of <paramref name="preInstruction"/>.</summary>
     internal static ushort Word(EnemyProjectilePreInstruction preInstruction) => Words[preInstruction];
-
-    /// <summary>The pre-instruction whose bank-$86 routine is <paramref name="word"/>.</summary>
-    internal static EnemyProjectilePreInstruction FromWord(ushort word) => Identities.TryGetValue(word, out EnemyProjectilePreInstruction preInstruction)
-        ? preInstruction
-        : throw new InvalidDataException($"No enemy-projectile pre-instruction routine at $86:{word:X4}.");
 }

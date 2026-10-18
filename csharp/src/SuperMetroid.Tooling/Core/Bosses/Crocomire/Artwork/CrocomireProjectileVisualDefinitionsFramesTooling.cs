@@ -16,8 +16,5 @@ internal static class CrocomireProjectileVisualDefinitionsFramesTooling
             new CrocomireProjectileFrame(CrocomireProjectileFrameKind.SpikeWallPiece, 0),
             .. Enumerable.Range(0, CrocomireAnimations.ShotPhaseCount).Select(phase => new CrocomireProjectileFrame(CrocomireProjectileFrameKind.Shot, phase)),
         ];
-
-        /// <summary>Distinct projectile frames: six mouth, one bridge fragment, one spike piece and five shot frames.</summary>
-        internal static int ProjectileFrameCount => 13;
     }
 }

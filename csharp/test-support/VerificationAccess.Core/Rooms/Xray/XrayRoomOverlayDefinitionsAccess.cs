@@ -9,6 +9,6 @@ internal static class XrayRoomOverlayDefinitionsAccess
     extension(CartridgeRoomState self)
     {
         /// <summary>The bank-$8F pointer of this state's X-ray overlay, or zero for none.</summary>
-        internal ushort XrayPointer => self.XrayOverlay is { } overlay ? XrayRoomOverlaySources.PointerOf(overlay) : (ushort)0;
+        internal ushort XrayPointer => self.XrayOverlay is { } overlay ? XrayRoomOverlaySourcesConstants.PointerOf(overlay) : (ushort)0;
     }
 }

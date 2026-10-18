@@ -14,11 +14,4 @@ public static class LibraryBackgroundSources
         LibraryBackgroundSourceDefinitions.ByPointer.TryGetValue(pointer, out LibraryBackgroundProgram? found)
             ? found
             : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 68 retail library-background programs.");
-
-    /// <summary>The command-list pointer of <paramref name="program"/>.</summary>
-    public static ushort PointerOf(LibraryBackgroundProgram program)
-    {
-        Ensure.NotNull(program);
-        return LibraryBackgroundSourceDefinitions.ByPointer.Single(pair => ReferenceEquals(pair.Value, program)).Key;
-    }
 }

@@ -288,8 +288,8 @@ internal static class DoorDefinitionsAccess
         /// <inheritdoc cref="DoorHeaderSources.Door"/>
         internal static CartridgeDoorHeader Get(ushort pointer) => DoorHeaderSources.Door(pointer);
 
-        /// <inheritdoc cref="DoorHeaderSources.PointerOf"/>
-        internal static ushort PointerOf(CartridgeDoorHeader door) => DoorHeaderSources.PointerOf(door);
+        /// <inheritdoc cref="DoorHeaderSourcesConstants.PointerOf"/>
+        internal static ushort PointerOf(CartridgeDoorHeader door) => DoorHeaderSourcesConstants.PointerOf(door);
 
         /// <summary>Resolves a type-$9 BTS byte through the door list at <paramref name="listPointer"/>, as bank $94 does.</summary>
         internal static DoorListEntry Resolve(ushort listPointer, int behavior)
@@ -320,7 +320,7 @@ internal static class DoorDefinitionsAccess
     extension(CartridgeDoorHeader self)
     {
         /// <summary>The bank-$83 record pointer of this door.</summary>
-        internal ushort Pointer => DoorHeaderSources.PointerOf(self);
+        internal ushort Pointer => DoorHeaderSourcesConstants.PointerOf(self);
     }
 
     /// <summary>The door-list word of an entry.</summary>
@@ -328,7 +328,7 @@ internal static class DoorDefinitionsAccess
     {
         /// <summary>The word the cartridge's door list stores for this entry.</summary>
         internal ushort Pointer => self.Door is { } door
-            ? DoorHeaderSources.PointerOf(door)
+            ? DoorHeaderSourcesConstants.PointerOf(door)
             : self.PseudoDoor == ElevatorPseudoDoor.Shared ? SharedElevatorPseudoDoorPointer : MaridiaTourianElevatorPseudoDoorPointer;
     }
 }

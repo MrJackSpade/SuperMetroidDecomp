@@ -18,7 +18,7 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
             foreach (LibraryBackgroundInstruction instruction in LibraryBackgroundSources.Program(listPointer).Instructions)
             {
                 if (instruction.Command == LibraryBackgroundCommand.TransferForDoor &&
-                    instruction.Door is { } door && DoorHeaderSources.PointerOf(door) == doorPointer)
+                    instruction.Door is { } door && DoorHeaderSourcesConstants.PointerOf(door) == doorPointer)
                     return instruction;
             }
             throw new InvalidDataException(
@@ -31,13 +31,13 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
     extension(LibraryBackgroundProgram self)
     {
         /// <summary>The bank-$8F command-list pointer of this program.</summary>
-        internal ushort Pointer => LibraryBackgroundSources.PointerOf(self);
+        internal ushort Pointer => LibraryBackgroundSourcesConstants.PointerOf(self);
     }
 
     /// <summary>The background-data word of a room state.</summary>
     extension(CartridgeRoomState self)
     {
         /// <summary>The word this state stores for its library background: its program's pointer, or zero for none.</summary>
-        internal ushort BackgroundDataPointer => self.Background is { } program ? LibraryBackgroundSources.PointerOf(program) : (ushort)0;
+        internal ushort BackgroundDataPointer => self.Background is { } program ? LibraryBackgroundSourcesConstants.PointerOf(program) : (ushort)0;
     }
 }

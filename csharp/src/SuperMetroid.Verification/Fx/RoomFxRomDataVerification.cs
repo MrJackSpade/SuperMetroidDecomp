@@ -159,7 +159,7 @@ internal static class RoomFxRomDataVerification
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         const ushort record = 0x9400;
-        SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
+        SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             (byte)LayerBlendingConfiguration.NormalGameplay);

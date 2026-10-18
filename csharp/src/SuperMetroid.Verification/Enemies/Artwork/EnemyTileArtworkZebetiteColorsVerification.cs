@@ -134,9 +134,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             return (enemies, cgram);
         }
 
-        static int Counter(RoomEnemySystem enemies) =>
-            (enemies.SlotTable.Slots[0].SpeciesState<ZebetiteEnemyState>()
-                ?? throw new InvalidOperationException("The fixture's slot zero holds no Zebetite.")).PaletteCycle;
+        static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;
 
         // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
         void ReferenceCycle(SnesCgram cgram, ref ushort counter)

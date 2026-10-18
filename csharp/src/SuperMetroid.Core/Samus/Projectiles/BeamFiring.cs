@@ -471,9 +471,9 @@ internal sealed class BeamFiring
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
-            samus.SuperMissiles = SamusQuantity.DecrementPositive(samus.SuperMissiles);
+            samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);
         else
-            samus.Missiles = SamusQuantity.DecrementPositive(samus.Missiles);
+            samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
         slot.Variable = 0;

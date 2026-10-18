@@ -279,7 +279,7 @@ public static class GameSaveJsonCodec
                      (resources.ReserveEnergy, "reserveEnergy"), (resources.MaxReserveEnergy, "maxReserveEnergy"),
                      (resources.ReserveMissiles, "reserveMissiles"),
                  })
-            RequireRange(value, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
+            RequireRange(value, SamusQuantity.MinimumValue, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)
             throw new InvalidDataException($"slots[{expectedSlot}].resources.health exceeds maxHealth");
         if (slot.Resources.Missiles > slot.Resources.MaxMissiles ||
@@ -337,10 +337,14 @@ public static class GameSaveJsonCodec
     /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its SRAM
     /// field holds, so a JSON number never wraps on its way into the store.
     /// </summary>
-    private static void RequireRange(int value, int maximum, int expectedSlot, string property)
+    private static void RequireRange(int value, int maximum, int expectedSlot, string property) =>
+        RequireRange(value, 0, maximum, expectedSlot, property);
+
+    /// <summary>Rejects a numeric slot field outside <c>[<paramref name="minimum"/>, <paramref name="maximum"/>]</c>.</summary>
+    private static void RequireRange(int value, int minimum, int maximum, int expectedSlot, string property)
     {
-        if (value < 0 || value > maximum)
-            throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [0, {maximum}]");
+        if (value < minimum || value > maximum)
+            throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [{minimum}, {maximum}]");
     }
 
     /// <summary>Configures strict enum names, property handling, and stable save JSON formatting.</summary>

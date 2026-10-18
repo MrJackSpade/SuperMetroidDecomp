@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>Current and acquired player-resource quantities persisted in a save slot.</summary>
 /// <remarks>
 /// Each quantity is a JSON number the codec accepts only in Samus's count domain,
-/// <c>[0, <see cref="SamusQuantity.MaximumValue"/>]</c>, with each current value at most its capacity.
+/// <c>[<see cref="SamusQuantity.MinimumValue"/>, <see cref="SamusQuantity.MaximumValue"/>]</c>, with each current value
+/// at most its capacity.
 /// </remarks>
 /// <param name="Health">Current energy in energy-point units.</param>
 /// <param name="MaxHealth">Acquired energy capacity in energy-point units.</param>

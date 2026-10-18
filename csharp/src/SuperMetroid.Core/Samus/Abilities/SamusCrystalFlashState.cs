@@ -270,7 +270,10 @@ public sealed class SamusCrystalFlashState
         samus.KnockbackActive = false;
     }
 
-    /// <summary>Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement.</summary>
+    /// <summary>
+    /// Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement. Each
+    /// decrement is unchecked, so a kind the activation check let through with fewer than ten drains below zero.
+    /// </summary>
     private void StepAmmoDrain(SamusState samus, int nmiFrameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
@@ -281,13 +284,13 @@ public sealed class SamusCrystalFlashState
         switch (DrainingAmmo)
         {
             case CrystalFlashAmmoKind.Missiles:
-                samus.Missiles = SamusQuantity.DecrementPositive(samus.Missiles);
+                samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
                 break;
             case CrystalFlashAmmoKind.SuperMissiles:
-                samus.SuperMissiles = SamusQuantity.DecrementPositive(samus.SuperMissiles);
+                samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);
                 break;
             case CrystalFlashAmmoKind.PowerBombs:
-                samus.PowerBombs = SamusQuantity.DecrementPositive(samus.PowerBombs);
+                samus.PowerBombs = SamusQuantity.DecrementWord(samus.PowerBombs);
                 break;
             default:
                 throw new InvalidOperationException(

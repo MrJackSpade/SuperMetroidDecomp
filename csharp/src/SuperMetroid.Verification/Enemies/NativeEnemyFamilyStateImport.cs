@@ -219,10 +219,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
             zebetiteRecord.Function = words.A == 0 ? null : (ZebetiteAiFunction)words.A;
-            zebetiteRecord.PaletteCycle = words.C;
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.GenerationFlags = (ZebetiteGenerationFlags)words.F;
         }
+        // Slot zero's word C is the Zebetites' shared palette counter whichever enemy occupies the slot.
+        if (slot.SlotIndex == 0)
+            enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
             chozoStatueRecord.CarryRecord = words.C / 2;

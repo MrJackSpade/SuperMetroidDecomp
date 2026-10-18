@@ -43,12 +43,16 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(ResumeChargingBeamSoundLatch.SignedLatch, SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "resume latch $FFFF is the signed latch");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(2), "undefined resume latch word is rejected");
 
-    // Samus counts cross the SRAM, JSON and snapshot boundaries only inside the non-negative signed word range.
-    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.Decode((ushort)SamusQuantity.MaximumValue), "the largest count word decodes");
-    AssertThrows<InvalidDataException>(() => SamusQuantity.Decode((ushort)(SamusQuantity.MaximumValue + 1)), "a signed-negative count word is rejected");
-    AssertEqual((ushort)SamusQuantity.MaximumValue, SamusQuantity.Encode(SamusQuantity.MaximumValue), "the largest count encodes");
-    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(-1), "a negative count cannot be stored");
+    // Samus counts are signed words: the cartridge's Crystal Flash drain takes an ammunition count below zero.
+    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.Decode(0x7fff), "the largest count word decodes");
+    AssertEqual(-1, SamusQuantity.Decode(0xffff), "a drained-past-zero word decodes as -1");
+    AssertEqual(SamusQuantity.MinimumValue, SamusQuantity.Decode(0x8000), "the smallest count word decodes");
+    AssertEqual((ushort)0x7fff, SamusQuantity.Encode(SamusQuantity.MaximumValue), "the largest count encodes");
+    AssertEqual((ushort)0xffff, SamusQuantity.Encode(-1), "-1 encodes as the word the cartridge stores");
+    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(SamusQuantity.MinimumValue - 1), "an undersized count cannot be stored");
     AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(SamusQuantity.MaximumValue + 1), "an oversized count cannot be stored");
+    AssertEqual(-1, SamusQuantity.DecrementWord(0), "the unchecked decrement takes zero to -1");
+    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.DecrementWord(SamusQuantity.MinimumValue), "the unchecked decrement wraps the smallest count");
 
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.
@@ -593,6 +597,14 @@ internal static void VerifyTypedNativeWords()
         "same room byte in unrelated area does not match landing policy");
 
     Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
+}
+
+/// <summary>Runs the semantic native-word checks on their own.</summary>
+[VerificationCommand("--typed-native-words")]
+internal static int TypedNativeWordsCommand()
+{
+    VerifyTypedNativeWords();
+    return 0;
 }
 
 }

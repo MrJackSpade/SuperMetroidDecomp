@@ -78,11 +78,29 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     public CameraDistanceMode CameraDistanceIndex { get; internal set; }
 
+    /// <summary>
+    /// The Zebetites' shared palette-cycle counter: physical slot zero's record word C
+    /// (<c>Get_Zebetites(0)->zebet_var_C</c>) whichever enemy holds that slot, advanced by every Zebetite in the room.
+    /// It restarts with slot zero's record: at room load, when a Zebetite initializes into slot zero, and when a kill
+    /// empties a slot-zero Zebetite. Tourian's Zebetite room puts Mother Brain's body in slot zero, and the body never
+    /// uses that word.
+    /// </summary>
+    public int SharedPaletteCycle
+    {
+        get;
+        internal set => field = checked((ushort)value);
+    }
+
     /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state, () =>
+        {
+            state.ClearWithRecord();
+            if (slot.SlotIndex == 0)
+                SharedPaletteCycle = 0;
+        });
 
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -93,7 +111,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         // Tile 128: the Zebetite artwork follows the room's first 128 enemy tiles.
         slot.VramTilesIndex = 128;
-        state.PaletteCycle = 0;
+        if (slot.SlotIndex == 0)
+            SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
             : ZebetiteAiFunction.SpawnLinkedHalf;
@@ -197,12 +216,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (PaletteChangeNumber != 0 || slot.Parameter1 != 0)
             return;
 
-        // The counter is the primary Zebetite's, in physical slot zero, rather than the current actor's, exactly
-        // matching Get_Zebetites(0)->zebet_var_C: every Zebetite in the room advances that one counter.
-        ZebetiteEnemyState primary = _slotTable._slots[0].SpeciesState<ZebetiteEnemyState>()
-            ?? throw new InvalidOperationException("The Zebetite palette counter belongs to physical slot zero, which has held no Zebetite this room.");
-        int paletteCycle = (primary.PaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
-        primary.PaletteCycle = paletteCycle;
+        int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
+        SharedPaletteCycle = paletteCycle;
         (_room.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
             .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
@@ -398,6 +413,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         LastZebetiteSoundEffect = null;
         PaletteChangeNumber = 0;
         CameraDistanceIndex = CameraDistanceMode.NormalTracking;
+        SharedPaletteCycle = 0;
     }
 
     /// <inheritdoc/>

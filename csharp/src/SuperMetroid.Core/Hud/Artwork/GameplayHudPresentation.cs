@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -159,7 +160,8 @@ public sealed class GameplayHudPresentation
             2 => (PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
-        DrawDigits(tiles, ammoDigits, value, anchor, digits);
+        // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.
+        DrawDigits(tiles, ammoDigits, SamusQuantity.Encode(value), anchor, digits);
     }
 
     /// <summary>Draws the AUTO reserve indicator for the requested reserve-energy state.</summary>

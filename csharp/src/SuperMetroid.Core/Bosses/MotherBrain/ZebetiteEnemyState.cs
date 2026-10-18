@@ -23,16 +23,6 @@ public sealed class ZebetiteEnemyState
     public ZebetiteAiFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Palette-cycle counter. Only the primary Zebetite's, in physical slot zero, advances: every Zebetite in the room
-    /// cycles that one counter, even after the first barrier generation has vacated the slot.
-    /// </summary>
-    public int PaletteCycle
-    {
-        get;
-        internal set => field = checked((ushort)value);
-    }
-
-    /// <summary>
     /// Barrier generation 0 through 4, formed from persistent events five/four/three; four means every barrier is
     /// destroyed.
     /// </summary>
@@ -62,7 +52,6 @@ public sealed class ZebetiteEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        PaletteCycle = 0;
         Generation = 0;
         GenerationFlags = default;
     }

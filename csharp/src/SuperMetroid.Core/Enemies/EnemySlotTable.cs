@@ -13,7 +13,7 @@ internal sealed class EnemySlotTable
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
     /// <summary>Converts an aligned native byte offset to a physical slot and rejects out-of-range or unaligned indexes.</summary>
-    internal RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
+    internal RoomEnemySlot SlotFromNativeIndex(int nativeIndex)
     {
         if ((nativeIndex & (RoomEnemySystem.NativeSlotSize - 1)) != 0 || nativeIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize)
             throw new ArgumentOutOfRangeException(nameof(nativeIndex));

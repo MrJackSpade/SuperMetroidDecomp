@@ -80,7 +80,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal void StartGenericEnemyDeath(
         RoomEnemySlot enemy,
-        ushort deathAnimation)
+        int deathAnimation)
     {
         _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.

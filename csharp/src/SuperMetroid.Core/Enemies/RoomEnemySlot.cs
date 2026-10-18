@@ -13,13 +13,12 @@ public sealed class RoomEnemySlot
     {
         _registry = Ensure.NotNull(registry);
         SlotIndex = slotIndex;
-        NativeIndex = checked((ushort)(slotIndex * RoomEnemySystem.NativeSlotSize));
     }
 
     /// <summary>Zero-based managed slot number, fixed for the slot object's lifetime; room populations occupy at most 32 native slots.</summary>
     public int SlotIndex { get; }
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
-    public ushort NativeIndex { get; }
+    public int NativeIndex => SlotIndex * RoomEnemySystem.NativeSlotSize;
     /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
     public EnemyDefinitionId EnemyDefinitionPointer { get; private set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>

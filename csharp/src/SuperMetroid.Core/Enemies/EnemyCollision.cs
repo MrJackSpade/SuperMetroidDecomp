@@ -90,7 +90,7 @@ internal sealed class EnemyCollision
         SamusState samus,
         SnesButton controllerInput,
         RoomLevelData? level = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
@@ -98,7 +98,7 @@ internal sealed class EnemyCollision
         if (contactDamageIndex == SamusContactDamageIndex.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
-        foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
@@ -188,14 +188,14 @@ internal sealed class EnemyCollision
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         SamusState? samus = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (int nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
@@ -458,7 +458,7 @@ internal sealed class EnemyCollision
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState? samus = null,
-        ushort? onlyNativeEnemyIndex = null)
+        int? onlyNativeEnemyIndex = null)
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
@@ -467,7 +467,7 @@ internal sealed class EnemyCollision
         int hitCount = 0;
         for (int ordinal = 0; ordinal < (onlyNativeEnemyIndex.HasValue ? 1 : _dispatch.InteractiveEnemyIndexes.Count); ordinal++)
         {
-            ushort nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
+            int nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
             bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
             bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, ShotAi(enemy));

@@ -242,7 +242,7 @@ internal static class CoreAccess
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
-        internal IReadOnlyList<List<ushort>> QueuesForVerification => drawing._drawQueues;
+        internal IReadOnlyList<List<int>> QueuesForVerification => drawing._drawQueues;
     }
 
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>

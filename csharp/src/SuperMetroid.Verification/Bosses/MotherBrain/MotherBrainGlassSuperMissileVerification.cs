@@ -37,7 +37,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.Health = 3000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        ((List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
+        ((List<int>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
         string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
         var installation = GameAssetInstaller.EnsureInstalled(root) ??

@@ -24,5 +24,5 @@ internal interface IEnemyDispatch
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame);
 
     /// <summary>Native indexes of the enemies admitted to interaction this frame, in processing order.</summary>
-    IReadOnlyList<ushort> InteractiveEnemyIndexes { get; }
+    IReadOnlyList<int> InteractiveEnemyIndexes { get; }
 }

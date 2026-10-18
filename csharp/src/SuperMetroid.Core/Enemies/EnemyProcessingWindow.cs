@@ -26,9 +26,9 @@ internal sealed class EnemyProcessingWindow
         _slotTable = slotTable;
     }
     /// <summary>Native indexes scheduled for AI this frame, including forced off-screen actors.</summary>
-    internal readonly List<ushort> _activeEnemyIndexes = new();
+    internal readonly List<int> _activeEnemyIndexes = new();
     /// <summary>Active native indexes still eligible for Samus interaction and grapple endpoint scans.</summary>
-    internal readonly List<ushort> _interactiveEnemyIndexes = new();
+    internal readonly List<int> _interactiveEnemyIndexes = new();
 
     /// <summary>
     /// Runs the bank-$88 morph-ball eye beam HDMA object, then

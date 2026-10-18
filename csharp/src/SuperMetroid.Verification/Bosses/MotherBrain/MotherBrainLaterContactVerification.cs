@@ -56,7 +56,7 @@ internal static class MotherBrainLaterContactVerification
         body.Radius = new(16, 16);
         body.Frame = EnemyFrameId.MotherBrainBodyOamStanding;
         body.Health = 1000;
-        var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
+        var interactive = (List<int>)enemies.ProcessingWindow._interactiveEnemyIndexes;
         interactive.Add(body.NativeIndex);
         foreach (ushort type in new ushort[] { 0x8000, 0x8100 })
         {

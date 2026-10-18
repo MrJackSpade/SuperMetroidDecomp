@@ -1078,7 +1078,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RunMainAi(slot, frame);
 
     /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
+    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

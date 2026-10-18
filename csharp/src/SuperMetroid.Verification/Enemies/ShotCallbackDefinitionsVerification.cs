@@ -165,7 +165,7 @@ internal static class ShotCallbackDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
+            var interactive = (List<int>)enemies.ProcessingWindow._interactiveEnemyIndexes;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);
             enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);

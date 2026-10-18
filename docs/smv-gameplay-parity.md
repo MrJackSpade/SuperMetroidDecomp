@@ -129,7 +129,8 @@ far too large to commit, so the replay verifiers read a committed compact trace 
 | lowc (contributed) | `csharp/test-fixtures/replay-traces/lowc` | `--lowc-playthrough-movie DIR` |
 | Ridley showcase | `csharp/test-fixtures/replay-traces/ridley` | `--ridley-full-movie` |
 
-`tools/verify-all.ps1` passes these paths. Produce or refresh a trace from its full capture
+The no-argument Verification suite runs all six replays from these paths; each command also
+runs one alone. Produce or refresh a trace from its full capture
 (the destination must be absent or empty):
 
 ```text

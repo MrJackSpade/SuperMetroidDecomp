@@ -1,6 +1,8 @@
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
+using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
 using static SuperMetroid.Verification.Frontend.AndroidHostVerification;
@@ -432,6 +434,13 @@ internal static class FullRunSuitesVerification
     /// </summary>
     internal static RegisteredSuite[] FullRunSuites() =>
     [
+        // The six SMV parity replays, each from its committed compact trace (docs/smv-gameplay-parity.md).
+        new(nameof(VerifyRidleyFullMovie), () => VerifyRidleyFullMovie(Path.GetFullPath(RidleyTraceDirectory))),
+        new(nameof(VerifyMotherBrainGlitchMovie), () => VerifyMotherBrainGlitchMovie("csharp/test-fixtures/replay-traces/mother-brain-glitch")),
+        new(nameof(VerifyLowPercentPlaythroughMovie), () => VerifyLowPercentPlaythroughMovie("csharp/test-fixtures/replay-traces/low-13-percent")),
+        new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),
+        new(nameof(VerifyDrunkPlaythroughMovie), () => VerifyDrunkPlaythroughMovie("csharp/test-fixtures/replay-traces/samus-drunk")),
+        new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),

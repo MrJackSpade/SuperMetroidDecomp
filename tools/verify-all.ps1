@@ -1,8 +1,9 @@
 [CmdletBinding()]
 param()
-# Builds once, then runs every verifier project's full no-argument suite and every SMV
-# replay concurrently from a copied bin, so a rebuild cannot race the run. Each command
-# writes its own log; the script waits for all of them and fails if any failed.
+# Builds once, then runs every verifier project's full no-argument suite concurrently from a
+# copied bin, so a rebuild cannot race the run. The Verification suite includes the six SMV
+# replays. Each command writes its own log; the script waits for all of them and fails if any
+# failed.
 # Run from the repository root.
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
@@ -22,17 +23,6 @@ if (Test-Path -LiteralPath $lastRunFile) {
 Set-Content -LiteralPath $lastRunFile -Value $now.ToString('o', [Globalization.CultureInfo]::InvariantCulture) -NoNewline
 
 $run = 'csharp/test-temp/verify-all'
-# Committed compact replay traces (see docs/smv-gameplay-parity.md). --ridley-full-movie
-# reads csharp/test-fixtures/replay-traces/ridley itself.
-$traces = 'csharp/test-fixtures/replay-traces'
-$replays = [ordered]@{
-    'replay-ridley'  = @('--ridley-full-movie')
-    'replay-mb'      = @('--mother-brain-glitch-movie', "$traces/mother-brain-glitch")
-    'replay-low13'   = @('--lsmv-playthrough-movie', "$traces/low-13-percent")
-    'replay-full100' = @('--full-playthrough-movie', "$traces/full-100-percent")
-    'replay-drunk'   = @('--drunk-playthrough-movie', "$traces/samus-drunk")
-    'replay-lowc'    = @('--lowc-playthrough-movie', "$traces/lowc")
-}
 $projects = [ordered]@{
     'SuperMetroid.Verification'            = 'net10.0'
     'SuperMetroid.IntegrationVerification' = 'net10.0'
@@ -57,7 +47,6 @@ foreach ($project in $projects.Keys) {
 
 $commands = [ordered]@{}
 foreach ($project in $projects.Keys) { $commands[$project] = @("$run/bin/$project/$project.dll") }
-foreach ($replay in $replays.Keys) { $commands[$replay] = @("$run/bin/SuperMetroid.Verification/SuperMetroid.Verification.dll") + $replays[$replay] }
 
 $started = @()
 foreach ($name in $commands.Keys) {

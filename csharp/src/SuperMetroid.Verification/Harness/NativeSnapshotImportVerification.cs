@@ -286,25 +286,21 @@ internal static class NativeSnapshotImportVerification
             slot.InvincibilityTimer = NativeCountdown.FromRaw(W(address + 40));
             slot.ShakeTimer = NativeCountdown.FromRaw(W(address + 42));
             slot.FrameCounter = W(address + 44);
-            slot.VariableA = W(address + 48);
-            slot.VariableB = W(address + 50);
-            slot.VariableC = W(address + 52);
-            slot.VariableD = W(address + 54);
-            slot.VariableE = W(address + 56);
-            slot.VariableF = W(address + 58);
-            NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot);
+            var words = new NativeEnemyRecordWords(
+                W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
+            NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Kraid is { } kraid)
-                kraid.HeadProgram = kraidHeadCursors.TryCursorAt(slot.VariableB);
+                kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
                 pipeBug.Program = pipeBugPointers.CursorAt(checked((ushort)slot.CurrentInstruction));
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
-                pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);
-                pipe.RespawnDelay = NativeCountdown.FromRaw(slot.VariableD);
-                pipe.AnimationState = (PipeBugAnimationSelector)slot.VariableE;
+                pipe.SpawnPosition = new(words.B, words.C);
+                pipe.RespawnDelay = NativeCountdown.FromRaw(words.D);
+                pipe.AnimationState = (PipeBugAnimationSelector)words.E;
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
                 pipe.InstalledAnimationState = (PipeBugAnimationSelector)W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
             }

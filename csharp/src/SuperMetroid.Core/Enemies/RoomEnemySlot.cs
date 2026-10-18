@@ -189,18 +189,6 @@ public sealed class RoomEnemySlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>Enemy.var0 at +$30: first actor-owned working word; its timer, pointer, or arithmetic meaning depends on the active enemy AI.</summary>
-    public ushort VariableA { get; internal set; }
-    /// <summary>Enemy.var1 at +$32: second actor-owned working word, preserving native sixteen-bit wrapping across actor phases.</summary>
-    public ushort VariableB { get; internal set; }
-    /// <summary>Enemy.var2 at +$34: third actor-owned working word, whose units and lifetime belong to the selected enemy routine.</summary>
-    public ushort VariableC { get; internal set; }
-    /// <summary>Enemy.var3 at +$36: fourth actor-owned working word, retained across the actor's AI and instruction callbacks.</summary>
-    public ushort VariableD { get; internal set; }
-    /// <summary>Enemy.var4 at +$38: fifth actor-owned working word, interpreted by the selected enemy routine rather than a shared global schema.</summary>
-    public ushort VariableE { get; internal set; }
-    /// <summary>Enemy.var5 at +$3A: sixth actor-owned working word; some actors store their current function pointer here.</summary>
-    public ushort VariableF { get; internal set; }
     /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
     public Offset16<RoomPixels> SpawnOffset { get; internal set; }
 
@@ -230,7 +218,6 @@ public sealed class RoomEnemySlot
         InvincibilityTimer = NativeCountdown.Start(0);
         HurtAiTime = 0;
         Parameter1 = Parameter2 = 0;
-        VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
         SpawnOffset = Offset16<RoomPixels>.Zero;
         foreach (Action clearWithRecord in _clearWithRecord.Values)
             clearWithRecord();

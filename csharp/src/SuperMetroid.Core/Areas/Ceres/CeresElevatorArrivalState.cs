@@ -145,7 +145,7 @@ public sealed class CeresElevatorArrivalState
         {
             case AnimationProgramAdvanceKind.Show:
                 projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                projectile.SpritemapPointer = CeresElevatorArrivalDefinitions.Spritemap(advance.Frame);
+                projectile.Pose = advance.Frame;
                 return;
             case AnimationProgramAdvanceKind.Stop:
                 projectile.Active = false;
@@ -161,8 +161,7 @@ public sealed class CeresElevatorArrivalState
         OamBuffer oam,
         Position16<RoomPixels> camera)
     {
-        if (!projectile.Active ||
-            projectile.SpritemapPointer == CeresElevatorArrivalDefinitions.NoSpritemap)
+        if (!projectile.Active || projectile.Pose is not { } pose)
             return;
 
         Position16<ScreenPixels> screen = projectile.Position.ToScreen(camera);
@@ -174,7 +173,7 @@ public sealed class CeresElevatorArrivalState
 
         var installed = projectileSpritemaps ?? throw new InvalidOperationException(
             "Ceres elevator projectiles require installed sprite artwork.");
-        oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
+        oam.AddEnemySpritemap(installed.Get(CeresElevatorArrivalDefinitions.Spritemap(pose)).Span,
             screen.ToOam(),
             new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits,
             unchecked((byte)projectile.GraphicsIndex),
@@ -219,7 +218,7 @@ public sealed class CeresElevatorArrivalState
         }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
         public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
-        /// <summary>Current bank-8D visual identity or the no-spritemap sentinel.</summary>
-        public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
+        /// <summary>The pose the projectile shows, none before its first frame.</summary>
+        internal CeresElevatorArrivalPose? Pose { get; set; }
     }
 }

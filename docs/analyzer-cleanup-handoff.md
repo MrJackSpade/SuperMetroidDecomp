@@ -569,6 +569,8 @@ Commit and push that update too.
     links, the Ceres Baby, the Ceres door overlay and the Dead Torizo hook draw named frames. ROM oracles take test
     support's `NativeEnemySpritemapDraw`, and native fixtures reach the renderer through
     `EnemyPresentationNativeDrawAccess`.
+  - Q5.2b: the Ceres elevator arrival projectile holds its `CeresElevatorArrivalPose?` instead of a bank-$8D word
+    and $8000 sentinel; test support keeps the word view.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

@@ -1029,22 +1029,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            // Typed programs (#641) present their frames by key; the rest still run their native lists.
-            if (TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null)
-                return DrawPresentedFrame(artwork, operand, source, kind);
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
-            slot.Kind = kind;
-            slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = FixtureGraphicsIndex;
-            slot.InstructionPointer = unchecked((ushort)(operand - 2));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
-            var oam = new OamBuffer();
-            oam.BeginFrame();
-            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
-            return oam;
+            // Typed programs (#641) present their frames by key.
+            return TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null
+                ? DrawPresentedFrame(artwork, operand, source, kind)
+                : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
 
         static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,

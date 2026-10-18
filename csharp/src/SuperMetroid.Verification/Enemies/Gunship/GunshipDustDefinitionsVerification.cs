@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
@@ -56,14 +57,14 @@ internal static class GunshipDustDefinitionsVerification
         {
             occupied.Kind = RoomEnemyProjectileKind.PhantoonStartingFlame;
             occupied.Position = occupied.Position.WithWholeX(0x1234);
-            occupied.InstructionPointer = 0x5678;
+            occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }
         for (ushort parameter = 0; parameter <= 10; parameter += 2) spawn(parameter, samus);
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles)
         {
             AssertEqual(RoomEnemyProjectileKind.PhantoonStartingFlame, occupied.Kind, "Full pool retains owner");
             AssertEqual((ushort)0x1234, occupied.Position.X.Whole, "Full pool retains X");
-            AssertEqual((ushort)0x5678, occupied.InstructionPointer, "Full pool retains program");
+            AssertTrue(ReferenceEquals(EnemyProjectileDeleteAnimation.Instance, occupied.Animation), "Full pool retains program");
         }
         foreach (ushort invalid in new ushort[] { 1, 3, 9, 11, 12, 0xffff })
             AssertThrows<ArgumentOutOfRangeException>(() => spawn(invalid, samus), "Invalid dust parameter still rejected before full-pool return");

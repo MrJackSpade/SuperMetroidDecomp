@@ -47,7 +47,7 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual((ushort)0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
         AssertEqual((ushort)0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
         AssertTrue(explosion.Animation is OldTourianWallExplosionAnimation, "the explosion plays its typed program");
-        AssertEqual((ushort)0, explosion.InstructionPointer, "the explosion runs no native list");
+        AssertTrue(explosion.Animation is not null, "the explosion runs no native list");
         RoomLevelData level = runtime.Room.LoadedLevelData;
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)

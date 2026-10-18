@@ -166,7 +166,7 @@ internal static class BotwoonAnimationsVerification
         spawnSpit(enemies.SlotTable.Slots[0], 0x40, 0x0180);
         RoomEnemyProjectileSlot spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");
-        AssertEqual((ushort)0, spit.InstructionPointer, "a typed spit keeps no native instruction pointer");
+        AssertTrue(spit.Animation is not null, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // A changed selector restarts the segment; an unchanged one keeps running.

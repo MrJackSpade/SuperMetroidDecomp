@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Checks enemy-projectile contact ordering, damage, and delayed hurt movement.</summary>
 internal static class ProjectileContactPhaseVerification
@@ -38,6 +39,7 @@ internal static class ProjectileContactPhaseVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
         projectile.InstructionTimer = NativeCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
@@ -85,6 +87,7 @@ internal static class ProjectileContactPhaseVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
+            projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
             projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
             projectile.InstructionTimer = NativeCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));

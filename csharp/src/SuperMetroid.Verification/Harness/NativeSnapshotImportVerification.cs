@@ -362,12 +362,11 @@ internal static class NativeSnapshotImportVerification
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
-            // A typed family resumes at the step the recorded native pointer stands for.
-            if (projectile.Animation is { } typed)
-                AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
-                    $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
-            else
-                projectile.InstructionPointer = instruction;
+            // The typed family resumes at the step the recorded native pointer stands for.
+            EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
+                $"Initial enemy projectile {projectile.SlotIndex} kind {kind} starts no typed program.");
+            AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
+                $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
             projectile.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
             projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
             projectile.Position = projectile.Position
@@ -377,7 +376,7 @@ internal static class NativeSnapshotImportVerification
             projectile.Variable1 = W(NativeSnapshotMemory.EnemyProjectileVariableF + index);
             projectile.CollidedProjectileType = W(NativeSnapshotMemory.EnemyProjectileVariableG + index);
             // The current frame record is [timer][operand]; the list pointer already follows it.
-            EnemyProjectileEngine.SetEnemyProjectileVisualOperand(
+            EnemyProjectileNativeImportAccess.ShowNativeOperand(
                 projectile, unchecked((ushort)(instruction - 2)));
             AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
                 $"initial enemy projectile {projectile.SlotIndex} radii");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Runtime;
@@ -31,13 +32,14 @@ internal static class FrozenTimeEnemyProjectilesVerification
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
-        ushort pointer = explosion.InstructionPointer;
+        var program = (EnemyDeathProjectileAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
+        var cursor = program.Cursor;
         ushort timer = explosion.InstructionTimer.RawValue;
 
         runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
 
-        AssertTrue(explosion.InstructionPointer != pointer || explosion.InstructionTimer.RawValue != timer,
+        AssertTrue(program.Cursor != cursor || explosion.InstructionTimer.RawValue != timer,
             "the explosion's instructions advance while time is frozen");
         Console.WriteLine("  Frozen-time enemy projectiles: instructions keep running under a reserve-refill freeze.");
     }

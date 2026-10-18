@@ -64,11 +64,11 @@ internal sealed class RidleyNativeInstructionPointers
 
     /// <summary>
     /// The native instruction pointer of <paramref name="projectile"/>: Ridley's fireballs and afterburns and every
-    /// typed enemy-projectile family translate their typed cursors; projectiles still on native lists hold native pointers.
+    /// typed enemy-projectile family translate their typed cursors.
     /// </summary>
     internal ushort Projectile(RoomEnemyProjectileSlot projectile) => projectile.Animation switch
     {
-        null => projectile.InstructionPointer,
+        null => throw new InvalidOperationException($"Projectile {projectile.Kind} plays no program."),
         RidleyFireballAnimation animation => fireball[animation.Cursor.Program][animation.Cursor.Position],
         { } animation => projectileFamilies.Select(family => family(animation)).SingleOrDefault(pointer => pointer is not null)
             ?? throw new InvalidOperationException(

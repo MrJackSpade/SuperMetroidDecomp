@@ -596,6 +596,13 @@ Commit and push that update too.
     interceptor is gone. The particle's counted loop never runs out (its counter wraps from zero and the particle
     leaves the screen first), so its program ends in an unreachable hold where the native list runs into routine
     code; the oracle's `EndsAt` rule names that address. No enemy projectile kind starts a native list now.
+  - The bank-$86 interpreter is gone: an active projectile without a typed program fails loudly, the slot has no list
+    pointer, and the native instruction handlers, interceptors and mechanics-word reads were deleted. Definition
+    initialization starts the instruction timer at one, as `SpawnEprojInner` does. Snapshot import restores the shown
+    frame through test support's `EnemyProjectileNativeImportAccess`. Remaining projectile findings: the presentation
+    keys and spritemap words (`EnemyProjectileFramePresentation`, the slot's `SpritemapPointer` and
+    `PresentationOperandAddress`, `CompiledEnemyVisualSelector`), the drop-chance override, and the
+    pre-instruction enum's routine addresses, which the Tooling layouts still emit.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

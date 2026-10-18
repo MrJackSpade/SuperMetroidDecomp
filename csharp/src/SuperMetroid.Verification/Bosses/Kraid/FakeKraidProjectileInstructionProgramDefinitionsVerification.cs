@@ -74,7 +74,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 candidate => candidate.Kind == testCase.Kind);
             AssertTrue(projectile.Animation is FakeKraidProjectileAnimation animation && animation.Pose == testCase.Pose,
                 $"{testCase.Kind} plays its typed pose program");
-            AssertEqual((ushort)0, projectile.InstructionPointer, $"{testCase.Kind} runs no native list");
+            AssertTrue(projectile.Animation is not null, $"{testCase.Kind} runs no native list");
 
             RunForcedTick(projectile);
             ushort operand = unchecked((ushort)(testCase.List + 2));

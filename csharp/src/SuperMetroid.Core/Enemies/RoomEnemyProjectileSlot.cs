@@ -26,23 +26,7 @@ public sealed class RoomEnemyProjectileSlot
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Gets the unchanged native velocity words, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>
-    /// Gets the bank-$86 offset of the next instruction-list word to execute; zero while a typed animation runs.
-    /// Storing a list pointer ends any typed animation, as a native list store replaces the running program.
-    /// </summary>
-    public ushort InstructionPointer
-    {
-        get;
-        internal set
-        {
-            field = value;
-            Animation = null;
-        }
-    }
-    /// <summary>
-    /// The typed animation replacing this actor's native instruction list (#641), or null when the
-    /// bank-$86 interpreter runs <see cref="InstructionPointer"/>.
-    /// </summary>
+    /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
@@ -168,7 +152,6 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any native list.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
-        InstructionPointer = 0;
         Animation = Ensure.NotNull(animation);
         InstructionTimer = NativeCountdown.Start(1);
     }
@@ -177,18 +160,7 @@ public sealed class RoomEnemyProjectileSlot
     /// Replaces the running program with <paramref name="animation"/> without touching the frame timer, as a native
     /// list-pointer store does: the new program's first frame shows when the current frame expires.
     /// </summary>
-    internal void InstallAnimation(EnemyProjectileAnimation animation)
-    {
-        InstructionPointer = 0;
-        Animation = Ensure.NotNull(animation);
-    }
-
-    /// <summary>Runs the native instruction list at <paramref name="instructionList"/> from the next pass, ending any typed animation.</summary>
-    internal void StartNativeProgram(ushort instructionList)
-    {
-        InstructionPointer = instructionList;
-        InstructionTimer = NativeCountdown.Start(1);
-    }
+    internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
     /// <summary>
     /// A bare <c>STZ EnemyProjectile_ID,X</c>: frees the slot but leaves every other word,
@@ -206,7 +178,6 @@ public sealed class RoomEnemyProjectileSlot
         PreInstruction = 0;
         SpritemapPointer = 0;
         InstructionTimer = NativeCountdown.Start(0);
-        InstructionPointer = 0;
         Animation = null;
         PresentationOperandAddress = 0;
         Radius = Extent16<RoomPixels>.Zero;

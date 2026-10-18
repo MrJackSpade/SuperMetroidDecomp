@@ -61,8 +61,6 @@ internal static class EnemyProjectileDefinitionsVerification
             // A kind with a typed initial program (#641) runs it in place of the definition's native list.
             bool typedStart = EnemyProjectileTypedStarts.Initial(kind) is not null;
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
-            AssertEqual(typedStart ? (ushort)0 : definition.InitialInstructionList, projectile.InstructionPointer,
-                $"{kind} production initial list");
             AssertEqual((ushort)1, projectile.InstructionTimer.RawValue,
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
@@ -91,7 +89,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0100)),
                 Health = ushort.MaxValue,
             };
-            ushort initialList = projectile.InstructionPointer;
+            EnemyProjectileAnimation? initialProgram = projectile.Animation;
             AssertTrue(collideWithSamus(projectile, samus).HasValue,
                 $"{kind} production touch admitted");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
@@ -116,11 +114,11 @@ internal static class EnemyProjectileDefinitionsVerification
             {
                 // Every other touch list is the shared delete list; the owner coverage check proves each one deletes.
                 AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production touch starts the shared delete reaction");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed touch keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed touch keeps no native list");
             }
             else
             {
-                AssertEqual(initialList, projectile.InstructionPointer, $"{kind} production touch keeps its list");
+                AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
             initialize(projectile, kind, 0);
@@ -147,21 +145,21 @@ internal static class EnemyProjectileDefinitionsVerification
                 // Crocomire's shot program is typed (#641); VerifyCrocomireAnimations matches it to the native list.
                 AssertTrue(projectile.Animation is CrocomireProjectileAnimation { Kind: CrocomireProjectileFrameKind.Shot },
                     $"{kind} production shot starts the typed shot program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.KraidSpitRock)
             {
                 // Kraid's rock burst is typed (#641); VerifyKraidRockAnimations matches it to the native list.
                 AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockProgram.SpitRockShot },
                     $"{kind} production shot starts the typed shot program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)
             {
                 // The turret bullet's impact is typed (#1285); VerifyMotherBrainProjectileAnimations matches it.
                 AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
                     $"{kind} production shot starts the typed impact program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame)
             {
@@ -172,7 +170,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is PhantoonFlameAnimation started
                         && started.Cursor == AnimationProgramCursor<PhantoonFlameProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
                 RoomEnemyProjectileKind.SporeSpawnSpawner)
@@ -187,7 +185,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
                         && started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile)
             {
@@ -201,48 +199,48 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
                         && started.Cursor == AnimationProgramCursor<TorizoProjectileProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.PowampSpike)
             {
                 // The spike's shot list is its private delete list, typed with its programs (#1291).
                 AssertTrue(projectile.Animation is PowampSpikeAnimation { Cursor.Program: PowampSpikeProgram.Delete },
                     $"{kind} production shot starts the typed delete program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.KagoBug)
             {
                 // The bug's shot list spawns its drop; it is typed with its programs (#1292).
                 AssertTrue(projectile.Animation is KagoBugProjectileAnimation { Cursor.Program: KagoBugProjectileProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
             {
                 // A shot wall turret runs the shared misc-dust small explosion (#1292).
                 AssertTrue(projectile.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallExplosion },
                     $"{kind} production shot starts the typed small explosion");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.EyeDoorProjectile)
             {
                 // The eye-door shot's shot list is typed with its programs (#1292).
                 AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
             {
                 // The lava's shot list drops its pickup; it is typed with its programs (#1291).
                 AssertTrue(projectile.Animation is MagdolliteLavaAnimation { Cursor.Program: MagdolliteLavaProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else
             {
                 // Every other shot list is the shared delete list; the owner coverage check proves each one deletes.
                 AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production shot starts the shared delete reaction");
-                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+                AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
         }
 

@@ -325,7 +325,7 @@ internal static class FullMovieReplayVerification
             var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
                 .Where(entry => entry.projectile.IsActive)
                 .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.Position.X.Whole:X}/{entry.projectile.Position.Y.Whole:X}" +
-                    $"#{entry.projectile.InstructionPointer:X4}/{entry.projectile.InstructionTimer.RawValue:X}");
+                    $"#{entry.projectile.Animation?.GetType().Name}/{entry.projectile.InstructionTimer.RawValue:X}");
             var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
                 .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}" +
                     $"#{Word(memory, 0x1b47 + 2 * slot):X4}/{Word(memory, 0x1b8f + 2 * slot):X}");

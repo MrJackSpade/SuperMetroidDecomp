@@ -290,7 +290,7 @@ internal static class CrocomireAnimationsVerification
         RoomEnemyProjectileKind kind, bool shot, string label)
     {
         AssertTrue(projectile.Animation is CrocomireProjectileAnimation, $"Crocomire {label} runs a typed program");
-        AssertEqual((ushort)0, projectile.InstructionPointer, $"Crocomire {label} keeps no native list");
+        AssertTrue(projectile.Animation is not null, $"Crocomire {label} keeps no native list");
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         var native = new NativeProjectileList(shot
                 ? cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + ShotListOffset))

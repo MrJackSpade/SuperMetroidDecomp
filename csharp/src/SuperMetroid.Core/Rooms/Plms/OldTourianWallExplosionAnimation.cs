@@ -35,9 +35,6 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionPr
     /// <inheritdoc/>
     private protected override AnimationProgramSet<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue> Programs => AllPrograms;
 
-    /// <summary>The burst's poses.</summary>
-    internal static int PoseCount => D.FrameDurations.Length;
-
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(int frame) =>
         ShownProjectileFrames[frame];

@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Rooms.Doors.Artwork;
 /// </summary>
 internal static class EyeDoorSweatFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 4;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<EyeDoorSweatFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

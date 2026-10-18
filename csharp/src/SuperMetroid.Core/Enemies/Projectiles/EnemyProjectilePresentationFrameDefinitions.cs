@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
-    /// <summary>The generic death explosions' frames, which install first; the drops' frames follow them.</summary>
-    internal const int DeathFrameCount = 31;
 
     /// <summary>
     /// The program frames the first program-frame artwork schema published

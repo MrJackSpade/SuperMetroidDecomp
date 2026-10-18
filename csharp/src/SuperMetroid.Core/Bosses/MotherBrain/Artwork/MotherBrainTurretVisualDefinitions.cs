@@ -9,16 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainTurretVisualDefinitions
 {
-    /// <summary>Distinct frames: eight turret poses, eight bullet poses and five smoke frames.</summary>
-    internal const int ProjectileFrameCount = 2 * MotherBrainTurretDefinitions.DirectionCount + MotherBrainTurretAnimations.ImpactPhaseCount;
-
-    /// <summary>Every frame in installed-artwork order: turret poses, bullet poses, then the smoke.</summary>
-    internal static IReadOnlyList<MotherBrainTurretFrame> ProjectileFrames { get; } =
-    [
-        .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretProgram.TurretPose, (int)direction)),
-        .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretProgram.BulletPose, (int)direction)),
-        .. Enumerable.Range(0, MotherBrainTurretAnimations.ImpactPhaseCount).Select(phase => new MotherBrainTurretFrame(MotherBrainTurretProgram.BulletImpact, phase)),
-    ];
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<MotherBrainTurretFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

@@ -12,9 +12,6 @@ internal static class CeresFallingDebrisVisualDefinitions
     /// <summary><c>InstList_EnemyProjectile_CeresFallingTile_Dark</c> at $86:9756: the list the dark tile's projectile definition names.</summary>
     internal const ushort DarkDefinitionList = 0x9756;
 
-    /// <summary>The frames in installed order.</summary>
-    internal static IReadOnlyList<CeresFallingDebrisProgram> Frames { get; } = [P.Light, P.Dark];
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId>

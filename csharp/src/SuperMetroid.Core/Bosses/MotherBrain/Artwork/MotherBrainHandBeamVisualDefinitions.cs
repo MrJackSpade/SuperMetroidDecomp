@@ -9,15 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainHandBeamVisualDefinitions
 {
-    /// <summary>Distinct frames: seven in each of three stages.</summary>
-    internal const int ProjectileFrameCount = MotherBrainHandBeamAnimations.StageCount * MotherBrainHandBeamAnimations.FramesPerStage;
-
-    /// <summary>Every frame in installed-artwork order: the stages in turn.</summary>
-    internal static IReadOnlyList<MotherBrainHandBeamFrame> ProjectileFrames { get; } =
-    [
-        .. Enumerable.Range(0, MotherBrainHandBeamAnimations.StageCount).SelectMany(stage =>
-            Enumerable.Range(0, MotherBrainHandBeamAnimations.FramesPerStage).Select(phase => new MotherBrainHandBeamFrame(stage, phase))),
-    ];
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<MotherBrainHandBeamFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

@@ -9,18 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainGlassVisualDefinitions
 {
-    /// <summary>Distinct frames: eight per shard group, then the sparkle's four.</summary>
-    internal const int ProjectileFrameCount = 8 * MotherBrainGlassAnimations.ShardPhaseCount + MotherBrainGlassAnimations.SparklePhaseCount;
-
-    /// <summary>Every frame in installed-artwork order: the shard groups in turn, then the sparkle.</summary>
-    internal static IReadOnlyList<MotherBrainGlassFrame> ProjectileFrames { get; } =
-    [
-        .. Enum.GetValues<MotherBrainGlassProgram>().Where(program => program != MotherBrainGlassProgram.Sparkle)
-            .SelectMany(program => Enumerable.Range(0, MotherBrainGlassAnimations.ShardPhaseCount)
-                .Select(phase => new MotherBrainGlassFrame(program, phase))),
-        .. Enumerable.Range(0, MotherBrainGlassAnimations.SparklePhaseCount)
-            .Select(phase => new MotherBrainGlassFrame(MotherBrainGlassProgram.Sparkle, phase)),
-    ];
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<MotherBrainGlassFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

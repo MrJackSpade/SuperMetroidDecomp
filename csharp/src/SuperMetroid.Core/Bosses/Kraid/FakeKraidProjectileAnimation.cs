@@ -21,10 +21,6 @@ internal sealed class FakeKraidProjectileAnimation : EnemyProjectileTimelineAnim
         _ => throw new InvalidOperationException($"Undefined {nameof(FakeKraidProjectilePose)} {Pose}."),
     };
 
-    /// <summary>The poses in list order, the order their installed frames are named in.</summary>
-    internal static IReadOnlyList<FakeKraidProjectilePose> Poses { get; } =
-        [FakeKraidProjectilePose.Spit, FakeKraidProjectilePose.SpikeLeft, FakeKraidProjectilePose.SpikeRight];
-
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>
         ShownProjectileFrames[frame];

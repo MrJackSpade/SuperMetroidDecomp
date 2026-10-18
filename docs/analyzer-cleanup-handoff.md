@@ -614,6 +614,13 @@ Commit and push that update too.
     the product of their enum fields and phases, aliases included). The presentation registry is generation data
     (`EnemyProjectilePresentationFrameDefinitions` additions, `EnemyProjectilePresentationFrameSets` selection).
     Test support's `EnemyProjectileSlotFrameAccess` gives the native key/spritemap views.
+  - The frame lists and counts only the old registry read left Core: unused ones deleted, test-only ones in
+    test-support `<Owner>FramesAccess` extension classes, tool-read ones in Tooling `<Owner>FramesTooling`.
+  - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
+    run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
+    other production projects still reach into test-support), so it was discarded; those findings need a
+    relocation that respects production references, done per area. Frame records' positional fields (for
+    example `PhantoonPartFrame.Kind`) are reported unread but carry identity through record equality.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

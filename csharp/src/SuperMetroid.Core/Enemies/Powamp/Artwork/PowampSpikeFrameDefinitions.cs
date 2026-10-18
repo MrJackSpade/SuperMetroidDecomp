@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Powamp.Artwork;
 /// </summary>
 internal static class PowampSpikeFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 3;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<PowampSpikeFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

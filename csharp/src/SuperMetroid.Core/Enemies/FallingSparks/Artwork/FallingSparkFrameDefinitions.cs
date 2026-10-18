@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.FallingSparks.Artwork;
 /// </summary>
 internal static class FallingSparkFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 14;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<FallingSparkFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Projectiles.MiscDustProjectileBehaviorVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -149,7 +150,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
                 observedOperands.Add(handBeam.PresentationOperandAddress);
             }
-            AssertEqual(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
+            AssertEqual(MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
                 observedOperands.Count, "hand-beam selects all 21 installed visual operands");
             AssertTrue(handBeam.IsActive, "hand-beam charge survives all three 13-frame stages");
             AssertEqual(3, handBeamEnemies.Projectiles.EnemyProjectiles.Count(

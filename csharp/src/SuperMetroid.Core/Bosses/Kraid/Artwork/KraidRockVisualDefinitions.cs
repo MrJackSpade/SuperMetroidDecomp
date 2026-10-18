@@ -9,16 +9,6 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// </summary>
 internal static class KraidRockVisualDefinitions
 {
-    /// <summary>Distinct frames: the two still poses and five burst frames.</summary>
-    internal const int ProjectileFrameCount = 7;
-
-    /// <summary>Every frame in installed-artwork order: the two poses, then the burst.</summary>
-    internal static IReadOnlyList<KraidRockFrame> ProjectileFrames { get; } =
-    [
-        new KraidRockFrame(KraidRockProgram.SharedPose, 0),
-        new KraidRockFrame(KraidRockProgram.RisingRightPose, 0),
-        .. Enumerable.Range(0, KraidRockAnimations.ShotPhaseCount).Select(phase => new KraidRockFrame(KraidRockProgram.SpitRockShot, phase)),
-    ];
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<KraidRockFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

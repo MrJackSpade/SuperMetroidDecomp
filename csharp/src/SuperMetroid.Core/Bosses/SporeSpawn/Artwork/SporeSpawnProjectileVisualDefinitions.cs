@@ -17,16 +17,6 @@ internal static class SporeSpawnProjectileVisualDefinitions
     /// <summary>The stalk segment's list at $86:DC2E.</summary>
     internal const ushort StalkProgram = 0xdc2e;
 
-    /// <summary>The installed projectile frames.</summary>
-    internal const int ProjectileFrameCount = 17;
-
-    /// <summary>Every frame in installed order.</summary>
-    internal static IReadOnlyList<SporeSpawnProjectileFrame> ProjectileFrames { get; } =
-    [
-        .. new[] { P.SpawnerClosed, P.SpawnerRelease, P.Spore, P.Stalk, P.SporeShot }.SelectMany(program =>
-            Enumerable.Range(0, SporeSpawnProjectileAnimations.PoseCount(program)).Select(phase => new SporeSpawnProjectileFrame(program, phase))),
-    ];
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<SporeSpawnProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<SporeSpawnProjectileFrame, EnemyProjectileFrameId>

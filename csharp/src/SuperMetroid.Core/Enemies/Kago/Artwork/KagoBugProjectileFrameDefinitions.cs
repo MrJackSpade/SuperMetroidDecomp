@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 /// </summary>
 internal static class KagoBugProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 11;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<KagoBugProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

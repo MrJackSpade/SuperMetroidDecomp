@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms.Artwork;
 /// </summary>
 internal static class NoobTubeProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 90;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<NoobTubeProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

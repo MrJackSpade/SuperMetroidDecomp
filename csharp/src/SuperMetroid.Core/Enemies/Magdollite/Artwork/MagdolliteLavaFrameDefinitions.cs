@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 /// </summary>
 internal static class MagdolliteLavaFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 2;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<MagdolliteLavaFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

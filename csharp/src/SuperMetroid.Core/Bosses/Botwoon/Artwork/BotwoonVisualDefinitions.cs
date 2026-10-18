@@ -14,24 +14,14 @@ internal static class BotwoonVisualDefinitions
     /// <summary>Botwoon's head OAM bank, $B3.</summary>
     internal const byte Bank = 0xb3;
 
-    /// <summary>Distinct projectile frames: eight four-phase body links, eight tails, the hidden segment and five spit phases.</summary>
-    internal const int ProjectileFrameCount = 46;
-
     /// <summary>
     /// The facings in the cartridge's physical program order, from up-left counterclockwise to up.
     /// Installed artwork is named and numbered in this order.
     /// </summary>
-    private static readonly BotwoonFacing[] PhysicalOrder =
+    internal static readonly BotwoonFacing[] PhysicalOrder =
     [
         BotwoonFacing.UpLeft, BotwoonFacing.Left, BotwoonFacing.DownLeft, BotwoonFacing.Down,
         BotwoonFacing.DownRight, BotwoonFacing.Right, BotwoonFacing.UpRight, BotwoonFacing.Up,
-    ];
-
-    /// <summary>The tail facings in the cartridge's tail program order, from up counterclockwise to up-right.</summary>
-    private static readonly BotwoonFacing[] TailOrder =
-    [
-        BotwoonFacing.Up, BotwoonFacing.UpLeft, BotwoonFacing.Left, BotwoonFacing.DownLeft,
-        BotwoonFacing.Down, BotwoonFacing.DownRight, BotwoonFacing.Right, BotwoonFacing.UpRight,
     ];
 
     /// <summary>The installed head spritemap for <paramref name="frame"/>; the hidden frame is the shared empty map.</summary>
@@ -72,20 +62,6 @@ internal static class BotwoonVisualDefinitions
     [
         .. PhysicalOrder.Select(BotwoonHeadFrame.Closed).Concat(PhysicalOrder.Select(BotwoonHeadFrame.Open))
             .Select((frame, index) => new EnemySpritemapDefinition(Bank, HeadSpritemap(frame), $"botwoon_head_{index:D2}")),
-    ];
-
-    /// <summary>
-    /// Every projectile frame in installed-artwork order: body links by physical facing and phase,
-    /// then the tails, the hidden segment and the spit phases.
-    /// </summary>
-    internal static IReadOnlyList<BotwoonProjectileFrame> ProjectileFrames { get; } =
-    [
-        .. PhysicalOrder.SelectMany(facing => Enumerable.Range(0, BotwoonAnimations.BodyPhaseCount)
-            .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Body, facing, phase))),
-        .. TailOrder.Select(facing => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Tail, facing, 0)),
-        new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0),
-        .. Enumerable.Range(0, BotwoonAnimations.SpitPhaseCount)
-            .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Spit, BotwoonFacing.Up, phase)),
     ];
 
     /// <summary>Selects the bank-$B3 closed-mouth spritemap, skipping the unused down-facing-left map.</summary>

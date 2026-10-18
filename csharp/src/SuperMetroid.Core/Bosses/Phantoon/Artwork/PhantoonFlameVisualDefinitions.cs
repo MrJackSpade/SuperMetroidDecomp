@@ -8,31 +8,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// </summary>
 internal static class PhantoonFlameVisualDefinitions
 {
-    /// <summary>Distinct frames, in installed-artwork order.</summary>
-    internal const int ProjectileFrameCount = 31;
 
     /// <summary><c>InstList_EnemyProjectile_PhantoonDestroyableFlame_Idle</c> at $86:975C.</summary>
     internal const ushort DestroyableIdleProgram = 0x975c;
     /// <summary><c>InstList_EnemyProjectile_PhantoonStartingFlames</c> at $86:97E8.</summary>
     internal const ushort StartingFlameProgram = 0x97e8;
-
-    /// <summary>Every frame in installed-artwork order.</summary>
-    internal static IReadOnlyList<PhantoonFlameFrame> ProjectileFrames { get; } =
-    [
-        .. Frames(PhantoonFlameFrameKind.DestroyableIdle, PhantoonFlameAnimations.LoopPoseCount),
-        .. Frames(PhantoonFlameFrameKind.CasualHitGround, 1),
-        .. Frames(PhantoonFlameFrameKind.CasualBouncing, PhantoonFlameAnimations.LoopPoseCount),
-        .. Frames(PhantoonFlameFrameKind.CasualResting, PhantoonFlameAnimations.RestingPoseCount),
-        .. Frames(PhantoonFlameFrameKind.Dying, PhantoonFlameAnimations.DyingPoseCount),
-        .. Frames(PhantoonFlameFrameKind.RainImpact, 1),
-        .. Frames(PhantoonFlameFrameKind.CasualFalling, PhantoonFlameAnimations.FallingPhaseCount * PhantoonFlameAnimations.FallingPoseCount),
-        .. Frames(PhantoonFlameFrameKind.StartingFlame, PhantoonFlameAnimations.LoopPoseCount),
-        .. Frames(PhantoonFlameFrameKind.DestroyableShot, PhantoonFlameAnimations.ShotPoseCount),
-    ];
-
-    /// <summary>The <paramref name="count"/> frames of <paramref name="kind"/>.</summary>
-    private static IEnumerable<PhantoonFlameFrame> Frames(PhantoonFlameFrameKind kind, int count) =>
-        Enumerable.Range(0, count).Select(phase => new PhantoonFlameFrame(kind, phase));
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<PhantoonFlameFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

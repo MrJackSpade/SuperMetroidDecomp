@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.KiHunters.Artwork;
 /// </summary>
 internal static class KiHunterAcidSpitFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 19;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<KiHunterAcidSpitFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

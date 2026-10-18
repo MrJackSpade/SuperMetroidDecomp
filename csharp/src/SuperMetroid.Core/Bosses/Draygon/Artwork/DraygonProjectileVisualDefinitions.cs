@@ -9,21 +9,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 internal static class DraygonProjectileVisualDefinitions
 {
-    /// <summary>Distinct frames: six goop, two goop-burst, sixteen bloom and three flight frames.</summary>
-    internal const int ProjectileFrameCount = 27;
-
-    /// <summary>Every frame in installed-artwork order: goop, burst, bloom, then flight.</summary>
-    internal static IReadOnlyList<DraygonProjectileFrame> ProjectileFrames { get; } =
-    [
-        .. Frames(DraygonProjectileFrameKind.Goop, DraygonProjectileAnimations.GoopPhaseCount),
-        .. Frames(DraygonProjectileFrameKind.GoopShot, DraygonProjectileAnimations.GoopShotPhaseCount),
-        .. Frames(DraygonProjectileFrameKind.WallTurretBloom, DraygonProjectileAnimations.BloomPhaseCount),
-        .. Frames(DraygonProjectileFrameKind.WallTurretFlight, DraygonProjectileAnimations.FlightPhaseCount),
-    ];
-
-    /// <summary>The <paramref name="count"/> frames of <paramref name="kind"/>.</summary>
-    private static IEnumerable<DraygonProjectileFrame> Frames(DraygonProjectileFrameKind kind, int count) =>
-        Enumerable.Range(0, count).Select(phase => new DraygonProjectileFrame(kind, phase));
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<DraygonProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

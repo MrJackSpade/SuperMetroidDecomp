@@ -13,7 +13,7 @@ internal static class EnemyProjectileFrames
     private static readonly Lazy<Dictionary<EnemyProjectileFrameId, ushort>> ProgramFrameKeys = new(Bind);
 
     /// <summary>The bank-$8D composition each composition frame draws.</summary>
-    private static readonly Dictionary<EnemyProjectileFrameId, ushort> Compositions = new()
+    internal static IReadOnlyDictionary<EnemyProjectileFrameId, ushort> Compositions { get; } = new Dictionary<EnemyProjectileFrameId, ushort>
     {
         [EnemyProjectileFrameId.Blank] = EnemyProjectileSpritemapDefinitions.BlankSpritemap,
         [EnemyProjectileFrameId.SkreeDebris] = SkreeMetareeParticleVisualDefinitions.SkreeComposition,
@@ -32,14 +32,6 @@ internal static class EnemyProjectileFrames
     /// <summary>The identity named after installed program frame <paramref name="name"/>.</summary>
     internal static EnemyProjectileFrameId Identity(string name) =>
         Enum.Parse<EnemyProjectileFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
-
-    /// <summary>Whether <paramref name="frame"/> draws a bank-$8D composition rather than an installed program frame.</summary>
-    internal static bool IsComposition(EnemyProjectileFrameId frame) => Compositions.ContainsKey(frame);
-
-    /// <summary>The bank-$8D composition that composition frame <paramref name="frame"/> draws.</summary>
-    internal static ushort Composition(EnemyProjectileFrameId frame) => Compositions.TryGetValue(frame, out ushort spritemap)
-        ? spritemap
-        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "This projectile frame is an installed program frame.");
 
     /// <summary>The installed artwork key of program frame <paramref name="frame"/>.</summary>
     internal static ushort ProgramFrameKey(EnemyProjectileFrameId frame) => ProgramFrameKeys.Value.TryGetValue(frame, out ushort key)

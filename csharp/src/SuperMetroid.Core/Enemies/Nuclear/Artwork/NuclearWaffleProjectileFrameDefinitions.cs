@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Nuclear.Artwork;
 /// </summary>
 internal static class NuclearWaffleProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 12;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<NuclearWaffleProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

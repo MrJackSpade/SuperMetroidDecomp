@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 /// </summary>
 internal static class SpacePirateProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 42;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<SpacePirateProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

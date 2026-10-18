@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Cacatac.Artwork;
 /// </summary>
 internal static class CacatacProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 10;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<CacatacProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

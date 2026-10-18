@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool.Artwork;
 /// </summary>
 internal static class ShaktoolProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 8;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<ShaktoolProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

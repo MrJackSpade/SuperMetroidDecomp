@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 /// </summary>
 internal static class ChozoTourianDustFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 14;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<ChozoTourianDustFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

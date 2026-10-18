@@ -19,31 +19,6 @@ internal static class RidleyFireballVisualDefinitions
     /// <summary><c>InstList_EnemyProjectile_Afterburn</c> at $86:9606.</summary>
     internal const ushort DirectionalAfterburnProgram = 0x9606;
 
-    /// <summary>A four-byte frame record.</summary>
-    private const int FrameBytes = 4;
-    /// <summary>The spawn command a spawning run carries after its first pose.</summary>
-    private const int SpawnCommandBytes = 2;
-    /// <summary>The first operand's offset in a spawning run, past its clear-pre-instruction command and duration.</summary>
-    private const int FirstOperandOffset = 4;
-
-    /// <summary>The installed fireball and afterburn frames.</summary>
-    internal const int ProjectileFrameCount = 26;
-
-    /// <summary>Every frame in installed order.</summary>
-    internal static IReadOnlyList<RidleyFireballFrame> ProjectileFrames { get; } =
-    [
-        .. Run(K.Launch, RidleyFireballAnimations.LaunchPoseCount),
-        .. Run(K.Flight, RidleyFireballAnimations.FlightPoseCount),
-        .. Run(K.AfterburnFinal, RidleyFireballAnimations.AfterburnPoseCount),
-        .. Run(K.HorizontalCenter, RidleyFireballAnimations.AfterburnPoseCount),
-        .. Run(K.VerticalCenter, RidleyFireballAnimations.AfterburnPoseCount),
-        .. Run(K.Directional, RidleyFireballAnimations.AfterburnPoseCount),
-    ];
-
-    /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>.</summary>
-    private static IEnumerable<RidleyFireballFrame> Run(K kind, int count) =>
-        Enumerable.Range(0, count).Select(phase => new RidleyFireballFrame(kind, phase));
-
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<RidleyFireballFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<RidleyFireballFrame, EnemyProjectileFrameId>

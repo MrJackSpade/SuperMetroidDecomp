@@ -9,17 +9,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 internal static class CrocomireProjectileVisualDefinitions
 {
-    /// <summary>Distinct projectile frames: six mouth, one bridge fragment, one spike piece and five shot frames.</summary>
-    internal const int ProjectileFrameCount = 13;
-
-    /// <summary>Every projectile frame in installed-artwork order: mouth, bridge, spike, then shot.</summary>
-    internal static IReadOnlyList<CrocomireProjectileFrame> ProjectileFrames { get; } =
-    [
-        .. Enumerable.Range(0, CrocomireAnimations.MouthPhaseCount).Select(phase => new CrocomireProjectileFrame(CrocomireProjectileFrameKind.Mouth, phase)),
-        new CrocomireProjectileFrame(CrocomireProjectileFrameKind.BridgeFragment, 0),
-        new CrocomireProjectileFrame(CrocomireProjectileFrameKind.SpikeWallPiece, 0),
-        .. Enumerable.Range(0, CrocomireAnimations.ShotPhaseCount).Select(phase => new CrocomireProjectileFrame(CrocomireProjectileFrameKind.Shot, phase)),
-    ];
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<CrocomireProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

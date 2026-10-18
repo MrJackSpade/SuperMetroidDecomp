@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Enemies.Stoke.Artwork;
 /// </summary>
 internal static class StokeProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 2;
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<StokeProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

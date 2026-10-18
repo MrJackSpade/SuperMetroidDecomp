@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Compiled graphics-set membership and native staging order for all retail room states.</summary>
 /// <remarks>
 /// The 302 bank-$B4 lists contain 425 records in the pinned NTSC J/U v1.0
-/// cartridge. VRAM/palette destination words are fixed engine staging metadata;
+/// cartridge. Palette rows and staging blocks are fixed engine staging metadata;
 /// editable pixel/color content is loaded separately through enemy artwork assets.
 /// </remarks>
 public static class RoomEnemyGraphicsSetDefinitions
@@ -647,245 +647,245 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(Draygon1MotherBrain2), [
         ]),
         new(nameof(EastOcean), [
-            new(EnemyDefinitionId.Choot, 0x0001),
-            new(EnemyDefinitionId.Skultera, 0x0002),
-            new(EnemyDefinitionId.Kamer2, 0x0003),
+            new(EnemyDefinitionId.Choot, PaletteRow: 1),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 2),
+            new(EnemyDefinitionId.Kamer2, PaletteRow: 3),
         ]),
         new(nameof(CrateriaPowerBombs), [
-            new(EnemyDefinitionId.Alcoon, 0x0001),
-            new(EnemyDefinitionId.Zero, 0x0001),
+            new(EnemyDefinitionId.Alcoon, PaletteRow: 1),
+            new(EnemyDefinitionId.Zero, PaletteRow: 1),
         ]),
         new(nameof(Terminator), [
-            new(EnemyDefinitionId.Waver, 0x0001),
-            new(EnemyDefinitionId.Zoomer, 0x0002),
+            new(EnemyDefinitionId.Waver, PaletteRow: 1),
+            new(EnemyDefinitionId.Zoomer, PaletteRow: 2),
         ]),
         new(nameof(FinalMissileBombway1), [
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
-            new(EnemyDefinitionId.Stoke, 0x0007),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
+            new(EnemyDefinitionId.Stoke, PaletteRow: 7),
         ]),
         new(nameof(FinalMissileBombway0), [
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
-            new(EnemyDefinitionId.Stoke, 0x0007),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
+            new(EnemyDefinitionId.Stoke, PaletteRow: 7),
         ]),
         new(nameof(Parlor1), [
-            new(EnemyDefinitionId.Zoomer, 0x0001),
-            new(EnemyDefinitionId.Skree, 0x0002),
-            new(EnemyDefinitionId.Ripper, 0x0003),
+            new(EnemyDefinitionId.Zoomer, PaletteRow: 1),
+            new(EnemyDefinitionId.Skree, PaletteRow: 2),
+            new(EnemyDefinitionId.Ripper, PaletteRow: 3),
         ]),
         new(nameof(Flyway01), [
-            new(EnemyDefinitionId.Waver, 0x0001),
-            new(EnemyDefinitionId.Mellow, 0x0002),
+            new(EnemyDefinitionId.Waver, PaletteRow: 1),
+            new(EnemyDefinitionId.Mellow, PaletteRow: 2),
         ]),
         new(nameof(Pit1), [
-            new(EnemyDefinitionId.PirateGreyWalking, 0x0001),
-            new(EnemyDefinitionId.PirateGreyWall, 0x0002),
+            new(EnemyDefinitionId.PirateGreyWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateGreyWall, PaletteRow: 2),
         ]),
         new(nameof(GauntletEntrance), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
-            new(EnemyDefinitionId.Waver, 0x0002),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
+            new(EnemyDefinitionId.Waver, PaletteRow: 2),
         ]),
         new(nameof(BombTorizo01), [
-            new(EnemyDefinitionId.BombTorizo, 0x0001),
+            new(EnemyDefinitionId.BombTorizo, PaletteRow: 1),
         ]),
         new(nameof(GreenPiratesShaft), [
-            new(EnemyDefinitionId.PirateGreenWalking, 0x0001),
-            new(EnemyDefinitionId.Beetom, 0x0002),
+            new(EnemyDefinitionId.PirateGreenWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 2),
         ]),
         new(nameof(GreenBrinstarElev), [
         ]),
         new(nameof(FinalMissile0), [
-            new(EnemyDefinitionId.Eye, 0x0001),
+            new(EnemyDefinitionId.Eye, PaletteRow: 1),
         ]),
         new(nameof(CrateriaMap), [
-            new(EnemyDefinitionId.BombTorizo, 0x0001),
+            new(EnemyDefinitionId.BombTorizo, PaletteRow: 1),
         ]),
         new(nameof(FinalMissile1), [
         ]),
         new(nameof(Climb2), [
-            new(EnemyDefinitionId.PirateSilverNinja, 0x0002),
+            new(EnemyDefinitionId.PirateSilverNinja, PaletteRow: 2),
         ]),
         new(nameof(CrateriaSave), [
         ]),
         new(nameof(ForgottenHighwayElbow), [
-            new(EnemyDefinitionId.FaceBlock, 0x0001),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 1),
         ]),
         new(nameof(Moat), [
-            new(EnemyDefinitionId.FaceBlock, 0x0001),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 1),
         ]),
         new(nameof(Climb0), [
-            new(EnemyDefinitionId.Sbug, 0x0007),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(WestOcean), [
-            new(EnemyDefinitionId.Skultera, 0x0001),
-            new(EnemyDefinitionId.Zeb, 0x0002),
-            new(EnemyDefinitionId.GRipper, 0x0003),
-            new(EnemyDefinitionId.Tripper, 0x0007),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 2),
+            new(EnemyDefinitionId.GRipper, PaletteRow: 3),
+            new(EnemyDefinitionId.Tripper, PaletteRow: 7),
         ]),
         new(nameof(Parlor0), [
-            new(EnemyDefinitionId.Sbug, 0x0007),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
         ]),
         new(nameof(LandingSite012), [
-            new(EnemyDefinitionId.ShipTop, 0x0002),
-            new(EnemyDefinitionId.ShipBottomEntrance, 0x0007),
+            new(EnemyDefinitionId.ShipTop, PaletteRow: 2),
+            new(EnemyDefinitionId.ShipBottomEntrance, PaletteRow: 7),
         ]),
         new(nameof(CrateriaSuper), [
-            new(EnemyDefinitionId.Boyon, 0x0001),
-            new(EnemyDefinitionId.YappingMaw, 0x0002),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 1),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 2),
         ]),
         new(nameof(PreBowling), [
-            new(EnemyDefinitionId.HZoomer, 0x0001),
-            new(EnemyDefinitionId.Sova, 0x0001),
+            new(EnemyDefinitionId.HZoomer, PaletteRow: 1),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
         ]),
         new(nameof(Climb1), [
-            new(EnemyDefinitionId.PirateGreyWall, 0x0001),
+            new(EnemyDefinitionId.PirateGreyWall, PaletteRow: 1),
         ]),
         new(nameof(BowlingAlleyPath), [
-            new(EnemyDefinitionId.Waver, 0x0001),
-            new(EnemyDefinitionId.Choot, 0x0007),
+            new(EnemyDefinitionId.Waver, PaletteRow: 1),
+            new(EnemyDefinitionId.Choot, PaletteRow: 7),
         ]),
         new(nameof(RedBinstarElev), [
         ]),
         new(nameof(GauntletETank), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
-            new(EnemyDefinitionId.Zebbo, 0x0002),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 2),
         ]),
         new(nameof(Pit0), [
-            new(EnemyDefinitionId.Sbug, 0x0007),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(CrabMaze), [
-            new(EnemyDefinitionId.Sciser, 0x0007),
-            new(EnemyDefinitionId.Puyo, 0x0007),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 7),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 7),
         ]),
         new(nameof(CrateriaTube), [
         ]),
         new(nameof(ForgottenHighwayKagos), [
-            new(EnemyDefinitionId.Kago, 0x0001),
+            new(EnemyDefinitionId.Kago, PaletteRow: 1),
         ]),
         new(nameof(ElevToBlueBrinstar), [
         ]),
         new(nameof(ForgottenHighwayElev), [
         ]),
         new(nameof(PreMapFlyway), [
-            new(EnemyDefinitionId.Mellow, 0x0001),
-            new(EnemyDefinitionId.Rio, 0x0002),
+            new(EnemyDefinitionId.Mellow, PaletteRow: 1),
+            new(EnemyDefinitionId.Rio, PaletteRow: 2),
         ]),
         new(nameof(LowerMushrooms), [
-            new(EnemyDefinitionId.Kago, 0x0002),
-            new(EnemyDefinitionId.MZoomer, 0x0003),
+            new(EnemyDefinitionId.Kago, PaletteRow: 2),
+            new(EnemyDefinitionId.MZoomer, PaletteRow: 3),
         ]),
         new(nameof(LandingSite3), [
-            new(EnemyDefinitionId.ShipTop, 0x0002),
-            new(EnemyDefinitionId.ShipBottomEntrance, 0x0007),
+            new(EnemyDefinitionId.ShipTop, PaletteRow: 2),
+            new(EnemyDefinitionId.ShipBottomEntrance, PaletteRow: 7),
         ]),
         new(nameof(Parlor2), [
-            new(EnemyDefinitionId.Sbug, 0x0007),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
         ]),
         new(nameof(BombTorizo2), [
-            new(EnemyDefinitionId.EtecoonEscape, 0x0001),
-            new(EnemyDefinitionId.DachoraEscape, 0x0007),
+            new(EnemyDefinitionId.EtecoonEscape, PaletteRow: 1),
+            new(EnemyDefinitionId.DachoraEscape, PaletteRow: 7),
         ]),
         new(nameof(Flyway2), [
         ]),
         new(nameof(CrateriaKihunter), [
-            new(EnemyDefinitionId.KihunterGreen, 0x0001),
-            new(EnemyDefinitionId.Sciser, 0x0002),
-            new(EnemyDefinitionId.Zero, 0x0002),
+            new(EnemyDefinitionId.KihunterGreen, PaletteRow: 1),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 2),
+            new(EnemyDefinitionId.Zero, PaletteRow: 2),
         ]),
         new(nameof(BrinstarPreMap), [
-            new(EnemyDefinitionId.Sidehopper, 0x0001),
-            new(EnemyDefinitionId.Zeela, 0x0002),
+            new(EnemyDefinitionId.Sidehopper, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 2),
         ]),
         new(nameof(GreenBrinstarMap), [
         ]),
         new(nameof(GreenBrinstarMissileRefill), [
         ]),
         new(nameof(SporeSpawnKihunters), [
-            new(EnemyDefinitionId.KihunterGreen, 0x0007),
+            new(EnemyDefinitionId.KihunterGreen, PaletteRow: 7),
         ]),
         new(nameof(EtecoonSuper), [
         ]),
         new(nameof(DachoraEnergyRefill), [
-            new(EnemyDefinitionId.FaceBlock, 0x0001),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 1),
         ]),
         new(nameof(SporeSpawnFarming), [
-            new(EnemyDefinitionId.Zeb, 0x0001),
-            new(EnemyDefinitionId.Zeela, 0x0002),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 2),
         ]),
         new(nameof(Statues), [
-            new(EnemyDefinitionId.TourianStatue, 0x0001),
-            new(EnemyDefinitionId.TourianStatueGhost, 0xd003),
+            new(EnemyDefinitionId.TourianStatue, PaletteRow: 1),
+            new(EnemyDefinitionId.TourianStatueGhost, PaletteRow: 3, StagingBlock: 1),
         ]),
         new(nameof(HopperETank), [
         ]),
         new(nameof(BetaPowerBomb), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
-            new(EnemyDefinitionId.SidehopperLarge, 0x0002),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
+            new(EnemyDefinitionId.SidehopperLarge, PaletteRow: 2),
         ]),
         new(nameof(WaterwayETank), [
-            new(EnemyDefinitionId.Skultera, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Zero, 0x0003),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Zero, PaletteRow: 3),
         ]),
         new(nameof(ConstructionZone1), [
-            new(EnemyDefinitionId.Zoomer, 0x0001),
-            new(EnemyDefinitionId.FaceBlock, 0x0002),
+            new(EnemyDefinitionId.Zoomer, PaletteRow: 1),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 2),
         ]),
         new(nameof(BlueBrinstarETank1), [
-            new(EnemyDefinitionId.FaceBlock, 0x0001),
-            new(EnemyDefinitionId.Zoomer, 0x0002),
-            new(EnemyDefinitionId.Skree, 0x0003),
-            new(EnemyDefinitionId.Rio, 0x0007),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 1),
+            new(EnemyDefinitionId.Zoomer, PaletteRow: 2),
+            new(EnemyDefinitionId.Skree, PaletteRow: 3),
+            new(EnemyDefinitionId.Rio, PaletteRow: 7),
         ]),
         new(nameof(NoobBridge), [
-            new(EnemyDefinitionId.Cacatac, 0x0001),
-            new(EnemyDefinitionId.Zeela, 0x0002),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 2),
         ]),
         new(nameof(MorphBall1), [
-            new(EnemyDefinitionId.SidehopperLarge, 0x0002),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.SidehopperLarge, PaletteRow: 2),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(WarehouseSave), [
         ]),
         new(nameof(MorphBall0), [
-            new(EnemyDefinitionId.Eye, 0x0007),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.Eye, PaletteRow: 7),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(WarehouseZeela), [
-            new(EnemyDefinitionId.Zeela, 0x0001),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 1),
         ]),
         new(nameof(RedTower), [
-            new(EnemyDefinitionId.Ripper, 0x0001),
-            new(EnemyDefinitionId.Beetom, 0x0002),
-            new(EnemyDefinitionId.Geega, 0x0003),
+            new(EnemyDefinitionId.Ripper, PaletteRow: 1),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 2),
+            new(EnemyDefinitionId.Geega, PaletteRow: 3),
         ]),
         new(nameof(BlueBrinstarBoulders), [
-            new(EnemyDefinitionId.Boulder, 0x0001),
+            new(EnemyDefinitionId.Boulder, PaletteRow: 1),
         ]),
         new(nameof(BillyMays), [
         ]),
         new(nameof(BigPinkSaveRoom), [
         ]),
         new(nameof(BigPink), [
-            new(EnemyDefinitionId.Rio, 0x0001),
-            new(EnemyDefinitionId.Sidehopper, 0x0002),
-            new(EnemyDefinitionId.Zeb, 0x0003),
+            new(EnemyDefinitionId.Rio, PaletteRow: 1),
+            new(EnemyDefinitionId.Sidehopper, PaletteRow: 2),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 3),
         ]),
         new(nameof(EtecoonSave), [
         ]),
         new(nameof(BelowSpazer), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
-            new(EnemyDefinitionId.Cacatac, 0x0002),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 2),
         ]),
         new(nameof(GreenBrinstarSave), [
         ]),
         new(nameof(Spazer), [
         ]),
         new(nameof(PinkBrinstarPowerBombs), [
-            new(EnemyDefinitionId.ShutterShootable, 0x0001),
-            new(EnemyDefinitionId.Metaree, 0x0001),
-            new(EnemyDefinitionId.SidehopperLarge, 0x0002),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 1),
+            new(EnemyDefinitionId.Metaree, PaletteRow: 1),
+            new(EnemyDefinitionId.SidehopperLarge, PaletteRow: 2),
         ]),
         new(nameof(RedTowerRefill), [
         ]),
@@ -896,144 +896,144 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(RedBrinstarSave), [
         ]),
         new(nameof(BlueBrinstarETank0), [
-            new(EnemyDefinitionId.Eye, 0x0007),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.Eye, PaletteRow: 7),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(GreenBrinstarFirefleas), [
-            new(EnemyDefinitionId.Fireflea, 0x0002),
+            new(EnemyDefinitionId.Fireflea, PaletteRow: 2),
         ]),
         new(nameof(GreenBrinstarBeetoms), [
-            new(EnemyDefinitionId.Beetom, 0x0001),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 1),
         ]),
         new(nameof(EtecoonETank), [
-            new(EnemyDefinitionId.Zebbo, 0x0001),
-            new(EnemyDefinitionId.Beetom, 0x0002),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 1),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 2),
         ]),
         new(nameof(PinkBrinstarHoppers), [
-            new(EnemyDefinitionId.SidehopperLarge, 0x0001),
-            new(EnemyDefinitionId.Sidehopper, 0x0002),
-            new(EnemyDefinitionId.ShutterShootable, 0x0003),
+            new(EnemyDefinitionId.SidehopperLarge, PaletteRow: 1),
+            new(EnemyDefinitionId.Sidehopper, PaletteRow: 2),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 3),
         ]),
         new(nameof(WarehouseETank), [
-            new(EnemyDefinitionId.Reflec, 0x0001),
-            new(EnemyDefinitionId.Beetom, 0x0002),
+            new(EnemyDefinitionId.Reflec, PaletteRow: 1),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 2),
         ]),
         new(nameof(WarehouseEntrance), [
         ]),
         new(nameof(WarehouseKihunter), [
-            new(EnemyDefinitionId.KihunterGreen, 0x0001),
+            new(EnemyDefinitionId.KihunterGreen, PaletteRow: 1),
         ]),
         new(nameof(GreenBrinstarMainShaft), [
-            new(EnemyDefinitionId.Etecoon, 0x0001),
-            new(EnemyDefinitionId.Zeela, 0x0002),
-            new(EnemyDefinitionId.Ripper2, 0x0003),
+            new(EnemyDefinitionId.Etecoon, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 2),
+            new(EnemyDefinitionId.Ripper2, PaletteRow: 3),
         ]),
         new(nameof(SporeSpawnSuper), [
-            new(EnemyDefinitionId.Zeb, 0x0001),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 1),
         ]),
         new(nameof(EarlySupers), [
-            new(EnemyDefinitionId.Sidehopper, 0x0001),
-            new(EnemyDefinitionId.ShutterGrowing, 0x0002),
-            new(EnemyDefinitionId.Waver, 0x0003),
-            new(EnemyDefinitionId.Zeb, 0x0007),
+            new(EnemyDefinitionId.Sidehopper, PaletteRow: 1),
+            new(EnemyDefinitionId.ShutterGrowing, PaletteRow: 2),
+            new(EnemyDefinitionId.Waver, PaletteRow: 3),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 7),
         ]),
         new(nameof(RedBrinstarFirefleas), [
-            new(EnemyDefinitionId.Fireflea, 0x0001),
-            new(EnemyDefinitionId.Waver, 0x0002),
-            new(EnemyDefinitionId.YappingMaw, 0x0003),
+            new(EnemyDefinitionId.Fireflea, PaletteRow: 1),
+            new(EnemyDefinitionId.Waver, PaletteRow: 2),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 3),
         ]),
         new(nameof(ConstructionZone0), [
-            new(EnemyDefinitionId.Sbug, 0x0007),
-            new(EnemyDefinitionId.FaceBlock, 0x0007),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.FaceBlock, PaletteRow: 7),
         ]),
         new(nameof(GreenHillZone), [
-            new(EnemyDefinitionId.Sidehopper, 0x0001),
-            new(EnemyDefinitionId.Geega, 0x0002),
+            new(EnemyDefinitionId.Sidehopper, PaletteRow: 1),
+            new(EnemyDefinitionId.Geega, PaletteRow: 2),
         ]),
         new(nameof(Dachora), [
-            new(EnemyDefinitionId.Zeela, 0x0001),
-            new(EnemyDefinitionId.Metaree, 0x0002),
-            new(EnemyDefinitionId.Rio, 0x0003),
-            new(EnemyDefinitionId.Dachora, 0x0007),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 1),
+            new(EnemyDefinitionId.Metaree, PaletteRow: 2),
+            new(EnemyDefinitionId.Rio, PaletteRow: 3),
+            new(EnemyDefinitionId.Dachora, PaletteRow: 7),
         ]),
         new(nameof(Hellway), [
-            new(EnemyDefinitionId.Zeela, 0x0001),
-            new(EnemyDefinitionId.Zebbo, 0x0002),
+            new(EnemyDefinitionId.Zeela, PaletteRow: 1),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 2),
         ]),
         new(nameof(FirstMissile), [
         ]),
         new(nameof(Kraid), [
-            new(EnemyDefinitionId.Kraid, 0x0007),
+            new(EnemyDefinitionId.Kraid, PaletteRow: 7),
         ]),
         new(nameof(BrinstarReserveTank), [
         ]),
         new(nameof(XrayScope), [
-            new(EnemyDefinitionId.ShutterShootable, 0x0001),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 1),
         ]),
         new(nameof(StatuesHallway), [
         ]),
         new(nameof(AlphaPowerBomb), [
-            new(EnemyDefinitionId.Boyon, 0x0001),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 1),
         ]),
         new(nameof(KraidEyeDoor), [
-            new(EnemyDefinitionId.Zeb, 0x0001),
-            new(EnemyDefinitionId.Sbug, 0x0002),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 1),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
         ]),
         new(nameof(Caterpillar), [
-            new(EnemyDefinitionId.Zero, 0x0002),
-            new(EnemyDefinitionId.Cacatac, 0x0003),
+            new(EnemyDefinitionId.Zero, PaletteRow: 2),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 3),
         ]),
         new(nameof(MiniKraid), [
-            new(EnemyDefinitionId.PirateGreenWalking, 0x0001),
-            new(EnemyDefinitionId.MiniKraid, 0x0003),
+            new(EnemyDefinitionId.PirateGreenWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.MiniKraid, PaletteRow: 3),
         ]),
         new(nameof(SporeSpawn), [
-            new(EnemyDefinitionId.SporeSpawn, 0x0001),
+            new(EnemyDefinitionId.SporeSpawn, PaletteRow: 1),
         ]),
         new(nameof(SkreeBoost), [
-            new(EnemyDefinitionId.Skree, 0x0001),
-            new(EnemyDefinitionId.Boyon, 0x0007),
+            new(EnemyDefinitionId.Skree, PaletteRow: 1),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 7),
         ]),
         new(nameof(GrappleTutorial3), [
-            new(EnemyDefinitionId.Gamet, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
         ]),
         new(nameof(PostCrocShaft), [
-            new(EnemyDefinitionId.Viola, 0x0001),
+            new(EnemyDefinitionId.Viola, PaletteRow: 1),
         ]),
         new(nameof(MetalPirates), [
-            new(EnemyDefinitionId.PirateGoldNinja, 0x0001),
+            new(EnemyDefinitionId.PirateGoldNinja, PaletteRow: 1),
         ]),
         new(nameof(AcidStatue), [
-            new(EnemyDefinitionId.Chozo, 0x0001),
-            new(EnemyDefinitionId.Magdollite, 0x0003),
-            new(EnemyDefinitionId.Holtz, 0x0007),
+            new(EnemyDefinitionId.Chozo, PaletteRow: 1),
+            new(EnemyDefinitionId.Magdollite, PaletteRow: 3),
+            new(EnemyDefinitionId.Holtz, PaletteRow: 7),
         ]),
         new(nameof(PurpleFarming), [
-            new(EnemyDefinitionId.Gamet, 0x0001),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 1),
         ]),
         new(nameof(IceBeamGate), [
-            new(EnemyDefinitionId.ShutterGrowing, 0x0001),
-            new(EnemyDefinitionId.Dessgeega, 0x0002),
-            new(EnemyDefinitionId.Mella, 0x0003),
-            new(EnemyDefinitionId.Sova, 0x0007),
+            new(EnemyDefinitionId.ShutterGrowing, PaletteRow: 1),
+            new(EnemyDefinitionId.Dessgeega, PaletteRow: 2),
+            new(EnemyDefinitionId.Mella, PaletteRow: 3),
+            new(EnemyDefinitionId.Sova, PaletteRow: 7),
         ]),
         new(nameof(SpikyAcidSnakesTunnel), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
         ]),
         new(nameof(RedKihunterShaft), [
-            new(EnemyDefinitionId.KihunterRed, 0x0001),
-            new(EnemyDefinitionId.Reflec, 0x0002),
+            new(EnemyDefinitionId.KihunterRed, PaletteRow: 1),
+            new(EnemyDefinitionId.Reflec, PaletteRow: 2),
         ]),
         new(nameof(FastRipper), [
-            new(EnemyDefinitionId.Ripper2, 0x0001),
+            new(EnemyDefinitionId.Ripper2, PaletteRow: 1),
         ]),
         new(nameof(WaveBeam), [
         ]),
         new(nameof(FastPillarsSetup), [
-            new(EnemyDefinitionId.PirateGoldWall, 0x0001),
-            new(EnemyDefinitionId.PirateGoldWalking, 0x0002),
-            new(EnemyDefinitionId.Viola, 0x0003),
+            new(EnemyDefinitionId.PirateGoldWall, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateGoldWalking, PaletteRow: 2),
+            new(EnemyDefinitionId.Viola, PaletteRow: 3),
         ]),
         new(nameof(LowerNorfairElev), [
         ]),
@@ -1044,14 +1044,14 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(NorfairMap), [
         ]),
         new(nameof(MickeyMouse), [
-            new(EnemyDefinitionId.DessgeegaLarge, 0x0001),
-            new(EnemyDefinitionId.Multiviola, 0x0002),
+            new(EnemyDefinitionId.DessgeegaLarge, PaletteRow: 1),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 2),
         ]),
         new(nameof(GTEnergyRefill), [
         ]),
         new(nameof(Ridley), [
-            new(EnemyDefinitionId.Ridley, 0x0001),
-            new(EnemyDefinitionId.RidleyExplosion, 0xe001),
+            new(EnemyDefinitionId.Ridley, PaletteRow: 1),
+            new(EnemyDefinitionId.RidleyExplosion, PaletteRow: 1, StagingBlock: 2),
         ]),
         new(nameof(PostCrocPowerBombs), [
         ]),
@@ -1062,69 +1062,69 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(PostCrocSave), [
         ]),
         new(nameof(FrogSpeedway), [
-            new(EnemyDefinitionId.Beetom, 0x0001),
+            new(EnemyDefinitionId.Beetom, PaletteRow: 1),
         ]),
         new(nameof(RisingTide), [
-            new(EnemyDefinitionId.Squeept, 0x0001),
-            new(EnemyDefinitionId.Sova, 0x0002),
-            new(EnemyDefinitionId.Dragon, 0x0003),
+            new(EnemyDefinitionId.Squeept, PaletteRow: 1),
+            new(EnemyDefinitionId.Sova, PaletteRow: 2),
+            new(EnemyDefinitionId.Dragon, PaletteRow: 3),
         ]),
         new(nameof(PostCrocFarming), [
-            new(EnemyDefinitionId.Gamet, 0x0001),
-            new(EnemyDefinitionId.GRipper, 0x0002),
-            new(EnemyDefinitionId.Kamer2, 0x0003),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 1),
+            new(EnemyDefinitionId.GRipper, PaletteRow: 2),
+            new(EnemyDefinitionId.Kamer2, PaletteRow: 3),
         ]),
         new(nameof(WorstRoomInTheGame), [
-            new(EnemyDefinitionId.Namihe, 0x0001),
-            new(EnemyDefinitionId.PirateGoldWall, 0x0002),
-            new(EnemyDefinitionId.PirateGoldWalking, 0x0003),
+            new(EnemyDefinitionId.Namihe, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateGoldWall, PaletteRow: 2),
+            new(EnemyDefinitionId.PirateGoldWalking, PaletteRow: 3),
         ]),
         new(nameof(DoubleChamber), [
-            new(EnemyDefinitionId.Fune, 0x0001),
-            new(EnemyDefinitionId.Kamer, 0x0002),
-            new(EnemyDefinitionId.Kago, 0x0003),
-            new(EnemyDefinitionId.GRipper, 0x0007),
+            new(EnemyDefinitionId.Fune, PaletteRow: 1),
+            new(EnemyDefinitionId.Kamer, PaletteRow: 2),
+            new(EnemyDefinitionId.Kago, PaletteRow: 3),
+            new(EnemyDefinitionId.GRipper, PaletteRow: 7),
         ]),
         new(nameof(GrappleBeam), [
-            new(EnemyDefinitionId.Multiviola, 0x0001),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 1),
         ]),
         new(nameof(RedPirateShaft), [
-            new(EnemyDefinitionId.PirateRedWalking, 0x0001),
-            new(EnemyDefinitionId.MZoomer, 0x0003),
+            new(EnemyDefinitionId.PirateRedWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.MZoomer, PaletteRow: 3),
         ]),
         new(nameof(CrocomireSpeedway), [
-            new(EnemyDefinitionId.PirateRedWalking, 0x0001),
-            new(EnemyDefinitionId.Multiviola, 0x0002),
-            new(EnemyDefinitionId.Cacatac, 0x0003),
-            new(EnemyDefinitionId.Sova, 0x0003),
+            new(EnemyDefinitionId.PirateRedWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 2),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 3),
+            new(EnemyDefinitionId.Sova, PaletteRow: 3),
         ]),
         new(nameof(Plowerhouse), [
-            new(EnemyDefinitionId.Zebbo, 0x0001),
-            new(EnemyDefinitionId.Holtz, 0x0007),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 1),
+            new(EnemyDefinitionId.Holtz, PaletteRow: 7),
         ]),
         new(nameof(LNFireflea), [
-            new(EnemyDefinitionId.Fireflea, 0x0001),
-            new(EnemyDefinitionId.Boulder, 0x0002),
-            new(EnemyDefinitionId.Fune, 0x0003),
+            new(EnemyDefinitionId.Fireflea, PaletteRow: 1),
+            new(EnemyDefinitionId.Boulder, PaletteRow: 2),
+            new(EnemyDefinitionId.Fune, PaletteRow: 3),
         ]),
         new(nameof(MagdolliteTunnel), [
-            new(EnemyDefinitionId.Multiviola, 0x0001),
-            new(EnemyDefinitionId.Magdollite, 0x0007),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 1),
+            new(EnemyDefinitionId.Magdollite, PaletteRow: 7),
         ]),
         new(nameof(UnusedState8FB3EEB48899), [
         ]),
         new(nameof(LavaDive), [
-            new(EnemyDefinitionId.Namihe, 0x0001),
+            new(EnemyDefinitionId.Namihe, PaletteRow: 1),
         ]),
         new(nameof(Pillar), [
-            new(EnemyDefinitionId.Puromi, 0x0007),
+            new(EnemyDefinitionId.Puromi, PaletteRow: 7),
         ]),
         new(nameof(CrocomireEscape), [
-            new(EnemyDefinitionId.Dragon, 0x0001),
-            new(EnemyDefinitionId.Geruta, 0x0002),
+            new(EnemyDefinitionId.Dragon, PaletteRow: 1),
+            new(EnemyDefinitionId.Geruta, PaletteRow: 2),
         ]),
         new(nameof(LNSpringBallMaze), [
-            new(EnemyDefinitionId.Alcoon, 0x0001),
+            new(EnemyDefinitionId.Alcoon, PaletteRow: 1),
         ]),
         new(nameof(LNEscapePowerBombs), [
         ]),
@@ -1135,26 +1135,26 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(ScrewAttack), [
         ]),
         new(nameof(GreenBubblesMissiles), [
-            new(EnemyDefinitionId.ShutterShootable, 0x0007),
-            new(EnemyDefinitionId.Sova, 0x0002),
-            new(EnemyDefinitionId.Geruta, 0x0003),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 7),
+            new(EnemyDefinitionId.Sova, PaletteRow: 2),
+            new(EnemyDefinitionId.Geruta, PaletteRow: 3),
         ]),
         new(nameof(Amphitheatre), [
-            new(EnemyDefinitionId.PirateGoldWalking, 0x0007),
+            new(EnemyDefinitionId.PirateGoldWalking, PaletteRow: 7),
         ]),
         new(nameof(CathedralEntrance), [
-            new(EnemyDefinitionId.Sova, 0x0001),
-            new(EnemyDefinitionId.Dessgeega, 0x0002),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
+            new(EnemyDefinitionId.Dessgeega, PaletteRow: 2),
         ]),
         new(nameof(MainHall), [
-            new(EnemyDefinitionId.Hibashi, 0x0001),
-            new(EnemyDefinitionId.Dragon, 0x0007),
-            new(EnemyDefinitionId.Gamet, 0x0007),
+            new(EnemyDefinitionId.Hibashi, PaletteRow: 1),
+            new(EnemyDefinitionId.Dragon, PaletteRow: 7),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 7),
         ]),
         new(nameof(PostCrocJump), [
-            new(EnemyDefinitionId.Mella, 0x0001),
-            new(EnemyDefinitionId.GRipper, 0x0002),
-            new(EnemyDefinitionId.Kamer2, 0x0003),
+            new(EnemyDefinitionId.Mella, PaletteRow: 1),
+            new(EnemyDefinitionId.GRipper, PaletteRow: 2),
+            new(EnemyDefinitionId.Kamer2, PaletteRow: 3),
         ]),
         new(nameof(FrogSave), [
         ]),
@@ -1166,133 +1166,133 @@ public static class RoomEnemyGraphicsSetDefinitions
     private static RoomEnemyGraphicsSetDefinition[] BuildSegment1() =>
     [
         new(nameof(CrumbleShaft), [
-            new(EnemyDefinitionId.Sova, 0x0001),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
         ]),
         new(nameof(Wasteland), [
-            new(EnemyDefinitionId.Hibashi, 0x0001),
-            new(EnemyDefinitionId.DessgeegaLarge, 0x0002),
-            new(EnemyDefinitionId.ShutterShootable, 0x0003),
-            new(EnemyDefinitionId.KzanTop, 0x0007),
+            new(EnemyDefinitionId.Hibashi, PaletteRow: 1),
+            new(EnemyDefinitionId.DessgeegaLarge, PaletteRow: 2),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 3),
+            new(EnemyDefinitionId.KzanTop, PaletteRow: 7),
         ]),
         new(nameof(AcidSnakesTunnel), [
-            new(EnemyDefinitionId.Dragon, 0x0001),
-            new(EnemyDefinitionId.Gamet, 0x0002),
+            new(EnemyDefinitionId.Dragon, PaletteRow: 1),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 2),
         ]),
         new(nameof(GrappleTutorial1), [
         ]),
         new(nameof(BubbleMountainSave), [
         ]),
         new(nameof(HiJumpETank), [
-            new(EnemyDefinitionId.Sova, 0x0001),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
         ]),
         new(nameof(BubbleMountain), [
-            new(EnemyDefinitionId.Waver, 0x0001),
-            new(EnemyDefinitionId.Ripper2, 0x0001),
-            new(EnemyDefinitionId.Cacatac, 0x0002),
-            new(EnemyDefinitionId.Sova, 0x0002),
+            new(EnemyDefinitionId.Waver, PaletteRow: 1),
+            new(EnemyDefinitionId.Ripper2, PaletteRow: 1),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 2),
+            new(EnemyDefinitionId.Sova, PaletteRow: 2),
         ]),
         new(nameof(IceBeamAcid), [
-            new(EnemyDefinitionId.Tripper, 0x0007),
+            new(EnemyDefinitionId.Tripper, PaletteRow: 7),
         ]),
         new(nameof(IceBeamTutorial), [
-            new(EnemyDefinitionId.Boyon, 0x0001),
-            new(EnemyDefinitionId.Ripper2, 0x0002),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 1),
+            new(EnemyDefinitionId.Ripper2, PaletteRow: 2),
         ]),
         new(nameof(PostCrocMissile), [
-            new(EnemyDefinitionId.Metaree, 0x0001),
-            new(EnemyDefinitionId.Gamet, 0x0002),
+            new(EnemyDefinitionId.Metaree, PaletteRow: 1),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 2),
         ]),
         new(nameof(Cathedral), [
-            new(EnemyDefinitionId.Sova, 0x0001),
-            new(EnemyDefinitionId.Geruta, 0x0002),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
+            new(EnemyDefinitionId.Geruta, PaletteRow: 2),
         ]),
         new(nameof(NorfairReserveTank), [
-            new(EnemyDefinitionId.Dragon, 0x0001),
-            new(EnemyDefinitionId.Sova, 0x0002),
+            new(EnemyDefinitionId.Dragon, PaletteRow: 1),
+            new(EnemyDefinitionId.Sova, PaletteRow: 2),
         ]),
         new(nameof(GrappleTutorial2), [
-            new(EnemyDefinitionId.Fune, 0x0001),
-            new(EnemyDefinitionId.Multiviola, 0x0002),
+            new(EnemyDefinitionId.Fune, PaletteRow: 1),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 2),
         ]),
         new(nameof(IceBeamSnake), [
-            new(EnemyDefinitionId.Sova, 0x0001),
-            new(EnemyDefinitionId.Fune, 0x0002),
+            new(EnemyDefinitionId.Sova, PaletteRow: 1),
+            new(EnemyDefinitionId.Fune, PaletteRow: 2),
         ]),
         new(nameof(GoldenTorizo), [
-            new(EnemyDefinitionId.GoldenTorizo, 0x0001),
+            new(EnemyDefinitionId.GoldenTorizo, PaletteRow: 1),
         ]),
         new(nameof(SpikyPlatformsTunnel), [
-            new(EnemyDefinitionId.Tripper, 0x0007),
-            new(EnemyDefinitionId.ShutterShootable, 0x0002),
+            new(EnemyDefinitionId.Tripper, PaletteRow: 7),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 2),
         ]),
         new(nameof(SpeedBooster), [
         ]),
         new(nameof(LNFarming), [
-            new(EnemyDefinitionId.Viola, 0x0001),
-            new(EnemyDefinitionId.Zebbo, 0x0007),
+            new(EnemyDefinitionId.Viola, PaletteRow: 1),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 7),
         ]),
         new(nameof(SingleChamber), [
-            new(EnemyDefinitionId.Multiviola, 0x0001),
-            new(EnemyDefinitionId.Alcoon, 0x0002),
+            new(EnemyDefinitionId.Multiviola, PaletteRow: 1),
+            new(EnemyDefinitionId.Alcoon, PaletteRow: 2),
         ]),
         new(nameof(SpeedBoosterHall), [
-            new(EnemyDefinitionId.Geruta, 0x0001),
-            new(EnemyDefinitionId.Metaree, 0x0002),
+            new(EnemyDefinitionId.Geruta, PaletteRow: 1),
+            new(EnemyDefinitionId.Metaree, PaletteRow: 2),
         ]),
         new(nameof(BatCave), [
-            new(EnemyDefinitionId.Gamet, 0x0001),
-            new(EnemyDefinitionId.Skree, 0x0002),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 1),
+            new(EnemyDefinitionId.Skree, PaletteRow: 2),
         ]),
         new(nameof(KronicBoost), [
-            new(EnemyDefinitionId.Viola, 0x0001),
+            new(EnemyDefinitionId.Viola, PaletteRow: 1),
         ]),
         new(nameof(BusinessCenter), [
-            new(EnemyDefinitionId.Sova, 0x0002),
+            new(EnemyDefinitionId.Sova, PaletteRow: 2),
         ]),
         new(nameof(ThreeMusketeers), [
-            new(EnemyDefinitionId.Hibashi, 0x0001),
-            new(EnemyDefinitionId.KihunterRed, 0x0002),
-            new(EnemyDefinitionId.ShutterShootable, 0x0003),
+            new(EnemyDefinitionId.Hibashi, PaletteRow: 1),
+            new(EnemyDefinitionId.KihunterRed, PaletteRow: 2),
+            new(EnemyDefinitionId.ShutterShootable, PaletteRow: 3),
         ]),
         new(nameof(Crocomire), [
-            new(EnemyDefinitionId.Crocomire, 0xd007),
+            new(EnemyDefinitionId.Crocomire, PaletteRow: 7, StagingBlock: 1),
         ]),
         new(nameof(LNElevSave), [
         ]),
         new(nameof(Volcano), [
-            new(EnemyDefinitionId.Fune, 0x0001),
-            new(EnemyDefinitionId.LavaRocks, 0x0002),
+            new(EnemyDefinitionId.Fune, PaletteRow: 1),
+            new(EnemyDefinitionId.LavaRocks, PaletteRow: 2),
         ]),
         new(nameof(UpperNorfairFarming), [
-            new(EnemyDefinitionId.Fune, 0x0001),
-            new(EnemyDefinitionId.Gamet, 0x0002),
+            new(EnemyDefinitionId.Fune, PaletteRow: 1),
+            new(EnemyDefinitionId.Gamet, PaletteRow: 2),
         ]),
         new(nameof(SpongeBath1), [
-            new(EnemyDefinitionId.Bull, 0x0001),
+            new(EnemyDefinitionId.Bull, PaletteRow: 1),
         ]),
         new(nameof(WreckedShipETank1), [
-            new(EnemyDefinitionId.Kamer2, 0x0001),
-            new(EnemyDefinitionId.Skultera, 0x0002),
+            new(EnemyDefinitionId.Kamer2, PaletteRow: 1),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 2),
         ]),
         new(nameof(WreckedShipMainShaft0), [
-            new(EnemyDefinitionId.Coven, 0x0001),
-            new(EnemyDefinitionId.KzanTop, 0x0002),
-            new(EnemyDefinitionId.Atomic, 0x0003),
-            new(EnemyDefinitionId.Sbug, 0x0003),
+            new(EnemyDefinitionId.Coven, PaletteRow: 1),
+            new(EnemyDefinitionId.KzanTop, PaletteRow: 2),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 3),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 3),
         ]),
         new(nameof(BowlingAlley0), [
-            new(EnemyDefinitionId.Chozo, 0x0001),
-            new(EnemyDefinitionId.Sbug, 0x0007),
+            new(EnemyDefinitionId.Chozo, PaletteRow: 1),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
         ]),
         new(nameof(Attic1), [
-            new(EnemyDefinitionId.KihunterYellow, 0x0001),
-            new(EnemyDefinitionId.Atomic, 0x0002),
-            new(EnemyDefinitionId.Spark, 0x0003),
+            new(EnemyDefinitionId.KihunterYellow, PaletteRow: 1),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
+            new(EnemyDefinitionId.Spark, PaletteRow: 3),
         ]),
         new(nameof(Basement1), [
-            new(EnemyDefinitionId.Robot, 0x0001),
-            new(EnemyDefinitionId.Atomic, 0x0002),
-            new(EnemyDefinitionId.Spark, 0x0003),
+            new(EnemyDefinitionId.Robot, PaletteRow: 1),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
+            new(EnemyDefinitionId.Spark, PaletteRow: 3),
         ]),
         new(nameof(WreckedShipMap1), [
         ]),
@@ -1307,8 +1307,8 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(ElectricDeath0), [
         ]),
         new(nameof(BowlingAlley1), [
-            new(EnemyDefinitionId.Chozo, 0x0001),
-            new(EnemyDefinitionId.Robot, 0x0003),
+            new(EnemyDefinitionId.Chozo, PaletteRow: 1),
+            new(EnemyDefinitionId.Robot, PaletteRow: 3),
         ]),
         new(nameof(AssemblyLine0), [
         ]),
@@ -1319,215 +1319,215 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(GravitySuit0), [
         ]),
         new(nameof(WreckedShipMap0), [
-            new(EnemyDefinitionId.Coven, 0x0001),
-            new(EnemyDefinitionId.Sbug, 0x0007),
-            new(EnemyDefinitionId.Bull, 0x0007),
+            new(EnemyDefinitionId.Coven, PaletteRow: 1),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
+            new(EnemyDefinitionId.Bull, PaletteRow: 7),
         ]),
         new(nameof(GravitySuit1), [
         ]),
         new(nameof(Basement0), [
-            new(EnemyDefinitionId.RobotNoPower, 0x0007),
-            new(EnemyDefinitionId.Sbug, 0x0007),
+            new(EnemyDefinitionId.RobotNoPower, PaletteRow: 7),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 7),
         ]),
         new(nameof(WreckedShipEntrance0), [
-            new(EnemyDefinitionId.Sbug, 0x0001),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 1),
         ]),
         new(nameof(AssemblyLine1), [
-            new(EnemyDefinitionId.Spark, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Robot, 0x0003),
+            new(EnemyDefinitionId.Spark, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Robot, PaletteRow: 3),
         ]),
         new(nameof(WreckedShipSave1), [
         ]),
         new(nameof(WSWestSuper1), [
-            new(EnemyDefinitionId.Spark, 0x0001),
+            new(EnemyDefinitionId.Spark, PaletteRow: 1),
         ]),
         new(nameof(Attic0), [
-            new(EnemyDefinitionId.Coven, 0x0001),
-            new(EnemyDefinitionId.Atomic, 0x0002),
-            new(EnemyDefinitionId.Sbug, 0x0002),
+            new(EnemyDefinitionId.Coven, PaletteRow: 1),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
         ]),
         new(nameof(WSEastSuper0), [
-            new(EnemyDefinitionId.Coven, 0x0001),
-            new(EnemyDefinitionId.Atomic, 0x0002),
-            new(EnemyDefinitionId.Sbug, 0x0002),
-            new(EnemyDefinitionId.RobotNoPower, 0x0007),
+            new(EnemyDefinitionId.Coven, PaletteRow: 1),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
+            new(EnemyDefinitionId.RobotNoPower, PaletteRow: 7),
         ]),
         new(nameof(WreckedShipSave0), [
-            new(EnemyDefinitionId.Coven, 0x0001),
-            new(EnemyDefinitionId.Sbug, 0x0002),
+            new(EnemyDefinitionId.Coven, PaletteRow: 1),
+            new(EnemyDefinitionId.Sbug, PaletteRow: 2),
         ]),
         new(nameof(ElectricDeath1), [
-            new(EnemyDefinitionId.Spark, 0x0001),
+            new(EnemyDefinitionId.Spark, PaletteRow: 1),
         ]),
         new(nameof(SpikyDeath1), [
-            new(EnemyDefinitionId.KzanTop, 0x0007),
+            new(EnemyDefinitionId.KzanTop, PaletteRow: 7),
         ]),
         new(nameof(WSEastSuper1), [
-            new(EnemyDefinitionId.Robot, 0x0001),
-            new(EnemyDefinitionId.Bull, 0x0002),
-            new(EnemyDefinitionId.Spark, 0x0003),
+            new(EnemyDefinitionId.Robot, PaletteRow: 1),
+            new(EnemyDefinitionId.Bull, PaletteRow: 2),
+            new(EnemyDefinitionId.Spark, PaletteRow: 3),
         ]),
         new(nameof(Phantoon0), [
-            new(EnemyDefinitionId.PhantoonBody, 0x0007),
+            new(EnemyDefinitionId.PhantoonBody, PaletteRow: 7),
         ]),
         new(nameof(WreckedShipMainShaft1), [
-            new(EnemyDefinitionId.Spark, 0x0001),
-            new(EnemyDefinitionId.Atomic, 0x0002),
-            new(EnemyDefinitionId.KzanTop, 0x0003),
+            new(EnemyDefinitionId.Spark, PaletteRow: 1),
+            new(EnemyDefinitionId.Atomic, PaletteRow: 2),
+            new(EnemyDefinitionId.KzanTop, PaletteRow: 3),
         ]),
         new(nameof(MtEverest), [
-            new(EnemyDefinitionId.Powamp, 0x0001),
-            new(EnemyDefinitionId.Sciser, 0x0003),
+            new(EnemyDefinitionId.Powamp, PaletteRow: 1),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 3),
         ]),
         new(nameof(HalfieClimb), [
-            new(EnemyDefinitionId.Oum, 0x0001),
-            new(EnemyDefinitionId.Mochtroid, 0x0002),
+            new(EnemyDefinitionId.Oum, PaletteRow: 1),
+            new(EnemyDefinitionId.Mochtroid, PaletteRow: 2),
         ]),
         new(nameof(WateringHole), [
-            new(EnemyDefinitionId.Choot, 0x0001),
-            new(EnemyDefinitionId.Zeb, 0x0002),
+            new(EnemyDefinitionId.Choot, PaletteRow: 1),
+            new(EnemyDefinitionId.Zeb, PaletteRow: 2),
         ]),
         new(nameof(CrabShaft), [
-            new(EnemyDefinitionId.Sciser, 0x0001),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
         ]),
         new(nameof(MaridiaElev), [
-            new(EnemyDefinitionId.Ripper, 0x0003),
-            new(EnemyDefinitionId.Owtch, 0x0007),
+            new(EnemyDefinitionId.Ripper, PaletteRow: 3),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 7),
         ]),
         new(nameof(Colosseum), [
-            new(EnemyDefinitionId.Mochtroid, 0x0001),
+            new(EnemyDefinitionId.Mochtroid, PaletteRow: 1),
         ]),
         new(nameof(AqueductSave), [
         ]),
         new(nameof(ThePrecious), [
         ]),
         new(nameof(BotwoonETank), [
-            new(EnemyDefinitionId.Puyo, 0x0001),
-            new(EnemyDefinitionId.Sciser, 0x0001),
-            new(EnemyDefinitionId.Zoa, 0x0002),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 1),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 2),
         ]),
         new(nameof(DraygonSave), [
         ]),
         new(nameof(MaridiaMissileRefill), [
         ]),
         new(nameof(PlasmaBeachQuicksand), [
-            new(EnemyDefinitionId.Bull, 0x0001),
+            new(EnemyDefinitionId.Bull, PaletteRow: 1),
         ]),
         new(nameof(BotwoonQuicksand), [
-            new(EnemyDefinitionId.Bull, 0x0001),
+            new(EnemyDefinitionId.Bull, PaletteRow: 1),
         ]),
         new(nameof(Shaktool), [
-            new(EnemyDefinitionId.Shaktool, 0x0001),
-            new(EnemyDefinitionId.Yard, 0x0002),
+            new(EnemyDefinitionId.Shaktool, PaletteRow: 1),
+            new(EnemyDefinitionId.Yard, PaletteRow: 2),
         ]),
         new(nameof(Draygon0), [
-            new(EnemyDefinitionId.DraygonBody, 0x0007),
+            new(EnemyDefinitionId.DraygonBody, PaletteRow: 7),
         ]),
         new(nameof(Aqueduct), [
-            new(EnemyDefinitionId.Yard, 0x0001),
+            new(EnemyDefinitionId.Yard, PaletteRow: 1),
         ]),
         new(nameof(RedFish), [
-            new(EnemyDefinitionId.Skultera, 0x0001),
-            new(EnemyDefinitionId.Sciser, 0x0001),
-            new(EnemyDefinitionId.Zebbo, 0x0002),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 1),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 2),
         ]),
         new(nameof(Plasma), [
-            new(EnemyDefinitionId.PirateMagentaWalking, 0x0001),
-            new(EnemyDefinitionId.PirateMagentaWall, 0x0002),
+            new(EnemyDefinitionId.PirateMagentaWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateMagentaWall, PaletteRow: 2),
         ]),
         new(nameof(SpaceJump), [
         ]),
         new(nameof(Pants), [
-            new(EnemyDefinitionId.Menu, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Tripper, 0x0002),
+            new(EnemyDefinitionId.Menu, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Tripper, PaletteRow: 2),
         ]),
         new(nameof(GlassTunnelSave), [
         ]),
         new(nameof(GlassTunnel), [
-            new(EnemyDefinitionId.NoobTubeCrack, 0x0007),
+            new(EnemyDefinitionId.NoobTubeCrack, PaletteRow: 7),
         ]),
         new(nameof(WestTunnel), [
         ]),
         new(nameof(EastTunnel), [
-            new(EnemyDefinitionId.Boyon, 0x0001),
-            new(EnemyDefinitionId.Zebbo, 0x0002),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 1),
+            new(EnemyDefinitionId.Zebbo, PaletteRow: 2),
         ]),
         new(nameof(MamaTurtle), [
-            new(EnemyDefinitionId.MamaTurtle, 0x0001),
+            new(EnemyDefinitionId.MamaTurtle, PaletteRow: 1),
         ]),
         new(nameof(CrabTunnel), [
-            new(EnemyDefinitionId.Sciser, 0x0001),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
         ]),
         new(nameof(NWestMaridiaBug), [
-            new(EnemyDefinitionId.Owtch, 0x0001),
-            new(EnemyDefinitionId.Menu, 0x0002),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 1),
+            new(EnemyDefinitionId.Menu, PaletteRow: 2),
         ]),
         new(nameof(PseudoPlasmaSpark), [
-            new(EnemyDefinitionId.Owtch, 0x0001),
-            new(EnemyDefinitionId.Choot, 0x0002),
-            new(EnemyDefinitionId.Skultera, 0x0003),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 1),
+            new(EnemyDefinitionId.Choot, PaletteRow: 2),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 3),
         ]),
         new(nameof(WestSandHallTunnel), [
-            new(EnemyDefinitionId.Sciser, 0x0001),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
         ]),
         new(nameof(PlasmaTutorial), [
-            new(EnemyDefinitionId.Puyo, 0x0001),
-            new(EnemyDefinitionId.MZoomer, 0x0001),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 1),
+            new(EnemyDefinitionId.MZoomer, PaletteRow: 1),
         ]),
         new(nameof(ThreadTheNeedle), [
-            new(EnemyDefinitionId.Puyo, 0x0001),
-            new(EnemyDefinitionId.Boyon, 0x0001),
-            new(EnemyDefinitionId.Choot, 0x0002),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 1),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 1),
+            new(EnemyDefinitionId.Choot, PaletteRow: 2),
         ]),
         new(nameof(PlasmaSpark), [
-            new(EnemyDefinitionId.Owtch, 0x0001),
-            new(EnemyDefinitionId.Choot, 0x0002),
-            new(EnemyDefinitionId.Skultera, 0x0003),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 1),
+            new(EnemyDefinitionId.Choot, PaletteRow: 2),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 3),
         ]),
         new(nameof(Toilet), [
-            new(EnemyDefinitionId.Mochtroid, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Sciser, 0x0002),
-            new(EnemyDefinitionId.Yard, 0x0003),
+            new(EnemyDefinitionId.Mochtroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 2),
+            new(EnemyDefinitionId.Yard, PaletteRow: 3),
         ]),
         new(nameof(WestSandHall), [
-            new(EnemyDefinitionId.Evir, 0x0001),
+            new(EnemyDefinitionId.Evir, PaletteRow: 1),
         ]),
         new(nameof(Oasis), [
         ]),
         new(nameof(EastSandHall), [
-            new(EnemyDefinitionId.Evir, 0x0001),
+            new(EnemyDefinitionId.Evir, PaletteRow: 1),
         ]),
         new(nameof(WestAqueductQuicksand), [
-            new(EnemyDefinitionId.Bull, 0x0001),
+            new(EnemyDefinitionId.Bull, PaletteRow: 1),
         ]),
         new(nameof(EastAqueductQuicksand), [
-            new(EnemyDefinitionId.Bull, 0x0001),
+            new(EnemyDefinitionId.Bull, PaletteRow: 1),
         ]),
         new(nameof(Butterfly), [
-            new(EnemyDefinitionId.Zoa, 0x0001),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 1),
         ]),
         new(nameof(BotwoonHallway), [
-            new(EnemyDefinitionId.Mochtroid, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Sciser, 0x0002),
+            new(EnemyDefinitionId.Mochtroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 2),
         ]),
         new(nameof(EastPants), [
-            new(EnemyDefinitionId.Puyo, 0x0001),
-            new(EnemyDefinitionId.Tripper, 0x0001),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 1),
+            new(EnemyDefinitionId.Tripper, PaletteRow: 1),
         ]),
         new(nameof(Springball), [
         ]),
         new(nameof(BelowBotwoonETank), [
-            new(EnemyDefinitionId.Zoa, 0x0001),
-            new(EnemyDefinitionId.Owtch, 0x0002),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 1),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 2),
         ]),
         new(nameof(Kassiuz), [
-            new(EnemyDefinitionId.Choot, 0x0001),
-            new(EnemyDefinitionId.Puyo, 0x0002),
-            new(EnemyDefinitionId.Boyon, 0x0002),
+            new(EnemyDefinitionId.Choot, PaletteRow: 1),
+            new(EnemyDefinitionId.Puyo, PaletteRow: 2),
+            new(EnemyDefinitionId.Boyon, PaletteRow: 2),
         ]),
         new(nameof(ForgottenHighwaySave), [
         ]),
@@ -1536,97 +1536,97 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(MaridiaMap), [
         ]),
         new(nameof(CrabHole), [
-            new(EnemyDefinitionId.Sciser, 0x0001),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 1),
         ]),
         new(nameof(Botwoon), [
-            new(EnemyDefinitionId.Owtch, 0x0001),
-            new(EnemyDefinitionId.Botwoon, 0x0007),
+            new(EnemyDefinitionId.Owtch, PaletteRow: 1),
+            new(EnemyDefinitionId.Botwoon, PaletteRow: 7),
         ]),
         new(nameof(MainStreet), [
-            new(EnemyDefinitionId.Skultera, 0x0001),
-            new(EnemyDefinitionId.Sciser, 0x0002),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 1),
+            new(EnemyDefinitionId.Sciser, PaletteRow: 2),
         ]),
         new(nameof(BugSandHole), [
-            new(EnemyDefinitionId.YappingMaw, 0x0001),
-            new(EnemyDefinitionId.Zoa, 0x0007),
+            new(EnemyDefinitionId.YappingMaw, PaletteRow: 1),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 7),
         ]),
         new(nameof(EastSandHole), [
-            new(EnemyDefinitionId.Boulder, 0x0001),
+            new(EnemyDefinitionId.Boulder, PaletteRow: 1),
         ]),
         new(nameof(WestSandHole), [
-            new(EnemyDefinitionId.Boulder, 0x0001),
+            new(EnemyDefinitionId.Boulder, PaletteRow: 1),
         ]),
         new(nameof(WestCactusAlley), [
-            new(EnemyDefinitionId.Cacatac, 0x0007),
-            new(EnemyDefinitionId.Zoa, 0x0007),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 7),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 7),
         ]),
         new(nameof(EastCactusAlley), [
-            new(EnemyDefinitionId.Cacatac, 0x0001),
-            new(EnemyDefinitionId.Zoa, 0x0001),
+            new(EnemyDefinitionId.Cacatac, PaletteRow: 1),
+            new(EnemyDefinitionId.Zoa, PaletteRow: 1),
         ]),
         new(nameof(FishTank), [
-            new(EnemyDefinitionId.Skultera, 0x0001),
-            new(EnemyDefinitionId.PirateMagentaWalking, 0x0002),
+            new(EnemyDefinitionId.Skultera, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateMagentaWalking, PaletteRow: 2),
         ]),
         new(nameof(TourianEscape4), [
-            new(EnemyDefinitionId.PirateSilverWall, 0x0001),
-            new(EnemyDefinitionId.PirateSilverWalking, 0x0002),
+            new(EnemyDefinitionId.PirateSilverWall, PaletteRow: 1),
+            new(EnemyDefinitionId.PirateSilverWalking, PaletteRow: 2),
         ]),
         new(nameof(MotherBrainSave), [
         ]),
         new(nameof(Metroids10), [
-            new(EnemyDefinitionId.Metroid, 0x0001),
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Metroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(DustTorizo), [
-            new(EnemyDefinitionId.CorpseTorizo, 0x0001),
+            new(EnemyDefinitionId.CorpseTorizo, PaletteRow: 1),
         ]),
         new(nameof(BigBoy), [
-            new(EnemyDefinitionId.CorpseSidehopper, 0x0001),
-            new(EnemyDefinitionId.CorpseSidehopper2, 0x0001),
-            new(EnemyDefinitionId.BabyMetroid, 0x0001),
+            new(EnemyDefinitionId.CorpseSidehopper, PaletteRow: 1),
+            new(EnemyDefinitionId.CorpseSidehopper2, PaletteRow: 1),
+            new(EnemyDefinitionId.BabyMetroid, PaletteRow: 1),
         ]),
         new(nameof(MotherBrain01), [
-            new(EnemyDefinitionId.MotherBrainHead, 0x0001),
-            new(EnemyDefinitionId.Rinka, 0x0002),
-            new(EnemyDefinitionId.MotherBrainBody, 0xd001),
+            new(EnemyDefinitionId.MotherBrainHead, PaletteRow: 1),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
+            new(EnemyDefinitionId.MotherBrainBody, PaletteRow: 1, StagingBlock: 1),
         ]),
         new(nameof(TourianEyeDoor), [
         ]),
         new(nameof(BlueHopper), [
-            new(EnemyDefinitionId.SidehopperTourian, 0x0001),
+            new(EnemyDefinitionId.SidehopperTourian, PaletteRow: 1),
         ]),
         new(nameof(TourianEscape1), [
-            new(EnemyDefinitionId.ShutterDestroyable, 0x0001),
+            new(EnemyDefinitionId.ShutterDestroyable, PaletteRow: 1),
         ]),
         new(nameof(TourianFirst), [
         ]),
         new(nameof(Metroids20), [
-            new(EnemyDefinitionId.Metroid, 0x0001),
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Metroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(Metroids40), [
-            new(EnemyDefinitionId.Metroid, 0x0001),
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Metroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(Metroids11), [
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(Metroids21), [
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(TourianEscape2), [
-            new(EnemyDefinitionId.PirateSilverWall, 0x0001),
+            new(EnemyDefinitionId.PirateSilverWall, PaletteRow: 1),
         ]),
         new(nameof(Metroids31), [
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(Metroids41), [
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(TourianEscape3), [
-            new(EnemyDefinitionId.PirateSilverWalking, 0x0001),
-            new(EnemyDefinitionId.ShutterGrowing, 0x0002),
+            new(EnemyDefinitionId.PirateSilverWalking, PaletteRow: 1),
+            new(EnemyDefinitionId.ShutterGrowing, PaletteRow: 2),
         ]),
         new(nameof(Seaweed), [
         ]),
@@ -1635,48 +1635,48 @@ public static class RoomEnemyGraphicsSetDefinitions
         new(nameof(UpperTourianSave), [
         ]),
         new(nameof(Metroids30), [
-            new(EnemyDefinitionId.Metroid, 0x0001),
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Metroid, PaletteRow: 1),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(RinkaShaft), [
-            new(EnemyDefinitionId.Rinka, 0x0002),
+            new(EnemyDefinitionId.Rinka, PaletteRow: 2),
         ]),
         new(nameof(CeresElev0), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(FallingTile0), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(MagnetStairs0), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(DeadScientist0), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(Room58Escape0), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(CeresRidley0), [
-            new(EnemyDefinitionId.RidleyCeres, 0x0001),
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.RidleyCeres, PaletteRow: 1),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(CeresElev1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(FallingTile1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(MagnetStairs1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(DeadScientist1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(Room58Escape1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
         new(nameof(CeresRidley1), [
-            new(EnemyDefinitionId.CeresDoor, 0xd002),
+            new(EnemyDefinitionId.CeresDoor, PaletteRow: 2, StagingBlock: 1),
         ]),
     ];
 }

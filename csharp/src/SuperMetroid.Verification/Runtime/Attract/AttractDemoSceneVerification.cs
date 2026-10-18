@@ -31,14 +31,15 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
         ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
-        ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000];
+        ushort inputObject = DemoInputObjectDefinitions.NativeHeaderOf(DemoInputObjectDefinitions.AttractLandingSite);
+        ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, inputObject];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
         WriteRomWord(rom, 0x91b000, 0x8a53);
         WriteRomWord(rom, 0x829012, AttractDemoRomData.EndOfSet);
-        WriteRomWord(rom, 0x919000, DemoInputRomData.Routines.NoOp);
-        WriteRomWord(rom, 0x919002, (ushort)NativeDemoPreInstruction.AttractCheckLeave);
-        WriteRomWord(rom, 0x919004, 0xc000);
+        WriteRomWord(rom, DemoInputRomData.BankBase | inputObject, DemoInputRomData.Routines.NoOp);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 2, (ushort)NativeDemoPreInstruction.AttractCheckLeave);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | inputObject) + 4, 0xc000);
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, (ushort)SnesButton.Left);
         WriteRomWord(rom, 0x91c004, 0);
@@ -49,7 +50,7 @@ internal static class AttractDemoSceneVerification
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, DoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
-            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, 0x9000);
+            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, DemoInputObjectDefinitions.AttractLandingSite);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))
@@ -151,7 +152,7 @@ internal static class AttractDemoSceneVerification
                 reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);
                 AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script),
-                    $"compiled attract ${scene.InputObject:X4}, leave {leaveFrame}, frame {frame}");
+                    $"compiled attract {scene.InputObject.Program}, leave {leaveFrame}, frame {frame}");
             }
         }
     }

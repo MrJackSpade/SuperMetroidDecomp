@@ -43,7 +43,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetHeader record in records)
         {
-            WriteTestWords(bus, address, (ushort)record.DefinitionPointer, record.VramDestination);
+            WriteTestWords(bus, address, (ushort)record.DefinitionPointer, record.NativePlacement);
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);

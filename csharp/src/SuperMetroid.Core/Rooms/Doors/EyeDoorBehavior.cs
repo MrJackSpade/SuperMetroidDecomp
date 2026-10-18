@@ -104,7 +104,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Places sweat below the eye block and loads its native initial velocity pair.</summary>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
-        ushort parameter,
+        int parameter,
         Position16<RoomBlocks> block)
     {
         int velocityWord = parameter >> 1;
@@ -126,13 +126,13 @@ internal sealed class EyeDoorBehavior
     /// <summary>Uses one shared random sample for both smoke offsets, then advances the seed.</summary>
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
-        ushort parameter,
+        int parameter,
         Position16<RoomBlocks> block)
     {
         byte listOffset = unchecked((byte)parameter);
         MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)listOffset);
         MiscDustPlacementDefinition placement =
-            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
+            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(checked((ushort)parameter))));
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.

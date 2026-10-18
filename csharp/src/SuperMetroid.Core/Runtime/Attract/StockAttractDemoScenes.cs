@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -11,55 +12,55 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// <remarks>The exact playlist, initial staging and editorial cutoffs select this recorded demonstration performance. Physical alignment, capacity units, shared abilities and control dispatch calculate independently.</remarks>
 public static class StockAttractDemoScenes
 {
-    /// <summary>Mutually exclusive demonstration identities, each naming its native bank-91 input object.</summary>
-    private enum Demonstration : ushort
+    /// <summary>Mutually exclusive demonstration identities.</summary>
+    private enum Demonstration
     {
         /// <summary><c>$91:9E52</c> input object; <c>$82:8774</c> room staging for LandingSite.</summary>
-        LandingSite = 0x9e52,
+        LandingSite,
         /// <summary><c>$91:9E88</c> input object; <c>$82:8786</c> room staging for MissileDoor.</summary>
-        MissileDoor = 0x9e88,
+        MissileDoor,
         /// <summary><c>$91:9EAC</c> input object; <c>$82:8798</c> room staging for PreSporeSpawnHall.</summary>
-        PreSporeSpawnHall = 0x9eac,
+        PreSporeSpawnHall,
         /// <summary><c>$91:9E5E</c> input object; <c>$82:87AA</c> room staging for SpeedBooster.</summary>
-        SpeedBooster = 0x9e5e,
+        SpeedBooster,
         /// <summary><c>$91:9EB2</c> input object; <c>$82:87BC</c> room staging for GrappleBeam.</summary>
-        GrappleBeam = 0x9eb2,
+        GrappleBeam,
         /// <summary><c>$91:9E58</c> input object; <c>$82:87CE</c> room staging for PseudoScrewAttack.</summary>
-        PseudoScrewAttack = 0x9e58,
+        PseudoScrewAttack,
         /// <summary><c>$91:9EB8</c> input object; <c>$82:87E2</c> room staging for IceBeam.</summary>
-        IceBeam = 0x9eb8,
+        IceBeam,
         /// <summary><c>$91:9E94</c> input object; <c>$82:87F4</c> room staging for FirefleaRoom.</summary>
-        FirefleaRoom = 0x9e94,
+        FirefleaRoom,
         /// <summary><c>$91:9EA0</c> input object; <c>$82:8806</c> room staging for BrinstarDiagonalRoom.</summary>
-        BrinstarDiagonalRoom = 0x9ea0,
+        BrinstarDiagonalRoom,
         /// <summary><c>$91:9E76</c> input object; <c>$82:8818</c> room staging for LowerNorfairEntrance.</summary>
-        LowerNorfairEntrance = 0x9e76,
+        LowerNorfairEntrance,
         /// <summary><c>$91:9E9A</c> input object; <c>$82:882A</c> room staging for ScrewAttack.</summary>
-        ScrewAttack = 0x9e9a,
+        ScrewAttack,
         /// <summary><c>$91:9E64</c> input object; <c>$82:883C</c> room staging for Dachora.</summary>
-        Dachora = 0x9e64,
+        Dachora,
         /// <summary><c>$91:9E70</c> input object; <c>$82:8850</c> room staging for PrePhantoonHall.</summary>
-        PrePhantoonHall = 0x9e70,
+        PrePhantoonHall,
         /// <summary><c>$91:9E82</c> input object; <c>$82:8862</c> room staging for DiagonalShinespark.</summary>
-        DiagonalShinespark = 0x9e82,
+        DiagonalShinespark,
         /// <summary><c>$91:9E7C</c> input object; <c>$82:8874</c> room staging for EyeDoor.</summary>
-        EyeDoor = 0x9e7c,
+        EyeDoor,
         /// <summary><c>$91:9E6A</c> input object; <c>$82:8886</c> room staging for RedBrinstarElevator.</summary>
-        RedBrinstarElevator = 0x9e6a,
+        RedBrinstarElevator,
         /// <summary><c>$91:9E8E</c> input object; <c>$82:8898</c> room staging for Kraid.</summary>
-        Kraid = 0x9e8e,
+        Kraid,
         /// <summary><c>$91:9ED6</c> input object; <c>$82:88AA</c> room staging for TourianEntrance.</summary>
-        TourianEntrance = 0x9ed6,
+        TourianEntrance,
         /// <summary><c>$91:9EBE</c> input object; <c>$82:88BE</c> room staging for GauntletEntrance.</summary>
-        GauntletEntrance = 0x9ebe,
+        GauntletEntrance,
         /// <summary><c>$91:9EC4</c> input object; <c>$82:88D0</c> room staging for AdvancedGrappleBeam.</summary>
-        AdvancedGrappleBeam = 0x9ec4,
+        AdvancedGrappleBeam,
         /// <summary><c>$91:9ECA</c> input object; <c>$82:88E2</c> room staging for InfiniteBombJump.</summary>
-        InfiniteBombJump = 0x9eca,
+        InfiniteBombJump,
         /// <summary><c>$91:9ED0</c> input object; <c>$82:88F4</c> room staging for SpecialBeamAttack.</summary>
-        SpecialBeamAttack = 0x9ed0,
+        SpecialBeamAttack,
         /// <summary><c>$91:9EDC</c> input object; <c>$82:8906</c> room staging for CrystalFlash.</summary>
-        CrystalFlash = 0x9edc,
+        CrystalFlash,
     }
 
     /// <summary>
@@ -127,7 +128,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(0),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractLandingSite),
         Demonstration.MissileDoor => new(
             Room: RoomHeaderDefinitions.ConstructionZone,
             Door: DoorDefinitions.MorphBall1,
@@ -143,7 +144,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(0),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractMissileDoor),
         Demonstration.PreSporeSpawnHall => new(
             Room: RoomHeaderDefinitions.SporeSpawnKihunters,
             Door: DoorDefinitions.BigPink0,
@@ -159,7 +160,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPreSporeSpawnHall),
         Demonstration.SpeedBooster => new(
             Room: RoomHeaderDefinitions.FrogSpeedway,
             Door: DoorDefinitions.UpperNorfairFarming0,
@@ -175,7 +176,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractSpeedBooster),
         Demonstration.GrappleBeam => new(
             Room: RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
             Door: DoorDefinitions.UpperNorfairRefill1,
@@ -191,7 +192,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractGrappleBeam),
         Demonstration.PseudoScrewAttack => new(
             Room: RoomHeaderDefinitions.BigPink,
             Door: DoorDefinitions.GreenHillZone0,
@@ -207,7 +208,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPseudoScrewAttack),
         Demonstration.IceBeam => new(
             Room: RoomHeaderDefinitions.BelowSpazer,
             Door: DoorDefinitions.WestTunnel1,
@@ -223,7 +224,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractIceBeam),
         Demonstration.FirefleaRoom => new(
             Room: RoomHeaderDefinitions.GreenBrinstarFirefleas,
             Door: DoorDefinitions.GreenBrinstarMainShaft3,
@@ -239,7 +240,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractFirefleaRoom),
         Demonstration.BrinstarDiagonalRoom => new(
             Room: RoomHeaderDefinitions.GreenHillZone,
             Door: DoorDefinitions.BigPink3,
@@ -255,7 +256,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(1),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractBrinstarDiagonalRoom),
         Demonstration.LowerNorfairEntrance => new(
             Room: RoomHeaderDefinitions.LavaDive,
             Door: DoorDefinitions.KronicBoost2,
@@ -271,7 +272,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(8),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractLowerNorfairEntrance),
         Demonstration.ScrewAttack => new(
             Room: RoomHeaderDefinitions.Flyway,
             Door: DoorDefinitions.Parlor3,
@@ -287,7 +288,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractScrewAttack),
         Demonstration.Dachora => new(
             Room: RoomHeaderDefinitions.Dachora,
             Door: DoorDefinitions.BigPink1,
@@ -303,7 +304,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractDachora),
         Demonstration.PrePhantoonHall => new(
             Room: RoomHeaderDefinitions.Basement,
             Door: DoorDefinitions.WreckedShipMainShaft3,
@@ -319,7 +320,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(3),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractPrePhantoonHall),
         Demonstration.DiagonalShinespark => new(
             Room: RoomHeaderDefinitions.LandingSite,
             Door: DoorDefinitions.Parlor1,
@@ -335,7 +336,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractDiagonalShinespark),
         Demonstration.EyeDoor => new(
             Room: RoomHeaderDefinitions.KraidEyeDoor,
             Door: DoorDefinitions.MiniKraid1,
@@ -351,7 +352,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractEyeDoor),
         Demonstration.RedBrinstarElevator => new(
             Room: RoomHeaderDefinitions.Caterpillar,
             Door: DoorDefinitions.AlphaPowerBomb0,
@@ -367,7 +368,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractRedBrinstarElevator),
         Demonstration.Kraid => new(
             Room: RoomHeaderDefinitions.Kraid,
             Door: DoorDefinitions.KraidEyeDoor1,
@@ -383,7 +384,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractKraid),
         Demonstration.TourianEntrance => new(
             Room: RoomHeaderDefinitions.Statues,
             Door: DoorDefinitions.StatuesHallway1,
@@ -399,7 +400,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(2),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractTourianEntrance),
         Demonstration.GauntletEntrance => new(
             Room: RoomHeaderDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
@@ -415,7 +416,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractGauntletEntrance),
         Demonstration.AdvancedGrappleBeam => new(
             Room: RoomHeaderDefinitions.MtEverest,
             Door: DoorDefinitions.RedFish0,
@@ -431,7 +432,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractAdvancedGrappleBeam),
         Demonstration.InfiniteBombJump => new(
             Room: RoomHeaderDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
@@ -447,7 +448,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractInfiniteBombJump),
         Demonstration.SpecialBeamAttack => new(
             Room: RoomHeaderDefinitions.GreenBrinstarMainShaft,
             Door: DoorDefinitions.BrinstarPreMap1,
@@ -463,7 +464,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractSpecialBeamAttack),
         Demonstration.CrystalFlash => new(
             Room: RoomHeaderDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
@@ -479,7 +480,7 @@ public static class StockAttractDemoScenes
             Health: HealthForEnergyTanks(9),
             CollectedBeams: CollectedBeamsFor(demonstration),
             EquippedBeams: EquippedBeamsFor(demonstration),
-            InputObject: (ushort)demonstration),
+            InputObject: DemoInputObjectDefinitions.AttractCrystalFlash),
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 

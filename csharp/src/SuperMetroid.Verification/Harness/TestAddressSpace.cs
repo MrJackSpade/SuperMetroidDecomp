@@ -109,7 +109,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
-            records.Add(new RoomEnemyGraphicsSetHeader(
+            records.Add(RoomEnemyGraphicsSetHeader.FromNative(
                 definitionPointer, ReadFixtureWord(cursor + 2)));
             cursor += 4;
         }

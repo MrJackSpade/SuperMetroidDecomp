@@ -111,7 +111,7 @@ internal sealed class NoobTubeBehavior
 
     /// <summary>Converts a native even-byte table offset to a shard or bubble entry index, rejecting odd and out-of-range operands.</summary>
     private static int ValidateEvenNoobTubeParameter(
-        ushort parameter,
+        int parameter,
         int entryCount,
         string family)
     {

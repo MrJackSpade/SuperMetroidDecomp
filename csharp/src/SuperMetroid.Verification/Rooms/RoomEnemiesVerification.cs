@@ -100,8 +100,8 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
-        new(primaryDefinitionPointer, 0x0003),
-        new(specialDefinitionPointer, 0x1004));
+        new(primaryDefinitionPointer, PaletteRow: 3),
+        new(specialDefinitionPointer, PaletteRow: 4, StagingBlock: 1));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), 0xabcd, EnemyPropertyWord.FromNativeWord(0x2000), EnemyExtraPropertyWord.FromNativeWord(0x0004), 0x1357, 0x2468));

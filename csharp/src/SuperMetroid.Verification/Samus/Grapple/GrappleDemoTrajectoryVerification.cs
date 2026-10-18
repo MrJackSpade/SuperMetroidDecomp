@@ -20,7 +20,7 @@ internal static class GrappleDemoTrajectoryVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 4);
-        AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
+        AssertEqual(DemoInputObjectDefinitions.AttractGrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture();
         runtime.AttractDemo.InitializeAttractDemo(scene);

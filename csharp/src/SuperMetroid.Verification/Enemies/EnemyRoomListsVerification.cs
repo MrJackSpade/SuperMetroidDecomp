@@ -64,7 +64,7 @@ internal static class EnemyRoomListsVerification
                 ushort definitionWord = ReadVerificationWord(bus, address);
                 AssertTrue(definitionWord != 0xffff,
                     $"graphics set $B4:{pointer:X4} has no early terminator");
-                RoomEnemyGraphicsSetHeader native = new(
+                RoomEnemyGraphicsSetHeader native = RoomEnemyGraphicsSetHeader.FromNative(
                     EnemyDefinitionIds.FromHeaderPointer(definitionWord),
                     ReadVerificationWord(bus, address + 2));
                 AssertEqual(native, records[index],

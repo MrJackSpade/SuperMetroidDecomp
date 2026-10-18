@@ -23,7 +23,8 @@ internal static class AttractInputFixtureVerification
         public ReferenceAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
         {
             Script = new NativeDemoInputReference(pointer => ReadDemoFixtureWord(bus, pointer));
-            Script.Load(scene.InputObject, scene.InputObject);
+            ushort header = DemoInputObjectDefinitions.NativeHeaderOf(scene.InputObject);
+            Script.Load(header, header);
             Script.Enable();
         }
 

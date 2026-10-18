@@ -78,7 +78,6 @@ internal sealed class EnemyPopulationLoader
                     $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
             }
 
-            ushort vramDestination = source.VramDestination;
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
             // use the selected extracted artwork, but
             // the header itself must not be re-read from the cartridge on room entry.
@@ -90,11 +89,11 @@ internal sealed class EnemyPopulationLoader
             // seven, but retaining the wider mask makes corrupt data fail visibly.
             (_room.Artwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(unchecked((byte)vramDestination)));
+                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(checked((byte)source.PaletteRow)));
 
             int byteCount = definition.TileDataSize & EnemyTileDataMasks.ByteCountBits;
             int stagingOffset = (definition.TileDataSize & EnemyTileDataMasks.FixedStagingBit) != 0
-                ? (vramDestination & EnemyTileDataMasks.StagingBlockBits) >> 3
+                ? source.StagingBlock * EnemyTileDataMasks.StagingBlockByteCount
                 : nextStagingOffset;
             int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
             if (vramByteOffset < 0 || stagingOffset + byteCount > new EnemyVram(vram).EnemyTiles.ByteCount)
@@ -108,8 +107,8 @@ internal sealed class EnemyPopulationLoader
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,
-                vramDestination,
-                unchecked((ushort)nextEnemyTileIndex),
+                source.PaletteRow,
+                nextEnemyTileIndex,
                 definition,
                 stagingOffset,
                 byteCount));
@@ -179,8 +178,8 @@ internal sealed class EnemyPopulationLoader
             if (entry.DefinitionPointer == definitionPointer)
             {
                 return (
-                    entry.VramTilesIndex,
-                    unchecked((ushort)((entry.VramDestination & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
+                    checked((ushort)entry.VramTilesIndex),
+                    unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
             }
         }
 

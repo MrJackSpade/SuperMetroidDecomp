@@ -81,7 +81,12 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
                 RoomEnemyProjectileKind.CeresFallingDebrisLight or
                 RoomEnemyProjectileKind.CeresFallingDebrisDark or
-                RoomEnemyProjectileKind.GunshipLiftoffDustCloud ||
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
+                // Fake Kraid's spit and spikes and the old Tourian fake-wall explosion run typed programs (SME6341).
+                RoomEnemyProjectileKind.FakeKraidSpit or
+                RoomEnemyProjectileKind.FakeKraidSpikeLeft or
+                RoomEnemyProjectileKind.FakeKraidSpikeRight or
+                RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion ||
                 // The regular enemies' projectiles whose definitions start typed programs (#1291).
                 EnemyProjectileTypedStarts.Initial(kind) is not null;
             if (!typed)

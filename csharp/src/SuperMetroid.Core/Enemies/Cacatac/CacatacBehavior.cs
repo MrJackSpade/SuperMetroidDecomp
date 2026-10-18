@@ -87,7 +87,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
-        var state = new CacatacEnemyState(slot)
+        var state = new CacatacEnemyState
         {
             RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
             LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
@@ -103,7 +103,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             LeftPatrolLimit = spawn - travel,
             UpsideUp = upsideUp,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
@@ -124,7 +124,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Cacatac function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Cacatac function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

@@ -50,8 +50,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the top's idle list, wrapped speed-table index, fall distance, and low-byte wait timer from its two parameters.</summary>
     internal void InitializeKzanTop(RoomEnemySlot slot)
     {
-        var state = new KzanEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new KzanEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -122,7 +122,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kzan function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Kzan function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

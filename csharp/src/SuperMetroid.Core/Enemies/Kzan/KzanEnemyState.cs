@@ -3,70 +3,59 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// Debugger-facing projection of every private Kzan-top word. The first six fields alias
-/// ordinary enemy variables A-F; the final four live in the native bank-$7E extension arrays.
-/// The bottom half has no private state: it follows the immediately preceding top slot.
+/// The state of a Kzan top; its last four values live in the native bank-$7E extension arrays. The bottom half has no
+/// private state: it follows the immediately preceding top slot. The values the cartridge keeps in the enemy's common
+/// record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class KzanEnemyState
 {
-    /// <summary>Top-half enemy slot containing the native A-F state words.</summary>
-    private readonly RoomEnemySlot _slot;
     /// <summary>The slot's Kzan extension words, kept for the room across occupants.</summary>
     private readonly KzanExtensionWords _words;
 
     /// <summary>Projects a Kzan top slot and its bank-$7E extension arrays into typed state.</summary>
-    internal KzanEnemyState(
-        RoomEnemySlot slot, KzanExtensionWords words)
+    internal KzanEnemyState(KzanExtensionWords words)
     {
-        _slot = slot;
         _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<KzanProgram> Program { get; set; }
 
-    /// <summary>Current bank-$A6 AI entry, backed by enemy variable A at native <c>$0FA8,x</c>; this view reads the owning top slot directly.</summary>
-    public KzanEnemyFunction Function
-    {
-        get => (KzanEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>Current bank-$A6 AI entry; none once a kill has emptied the record.</summary>
+    public KzanEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Top-position wait in actor updates, backed by variable B at <c>$0FAA,x</c>; decremented with 16-bit wrapping, so an initial zero does not expire immediately.</summary>
-    public NativeCountdown FallWaitTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableB);
-        internal set => _slot.VariableB = value.RawValue;
-    }
+    /// <summary>
+    /// Top-position wait in actor updates; decremented with 16-bit wrapping, so an initial zero does not expire
+    /// immediately.
+    /// </summary>
+    public NativeCountdown FallWaitTimer { get; internal set; }
 
-    /// <summary>The top's original position, where upward motion stops before restarting the wait; only its Y is meaningful, and it stays in variable C (<c>$0FAC,x</c>) for other enemies' aliased enemy-RAM reads. Positions compare with it by the wrapped spatial difference.</summary>
+    /// <summary>
+    /// The top's original position, where upward motion stops before restarting the wait; only its Y is meaningful.
+    /// Positions compare with it by the wrapped spatial difference.
+    /// </summary>
     public Position16<RoomPixels> RisingTarget
     {
-        get => new(0, _slot.VariableC);
-        internal set => _slot.VariableC = value.Y;
+        get;
+        internal set => field = new(0, value.Y);
     }
 
-    /// <summary>The lowest position of the fall, the spawn Y plus population parameter 2's high-byte fall distance with room-coordinate wraparound; only its Y is meaningful, and it stays in variable D (<c>$0FAE,x</c>) for other enemies' aliased enemy-RAM reads. Positions compare with it by the wrapped spatial difference.</summary>
+    /// <summary>
+    /// The lowest position of the fall, the spawn Y plus population parameter 2's high-byte fall distance with
+    /// room-coordinate wraparound; only its Y is meaningful. Positions compare with it by the wrapped spatial
+    /// difference.
+    /// </summary>
     public Position16<RoomPixels> FallingTarget
     {
-        get => new(0, _slot.VariableD);
-        internal set => _slot.VariableD = value.Y;
+        get;
+        internal set => field = new(0, value.Y);
     }
 
     /// <summary>
     /// The initial downward speed sample selected by population parameter 1's low byte, in pixels per update; this
-    /// initialization snapshot is not the accelerating current speed. Its fraction and whole halves stay in variables E
-    /// and F (<c>$0FB0,x</c> and <c>$0FB2,x</c>) for other enemies' aliased enemy-RAM reads.
+    /// initialization snapshot is not the accelerating current speed.
     /// </summary>
-    public SnesSignedSixteenSixteen InitialFallingSpeed
-    {
-        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
-        internal set
-        {
-            _slot.VariableE = value.Fraction;
-            _slot.VariableF = value.WholeWord;
-        }
-    }
+    public SnesSignedSixteenSixteen InitialFallingSpeed { get; internal set; }
 
     /// <summary>Reload value for the top wait in actor updates, 0 through 255, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
     public int FallWaitTimerResetValue
@@ -83,10 +72,9 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>
-    /// Byte offset into <c>CommonEnemySpeeds_LinearlyIncreasing</c>. Kzan advances by eight
-    /// bytes per falling frame because each logical speed owns positive and negative pairs.
-    /// Backed by <c>$7E:7804,x</c>, initialized from population parameter 1's low byte times
-    /// eight (0 through 2040), and capped at 512 after each falling update.
+    /// Byte offset into <c>CommonEnemySpeeds_LinearlyIncreasing</c>. Kzan advances by eight bytes per falling frame
+    /// because each logical speed owns positive and negative pairs. Backed by <c>$7E:7804,x</c>, initialized from
+    /// population parameter 1's low byte times eight (0 through 2040), and capped at 512 after each falling update.
     /// </summary>
     public int FallingYSpeedTableIndex
     {
@@ -99,5 +87,15 @@ public sealed class KzanEnemyState
     {
         get => NativeCountdown.FromRaw(_words.RiseWaitTimer);
         internal set => _words.RiseWaitTimer = value.RawValue;
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        FallWaitTimer = NativeCountdown.Start(0);
+        RisingTarget = Position16<RoomPixels>.Zero;
+        FallingTarget = Position16<RoomPixels>.Zero;
+        InitialFallingSpeed = SnesSignedSixteenSixteen.Zero;
     }
 }

@@ -26,7 +26,7 @@ internal static class WorkRobotLaserBehaviorVerification
             VramTilesIndex = 512,
             PaletteIndex = 3072,
         };
-        var state = new WorkRobotEnemyState(robot);
+        var state = new WorkRobotEnemyState();
         foreach ((WorkRobotLaser definition, short xVelocity) in new (WorkRobotLaser, short)[]
                  {
                      (WorkRobotLaser.UpLeft, -512), (WorkRobotLaser.Horizontal, -512), (WorkRobotLaser.DownLeft, -512),

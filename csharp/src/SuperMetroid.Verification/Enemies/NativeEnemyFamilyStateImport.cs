@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -57,6 +60,34 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
+        {
+            cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)slot.VariableA));
+            cacatacRecord.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableC), slot.VariableB);
+            cacatacRecord.Direction = (CacatacDirection)slot.VariableD;
+            cacatacRecord.Function = slot.VariableE == 0 ? null : (CacatacEnemyFunction)slot.VariableE;
+        }
+        if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
+        {
+            workRobotRecord.LaserVelocity = new(new SnesSignedEightEight(slot.VariableA), default);
+            workRobotRecord.LaserCooldown = NativeCountdown.FromRaw(slot.VariableB);
+            workRobotRecord.BackupPosition = new(slot.VariableC, slot.VariableD);
+            workRobotRecord.FallVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableF), slot.VariableE);
+        }
+        if (slot.SpeciesState<KzanEnemyState>() is { } kzanRecord)
+        {
+            kzanRecord.Function = slot.VariableA == 0 ? null : (KzanEnemyFunction)slot.VariableA;
+            kzanRecord.FallWaitTimer = NativeCountdown.FromRaw(slot.VariableB);
+            kzanRecord.RisingTarget = new(0, slot.VariableC);
+            kzanRecord.FallingTarget = new(0, slot.VariableD);
+            kzanRecord.InitialFallingSpeed = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableF), slot.VariableE);
+        }
+        if (slot.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
+        {
+            metroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(slot.VariableB, slot.VariableA, slot.VariableD, slot.VariableC);
+            metroidRecord.EscapeTimer = NativeCountdown.FromRaw(slot.VariableE);
+            metroidRecord.Function = (MetroidAiFunction)slot.VariableF;
+        }
         if (slot.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
         {
             fakeKraidRecord.WalkDelta = unchecked((short)slot.VariableB);

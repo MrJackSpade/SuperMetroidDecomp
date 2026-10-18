@@ -97,12 +97,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             graphicsIndex) ?? throw new InvalidOperationException(
                 "Metroid initialization exhausted the retail 32-slot sprite-object pool.");
 
-        var state = new MetroidEnemyState(slot, outerBodyA, outerBodyB)
+        var state = new MetroidEnemyState(outerBodyA, outerBodyB)
         {
             DrainAccumulator = 0,
             Function = MetroidAiFunction.Homing,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
     }
 

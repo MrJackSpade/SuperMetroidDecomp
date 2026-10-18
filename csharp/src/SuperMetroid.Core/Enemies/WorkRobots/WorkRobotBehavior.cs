@@ -83,8 +83,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
     private void InitializeWorkRobot(RoomEnemySlot slot)
     {
-        var state = new WorkRobotEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new WorkRobotEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         bool areaBossDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || !areaBossDefeated)

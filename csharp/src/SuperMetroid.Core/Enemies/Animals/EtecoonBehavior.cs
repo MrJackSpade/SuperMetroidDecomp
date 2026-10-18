@@ -91,8 +91,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Etecoon_Init</c> at <c>$A7:E912</c>.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EtecoonEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new EtecoonEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the
         // same raw bit to admit the ROM instruction interpreter, so retain the authored
@@ -190,7 +190,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon function $A7:{(ushort)state.Function:X4} is not translated.");
+                    $"Etecoon function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

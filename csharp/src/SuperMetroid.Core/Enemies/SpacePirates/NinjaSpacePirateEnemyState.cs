@@ -3,69 +3,58 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// Debugger-facing projection of one ninja Pirate. Variables A-F remain backed by the ordinary enemy record, whose
-/// words other enemies can read as enemy RAM, so each typed view keeps its word exact. The speed and spawn position
-/// are the ninja's own state, which nothing else reads.
+/// The state of one ninja Pirate. The speed and spawn position are the ninja's own state, which nothing else reads. The
+/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
-    /// <summary>Physical enemy slot backing native decision and post-position variables A-F.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects one ninja Pirate slot into typed debugger state.</summary>
-    internal NinjaSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<NinjaSpacePirateProgram> Program { get; set; }
 
-    /// <summary>Bank-$B2 movement/decision function retained in native variable A.</summary>
-    public NinjaSpacePirateFunction Function
-    {
-        get => (NinjaSpacePirateFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>Bank-$B2 movement/decision function; none once a kill has emptied the record.</summary>
+    public NinjaSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The peak spin-jump speed derived at initialization (native variable B), in 1/256 pixel per update: 32 for each
-    /// 1/8-pixel acceleration step whose running distance first covers the requested half-span, from 32 to 1,440.
+    /// The peak spin-jump speed derived at initialization, in 1/256 pixel per update: 32 for each 1/8-pixel
+    /// acceleration step whose running distance first covers the requested half-span, from 32 to 1,440.
     /// </summary>
     public int CalculatedSpinJumpSpeed
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>Native variable C: the active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateProgram ActiveProgram { get; set; }
 
     /// <summary>
-    /// The room position midway between the adjusted posts (native variable D). Only the X axis is stored and
-    /// meaningful; Samus and the Pirate are compared with it by the wrapped spatial difference on X.
+    /// The room position midway between the adjusted posts. Only the X axis is stored and meaningful; Samus and the
+    /// Pirate are compared with it by the wrapped spatial difference on X.
     /// </summary>
     public Position16<RoomPixels> PostsMidpoint
     {
-        get => new(_slot.VariableD, 0);
-        internal set => _slot.VariableD = value.X;
+        get;
+        internal set => field = new(value.X, 0);
     }
 
     /// <summary>
-    /// The adjusted left post (native variable E). Only the X axis is stored and meaningful: a Pirate whose X equals
-    /// it stands at the left post, and a return walk ends on passing it.
+    /// The adjusted left post. Only the X axis is stored and meaningful: a Pirate whose X equals it stands at the left
+    /// post, and a return walk ends on passing it.
     /// </summary>
     public Position16<RoomPixels> LeftPost
     {
-        get => new(_slot.VariableE, 0);
-        internal set => _slot.VariableE = value.X;
+        get;
+        internal set => field = new(value.X, 0);
     }
 
     /// <summary>
-    /// The adjusted right post (native variable F). Only the X axis is stored and meaningful: a return walk ends on
-    /// reaching or passing it.
+    /// The adjusted right post. Only the X axis is stored and meaningful: a return walk ends on reaching or passing it.
     /// </summary>
     public Position16<RoomPixels> RightPost
     {
-        get => new(_slot.VariableF, 0);
-        internal set => _slot.VariableF = value.X;
+        get;
+        internal set => field = new(value.X, 0);
     }
 
     /// <summary>
@@ -91,4 +80,14 @@ public sealed class NinjaSpacePirateEnemyState
     /// sixteen-bit speed does.
     /// </summary>
     internal void ChangeSpeed(int delta) => Speed = new SnesSignedEightEight(unchecked((ushort)(Speed.RawValue + delta)));
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        CalculatedSpinJumpSpeed = 0;
+        PostsMidpoint = Position16<RoomPixels>.Zero;
+        LeftPost = Position16<RoomPixels>.Zero;
+        RightPost = Position16<RoomPixels>.Zero;
+    }
 }

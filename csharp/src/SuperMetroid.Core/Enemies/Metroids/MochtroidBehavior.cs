@@ -49,13 +49,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // first nonzero list is important: the original's equality shortcut is also the
         // source of its documented respawning-Mochtroid crash when stale extension RAM is
         // retained. Ordinary room loads start clean and therefore take the safe path.
-        var state = new MochtroidEnemyState(slot)
+        var state = new MochtroidEnemyState
         {
             InstalledProgram = null,
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         slot.Layer = 2;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);

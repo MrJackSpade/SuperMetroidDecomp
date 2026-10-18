@@ -3,18 +3,11 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Typed debugger projection of Oum's six common enemy words and ten family-extra words.
-/// Common variables remain backed by the physical enemy slot; family-extra values are named
-/// host fields because this family has no cross-slot WRAM aliases.
+/// The state of Oum, with its ten family-extra values. The values the cartridge keeps in the enemy's common record are
+/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
-    /// <summary>Common enemy slot backing Oum's native variables A-F.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Oum's common words and family-extra state from its live enemy slot.</summary>
-    internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
@@ -53,50 +46,40 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 
-    /// <summary>Common variable A: outer behavior function.</summary>
-    public MaridiaLargeSnailEnemyFunction Function
-    {
-        get => (MaridiaLargeSnailEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>Outer behavior function; none once a kill has emptied the record.</summary>
+    public MaridiaLargeSnailEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Common variable B: the bounce arc's quadratic-speed record in 256ths, stepped by 384 per update. Falling caps it
-    /// at 16384; an impact removes 4096 and may leave it below zero, which ends the bounces, and rising stores zero
-    /// once it would go below zero. It therefore stays within -3712 through 16384, and the slot variable keeps the
-    /// signed word the cartridge stores for other enemies' aliased enemy-RAM reads.
+    /// The bounce arc's quadratic-speed record in 256ths, stepped by 384 per update. Falling caps it at 16384; an
+    /// impact removes 4096 and may leave it below zero, which ends the bounces, and rising stores zero once it would go
+    /// below zero. It therefore stays within -3712 through 16384.
     /// </summary>
     public int YSpeedTableIndex
     {
-        get => unchecked((short)_slot.VariableB);
-        internal set => _slot.VariableB = unchecked((ushort)checked((short)value));
+        get;
+        internal set => field = checked((short)value);
     }
 
-    /// <summary>Common variable C: signed-underflow attack cooldown, initialized to 128.</summary>
-    public NativeCountdown AttackCooldown
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableC);
-        internal set => _slot.VariableC = value.RawValue;
-    }
+    /// <summary>Signed-underflow attack cooldown, initialized to 128.</summary>
+    public NativeCountdown AttackCooldown { get; internal set; }
 
-    /// <summary>Common variable D: zero moves right; one moves left.</summary>
-    public bool MovingLeft
-    {
-        get => _slot.VariableD != 0;
-        internal set => _slot.VariableD = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Whether the snail moves left rather than right.</summary>
+    public bool MovingLeft { get; internal set; }
 
-    /// <summary>Common variable E: remaining landing impacts before Oum is settled.</summary>
-    public NativeCountdown RemainingBounces
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableE);
-        internal set => _slot.VariableE = value.RawValue;
-    }
+    /// <summary>Remaining landing impacts before Oum is settled.</summary>
+    public NativeCountdown RemainingBounces { get; internal set; }
 
-    /// <summary>Common variable F: falling/rising half of the quadratic bounce.</summary>
-    public MaridiaLargeSnailBounceFunction BounceFunction
+    /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
+    public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (MaridiaLargeSnailBounceFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        Function = null;
+        YSpeedTableIndex = 0;
+        AttackCooldown = NativeCountdown.Start(0);
+        MovingLeft = false;
+        RemainingBounces = NativeCountdown.Start(0);
+        BounceFunction = null;
     }
 }

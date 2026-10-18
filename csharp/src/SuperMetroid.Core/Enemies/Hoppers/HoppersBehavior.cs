@@ -72,7 +72,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Seed(HopperRandomSeed);
         _room.Random.Generate();
 
-        var state = new HopperEnemyState(slot)
+        var state = new HopperEnemyState
         {
             Falling = false,
             ReadyToHop = false,
@@ -80,7 +80,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         SetHopperProgram(slot, state, ReadHopperProgram(
             state, state.UpsideDown, jumping: false));
@@ -156,7 +156,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Hopper function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Hopper function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

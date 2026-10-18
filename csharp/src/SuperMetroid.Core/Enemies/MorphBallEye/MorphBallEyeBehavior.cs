@@ -53,8 +53,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes a closed body from parameter-one facing, or offsets a mount and resets the room-global beam for negative parameter two.</summary>
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
     {
-        var state = new MorphBallEyeEnemyState(slot);
-        slot.SetSpeciesState<MorphBallEyeEnemyState>(state);
+        var state = new MorphBallEyeEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
@@ -112,7 +112,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Morph-ball eye function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Morph-ball eye function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

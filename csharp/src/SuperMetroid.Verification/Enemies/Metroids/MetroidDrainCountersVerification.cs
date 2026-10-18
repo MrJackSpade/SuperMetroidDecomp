@@ -24,7 +24,7 @@ internal static class MetroidDrainCountersVerification
         AssertTrue(metroid.DrainBorrows(0x3000), "a rate above the accumulator borrows");
         AssertEqual(0xd000, metroid.DrainAccumulator, "the borrow wraps back into the word range");
 
-        var mochtroid = new MochtroidEnemyState(new RoomEnemySystem().SlotTable.Slots[0]) { AttachmentDamageTimer = 79 };
+        var mochtroid = new MochtroidEnemyState() { AttachmentDamageTimer = 79 };
         AssertTrue(!mochtroid.HasReachedDamagePeriod(80), "79 attached updates do not reach the period");
         mochtroid.CountAttachedUpdate();
         AssertTrue(mochtroid.HasReachedDamagePeriod(80), "the 80th attached update reaches the period");

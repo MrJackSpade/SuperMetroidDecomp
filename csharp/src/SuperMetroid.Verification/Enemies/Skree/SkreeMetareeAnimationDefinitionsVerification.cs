@@ -67,7 +67,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 $"Metaree {phase}");
 
             var skreeSlot = NewSkreeMetareeAnimationSlot();
-            var skreeState = new SkreeEnemyState(skreeSlot)
+            var skreeState = new SkreeEnemyState()
             {
                 RequestedInstructionIndex = phase,
                 InstalledInstructionIndex = DifferentSkreeMetareePhase(phase),

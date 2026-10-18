@@ -64,7 +64,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
         rinka.InstructionTimer = NativeCountdown.Start(1);
 
-        var state = new RinkaEnemyState(rinka)
+        var state = new RinkaEnemyState()
         {
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
             Program = AnimationProgramCursor<RinkaProgram>.Start(program),

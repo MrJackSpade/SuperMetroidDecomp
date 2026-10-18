@@ -66,8 +66,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
-        var state = new BoulderEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new BoulderEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
@@ -135,7 +135,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Boulder function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

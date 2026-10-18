@@ -96,8 +96,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Fake Kraid initialization requires the active Samus position.");
         }
 
-        var state = new FakeKraidEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new FakeKraidEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The routine reads the already-published global random word; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older

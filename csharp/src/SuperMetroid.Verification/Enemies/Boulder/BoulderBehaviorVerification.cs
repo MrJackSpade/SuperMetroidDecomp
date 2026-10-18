@@ -69,7 +69,6 @@ internal static class BoulderBehaviorVerification
             enemies.BoulderBehavior.RunBoulderMainAi(slot, frame);
 
             AssertEqual(expected, state.BounceSpeedAccumulator, $"Boulder rebound clock from {start}");
-            AssertEqual(expected, slot.VariableC, $"Boulder rebound clock from {start} in its slot variable");
             AssertEqual(function, state.Function, $"Boulder rebound from {start} selects its next function");
         }
         Console.WriteLine("  Boulder rebound: a clock below one record clamps to zero and falls; one record reaches zero and keeps rebounding.");

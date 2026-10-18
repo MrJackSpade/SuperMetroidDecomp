@@ -45,14 +45,14 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
-        var state = new FakeKraidEnemyState(source);
+        var state = new FakeKraidEnemyState();
 
         AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, (short)12, new EightEightVector<RoomPixels>(0x0180, -0x0200)),
             "real Fake Kraid spit producer allocates its projectile");
-        source.VariableC = unchecked((ushort)-4);
+        state.FacingDelta = -4;
         AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 0),
             "real Fake Kraid left-spike producer allocates its projectile");
-        source.VariableC = 4;
+        state.FacingDelta = 4;
         AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 1),
             "real Fake Kraid right-spike producer allocates its projectile");
 

@@ -58,14 +58,14 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a Skree in its idle function and initial shared instruction list.</summary>
     internal static void InitializeSkree(RoomEnemySlot slot)
     {
-        var state = new SkreeEnemyState(slot)
+        var state = new SkreeEnemyState
         {
             RequestedInstructionIndex = SkreeMetareeAnimationPhase.Idling,
             InstalledInstructionIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
     }
 
@@ -112,7 +112,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Skree function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Skree function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

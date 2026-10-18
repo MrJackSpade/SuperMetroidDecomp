@@ -118,8 +118,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
     private void InitializeRinka(RoomEnemySlot slot)
     {
-        var state = new RinkaEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new RinkaEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Both branches first clear the four native lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
@@ -281,7 +281,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rinka function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Rinka function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

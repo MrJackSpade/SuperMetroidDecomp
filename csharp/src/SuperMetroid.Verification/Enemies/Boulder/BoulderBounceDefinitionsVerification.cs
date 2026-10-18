@@ -19,7 +19,7 @@ internal static class BoulderBounceDefinitionsVerification
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]), new byte[8]);
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
-        var state = new BoulderEnemyState(actor);
+        var state = new BoulderEnemyState();
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);
         for (ushort counter = 0; counter <= 2; counter++)

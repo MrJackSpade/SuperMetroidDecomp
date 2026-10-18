@@ -63,8 +63,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Ports <c>InitAI_PirateWall</c> at <c>$B2:EF9F</c>.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WallSpacePirateEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new WallSpacePirateEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         var flags = (WallSpacePirateParameterFlags)slot.Parameter1;
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
@@ -132,7 +132,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Wall Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
+                    $"Wall Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
@@ -395,9 +395,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             {
                 if (c.HitboxShotAi == EnemyInteractionCallback.NormalEnemyShot)
                     return false;
-                // The shared Pirate shot tail clears native variable B before requesting death animation variant
-                // four. Wall AI uses B only as a debug jump destination, so its fatal clear is observable too.
-                c.Enemy.VariableB = 0;
+                // The shared Pirate shot tail clears the record's second word before requesting death animation
+                // variant four: a wall Pirate's jump destination (used only as a debug destination, so its fatal clear
+                // is observable) or a Ninja's spin-jump speed; a walking Pirate keeps nothing there.
+                ClearSharedPirateShotWord(c.Enemy);
                 // $B2:878F records the Gold Ninja's position as the drop origin before EnemyDeath clears the slot;
                 // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8)
                 // spawns the drops.
@@ -435,5 +436,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                     return;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
             });
+    }
+
+    /// <summary>Clears the second record word the shared Pirate shot tail empties, in the state of the family owning the slot.</summary>
+    private static void ClearSharedPirateShotWord(RoomEnemySlot enemy)
+    {
+        if (enemy.Entity is WallSpacePirateEntity && enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wall)
+            wall.WallJumpDestination = Position16<RoomPixels>.Zero;
+        else if (enemy.Entity is NinjaSpacePirateEntity && enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninja)
+            ninja.CalculatedSpinJumpSpeed = 0;
     }
 }

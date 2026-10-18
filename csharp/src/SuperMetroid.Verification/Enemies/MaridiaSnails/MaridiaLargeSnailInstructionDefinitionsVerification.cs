@@ -27,7 +27,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            var state = new MaridiaLargeSnailEnemyState(slot)
+            var state = new MaridiaLargeSnailEnemyState()
             {
                 RequestedInstructionListIndex = animationIndex,
                 InstalledInstructionListIndex = -1,

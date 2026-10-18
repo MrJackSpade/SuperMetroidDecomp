@@ -35,7 +35,7 @@ internal static class HopperHopArcVerification
             slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(64, 48));
             slot.Radius = new(8, 8);
-            var state = new HopperEnemyState(slot)
+            var state = new HopperEnemyState
             {
                 Function = HopperEnemyFunction.JumpingUpsideUpForward,
                 Falling = falling,
@@ -43,7 +43,7 @@ internal static class HopperHopArcVerification
                 YSpeedTableIndex = start,
                 YSpeedTableIndexDelta = step,
             };
-            slot.SetSpeciesState(state);
+            slot.SetSpeciesState(state, state.ClearWithRecord);
 
             enemies.HoppersBehavior.RunHoppersMainAi(slot, frame);
 

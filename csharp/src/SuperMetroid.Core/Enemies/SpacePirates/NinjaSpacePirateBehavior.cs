@@ -74,8 +74,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Ports <c>InitAI_PirateNinja</c> at <c>$B2:F5DE</c>.</summary>
     internal void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
-        var state = new NinjaSpacePirateEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new NinjaSpacePirateEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Parameter1 &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
@@ -185,7 +185,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ninja Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
+                    $"Ninja Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(

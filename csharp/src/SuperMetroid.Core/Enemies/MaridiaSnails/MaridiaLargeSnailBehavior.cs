@@ -72,7 +72,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Ports <c>InitAI_Oum</c> at $A2:CCD4.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
-        var state = new MaridiaLargeSnailEnemyState(slot)
+        var state = new MaridiaLargeSnailEnemyState
         {
             RequestedInstructionListIndex = 0,
             InstalledInstructionListIndex = 0,
@@ -89,7 +89,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount),
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
@@ -129,7 +129,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Maridia Large Snail function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -298,7 +298,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail bounce function " +
-                    $"$A2:{(ushort)state.BounceFunction:X4} is not translated.");
+                    $"{state.BounceFunction?.ToString() ?? "none"} is not translated.");
         }
     }
 

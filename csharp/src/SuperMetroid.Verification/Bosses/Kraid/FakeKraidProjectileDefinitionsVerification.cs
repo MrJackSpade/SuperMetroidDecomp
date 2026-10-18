@@ -41,7 +41,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
-            var state = new FakeKraidEnemyState(source);
+            var state = new FakeKraidEnemyState();
             enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight);
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
@@ -79,7 +79,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 VramTilesIndex = 0x0200,
                 PaletteIndex = 0x0c00,
             };
-            var state = new FakeKraidEnemyState(source) { FacingDelta = facingDelta };
+            var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
             bool spawned = (bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(

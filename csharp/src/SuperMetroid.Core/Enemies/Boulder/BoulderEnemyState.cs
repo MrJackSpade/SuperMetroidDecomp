@@ -3,70 +3,55 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// Debugger-facing view of the otherwise anonymous Boulder words at enemy offsets
-/// <c>$7800-$780E</c>. The function and three motion counters remain backed by the common
-/// enemy slot so watches retain the same values that the instruction/AI dispatcher sees.
+/// The state of a Boulder, with its otherwise anonymous words at enemy offsets <c>$7800-$780E</c>. The values the
+/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BoulderEnemyState
 {
-    /// <summary>Common enemy slot backing the boulder's function and four motion-control words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches the debugger-facing state view to one physical Boulder record.</summary>
-    internal BoulderEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<BoulderProgram> Program { get; set; }
 
-    /// <summary>Current bank-$A6 indirect AI target, backed by common variable A here and corresponding to native <c>Boulder.function</c> at $0FA8,x.</summary>
-    public BoulderAiFunction Function
-    {
-        get => (BoulderAiFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>
+    /// Current bank-$A6 indirect AI target (native <c>Boulder.function</c>); none once a kill has emptied the record.
+    /// </summary>
+    public BoulderAiFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Variable B, the travel acceleration clock in 256ths of a quadratic-speed record: advanced by 32 or 64 per
-    /// update and capped at 20480 or 16384, so it stays within 0 through 20480; its whole part selects the quadratic
-    /// speed record. It drives horizontal travel while bouncing and rolling, and also the ground-following fall while
-    /// rolling, so it is an independent clock rather than one axis of a velocity. The slot variable keeps the exact
-    /// value for other enemies' aliased enemy-RAM reads.
+    /// The travel acceleration clock in 256ths of a quadratic-speed record: advanced by 32 or 64 per update and capped
+    /// at 20480 or 16384, so it stays within 0 through 20480; its whole part selects the quadratic speed record. It
+    /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
+    /// an independent clock rather than one axis of a velocity.
     /// </summary>
     public int TravelSpeedAccumulator
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>
-    /// Variable C, the bounce acceleration clock in 256ths of a quadratic-speed record: the accumulator for the
-    /// initial fall and the rebound arcs, with its own steps, caps and resets. A rebound that would take it below zero
-    /// clamps it to zero, and the uncapped falling increment cannot pass 24320 because the quadratic table rejects
-    /// record 95 before another increment, so it stays within 0 through 24320. The slot variable keeps the exact value
-    /// for other enemies' aliased enemy-RAM reads.
+    /// The bounce acceleration clock in 256ths of a quadratic-speed record: the accumulator for the initial fall and
+    /// the rebound arcs, with its own steps, caps and resets. A rebound that would take it below zero clamps it to
+    /// zero, and the uncapped falling increment cannot pass 24320 because the quadratic table rejects record 95 before
+    /// another increment, so it stays within 0 through 24320.
     /// </summary>
     public int BounceSpeedAccumulator
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>
-    public NativeCountdown BounceCounter
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableD);
-        internal set => _slot.VariableD = value.RawValue;
-    }
+    public NativeCountdown BounceCounter { get; internal set; }
 
     /// <summary>
-    /// Variable E, parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two
-    /// also breaks the boulder on its first impact. The slot variable keeps the exact value for other enemies'
-    /// aliased enemy-RAM reads.
+    /// Parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two also breaks the
+    /// boulder on its first impact.
     /// </summary>
     public int DirectionSelector
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
 
     /// <summary>Signed pixel threshold for Samus's X displacement, from parameter two's low byte: positive for rightward activation and negative for leftward activation. Native <c>XProximity</c> at $7E:7800,x.</summary>
@@ -86,4 +71,14 @@ public sealed class BoulderEnemyState
     public int VerticalTriggerLimit { get; internal set; }
     /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence. Native <c>type</c> at $7E:780E,x.</summary>
     public bool StartsRollingWithoutBounce { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        TravelSpeedAccumulator = 0;
+        BounceSpeedAccumulator = 0;
+        BounceCounter = NativeCountdown.Start(0);
+        DirectionSelector = 0;
+    }
 }

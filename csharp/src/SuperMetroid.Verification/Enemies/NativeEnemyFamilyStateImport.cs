@@ -1,4 +1,11 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.MaridiaSnails;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -50,6 +57,87 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
+        {
+            fakeKraidRecord.WalkDelta = unchecked((short)slot.VariableB);
+            fakeKraidRecord.FacingDelta = unchecked((short)slot.VariableC);
+            fakeKraidRecord.WalkStepTimer = NativeCountdown.FromRaw(slot.VariableD);
+            fakeKraidRecord.SpitDecisionTimer = NativeCountdown.FromRaw(slot.VariableE);
+        }
+        if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
+        {
+            maridiaLargeSnailRecord.Function = slot.VariableA == 0 ? null : (MaridiaLargeSnailEnemyFunction)slot.VariableA;
+            maridiaLargeSnailRecord.YSpeedTableIndex = unchecked((short)slot.VariableB);
+            maridiaLargeSnailRecord.AttackCooldown = NativeCountdown.FromRaw(slot.VariableC);
+            maridiaLargeSnailRecord.MovingLeft = slot.VariableD != 0;
+            maridiaLargeSnailRecord.RemainingBounces = NativeCountdown.FromRaw(slot.VariableE);
+            maridiaLargeSnailRecord.BounceFunction = slot.VariableF == 0 ? null : (MaridiaLargeSnailBounceFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
+        {
+            wallSpacePirateRecord.Function = slot.VariableA == 0 ? null : (WallSpacePirateFunction)slot.VariableA;
+            wallSpacePirateRecord.WallJumpDestination = new(slot.VariableB, 0);
+            wallSpacePirateRecord.ClimbDirection = (WallSpacePirateClimbDirection)slot.VariableC;
+            wallSpacePirateRecord.WallJumpArcCenter = new(slot.VariableD, slot.VariableE);
+            wallSpacePirateRecord.WallJumpArcAngle = SnesAngle.FromTableIndex(checked((byte)slot.VariableF));
+        }
+        if (slot.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
+        {
+            ninjaSpacePirateRecord.Function = slot.VariableA == 0 ? null : (NinjaSpacePirateFunction)slot.VariableA;
+            ninjaSpacePirateRecord.CalculatedSpinJumpSpeed = slot.VariableB;
+            ninjaSpacePirateRecord.PostsMidpoint = new(slot.VariableD, 0);
+            ninjaSpacePirateRecord.LeftPost = new(slot.VariableE, 0);
+            ninjaSpacePirateRecord.RightPost = new(slot.VariableF, 0);
+        }
+        if (slot.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
+        {
+            skreeRecord.BurrowTimer = NativeCountdown.FromRaw(slot.VariableA);
+            skreeRecord.Function = slot.VariableB == 0 ? null : (SkreeEnemyFunction)slot.VariableB;
+            skreeRecord.RequestedInstructionIndex = (SkreeMetareeAnimationPhase)slot.VariableC;
+            skreeRecord.InstalledInstructionIndex = (SkreeMetareeAnimationPhase)slot.VariableD;
+            skreeRecord.AttackReady = slot.VariableE != 0;
+        }
+        if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
+        {
+            boulderRecord.Function = slot.VariableA == 0 ? null : (BoulderAiFunction)slot.VariableA;
+            boulderRecord.TravelSpeedAccumulator = slot.VariableB;
+            boulderRecord.BounceSpeedAccumulator = slot.VariableC;
+            boulderRecord.BounceCounter = NativeCountdown.FromRaw(slot.VariableD);
+            boulderRecord.DirectionSelector = slot.VariableE;
+        }
+        if (slot.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
+        {
+            rinkaRecord.Function = slot.VariableA == 0 ? null : (RinkaEnemyFunction)slot.VariableA;
+            rinkaRecord.Velocity = new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC));
+            rinkaRecord.SpawnResourceToken = slot.VariableD;
+            rinkaRecord.DelayTimer = NativeCountdown.FromRaw(slot.VariableF);
+        }
+        if (slot.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
+        {
+            etecoonRecord.Velocity = FixedVector<RoomPixels>.FromWords(slot.VariableC, slot.VariableD, slot.VariableA, slot.VariableB);
+            etecoonRecord.FunctionTimer = NativeCountdown.FromRaw(slot.VariableE);
+            etecoonRecord.Function = slot.VariableF == 0 ? null : (EtecoonAiFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
+        {
+            mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(slot.VariableB, slot.VariableA, slot.VariableD, slot.VariableC);
+            mochtroidRecord.ShakeTimer = NativeCountdown.FromRaw(slot.VariableE);
+            mochtroidRecord.MovementMode = (MochtroidMovementMode)slot.VariableF;
+        }
+        if (slot.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
+        {
+            morphBallEyeRecord.IsActivated = slot.VariableC != 0;
+            morphBallEyeRecord.Angle = SnesAngle.FromTableIndex(unchecked((byte)slot.VariableD));
+            morphBallEyeRecord.FunctionTimer = NativeCountdown.FromRaw(slot.VariableE);
+            morphBallEyeRecord.Function = slot.VariableF == 0 ? null : (MorphBallEyeAiFunction)slot.VariableF;
+        }
+        if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
+        {
+            hopperRecord.Function = slot.VariableA == 0 ? null : (HopperEnemyFunction)slot.VariableA;
+            hopperRecord.YSpeedTableIndex = slot.VariableB;
+            hopperRecord.XVelocity = unchecked((short)slot.VariableC);
+            hopperRecord.YSpeedTableIndexDelta = slot.VariableD;
+        }
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingHeight = new Position16<RoomPixels>(0, slot.VariableA);

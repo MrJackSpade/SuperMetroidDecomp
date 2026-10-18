@@ -68,7 +68,7 @@ public static class GameplayMessageTitleExtractor
 
         var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessageTitlePresentation.Write(output, new()

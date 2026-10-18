@@ -43,7 +43,7 @@ public static class GameplayMessageNoticeExtractor
                 rowCount * GameplayMessageRomData.Layout.TilemapWidth];
             int content = GameplayMessageRomData.Assets.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
+                template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
 
             var regions = new List<GameplayMessageTextRegion>();
             foreach (GameplayMessageTextRegionDefinition region in
@@ -53,13 +53,13 @@ public static class GameplayMessageNoticeExtractor
                     region.Row * GameplayMessageRomData.Layout.TilemapWidth + region.Column,
                     region.Width).ToArray();
                 int palette = (cells.First(cell =>
-                    GameplayMessageTitlePresentation.DecodeGlyph(cell.Raw) != ' ').Raw >> 10) & 7;
+                    GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw) != ' ').Word.Raw >> 10) & 7;
                 string padded = new(cells.Select((cell, column) =>
                 {
-                    if (((cell.Raw >> 10) & 7) != palette)
+                    if (((cell.Word.Raw >> 10) & 7) != palette)
                         throw new InvalidDataException(
                             $"Gameplay-message notice {id} mixes palettes in text region {region.Row}:{region.Column}, column {column}.");
-                    return GameplayMessageTitlePresentation.DecodeGlyph(cell.Raw);
+                    return GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw);
                 }).ToArray());
                 regions.Add(new()
                 {
@@ -93,7 +93,7 @@ public static class GameplayMessageNoticeExtractor
 
         var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessageNoticePresentation.Write(output, new()
@@ -115,7 +115,7 @@ public static class GameplayMessageNoticeExtractor
             GameplayMessageRomData.Layout.SaveSelectionRowWords];
         for (int word = 0; word < result.Length; word++)
         {
-            result[word] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SaveSelectionTilemap +
+            result[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SaveSelectionTilemap +
                 (sourceWord + word) * sizeof(ushort))) };
         }
         return result;

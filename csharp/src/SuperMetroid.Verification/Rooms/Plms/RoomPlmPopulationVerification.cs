@@ -1339,7 +1339,7 @@ internal static class RoomPlmPopulationVerification
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
         GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
-            .Select(index => new GameplayMessageTitleCell { Raw = unchecked((ushort)(first + index)) }).ToArray();
+            .Select(index => new GameplayMessageTitleCell { Word = unchecked((ushort)(first + index)) }).ToArray();
         var notices = new GameplayMessageNoticeDocument
         {
             Version = GameplayMessageNoticeDefinitions.Version,

@@ -173,8 +173,7 @@ internal static class SamusArmCannonPlacementDefinitions
         int best = int.MinValue, selectedX = 0, selectedY = 0;
         foreach (SamusSpritePart part in map.Parts)
         {
-            int x = part.X & 511;
-            if (x >= 256) x -= 512;
+            int x = part.X.SignedOffset;
             int y = unchecked((sbyte)part.Y);
             int score = Math.Abs(direction) == 1 ? x * direction : y * Math.Sign(direction);
             if (score <= best) continue;

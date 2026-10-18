@@ -90,8 +90,8 @@ internal static class SamusContentIdentityVerification
         if (edit == "spritemap-pointer") pointers[0] = 0x90f4;
         SamusSpritemapDefinition[] definitions =
         [
-            new(0x90ed, [new SamusSpritePart(0, edit == "spritemap-part" ? (byte)1 : (byte)0, new SnesObjAttributeWord(0))]),
-            new(0x90f4, [new SamusSpritePart(1, 0, new SnesObjAttributeWord(1))]),
+            new(0x90ed, [new SamusSpritePart(new SnesSpritemapXWord(0), edit == "spritemap-part" ? (byte)1 : (byte)0, new SnesObjAttributeWord(0))]),
+            new(0x90f4, [new SamusSpritePart(new SnesSpritemapXWord(1), 0, new SnesObjAttributeWord(1))]),
         ];
         if (reverseMaps) Array.Reverse(definitions);
         var spritemaps = new SamusSpritemapArtworkCatalog(topBases, bottomBases, pointers, definitions);

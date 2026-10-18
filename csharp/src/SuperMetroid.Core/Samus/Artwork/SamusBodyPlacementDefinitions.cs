@@ -211,7 +211,7 @@ internal static class SamusBodyPlacementDefinitions
                 !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
             foreach (SamusSpritePart part in map.Parts)
             {
-                int size = (part.X & 0x8000) != 0 ? 16 : 8;
+                int size = part.X.IsLarge ? 16 : 8;
                 var attributes = part.Attributes;
                 if (attributes.TileNumber >= 256) return false;
                 for (int y = 0; y < size; y++)

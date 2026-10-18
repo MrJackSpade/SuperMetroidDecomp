@@ -48,19 +48,19 @@ public static class GameplayMessagePanelExtractor
                 GameplayMessagePanelDefinitions.ContentWords];
             int content = GameplayMessageRomData.Assets.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
+                template[word] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
 
             GameplayMessageTitleCell[] visible = template.AsSpan(
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
                 GameplayMessagePanelDefinitions.VisibleColumns).ToArray();
             int palette = (visible.First(cell =>
-                GameplayMessageTitlePresentation.DecodeGlyph(cell.Raw) != ' ').Raw >> 10) & 7;
+                GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw) != ' ').Word.Raw >> 10) & 7;
             string paddedTitle = new(visible.Select((cell, column) =>
             {
-                if (((cell.Raw >> 10) & 7) != palette)
+                if (((cell.Word.Raw >> 10) & 7) != palette)
                     throw new InvalidDataException(
                         $"Gameplay-message panel {id} mixes palettes in title column {column}.");
-                return GameplayMessageTitlePresentation.DecodeGlyph(cell.Raw);
+                return GameplayMessageTitlePresentation.DecodeGlyph(cell.Word.Raw);
             }).ToArray());
             int leadingSpaces = paddedTitle.Length - paddedTitle.TrimStart().Length;
             panels.Add(id.ToString(), new()
@@ -74,7 +74,7 @@ public static class GameplayMessagePanelExtractor
 
         var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.LargeBorder + column * sizeof(ushort))) };
+            border[column] = new() { Word = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.LargeBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessagePanelPresentation.Write(output, new()

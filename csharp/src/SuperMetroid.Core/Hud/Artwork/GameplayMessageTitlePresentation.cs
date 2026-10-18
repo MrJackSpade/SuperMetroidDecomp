@@ -125,7 +125,7 @@ public sealed class GameplayMessageTitlePresentation
             compiled.Add(id, new(value.Text, value.Palette));
         }
 
-        return new(compiled, document.Border.Select(static cell => cell.Raw).ToArray(),
+        return new(compiled, document.Border.Select(static cell => cell.Word.Raw).ToArray(),
             Convert.ToHexString(SHA256.HashData(source)));
     }
 

@@ -89,7 +89,7 @@ public sealed class SamusSpritemapArtworkCatalog
             content.Append("part count", definition.Parts.Length);
             foreach (SamusSpritePart part in definition.Parts)
             {
-                content.Append("x", part.X);
+                content.Append("x", part.X.Raw);
                 content.Append("y", part.Y);
                 content.Append("attributes", part.Attributes.Raw);
             }
@@ -142,7 +142,7 @@ public sealed class SamusSpritemapArtworkCatalog
             return false;
         }
         frame = frames.GetOrAdd(definition.Pointer, pointer => new SpriteFrame($"Samus.{pointer:X4}",
-            [.. definition.Parts.Select(part => ObjPartFrames.Part(new SnesSpritemapXWord(part.X), part.Y,
+            [.. definition.Parts.Select(part => ObjPartFrames.Part(part.X, part.Y,
                 part.Attributes, 0))]));
         return true;
     }

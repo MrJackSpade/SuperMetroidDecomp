@@ -107,7 +107,7 @@ internal static class SamusRenderingFixtureVerification
             for (int index = 0; index < parts.Length; index++)
             {
                 int part = address + 2 + index * 5;
-                parts[index] = new(Word(part), bus.ReadByte(part + 2), Word(part + 3));
+                parts[index] = new(new SnesSpritemapXWord(Word(part)), bus.ReadByte(part + 2), Word(part + 3));
             }
             return new SamusSpritemapDefinition(pointer, parts);
         }).ToArray();

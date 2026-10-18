@@ -8,267 +8,267 @@ internal static class RoomHeaderSourceDefinitions
     /// <summary>Each compiled room, by its bank-$8F header pointer.</summary>
     internal static IReadOnlyDictionary<ushort, RoomHeaderDefinition> ByPointer { get; } = new Dictionary<ushort, RoomHeaderDefinition>
     {
-        [0x91f8] = RoomHeaderDefinitions.LandingSite,
-        [0x92b3] = RoomHeaderDefinitions.GauntletEntrance,
-        [0x92fd] = RoomHeaderDefinitions.Parlor,
-        [0x93aa] = RoomHeaderDefinitions.CrateriaPowerBombs,
-        [0x93d5] = RoomHeaderDefinitions.CrateriaSave,
-        [0x93fe] = RoomHeaderDefinitions.WestOcean,
-        [0x9461] = RoomHeaderDefinitions.BowlingAlleyPath,
-        [0x948c] = RoomHeaderDefinitions.CrateriaKihunter,
-        [0x94cc] = RoomHeaderDefinitions.ForgottenHighwayElev,
-        [0x94fd] = RoomHeaderDefinitions.EastOcean,
-        [0x9552] = RoomHeaderDefinitions.ForgottenHighwayKagos,
-        [0x957d] = RoomHeaderDefinitions.CrabMaze,
-        [0x95a8] = RoomHeaderDefinitions.ForgottenHighwayElbow,
-        [0x95d4] = RoomHeaderDefinitions.CrateriaTube,
-        [0x95ff] = RoomHeaderDefinitions.Moat,
-        [0x962a] = RoomHeaderDefinitions.RedBinstarElev,
-        [0x965b] = RoomHeaderDefinitions.GauntletETank,
-        [0x968f] = RoomHeaderDefinitions.PreBowling,
-        [0x96ba] = RoomHeaderDefinitions.Climb,
-        [0x975c] = RoomHeaderDefinitions.Pit,
-        [0x97b5] = RoomHeaderDefinitions.ElevToBlueBrinstar,
-        [0x9804] = RoomHeaderDefinitions.BombTorizo,
-        [0x9879] = RoomHeaderDefinitions.Flyway,
-        [0x98e2] = RoomHeaderDefinitions.PreMapFlyway,
-        [0x990d] = RoomHeaderDefinitions.Terminator,
-        [0x9938] = RoomHeaderDefinitions.GreenBrinstarElev,
-        [0x9969] = RoomHeaderDefinitions.LowerMushrooms,
-        [0x9994] = RoomHeaderDefinitions.CrateriaMap,
-        [0x99bd] = RoomHeaderDefinitions.GreenPiratesShaft,
-        [0x99f9] = RoomHeaderDefinitions.CrateriaSuper,
-        [0x9a44] = RoomHeaderDefinitions.FinalMissileBombway,
-        [0x9a90] = RoomHeaderDefinitions.FinalMissile,
-        [0x9ad9] = RoomHeaderDefinitions.GreenBrinstarMainShaft,
-        [0x9b5b] = RoomHeaderDefinitions.SporeSpawnSuper,
-        [0x9b9d] = RoomHeaderDefinitions.BrinstarPreMap,
-        [0x9bc8] = RoomHeaderDefinitions.EarlySupers,
-        [0x9c07] = RoomHeaderDefinitions.BrinstarReserveTank,
-        [0x9c35] = RoomHeaderDefinitions.GreenBrinstarMap,
-        [0x9c5e] = RoomHeaderDefinitions.GreenBrinstarFirefleas,
-        [0x9c89] = RoomHeaderDefinitions.GreenBrinstarMissileRefill,
-        [0x9cb3] = RoomHeaderDefinitions.Dachora,
-        [0x9d19] = RoomHeaderDefinitions.BigPink,
-        [0x9d9c] = RoomHeaderDefinitions.SporeSpawnKihunters,
-        [0x9dc7] = RoomHeaderDefinitions.SporeSpawn,
-        [0x9e11] = RoomHeaderDefinitions.PinkBrinstarPowerBombs,
-        [0x9e52] = RoomHeaderDefinitions.GreenHillZone,
-        [0x9e9f] = RoomHeaderDefinitions.MorphBall,
-        [0x9f11] = RoomHeaderDefinitions.ConstructionZone,
-        [0x9f64] = RoomHeaderDefinitions.BlueBrinstarETank,
-        [0x9fba] = RoomHeaderDefinitions.NoobBridge,
-        [0x9fe5] = RoomHeaderDefinitions.GreenBrinstarBeetoms,
-        [0xa011] = RoomHeaderDefinitions.EtecoonETank,
-        [0xa051] = RoomHeaderDefinitions.EtecoonSuper,
-        [0xa07b] = RoomHeaderDefinitions.DachoraEnergyRefill,
-        [0xa0a4] = RoomHeaderDefinitions.SporeSpawnFarming,
-        [0xa0d2] = RoomHeaderDefinitions.WaterwayETank,
-        [0xa107] = RoomHeaderDefinitions.FirstMissile,
-        [0xa130] = RoomHeaderDefinitions.PinkBrinstarHoppers,
-        [0xa15b] = RoomHeaderDefinitions.HopperETank,
-        [0xa184] = RoomHeaderDefinitions.BigPinkSaveRoom,
-        [0xa1ad] = RoomHeaderDefinitions.BlueBrinstarBoulders,
-        [0xa1d8] = RoomHeaderDefinitions.BillyMays,
-        [0xa201] = RoomHeaderDefinitions.GreenBrinstarSave,
-        [0xa22a] = RoomHeaderDefinitions.EtecoonSave,
-        [0xa253] = RoomHeaderDefinitions.RedTower,
-        [0xa293] = RoomHeaderDefinitions.RedBrinstarFirefleas,
-        [0xa2ce] = RoomHeaderDefinitions.XrayScope,
-        [0xa2f7] = RoomHeaderDefinitions.Hellway,
-        [0xa322] = RoomHeaderDefinitions.Caterpillar,
-        [0xa37c] = RoomHeaderDefinitions.BetaPowerBomb,
-        [0xa3ae] = RoomHeaderDefinitions.AlphaPowerBomb,
-        [0xa3dd] = RoomHeaderDefinitions.SkreeBoost,
-        [0xa408] = RoomHeaderDefinitions.BelowSpazer,
-        [0xa447] = RoomHeaderDefinitions.Spazer,
-        [0xa471] = RoomHeaderDefinitions.WarehouseZeela,
-        [0xa4b1] = RoomHeaderDefinitions.WarehouseETank,
-        [0xa4da] = RoomHeaderDefinitions.WarehouseKihunter,
-        [0xa521] = RoomHeaderDefinitions.MiniKraid,
-        [0xa56b] = RoomHeaderDefinitions.KraidEyeDoor,
-        [0xa59f] = RoomHeaderDefinitions.Kraid,
-        [0xa5ed] = RoomHeaderDefinitions.StatuesHallway,
-        [0xa618] = RoomHeaderDefinitions.RedTowerRefill,
-        [0xa641] = RoomHeaderDefinitions.KraidRefill,
-        [0xa66a] = RoomHeaderDefinitions.Statues,
-        [0xa6a1] = RoomHeaderDefinitions.WarehouseEntrance,
-        [0xa6e2] = RoomHeaderDefinitions.VariaSuit,
-        [0xa70b] = RoomHeaderDefinitions.WarehouseSave,
-        [0xa734] = RoomHeaderDefinitions.RedBrinstarSave,
-        [0xa75d] = RoomHeaderDefinitions.IceBeamAcid,
-        [0xa788] = RoomHeaderDefinitions.Cathedral,
-        [0xa7b3] = RoomHeaderDefinitions.CathedralEntrance,
-        [0xa7de] = RoomHeaderDefinitions.BusinessCenter,
-        [0xa815] = RoomHeaderDefinitions.IceBeamGate,
-        [0xa865] = RoomHeaderDefinitions.IceBeamTutorial,
-        [0xa890] = RoomHeaderDefinitions.IceBeam,
-        [0xa8b9] = RoomHeaderDefinitions.IceBeamSnake,
-        [0xa8f8] = RoomHeaderDefinitions.CrumbleShaft,
-        [0xa923] = RoomHeaderDefinitions.CrocomireSpeedway,
-        [0xa98d] = RoomHeaderDefinitions.Crocomire,
-        [0xa9e5] = RoomHeaderDefinitions.HiJumpBoots,
-        [0xaa0e] = RoomHeaderDefinitions.CrocomireEscape,
-        [0xaa41] = RoomHeaderDefinitions.HiJumpETank,
-        [0xaa82] = RoomHeaderDefinitions.PostCrocFarming,
-        [0xaab5] = RoomHeaderDefinitions.PostCrocSave,
-        [0xaade] = RoomHeaderDefinitions.PostCrocPowerBombs,
-        [0xab07] = RoomHeaderDefinitions.PostCrocShaft,
-        [0xab3b] = RoomHeaderDefinitions.PostCrocMissile,
-        [0xab64] = RoomHeaderDefinitions.GrappleTutorial3,
-        [0xab8f] = RoomHeaderDefinitions.PostCrocJump,
-        [0xabd2] = RoomHeaderDefinitions.GrappleTutorial2,
-        [0xac00] = RoomHeaderDefinitions.GrappleTutorial1,
-        [0xac2b] = RoomHeaderDefinitions.GrappleBeam,
-        [0xac5a] = RoomHeaderDefinitions.NorfairReserveTank,
-        [0xac83] = RoomHeaderDefinitions.GreenBubblesMissiles,
-        [0xacb3] = RoomHeaderDefinitions.BubbleMountain,
-        [0xacf0] = RoomHeaderDefinitions.SpeedBoosterHall,
-        [0xad1b] = RoomHeaderDefinitions.SpeedBooster,
-        [0xad5e] = RoomHeaderDefinitions.SingleChamber,
-        [0xadad] = RoomHeaderDefinitions.DoubleChamber,
-        [0xadde] = RoomHeaderDefinitions.WaveBeam,
-        [0xae07] = RoomHeaderDefinitions.SpikyPlatformsTunnel,
-        [0xae32] = RoomHeaderDefinitions.Volcano,
-        [0xae74] = RoomHeaderDefinitions.KronicBoost,
-        [0xaeb4] = RoomHeaderDefinitions.MagdolliteTunnel,
-        [0xaedf] = RoomHeaderDefinitions.PurpleShaft,
-        [0xaf14] = RoomHeaderDefinitions.LavaDive,
-        [0xaf3f] = RoomHeaderDefinitions.LowerNorfairElev,
-        [0xaf72] = RoomHeaderDefinitions.UpperNorfairFarming,
-        [0xafa3] = RoomHeaderDefinitions.RisingTide,
-        [0xafce] = RoomHeaderDefinitions.AcidSnakesTunnel,
-        [0xaffb] = RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
-        [0xb026] = RoomHeaderDefinitions.UpperNorfairRefill,
-        [0xb051] = RoomHeaderDefinitions.PurpleFarming,
-        [0xb07a] = RoomHeaderDefinitions.BatCave,
-        [0xb0b4] = RoomHeaderDefinitions.NorfairMap,
-        [0xb0dd] = RoomHeaderDefinitions.BubbleMountainSave,
-        [0xb106] = RoomHeaderDefinitions.FrogSpeedway,
-        [0xb139] = RoomHeaderDefinitions.RedPirateShaft,
-        [0xb167] = RoomHeaderDefinitions.FrogSave,
-        [0xb192] = RoomHeaderDefinitions.CrocomireSave,
-        [0xb1bb] = RoomHeaderDefinitions.LNElevSave,
-        [0xb1e5] = RoomHeaderDefinitions.AcidStatue,
-        [0xb236] = RoomHeaderDefinitions.MainHall,
-        [0xb283] = RoomHeaderDefinitions.GoldenTorizo,
-        [0xb2da] = RoomHeaderDefinitions.FastRipper,
-        [0xb305] = RoomHeaderDefinitions.GTEnergyRefill,
-        [0xb32e] = RoomHeaderDefinitions.Ridley,
-        [0xb37a] = RoomHeaderDefinitions.LNFarming,
-        [0xb3a5] = RoomHeaderDefinitions.FastPillarsSetup,
-        [0xb3e1] = RoomHeaderDefinitions.UnusedRoom8FB3E1,
-        [0xb40a] = RoomHeaderDefinitions.MickeyMouse,
-        [0xb457] = RoomHeaderDefinitions.Pillar,
-        [0xb482] = RoomHeaderDefinitions.Plowerhouse,
-        [0xb4ad] = RoomHeaderDefinitions.WorstRoomInTheGame,
-        [0xb4e5] = RoomHeaderDefinitions.Amphitheatre,
-        [0xb510] = RoomHeaderDefinitions.LNSpringBallMaze,
-        [0xb55a] = RoomHeaderDefinitions.LNEscapePowerBombs,
-        [0xb585] = RoomHeaderDefinitions.RedKihunterShaft,
-        [0xb5d5] = RoomHeaderDefinitions.Wasteland,
-        [0xb62b] = RoomHeaderDefinitions.MetalPirates,
-        [0xb656] = RoomHeaderDefinitions.ThreeMusketeers,
-        [0xb698] = RoomHeaderDefinitions.RidleyETank,
-        [0xb6c1] = RoomHeaderDefinitions.ScrewAttack,
-        [0xb6ee] = RoomHeaderDefinitions.LNFireflea,
-        [0xb741] = RoomHeaderDefinitions.LNSave,
-        [0xc98e] = RoomHeaderDefinitions.BowlingAlley,
-        [0xca08] = RoomHeaderDefinitions.WreckedShipEntrance,
-        [0xca52] = RoomHeaderDefinitions.Attic,
-        [0xcaae] = RoomHeaderDefinitions.AssemblyLine,
-        [0xcaf6] = RoomHeaderDefinitions.WreckedShipMainShaft,
-        [0xcb8b] = RoomHeaderDefinitions.SpikyDeath,
-        [0xcbd5] = RoomHeaderDefinitions.ElectricDeath,
-        [0xcc27] = RoomHeaderDefinitions.WreckedShipETank,
-        [0xcc6f] = RoomHeaderDefinitions.Basement,
-        [0xcccb] = RoomHeaderDefinitions.WreckedShipMap,
-        [0xcd13] = RoomHeaderDefinitions.Phantoon,
-        [0xcd5c] = RoomHeaderDefinitions.SpongeBath,
-        [0xcda8] = RoomHeaderDefinitions.WSWestSuper,
-        [0xcdf1] = RoomHeaderDefinitions.WSEastSuper,
-        [0xce40] = RoomHeaderDefinitions.GravitySuit,
-        [0xce8a] = RoomHeaderDefinitions.WreckedShipSave,
-        [0xced2] = RoomHeaderDefinitions.GlassTunnelSave,
-        [0xcefb] = RoomHeaderDefinitions.GlassTunnel,
-        [0xcf54] = RoomHeaderDefinitions.WestTunnel,
-        [0xcf80] = RoomHeaderDefinitions.EastTunnel,
-        [0xcfc9] = RoomHeaderDefinitions.MainStreet,
-        [0xd017] = RoomHeaderDefinitions.FishTank,
-        [0xd055] = RoomHeaderDefinitions.MamaTurtle,
-        [0xd08a] = RoomHeaderDefinitions.CrabTunnel,
-        [0xd0b9] = RoomHeaderDefinitions.MtEverest,
-        [0xd104] = RoomHeaderDefinitions.RedFish,
-        [0xd13b] = RoomHeaderDefinitions.WateringHole,
-        [0xd16d] = RoomHeaderDefinitions.NWestMaridiaBug,
-        [0xd1a3] = RoomHeaderDefinitions.CrabShaft,
-        [0xd1dd] = RoomHeaderDefinitions.PseudoPlasmaSpark,
-        [0xd21c] = RoomHeaderDefinitions.CrabHole,
-        [0xd252] = RoomHeaderDefinitions.WestSandHallTunnel,
-        [0xd27e] = RoomHeaderDefinitions.PlasmaTutorial,
-        [0xd2aa] = RoomHeaderDefinitions.Plasma,
-        [0xd2d9] = RoomHeaderDefinitions.ThreadTheNeedle,
-        [0xd30b] = RoomHeaderDefinitions.MaridiaElev,
-        [0xd340] = RoomHeaderDefinitions.PlasmaSpark,
-        [0xd387] = RoomHeaderDefinitions.Kassiuz,
-        [0xd3b6] = RoomHeaderDefinitions.MaridiaMap,
-        [0xd3df] = RoomHeaderDefinitions.ForgottenHighwaySave,
-        [0xd408] = RoomHeaderDefinitions.Toilet,
-        [0xd433] = RoomHeaderDefinitions.BugSandHole,
-        [0xd461] = RoomHeaderDefinitions.WestSandHall,
-        [0xd48e] = RoomHeaderDefinitions.Oasis,
-        [0xd4c2] = RoomHeaderDefinitions.EastSandHall,
-        [0xd4ef] = RoomHeaderDefinitions.WestSandHole,
-        [0xd51e] = RoomHeaderDefinitions.EastSandHole,
-        [0xd54d] = RoomHeaderDefinitions.WestAqueductQuicksand,
-        [0xd57a] = RoomHeaderDefinitions.EastAqueductQuicksand,
-        [0xd5a7] = RoomHeaderDefinitions.Aqueduct,
-        [0xd5ec] = RoomHeaderDefinitions.Butterfly,
-        [0xd617] = RoomHeaderDefinitions.BotwoonHallway,
-        [0xd646] = RoomHeaderDefinitions.Pants,
-        [0xd69a] = RoomHeaderDefinitions.EastPants,
-        [0xd6d0] = RoomHeaderDefinitions.Springball,
-        [0xd6fd] = RoomHeaderDefinitions.BelowBotwoonETank,
-        [0xd72a] = RoomHeaderDefinitions.Colosseum,
-        [0xd765] = RoomHeaderDefinitions.AqueductSave,
-        [0xd78f] = RoomHeaderDefinitions.ThePrecious,
-        [0xd7e4] = RoomHeaderDefinitions.BotwoonETank,
-        [0xd81a] = RoomHeaderDefinitions.DraygonSave,
-        [0xd845] = RoomHeaderDefinitions.MaridiaMissileRefill,
-        [0xd86e] = RoomHeaderDefinitions.PlasmaBeachQuicksand,
-        [0xd898] = RoomHeaderDefinitions.BotwoonQuicksand,
-        [0xd8c5] = RoomHeaderDefinitions.Shaktool,
-        [0xd913] = RoomHeaderDefinitions.HalfieClimb,
-        [0xd95e] = RoomHeaderDefinitions.Botwoon,
-        [0xd9aa] = RoomHeaderDefinitions.SpaceJump,
-        [0xd9d4] = RoomHeaderDefinitions.MaridiaEnergyRefill,
-        [0xd9fe] = RoomHeaderDefinitions.WestCactusAlley,
-        [0xda2b] = RoomHeaderDefinitions.EastCactusAlley,
-        [0xda60] = RoomHeaderDefinitions.Draygon,
-        [0xdaae] = RoomHeaderDefinitions.TourianFirst,
-        [0xdae1] = RoomHeaderDefinitions.Metroids1,
-        [0xdb31] = RoomHeaderDefinitions.Metroids2,
-        [0xdb7d] = RoomHeaderDefinitions.Metroids3,
-        [0xdbcd] = RoomHeaderDefinitions.Metroids4,
-        [0xdc19] = RoomHeaderDefinitions.BlueHopper,
-        [0xdc65] = RoomHeaderDefinitions.DustTorizo,
-        [0xdcb1] = RoomHeaderDefinitions.BigBoy,
-        [0xdcff] = RoomHeaderDefinitions.Seaweed,
-        [0xdd2e] = RoomHeaderDefinitions.TourianRecharge,
-        [0xdd58] = RoomHeaderDefinitions.MotherBrain,
-        [0xddc4] = RoomHeaderDefinitions.TourianEyeDoor,
-        [0xddf3] = RoomHeaderDefinitions.RinkaShaft,
-        [0xde23] = RoomHeaderDefinitions.MotherBrainSave,
-        [0xde4d] = RoomHeaderDefinitions.TourianEscape1,
-        [0xde7a] = RoomHeaderDefinitions.TourianEscape2,
-        [0xdea7] = RoomHeaderDefinitions.TourianEscape3,
-        [0xdede] = RoomHeaderDefinitions.TourianEscape4,
-        [0xdf1b] = RoomHeaderDefinitions.UpperTourianSave,
-        [0xdf45] = RoomHeaderDefinitions.CeresElev,
-        [0xdf8d] = RoomHeaderDefinitions.FallingTile,
-        [0xdfd7] = RoomHeaderDefinitions.MagnetStairs,
-        [0xe021] = RoomHeaderDefinitions.DeadScientist,
-        [0xe06b] = RoomHeaderDefinitions.Room58Escape,
-        [0xe0b5] = RoomHeaderDefinitions.CeresRidley,
+        [0x91f8] = RoomHeaderDefinitions.LandingSite,
+        [0x92b3] = RoomHeaderDefinitions.GauntletEntrance,
+        [0x92fd] = RoomHeaderDefinitions.Parlor,
+        [0x93aa] = RoomHeaderDefinitions.CrateriaPowerBombs,
+        [0x93d5] = RoomHeaderDefinitions.CrateriaSave,
+        [0x93fe] = RoomHeaderDefinitions.WestOcean,
+        [0x9461] = RoomHeaderDefinitions.BowlingAlleyPath,
+        [0x948c] = RoomHeaderDefinitions.CrateriaKihunter,
+        [0x94cc] = RoomHeaderDefinitions.ForgottenHighwayElev,
+        [0x94fd] = RoomHeaderDefinitions.EastOcean,
+        [0x9552] = RoomHeaderDefinitions.ForgottenHighwayKagos,
+        [0x957d] = RoomHeaderDefinitions.CrabMaze,
+        [0x95a8] = RoomHeaderDefinitions.ForgottenHighwayElbow,
+        [0x95d4] = RoomHeaderDefinitions.CrateriaTube,
+        [0x95ff] = RoomHeaderDefinitions.Moat,
+        [0x962a] = RoomHeaderDefinitions.RedBinstarElev,
+        [0x965b] = RoomHeaderDefinitions.GauntletETank,
+        [0x968f] = RoomHeaderDefinitions.PreBowling,
+        [0x96ba] = RoomHeaderDefinitions.Climb,
+        [0x975c] = RoomHeaderDefinitions.Pit,
+        [0x97b5] = RoomHeaderDefinitions.ElevToBlueBrinstar,
+        [0x9804] = RoomHeaderDefinitions.BombTorizo,
+        [0x9879] = RoomHeaderDefinitions.Flyway,
+        [0x98e2] = RoomHeaderDefinitions.PreMapFlyway,
+        [0x990d] = RoomHeaderDefinitions.Terminator,
+        [0x9938] = RoomHeaderDefinitions.GreenBrinstarElev,
+        [0x9969] = RoomHeaderDefinitions.LowerMushrooms,
+        [0x9994] = RoomHeaderDefinitions.CrateriaMap,
+        [0x99bd] = RoomHeaderDefinitions.GreenPiratesShaft,
+        [0x99f9] = RoomHeaderDefinitions.CrateriaSuper,
+        [0x9a44] = RoomHeaderDefinitions.FinalMissileBombway,
+        [0x9a90] = RoomHeaderDefinitions.FinalMissile,
+        [0x9ad9] = RoomHeaderDefinitions.GreenBrinstarMainShaft,
+        [0x9b5b] = RoomHeaderDefinitions.SporeSpawnSuper,
+        [0x9b9d] = RoomHeaderDefinitions.BrinstarPreMap,
+        [0x9bc8] = RoomHeaderDefinitions.EarlySupers,
+        [0x9c07] = RoomHeaderDefinitions.BrinstarReserveTank,
+        [0x9c35] = RoomHeaderDefinitions.GreenBrinstarMap,
+        [0x9c5e] = RoomHeaderDefinitions.GreenBrinstarFirefleas,
+        [0x9c89] = RoomHeaderDefinitions.GreenBrinstarMissileRefill,
+        [0x9cb3] = RoomHeaderDefinitions.Dachora,
+        [0x9d19] = RoomHeaderDefinitions.BigPink,
+        [0x9d9c] = RoomHeaderDefinitions.SporeSpawnKihunters,
+        [0x9dc7] = RoomHeaderDefinitions.SporeSpawn,
+        [0x9e11] = RoomHeaderDefinitions.PinkBrinstarPowerBombs,
+        [0x9e52] = RoomHeaderDefinitions.GreenHillZone,
+        [0x9e9f] = RoomHeaderDefinitions.MorphBall,
+        [0x9f11] = RoomHeaderDefinitions.ConstructionZone,
+        [0x9f64] = RoomHeaderDefinitions.BlueBrinstarETank,
+        [0x9fba] = RoomHeaderDefinitions.NoobBridge,
+        [0x9fe5] = RoomHeaderDefinitions.GreenBrinstarBeetoms,
+        [0xa011] = RoomHeaderDefinitions.EtecoonETank,
+        [0xa051] = RoomHeaderDefinitions.EtecoonSuper,
+        [0xa07b] = RoomHeaderDefinitions.DachoraEnergyRefill,
+        [0xa0a4] = RoomHeaderDefinitions.SporeSpawnFarming,
+        [0xa0d2] = RoomHeaderDefinitions.WaterwayETank,
+        [0xa107] = RoomHeaderDefinitions.FirstMissile,
+        [0xa130] = RoomHeaderDefinitions.PinkBrinstarHoppers,
+        [0xa15b] = RoomHeaderDefinitions.HopperETank,
+        [0xa184] = RoomHeaderDefinitions.BigPinkSaveRoom,
+        [0xa1ad] = RoomHeaderDefinitions.BlueBrinstarBoulders,
+        [0xa1d8] = RoomHeaderDefinitions.BillyMays,
+        [0xa201] = RoomHeaderDefinitions.GreenBrinstarSave,
+        [0xa22a] = RoomHeaderDefinitions.EtecoonSave,
+        [0xa253] = RoomHeaderDefinitions.RedTower,
+        [0xa293] = RoomHeaderDefinitions.RedBrinstarFirefleas,
+        [0xa2ce] = RoomHeaderDefinitions.XrayScope,
+        [0xa2f7] = RoomHeaderDefinitions.Hellway,
+        [0xa322] = RoomHeaderDefinitions.Caterpillar,
+        [0xa37c] = RoomHeaderDefinitions.BetaPowerBomb,
+        [0xa3ae] = RoomHeaderDefinitions.AlphaPowerBomb,
+        [0xa3dd] = RoomHeaderDefinitions.SkreeBoost,
+        [0xa408] = RoomHeaderDefinitions.BelowSpazer,
+        [0xa447] = RoomHeaderDefinitions.Spazer,
+        [0xa471] = RoomHeaderDefinitions.WarehouseZeela,
+        [0xa4b1] = RoomHeaderDefinitions.WarehouseETank,
+        [0xa4da] = RoomHeaderDefinitions.WarehouseKihunter,
+        [0xa521] = RoomHeaderDefinitions.MiniKraid,
+        [0xa56b] = RoomHeaderDefinitions.KraidEyeDoor,
+        [0xa59f] = RoomHeaderDefinitions.Kraid,
+        [0xa5ed] = RoomHeaderDefinitions.StatuesHallway,
+        [0xa618] = RoomHeaderDefinitions.RedTowerRefill,
+        [0xa641] = RoomHeaderDefinitions.KraidRefill,
+        [0xa66a] = RoomHeaderDefinitions.Statues,
+        [0xa6a1] = RoomHeaderDefinitions.WarehouseEntrance,
+        [0xa6e2] = RoomHeaderDefinitions.VariaSuit,
+        [0xa70b] = RoomHeaderDefinitions.WarehouseSave,
+        [0xa734] = RoomHeaderDefinitions.RedBrinstarSave,
+        [0xa75d] = RoomHeaderDefinitions.IceBeamAcid,
+        [0xa788] = RoomHeaderDefinitions.Cathedral,
+        [0xa7b3] = RoomHeaderDefinitions.CathedralEntrance,
+        [0xa7de] = RoomHeaderDefinitions.BusinessCenter,
+        [0xa815] = RoomHeaderDefinitions.IceBeamGate,
+        [0xa865] = RoomHeaderDefinitions.IceBeamTutorial,
+        [0xa890] = RoomHeaderDefinitions.IceBeam,
+        [0xa8b9] = RoomHeaderDefinitions.IceBeamSnake,
+        [0xa8f8] = RoomHeaderDefinitions.CrumbleShaft,
+        [0xa923] = RoomHeaderDefinitions.CrocomireSpeedway,
+        [0xa98d] = RoomHeaderDefinitions.Crocomire,
+        [0xa9e5] = RoomHeaderDefinitions.HiJumpBoots,
+        [0xaa0e] = RoomHeaderDefinitions.CrocomireEscape,
+        [0xaa41] = RoomHeaderDefinitions.HiJumpETank,
+        [0xaa82] = RoomHeaderDefinitions.PostCrocFarming,
+        [0xaab5] = RoomHeaderDefinitions.PostCrocSave,
+        [0xaade] = RoomHeaderDefinitions.PostCrocPowerBombs,
+        [0xab07] = RoomHeaderDefinitions.PostCrocShaft,
+        [0xab3b] = RoomHeaderDefinitions.PostCrocMissile,
+        [0xab64] = RoomHeaderDefinitions.GrappleTutorial3,
+        [0xab8f] = RoomHeaderDefinitions.PostCrocJump,
+        [0xabd2] = RoomHeaderDefinitions.GrappleTutorial2,
+        [0xac00] = RoomHeaderDefinitions.GrappleTutorial1,
+        [0xac2b] = RoomHeaderDefinitions.GrappleBeam,
+        [0xac5a] = RoomHeaderDefinitions.NorfairReserveTank,
+        [0xac83] = RoomHeaderDefinitions.GreenBubblesMissiles,
+        [0xacb3] = RoomHeaderDefinitions.BubbleMountain,
+        [0xacf0] = RoomHeaderDefinitions.SpeedBoosterHall,
+        [0xad1b] = RoomHeaderDefinitions.SpeedBooster,
+        [0xad5e] = RoomHeaderDefinitions.SingleChamber,
+        [0xadad] = RoomHeaderDefinitions.DoubleChamber,
+        [0xadde] = RoomHeaderDefinitions.WaveBeam,
+        [0xae07] = RoomHeaderDefinitions.SpikyPlatformsTunnel,
+        [0xae32] = RoomHeaderDefinitions.Volcano,
+        [0xae74] = RoomHeaderDefinitions.KronicBoost,
+        [0xaeb4] = RoomHeaderDefinitions.MagdolliteTunnel,
+        [0xaedf] = RoomHeaderDefinitions.PurpleShaft,
+        [0xaf14] = RoomHeaderDefinitions.LavaDive,
+        [0xaf3f] = RoomHeaderDefinitions.LowerNorfairElev,
+        [0xaf72] = RoomHeaderDefinitions.UpperNorfairFarming,
+        [0xafa3] = RoomHeaderDefinitions.RisingTide,
+        [0xafce] = RoomHeaderDefinitions.AcidSnakesTunnel,
+        [0xaffb] = RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
+        [0xb026] = RoomHeaderDefinitions.UpperNorfairRefill,
+        [0xb051] = RoomHeaderDefinitions.PurpleFarming,
+        [0xb07a] = RoomHeaderDefinitions.BatCave,
+        [0xb0b4] = RoomHeaderDefinitions.NorfairMap,
+        [0xb0dd] = RoomHeaderDefinitions.BubbleMountainSave,
+        [0xb106] = RoomHeaderDefinitions.FrogSpeedway,
+        [0xb139] = RoomHeaderDefinitions.RedPirateShaft,
+        [0xb167] = RoomHeaderDefinitions.FrogSave,
+        [0xb192] = RoomHeaderDefinitions.CrocomireSave,
+        [0xb1bb] = RoomHeaderDefinitions.LNElevSave,
+        [0xb1e5] = RoomHeaderDefinitions.AcidStatue,
+        [0xb236] = RoomHeaderDefinitions.MainHall,
+        [0xb283] = RoomHeaderDefinitions.GoldenTorizo,
+        [0xb2da] = RoomHeaderDefinitions.FastRipper,
+        [0xb305] = RoomHeaderDefinitions.GTEnergyRefill,
+        [0xb32e] = RoomHeaderDefinitions.Ridley,
+        [0xb37a] = RoomHeaderDefinitions.LNFarming,
+        [0xb3a5] = RoomHeaderDefinitions.FastPillarsSetup,
+        [0xb3e1] = RoomHeaderDefinitions.UnusedRoom8FB3E1,
+        [0xb40a] = RoomHeaderDefinitions.MickeyMouse,
+        [0xb457] = RoomHeaderDefinitions.Pillar,
+        [0xb482] = RoomHeaderDefinitions.Plowerhouse,
+        [0xb4ad] = RoomHeaderDefinitions.WorstRoomInTheGame,
+        [0xb4e5] = RoomHeaderDefinitions.Amphitheatre,
+        [0xb510] = RoomHeaderDefinitions.LNSpringBallMaze,
+        [0xb55a] = RoomHeaderDefinitions.LNEscapePowerBombs,
+        [0xb585] = RoomHeaderDefinitions.RedKihunterShaft,
+        [0xb5d5] = RoomHeaderDefinitions.Wasteland,
+        [0xb62b] = RoomHeaderDefinitions.MetalPirates,
+        [0xb656] = RoomHeaderDefinitions.ThreeMusketeers,
+        [0xb698] = RoomHeaderDefinitions.RidleyETank,
+        [0xb6c1] = RoomHeaderDefinitions.ScrewAttack,
+        [0xb6ee] = RoomHeaderDefinitions.LNFireflea,
+        [0xb741] = RoomHeaderDefinitions.LNSave,
+        [0xc98e] = RoomHeaderDefinitions.BowlingAlley,
+        [0xca08] = RoomHeaderDefinitions.WreckedShipEntrance,
+        [0xca52] = RoomHeaderDefinitions.Attic,
+        [0xcaae] = RoomHeaderDefinitions.AssemblyLine,
+        [0xcaf6] = RoomHeaderDefinitions.WreckedShipMainShaft,
+        [0xcb8b] = RoomHeaderDefinitions.SpikyDeath,
+        [0xcbd5] = RoomHeaderDefinitions.ElectricDeath,
+        [0xcc27] = RoomHeaderDefinitions.WreckedShipETank,
+        [0xcc6f] = RoomHeaderDefinitions.Basement,
+        [0xcccb] = RoomHeaderDefinitions.WreckedShipMap,
+        [0xcd13] = RoomHeaderDefinitions.Phantoon,
+        [0xcd5c] = RoomHeaderDefinitions.SpongeBath,
+        [0xcda8] = RoomHeaderDefinitions.WSWestSuper,
+        [0xcdf1] = RoomHeaderDefinitions.WSEastSuper,
+        [0xce40] = RoomHeaderDefinitions.GravitySuit,
+        [0xce8a] = RoomHeaderDefinitions.WreckedShipSave,
+        [0xced2] = RoomHeaderDefinitions.GlassTunnelSave,
+        [0xcefb] = RoomHeaderDefinitions.GlassTunnel,
+        [0xcf54] = RoomHeaderDefinitions.WestTunnel,
+        [0xcf80] = RoomHeaderDefinitions.EastTunnel,
+        [0xcfc9] = RoomHeaderDefinitions.MainStreet,
+        [0xd017] = RoomHeaderDefinitions.FishTank,
+        [0xd055] = RoomHeaderDefinitions.MamaTurtle,
+        [0xd08a] = RoomHeaderDefinitions.CrabTunnel,
+        [0xd0b9] = RoomHeaderDefinitions.MtEverest,
+        [0xd104] = RoomHeaderDefinitions.RedFish,
+        [0xd13b] = RoomHeaderDefinitions.WateringHole,
+        [0xd16d] = RoomHeaderDefinitions.NWestMaridiaBug,
+        [0xd1a3] = RoomHeaderDefinitions.CrabShaft,
+        [0xd1dd] = RoomHeaderDefinitions.PseudoPlasmaSpark,
+        [0xd21c] = RoomHeaderDefinitions.CrabHole,
+        [0xd252] = RoomHeaderDefinitions.WestSandHallTunnel,
+        [0xd27e] = RoomHeaderDefinitions.PlasmaTutorial,
+        [0xd2aa] = RoomHeaderDefinitions.Plasma,
+        [0xd2d9] = RoomHeaderDefinitions.ThreadTheNeedle,
+        [0xd30b] = RoomHeaderDefinitions.MaridiaElev,
+        [0xd340] = RoomHeaderDefinitions.PlasmaSpark,
+        [0xd387] = RoomHeaderDefinitions.Kassiuz,
+        [0xd3b6] = RoomHeaderDefinitions.MaridiaMap,
+        [0xd3df] = RoomHeaderDefinitions.ForgottenHighwaySave,
+        [0xd408] = RoomHeaderDefinitions.Toilet,
+        [0xd433] = RoomHeaderDefinitions.BugSandHole,
+        [0xd461] = RoomHeaderDefinitions.WestSandHall,
+        [0xd48e] = RoomHeaderDefinitions.Oasis,
+        [0xd4c2] = RoomHeaderDefinitions.EastSandHall,
+        [0xd4ef] = RoomHeaderDefinitions.WestSandHole,
+        [0xd51e] = RoomHeaderDefinitions.EastSandHole,
+        [0xd54d] = RoomHeaderDefinitions.WestAqueductQuicksand,
+        [0xd57a] = RoomHeaderDefinitions.EastAqueductQuicksand,
+        [0xd5a7] = RoomHeaderDefinitions.Aqueduct,
+        [0xd5ec] = RoomHeaderDefinitions.Butterfly,
+        [0xd617] = RoomHeaderDefinitions.BotwoonHallway,
+        [0xd646] = RoomHeaderDefinitions.Pants,
+        [0xd69a] = RoomHeaderDefinitions.EastPants,
+        [0xd6d0] = RoomHeaderDefinitions.Springball,
+        [0xd6fd] = RoomHeaderDefinitions.BelowBotwoonETank,
+        [0xd72a] = RoomHeaderDefinitions.Colosseum,
+        [0xd765] = RoomHeaderDefinitions.AqueductSave,
+        [0xd78f] = RoomHeaderDefinitions.ThePrecious,
+        [0xd7e4] = RoomHeaderDefinitions.BotwoonETank,
+        [0xd81a] = RoomHeaderDefinitions.DraygonSave,
+        [0xd845] = RoomHeaderDefinitions.MaridiaMissileRefill,
+        [0xd86e] = RoomHeaderDefinitions.PlasmaBeachQuicksand,
+        [0xd898] = RoomHeaderDefinitions.BotwoonQuicksand,
+        [0xd8c5] = RoomHeaderDefinitions.Shaktool,
+        [0xd913] = RoomHeaderDefinitions.HalfieClimb,
+        [0xd95e] = RoomHeaderDefinitions.Botwoon,
+        [0xd9aa] = RoomHeaderDefinitions.SpaceJump,
+        [0xd9d4] = RoomHeaderDefinitions.MaridiaEnergyRefill,
+        [0xd9fe] = RoomHeaderDefinitions.WestCactusAlley,
+        [0xda2b] = RoomHeaderDefinitions.EastCactusAlley,
+        [0xda60] = RoomHeaderDefinitions.Draygon,
+        [0xdaae] = RoomHeaderDefinitions.TourianFirst,
+        [0xdae1] = RoomHeaderDefinitions.Metroids1,
+        [0xdb31] = RoomHeaderDefinitions.Metroids2,
+        [0xdb7d] = RoomHeaderDefinitions.Metroids3,
+        [0xdbcd] = RoomHeaderDefinitions.Metroids4,
+        [0xdc19] = RoomHeaderDefinitions.BlueHopper,
+        [0xdc65] = RoomHeaderDefinitions.DustTorizo,
+        [0xdcb1] = RoomHeaderDefinitions.BigBoy,
+        [0xdcff] = RoomHeaderDefinitions.Seaweed,
+        [0xdd2e] = RoomHeaderDefinitions.TourianRecharge,
+        [0xdd58] = RoomHeaderDefinitions.MotherBrain,
+        [0xddc4] = RoomHeaderDefinitions.TourianEyeDoor,
+        [0xddf3] = RoomHeaderDefinitions.RinkaShaft,
+        [0xde23] = RoomHeaderDefinitions.MotherBrainSave,
+        [0xde4d] = RoomHeaderDefinitions.TourianEscape1,
+        [0xde7a] = RoomHeaderDefinitions.TourianEscape2,
+        [0xdea7] = RoomHeaderDefinitions.TourianEscape3,
+        [0xdede] = RoomHeaderDefinitions.TourianEscape4,
+        [0xdf1b] = RoomHeaderDefinitions.UpperTourianSave,
+        [0xdf45] = RoomHeaderDefinitions.CeresElev,
+        [0xdf8d] = RoomHeaderDefinitions.FallingTile,
+        [0xdfd7] = RoomHeaderDefinitions.MagnetStairs,
+        [0xe021] = RoomHeaderDefinitions.DeadScientist,
+        [0xe06b] = RoomHeaderDefinitions.Room58Escape,
+        [0xe0b5] = RoomHeaderDefinitions.CeresRidley,
     };
 }

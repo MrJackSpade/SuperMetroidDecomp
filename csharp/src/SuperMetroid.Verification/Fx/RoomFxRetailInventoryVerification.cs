@@ -213,6 +213,10 @@ internal static class RoomFxRetailInventoryVerification
             $". Inventory: {Path.GetRelativePath(Directory.GetCurrentDirectory(), inventoryPath)}.");
     }
 
+    /// <summary>The door an entry path names, or none for path zero, which matches only default records.</summary>
+    private static CartridgeDoorHeader? EntryDoor(ushort doorPointer) =>
+        doorPointer == 0 ? null : DoorDefinitions.Get(doorPointer);
+
     /// <summary>Compares independent ROM FX selection and liquid fields with the production owner for one room and entry door.</summary>
     private static RetailFxPathAudit AuditRetailFxEntryPath(
         SuperMetroidAddressSpace bus,
@@ -267,10 +271,10 @@ internal static class RoomFxRetailInventoryVerification
             vram,
             cgram,
             room.State.FxPointer,
-            doorPointer,
+            EntryDoor(doorPointer),
             randomNumber: 0);
         AssertEqual(expectedRecord,
-            RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer),
+            RoomFxRecordDefinitions.Select(room.State.FxPointer, EntryDoor(doorPointer)),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} record selection");
         AssertEqual(expectedType, actual.Type,
@@ -407,11 +411,11 @@ internal static class RoomFxRetailInventoryVerification
             bus,
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
-        ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, doorPointer: 0);
+        ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, door: null);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         var fx = CreateRetailFxState(bus);
-        fx.Load(vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, room.State.FxPointer, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -542,7 +546,7 @@ internal static class RoomFxRetailInventoryVerification
                 bus,
                 cursor,
                 RoomFxRomDataRecordTooling.DoorPointerOffset);
-            if (candidateDoor == RoomFxRomData.Record.TerminatorDoorPointer)
+            if (candidateDoor == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 return 0;
             if (candidateDoor == 0 || candidateDoor == doorPointer)
                 return cursor;
@@ -568,7 +572,7 @@ internal static class RoomFxRetailInventoryVerification
                 bus,
                 cursor,
                 RoomFxRomDataRecordTooling.DoorPointerOffset);
-            if (doorPointer is 0 or RoomFxRomData.Record.TerminatorDoorPointer)
+            if (doorPointer is 0 or RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;
             cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
@@ -607,7 +611,7 @@ internal static class RoomFxRetailInventoryVerification
             vram,
             cgram,
             room.State.FxPointer,
-            door.Pointer,
+            door,
             randomNumber: 0,
             room: room.Definition);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
@@ -799,7 +803,7 @@ internal static class RoomFxRetailInventoryVerification
             vram,
             new SnesCgram(),
             room.State.FxPointer,
-            doorPointer,
+            EntryDoor(doorPointer),
             randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
@@ -841,20 +845,20 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
-        fx.Load(vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, visibleRoom.State.FxPointer, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx.Load(vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, fxPointer: 0, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx.Load(vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, hiddenRoom.State.FxPointer, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[

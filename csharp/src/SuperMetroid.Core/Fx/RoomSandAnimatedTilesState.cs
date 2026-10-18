@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -13,11 +14,11 @@ public sealed class RoomSandAnimatedTilesState
     internal readonly List<RoomFxAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>
-    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, CartridgeDoorHeader? door, AreaId area)
     {
         objects.Clear();
         if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, door);
         if (record == 0) return;
         byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)

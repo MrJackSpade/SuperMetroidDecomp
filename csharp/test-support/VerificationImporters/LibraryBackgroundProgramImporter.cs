@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -38,17 +39,17 @@ internal static class LibraryBackgroundProgramImporter
                 case LibraryBackgroundCommand.TransferToVramForKraid:
                 case LibraryBackgroundCommand.TransferForDoor:
                     instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)),
-                        Word((ushort)(cursor + 5)), door));
+                        Word((ushort)(cursor + 5)), door == 0 ? null : DoorHeaderSources.Door(door)));
                     cursor = (ushort)(cursor + 7);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0, 0));
+                    instructions.Add(new(command, Long(cursor), Word((ushort)(cursor + 3)), 0, null));
                     cursor = (ushort)(cursor + 5);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                 case LibraryBackgroundCommand.ClearBg2:
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    instructions.Add(new(command, 0, 0, 0, 0));
+                    instructions.Add(new(command, 0, 0, 0, null));
                     break;
                 default:
                     throw new InvalidDataException($"Unknown import background command ${(ushort)command:X4} at $8F:{commandPointer:X4}.");
@@ -75,7 +76,7 @@ internal static class LibraryBackgroundProgramImporter
         {
             switch (instruction.Command)
             {
-                case LibraryBackgroundCommand.TransferForDoor when instruction.DoorPointer != activeDoorPointer:
+                case LibraryBackgroundCommand.TransferForDoor when instruction.Door is not { } door || DoorHeaderSources.PointerOf(door) != activeDoorPointer:
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                 case LibraryBackgroundCommand.TransferToVram:

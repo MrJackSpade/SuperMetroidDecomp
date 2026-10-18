@@ -2,7 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
@@ -22,9 +22,10 @@ internal static class LoadStationEntryImporter
             LoadStationRomData.PointerTable + areaTableIndex * 2);
         int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * LoadStationRomData.EntryByteCount));
         ushort room = ReadWord(bus, address);
+        ushort door = ReadWord(bus, address + 2);
         return new LoadStationEntry(
             Room: room == 0 ? null : RoomHeaderSources.Room(room),
-            DoorPointer: ReadWord(bus, address + 2),
+            Door: door == 0 ? null : DoorHeaderSources.Door(door),
             CameraPosition: new(ReadWord(bus, address + 6), ReadWord(bus, address + 8)),
             SamusOffset: new(unchecked((short)ReadWord(bus, address + 12)), unchecked((short)ReadWord(bus, address + 10))));
     }

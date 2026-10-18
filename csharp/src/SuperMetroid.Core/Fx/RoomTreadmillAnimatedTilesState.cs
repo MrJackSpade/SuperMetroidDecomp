@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -13,11 +14,11 @@ public sealed class RoomTreadmillAnimatedTilesState
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
-    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, CartridgeDoorHeader? door, AreaId area)
     {
         objects.Clear();
         if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, door);
         if (record == 0) return;
         byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)

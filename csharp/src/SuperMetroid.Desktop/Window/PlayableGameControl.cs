@@ -560,7 +560,7 @@ public sealed class PlayableGameControl : UserControl
                         ControllerInput: input,
                         Room: game.GameplayActiveRoom?.Name,
                         RoomStatePointer: game.GameplayActiveRoomStatePointer,
-                        DoorPointer: game.GameplayActiveDoorPointer,
+                        Door: game.GameplayActiveDoor?.Name,
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
@@ -630,7 +630,7 @@ public sealed class PlayableGameControl : UserControl
                     ControllerInput: input,
                     Room: game.GameplayActiveRoom?.Name,
                     RoomStatePointer: game.GameplayActiveRoomStatePointer,
-                    DoorPointer: game.GameplayActiveDoorPointer,
+                    Door: game.GameplayActiveDoor?.Name,
                     InputRecordingPath: inputRecorder?.Path,
                     FrameDiagnostics: frameDiagnostics));
             return game.CurrentFrame;

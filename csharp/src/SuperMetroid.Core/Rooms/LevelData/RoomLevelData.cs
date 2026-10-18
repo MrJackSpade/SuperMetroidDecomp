@@ -45,7 +45,7 @@ public sealed class RoomLevelData
     /// <param name="planes">The logical BG1, BTS and BG2 planes, each exactly width times height entries in row-major order.</param>
     /// <param name="blockDefinitions">Combined CRE then area definitions: four little-endian 8-by-8 BG tilemap words per 16-pixel visual block; length must be divisible by eight bytes.</param>
     /// <param name="streaming">Optional copied native BG1/BG2 allocations including decompressed overread tails; an empty allocation uses its logical plane, and a supplied allocation cannot be shorter.</param>
-    /// <param name="doorListPointer">Optional bank-$8F door-pointer table identity; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
+    /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
     /// <param name="visualLayout">Optional matching-sized initial BG1/BG2 artwork; collision words, BTS, and native allocation tails remain unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A logical plane, streaming allocation, or block-definition byte extent has an invalid size.</exception>
@@ -56,7 +56,7 @@ public sealed class RoomLevelData
         RoomLevelPlanes planes,
         ReadOnlySpan<byte> blockDefinitions,
         RoomLevelStreaming streaming = default,
-        ushort? doorListPointer = null,
+        IReadOnlyList<DoorListEntry>? doors = null,
         RoomVisualLayout? visualLayout = null)
     {
         ReadOnlySpan<ushort> foregroundEntries = planes.Foreground;
@@ -80,7 +80,7 @@ public sealed class RoomLevelData
             throw new ArgumentException("Each visual block definition is exactly eight bytes.", nameof(blockDefinitions));
 
         Size = size;
-        DoorListPointer = doorListPointer;
+        Doors = doors;
         _foregroundEntries = foregroundEntries.ToArray();
         _behaviorBytes = behaviorBytes.ToArray();
         _backgroundEntries = backgroundEntries.ToArray();
@@ -160,10 +160,10 @@ public sealed class RoomLevelData
     public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>
-    /// Bank-$8F pointer to this room's native door-pointer table. Synthetic collision
-    /// fixtures deliberately leave it null; cartridge room loading always supplies it.
+    /// The entries this room's type-$9 blocks select by index. Synthetic collision fixtures
+    /// deliberately leave it null; cartridge room loading always supplies it.
     /// </summary>
-    public ushort? DoorListPointer { get; }
+    public IReadOnlyList<DoorListEntry>? Doors { get; }
 
     /// <summary>
     /// Door definition selected by the most recent native type-$9 collision, mirroring
@@ -380,20 +380,23 @@ public sealed class RoomLevelData
         SamusPoseId samusPose,
         bool publishDoorSideEffects = true)
     {
-        if (DoorListPointer is not ushort doorListPointer)
+        if (Doors is not { } doors)
         {
             // Every cartridge-backed room header supplies this pointer. Its nullable form
             // exists only so focused synthetic collision fixtures need not fabricate bank-
             // $8F metadata when they contain no type-$9 blocks. Reaching a door in such a
             // fixture is therefore an invalid host composition, not missing door behavior.
             throw new InvalidOperationException(
-                "Door collision requires cartridge room metadata; this level has no door list pointer.");
+                "Door collision requires cartridge room metadata; this level has no door list.");
         }
 
         // Bit seven is not part of the list index. Native elevator/special-door BTS values
         // share the same seven-bit table lookup before the destination-room high bit decides
         // whether collision is solid or starts game state $09.
-        DoorListEntry entry = DoorDefinitions.Resolve(doorListPointer, behavior);
+        int index = behavior & RoomDoorListDefinitions.BtsIndexMask;
+        if (index >= doors.Count)
+            throw new InvalidDataException($"Door index {index} is outside the room's {doors.Count}-entry door list.");
+        DoorListEntry entry = doors[index];
         // The native door handler normally publishes either a real transition or the
         // elevator-contact flag. The desktop runtime collapses the outer transition states
         // into one room-load call, however, so destination-side elevator return scans must

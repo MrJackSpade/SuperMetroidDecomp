@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -35,7 +35,7 @@ internal static class AttractDemoSceneImporter
         ushort setup = RomDataReader.ReadWordFixedBank(cartridge,
             RecordAddress(AttractDemoRomData.EquipmentBank, setupList, scene, sizeof(ushort)));
         return new(
-            RoomHeaderSources.Room(Room(AttractDemoRomDataRoomFields.Room)), Room(AttractDemoRomDataRoomFields.Door),
+            RoomHeaderSources.Room(Room(AttractDemoRomDataRoomFields.Room)), DoorHeaderSources.Door(Room(AttractDemoRomDataRoomFields.Door)),
             new(Room(AttractDemoRomDataRoomFields.CameraX), Room(AttractDemoRomDataRoomFields.CameraY)),
             new(unchecked((short)Room(AttractDemoRomDataRoomFields.SamusXFromCenter)),
                 unchecked((short)Room(AttractDemoRomDataRoomFields.SamusYFromTop))),

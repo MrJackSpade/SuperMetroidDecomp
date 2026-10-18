@@ -43,7 +43,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
             var door = new CartridgeDoorHeader(
-                Pointer: 0,
+                Name: "debug room entry",
                 DestinationRoom: definition,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,

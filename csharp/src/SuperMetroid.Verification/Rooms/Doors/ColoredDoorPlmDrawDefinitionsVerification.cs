@@ -126,7 +126,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             }
 
             var enteringDoor = new CartridgeDoorHeader(
-                Pointer: 0,
+                Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 PlmBlock: new(4, 4),

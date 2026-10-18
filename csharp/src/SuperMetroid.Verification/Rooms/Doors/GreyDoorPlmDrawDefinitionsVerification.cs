@@ -121,7 +121,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             else
             {
                 var enteringDoor = new CartridgeDoorHeader(
-                    Pointer: 0,
+                    Name: "fixture door",
                     DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                     PlmBlock: new(4, 4),
@@ -204,7 +204,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, byte[] blockDefinitions)
     {
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0,
+            Name: "fixture door",
             DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(4, 4),

@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Rooms;
+
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Verification access to <see cref="LibraryBackgroundProgramDefinitions"/> members production does not use.</summary>
@@ -13,7 +15,7 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
             foreach (LibraryBackgroundInstruction instruction in LibraryBackgroundProgramDefinitionsTooling.Get(listPointer).Instructions)
             {
                 if (instruction.Command == LibraryBackgroundCommand.TransferForDoor &&
-                    instruction.DoorPointer == doorPointer)
+                    instruction.Door is { } door && DoorHeaderSources.PointerOf(door) == doorPointer)
                     return instruction;
             }
             throw new InvalidDataException(

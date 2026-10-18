@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// discarded exactly the Mode-7 switch used by the opening Ceres elevator.
 /// </remarks>
 public sealed record CartridgeDoorHeader(
-    ushort Pointer,
+    string Name,
     RoomHeaderDefinition DestinationRoom,
     CartridgeDoorOrientation Orientation,
     Position16<RoomBlocks> PlmBlock,

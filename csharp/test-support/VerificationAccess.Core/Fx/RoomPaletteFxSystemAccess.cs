@@ -26,7 +26,7 @@ internal static class RoomPaletteFxSystemAccess
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            self.LoadRoomCore((ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (SamusEquipmentFlags)((ushort)(equippedItems)), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
+            self.LoadRoomCore((ushort)(definition.Pointer), definition.Door, (AreaId)(area), (SamusEquipmentFlags)((ushort)(equippedItems)), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
         }
     }
 }

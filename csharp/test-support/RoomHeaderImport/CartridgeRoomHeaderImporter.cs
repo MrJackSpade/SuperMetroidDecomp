@@ -81,11 +81,9 @@ public static class CartridgeRoomHeaderImporter
         Ensure.NotNull(bus);
         int address = 0x8f0000 | roomPointer;
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
-        ushort doorList = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus), address + 9);
         ushort statePointer = SelectStatePointer(bus, roomPointer, selection);
         var definition = new RoomHeaderDefinition(RoomHeaderDefinitions.Get(roomPointer).Name, Byte(0), (AreaId)Byte(1),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8), doorList);
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8));
         return new CartridgeRoomHeader(definition, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

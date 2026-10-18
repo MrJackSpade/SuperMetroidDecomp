@@ -112,7 +112,7 @@ internal static class RoomPlmPopulationVerification
                 new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
             var door = new CartridgeDoorHeader(
-                Pointer: 0,
+                Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: CartridgeDoorOrientation.Decode(direction),
                 PlmBlock: new(1, 1),
@@ -203,7 +203,7 @@ internal static class RoomPlmPopulationVerification
                 $"resident door $84:{raw:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
-                Pointer: 0,
+                Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 PlmBlock: new(blockX, blockY),
@@ -387,7 +387,7 @@ internal static class RoomPlmPopulationVerification
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0x8bc2,
+            Name: nameof(DoorDefinitions.Flyway1),
             DestinationRoom: RoomHeaderDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
@@ -495,7 +495,7 @@ internal static class RoomPlmPopulationVerification
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0x8cb2,
+            Name: nameof(DoorDefinitions.GreenBrinstarMainShaft1),
             DestinationRoom: RoomHeaderDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(doorX, doorY),
@@ -880,7 +880,7 @@ internal static class RoomPlmPopulationVerification
         var escape = new RoomPlmSystem();
         escape.PopulationLoader.LoadRoomPopulation(new PlmRoom(escapeLevel, escapeStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new CartridgeDoorHeader(
-            Pointer: 0xaa8c,
+            Name: nameof(DoorDefinitions.MotherBrain1),
             DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),

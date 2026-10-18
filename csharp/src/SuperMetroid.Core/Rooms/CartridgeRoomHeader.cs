@@ -1,5 +1,6 @@
 
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -39,8 +40,8 @@ public sealed record CartridgeRoomHeader(RoomHeaderDefinition Definition, Cartri
     /// <summary>Whether door transitions into or out of this room hide BG1 and drop the common room elements' colours.</summary>
     public bool UsesIsolatedDoorTransition => (Definition.CreBitset & RoomCreBitsets.SuppressDoorTransitionBg1) != 0;
 
-    /// <summary>The room's bank-$8F door list.</summary>
-    public ushort DoorListPointer => Definition.DoorListPointer;
+    /// <summary>The entries the room's type-$9 blocks select by index.</summary>
+    public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
 
     /// <summary>Logical area/room pair.</summary>
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);

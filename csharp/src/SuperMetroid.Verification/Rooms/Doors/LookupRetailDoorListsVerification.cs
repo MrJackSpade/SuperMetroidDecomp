@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
@@ -37,9 +38,9 @@ internal static class LookupRetailDoorListsVerification
                 referenced.Add(target);
                 if (target is 0x88fc or 0xa18a) elevatorReferences++;
             }
-            DoorListDefinition actual = DoorDefinitionsTooling.GetList(pointer);
-            AssertEqual(pointer, actual.Pointer, "Materialized door list preserves source identity");
-            AssertTrue(actual.DoorPointers.Span.SequenceEqual(original.ToArray()),
+            IReadOnlyList<DoorListEntry> actual = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.Get(room)];
+            AssertEqual(pointer, RoomDoorListDefinitions.ListPointerOf(RoomHeaderDefinitions.Get(room)), "Door list keeps its room's source identity");
+            AssertTrue(actual.Select(entry => entry.Pointer).SequenceEqual(original),
                 $"Door list {pointer:X4} count and all original targets match");
             for (int behavior = 0; behavior <= byte.MaxValue; behavior++)
             {
@@ -62,7 +63,6 @@ internal static class LookupRetailDoorListsVerification
         {
             ushort pointer = (ushort)value;
             if (originalLists.Contains(pointer)) continue;
-            AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitionsTooling.GetList(pointer), "Unknown list rejects materialization");
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Resolve(pointer, 0), "Unknown list rejects resolution");
         }
         Console.WriteLine("Retail door lists: 262 identities, 606 original references, 14 elevator insertions, all256 BTS values and every unknown list identity pass.");

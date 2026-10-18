@@ -16,7 +16,7 @@ internal static class RoomLayer3FxStateAccess
             self.LoadCore((SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
             {
                 FxPointer = definition.Pointer,
-                DoorPointer = definition.DoorPointer,
+                Door = definition.Door,
                 RandomNumber = randomNumber,
                 Room = null,
                 SuppliedDefinition = definition,

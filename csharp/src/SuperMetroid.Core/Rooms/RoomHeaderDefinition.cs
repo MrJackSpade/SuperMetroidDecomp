@@ -13,5 +13,4 @@ public sealed record RoomHeaderDefinition(
     Extent16<RoomScreens> Size,
     byte UpScroller,
     byte DownScroller,
-    byte CreBitset,
-    ushort DoorListPointer);
+    byte CreBitset);

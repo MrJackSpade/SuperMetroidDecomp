@@ -8,6 +8,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification
@@ -44,7 +45,7 @@ internal static class SandAnimatedTilesVerification
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        sand.LoadRoom(sandFxRecord, 0, AreaId.Maridia);
+        sand.LoadRoom(sandFxRecord, null, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
@@ -79,7 +80,7 @@ internal static class SandAnimatedTilesVerification
                 }
             }
         }
-        sand.LoadRoom(0, 0, AreaId.Maridia);
+        sand.LoadRoom(0, null, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
         sand.Step(vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");

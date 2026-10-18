@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled area animated-tile selections against retail lists and runtime owners.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsVerification
@@ -49,8 +50,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState();
         var treadmills = new RoomTreadmillAnimatedTilesState();
-        sand.LoadRoom(fxRecord, doorPointer: 0, area);
-        treadmills.LoadRoom(fxRecord, doorPointer: 0, area);
+        sand.LoadRoom(fxRecord, door: null, area);
+        treadmills.LoadRoom(fxRecord, door: null, area);
 
         AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
         AssertEqual(expectedTreadmills, treadmills.Count,

@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -165,28 +166,25 @@ internal static class LookupRoomFxFieldsVerification
                 firstByDoor.TryAdd(door, (ushort)cursor);
                 cursor = SnesAddressMath.OffsetInBank(cursor + 16);
             }
-            for (int value = 0; value <= ushort.MaxValue; value++)
+            foreach (CartridgeDoorHeader? door in DoorDefinitions.All.Append(null))
             {
-                ushort door = (ushort)value;
-                ushort expected = firstByDoor.TryGetValue(door, out ushort matching) ? matching : fallback;
+                ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
+                ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
                 ushort actual = RoomFxRecordDefinitions.Select(root, door);
                 if (actual != expected)
                     throw new InvalidOperationException(
-                        $"FX selector root {root:X4}, door {door:X4}: native {expected:X4}, actual {actual:X4}.");
+                        $"FX selector root {root:X4}, door {word:X4}: native {expected:X4}, actual {actual:X4}.");
             }
         }
+        foreach (CartridgeDoorHeader? door in DoorDefinitions.All.Append(null))
+            AssertEqual((ushort)0, RoomFxRecordDefinitions.Select(0, door), "Null FX root for every door");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
-            AssertEqual((ushort)0, RoomFxRecordDefinitions.Select(0, pointer), "Null FX root for every door");
             if (pointer != 0 && !identities.Contains(pointer))
-            {
-                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Select(pointer, 0),
+                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Select(pointer, null),
                     "Unknown FX root rejects before door comparison");
-                AssertThrows<InvalidDataException>(() => RoomFxRecordDefinitions.Select(pointer, ushort.MaxValue),
-                    "Unknown FX root cannot become a terminator match");
-            }
         }
-        Console.WriteLine("FX list selection: all 295 suffixes x 65536 doors, null root and invalid roots pass.");
+        Console.WriteLine("FX list selection: all 295 suffixes x every door, null root and invalid roots pass.");
     }
 }

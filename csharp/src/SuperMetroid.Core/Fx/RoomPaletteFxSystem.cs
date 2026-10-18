@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -83,14 +84,14 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     public void LoadRoom(
         ushort fxPointer,
-        ushort doorPointer,
+        CartridgeDoorHeader? door,
         AreaId area,
         SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        LoadRoomCore(fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
+        LoadRoomCore(fxPointer, door, area, equippedItems, areaMiniBossDefeated, null);
 
     /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
-    internal void LoadRoomCore(ushort fxPointer, ushort doorPointer,
+    internal void LoadRoomCore(ushort fxPointer, CartridgeDoorHeader? door,
         AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -103,7 +104,7 @@ public sealed class RoomPaletteFxSystem
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, door);
         if (record == 0)
             return;
 

@@ -14,7 +14,7 @@ internal static class RoomLevelDataAccess
         {
             Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
-                source.DoorListPointer != self.DoorListPointer ||
+                !ReferenceEquals(source.Doors, self.Doors) ||
                 source._blockDefinitions.Length != self._blockDefinitions.Length ||
                 source._streamingForegroundAllocation.Length != self._streamingForegroundAllocation.Length ||
                 source._streamingBackgroundAllocation.Length != self._streamingBackgroundAllocation.Length ||

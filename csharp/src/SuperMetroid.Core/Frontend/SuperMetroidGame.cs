@@ -410,8 +410,8 @@ public sealed class SuperMetroidGame
     /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
     public RoomIdentity? GameplayActiveRoomIdentity => Session.runtime?.Room.ActiveRoom?.Identity;
 
-    /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
-    public ushort? GameplayActiveDoorPointer => Session.runtime?.Room.ActiveDoor?.Pointer;
+    /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
+    public CartridgeDoorHeader? GameplayActiveDoor => Session.runtime?.Room.ActiveDoor;
 
     /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
     public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
@@ -746,7 +746,7 @@ public sealed class SuperMetroidGame
     public string CaptureGameplayFailureContext()
     {
         string location = $"frame=${FrameNumber:X4}; state=${(ushort)Session.GameState:X2} {Session.GameState}; " +
-            $"room={GameplayActiveRoom?.Name}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door=$83:{GameplayActiveDoorPointer:X4}";
+            $"room={GameplayActiveRoom?.Name}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door={GameplayActiveDoor?.Name}";
         if (Session.runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
         return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +

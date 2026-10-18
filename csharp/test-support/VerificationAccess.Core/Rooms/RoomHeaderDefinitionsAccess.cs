@@ -16,9 +16,6 @@ internal static class RoomHeaderDefinitionsAccess
 
         /// <inheritdoc cref="RoomHeaderSources.PointerOf"/>
         internal static ushort PointerOf(RoomHeaderDefinition definition) => RoomHeaderSources.PointerOf(definition);
-
-        /// <inheritdoc cref="RoomHeaderSources.Pointers"/>
-        internal static IEnumerable<ushort> Pointers => RoomHeaderSources.Pointers;
     }
 
     /// <summary>The header pointer of a compiled room.</summary>

@@ -3,8 +3,9 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the complete native room set that suppresses statue earthquake sound.</summary>
 internal static class LookupQuakeSoundSuppressionVerification
@@ -33,12 +34,12 @@ internal static class LookupQuakeSoundSuppressionVerification
         var cgram = new SnesCgram();
         foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
         {
-            state.Load(vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
+            state.Load(vram, cgram, fxPointer: 0, door: null, randomNumber: 0,
                 room: room);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(room is not null ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
-            state.Load(vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0,
+            state.Load(vram, cgram, fxPointer: 0, door: null, randomNumber: 0,
                 room: null);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");

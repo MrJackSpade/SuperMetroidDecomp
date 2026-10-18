@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms;
 
 
@@ -30,9 +30,6 @@ public static class RoomFxRomData
     {
         /// <summary>Size in bytes of one bank-$83 room-FX definition.</summary>
         public const int ByteCount = 16;
-
-        /// <summary>Door word that terminates an FX list without selecting a record.</summary>
-        public const ushort TerminatorDoorPointer = ushort.MaxValue;
     }
 
     /// <summary>Fixed pointer tables shared by room loading and effect interpreters.</summary>

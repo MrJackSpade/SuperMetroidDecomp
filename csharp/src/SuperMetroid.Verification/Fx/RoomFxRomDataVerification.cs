@@ -16,6 +16,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification
@@ -407,8 +408,9 @@ internal static class RoomFxRomDataVerification
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort door = Word(0);
         return new RoomFxRecordDefinition(pointer,
-            Word(0), Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
+            door is 0 or ushort.MaxValue ? null : DoorDefinitions.Get(door), door == ushort.MaxValue, Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
             Byte(12), Byte(13), Byte(14), Byte(15));
     }
 

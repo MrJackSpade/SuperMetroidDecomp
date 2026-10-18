@@ -10,6 +10,6 @@ public sealed record GitHubErrorContext(
     SnesButton? ControllerInput = null,
     string? Room = null,
     ushort? RoomStatePointer = null,
-    ushort? DoorPointer = null,
+    string? Door = null,
     string? InputRecordingPath = null,
     string? FrameDiagnostics = null);

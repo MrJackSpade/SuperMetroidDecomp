@@ -100,7 +100,7 @@ internal sealed class DoorTransitionRunner
 
         DoorSetupCodeInterpreter.ApplyScrollWrites(
             door.SetupCodePointer,
-            door.Pointer,
+            door.Name,
             _room.Camera.Scrolls);
 
         switch (door.SetupCodePointer)
@@ -159,7 +159,7 @@ internal sealed class DoorTransitionRunner
                 if (DoorScrollPrograms.Contains(door.SetupCodePointer))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door $83:{door.Pointer:X4}.");
+                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door {door.Name}.");
         }
     }
 

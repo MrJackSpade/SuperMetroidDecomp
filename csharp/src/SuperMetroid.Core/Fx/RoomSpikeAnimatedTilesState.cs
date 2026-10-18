@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -9,11 +10,11 @@ public sealed class RoomSpikeAnimatedTilesState
     private readonly RoomFxAnimatedTilesState animation = new();
 
     /// <summary>Replaces the previous room's animation using the selected door-specific FX record.</summary>
-    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, CartridgeDoorHeader? door, AreaId area)
     {
         animation.Reset();
         if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = RoomFxRecordDefinitions.Select(fxPointer, door);
         if (record == 0) return;
         byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)

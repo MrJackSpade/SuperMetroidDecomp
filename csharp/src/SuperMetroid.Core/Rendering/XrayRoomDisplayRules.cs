@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Rendering;

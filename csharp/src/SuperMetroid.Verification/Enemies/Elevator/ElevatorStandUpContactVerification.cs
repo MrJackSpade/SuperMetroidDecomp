@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Reproduces same-frame elevator contact when Samus stands from a crouch.</summary>
 internal static class ElevatorStandUpContactVerification
@@ -26,7 +27,7 @@ internal static class ElevatorStandUpContactVerification
             blocks[DoorRow * Width + x] = 0x9000;
             behaviors[DoorRow * Width + x] = 2;
         }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new ushort[Width * Height]), [], doorListPointer: 0xdad5);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new ushort[Width * Height]), [], doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
 
         var samus = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) };
         samus.PoseMetadata.RefreshCollisionRadii();

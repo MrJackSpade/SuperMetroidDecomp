@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks open-door contact during pause fade while Samus remains in a horizontal shinespark.</summary>
 internal static class PauseDoorShinesparkVerification
 {
@@ -41,7 +42,7 @@ internal static class PauseDoorShinesparkVerification
                 bts[row * 32 + 10] = 3;
                 words[row * 32 + 12] = 0x8000;
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new byte[8], doorListPointer: 0xdad5);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new byte[8], doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
             runtime.Room.LevelData = level;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;

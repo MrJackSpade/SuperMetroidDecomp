@@ -92,8 +92,8 @@ internal static class InstalledSporesTests
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
             RoomLayer3FxState baseline = Create(stock), replacement = Create(edited);
-            baseline.Load(baselineVram, colors, definition.Pointer, definition.DoorPointer, 0);
-            replacement.Load(editedVram, editedColors, definition.Pointer, definition.DoorPointer, 0);
+            baseline.Load(baselineVram, colors, definition.Pointer, definition.Door, 0);
+            replacement.Load(editedVram, editedColors, definition.Pointer, definition.Door, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,

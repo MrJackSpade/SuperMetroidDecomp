@@ -23,6 +23,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Runtime checks for Crocomire's spike tile cadence and hidden-wall camera rumble.</summary>
 internal static class CrocomirePresentation1193Verification
 {
@@ -111,7 +112,7 @@ internal static class CrocomirePresentation1193Verification
         {
             VerifyCrocomireSpikeCompatibility(runtime, maps.RoomFxAnimatedTiles);
             runtime.RoomSpikes.LoadRoom(runtime.Room.LoadedRoom.State.FxPointer,
-                (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")).Pointer, runtime.Room.LoadedRoom.AreaIndex);
+                (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")), runtime.Room.LoadedRoom.AreaIndex);
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
             AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.Destination.Encoded == 0x3d60),
@@ -120,7 +121,7 @@ internal static class CrocomirePresentation1193Verification
             game.Step(0);
             AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.Destination.Encoded == 0x3d60).SourceAddress,
                 "Re-enabled spikes resume the pending first frame");
-            runtime.RoomSpikes.LoadRoom(0, 0, AreaId.Norfair);
+            runtime.RoomSpikes.LoadRoom(0, null, AreaId.Norfair);
             var clearedWrites = new VramWriteQueue();
             runtime.RoomSpikes.Step(runtime.Vram, clearedWrites);
             AssertEqual(0, clearedWrites.Entries.Count, "Room replacement without selected spikes clears their owner");

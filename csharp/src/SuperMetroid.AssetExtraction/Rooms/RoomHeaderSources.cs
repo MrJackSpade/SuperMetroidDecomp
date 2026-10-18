@@ -9,9 +9,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomHeaderSources
 {
-    /// <summary>Every compiled header pointer, in ascending order.</summary>
-    public static IEnumerable<ushort> Pointers => RoomHeaderSourceDefinitions.ByPointer.Keys.Order();
-
     /// <summary>The compiled room whose header is at <paramref name="pointer"/>.</summary>
     public static RoomHeaderDefinition Room(ushort pointer) => RoomHeaderSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomHeaderDefinition? found)
         ? found

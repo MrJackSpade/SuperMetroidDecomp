@@ -489,7 +489,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
-        DoorPointers.ConstructionZoneFromFirstMissile,
+        DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(0),
         "$8F:BE25 writes Construction Zone screen zero green");
@@ -498,7 +498,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetStorage(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorCode_Scroll6_Green,
-        DoorPointers.ParlorFromClimb,
+        DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
         "$8F:B981 writes early-route screen six green");
@@ -510,7 +510,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetStorage(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_FromCeresElevatorShaft,
-        DoorPointers.FromCeresElevatorShaft,
+        DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
         grid);
     AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(7),
         "$8F:E513 preserves destination scroll storage");

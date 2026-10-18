@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -15,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public static class LibraryBackgroundLoader
 {
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
-    public static LibraryBackgroundExecutionResult Execute(LibraryBackgroundStaging staging, SnesVram vram, ushort listPointer, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
+    public static LibraryBackgroundExecutionResult Execute(LibraryBackgroundStaging staging, SnesVram vram, ushort listPointer, CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork)
     {
         Ensure.NotNull(staging);
         Ensure.NotNull(vram);
@@ -28,7 +29,7 @@ public static class LibraryBackgroundLoader
 
         if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
                 out LibraryBackgroundProgram? program))
-            return ExecuteProgram(staging, vram, program, activeDoorPointer, artwork);
+            return ExecuteProgram(staging, vram, program, activeDoor, artwork);
 
         // All retail high-bank lists are compiled. Once the host has bound every
         // direct-transfer catalog, a missing list is a definition error rather
@@ -38,7 +39,7 @@ public static class LibraryBackgroundLoader
     }
 
     /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
-    public static LibraryBackgroundExecutionResult ExecuteProgram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundProgram program, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
+    public static LibraryBackgroundExecutionResult ExecuteProgram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundProgram program, CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork)
     {
         Ensure.NotNull(staging);
         Ensure.NotNull(vram);
@@ -69,7 +70,7 @@ public static class LibraryBackgroundLoader
                     ClearBg2(staging, vram, includeKraidPage: true);
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
-                    if (instruction.DoorPointer == activeDoorPointer)
+                    if (instruction.Door == activeDoor)
                         TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 default:

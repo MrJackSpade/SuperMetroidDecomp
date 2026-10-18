@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.TestSupport.CatalogInventories;
 
@@ -32,9 +34,9 @@ internal static class RoomFxRecordCatalogSource
                 int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
                 ushort door = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 RoomFxRecordDefinition record;
-                if (door == RoomFxRomData.Record.TerminatorDoorPointer)
+                if (door == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 {
-                    record = new(pointer, door, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    record = new(pointer, null, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
                 }
                 else
                 {
@@ -42,7 +44,7 @@ internal static class RoomFxRecordCatalogSource
                         RoomFxRomData.Record.ByteCount);
                     static ushort Word(byte[] bytes, int offset) =>
                         (ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
-                    record = new(pointer, door,
+                    record = new(pointer, RecordDoor(door), false,
                         Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
                         Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
                         Word(native, RoomFxRomDataRecordTooling.YVelocityOffset),
@@ -62,7 +64,7 @@ internal static class RoomFxRecordCatalogSource
                 }
                 else
                     records.Add(pointer, record);
-                if (door is 0 or RoomFxRomData.Record.TerminatorDoorPointer)
+                if (door is 0 or RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 {
                     terminated = true;
                     break;
@@ -82,9 +84,13 @@ internal static class RoomFxRecordCatalogSource
                 RoomFxRomData.Record.ByteCount);
             static ushort Word(byte[] bytes, int offset) =>
                 (ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
+            ushort door = Word(native, RoomFxRomDataRecordTooling.DoorPointerOffset);
+            if (door == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
+                throw new InvalidDataException($"Mother Brain's room-FX record $83:{pointer:X4} is a terminator.");
             records.Add(pointer, new RoomFxRecordDefinition(
                 pointer,
-                Word(native, RoomFxRomDataRecordTooling.DoorPointerOffset),
+                RecordDoor(door),
+                false,
                 Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
                 Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
                 Word(native, RoomFxRomDataRecordTooling.YVelocityOffset),
@@ -100,6 +106,13 @@ internal static class RoomFxRecordCatalogSource
         return records;
     }
 
+    /// <summary>The door a record's door word names: none for a default record, else the physical door.</summary>
+    private static CartridgeDoorHeader? RecordDoor(ushort word) => word == 0 ? null : DoorHeaderSources.Door(word);
+
+    /// <summary>Renders a record's door and terminator flag as the generated catalog spells them.</summary>
+    private static string RenderDoor(RoomFxRecordDefinition record) =>
+        record.Terminates ? "null, true" : record.Door is { } door ? $"DoorDefinitions.{door.Name}, false" : "null, false";
+
     /// <summary>Renders a pointer switch over captured records for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(
         IEnumerable<RoomFxRecordDefinition> records)
@@ -109,14 +122,16 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("//     Generated from the pinned cartridge by --generate-room-fx-records. Regenerate instead of editing.");
         source.AppendLine("// </auto-generated>");
         source.AppendLine("#nullable enable");
+        source.AppendLine("using SuperMetroid.Core.Rooms.Doors;");
+        source.AppendLine();
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
         source.AppendLine("public static partial class RoomFxRecordDefinitions");
         source.AppendLine("{");
-        source.AppendLine("    private static RoomFxRecordDefinition? SelectRecord(ushort pointer) => pointer switch");
+        source.AppendLine("    internal static RoomFxRecordDefinition? SelectRecord(ushort pointer) => pointer switch");
         source.AppendLine("    {");
         foreach (RoomFxRecordDefinition record in records)
-            source.AppendLine($"        0x{record.Pointer:X4} => new(0x{record.Pointer:X4}, 0x{record.DoorPointer:X4}, " +
+            source.AppendLine($"        0x{record.Pointer:X4} => new(0x{record.Pointer:X4}, {RenderDoor(record)}, " +
                 $"0x{record.BaseYPosition:X4}, 0x{record.TargetYPosition:X4}, " +
                 $"0x{record.PackedYVelocity:X4}, 0x{record.Timer:X2}, 0x{record.Type:X2}, " +
                 $"0x{record.DefaultLayerBlend:X2}, 0x{record.Layer3LayerBlend:X2}, " +

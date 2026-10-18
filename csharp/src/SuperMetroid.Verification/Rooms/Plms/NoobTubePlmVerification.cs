@@ -23,6 +23,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubePlmVerification
@@ -352,7 +353,7 @@ internal static class NoobTubePlmVerification
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFx = CreateRetailFxState(rom);
-        roomFx.Load(new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
+        roomFx.Load(new SnesVram(), new SnesCgram(), 0x9c94, door: null,
             randomNumber: 0);
         return roomFx;
     }

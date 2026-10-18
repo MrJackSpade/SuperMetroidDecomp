@@ -8,7 +8,7 @@ internal static class DoorSetupCodeInterpreter
     /// <summary>Applies only scroll-byte effects of a door setup program; non-scroll setup remains with the runtime.</summary>
     public static void ApplyScrollWrites(
         DoorSetupCode setupCodePointer,
-        ushort doorPointer,
+        string doorName,
         RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
@@ -38,7 +38,7 @@ internal static class DoorSetupCodeInterpreter
                 if (DoorScrollPrograms.TryApply(setupCodePointer, scrolls))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCodePointer:X4} in door $83:{doorPointer:X4}.");
+                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCodePointer:X4} in door {doorName}.");
         }
     }
 }

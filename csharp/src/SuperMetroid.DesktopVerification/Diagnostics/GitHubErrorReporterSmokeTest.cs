@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
-using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
@@ -37,7 +37,7 @@ public static class GitHubErrorReporterSmokeTest
                 Phase: "Gameplay",
                 ControllerInput: SnesButton.A,
                 Room: "Climb",
-                DoorPointer: 0x8BB6,
+                Door: "Flyway0",
                 InputRecordingPath: "fixture.smrec",
                 FrameDiagnostics: frameDiagnostics);
             Require(GitHubErrorReporter.CreateFingerprint(repeated, context) ==
@@ -82,7 +82,7 @@ public static class GitHubErrorReporterSmokeTest
                 StringComparison.Ordinal),
             "Created issue body omitted its machine-readable fingerprint marker.");
         Require(created.Body.Contains("- Room: Climb", StringComparison.Ordinal) &&
-                created.Body.Contains("$83:8BB6", StringComparison.Ordinal) &&
+                created.Body.Contains("- Door: Flyway0", StringComparison.Ordinal) &&
                 created.Body.Contains(repeated.ToString(), StringComparison.Ordinal),
             "Created issue omitted frame context or the complete exception.");
         Require(created.Body.Contains(frameDiagnostics, StringComparison.Ordinal),

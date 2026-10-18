@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -69,7 +70,7 @@ internal static class RoomFxTextureDriftVerification
             PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
-        var record = new RoomFxRecordDefinition(Pointer: 1, DoorPointer: 0, BaseYPosition: 100, TargetYPosition: 100,
+        var record = new RoomFxRecordDefinition(Pointer: 1, Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
             PackedYVelocity: 0, Timer: 0, Type: (byte)type, DefaultLayerBlend: (byte)blend, Layer3LayerBlend: (byte)blend,
             LiquidOptions: checked((byte)options.ToNativeWord()), PaletteFxBitset: 0, AnimatedTileBitset: 0, PaletteBlend: 0);
         state.LoadDefinition(new SnesVram(), new SnesCgram(), record, checked((ushort)randomNumber));

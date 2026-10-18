@@ -5,6 +5,8 @@ internal static class RoomFxRomDataRecordTooling
 {
         /// <summary>Byte offset of the two-byte door selector that begins a native room-FX record.</summary>
         public const int DoorPointerOffset = 0;
+        /// <summary>Door word that terminates an FX list without selecting a record.</summary>
+        public const ushort TerminatorDoorPointer = ushort.MaxValue;
         /// <summary>Byte offset of the liquid's starting Y position word.</summary>
         public const int BaseYPositionOffset = 2;
         /// <summary>Byte offset of the liquid's destination Y position word.</summary>

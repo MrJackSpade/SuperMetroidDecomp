@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification
@@ -64,7 +65,7 @@ internal static class RoomBackgroundLibraryParityVerification
 
                 LibraryBackgroundStaging selectedStaging = LibraryBackgroundStagingFixtures.Fresh();
                 var selectedVram = new SnesVram();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(selectedStaging, selectedVram, program.Pointer, door, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(selectedStaging, selectedVram, program.Pointer, door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
@@ -91,7 +92,7 @@ internal static class RoomBackgroundLibraryParityVerification
             "library background parity included door-selected variants");
         try
         {
-            LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), 0xf000, 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+            LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), 0xf000, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
             throw new InvalidOperationException(
                 "Installed library background accepted an uncompiled bank-$8F list.");
         }
@@ -155,7 +156,7 @@ internal static class RoomBackgroundLibraryParityVerification
             TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);
             try
             {
-                LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 throw new InvalidOperationException(
                     $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
             }
@@ -175,7 +176,7 @@ internal static class RoomBackgroundLibraryParityVerification
         stagedBg2[0] = 0x12;
         stagedBg2[1] = 0x34;
         var stagedVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(new Bg2TilemapStaging(), stagedEnemies), stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+        LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(new Bg2TilemapStaging(), stagedEnemies), stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
             "installed-art binding retains the staged enemy BG2 transfer low byte");
         AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),

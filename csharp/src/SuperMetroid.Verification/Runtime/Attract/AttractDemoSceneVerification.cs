@@ -15,8 +15,9 @@ using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification
@@ -29,7 +30,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
-        ushort[] room = [0x91f8, 0x8000, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
+        ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
         ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
@@ -47,7 +48,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, 0x8000, new(0x100, 0x200), new(-46, 0x40),
+        var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, DoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, 0x9000);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");

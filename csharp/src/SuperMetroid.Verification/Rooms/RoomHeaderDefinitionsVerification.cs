@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the compiled room roster and header fields against the pinned retail cartridge.</summary>
 internal static class RoomHeaderDefinitionsVerification
@@ -76,7 +77,7 @@ internal static class RoomHeaderDefinitionsVerification
     /// <summary>Checks the CRE selection bits at header byte eight.</summary>
     private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
-    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => (int)header.DoorListPointer);
+    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room header field")]

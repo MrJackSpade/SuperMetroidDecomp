@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Compiled retail room-FX records selected by all known room states.</summary>
@@ -18,25 +20,25 @@ public static partial class RoomFxRecordDefinitions
         throw new InvalidDataException($"No compiled room-FX record at $83:{pointer:X4}.");
 
     /// <summary>Selects the first default or matching-door record in a bounded FX suffix.</summary>
-    /// <remarks>Native $89:AB99..ABB7 treats door FFFF as an unconditional terminator,
-    /// before comparing the requested door. Zero selects a default; other mismatches
-    /// advance sixteen bytes with ushort wrap. Null roots return zero; unsupported
+    /// <remarks>Native $89:AB99..ABB7 treats the terminator record as unconditional,
+    /// before comparing the requested door. A record without a door is the default; other
+    /// mismatches advance sixteen bytes with ushort wrap. Null roots return zero; unsupported
     /// record identities reject. All 295 supported suffixes and every ushort door
     /// are independently verified against original bank83 words. No stored selector
     /// mapping is required, and the 256-record safety bound is preserved.</remarks>
-    public static ushort Select(ushort fxPointer, ushort doorPointer)
+    public static ushort Select(ushort fxPointer, CartridgeDoorHeader? door)
     {
         if (fxPointer == 0) return 0;
         ushort pointer = fxPointer;
         for (int guard = 0; guard < 256; guard++)
         {
-            ushort candidate = Get(pointer).DoorPointer;
-            if (candidate == RoomFxRomData.Record.TerminatorDoorPointer) return 0;
-            if (candidate == 0 || candidate == doorPointer) return pointer;
+            RoomFxRecordDefinition candidate = Get(pointer);
+            if (candidate.Terminates) return 0;
+            if (candidate.Door is null || candidate.Door == door) return pointer;
             pointer = unchecked((ushort)(pointer + RoomFxRomData.Record.ByteCount));
         }
         throw new InvalidDataException(
-            $"Compiled room-FX list $83:{fxPointer:X4} did not terminate for door $83:{doorPointer:X4}.");
+            $"Compiled room-FX list $83:{fxPointer:X4} did not terminate for door {door?.Name}.");
     }
 
 }

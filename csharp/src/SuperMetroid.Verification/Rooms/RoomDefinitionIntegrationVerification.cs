@@ -117,14 +117,14 @@ internal static class RoomDefinitionIntegrationVerification
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
         foreach (ushort doorPointer in EnumerateRetailDoorPointers()
-                     .Append((ushort)ElevatorPseudoDoorPointer.Shared)
+                     .Append(DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                      .Distinct())
         {
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomDataConstants.RecordByteCount);
             // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
-            if (doorPointer == (ushort)ElevatorPseudoDoorPointer.Shared)
+            if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != DoorSetupCode.None)
@@ -154,10 +154,9 @@ internal static class RoomDefinitionIntegrationVerification
             }
 
             RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
-            DoorListDefinition doors = DoorDefinitionsTooling.GetList(header.DoorListPointer);
             AddAddressRange(forbidden,
-                RoomHeaderRomDataConstants.BankAddress | header.DoorListPointer,
-                doors.DoorPointers.Length * sizeof(ushort));
+                RoomHeaderRomDataConstants.BankAddress | RoomDoorListDefinitions.ListPointerOf(header),
+                RoomDoorListDefinitions.ByRoom[header].Count * sizeof(ushort));
         }
 
         foreach (ushort statePointer in statePointers)

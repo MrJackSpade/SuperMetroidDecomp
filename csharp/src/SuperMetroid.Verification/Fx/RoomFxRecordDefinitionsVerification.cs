@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CatalogInventories;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled room FX records and Ceres consumers against the pinned cartridge.</summary>
 internal static class RoomFxRecordDefinitionsVerification
@@ -51,9 +52,9 @@ internal static class RoomFxRecordDefinitionsVerification
         var nativeFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         var compiledFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         nativeFx.Load(nativeVram, nativeCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Definition);
+            station.Door, randomNumber: 0, room.Definition);
         compiledFx.Load(compiledVram, compiledCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Definition);
+            station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");
@@ -69,25 +70,25 @@ internal static class RoomFxRecordDefinitionsVerification
 
         var nativePalette = new RoomPaletteFxSystem();
         var compiledPalette = new RoomPaletteFxSystem();
-        nativePalette.LoadRoom(room.State.FxPointer, station.DoorPointer,
+        nativePalette.LoadRoom(room.State.FxPointer, station.Door,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
-        compiledPalette.LoadRoom(room.State.FxPointer, station.DoorPointer,
+        compiledPalette.LoadRoom(room.State.FxPointer, station.Door,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
         var nativeSand = new RoomSandAnimatedTilesState();
         var compiledSand = new RoomSandAnimatedTilesState();
-        nativeSand.LoadRoom(room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledSand.LoadRoom(room.State.FxPointer, station.DoorPointer,
+        nativeSand.LoadRoom(room.State.FxPointer, station.Door, room.AreaIndex);
+        compiledSand.LoadRoom(room.State.FxPointer, station.Door,
             room.AreaIndex);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
         var nativeTreadmills = new RoomTreadmillAnimatedTilesState();
         var compiledTreadmills = new RoomTreadmillAnimatedTilesState();
-        nativeTreadmills.LoadRoom(room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledTreadmills.LoadRoom(room.State.FxPointer, station.DoorPointer,
+        nativeTreadmills.LoadRoom(room.State.FxPointer, station.Door, room.AreaIndex);
+        compiledTreadmills.LoadRoom(room.State.FxPointer, station.Door,
             room.AreaIndex);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
@@ -107,7 +108,7 @@ internal static class RoomFxRecordDefinitionsVerification
         var result = new HashSet<int>();
         foreach (RoomFxRecordDefinition record in RoomFxRecordDefinitions.All)
         {
-            int length = record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer
+            int length = record.Terminates
                 ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
             for (int offset = 0; offset < length; offset++)
                 result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));

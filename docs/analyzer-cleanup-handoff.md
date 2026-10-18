@@ -499,6 +499,8 @@ Commit and push that update too.
     - Step 3a (this commit, 123 -> 114): rooms are named `RoomHeaderDefinitions`; AssetExtraction's
       `RoomHeaderSourceDefinitions`/`RoomHeaderSources` own the header pointers. Hosts report rooms by name, and
       debugger save states are schema 7.
-    - Next, step 3b: doors. Door FX records, library-background door transfers, door lists and the elevator
-      pseudo-doors are all keyed by bank-$83 pointers, and FX selection needs the door identity before FX can move.
-      Then FX, scroll, PLM, X-ray and background-data pointers, then room-state identity.
+    - Step 3b (114 -> 105): doors are named `DoorDefinitions`; rooms reach their door lists through
+      `RoomDoorListDefinitions` (generated from the disassembly's `RoomDoors_` lists); FX records and
+      library-background transfers name their door. AssetExtraction's `DoorHeaderSources` owns the door pointers.
+    - Next, step 3c: the room state's scroll, PLM population, X-ray, background-data and FX pointers, one per
+      commit, each named from the state's symbolic field; then room-state identity.

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -166,10 +167,10 @@ public sealed class RoomLayer3FxState
         SnesVram vram,
         SnesCgram cgram,
         ushort fxPointer,
-        ushort doorPointer,
+        CartridgeDoorHeader? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>
     /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
@@ -197,7 +198,7 @@ public sealed class RoomLayer3FxState
         if (source.FxPointer == 0)
             return;
 
-        ushort record = source.SuppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(source.FxPointer, source.DoorPointer);
+        ushort record = source.SuppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(source.FxPointer, source.Door);
         if (record == 0)
             return;
         RoomFxRecordDefinition definition = source.SuppliedDefinition ?? RoomFxRecordDefinitions.Get(record);

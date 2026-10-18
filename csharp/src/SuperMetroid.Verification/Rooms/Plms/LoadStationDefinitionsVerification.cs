@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the compiled seven-area load-station table against all retail records.</summary>
 internal static class LoadStationDefinitionsVerification
@@ -69,7 +70,7 @@ internal static class LoadStationDefinitionsVerification
     /// <summary>Checks every destination room header pointer against its native station record.</summary>
     private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.Room is { } room ? RoomHeaderDefinitions.PointerOf(room) : 0, "RoomPointer");
     /// <summary>Checks every destination door pointer against its native station record.</summary>
-    private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
+    private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.Door is { } door ? DoorDefinitions.PointerOf(door) : 0, "DoorPointer");
     /// <summary>Checks camera X placement for all 134 retail station slots.</summary>
     private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.X, "CameraX");
     /// <summary>Checks camera Y placement for all 134 retail station slots.</summary>

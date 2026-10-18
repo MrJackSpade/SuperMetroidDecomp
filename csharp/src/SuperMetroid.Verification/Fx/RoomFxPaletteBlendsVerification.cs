@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
@@ -211,7 +212,7 @@ internal static class RoomFxPaletteBlendsVerification
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,
         };
-        state.Load(new SnesVram(), cgram, record.Pointer, doorPointer: 0, randomNumber: 0);
+        state.Load(new SnesVram(), cgram, record.Pointer, door: null, randomNumber: 0);
         return (state, bus, cgram);
     }
 

@@ -208,7 +208,7 @@ public sealed class CartridgeRoomAssets
         ushort[] streamingBackground = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
         Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
         background.CopyTo(streamingBackground, 0);
-        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doorListPointer: header.DoorListPointer, visualLayout: visualLayout);
+        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doors: header.Doors, visualLayout: visualLayout);
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>

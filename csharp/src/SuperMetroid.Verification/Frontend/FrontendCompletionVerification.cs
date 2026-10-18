@@ -204,7 +204,7 @@ internal static void VerifyDoorOpeningTrajectories()
             RoomLoader.DoorTransitionAlignsX((DoorDirection)direction),
             $"door direction {direction} alignment axis");
         var door = new CartridgeDoorHeader(
-            Pointer: 0x8000,
+            Name: "fixture door",
             DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
             PlmBlock: new(0, 0),

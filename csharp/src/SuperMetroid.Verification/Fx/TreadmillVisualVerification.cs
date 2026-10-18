@@ -12,6 +12,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks Wrecked Ship treadmill DMA frames through rendered floor-character pixels.</summary>
 internal static class TreadmillVisualVerification
@@ -33,7 +34,7 @@ internal static class TreadmillVisualVerification
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
-            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, 0);
+            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, null);
             byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
             if ((bits & 12) == 0) continue;

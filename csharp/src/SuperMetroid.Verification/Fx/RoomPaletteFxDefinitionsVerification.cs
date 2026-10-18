@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
@@ -87,7 +88,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            var definition = new RoomFxRecordDefinition(fxPointer, 0, 0, 0, 0,
+            var definition = new RoomFxRecordDefinition(fxPointer, null, false, 0, 0, 0,
                 0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
             var system = new RoomPaletteFxSystem();
             system.LoadDefinition(definition, (AreaId)area,

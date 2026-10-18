@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// One resolved entry of a room's bank-$8F door list: a physical door header, or one of the
-/// elevator pseudo-doors (<see cref="ElevatorPseudoDoorPointer.Shared"/>,
-/// <see cref="ElevatorPseudoDoorPointer.MaridiaTourian"/>).
+/// elevator pseudo-doors (<see cref="ElevatorPseudoDoor.Shared"/>,
+/// <see cref="ElevatorPseudoDoor.MaridiaTourian"/>).
 /// </summary>
 /// <remarks>
 /// Native code tells them apart by bit 15 of the entry's destination word (<c>$94:938B</c>,
@@ -15,34 +15,30 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </remarks>
 public readonly record struct DoorListEntry
 {
-    /// <summary>Pairs the native list pointer with a physical header, or leaves the header absent for an elevator entry.</summary>
-    private DoorListEntry(ushort pointer, CartridgeDoorHeader? door)
+    /// <summary>Pairs a physical header, or a pseudo-door kind for an elevator entry.</summary>
+    private DoorListEntry(CartridgeDoorHeader? door, ElevatorPseudoDoor? pseudoDoor)
     {
-        Pointer = pointer;
         Door = door;
+        PseudoDoor = pseudoDoor;
     }
-
-    /// <summary>The bank-$83 pointer stored in the door list.</summary>
-    public ushort Pointer { get; }
 
     /// <summary>The physical door header, or null for an elevator pseudo-door.</summary>
     public CartridgeDoorHeader? Door { get; }
+
+    /// <summary>The elevator pseudo-door, or null for a physical door.</summary>
+    public ElevatorPseudoDoor? PseudoDoor { get; }
 
     /// <summary>True for an elevator pseudo-door (zero destination word).</summary>
     public bool IsElevatorPseudoDoor => Door is null;
 
     /// <summary>A physical door header.</summary>
-    public static DoorListEntry Physical(CartridgeDoorHeader door)
-    {
-        Ensure.NotNull(door);
-        return new(door.Pointer, door);
-    }
+    public static DoorListEntry Physical(CartridgeDoorHeader door) => new(Ensure.NotNull(door), null);
 
     /// <summary>An elevator pseudo-door entry.</summary>
-    public static DoorListEntry ElevatorPseudoDoor(ElevatorPseudoDoorPointer pointer)
+    public static DoorListEntry ElevatorPseudoDoor(ElevatorPseudoDoor pseudoDoor)
     {
-        if (!Enum.IsDefined(pointer))
-            throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Not an elevator pseudo-door pointer.");
-        return new((ushort)pointer, null);
+        if (!Enum.IsDefined(pseudoDoor))
+            throw new ArgumentOutOfRangeException(nameof(pseudoDoor), pseudoDoor, "Not an elevator pseudo-door.");
+        return new(null, pseudoDoor);
     }
 }

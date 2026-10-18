@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks the Chozo Speed Booster message continuation that starts the room's lava rise.</summary>
 internal static class SpeedBoosterPickupVerification
@@ -25,7 +26,7 @@ internal static class SpeedBoosterPickupVerification
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
             RoomLayer3FxState fx = CreateRetailFxState(cartridge);
-            fx.Load(vram, new SnesCgram(), 0x8600, 0, 0);
+            fx.Load(vram, new SnesCgram(), 0x8600, null, 0);
             CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (chozo)

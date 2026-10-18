@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Where a room's layer-3 FX comes from: its FX and door pointers, RNG, room header, and an optional supplied definition (#633).</summary>
+/// <summary>Where a room's layer-3 FX comes from: its FX pointer and entry door, RNG, room, and an optional supplied definition (#633).</summary>
 internal sealed record RoomFxLoadSource
 {
     /// <summary>Fx pointer.</summary>
     public required ushort FxPointer { get; init; }
 
-    /// <summary>Door pointer.</summary>
-    public required ushort DoorPointer { get; init; }
+    /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
+    public required CartridgeDoorHeader? Door { get; init; }
 
     /// <summary>
     /// The shared random number when the room's FX loads; rain reads two of its bits to choose its drift. A copy of

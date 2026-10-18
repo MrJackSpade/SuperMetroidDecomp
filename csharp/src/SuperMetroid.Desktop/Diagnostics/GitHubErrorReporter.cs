@@ -95,7 +95,7 @@ public sealed class GitHubErrorReporter : IDisposable
             "the host will attempt the next frame.");
         Console.Error.WriteLine(exception);
         Console.Error.WriteLine($"Room {context.Room}, state $8F:{context.RoomStatePointer:X4}, " +
-            $"door $83:{context.DoorPointer:X4}, recording {context.InputRecordingPath}");
+            $"door {context.Door}, recording {context.InputRecordingPath}");
         Console.Error.WriteLine(
             "The failed frame may have partially mutated emulated state. " +
             "A repeated throw can stall progress until the translation is fixed.");
@@ -257,7 +257,8 @@ public sealed class GitHubErrorReporter : IDisposable
         if (context.Room is not null)
             body.Append("- Room: ").AppendLine(context.Room);
         AppendBankContext(body, "Room state", ReportedPointerBank.RoomHeaders, context.RoomStatePointer);
-        AppendBankContext(body, "Door", ReportedPointerBank.DoorHeaders, context.DoorPointer);
+        if (context.Door is not null)
+            body.Append("- Door: ").AppendLine(context.Door);
         if (context.InputRecordingPath is not null)
             body.Append("- Input recording: `").Append(context.InputRecordingPath).AppendLine("`");
         if (context.FrameDiagnostics is not null)

@@ -2,8 +2,9 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Fx;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Checks the room-FX and palette-FX inputs that hold a copy of a cartridge word as a number: each accepts the whole
@@ -53,7 +54,7 @@ internal static class RoomFxWidenedInputsVerification
         static RoomLayer3FxFrame FrameRandom(int randomNumber) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, RandomNumber = randomNumber };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
-            new() { FxPointer = 0, DoorPointer = 0, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
+            new() { FxPointer = 0, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }
 
     /// <summary>Dispatches the widened room-FX input checks.</summary>

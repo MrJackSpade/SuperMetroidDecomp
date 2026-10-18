@@ -59,7 +59,7 @@ internal static class DoorAlignmentVerification
         for (int direction = 0; direction < 4; direction++)
         {
             var door = new CartridgeDoorHeader(
-                Pointer: 0x8000,
+                Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
                 PlmBlock: new(0, 0),

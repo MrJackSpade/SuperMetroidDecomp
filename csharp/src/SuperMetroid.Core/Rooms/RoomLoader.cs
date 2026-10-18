@@ -176,12 +176,12 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
-        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
+        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
                 $"Ceres station room {station.Room?.Name} disagrees with door " +
-                $"$83:{door.Pointer:X4}'s destination {door.DestinationRoom.Name}.");
+                $"{door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
@@ -228,12 +228,12 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             requestedArea,
             stationIndex);
-        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
+        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
                 $"Load station {requestedArea}:{stationIndex} room {station.Room?.Name} " +
-                $"disagrees with door $83:{door.Pointer:X4}'s destination " +
+                $"disagrees with door {door.Name}'s destination " +
                 $"{door.DestinationRoom.Name}.");
         }
 
@@ -344,12 +344,12 @@ internal sealed class RoomLoader
         LoadStationEntry station = LoadStationDefinitions.Get(
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
-        CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
+        CartridgeDoorHeader door = station.Door ?? throw new InvalidDataException("The load station has no door.");
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
                 $"Post-Ceres station room {station.Room?.Name} disagrees with " +
-                $"door $83:{door.Pointer:X4}'s destination {door.DestinationRoom.Name}.");
+                $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
@@ -779,11 +779,11 @@ internal sealed class RoomLoader
         CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
-        if (consumedDoor.Pointer != door.Pointer)
+        if (consumedDoor != door)
         {
             throw new InvalidOperationException(
-                $"Pending door changed from $83:{door.Pointer:X4} to " +
-                $"$83:{consumedDoor.Pointer:X4} while its destination assets were prepared.");
+                $"Pending door changed from {door.Name} to " +
+                $"{consumedDoor.Name} while its destination assets were prepared.");
         }
 
         // `$82:E8DD/$82:EB93` promotes a departing elevator's global status from one to
@@ -916,7 +916,7 @@ internal sealed class RoomLoader
         // The main callback streams offscreen tilemap rows even in Crateria's rock room.
         // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
         // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
-        ushort selectedFx = RoomFxRecordDefinitions.Select(room.State.FxPointer, door.Pointer);
+        ushort selectedFx = RoomFxRecordDefinitions.Select(room.State.FxPointer, door);
         bool skyHdmaConfigured =
             (selectedFx != 0 && RoomFxRecordDefinitions.Get(selectedFx).Type == (byte)RoomFxType.ScrollingSky) ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
@@ -944,18 +944,18 @@ internal sealed class RoomLoader
             _vram,
             _cgram,
             room.State.FxPointer,
-            door.Pointer,
+            door,
             _system.RandomNumber,
             room.Definition);
         _roomLayer3Fx.PrimeViewport(_room.Camera.PixelPosition);
         _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        _sandAnimatedTiles.LoadRoom(room.State.FxPointer, door.Pointer,
+        _sandAnimatedTiles.LoadRoom(room.State.FxPointer, door,
             room.AreaIndex);
-        _roomSpikes.LoadRoom(room.State.FxPointer, door.Pointer,
+        _roomSpikes.LoadRoom(room.State.FxPointer, door,
             room.AreaIndex);
-        _roomTreadmills.LoadRoom(room.State.FxPointer, door.Pointer,
+        _roomTreadmills.LoadRoom(room.State.FxPointer, door,
             room.AreaIndex);
         if (_player.Samus is not null)
             _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
@@ -966,7 +966,7 @@ internal sealed class RoomLoader
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
         _roomPaletteFx.LoadRoom(
             room.State.FxPointer,
-            door.Pointer,
+            door,
             room.AreaIndex,
             _player.Samus?.EquippedItems ?? 0,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
@@ -978,7 +978,7 @@ internal sealed class RoomLoader
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (unchecked((short)room.State.BackgroundDataPointer) < 0)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, room.State.BackgroundDataPointer, door.Pointer, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, room.State.BackgroundDataPointer, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
             if (backgroundResult.SelectsKraidHudCharacters)
                 _display.SelectKraidHudCharacterBase();
         }

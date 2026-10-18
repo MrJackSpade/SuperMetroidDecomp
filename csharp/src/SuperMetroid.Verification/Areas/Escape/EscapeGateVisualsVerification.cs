@@ -123,7 +123,7 @@ internal static class EscapeGateVisualsVerification
         AssertEqual(1, closing.PopulationLoader.LoadRoomPopulation(new PlmRoom(closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
-            Pointer: 0xaa8c,
+            Name: nameof(DoorDefinitions.MotherBrain1),
             DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),

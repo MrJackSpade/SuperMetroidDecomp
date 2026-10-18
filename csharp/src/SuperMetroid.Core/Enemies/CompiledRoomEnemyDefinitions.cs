@@ -20,12 +20,6 @@ public sealed class CompiledRoomEnemyDefinitions : IRoomEnemyDefinitionSource
             : RoomEnemyDefinitionCatalog.Get(pointer);
 
     /// <inheritdoc />
-    public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) => RoomEnemyPopulationDefinitions.Get(pointer);
-
-    /// <inheritdoc />
-    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) => RoomEnemyGraphicsSetDefinitions.Get(pointer);
-
-    /// <inheritdoc />
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Get(piece);
 }

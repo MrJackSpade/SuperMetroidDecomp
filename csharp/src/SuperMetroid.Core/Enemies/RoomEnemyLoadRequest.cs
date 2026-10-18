@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>A validated <see cref="IRoomEnemyLoad"/>; required capabilities are non-null at construction.</summary>
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
-    /// <summary>Creates a load of the population at <paramref name="populationPointer"/> with <paramref name="services"/>.</summary>
-    public RoomEnemyLoadRequest(IRoomEnemyDefinitionSource definitions, ushort populationPointer, ushort tilesetPointer,
-        SnesVram vram, SnesCgram cgram, IRoomEnemyServices services)
+    /// <summary>Creates a load of <paramref name="population"/> with <paramref name="services"/>.</summary>
+    public RoomEnemyLoadRequest(IRoomEnemyDefinitionSource definitions, RoomEnemyPopulationDefinition population,
+        RoomEnemyGraphicsSetDefinition graphicsSet, SnesVram vram, SnesCgram cgram, IRoomEnemyServices services)
     {
         Definitions = Ensure.NotNull(definitions);
-        PopulationPointer = populationPointer;
-        TilesetPointer = tilesetPointer;
+        Population = Ensure.NotNull(population);
+        GraphicsSet = Ensure.NotNull(graphicsSet);
         Vram = Ensure.NotNull(vram);
         Cgram = Ensure.NotNull(cgram);
         Services = Ensure.NotNull(services);
@@ -24,10 +24,10 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public IRoomEnemyDefinitionSource Definitions { get; }
 
     /// <inheritdoc />
-    public ushort PopulationPointer { get; }
+    public RoomEnemyPopulationDefinition Population { get; }
 
     /// <inheritdoc />
-    public ushort TilesetPointer { get; }
+    public RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <inheritdoc />
     public SnesVram Vram { get; }

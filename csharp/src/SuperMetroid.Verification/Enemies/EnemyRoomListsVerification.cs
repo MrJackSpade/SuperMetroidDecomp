@@ -17,9 +17,9 @@ internal static class EnemyRoomListsVerification
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] populationPointers = RoomStateDefinitions.All
-            .Select(state => state.EnemyPopulationPointer).Distinct().Order().ToArray();
+            .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation)).Distinct().Order().ToArray();
         ushort[] graphicsPointers = RoomStateDefinitions.All
-            .Select(state => state.EnemyTilesetPointer).Distinct().Order().ToArray();
+            .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet)).Distinct().Order().ToArray();
         AssertEqual(RoomEnemyPopulationDefinitions.ListCount, populationPointers.Length,
             "all retail population identities are compiled");
         AssertEqual(RoomEnemyGraphicsSetDefinitions.ListCount, graphicsPointers.Length,

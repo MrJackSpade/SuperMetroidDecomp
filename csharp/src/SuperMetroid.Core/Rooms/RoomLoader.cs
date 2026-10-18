@@ -1053,8 +1053,8 @@ internal sealed class RoomLoader
 
         _enemies.Load(new RoomEnemyLoadRequest(
             CompiledRoomEnemyDefinitions.Instance,
-            room.State.EnemyPopulationPointer,
-            room.State.EnemyTilesetPointer,
+            room.State.EnemyPopulation,
+            room.State.EnemyGraphicsSet,
             _vram,
             _cgram,
             new RoomEnemyRuntimeServices(_system, _room, _player, _plms, _display, _backgroundScroll, room.AreaIndex))

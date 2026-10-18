@@ -209,7 +209,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>();
 
         foreach (ushort populationPointer in states
-                     .Select(state => state.EnemyPopulationPointer)
+                     .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation))
                      .Distinct())
         {
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;

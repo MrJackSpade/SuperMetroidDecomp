@@ -18,7 +18,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyPopulationDefinition(pointer,
+        return new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
             new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, EnemyPropertyWord.FromNativeWord(CrystalFlashContactDefinitions.Properties), default, 0, 0),
         ], 0);
@@ -29,7 +29,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return new RoomEnemyGraphicsSetDefinition(pointer,
+        return new RoomEnemyGraphicsSetDefinition("Crystal Flash contact Ripper",
         [
             new RoomEnemyGraphicsSetHeader(CrystalFlashContactDefinitions.RipperHeader, 0),
         ]);

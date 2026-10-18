@@ -246,7 +246,7 @@ internal static class NoobTubePlmVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
-        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);

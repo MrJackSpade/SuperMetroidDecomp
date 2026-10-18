@@ -6,11 +6,11 @@ public interface IRoomEnemyPopulationSource
     /// <summary>The source of the population, its enemy headers and its graphics set.</summary>
     IRoomEnemyDefinitionSource Definitions { get; }
 
-    /// <summary>The room state's enemy population pointer.</summary>
-    ushort PopulationPointer { get; }
+    /// <summary>The room state's enemy population.</summary>
+    RoomEnemyPopulationDefinition Population { get; }
 
-    /// <summary>The room state's enemy graphics-set pointer.</summary>
-    ushort TilesetPointer { get; }
+    /// <summary>The room state's enemy graphics set, loaded only when the population is not empty.</summary>
+    RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <summary>VRAM the enemy graphics load into.</summary>
     SnesVram Vram { get; }

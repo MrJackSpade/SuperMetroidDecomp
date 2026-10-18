@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Abilities;
@@ -100,9 +101,9 @@ internal static class LookupRoomStateSettingsVerification
     /// <summary>Checks effect-header pointer selection for every state.</summary>
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
     /// <summary>Checks which native enemy population each state installs.</summary>
-    private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyPopulationPointer, "EnemyPopulationPointer");
+    private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation), "EnemyPopulationPointer");
     /// <summary>Checks the enemy graphics-set pointer paired with each population.</summary>
-    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyTilesetPointer, "EnemyTilesetPointer");
+    private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet), "EnemyTilesetPointer");
     /// <summary>Checks horizontal layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Horizontal, "Layer2ScrollX");
     /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>

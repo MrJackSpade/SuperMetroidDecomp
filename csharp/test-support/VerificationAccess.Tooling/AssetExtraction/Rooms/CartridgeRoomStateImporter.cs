@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -22,7 +23,8 @@ public static class CartridgeRoomStateImporter
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge, address + offset);
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge, address + offset);
         return new CartridgeRoomState(statePointer, Long(0), Byte(3), Byte(4), Byte(5),
-            Word(6), Word(8), Word(10), SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(Byte(12), Byte(13)), Word(14), Word(16),
+            Word(6), SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions.Get(Word(8)),
+            SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions.Get(Word(10)), SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(Byte(12), Byte(13)), Word(14), Word(16),
             RoomCallbackDefinitions.ResolveMain(Word(18)), Word(20), Word(22), RoomCallbackDefinitions.ResolveSetup(Word(24)));
     }
 }

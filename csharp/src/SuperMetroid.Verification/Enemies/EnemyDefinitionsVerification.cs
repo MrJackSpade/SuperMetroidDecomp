@@ -24,7 +24,7 @@ internal static class EnemyDefinitionsVerification
         foreach (CartridgeRoomState state in RoomStateDefinitions.All)
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
-                state.EnemyPopulationPointer;
+                RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation);
             for (int slot = 0; slot < RoomEnemySystem.MaximumEnemyCount; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, populationAddress);
@@ -35,7 +35,7 @@ internal static class EnemyDefinitionsVerification
             }
 
             int graphicsAddress = RoomEnemyRomLayout.TilesetBank |
-                state.EnemyTilesetPointer;
+                RoomEnemyGraphicsSetDefinitions.PointerOf(state.EnemyGraphicsSet);
             for (int slot = 0; slot < 4; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, graphicsAddress);

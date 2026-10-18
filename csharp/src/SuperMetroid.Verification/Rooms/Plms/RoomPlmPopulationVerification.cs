@@ -1259,7 +1259,7 @@ internal static class RoomPlmPopulationVerification
         SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem();
-        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
+        enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
         enemies.Projectiles.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
 
         var visible = new SpriteVisualPart

@@ -781,8 +781,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Room.Services = request.Services;
         Presentation._vram = request.Vram;
         Presentation._cgram = request.Cgram;
-        PopulationLoader.PopulationPointer = request.PopulationPointer;
-        PopulationLoader.TilesetPointer = request.TilesetPointer;
         SlotTable.EnemyCount = 0;
         RoomStatus.EnemiesKilled = 0;
         RoomStatus.BossId = 0;
@@ -820,10 +818,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // $A0:8A6D does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
-        RoomEnemyPopulationDefinition population =
-            definitions.ReadEnemyPopulation(request.PopulationPointer);
+        RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            PopulationLoader.LoadGraphicsSet(definitions, request.TilesetPointer, request.Vram, request.Cgram);
+            PopulationLoader.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram);
         PopulationLoader.LoadPopulation(
             definitions,
             population,

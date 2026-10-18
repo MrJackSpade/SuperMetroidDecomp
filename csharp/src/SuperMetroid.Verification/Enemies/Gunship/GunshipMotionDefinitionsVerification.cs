@@ -151,18 +151,6 @@ internal static class GunshipMotionDefinitionsVerification
                 ? fixture.ReadEnemyDefinition(pointer)
                 : RoomEnemyDefinitionCatalog.Get(pointer);
 
-        /// <summary>Forwards population data to the fixture source or compiled catalog.</summary>
-        public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
-            source is IRoomEnemyDefinitionSource fixture
-                ? fixture.ReadEnemyPopulation(pointer)
-                : RoomEnemyPopulationDefinitions.Get(pointer);
-
-        /// <summary>Forwards graphics-set data to the fixture source or compiled catalog.</summary>
-        public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
-            source is IRoomEnemyDefinitionSource fixture
-                ? fixture.ReadEnemyGraphicsSet(pointer)
-                : RoomEnemyGraphicsSetDefinitions.Get(pointer);
-
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
         CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);

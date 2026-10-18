@@ -64,8 +64,8 @@ internal static class VramDmaDomains
                 return Native(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.SourceAddress, (int)GunshipLiftoffTransferDefinitions.ByteCount)))
                     .Concat(Typed(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.Asset, (int)GunshipLiftoffTransferDefinitions.ByteCount))));
             case "enemies":
-                return Native(RoomEnemyGraphicsSetDefinitions.Pointers.SelectMany(pointer =>
-                    RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray()).Select(entry =>
+                return Native(RoomEnemyGraphicsSetDefinitions.All.SelectMany(set =>
+                    set.Records.ToArray()).Select(entry =>
                     (RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataAddress,
                      (int)RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":

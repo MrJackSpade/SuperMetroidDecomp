@@ -31,10 +31,6 @@ internal sealed class EnemyPopulationLoader
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
 
-    /// <summary>Bank-$A1 population identity supplied by the current room state, matching native EnemyPopulationPointer ($07CF).</summary>
-    public ushort PopulationPointer { get; internal set; }
-    /// <summary>Bank-$B4 enemy graphics-set identity supplied by the current room state, matching native EnemySetPointer ($07D1); an empty population does not load that set.</summary>
-    public ushort TilesetPointer { get; internal set; }
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
     public int DeathQuota { get; private set; }
 
@@ -66,12 +62,10 @@ internal sealed class EnemyPopulationLoader
     /// <summary>Stages selected enemy tiles and OBJ palettes in bank-$B4 record order while retaining native size arithmetic.</summary>
     internal void LoadGraphicsSet(
         IRoomEnemyDefinitionSource definitions,
-        ushort tilesetPointer,
+        RoomEnemyGraphicsSetDefinition graphicsSet,
         SnesVram vram,
         SnesCgram cgram)
     {
-        RoomEnemyGraphicsSetDefinition graphicsSet =
-            definitions.ReadEnemyGraphicsSet(tilesetPointer);
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 
@@ -81,7 +75,7 @@ internal sealed class EnemyPopulationLoader
             if (_graphicsSet.Count == RoomEnemySystem.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy graphics set $B4:{tilesetPointer:X4} exceeds the native four-entry arrays.");
+                    $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
             }
 
             ushort vramDestination = source.VramDestination;
@@ -145,7 +139,7 @@ internal sealed class EnemyPopulationLoader
             if (slotIndex == RoomEnemySystem.MaximumEnemyCount)
             {
                 throw new InvalidDataException(
-                    $"Enemy population $A1:{populationDefinition.Pointer:X4} has more than 32 records.");
+                    $"Enemy population {populationDefinition.Name} has more than 32 records.");
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);

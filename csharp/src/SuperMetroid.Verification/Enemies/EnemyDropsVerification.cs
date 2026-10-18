@@ -407,7 +407,7 @@ internal static class EnemyDropsVerification
             new ushort[1],
             new byte[1]);
         var system = new RoomEnemySystem();
-        system.Load(new RoomEnemyLoadRequest(bus, 0x9000, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
+        system.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }
 

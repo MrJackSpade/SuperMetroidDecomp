@@ -83,7 +83,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
                 return new RoomEnemyPopulationDefinition(
-                    pointer, records.ToArray(), ReadByte(cursor + 2));
+                    $"fixture population ${pointer:X4}", records.ToArray(), ReadByte(cursor + 2));
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == RoomEnemySystem.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
@@ -92,6 +92,9 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         }
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
     }
+
+    /// <summary>An empty graphics set for a fixture whose empty population never loads one.</summary>
+    public static RoomEnemyGraphicsSetDefinition UnusedGraphicsSet { get; } = new("unused fixture graphics set", []);
 
     /// <summary>Reads up to four enemy graphics headers through the native terminator.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
@@ -102,7 +105,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
-                return new RoomEnemyGraphicsSetDefinition(pointer, records.ToArray());
+                return new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");

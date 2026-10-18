@@ -124,7 +124,7 @@ public sealed class EscapeTimerPresentation
                     part.Priority, (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                     (part.FlipY ? SnesTileFlipFlags.Vertical : 0));
                 compiled[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                    unchecked((byte)(sbyte)part.OffsetY), attributes, part.Palette is null);
+                    new SnesSpritemapYByte(unchecked((byte)part.OffsetY)), attributes, part.Palette is null);
             }
             if (!compiled.SequenceEqual(EscapeTimerPresentationDefinitions.DefaultParts(name)))
                 frames.Add(name, new SpriteComposition(compiled));

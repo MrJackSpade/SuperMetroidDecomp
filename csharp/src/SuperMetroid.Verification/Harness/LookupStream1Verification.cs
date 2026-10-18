@@ -1105,7 +1105,7 @@ internal static class LookupStream1Verification
         ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.DrainedCrouchingLeftPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
-                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
+                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.DrainedYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1174,7 +1174,7 @@ internal static class LookupStream1Verification
         ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.MorphingTransitionRightPose)];
         var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
             stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
-                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
+                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.PostureYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
         AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
@@ -1271,7 +1271,7 @@ internal static class LookupStream1Verification
         // Marker parts confirm selected supplied payload identity, not native artwork.
         SamusSpritemapDefinition[] definitions = pointers.Where(pointer => pointer != 0).Distinct()
             .Select(pointer => new SamusSpritemapDefinition(pointer,
-                [new SamusSpritePart(new SnesSpritemapXWord(pointer), (byte)pointer, (ushort)(pointer ^ 0x5555))])).ToArray();
+                [new SamusSpritePart(new SnesSpritemapXWord(pointer), new SnesSpritemapYByte((byte)pointer), (ushort)(pointer ^ 0x5555))])).ToArray();
         SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, pointers, definitions);
         var stock = Create(top, bottom);
         string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
@@ -1286,7 +1286,7 @@ internal static class LookupStream1Verification
                 foreach (SamusSpritePart part in definition.Parts)
                 {
                     content.Append("x", part.X.Raw);
-                    content.Append("y", part.Y);
+                    content.Append("y", part.Y.Raw);
                     content.Append("attributes", part.Attributes);
                 }
             }
@@ -1298,7 +1298,7 @@ internal static class LookupStream1Verification
             if (found)
             {
                 AssertEqual(pointers[selected], (definition ?? throw new InvalidOperationException("Verification requires definition.")).Pointer, "Actual selector resolves supplied pointer");
-                AssertEqual(new SamusSpritePart(new SnesSpritemapXWord(pointers[selected]), (byte)pointers[selected], (ushort)(pointers[selected] ^ 0x5555)),
+                AssertEqual(new SamusSpritePart(new SnesSpritemapXWord(pointers[selected]), new SnesSpritemapYByte((byte)pointers[selected]), (ushort)(pointers[selected] ^ 0x5555)),
                     definition.Parts.Single(), "Actual selector resolves independent marker payload");
             }
         }
@@ -1526,7 +1526,7 @@ internal static class LookupStream1Verification
                 int native = address + 2 + index * 5;
                 var part = calculated[index];
                 AssertEqual(Word(native), part.X.Raw, "Timer calculated X/size native word");
-                AssertEqual(LookupStream1TimerLayoutRomByte(rom, native + 2), part.Y, "Timer calculated native Y");
+                AssertEqual(LookupStream1TimerLayoutRomByte(rom, native + 2), part.Y.Raw, "Timer calculated native Y");
                 AssertEqual((ushort)(Word(native + 3) & ~0x0e00), part.Attributes.Raw, "Timer calculated native tile/priority/flips with inherited palette removed");
                 AssertTrue(part.InheritPalette, "Timer part inherits independently supplied timer palette");
                 parts++;
@@ -1600,7 +1600,7 @@ internal static class LookupStream1Verification
             void Draw(string frame, Offset16<OamPixels> anchor)
             {
                 foreach (var part in selected.Frames[frame])
-                    result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
+                    result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), new SnesSpritemapYByte(unchecked((byte)part.OffsetY)),
                         SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
                             (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
                         timer.PixelPosition.ToOam() + anchor);
@@ -2934,7 +2934,7 @@ internal static class LookupStream1Verification
             new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
         var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
             body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
-                map.Parts.Select(part => part with { X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~511) | ((part.X.Raw + 1) & 511))), Y = unchecked((byte)(part.Y + 1)) }).ToArray())).ToArray());
+                map.Parts.Select(part => part with { X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~511) | ((part.X.Raw + 1) & 511))), Y = new SnesSpritemapYByte(unchecked((byte)(part.Y.Raw + 1))) }).ToArray())).ToArray());
         foreach (var maps in new[] { empty, zero, shifted })
         {
             var editedBody = WithMaps(maps);
@@ -3025,7 +3025,7 @@ internal static class LookupStream1Verification
                 content.Append("pointer", map.Pointer); content.Append("part count", map.Parts.Length);
                 foreach (var part in map.Parts)
                 {
-                    content.Append("x", part.X.Raw); content.Append("y", part.Y); content.Append("attributes", part.Attributes);
+                    content.Append("x", part.X.Raw); content.Append("y", part.Y.Raw); content.Append("attributes", part.Attributes);
                 }
             }
         });

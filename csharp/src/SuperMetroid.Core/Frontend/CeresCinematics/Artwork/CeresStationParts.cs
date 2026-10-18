@@ -94,7 +94,7 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 int column = 2 * (40 - index);
                 x = -10 + 8 * column; y = -48; tile = CeresStationCellDefinitions.Top + column;
             }
-            return new(SnesSpritemapXWord.Create(x, index is 1 or 2 or >= 13), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, index is 1 or 2 or >= 13), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }

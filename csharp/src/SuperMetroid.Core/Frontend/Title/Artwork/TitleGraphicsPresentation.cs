@@ -158,7 +158,7 @@ public sealed class TitleGraphicsPresentation
                     (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
                     (part.FlipY ? SnesTileFlipFlags.Vertical : 0));
                 parts[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                    unchecked((byte)(sbyte)part.OffsetY), attributes, InheritPalette: true);
+                    new SnesSpritemapYByte(unchecked((byte)part.OffsetY)), attributes, InheritPalette: true);
             }
             if (!result.TryAdd(frame.Sprite, new SpriteComposition(parts)))
                 throw new InvalidDataException($"Duplicate title frame {frame.Sprite}.");

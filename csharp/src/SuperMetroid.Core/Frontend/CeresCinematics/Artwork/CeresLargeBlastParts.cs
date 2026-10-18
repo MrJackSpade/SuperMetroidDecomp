@@ -31,7 +31,7 @@ internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<
     public int Count => 1;
     /// <summary>Places the supplied cloud tile at X=-8 and a frame-dependent rising Y offset.</summary>
     public CompiledSpritePart this[int index] => index == 0
-        ? new(SnesSpritemapXWord.Create(-8, true), unchecked((byte)(-10 - 2 * frame)),
+        ? new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-10 - 2 * frame),
             SnesObjAttributeWord.Create(tile, 0, 3, 0), true)
         : throw new ArgumentOutOfRangeException(nameof(index));
     /// <summary>Emits the sole sprite part in native draw order.</summary>

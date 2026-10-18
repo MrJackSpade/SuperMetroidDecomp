@@ -44,7 +44,7 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
             bool left = (index == 0) == (frame == 3);
             int leftTile = frame switch { 0 => FirstLeftTile, 1 => SecondLeftTile, 2 => ThirdLeftTile, _ => FinalLeftTile };
             int rightTile = frame switch { 0 => FirstRightTile, 2 => ThirdRightTile, _ => SharedRightTile };
-            return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), unchecked((byte)-4),
+            return new(SnesSpritemapXWord.Create(left ? -8 : 0, false), SnesSpritemapYByte.Create(-4),
                 SnesObjAttributeWord.Create(left ? leftTile : rightTile, 0, 3, SnesTileFlipFlags.None), true);
         }
     }

@@ -41,8 +41,8 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
             CompiledSpritePart part = supplied.Part(index);
             left = Math.Min(left, part.X.SignedOffset);
             right = Math.Max(right, part.X.SignedOffset);
-            top = Math.Min(top, unchecked((sbyte)part.Y));
-            bottom = Math.Max(bottom, unchecked((sbyte)part.Y));
+            top = Math.Min(top, part.Y.SignedOffset);
+            bottom = Math.Max(bottom, part.Y.SignedOffset);
         }
         if ((right - left) % 8 != 0 || (bottom - top) % 8 != 0) return supplied;
         int columns = (right - left) / 8 + 1, rows = (bottom - top) / 8 + 1;
@@ -55,7 +55,7 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < supplied.PartCount; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            int x = part.X.SignedOffset - left, y = unchecked((sbyte)part.Y) - top;
+            int x = part.X.SignedOffset - left, y = part.Y.SignedOffset - top;
             if (x % 8 != 0 || y % 8 != 0) return supplied;
             int column = x / 8, row = y / 8;
             int perimeter = row == 0 ? column
@@ -103,7 +103,7 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
             }
             Appearance appearance = appearances[Role(column, row)];
             return new(SnesSpritemapXWord.Create(left + column * 8, false),
-                unchecked((byte)(top + row * 8)), appearance.Attributes, appearance.InheritPalette);
+                SnesSpritemapYByte.Create(top + row * 8), appearance.Attributes, appearance.InheritPalette);
         }
     }
     /// <summary>Enumerates calculated border parts in the original draw order.</summary>

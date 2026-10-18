@@ -37,7 +37,7 @@ internal static class MapSpritesVerification
         for (int offset = 0; offset < 256; offset++)
         {
             installed.BeginFrame();
-            installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), (byte)offset,
+            installed.AddOnScreenSpritePart(SnesSpritemapXWord.Create(-1, true), new SnesSpritemapYByte((byte)offset),
                 SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(0, (ushort)origin));
             int sum = origin + offset;
             int signedY = origin + unchecked((sbyte)offset);

@@ -47,7 +47,7 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                         : IntroMotherBrainExplosionCellDefinitions.BigQuadrantStart + 2 * (frame - 2)
                     : IntroMotherBrainExplosionCellDefinitions.SmallQuadrantStart + frame - 2;
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }

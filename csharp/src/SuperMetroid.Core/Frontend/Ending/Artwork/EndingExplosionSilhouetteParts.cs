@@ -39,7 +39,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
                 tile = rightTile - column * 2;
                 y = top;
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3), true);
         }
     }

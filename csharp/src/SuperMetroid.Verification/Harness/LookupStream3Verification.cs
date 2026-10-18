@@ -278,7 +278,7 @@ internal static class LookupStream3Verification
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y, "native border Y");
+                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y.Raw, "native border Y");
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
@@ -348,7 +348,7 @@ internal static class LookupStream3Verification
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y, "native border Y");
+                AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y.Raw, "native border Y");
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
@@ -3095,7 +3095,7 @@ internal static class LookupStream3Verification
                 var nativeX = new SnesSpritemapXWord(ReadVerificationWord(rom, entry));
                 AssertEqual(nativeX.SignedOffset, composition.Part(part).X.SignedOffset, "native helmet X");
                 AssertEqual(nativeX.IsLarge, composition.Part(part).X.IsLarge, "native helmet size");
-                AssertEqual(rom.ReadCartridgeByte(entry + 2), composition.Part(part).Y, "native helmet Y");
+                AssertEqual(rom.ReadCartridgeByte(entry + 2), composition.Part(part).Y.Raw, "native helmet Y");
                 AssertEqual((ushort)(ReadVerificationWord(rom, entry + 3) & ~0x0e00), composition.Part(part).Attributes.Raw, "native helmet attributes with caller palette inheritance");
             }
             for (int part = 0; part < original.Sprites[name].Length; part++)

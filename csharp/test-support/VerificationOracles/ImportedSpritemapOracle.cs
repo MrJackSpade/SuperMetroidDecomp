@@ -36,9 +36,9 @@ internal static class ImportedSpritemapOracle
             byte y = Byte(offset + 2);
             var attributes = new SnesObjAttributeWord(Word(offset + 3)).WithPaletteBits(paletteBits);
             if (originIsOnScreen)
-                oam.AddOnScreenSpritePart(x, y, attributes, origin);
+                oam.AddOnScreenSpritePart(x, new SnesSpritemapYByte(y), attributes, origin);
             else
-                oam.AddOffScreenSpritePart(x, y, attributes, origin);
+                oam.AddOffScreenSpritePart(x, new SnesSpritemapYByte(y), attributes, origin);
         }
     }
 

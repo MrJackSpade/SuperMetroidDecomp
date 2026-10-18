@@ -276,7 +276,7 @@ internal static class PpuLayoutBoundaryVerification
         var attributes = SnesObjAttributeWord.Create(0x0a0, paletteIndex: 1, priority: 3);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0010, 0x0020), attributes);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0180, 0x0021), attributes);
-        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), 0, attributes, new Position16<OamPixels>(0x0030, 0x0040));
+        oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, large: true), new SnesSpritemapYByte(0), attributes, new Position16<OamPixels>(0x0030, 0x0040));
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x01ff, 0x0022), attributes);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x0100, 0x0023), attributes);
 

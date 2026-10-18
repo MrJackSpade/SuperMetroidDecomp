@@ -66,7 +66,7 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 y = -1;
                 tile = IntroScientistCellDefinitions.Caret;
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }

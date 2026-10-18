@@ -24,7 +24,7 @@ internal sealed class CeresLargeAsteroidParts(
         // Shared OAM-record pointer space: other compositions belong to other owners.
         if (!Enum.IsDefined((CeresLargeAsteroidComposition)pointer) || supplied.PartCount != 19) return supplied;
         var composition = (CeresLargeAsteroidComposition)pointer;
-        static (int X, int Y) Anchor(CompiledSpritePart part) => (part.X.SignedOffset, unchecked((sbyte)part.Y));
+        static (int X, int Y) Anchor(CompiledSpritePart part) => (part.X.SignedOffset, part.Y.SignedOffset);
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));
         var lower = Anchor(supplied.Part(18));
@@ -76,7 +76,7 @@ internal sealed class CeresLargeAsteroidParts(
                 tile = CeresLargeAsteroidCellDefinitions.Lower;
             }
             return new(SnesSpritemapXWord.Create(anchor.X + 8 * column, large),
-                unchecked((byte)(anchor.Y + 8 * row)),
+                SnesSpritemapYByte.Create(anchor.Y + 8 * row),
                 SnesObjAttributeWord.Create(tile + column + 16 * row, 0, priority, 0), true);
         }
     }

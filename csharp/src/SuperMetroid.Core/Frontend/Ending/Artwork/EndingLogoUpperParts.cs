@@ -58,7 +58,7 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
                 int row = 13 - index;
                 x = -38; y = -23 + 16 * row; tile = SnesCharacterGrid.Cell(4, 0) + 32 * row;
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

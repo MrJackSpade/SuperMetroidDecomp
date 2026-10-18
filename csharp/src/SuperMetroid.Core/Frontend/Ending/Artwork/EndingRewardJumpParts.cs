@@ -59,7 +59,7 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
                 x = -16 + 8 * ((tile & 15) - 10);
                 y = -13 + 8 * (tile / 16 - 6);
             }
-            return new(SnesSpritemapXWord.Create(x, index != 13), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, index != 13), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

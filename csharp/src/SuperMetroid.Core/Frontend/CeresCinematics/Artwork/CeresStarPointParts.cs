@@ -23,7 +23,7 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
         for (int index = 0; index < points.Length; index++)
         {
             var part = supplied[index];
-            points[index] = (part.X.SignedOffset, part.Y, part.Attributes.TileNumber);
+            points[index] = (part.X.SignedOffset, part.Y.Raw, part.Attributes.TileNumber);
         }
         var calculated = new CeresStarPointParts(points, reflected);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;
@@ -37,7 +37,7 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var point = points[index];
-            return new(SnesSpritemapXWord.Create(point.X, false), point.Y,
+            return new(SnesSpritemapXWord.Create(point.X, false), new SnesSpritemapYByte(point.Y),
                 SnesObjAttributeWord.Create(point.Tile, 0, 0, reflected ? SnesTileFlipFlags.Horizontal : 0), true);
         }
     }

@@ -30,7 +30,7 @@ public sealed class SpriteComposition
         foreach (CompiledSpritePart part in parts)
         {
             content.Append("x-and-size", part.X.Raw);
-            content.Append("y", part.Y);
+            content.Append("y", part.Y.Raw);
             content.Append("attributes", part.Attributes.Raw);
             content.Append("inherit-palette", part.InheritPalette ? 1 : 0);
         }

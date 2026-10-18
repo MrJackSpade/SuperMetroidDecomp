@@ -26,7 +26,7 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
             int column = index % 2, row = index / 2;
             SnesTileFlipFlags flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0)
                 | (row == 0 ? SnesTileFlipFlags.Vertical : 0);
-            return new(SnesSpritemapXWord.Create(-8 * column, false), unchecked((byte)(-8 * row)),
+            return new(SnesSpritemapXWord.Create(-8 * column, false), SnesSpritemapYByte.Create(-8 * row),
                 SnesObjAttributeWord.Create(IntroRinkaCellDefinitions.FirstQuadrant + frame, 0, 3, flips), true);
         }
     }

@@ -105,7 +105,7 @@ public static class EscapeTimerPresentationDefinitions
                     y = -GlyphWidth;
                     tile = FirstDigitTile + 2 * DecimalDigitCount + separator;
                 }
-                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(sbyte)y),
+                return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create((sbyte)y),
                     SnesObjAttributeWord.Create(tile, 0, TimerPriority), true);
             }
         }

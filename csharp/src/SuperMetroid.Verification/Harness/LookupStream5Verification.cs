@@ -929,7 +929,7 @@ internal static class LookupStream5Verification
                 int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), actual.X.Raw, "Native star X/size");
-                AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y, "Native star Y");
+                AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y.Raw, "Native star Y");
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 3)) & ~0x0e00), actual.Attributes.Raw,
                     "Native star attributes excluding replaced source palette");
                 for (int field = 0; field < 9; field++)

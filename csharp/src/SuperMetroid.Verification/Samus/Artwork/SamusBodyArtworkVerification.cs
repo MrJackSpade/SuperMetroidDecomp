@@ -116,7 +116,7 @@ internal static class SamusBodyArtworkVerification
                 int at = address + 2 + part * 5;
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
                     record.Parts[part].X.Raw, $"Samus OAM ${pointer:X4} part {part} X/size");
-                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y,
+                AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y.Raw,
                     $"Samus OAM ${pointer:X4} part {part} Y");
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3),
                     record.Parts[part].Attributes.Raw,

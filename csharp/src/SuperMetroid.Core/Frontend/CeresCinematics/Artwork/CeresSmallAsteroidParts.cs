@@ -24,7 +24,7 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
         (int X, int Y) Anchor(int index)
         {
             var part = supplied.Part(index);
-            return (part.X.SignedOffset, unchecked((sbyte)part.Y));
+            return (part.X.SignedOffset, part.Y.SignedOffset);
         }
         (int X, int Y)[] anchors = [Anchor(1), Anchor(3), Anchor(5), Anchor(6), Anchor(10), Anchor(12), Anchor(13)];
         // Horizontal and corner shapes extend eight pixels beyond their anchor.
@@ -69,7 +69,7 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
                 // need an additional eight-pixel displacement.
                 if (flip) y = -y - (large ? 8 : 0);
             }
-            return new(SnesSpritemapXWord.Create(anchors[group].X + x, large), unchecked((byte)(anchors[group].Y + y)),
+            return new(SnesSpritemapXWord.Create(anchors[group].X + x, large), SnesSpritemapYByte.Create(anchors[group].Y + y),
                 SnesObjAttributeWord.Create(tile, 0, 0, flip ? SnesTileFlipFlags.Vertical : 0), true);
         }
     }

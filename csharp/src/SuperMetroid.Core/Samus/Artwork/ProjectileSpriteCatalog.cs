@@ -72,7 +72,7 @@ public sealed class ProjectileSpriteCatalog
                 // Do not impose the menu atlas's contiguous-rectangle restriction here.
                 var attributes = SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
                     p.Palette.Value, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0));
-                compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), unchecked((byte)(sbyte)p.OffsetY), attributes, false);
+                compiled[i] = new(SnesSpritemapXWord.Create(p.OffsetX, p.Size == 16), new SnesSpritemapYByte(unchecked((byte)p.OffsetY)), attributes, false);
             }
             var composition = new SpriteComposition(compiled);
             if (ProjectileSpriteDefinitions.TrySingleBeamPhase(id, out int phase))

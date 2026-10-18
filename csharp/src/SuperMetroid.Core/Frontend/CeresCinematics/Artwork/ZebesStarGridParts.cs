@@ -20,7 +20,7 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         {
             CompiledSpritePart part = supplied.Part(index);
             placements[index] = ((sbyte)(part.X.SignedOffset / 8),
-                (sbyte)(unchecked((sbyte)part.Y) / 8), (ushort)part.Attributes.TileNumber);
+                (sbyte)(part.Y.SignedOffset / 8), (ushort)part.Attributes.TileNumber);
         }
     }
     /// <summary>Uses a calculated star grid only when every reconstructed OAM field matches the edited composition.</summary>
@@ -41,7 +41,7 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         get
         {
             var point = placements[index];
-            return new(SnesSpritemapXWord.Create(point.X * 8, false), unchecked((byte)(point.Y * 8)),
+            return new(SnesSpritemapXWord.Create(point.X * 8, false), SnesSpritemapYByte.Create(point.Y * 8),
                 SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
         }
     }

@@ -84,7 +84,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 else if (column >= 12) { x = (column - 14) * 8; y = 32; }
                 else { y = -24; large = true; }
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 0), true);
         }
     }

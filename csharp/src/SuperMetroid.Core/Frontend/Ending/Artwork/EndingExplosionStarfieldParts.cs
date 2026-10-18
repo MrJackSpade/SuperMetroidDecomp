@@ -31,7 +31,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Attributes.TileNumber;
             if (tile != SnesCharacterGrid.Cell(14, 13) && (tile < SnesCharacterGrid.Cell(15, 8) || tile > SnesCharacterGrid.Cell(15, 12))) return supplied;
-            stars[index] = new(new(checked((short)part.X.SignedOffset), unchecked((sbyte)part.Y)), tile);
+            stars[index] = new(new(checked((short)part.X.SignedOffset), (short)part.Y.SignedOffset), tile);
         }
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));
     }
@@ -45,7 +45,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             Star star = stars[index];
-            return new(SnesSpritemapXWord.Create(star.Offset.X, star.Tile == SnesCharacterGrid.Cell(14, 13)), unchecked((byte)star.Offset.Y),
+            return new(SnesSpritemapXWord.Create(star.Offset.X, star.Tile == SnesCharacterGrid.Cell(14, 13)), SnesSpritemapYByte.Create(star.Offset.Y),
                 SnesObjAttributeWord.Create(star.Tile, 0, 0), true);
         }
     }

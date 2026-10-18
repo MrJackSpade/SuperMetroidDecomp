@@ -25,7 +25,7 @@ internal static class MenuSpriteCompiler
                 throw new InvalidDataException($"Menu sprite {name} part {index} has an invalid offset, region, size, priority or palette.");
             var attributes = SnesObjAttributeWord.Create(part.TileRow * MapSpriteFormat.TileColumns + part.TileColumn,
                 part.Palette ?? 0, part.Priority, (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0));
-            compiled[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY), attributes, part.Palette is null);
+            compiled[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), new SnesSpritemapYByte(unchecked((byte)part.OffsetY)), attributes, part.Palette is null);
         }
         return new(compiled);
     }

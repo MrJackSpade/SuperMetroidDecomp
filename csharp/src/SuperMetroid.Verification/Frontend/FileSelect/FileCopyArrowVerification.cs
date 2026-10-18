@@ -69,7 +69,7 @@ internal static class FileCopyArrowVerification
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
-                    FileCopyArrowRomByte(rom, address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
+                    new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }

@@ -31,7 +31,7 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 int slime = frame - 6;
                 tile = IntroEggEffectCellDefinitions.SlimeStart + (slime < 3 ? slime : 16 * (slime - 2));
             }
-            return new(SnesSpritemapXWord.Create(-4, false), unchecked((byte)-4),
+            return new(SnesSpritemapXWord.Create(-4, false), SnesSpritemapYByte.Create(-4),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

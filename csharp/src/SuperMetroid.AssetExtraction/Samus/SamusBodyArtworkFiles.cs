@@ -319,7 +319,7 @@ public static class SamusBodyArtworkFiles
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
-            parts[i] = new SamusSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)), bus.ReadCartridgeByte(part + 2),
+            parts[i] = new SamusSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)), new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)),
                 CartridgeImportSource.Require(bus).ReadCartridgeWord((part + 3)));
         }
         return new SamusSpritemapDefinition(pointer, parts);

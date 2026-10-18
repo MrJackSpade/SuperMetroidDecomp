@@ -144,7 +144,7 @@ internal static class TitleGradientVerification
             {
                 int record = address + 2 + part * 5;
                 nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
-                    CpuBusRegionRead.Read(bus, record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
+                    new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
             presentation.DrawSprite(frame.Sprite, installedOam, new(128, 112), 0);

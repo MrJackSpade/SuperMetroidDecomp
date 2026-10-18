@@ -65,7 +65,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 : column == 2 ? IntroEggRockingCellDefinitions.RightColumn + row - 1
                 : IntroEggRockingCellDefinitions.LowerLeft + 16 * (row - 1) + column;
             return new(SnesSpritemapXWord.Create(-12 + 8 * column, false),
-                unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
+                SnesSpritemapYByte.Create(-12 + 8 * row), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
     /// <summary>Enumerates all nine egg cells in the stage's native draw order.</summary>

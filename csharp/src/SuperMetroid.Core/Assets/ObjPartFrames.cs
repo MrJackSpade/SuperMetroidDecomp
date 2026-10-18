@@ -24,11 +24,11 @@ public static class ObjPartFrames
     /// <param name="attributes">Tile, palette, priority and flips.</param>
     /// <param name="firstCharacter">OBJ tile number of the bound artwork's character 0.</param>
     /// <param name="inheritPalette">Whether the part takes the draw's palette instead of its own.</param>
-    public static SpriteFramePart Part(SnesSpritemapXWord x, byte y, SnesObjAttributeWord attributes, int firstCharacter,
+    public static SpriteFramePart Part(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, int firstCharacter,
         bool inheritPalette = false)
     {
         byte size = x.IsLarge ? LargeObjectPixels : SmallObjectPixels;
-        return new(new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)y)),
+        return new(new Offset16<ScreenPixels>(checked((short)x.SignedOffset), checked((short)y.SignedOffset)),
             new Extent16<ScreenPixels>(size, size), attributes.TileNumber - firstCharacter, attributes.FlipFlags,
             inheritPalette ? null : attributes.PaletteIndex, attributes.Priority);
     }
@@ -38,5 +38,5 @@ public static class ObjPartFrames
     /// <param name="firstCharacter">OBJ tile number of the bound artwork's character 0.</param>
     public static SpriteFrame SmallObject(SnesObjAttributeWord attributes, int firstCharacter) =>
         SmallObjects.GetOrAdd((attributes.Raw, firstCharacter), key => new SpriteFrame($"Obj.{key.Attributes:X4}",
-            [Part(new SnesSpritemapXWord(0), 0, new SnesObjAttributeWord(key.Attributes), key.FirstCharacter)]));
+            [Part(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0), new SnesObjAttributeWord(key.Attributes), key.FirstCharacter)]));
 }

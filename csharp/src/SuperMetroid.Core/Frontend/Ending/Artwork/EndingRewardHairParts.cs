@@ -26,7 +26,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             for (int index = 0; index < 2; index++)
             {
                 CompiledSpritePart part = supplied.Part(index + 2);
-                positions[index] = (part.X.SignedOffset, unchecked((sbyte)part.Y));
+                positions[index] = (part.X.SignedOffset, part.Y.SignedOffset);
             }
             forearmAnchor = positions[0];
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
@@ -147,7 +147,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             if (stage is >= 1 and <= 3 && index is 2 or 3)
                 (x, y) = moving is not null ? moving[index - 2]
                     : index == 2 ? forearmAnchor : OppositeForearm(forearmAnchor);
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

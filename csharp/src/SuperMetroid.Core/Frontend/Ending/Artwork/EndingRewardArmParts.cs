@@ -34,7 +34,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         for (int index = 0; index < count; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            positions[index] = new(checked((short)part.X.SignedOffset), unchecked((sbyte)part.Y));
+            positions[index] = new(checked((short)part.X.SignedOffset), (short)part.Y.SignedOffset);
             tiles[index] = part.Attributes.TileNumber;
             stock &= tiles[index] == StockTile(pose, index);
         }
@@ -50,7 +50,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         arm = grid ? null : positions;
         editedTiles = stock ? null : tiles;
         CompiledSpritePart shoulderPart = supplied.Part(count);
-        shoulder = new(checked((short)shoulderPart.X.SignedOffset), unchecked((sbyte)shoulderPart.Y));
+        shoulder = new(checked((short)shoulderPart.X.SignedOffset), (short)shoulderPart.Y.SignedOffset);
     }
 
     /// <summary>Places the split pose's two small column pieces and adjacent large piece.</summary>
@@ -85,7 +85,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
             int armCount = split ? 3 : 2;
             if (supplied.PartCount != armCount + 3) return supplied;
             CompiledSpritePart anchor = supplied.Part(armCount);
-            if (anchor.X.SignedOffset > 247 || unchecked((sbyte)anchor.Y) < -120) return supplied;
+            if (anchor.X.SignedOffset > 247 || anchor.Y.SignedOffset < -120) return supplied;
             return supplied.CalculateIfMatching(new EndingRewardArmParts(supplied, pose));
         }
         return supplied;
@@ -117,7 +117,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 tile = EndingRewardArmCellDefinitions.ShoulderCap + (large ? 16 : column);
                 position = shoulder + new Offset16<OamPixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
-            return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),
+            return new(SnesSpritemapXWord.Create(position.X, large), SnesSpritemapYByte.Create(position.Y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

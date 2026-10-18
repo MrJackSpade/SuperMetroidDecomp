@@ -90,7 +90,7 @@ public sealed class SamusSpritemapArtworkCatalog
             foreach (SamusSpritePart part in definition.Parts)
             {
                 content.Append("x", part.X.Raw);
-                content.Append("y", part.Y);
+                content.Append("y", part.Y.Raw);
                 content.Append("attributes", part.Attributes.Raw);
             }
         }

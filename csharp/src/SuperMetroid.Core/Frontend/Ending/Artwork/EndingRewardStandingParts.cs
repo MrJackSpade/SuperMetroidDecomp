@@ -58,7 +58,7 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
                 y = 8 * (tile / 16) - 56;
                 large = piece is 2 or >= 10;
             }
-            return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
+            return new(SnesSpritemapXWord.Create(x, large), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

@@ -229,7 +229,7 @@ internal static class SamusBodyPlacementDefinitions
                         if ((uint)at >= pixels.Length || !defined[at]) return false;
                         opaque |= (pixels[at] & mask) != 0;
                     }
-                    if (opaque) bottom = Math.Max(bottom, unchecked((sbyte)part.Y) + y);
+                    if (opaque) bottom = Math.Max(bottom, part.Y.SignedOffset + y);
                 }
             }
         }

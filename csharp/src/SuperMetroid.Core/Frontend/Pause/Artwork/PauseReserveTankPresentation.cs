@@ -49,7 +49,7 @@ public sealed class PauseReserveTankPresentation
         };
         Position16<OamPixels> origin = anchor;
         if (frame is not null) frame.DrawOnScreen(oam, origin, objectPalette.PaletteBits);
-        else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
+        else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(objectPalette.PaletteBits),
             origin);
     }

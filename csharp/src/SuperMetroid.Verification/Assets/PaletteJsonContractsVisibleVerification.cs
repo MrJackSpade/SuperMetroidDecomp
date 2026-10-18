@@ -132,7 +132,7 @@ internal static class PaletteJsonContractsVisibleVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), 0,
+            oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
                 SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<OamPixels>(0, 0));
             oam.FinalizeFrame();
             stockPixels = SnesObjRenderer.Render(oam, vram, stock, obsel: 0, size: new Extent16<ScreenPixels>(8, 8));

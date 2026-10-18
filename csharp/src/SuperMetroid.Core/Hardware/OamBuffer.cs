@@ -73,17 +73,17 @@ public sealed class OamBuffer
     }
 
     /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
-    public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+    public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: true);
 
     /// <summary>Draws a compiled visual part with $81:8853's reversed vertical-wrap branch.</summary>
-    public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+    public void AddOffScreenSpritePart(SnesSpritemapXWord xOffset, SnesSpritemapYByte yOffset,
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
     /// <summary>Applies the generic spritemap vertical-wrap clipping and packs one hardware OBJ record.</summary>
-    private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
+    private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, SnesSpritemapYByte encodedYOffset,
         SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
     {
         if (NextByteOffset >= LowTableByteCount) return; // Native stops at the hardware OAM capacity.
@@ -91,9 +91,8 @@ public sealed class OamBuffer
         // Only the low nine X bits reach hardware. The independent size flag
         // survives even when vertical clipping parks the sprite off screen.
         ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
-        int calculatedY = (byte)origin.Y + encodedYOffset;
-        bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
-        bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
+        int calculatedY = (byte)origin.Y + encodedYOffset.Raw;
+        bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, encodedYOffset.IsNegative);
         if (!originIsOnScreen)
             hideForVerticalWrap = !hideForVerticalWrap;
 

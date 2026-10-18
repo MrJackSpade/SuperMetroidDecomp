@@ -24,7 +24,7 @@ internal sealed class IntroConfusedBabyParts(int frame) : IReadOnlyList<Compiled
             ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
             int tile = frame == 0 ? IntroConfusedBabyCellDefinitions.FirstPose
                 : IntroConfusedBabyCellDefinitions.LowerPair + 2 * (frame - 1);
-            return new(SnesSpritemapXWord.Create(-8, true), unchecked((byte)-8),
+            return new(SnesSpritemapXWord.Create(-8, true), SnesSpritemapYByte.Create(-8),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }

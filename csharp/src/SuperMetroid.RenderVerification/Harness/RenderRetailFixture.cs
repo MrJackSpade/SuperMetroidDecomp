@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Render fixtures bound to the repository installation shared with every other suite.</summary>
 internal static class RenderRetailFixture
@@ -25,6 +26,6 @@ internal static class RenderRetailFixture
     internal static CeresDestructionCinematicState CreateDestruction() =>
         InstalledFixtures.CreateDestruction();
 
-    /// <summary>Creates the intro cinematic from the shared retail fixture installation.</summary>
-    internal static IntroCinematicState CreateIntro() => InstalledFixtures.CreateIntro();
+    /// <summary>Creates the intro cinematic from the shared retail fixture installation, queueing its music on <paramref name="audio"/>.</summary>
+    internal static IntroCinematicState CreateIntro(CartridgeAudioState audio) => InstalledFixtures.CreateIntro(audio);
 }

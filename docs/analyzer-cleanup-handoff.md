@@ -616,6 +616,8 @@ Commit and push that update too.
     Test support's `EnemyProjectileSlotFrameAccess` gives the native key/spritemap views.
   - The frame lists and counts only the old registry read left Core: unused ones deleted, test-only ones in
     test-support `<Owner>FramesAccess` extension classes, tool-read ones in Tooling `<Owner>FramesTooling`.
+  - `CompiledEnemyVisualSelectors` (the 4011-entry operand-to-spritemap map) lives in Tooling: no Core code read
+    it; tests, the resource audit and the generator (which now writes to Tooling) do.
   - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
     run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
     other production projects still reach into test-support), so it was discarded; those findings need a

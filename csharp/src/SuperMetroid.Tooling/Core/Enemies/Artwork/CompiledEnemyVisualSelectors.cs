@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 

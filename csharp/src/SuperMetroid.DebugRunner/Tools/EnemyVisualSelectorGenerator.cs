@@ -49,7 +49,7 @@ internal static class EnemyVisualSelectorGenerator
             bankSource.AppendLine("    ];");
             bankSource.AppendLine("}");
             string bankPath =
-                $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank.Key:X2}.Definitions.Generated.cs";
+                $"csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank.Key:X2}.Definitions.Generated.cs";
             File.WriteAllText(bankPath, bankSource.ToString(), new UTF8Encoding(false));
         }
 

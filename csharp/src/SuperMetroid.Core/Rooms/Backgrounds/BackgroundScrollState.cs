@@ -22,10 +22,10 @@ public sealed class BackgroundScrollState
     public Position16<Bg2Pixels> Layer2Position { get; set; }
 
     /// <summary>
-    /// The room header's per-axis layer-2 scroll modes. Zero copies BG1; one freezes the axis;
-    /// every other value uses its even portion as a fixed-point parallax multiplier over 128.
+    /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
+    /// as the cartridge's cleared mode bytes select.
     /// </summary>
-    public Layer2ScrollModes Layer2Scroll { get; set; }
+    public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
 
     // These offsets are separate native variables despite the confusing adjacency of the
     // BG1 X offset and Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).

@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <param name="Streams">Whether the background streamer refreshes the axis's tilemap as layer two moves.</param>
 public readonly record struct Layer2AxisScroll(Layer2ScrollKind Kind, int Factor, bool Streams)
 {
+    /// <summary>An axis that copies layer one and streams its tilemap, as a cleared mode byte selects.</summary>
+    public static readonly Layer2AxisScroll CopiesLayer1 = new(Layer2ScrollKind.CopiesLayer1, 0, Streams: true);
+
     /// <summary>
     /// Decodes a room header's per-axis mode byte: zero copies layer one, one fixes the axis, and any other value is a
     /// parallax multiplier over 256 whose lowest bit, when set, stops the axis's tilemap streaming.

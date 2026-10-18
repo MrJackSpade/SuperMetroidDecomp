@@ -1444,6 +1444,14 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
+    /// <summary>Runs the background scroll-state checks.</summary>
+    [VerificationCommand("--background-scroll-state")]
+    internal static int BackgroundScrollStateCommand()
+    {
+        Suite(nameof(VerifyBackgroundScrollState), () => VerifyBackgroundScrollState());
+        return 0;
+    }
+
     /// <summary>Runs room tilemap streaming and scrolling-sky checks.</summary>
     [VerificationCommand("--room-sky-tilemaps")]
     internal static int RoomSkyTilemapsCommand()

@@ -42,14 +42,14 @@ internal static class PlmPreInstructionNativeRoutines
         var routines = new Dictionary<IPlmPreInstruction, ushort>
         {
             [PlmPreInstructions.Inert] = PlmPreInstructionDefinitions.SpawnDefault,
-            [TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus] = OldTourianEscapeShaftWallPlmDefinitions.WaitForSamusPreInstruction,
+            [TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus] = OldTourianEscapeShaftWallPlmDefinitionsConstants.WaitForSamusPreInstruction,
             [DraygonCannonPreInstructions.MissileHit] = DraygonCannonRomData.MissileHitPreInstruction,
             [MotherBrainGlassPreInstructions.Hit] = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction,
             [BombTorizoHandPreInstructions.WakeIfSamusHasBombs] = BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction,
-            [ChozoStatuePreInstructions.WaitForLowerNorfairHand] = ChozoStatuePlmRomData.WaitForLowerNorfairHand,
-            [ShaktoolRoomPreInstructions.Controller] = ShaktoolRoomPlmRomData.PreInstruction,
+            [ChozoStatuePreInstructions.WaitForLowerNorfairHand] = ChozoStatuePlmRomDataConstants.WaitForLowerNorfairHand,
+            [ShaktoolRoomPreInstructions.Controller] = ShaktoolRoomPlmRomDataConstants.PreInstruction,
             [WreckedShipAtticPreInstructions.NoOpCallback] = WreckedShipAtticPlmRomData.NoOpCallback,
-            [SamusEaterPreInstructions.Hold] = SamusEaterPlmRomData.HoldPreInstruction,
+            [SamusEaterPreInstructions.Hold] = SamusEaterPlmRomDataConstants.HoldPreInstruction,
             [ColoredDoorPreInstructions.WakeOnPowerBomb] = (ushort)ColoredDoorPreInstruction.WakeOnPowerBomb,
             [ColoredDoorPreInstructions.WakeOnMissile] = (ushort)ColoredDoorPreInstruction.WakeOnMissile,
             [ColoredDoorPreInstructions.WakeOnSuperMissile] = (ushort)ColoredDoorPreInstruction.WakeOnSuperMissile,

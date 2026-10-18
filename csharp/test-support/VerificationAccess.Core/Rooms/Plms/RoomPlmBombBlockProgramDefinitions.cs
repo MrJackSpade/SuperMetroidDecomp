@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -36,8 +36,8 @@ internal static class RoomPlmBombBlockProgramDefinitions
     /// projectile heads enter the same shape-specific animation tail.
     /// </summary>
     internal static Program ProgramAt(int index) => new(
-        RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
-        RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
+        RoomPlmInstructionListsConstants.CollisionBombByReactionIndex(index),
+        RoomPlmInstructionListsConstants.ReactionBombByReactionIndex(index), index < 4, index & 3);
 
     /// <summary>Resolves animation and linked-block restore draw operands separately from collision payloads.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)

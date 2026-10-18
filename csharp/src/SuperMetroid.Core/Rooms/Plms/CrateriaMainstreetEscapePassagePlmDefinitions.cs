@@ -11,28 +11,8 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     /// <summary>$8F:9199: the hardcoded spawn's block Y.</summary>
     internal const int BlockY = 0x0b;
 
-    /// <summary>$84:BB19, <c>InstList_PLM_ClearCrateriaMainstreetEscPassageIfCrittersEsc</c>.</summary>
-    internal const ushort InstructionList = 0xbb19;
-
     /// <summary>$84:9253, <c>DrawInst_CrateriaMainStreetEscape</c>: two $00FF air blocks in a row.</summary>
     internal const ushort ClearPairDraw = 0x9253;
-
-
-    /// <summary>Reads the six compiled control words that draw two air-block pairs and delete the escape PLM.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        value = address switch
-        {
-            0xbb19 => 0x0001,
-            0xbb1b => ClearPairDraw,
-            0xbb1d => (ushort)RoomPlmInstruction.MoveRightFourBlocks,
-            0xbb1f => 0x0001,
-            0xbb21 => ClearPairDraw,
-            0xbb23 => (ushort)RoomPlmInstruction.Delete,
-            _ => 0,
-        };
-        return value != 0;
-    }
 
     /// <summary>Recognizes the escape passage draw pointer and supplies its two adjacent air blocks.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)

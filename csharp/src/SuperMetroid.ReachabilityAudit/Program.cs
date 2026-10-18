@@ -84,15 +84,16 @@ internal static class Program
                     // Deletes the dead code tests do not use, then moves what they still use, with everything it uses,
                     // into test-support. Removing first leaves no dead shipped code naming members the move takes away.
                     var categories = categoryList.Split(',').ToHashSet();
+                    string[] prefixes = prefix.Split(',');
                     var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
                     var result = ReachabilityAnalysis.Run(solution);
-                    var unused = VerificationReferences.DeadFindings(result, categories, prefix);
-                    unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefix));
+                    var unused = VerificationReferences.DeadFindings(result, categories, prefixes);
+                    unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefixes));
                     SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
                     solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
                     result = ReachabilityAnalysis.Run(solution);
                     SymbolRelocator.Relocate(solution,
-                        VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefix),
+                        VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefixes),
                         Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
                     return 0;
                 }
@@ -100,7 +101,7 @@ internal static class Program
                     throw new ArgumentException("Usage: SuperMetroid.ReachabilityAudit --solution <SuperMetroid.Full.slnx> "
                         + "(--output <directory> | --remove <category,...> --retired-fields <file> [--path-prefix <repo-relative path>] "
                         + "| --relocate <category> --to <project directory> | --why <symbol text> "
-                        + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path> --to <test-support directory> --retired-fields <file> "
+                        + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path,...> --to <test-support directory> --retired-fields <file> "
                         + "| --remove-keys <file> --retired-fields <file> | --check --output <directory>)");
             }
         }

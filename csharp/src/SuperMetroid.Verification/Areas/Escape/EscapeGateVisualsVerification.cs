@@ -88,7 +88,7 @@ internal static class EscapeGateVisualsVerification
         // draw payloads are compiled and therefore guarded below.
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1,
             RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+            RoomPlmInstructionListsConstants.MotherBrainEscapeRoomGateClosing);
         SeedRoomPlmPopulation(bus, population,
         [
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,

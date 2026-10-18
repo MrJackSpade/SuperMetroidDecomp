@@ -48,7 +48,7 @@ internal static class ElevatorPlatformVisualsVerification
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();
-            SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitions.InstructionLoop);
+            SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitionsConstants.InstructionLoop);
             var definitions = new byte[0x400 * 8];
             for (int tile = 0; tile < 4; tile++)
             {

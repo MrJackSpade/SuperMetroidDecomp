@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Shared bank-$84 pre-instruction addresses.</summary>
 internal static class PlmPreInstructionDefinitions

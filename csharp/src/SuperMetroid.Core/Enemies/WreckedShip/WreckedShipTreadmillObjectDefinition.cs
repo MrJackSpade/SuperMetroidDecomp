@@ -37,13 +37,6 @@ public sealed class WreckedShipTreadmillObjectDefinition
         /// <summary>Exposes the same frame order through the non-generic interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    /// <summary>Maps a four-byte-aligned timed instruction cursor to its frame ordinal, returning -1 outside the loop.</summary>
-    private int FrameIndex(ushort pointer)
-    {
-        int delta = unchecked((ushort)(pointer - LoopInstructionPointer));
-        return delta < 16 && (delta & 3) == 0 ? delta / 4 : -1;
-    }
     /// <summary>The physical direction selected by the entrance door setup.</summary>
     public WreckedShipTreadmillDirection Direction { get; }
 
@@ -57,19 +50,6 @@ public sealed class WreckedShipTreadmillObjectDefinition
     public ushort LoopInstructionPointer => unchecked((ushort)(WaitInstructionPointer + 2));
 
     /// <summary>
-    /// Returns the native artwork identity for a frame-control record without reading
-    /// its bank-$87 presentation operand during installed play.
-    /// </summary>
-    public int FrameSourceAddress(ushort instructionPointer)
-    {
-        int listIndex = FrameIndex(instructionPointer);
-        if (listIndex < 0)
-            throw new InvalidDataException(
-                $"Treadmill $87:{(int)ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
-        return FrameSource(listIndex);
-    }
-
-    /// <summary>
     /// The artwork identity of loop frame <paramref name="frameIndex"/>, 0 through 3: the leftward loop shows the
     /// rightward loop's art in reverse order.
     /// </summary>
@@ -77,34 +57,4 @@ public sealed class WreckedShipTreadmillObjectDefinition
         WreckedShipTreadmillRomData.FrameSource(
             Direction == WreckedShipTreadmillDirection.Rightwards
                 ? frameIndex : WreckedShipTreadmillMechanicsDefinitions.FrameCount - 1 - frameIndex);
-
-    /// <summary>The terminal loop command after the fourth frame.</summary>
-    public ushort GotoInstructionPointer =>
-        unchecked((ushort)(LoopInstructionPointer + 16));
-
-    /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
-    public bool TryReadMechanicsWord(ushort pointer, out ushort value)
-    {
-        if (pointer == (ushort)ObjectPointer)
-            value = WaitInstructionPointer;
-        else if (pointer == unchecked((ushort)(ObjectPointer + 2)))
-            value = WreckedShipTreadmillRomData.TransferByteCount;
-        else if (pointer == unchecked((ushort)(ObjectPointer + 4)))
-            value = WreckedShipTreadmillRomData.EncodedVramDestination;
-        else if (pointer == WaitInstructionPointer)
-            value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;
-        else if (FrameIndex(pointer) >= 0)
-            value = WreckedShipTreadmillMechanicsDefinitions.FrameDuration;
-        else if (pointer == GotoInstructionPointer)
-            value = (ushort)AnimatedTileInstruction.Goto;
-        else if (pointer == unchecked((ushort)(GotoInstructionPointer + 2)))
-            value = LoopInstructionPointer;
-        else
-        {
-            value = 0;
-            return false;
-        }
-
-        return true;
-    }
 }

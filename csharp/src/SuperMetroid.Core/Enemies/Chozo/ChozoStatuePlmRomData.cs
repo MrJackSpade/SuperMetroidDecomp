@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>Bank-$84 identities shared by Chozo enemy requests and terrain collision.</summary>
 internal static class ChozoStatuePlmRomData
 {
-    /// <summary>$84:D15C, wait for blank air at (4,8), then install Lower Norfair BTS $83.</summary>
-    public const ushort WaitForLowerNorfairHand = 0xd15c;
     /// <summary>$84:D158 writes this lowered-acid base Y coordinate.</summary>
     public const ushort LoweredAcidY = 0x2d2;
     /// <summary>$84:D3D8 and $D3F5 use level-data byte offset $1608.</summary>

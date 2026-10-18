@@ -33,21 +33,22 @@ internal static class VerificationReferences
         return keys;
     }
 
-    /// <summary>Keys of the findings of the given categories declared under <paramref name="filePrefix"/>.</summary>
-    public static HashSet<string> DeadFindings(ReachabilityResult result, IReadOnlySet<string> categories, string filePrefix) =>
+    /// <summary>Keys of the findings of the given categories declared under one of <paramref name="filePrefixes"/>.</summary>
+    public static HashSet<string> DeadFindings(ReachabilityResult result, IReadOnlySet<string> categories, IReadOnlyList<string> filePrefixes) =>
         ReachabilityFindings.Classify(result)
-            .Where(f => categories.Contains(f.Category) && f.Declaration.File.StartsWith(filePrefix, StringComparison.Ordinal))
+            .Where(f => categories.Contains(f.Category) &&
+                filePrefixes.Any(prefix => f.Declaration.File.StartsWith(prefix, StringComparison.Ordinal)))
             .Select(f => f.Declaration.Key).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>
-    /// The findings of the given categories, declared under <paramref name="filePrefix"/>, that verification
+    /// The findings of the given categories, declared under one of <paramref name="filePrefixes"/>, that verification
     /// uses directly or through other such findings. A selected type's members move with it, so
     /// what they use is selected too, to a fixed point.
     /// </summary>
     public static HashSet<string> SelectUsedDeadCode(ReachabilityResult result, HashSet<string> verificationReferenced,
-        IReadOnlySet<string> categories, string filePrefix)
+        IReadOnlySet<string> categories, IReadOnlyList<string> filePrefixes)
     {
-        var dead = DeadFindings(result, categories, filePrefix);
+        var dead = DeadFindings(result, categories, filePrefixes);
         // The finding a key belongs to: the declaration itself, or the dead type reported for its members.
         string? DeadFinding(string key)
         {

@@ -47,7 +47,7 @@ internal static class MaridiaElevatubePlmVerification
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
-                        MaridiaElevatubePlmDefinitions.SoundId)))
+                        MaridiaElevatubePlmDefinitionsConstants.SoundId)))
                 heardAtFrame = frame;
         }
         AssertEqual(16, heardAtFrame,
@@ -66,8 +66,8 @@ internal static class MaridiaElevatubePlmVerification
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                ((pointer >= MaridiaElevatubePlmDefinitions.InstructionList &&
-                  pointer < MaridiaElevatubePlmDefinitions.InstructionList + 9) ||
+                ((pointer >= MaridiaElevatubePlmDefinitionsConstants.InstructionList &&
+                  pointer < MaridiaElevatubePlmDefinitionsConstants.InstructionList + 9) ||
                  (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&
                   pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");

@@ -28,7 +28,7 @@ internal static class LookupElevatorPlatformProgramVerification
         {
             ushort address = (ushort)raw;
             bool owned = raw >= 0xafb6 && raw <= 0xafc8 && (raw & 1) == 0;
-            AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out ushort value),
+            AssertEqual(owned, ElevatorPlatformPlmDefinitionsConstants.TryReadMechanicsWord(address, out ushort value),
                 "Elevator platform original program word domain");
             if (!owned)
                 AssertEqual((ushort)0, value, "Elevator platform rejected word output");

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Translated bank-$84 PLM instruction routines.</summary>
 /// <remarks>

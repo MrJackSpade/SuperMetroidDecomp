@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Shared $84:A345-A3DD breakup-draw identities for one-block, horizontal,

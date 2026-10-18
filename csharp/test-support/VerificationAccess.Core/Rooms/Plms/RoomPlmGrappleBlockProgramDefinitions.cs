@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Cartridge control words for the two breakable-Grapple-block PLM instruction
@@ -25,8 +25,8 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     /// <summary>Maps an ordinal to the respawning or permanent native breakable-block list.</summary>
     internal static Program ProgramAt(int index) => index switch
     {
-        0 => new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
-        1 => new(RoomPlmInstructionLists.PermanentBreakableGrappleBlock, false),
+        0 => new(RoomPlmInstructionListsConstants.RespawningBreakableGrappleBlock, true),
+        1 => new(RoomPlmInstructionListsConstants.PermanentBreakableGrappleBlock, false),
         _ => throw new IndexOutOfRangeException(),
     };
 

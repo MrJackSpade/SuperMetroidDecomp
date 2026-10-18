@@ -86,7 +86,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 if (plms.Sounds.SoundRequests.Any(request =>
                         request.SoundEffect == SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,
-                            MaridiaElevatubePlmDefinitions.SoundId)))
+                            MaridiaElevatubePlmDefinitionsConstants.SoundId)))
                     heardAtFrame = frame;
             }
             AssertEqual(16, heardAtFrame,

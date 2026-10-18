@@ -816,7 +816,7 @@ internal static class RoomPlmPopulationVerification
 
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1);
         SeedPlmProgramWords(bus, 0xc8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
-        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
+        SeedPlmProgramWords(bus, 0xc8ce, RoomPlmInstructionListsConstants.MotherBrainEscapeRoomGateClosing);
         SeedPlmProgramWords(bus, 0xc8d0, 0xb3c1);
         SeedRoomPlmPopulation(bus, population,
         [
@@ -1041,8 +1041,8 @@ internal static class RoomPlmPopulationVerification
             : null;
         for (int index = 0; index < 3; index++)
         {
-            ushort address = checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + index * 2));
-            AssertTrue(ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out ushort compiled),
+            ushort address = checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + index * 2));
+            AssertTrue(ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(address, out ushort compiled),
                 $"Shaktool room list word ${address:X4} is compiled");
             if (rom is not null)
             {
@@ -1053,8 +1053,8 @@ internal static class RoomPlmPopulationVerification
             }
             SeedPlmProgramWords(bus, address, 0xdead);
         }
-        AssertTrue(!ShaktoolRoomPlmRomData.TryReadInstructionWord(
-                checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 6)), out _),
+        AssertTrue(!ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(
+                checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + 6)), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
@@ -1078,7 +1078,7 @@ internal static class RoomPlmPopulationVerification
 
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomPlmRomData.PreInstruction, sleeping.PreInstruction,
+        AssertEqual(ShaktoolRoomPlmRomDataConstants.PreInstruction, sleeping.PreInstruction,
             "compiled list installs Shaktool room pre-instruction");
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
             "the controller runs its typed program, resting on its closing sleep");

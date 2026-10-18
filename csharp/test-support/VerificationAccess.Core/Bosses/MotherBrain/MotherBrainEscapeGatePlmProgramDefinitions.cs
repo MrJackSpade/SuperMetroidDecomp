@@ -1,4 +1,6 @@
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>

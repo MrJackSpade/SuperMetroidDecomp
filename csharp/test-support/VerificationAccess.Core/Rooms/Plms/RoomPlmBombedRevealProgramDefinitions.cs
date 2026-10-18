@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Native one-frame reveal/delete lists $84:C8EC-C902 and $84:C91C-C926.
@@ -30,12 +30,12 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>Maps a supported reveal variant to its native bank-$84 list pointer.</summary>
     private static ushort StartOf(Reveal reveal) => reveal switch
     {
-        Reveal.Crumble1x1 => RoomPlmInstructionLists.CrumbleReveal1x1,
-        Reveal.Crumble2x1 => RoomPlmInstructionLists.CrumbleReveal2x1,
-        Reveal.Crumble1x2 => RoomPlmInstructionLists.CrumbleReveal1x2,
-        Reveal.Crumble2x2 => RoomPlmInstructionLists.CrumbleReveal2x2,
-        Reveal.PowerBomb => RoomPlmInstructionLists.BombedPowerBombBlockUnused,
-        Reveal.SuperMissile => RoomPlmInstructionLists.BombedSuperMissileBlockUnused,
+        Reveal.Crumble1x1 => RoomPlmInstructionListsConstants.CrumbleReveal1x1,
+        Reveal.Crumble2x1 => RoomPlmInstructionListsConstants.CrumbleReveal2x1,
+        Reveal.Crumble1x2 => RoomPlmInstructionListsConstants.CrumbleReveal1x2,
+        Reveal.Crumble2x2 => RoomPlmInstructionListsConstants.CrumbleReveal2x2,
+        Reveal.PowerBomb => RoomPlmInstructionListsConstants.BombedPowerBombBlockUnused,
+        Reveal.SuperMissile => RoomPlmInstructionListsConstants.BombedSuperMissileBlockUnused,
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 

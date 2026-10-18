@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -64,19 +64,19 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>Maps a shot-block role to the native start of its instruction program.</summary>
     private static ushort StartOf(Role role) => role switch
     {
-        Role.RespawningShot1x1 => RoomPlmInstructionLists.RespawningShotBlock1x1,
-        Role.RespawningShot2x1 => RoomPlmInstructionLists.RespawningShotBlock2x1,
-        Role.RespawningShot1x2 => RoomPlmInstructionLists.RespawningShotBlock1x2,
-        Role.RespawningShot2x2 => RoomPlmInstructionLists.RespawningShotBlock2x2,
-        Role.PermanentShot1x1 => RoomPlmInstructionLists.PermanentShotBlock1x1,
-        Role.PermanentShot2x1 => RoomPlmInstructionLists.PermanentShotBlock2x1,
-        Role.PermanentShot1x2 => RoomPlmInstructionLists.PermanentShotBlock1x2,
-        Role.PermanentShot2x2 => RoomPlmInstructionLists.PermanentShotBlock2x2,
-        Role.RespawningSuperMissile => RoomPlmInstructionLists.RespawningSuperMissileBlock,
-        Role.RespawningPowerBomb => RoomPlmInstructionLists.RespawningPowerBombBlock,
-        Role.PermanentSuperMissile => RoomPlmInstructionLists.PermanentSuperMissileBlock,
-        Role.PermanentPowerBomb => RoomPlmInstructionLists.PermanentPowerBombBlock,
-        Role.EnemyBreakableTerrain => EnemyBreakableTerrainDefinitions.InstructionList,
+        Role.RespawningShot1x1 => RoomPlmInstructionListsConstants.RespawningShotBlock1x1,
+        Role.RespawningShot2x1 => RoomPlmInstructionListsConstants.RespawningShotBlock2x1,
+        Role.RespawningShot1x2 => RoomPlmInstructionListsConstants.RespawningShotBlock1x2,
+        Role.RespawningShot2x2 => RoomPlmInstructionListsConstants.RespawningShotBlock2x2,
+        Role.PermanentShot1x1 => RoomPlmInstructionListsConstants.PermanentShotBlock1x1,
+        Role.PermanentShot2x1 => RoomPlmInstructionListsConstants.PermanentShotBlock2x1,
+        Role.PermanentShot1x2 => RoomPlmInstructionListsConstants.PermanentShotBlock1x2,
+        Role.PermanentShot2x2 => RoomPlmInstructionListsConstants.PermanentShotBlock2x2,
+        Role.RespawningSuperMissile => RoomPlmInstructionListsConstants.RespawningSuperMissileBlock,
+        Role.RespawningPowerBomb => RoomPlmInstructionListsConstants.RespawningPowerBombBlock,
+        Role.PermanentSuperMissile => RoomPlmInstructionListsConstants.PermanentSuperMissileBlock,
+        Role.PermanentPowerBomb => RoomPlmInstructionListsConstants.PermanentPowerBombBlock,
+        Role.EnemyBreakableTerrain => EnemyBreakableTerrainDefinitionsConstants.InstructionList,
         _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
     };
 

@@ -622,7 +622,7 @@ internal static class RoomPlmProgramsVerification
         if (decoded is null)
             return false;
         if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterPlmRomData.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
+            AssertEqual(SamusEaterPlmRomDataConstants.HoldPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
         if (cue == SamusEaterCue.QueueChewSound)
         {
             AssertEqual(SamusEaterPlmRomData.ChewSound, ReadOperandByte(cartridge, cursor + 2), "plant chew sound");

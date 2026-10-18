@@ -1,3 +1,4 @@
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -125,7 +126,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                     2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
                     4 => RestoreLoweredAcid,
                     6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                    8 => ChozoStatuePlmRomData.WaitForLowerNorfairHand,
+                    8 => ChozoStatuePlmRomDataConstants.WaitForLowerNorfairHand,
                     10 => (ushort)RoomPlmInstruction.Sleep,
                     14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
                     16 => 1,

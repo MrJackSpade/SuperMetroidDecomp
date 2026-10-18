@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks installed X-ray block, item, and room overlay visuals against native records and live rendering.</summary>
 internal static class XrayRevealVisualInstallationVerification
@@ -47,10 +48,9 @@ internal static class XrayRevealVisualInstallationVerification
                 overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
         }
         int specialRecords = 0;
-        foreach (ushort pointer in RoomStateDefinitions.All.Select(state => state.XrayPointer)
-                     .Where(pointer => pointer != 0).Distinct().OrderBy(pointer => pointer))
+        foreach (ushort pointer in XrayRoomOverlaySources.Pointers)
         {
-            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(pointer);
+            IReadOnlyList<XrayRoomOverlayVisual> tiles = overlays.RoomTiles(XrayRoomOverlaySources.Overlay(pointer));
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(XrayOverlayRomData.RoomBank | (pointer + index * 4));
@@ -124,12 +124,12 @@ internal static class XrayRevealVisualInstallationVerification
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],
-            new Bank80SystemState(), 0, new(16, 16), edited);
+            new Bank80SystemState(), null, new(16, 16), edited);
         AssertEqual(((editedItem & 0x03ff) * 4) + ((editedItem & 0x0800) != 0 ? 2 : 0),
             itemMap[0], "edited item art renders without a visual ROM read");
         ushort[] roomMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, roomMap, [],
-            new Bank80SystemState(), roomPointer, new(16, 16), edited);
+            new Bank80SystemState(), XrayRoomOverlaySources.Overlay(roomPointer), new(16, 16), edited);
         AssertEqual(((editedRoomWord & 0x03ff) * 4) +
             ((editedRoomWord & 0x0800) != 0 ? 2 : 0), roomMap[0],
             "edited room overlay renders at its edited position without a ROM read");

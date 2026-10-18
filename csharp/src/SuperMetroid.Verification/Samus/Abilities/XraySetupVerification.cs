@@ -91,7 +91,7 @@ internal static class XraySetupVerification
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(runtime.Room.LoadedLevelData, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
-            room.State.XrayPointer, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
+            room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         runtime.StepFrame(held);
         Suite(nameof(VerifySaved), () => VerifySaved(0, first, "stage-three read completes before stage-four build"));
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the separately captured pages and overlays");

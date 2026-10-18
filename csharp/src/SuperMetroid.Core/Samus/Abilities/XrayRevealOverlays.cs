@@ -11,7 +11,7 @@ public static class XrayRevealOverlays
     /// <summary>Applies $84:831A in descending PLM slot order, then room-authored record order.</summary>
     public static void Apply(RoomLevelData level, Span<ushort> tilemap,
         IReadOnlyList<CollectiblePlmSnapshot> items, Bank80SystemState system,
-        ushort specialPointer, Position16<RoomPixels> layer1Position,
+        XrayRoomOverlayDefinition? roomOverlay, Position16<RoomPixels> layer1Position,
         XrayRevealVisualCatalog? visuals = null)
     {
         Ensure.LengthEqual(tilemap, XrayTilemapLayout.BufferWords);
@@ -30,8 +30,8 @@ public static class XrayRevealOverlays
             var metatile = new RoomLevelWord(overlays.ItemMetatile(graphics));
             Write(level, tilemap, metatile, level.Size.CellAtRowMajorIndex(item.BlockIndex), layer1Position);
         }
-        if (specialPointer == 0) return;
-        foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(specialPointer))
+        if (roomOverlay is null) return;
+        foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))
             Write(level, tilemap, tile.Metatile, tile.Block, layer1Position);
     }
 

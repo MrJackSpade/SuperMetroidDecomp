@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -120,9 +121,9 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
         ushort[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).XrayPointer)
             .Where(pointer => pointer != 0).Distinct().Order().ToArray();
-        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
             "Required X-ray source view matches distinct original nonzero pointers in order");
-        AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
+        AssertTrue(XrayRoomOverlaySources.Pointers.SequenceEqual(original),
             "X-ray source view is repeatable after complete enumeration");
     }
     /// <summary>Checks the per-frame room callback pointer in each state.</summary>

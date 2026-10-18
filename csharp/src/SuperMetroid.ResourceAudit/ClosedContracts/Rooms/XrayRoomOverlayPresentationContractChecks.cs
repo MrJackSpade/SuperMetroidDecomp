@@ -21,10 +21,10 @@ internal static class XrayRoomOverlayPresentationContractChecks
         try { _ = new XrayOverlayVisualCatalog(new ushort[8], []); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject missing required room overlays");
-        ushort first = XrayRoomOverlaySourceDefinitions.All.First();
+        XrayRoomOverlayDefinition first = XrayRoomOverlayDefinitions.All[0];
         XrayRoomOverlayVisual[] tiles = [new(new(1, 2), new RoomLevelWord(3))];
-        var rooms = XrayRoomOverlaySourceDefinitions.All.Select(pointer =>
-            (pointer, (IReadOnlyList<XrayRoomOverlayVisual>)tiles)).ToArray();
+        var rooms = XrayRoomOverlayDefinitions.All.Select(overlay =>
+            (overlay, (IReadOnlyList<XrayRoomOverlayVisual>)tiles)).ToArray();
         var catalog = new XrayOverlayVisualCatalog(new ushort[8], rooms);
         tiles[0] = new(new(0, 0), new RoomLevelWord(0));
         Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), new RoomLevelWord(3)),
@@ -38,10 +38,9 @@ internal static class XrayRoomOverlayPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Rooms.Xray;
             class OverlayConsumer {
-                void Inspect(XrayOverlayVisualCatalog overlays, ushort selected) {
-                    overlays.RoomTiles({{first}});
+                void Inspect(XrayOverlayVisualCatalog overlays, XrayRoomOverlayDefinition selected) {
+                    overlays.RoomTiles(XrayRoomOverlayDefinitions.{{first.Name}});
                     overlays.RoomTiles(selected);
-                    overlays.RoomTiles(0);
                 }
             }
             """, path: "fixture-room-overlay-consumer.cs");
@@ -62,8 +61,8 @@ internal static class XrayRoomOverlayPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "overlay completeness must not accept zero as a resource key" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 2 && after.Classifications.Count == 2 && after.UnresolvedCount == 0 &&
+            after.MissingCount == 0 && after.Consumers.Count == 2, "typed overlay selections must be classified" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a violated X-ray overlay ownership contract.</summary>

@@ -35,7 +35,7 @@ internal static class RoomRevealPresentationContractChecks
                     overlays.ItemMetatile(0);
                     overlays.ItemMetatile(7);
                     overlays.ItemMetatile(8);
-                    overlays.RoomTiles(0x986b);
+                    overlays.RoomTiles(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
                     items.Resolve(InWorldCollectibleKind.Bombs);
                     items.Resolve(InWorldCollectibleKind.ReserveTank);
                     items.Resolve(InWorldCollectibleKind.EnergyTank);

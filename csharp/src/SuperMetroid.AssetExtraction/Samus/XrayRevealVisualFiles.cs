@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -89,9 +90,7 @@ public static class XrayRevealVisualFiles
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;
             }).ToArray();
-        XrayRoomOverlayEntry[] rooms = RoomStateDefinitions.All
-            .Select(state => state.XrayPointer).Where(pointer => pointer != 0)
-            .Distinct().OrderBy(pointer => pointer)
+        XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new XrayRevealVisualDocument(FormatVersion, entries, itemMetatiles, rooms),
@@ -169,7 +168,7 @@ public static class XrayRevealVisualFiles
                     $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
         }
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
-            selected.Rooms.Select(room => (checked((ushort)room.Pointer),
+            selected.Rooms.Select(room => (XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(checked((ushort)tile.Word)))).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
@@ -189,8 +188,7 @@ public static class XrayRevealVisualFiles
             document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
-        ushort[] nativePointers = RoomStateDefinitions.All.Select(state => state.XrayPointer)
-            .Where(pointer => pointer != 0).Distinct().OrderBy(pointer => pointer).ToArray();
+        ushort[] nativePointers = XrayRoomOverlaySources.Pointers.ToArray();
         if (!document.Rooms.Select(room => room.Pointer).SequenceEqual(nativePointers.Select(pointer => (int)pointer)))
             throw new InvalidDataException($"X-ray visuals {path} changed room-overlay identities.");
         foreach (XrayRoomOverlayEntry room in document.Rooms)

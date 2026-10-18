@@ -68,7 +68,7 @@ internal sealed class XrayReveal
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, _plms.CollectiblePlms.Collectibles, _system,
-            room.State.XrayPointer, layer1, XrayRevealVisuals);
+            room.State.XrayOverlay, layer1, XrayRevealVisuals);
         StagingWordView reveal = RevealTilemap;
         for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
     }

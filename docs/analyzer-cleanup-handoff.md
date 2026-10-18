@@ -507,8 +507,11 @@ Commit and push that update too.
       `tools/generate-room-plm-population-definitions.ps1`.
     - Step 3e (`f07284f80`, 102 -> 100): room states hold their library background as a named
       `LibraryBackgroundProgram`; AssetExtraction's `LibraryBackgroundSources` owns the list pointers.
-    - Step 3f (this commit, 100 -> 98): room states hold a named `RoomFxDefinition` (an FX header's records in native
+    - Step 3f (`be1d2a36e`, 100 -> 98): room states hold a named `RoomFxDefinition` (an FX header's records in native
       order, selecting the entry door's record itself); records have no pointer; AssetExtraction's `RoomFxSources`
       owns the header pointers and test support's `RoomFxDefinitionsAccess` derives record pointers from them.
-    - Next: the X-ray overlay pointer (installed artwork is keyed by it), then room-state identity
-      (`CartridgeRoomState.Pointer`, the gameplay-active room-state pointer, the frontend's last audio room state).
+    - Step 3g (this commit, 98 -> 97): room states hold a named `XrayRoomOverlayDefinition`; the installed overlay
+      catalog is keyed by overlay; reveals.json keeps its pointer key, resolved by AssetExtraction's
+      `XrayRoomOverlaySources`.
+    - Next: room-state identity (`CartridgeRoomState.Pointer`, the gameplay-active room-state pointer, the frontend's
+      last audio room state, the debugger header and error reports), named by the disassembly's `RoomState_` labels.

@@ -18,5 +18,9 @@ internal sealed class ProjectileSlotTable
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
     /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
-    public ushort ProjectileCounter { get; internal set; }
+    public int ProjectileCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 }

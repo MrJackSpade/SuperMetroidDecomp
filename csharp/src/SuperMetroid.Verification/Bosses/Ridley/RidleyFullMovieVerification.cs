@@ -847,7 +847,7 @@ internal static class RidleyFullMovieVerification
             game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
         int nmiBeforeNudge = runtime.Clock.Counter;
-        ushort samusAnimation = samus.AnimationFrame;
+        int samusAnimation = samus.AnimationFrame;
         var ridley = runtime.Enemies.SlotTable.Slots[0];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);

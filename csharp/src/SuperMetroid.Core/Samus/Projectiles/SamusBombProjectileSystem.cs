@@ -47,7 +47,11 @@ public sealed class SamusBombProjectileSystem
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>WRAM $0CD2, maintained independently from slot scans by the original.</summary>
-    public ushort BombCounter { get; internal set; }
+    public int BombCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
     public NativeCountdown CooldownTimer { get; private set; }

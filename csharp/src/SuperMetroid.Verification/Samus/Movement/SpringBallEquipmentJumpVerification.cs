@@ -72,7 +72,7 @@ internal static class SpringBallEquipmentJumpVerification
 
             void Resume(bool equipped)
             {
-                ushort y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
+                int y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
                 SamusVerticalDirection direction = samus.Kinematics.YDirection;
                 if (equipped) samus.EquippedItems |= SamusEquipmentFlags.SpringBall;
                 else samus.EquippedItems &= ~SamusEquipmentFlags.SpringBall;

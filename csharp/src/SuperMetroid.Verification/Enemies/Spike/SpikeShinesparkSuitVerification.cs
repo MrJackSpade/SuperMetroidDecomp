@@ -64,7 +64,7 @@ internal static class SpikeShinesparkSuitVerification
         frozenRuntime.Freeze.GameplayTimeFrozen = true;
         uint frozenX = frozenSamus.Kinematics.Position.X.RawValue;
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
-        ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
+        int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         int frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;

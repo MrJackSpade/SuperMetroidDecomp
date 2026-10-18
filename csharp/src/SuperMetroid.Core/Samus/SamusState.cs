@@ -100,7 +100,11 @@ public sealed class SamusState
     }
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
-    public ushort AnimationFrame { get; set; }
+    public int AnimationFrame
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Countdown at WRAM <c>$0A94</c>. Zero and negative-after-decrement both advance,

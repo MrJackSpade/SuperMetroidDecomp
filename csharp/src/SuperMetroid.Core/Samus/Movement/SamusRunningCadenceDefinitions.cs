@@ -69,7 +69,7 @@ internal static class SamusRunningCadenceDefinitions
     internal static byte ReadAnimationByte(
         SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
         ushort listPointer,
-        ushort byteIndex)
+        int byteIndex)
     {
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (TryReadCompiledByte(address, out byte value))

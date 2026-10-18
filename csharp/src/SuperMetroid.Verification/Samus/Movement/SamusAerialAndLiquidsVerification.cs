@@ -843,7 +843,7 @@ internal static void VerifySamusLiquidPhysics()
     AssertTrue(!submergedDash.HasRunningMomentum, "submerged Dash cannot establish momentum");
     AssertEqual(0, submergedDash.ExtraRunSubspeed, "submerged no-momentum Dash stays zero");
     submergedDash.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, false);
-    ushort carriedFraction = submergedDash.ExtraRunSubspeed;
+    int carriedFraction = submergedDash.ExtraRunSubspeed;
     submergedDash.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,

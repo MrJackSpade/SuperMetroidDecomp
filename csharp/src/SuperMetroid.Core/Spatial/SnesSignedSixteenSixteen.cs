@@ -13,9 +13,9 @@ public readonly record struct SnesSignedSixteenSixteen
     /// <summary>Preserves an existing signed 32-bit native fixed-point value.</summary>
     public static SnesSignedSixteenSixteen FromRaw(int rawValue) => new(rawValue);
 
-    /// <summary>Combines the native signed whole word and unsigned fractional word.</summary>
-    public static SnesSignedSixteenSixteen FromParts(short wholePixels, ushort fraction) =>
-        new(unchecked((wholePixels << 16) | fraction));
+    /// <summary>Combines the native signed whole word and the unsigned fractional word, 0 through 65535.</summary>
+    public static SnesSignedSixteenSixteen FromParts(short wholePixels, int fraction) =>
+        new(unchecked((wholePixels << 16) | Ensure.BetweenInclusive(0, ushort.MaxValue, fraction)));
 
     /// <summary>The zero displacement.</summary>
     public static SnesSignedSixteenSixteen Zero => default;

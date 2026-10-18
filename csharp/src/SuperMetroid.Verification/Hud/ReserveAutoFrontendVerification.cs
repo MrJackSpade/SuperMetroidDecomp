@@ -69,7 +69,7 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
-        ushort lockedAnimationFrame = samus.AnimationFrame;
+        int lockedAnimationFrame = samus.AnimationFrame;
         ushort lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(lockedAnimationFrame, samus.AnimationFrame,

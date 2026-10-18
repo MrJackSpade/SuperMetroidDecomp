@@ -157,7 +157,7 @@ internal sealed class SamusPresentation
     /// the same gameplay frame; exposing this narrow writer prevents grapple code from
     /// acquiring a general-purpose escape hatch around animation invariants.
     /// </summary>
-    public void SetGrappleSwingAnimationFrame(ushort frame)
+    public void SetGrappleSwingAnimationFrame(int frame)
     {
         if (_samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${(int)_samus.Pose:X2}.");
@@ -270,7 +270,7 @@ internal sealed class SamusPresentation
             // command number zero, whose handler does no further timer selection.
             if (_samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
-                ushort stagedFrame = _samus.AnimationFrame;
+                ushort stagedFrame = checked((ushort)_samus.AnimationFrame);
                 if (_samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
                     _samus.Mode7QueueResidue,
                     movementType: SamusMovementType.Running,
@@ -453,7 +453,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
-    private byte ReadAnimationByte(ushort byteIndex) =>
+    private byte ReadAnimationByte(int byteIndex) =>
         SamusAnimationDelayDefinitions.ReadAnimationByte(_samus.Mode7QueueResidue,
             unchecked((ushort)_samus.AnimationDelayListAddress), byteIndex);
 
@@ -461,7 +461,7 @@ internal sealed class SamusPresentation
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort byteIndex)
+    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
             mode7Residue,

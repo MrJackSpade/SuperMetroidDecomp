@@ -80,7 +80,7 @@ internal static class GrappleBodyPlacementVerification
                 AssertEqual(SamusGrappleMovement.Step(new SamusTerrain { Level = empty }, native, input, 0), SamusGrappleMovement.Step(new SamusTerrain { Level = empty }, changed, input, 0), "Edited swing frames preserve actual pendulum results");
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
                 AssertEqual(native.AnimationFrameTimer.RawValue, changed.AnimationFrameTimer.RawValue, "Visual mapping cannot change swing timing");
-                ushort displayed = changed.AnimationFrame;
+                int displayed = changed.AnimationFrame;
                 changed.Presentation.SetGrappleSwingAnimationFrame(native.AnimationFrame);
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");
                 changed.Presentation.SetGrappleSwingAnimationFrame(displayed);

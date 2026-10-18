@@ -616,8 +616,8 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.Start(downKnockback, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
-    ushort impactYSpeed = downKnockback.Kinematics.YSpeed;
-    ushort impactYSubspeed = downKnockback.Kinematics.YSubspeed;
+    int impactYSpeed = downKnockback.Kinematics.YSpeed;
+    int impactYSubspeed = downKnockback.Kinematics.YSubspeed;
     KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(
 floorLevel, downKnockback, nmiFrameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
@@ -676,8 +676,8 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
 
     // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
     // change inside movement type two, so the already-live 16.16 trajectory must survive.
-    ushort preservedYSpeed = samus.Kinematics.YSpeed;
-    ushort preservedYSubspeed = samus.Kinematics.YSubspeed;
+    int preservedYSpeed = samus.Kinematics.YSpeed;
+    int preservedYSubspeed = samus.Kinematics.YSubspeed;
     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
         samus,
         SamusPoseId.NeutralJumpRightPose,
@@ -755,7 +755,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         ball.PoseMetadata.RefreshCollisionRadii();
         ball.Presentation.InitializeAnimation(initialFrame: 3);
         ball.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
-        ushort preservedFrame = ball.AnimationFrame;
+        int preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
         SamusKnockbackMovement.Start(ball, controllerInput: (SnesButton.Left | SnesButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right });
@@ -797,7 +797,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     ballExpires.Presentation.InitializeAnimation(initialFrame: 3);
     SamusKnockbackMovement.Start(ballExpires, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
-    ushort retainedBallFrame = ballExpires.AnimationFrame;
+    int retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
     {

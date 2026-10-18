@@ -633,7 +633,7 @@ internal sealed class InstalledSamusIsolationTests
         { actor.Samus.Health = 0; actor.Samus.ReserveEnergy = 42; actor.Samus.ReserveTankMode = ReserveTankMode.Auto; });
         var stock = new SamusReserveAutoRecoveryState(); var edited = new SamusReserveAutoRecoveryState();
         stock.Begin(pair.Stock.Samus); edited.Begin(pair.Edited.Samus);
-        ushort initialFrame = pair.Stock.Samus.AnimationFrame;
+        int initialFrame = pair.Stock.Samus.AnimationFrame;
         for (ushort frame = 0; frame < 42; frame++)
         {
             Require(stock.StepAfterNmi(pair.Stock.Samus, frame) == edited.StepAfterNmi(pair.Edited.Samus, frame),

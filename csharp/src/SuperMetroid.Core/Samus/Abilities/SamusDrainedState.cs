@@ -318,8 +318,8 @@ public sealed class SamusDrainedState
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.
-        ushort impactYSpeed = samus.Kinematics.YSpeed;
-        ushort impactYSubspeed = samus.Kinematics.YSubspeed;
+        int impactYSpeed = samus.Kinematics.YSpeed;
+        int impactYSubspeed = samus.Kinematics.YSubspeed;
 
         if (vertical.Collided)
         {

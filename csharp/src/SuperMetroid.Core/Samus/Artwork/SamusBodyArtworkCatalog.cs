@@ -272,7 +272,7 @@ public sealed class SamusBodyArtworkCatalog
         ? value : SamusBodyPoseDefinitions.DefaultFrameList(pose);
 
     /// <summary>Resolve the cartridge's pose pointer plus four bytes per animation frame.</summary>
-    public SamusBodyFrameSelection Frame(SamusPoseId pose, ushort animationFrame)
+    public SamusBodyFrameSelection Frame(SamusPoseId pose, int animationFrame)
     {
         if ((int)pose >= PoseCount)
             throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored Samus body frame list.");

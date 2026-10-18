@@ -511,7 +511,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     {
         SamusHorizontalSpeedState speed = _samus.HorizontalSpeed;
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            (SnesSixteenSixteen.FromWhole((uint)speed.ExtraRunSpeed)) + speed.ExtraRunSubspeed);
+            SnesSixteenSixteen.Compose(speed.ExtraRunSpeed, speed.ExtraRunSubspeed));
         speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
         speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
         speed.ExtraRunSpeed = 0;
@@ -1382,7 +1382,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            (SnesSixteenSixteen.FromWhole((uint)speed.ExtraRunSpeed)) + speed.ExtraRunSubspeed);
+            SnesSixteenSixteen.Compose(speed.ExtraRunSpeed, speed.ExtraRunSubspeed));
         speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
         speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
 
@@ -1908,8 +1908,8 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             uint combined = unchecked(_samus.HorizontalSpeed.BaseFixed +
-                (SnesSixteenSixteen.FromWhole((uint)_samus.HorizontalSpeed.ExtraRunSpeed)) +
-                _samus.HorizontalSpeed.ExtraRunSubspeed);
+                SnesSixteenSixteen.Compose(_samus.HorizontalSpeed.ExtraRunSpeed,
+                    _samus.HorizontalSpeed.ExtraRunSubspeed));
             _samus.HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)combined));
             _samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
             // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the

@@ -264,7 +264,7 @@ level, samus, SnesButton.A, nmiFrameCounter: 0);
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "aimed transition FD applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
-    ushort speedBeforeAimChange = samus.Kinematics.YSpeed;
+    int speedBeforeAimChange = samus.Kinematics.YSpeed;
     samus.PoseTransitions.ApplyAerialAimTransition(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
     AssertEqual(speedBeforeAimChange, samus.Kinematics.YSpeed, "air aim change preserves Y speed");
 
@@ -670,7 +670,7 @@ internal static void VerifySamusGunExtendedMovement()
     var running = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
     running.PoseMetadata.RefreshCollisionRadii();
     running.Presentation.InitializeAnimation(initialFrame: 4);
-    ushort runningFrame = running.AnimationFrame;
+    int runningFrame = running.AnimationFrame;
     ushort runningTimer = running.AnimationFrameTimer.RawValue;
     int runningDelayList = running.AnimationDelayListAddress;
     running.PoseTransitions.ApplyGroundedAimTransition(SamusPoseId.MovingRightGunExtendedPose);

@@ -127,10 +127,18 @@ public sealed class SamusKinematicsState
     public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
 
     /// <summary>Whole vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public ushort YSpeed { get; set; }
+    public int YSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional vertical speed used to suppress grounded horizontal slope scaling.</summary>
-    public ushort YSubspeed { get; set; }
+    public int YSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Vertical direction at WRAM <c>$0B36</c>: zero is none, one is upward, and two is
@@ -144,10 +152,18 @@ public sealed class SamusKinematicsState
     public AreaId SandCollisionArea { get; set; }
 
     /// <summary>Whole gravity word at WRAM <c>$0B34</c>.</summary>
-    public ushort YAcceleration { get; set; }
+    public int YAcceleration
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional gravity word at WRAM <c>$0B32</c>.</summary>
-    public ushort YSubacceleration { get; set; }
+    public int YSubacceleration
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
     public int HorizontalSlopeCollisionEnable
@@ -160,7 +176,7 @@ public sealed class SamusKinematicsState
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
-    public uint VerticalSpeedFixed => (SnesSixteenSixteen.FromWhole((uint)YSpeed)) | YSubspeed;
+    public uint VerticalSpeedFixed => SnesSixteenSixteen.Compose(YSpeed, YSubspeed);
 
     /// <summary>
     /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top

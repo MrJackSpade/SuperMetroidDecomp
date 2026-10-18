@@ -17,16 +17,32 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusHorizontalSpeedState
 {
     /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
-    public ushort BaseSpeed { get; set; }
+    public int BaseSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional part of <c>samus_x_base_subspeed</c> at WRAM <c>$0B48</c>.</summary>
-    public ushort BaseSubspeed { get; set; }
+    public int BaseSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Whole part of the run-button/speed-booster addition at WRAM <c>$0B42</c>.</summary>
-    public ushort ExtraRunSpeed { get; set; }
+    public int ExtraRunSpeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Fractional part of the run-button/speed-booster addition at WRAM <c>$0B44</c>.</summary>
-    public ushort ExtraRunSubspeed { get; set; }
+    public int ExtraRunSubspeed
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Native <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
@@ -188,7 +204,11 @@ public sealed class SamusHorizontalSpeedState
     /// Acceleration mode at WRAM <c>$0B4A</c>: zero accelerates, while every nonzero value
     /// takes the deceleration branch in <c>$90:9A7E</c>.
     /// </summary>
-    public ushort AccelerationMode { get; set; }
+    public int AccelerationMode
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Optional deceleration multiplier, 0 through 255. Zero selects the table's plain
@@ -396,7 +416,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort byteIndex)
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, int byteIndex)
     {
         byte stage = checked((byte)SpeedBoostStage);
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
@@ -1016,10 +1036,10 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Compares split words with the cartridge's signed subtraction and strict low-word tie rule.</summary>
     private static bool IsGreaterThanQuirked(
-        ushort valueHigh,
-        ushort valueLow,
-        ushort comparisonHigh,
-        ushort comparisonLow)
+        int valueHigh,
+        int valueLow,
+        int comparisonHigh,
+        int comparisonLow)
     {
         if (unchecked((short)(valueHigh - comparisonHigh)) < 0)
             return false;

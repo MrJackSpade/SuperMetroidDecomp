@@ -525,7 +525,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
         // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
         // extra pixel. BMI reads only the sign of the difference.
-        ushort ySpeed = samus.Kinematics.YSpeed;
+        int ySpeed = samus.Kinematics.YSpeed;
         int xCarry = ySpeed >= 4 ? 1 : 0;
         if (unchecked((short)unchecked((ushort)(ySpeed - 4))) >= 0)
             samus.Kinematics.YSpeed = 2;

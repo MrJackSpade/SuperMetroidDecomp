@@ -59,7 +59,7 @@ internal static class SamusAtmosphericEffectDefinitions
         };
     }
     /// <summary>$90:A424: one contact at phase two of each five-frame running step.</summary>
-    internal static bool IsRunningFootContact(ushort animationFrame)
+    internal static bool IsRunningFootContact(int animationFrame)
     {
         if (animationFrame >= 10)
             throw new InvalidDataException($"Running animation frame {animationFrame} is outside ten foot-contact selectors.");

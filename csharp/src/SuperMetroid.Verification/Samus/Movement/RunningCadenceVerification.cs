@@ -29,7 +29,7 @@ internal static class RunningCadenceVerification
         Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
         Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
         Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = new Func<SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue?, ushort, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
+        var ordinary = new Func<SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue?, int, byte>(SamusPresentation.ReadDefaultRunningAnimationByte);
         var speed = new SamusHorizontalSpeedState();
 
         // Every authored frame and loop command remains byte-exact. Reads may cross into

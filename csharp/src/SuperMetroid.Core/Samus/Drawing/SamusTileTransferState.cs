@@ -65,7 +65,7 @@ public sealed class SamusTileTransferState
     /// <summary>
     /// Ports <c>Set_SamusTilesDefinitions_ForCurrentAnimation</c> at <c>$92:8000</c>.
     /// </summary>
-    public void SelectForPoseFrame(SamusPoseId pose, ushort animationFrame)
+    public void SelectForPoseFrame(SamusPoseId pose, int animationFrame)
     {
 
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(

@@ -692,8 +692,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds a signed 16.16 whole/fraction increment to the Etecoon's vertical speed.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
-        ushort wholeIncrement,
-        ushort fractionIncrement)
+        int wholeIncrement,
+        int fractionIncrement)
     {
         SnesSignedSixteenSixteen increment =
             SnesSignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);

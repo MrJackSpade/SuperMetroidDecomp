@@ -254,8 +254,8 @@ level, targetPose, nmiFrameCounter, plms))
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
         // execute the shared landing-presentation routine at the same logical seam.
         bool landed = samus.KnockbackDirection is SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight && vertical.Collided;
-        ushort impactYSpeed = samus.Kinematics.YSpeed;
-        ushort impactYSubspeed = samus.Kinematics.YSubspeed;
+        int impactYSpeed = samus.Kinematics.YSpeed;
+        int impactYSubspeed = samus.Kinematics.YSubspeed;
 
         if (vertical.Collided)
         {

@@ -94,7 +94,7 @@ internal static class CoreAccess
     extension(IntroCinematicState intro)
     {
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
-        internal ushort ActiveFlashbackProjectileCount =>
+        internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.SlotTable.ProjectileCounter;
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.flashbackSamus?.Position.X.Whole ?? 0;

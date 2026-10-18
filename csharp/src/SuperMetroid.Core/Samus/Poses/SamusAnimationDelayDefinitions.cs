@@ -678,7 +678,7 @@ internal static class SamusAnimationDelayDefinitions
     }
 
     /// <summary>Read an immutable delay/command byte, retaining low-bank mutable aliases.</summary>
-    internal static byte ReadAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort listPointer, ushort byteIndex)
+    internal static byte ReadAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort listPointer, int byteIndex)
     {
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)

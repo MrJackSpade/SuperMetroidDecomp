@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public static class NativeWordCounter
 {
-    /// <summary>Executes one wrapping 16-bit DEC and exposes its resulting N/Z flags.</summary>
-    public static NativeWordCounterStep Decrement(ushort value) =>
-        new(unchecked((ushort)(value - 1)));
+    /// <summary>Executes one wrapping 16-bit DEC of a word, 0 through 65535, and exposes its resulting N/Z flags.</summary>
+    public static NativeWordCounterStep Decrement(int value) =>
+        new(unchecked((ushort)(Ensure.BetweenInclusive(0, ushort.MaxValue, value) - 1)));
 
     /// <summary>
     /// Executes one 8-bit <c>DEC</c> of a byte (for example an 8-bit color or brightness component), wrapping

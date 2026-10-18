@@ -147,7 +147,7 @@ internal sealed class RidleyProjectiles
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
         afterburn.RemainingAfterburns = source.RemainingAfterburns;
-        afterburn.NextAfterburnKind = (ushort)kind;
+        afterburn.NextAfterburnKind = kind;
     }
 
     /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
@@ -159,7 +159,7 @@ internal sealed class RidleyProjectiles
             return;
         SpawnDirectionalAfterburn(
             source,
-            (RoomEnemyProjectileKind)source.NextAfterburnKind,
+            source.NextAfterburnKind,
             source.Velocity);
     }
 

@@ -80,8 +80,8 @@ public sealed class RoomEnemyProjectileSlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>Gets the native definition offset used to spawn the next directional afterburn in the chain.</summary>
-    public ushort NextAfterburnKind { get; internal set; }
+    /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
+    internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }
     /// <summary>Gets the family-specific direction or initializer parameter, retaining its native word representation rather than imposing a shared angle format.</summary>
     public int DirectionParameter
     {
@@ -183,7 +183,8 @@ public sealed class RoomEnemyProjectileSlot
         Radius = Extent16<RoomPixels>.Zero;
         GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;
         DrawPriority = EnemyProjectileDrawPriority.Low;
-        RemainingAfterburns = NextAfterburnKind = 0;
+        RemainingAfterburns = 0;
+        NextAfterburnKind = RoomEnemyProjectileKind.None;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
         EnemyHeaderPointer = EnemyDefinitionId.None;

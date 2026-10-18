@@ -1565,7 +1565,7 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
                     case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
                         variableE = checked((ushort)projectile.RemainingAfterburns);
-                        variableF = projectile.NextAfterburnKind;
+                        variableF = (ushort)projectile.NextAfterburnKind;
                         break;
                     case RoomEnemyProjectileKind.MiscDustExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:

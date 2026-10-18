@@ -603,6 +603,7 @@ Commit and push that update too.
     keys and spritemap words (`EnemyProjectileFramePresentation`, the slot's `SpritemapPointer` and
     `PresentationOperandAddress`, `CompiledEnemyVisualSelector`), the drop-chance override, and the
     pre-instruction enum's routine addresses, which the Tooling layouts still emit.
+  - Ridley's afterburn chain keeps the next afterburn's `RoomEnemyProjectileKind` instead of its definition word.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

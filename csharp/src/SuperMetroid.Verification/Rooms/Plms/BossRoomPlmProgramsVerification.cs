@@ -197,7 +197,7 @@ internal static class BossRoomPlmProgramsVerification
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
                 AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
                     (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
-                AssertEqual(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord, Word(7), "hand debris destination");
+                AssertEqual(GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset).Encoded, Word(7), "hand debris destination");
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
                 return true;
             case RoomPlmInstruction.SpawnTorizoStatueBreaking:

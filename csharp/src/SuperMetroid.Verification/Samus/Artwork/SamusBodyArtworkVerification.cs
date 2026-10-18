@@ -229,18 +229,18 @@ internal static class SamusBodyArtworkVerification
                     $"death tile segment ${segment.SourceAddress:X6} byte {offset:X3}");
             var installedQueue = new VramWriteQueue();
             installedQueue.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.SourceAddress, VramDmaDestination.FromNative(segment.EncodedVramDestination));
+                segment.SourceAddress, segment.Destination);
             var nativeDeathVram = new SnesVram();
             var installedDeathVram = new SnesVram();
             nativeDeathVram.ExecuteQueuedAssetWrite(
                 Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
                     .Select(offset => bus.ReadCartridgeByte(segment.SourceAddress + offset)).ToArray(),
-                segment.EncodedVramDestination);
+                segment.Destination.Encoded);
             installedQueue.DrainTo(installedDeathVram,
                 new DeathTileAssetProvider(stock.DeathTiles));
             AssertTrue(nativeDeathVram.ImageEquals(installedDeathVram),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
-            int firstCharacter = (segment.EncodedVramDestination - GameplayVramLayout.ObjectCharacters.Offset) /
+            int firstCharacter = (segment.Destination.Encoded - GameplayVramLayout.ObjectCharacters.Offset) /
                 (SpriteArtwork.CharacterByteCount / sizeof(ushort));
             AssertTrue(stock.DeathTiles.Explosion.Characters.Slice(firstCharacter * SpriteArtwork.CharacterByteCount,
                     SamusSpecialSequenceRomData.Death.TileSegmentByteCount).SequenceEqual(installedSegment.Span),
@@ -539,9 +539,9 @@ internal static class SamusBodyArtworkVerification
         var stockDeathTransfer = new VramWriteQueue();
         var editedDeathTransfer = new VramWriteQueue();
         stockDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
+            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
         editedDeathTransfer.Enqueue(SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            firstDeathSegment.SourceAddress, VramDmaDestination.FromNative(firstDeathSegment.EncodedVramDestination));
+            firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
         var stockDeathTilesVram = new SnesVram();
         var editedDeathTilesVram = new SnesVram();
         stockDeathTransfer.DrainTo(stockDeathTilesVram,

@@ -198,9 +198,9 @@ internal static class LookupStream1Verification
         for (int page = 0; page < pages.Count; page++)
         {
             var queue = new VramWriteQueue();
-            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, VramDmaDestination.FromNative(pages[page].EncodedVramDestination));
+            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, pages[page].Destination);
             var actual = new SnesVram(); var expected = new SnesVram();
-            expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
+            expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].Destination.Encoded);
             queue.DrainTo(actual, new DeathTileAssetProvider(stock));
             AssertTrue(actual.ImageEquals(expected), "Actual five-page NMI transport matches native");
         }
@@ -1996,7 +1996,7 @@ internal static class LookupStream1Verification
         for (int index = 0; index < segments.Length; index++)
         {
             AssertEqual(0x9b0000 | Word(0x9bb7bf + index * 2), segments[index].SourceAddress, "native death transfer source");
-            AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].EncodedVramDestination, "native death transfer destination");
+            AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].Destination.Encoded, "native death transfer destination");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
@@ -3270,6 +3270,14 @@ internal static class LookupStream1Verification
     /// <summary>Reads native Samus body DMA source and transfer words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body transfers")]
     private static byte LookupStream1BodyTransfersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>Runs the focused Samus death-transfer definitions oracle with the retail cartridge.</summary>
+    [VerificationCommand("--lookup-stream-1-death-definitions")]
+    internal static int LookupStream1DeathDefinitionsCommand()
+    {
+        Suite(nameof(VerifyLookupStream1DeathDefinitions), () => VerifyLookupStream1DeathDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 
     /// <summary>Runs the focused escape Dachora full-cadence oracle with the retail cartridge.</summary>
     [VerificationCommand("--lookup-stream-1-escape-dachora-cadence")]

@@ -13,8 +13,8 @@ internal static class BombTorizoHandPlmProgramDefinitions
 {
     /// <summary><c>$84:D33B</c>: the pre-instruction that wakes the hand once Samus has Bombs.</summary>
     internal const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
-    /// <summary>The VRAM word address the debris tiles load to.</summary>
-    internal const ushort DebrisDestinationWord = 0x6e00;
+    /// <summary>How many words into the OBJ character table the debris tiles load.</summary>
+    internal const int DebrisObjectCharacterWordOffset = 0x0e00;
     /// <summary>How many fragments the hand drops.</summary>
     internal const int FragmentCount = 8;
     /// <summary>How long the woken hand holds before it crumbles.</summary>

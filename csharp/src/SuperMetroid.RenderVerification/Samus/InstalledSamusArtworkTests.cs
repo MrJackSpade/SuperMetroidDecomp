@@ -162,7 +162,7 @@ internal static class InstalledSamusArtworkTests
         foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)
         {
             Check(segment.SourceAddress, SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-                segment.EncodedVramDestination, $"death {segment.SourceAddress:X6}");
+                segment.Destination.Encoded, $"death {segment.SourceAddress:X6}");
             count++;
         }
         return count;

@@ -4,12 +4,9 @@
 public readonly record struct PlmVramWriteRequest(
     int SizeInBytes,
     int SourceAddress,
-    ushort EncodedVramDestination)
+    VramDmaDestination Destination)
 {
     /// <summary>The bytes the write moves, 0 through 65535.</summary>
     public int SizeInBytes { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SizeInBytes);
 
-    /// <summary>The queued-DMA destination the bytecode's native destination word encodes.</summary>
-    [PpuLayoutBoundary("codec: PLM bytecode VRAM write-table destination word")]
-    public VramDmaDestination Destination => VramDmaDestination.FromNative(EncodedVramDestination);
 }

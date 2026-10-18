@@ -104,7 +104,7 @@ internal static class BombTorizoHandVerification
             "hand DMA byte count");
         AssertEqual(0xadb200, plms.BombTorizoHand.VramWriteRequests[0].SourceAddress,
             "hand DMA source address");
-        AssertEqual(0x6e00, plms.BombTorizoHand.VramWriteRequests[0].EncodedVramDestination,
+        AssertEqual(0x6e00, plms.BombTorizoHand.VramWriteRequests[0].Destination.Encoded,
             "hand DMA VRAM destination");
 
         if (installedArtwork is not null)
@@ -117,14 +117,14 @@ internal static class BombTorizoHandVerification
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
-                VramDmaDestination.FromNative(request.EncodedVramDestination));
+                request.Destination);
             runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),
                 "Bomb Torizo PLM transfer resolves installed artwork");
             for (int offset = 0; offset < expected.Length; offset++)
                 AssertEqual(expected.Span[offset],
-                    runtime.Vram.ReadByte(request.EncodedVramDestination * 2 + offset),
+                    runtime.Vram.ReadByte(request.Destination.Encoded * 2 + offset),
                     $"Bomb Torizo debris DMA installs exact tile byte {offset:X4}");
             AssertEqual(0, runtime.VramWrites.TailInBytes,
                 "successful debris DMA clears the pending queue");

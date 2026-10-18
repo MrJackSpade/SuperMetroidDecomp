@@ -99,7 +99,7 @@ internal sealed class BombTorizoHandPlms
         _vramWriteRequests.Add(new PlmVramWriteRequest(
             checked((ushort)TorizoInstructionTileRomData.ChozoDebrisByteCount),
             TorizoInstructionTileRomData.ChozoDebrisSource,
-            BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
+            GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset)));
 
     /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(PlmSlot slot, int fragment) =>

@@ -421,3 +421,22 @@ Commit and push that update too.
     the carry-in, and the assertion now says so.
   - Census 261 sites, all Core (SME6347 235, SME6292 10, SME6341 10, SME6342 6); no (rule, file) pair rose
     against the 420-site census at `6027af33f`.
+- 2026-10-17, same session continued (`f39cdb8ca` through the slot-word removal):
+  - Samus and Power Bomb typing (`bfdb7a0e3`, `c909c6553`, `886b8726b`, `12dca1a5e`), enemy slot words held as
+    word-ranged ints (`49008d85a`, `5b99ce202`, `4250a9010`, `7898c1305`) and the frame phases given operations
+    instead of the bus (`d18e6c1e9`, SME6292 10 -> 6).
+  - Per-family owned enemy state (5.3) for every family, from the four-family batch `0ab4dcde1` to Phantoon
+    (`75bad801f`). Families whose record words carry several meanings in one actor (Dachora, Crocomire, Draygon,
+    the gunship, Kraid and Phantoon) keep each record word once with a named view per meaning. Then
+    `RoomEnemySlot.VariableA-F` are deleted and the native snapshot import passes `NativeEnemyRecordWords` to the
+    family translation.
+  - `wrap` follow-up: five `++` on range-checked views wrap at sixteen bits again (Phantoon speed phase, gunship
+    counters).
+  - Five failing checks repaired (production unchanged): the Ki-Hunter swoop and Fake Kraid walk fixtures had zero
+    collision radii, the Owtch fixture lacked room RNG services, and the null atmospheric pointer and standalone
+    Samus speed checks still asserted removed live-memory reads.
+  - Census 201 sites, all Core (SME6347 179, SME6341 10, SME6342 6, SME6292 6); no (rule, file) pair rose.
+  - Not done: the SME6341 rows in the Fake Kraid and Old Tourian projectile definitions need their address
+    switches replaced by data-only mechanics tables read outside the catalog (Tooling and tests consume both), plus
+    a ROM-oracle check; the SME6342 instruction-byte observations; the SME6292 frontend and runtime bus fields; and
+    the remaining SME6347 storage rows (projectile slots, room state, Samus projectile slots).

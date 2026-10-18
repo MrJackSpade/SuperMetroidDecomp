@@ -36,9 +36,9 @@ internal static class RoomCallbackDefinitionsVerification
 
             RoomMainCallback main = state.MainCallback;
             RoomSetupCallback setup = state.SetupCallback;
-            AssertEqual(state.MainCodePointer, RoomCallbackDefinitions.PointerOf(main),
+            AssertEqual(main, RoomCallbackDefinitions.ResolveMain(RoomCallbackDefinitions.PointerOf(main)),
                 $"room state $8F:{state.Pointer:X4} main callback round trip");
-            AssertEqual(state.SetupCodePointer, RoomCallbackDefinitions.PointerOf(setup),
+            AssertEqual(setup, RoomCallbackDefinitions.ResolveSetup(RoomCallbackDefinitions.PointerOf(setup)),
                 $"room state $8F:{state.Pointer:X4} setup callback round trip");
             mainCallbacks.Add(main);
             setupCallbacks.Add(setup);

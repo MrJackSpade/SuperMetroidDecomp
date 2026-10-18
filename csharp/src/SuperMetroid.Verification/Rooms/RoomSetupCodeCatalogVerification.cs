@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 
 namespace SuperMetroid.Verification.Rooms;
@@ -7,6 +8,14 @@ namespace SuperMetroid.Verification.Rooms;
 /// <summary>Audits bank-$8F room setup callback identities against reachable retail room states.</summary>
 internal static class RoomSetupCodeCatalogVerification
 {
+    /// <summary>Runs the room-setup callback catalog check on its own.</summary>
+    [VerificationCommand("--room-setup-code-catalog")]
+    internal static int RoomSetupCodeCatalogCommand()
+    {
+        VerifyRoomSetupCodeCatalog();
+        return 0;
+    }
+
     /// <summary>
     /// Audits every state reachable from the retail room headers and proves every nonzero
     /// setup callback is represented exactly once by the dedicated bank-$8F catalog.
@@ -15,7 +24,7 @@ internal static class RoomSetupCodeCatalogVerification
     {
         ushort[] catalog = Enum.GetValues<RoomSetupCallback>()
             .Where(callback => callback != RoomSetupCallback.None)
-            .Select(callback => (ushort)callback)
+            .Select(callback => RoomCallbackDefinitions.PointerOf(callback))
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-setup callback catalog has no aliases");
@@ -46,8 +55,8 @@ internal static class RoomSetupCodeCatalogVerification
                 CartridgeRoomState state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.SetupCodePointer != 0)
-                    retailSetupPointers.Add(state.SetupCodePointer);
+                if (state.SetupCallback != RoomSetupCallback.None)
+                    retailSetupPointers.Add(RoomCallbackDefinitions.PointerOf(state.SetupCallback));
             }
         }
 

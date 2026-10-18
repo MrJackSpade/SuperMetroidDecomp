@@ -32,7 +32,7 @@ internal static class OceanSkyVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCallback}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
 
         AssertEqual(32, ordinary.Registers.Bg2MapSize.X, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
         AssertEqual(64, ordinary.Registers.Bg2MapSize.Y, "Ocean setup uses two vertically stacked BG2 pages");

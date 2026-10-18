@@ -13,10 +13,10 @@ public sealed record CartridgeRoomState(
     SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,
     ushort ScrollPointer,
     ushort XrayPointer,
-    ushort MainCodePointer,
+    RoomMainCallback MainCallback,
     ushort PlmPointer,
     ushort BackgroundDataPointer,
-    ushort SetupCodePointer)
+    RoomSetupCallback SetupCallback)
 {
     /// <summary>The room state's graphics theme, 0 through 255.</summary>
     public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
@@ -26,13 +26,4 @@ public sealed record CartridgeRoomState(
 
     /// <summary>The music track the room state selects within its data set, 0 through 255.</summary>
     public int MusicTrackIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, MusicTrackIndex);
-
-    /// <summary>Typed mutually exclusive identity of the selected room-main callback.</summary>
-    public RoomMainCallback MainCallback =>
-        RoomCallbackDefinitions.ResolveMain(MainCodePointer);
-
-    /// <summary>Typed mutually exclusive identity of the selected room-setup callback.</summary>
-    public RoomSetupCallback SetupCallback =>
-        RoomCallbackDefinitions.ResolveSetup(SetupCodePointer);
-
 }

@@ -98,7 +98,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                     if (matches) { expected = clause.Target; break; }
                 }
                 var context = new RoomStateSelectionContext(events, (BossBits)bosses, morph, powerBombs);
-                AssertEqual(expected, RoomStateSelectionDefinitions.Select(RoomHeaderDefinitions.Get(room), context),
+                AssertEqual(expected, RoomStateSelectionDefinitions.Select(RoomHeaderDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
                 AssertEqual(expected, CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(room), context).State.Pointer,
                     "Production room loading uses the selected compiled state without cartridge capability");

@@ -12,28 +12,26 @@ public static class RoomStateSelectionDefinitions
 {
 
     /// <summary>Selects a state with native first-match precedence.</summary>
-    public static ushort Select(RoomHeaderDefinition room, RoomStateSelectionContext selection) =>
+    public static CartridgeRoomState Select(RoomHeaderDefinition room, RoomStateSelectionContext selection) =>
         Resolve(Ensure.NotNull(room), selection, null);
 
     /// <summary>Returns the default first, then every alternative in native order.
     /// The caller-owned view is constructed on demand from the same branches;
     /// it is never cached as a second program table.</summary>
-    public static IReadOnlyList<ushort> GetStatePointers(RoomHeaderDefinition room)
+    public static IReadOnlyList<CartridgeRoomState> GetStates(RoomHeaderDefinition room)
     {
         Ensure.NotNull(room);
-        var variants = new List<ushort>();
-        ushort fallback = Resolve(room, default, variants);
+        var variants = new List<CartridgeRoomState>();
+        CartridgeRoomState fallback = Resolve(room, default, variants);
         variants.Insert(0, fallback);
         return variants.AsReadOnly();
     }
 
     /// <summary>Evaluates each room's native conditional branches in order, or records their alternatives before the default state.</summary>
-    private static ushort Resolve(RoomHeaderDefinition room, RoomStateSelectionContext selection, List<ushort>? variants)
+    private static CartridgeRoomState Resolve(RoomHeaderDefinition room, RoomStateSelectionContext selection, List<CartridgeRoomState>? variants)
     {
-        ushort target = 0;
-        bool Match(bool condition, ushort candidate)
+        bool Match(bool condition, CartridgeRoomState candidate)
         {
-            target = candidate;
             variants?.Add(candidate);
             // Enumeration records every branch and reaches the default. Runtime
             // selection returns immediately on its first satisfied condition.
@@ -42,590 +40,590 @@ public static class RoomStateSelectionDefinitions
         switch (room.Name)
         {
             case nameof(RoomHeaderDefinitions.LandingSite):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), 0x9261)) return target;
-                if (Match(selection.HasPowerBombs, 0x9247)) return target;
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x922d)) return target;
-                return 0x9213;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.LandingSite3)) return RoomStateDefinitions.LandingSite3;
+                if (Match(selection.HasPowerBombs, RoomStateDefinitions.LandingSite2)) return RoomStateDefinitions.LandingSite2;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.LandingSite1)) return RoomStateDefinitions.LandingSite1;
+                return RoomStateDefinitions.LandingSite0;
             case nameof(RoomHeaderDefinitions.GauntletEntrance):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x92df)) return target;
-                return 0x92c5;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.GauntletEntrance1)) return RoomStateDefinitions.GauntletEntrance1;
+                return RoomStateDefinitions.GauntletEntrance0;
             case nameof(RoomHeaderDefinitions.Parlor):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), 0x9348)) return target;
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x932e)) return target;
-                return 0x9314;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Parlor2)) return RoomStateDefinitions.Parlor2;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.Parlor1)) return RoomStateDefinitions.Parlor1;
+                return RoomStateDefinitions.Parlor0;
             case nameof(RoomHeaderDefinitions.Climb):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), 0x9705)) return target;
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x96eb)) return target;
-                return 0x96d1;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Climb2)) return RoomStateDefinitions.Climb2;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.Climb1)) return RoomStateDefinitions.Climb1;
+                return RoomStateDefinitions.Climb0;
             case nameof(RoomHeaderDefinitions.Pit):
-                if (Match(selection.HasMorphBallAndMissiles, 0x9787)) return target;
-                return 0x976d;
+                if (Match(selection.HasMorphBallAndMissiles, RoomStateDefinitions.Pit1)) return RoomStateDefinitions.Pit1;
+                return RoomStateDefinitions.Pit0;
             case nameof(RoomHeaderDefinitions.ElevToBlueBrinstar):
-                if (Match(selection.HasMorphBallAndMissiles, 0x97e0)) return target;
-                return 0x97c6;
+                if (Match(selection.HasMorphBallAndMissiles, RoomStateDefinitions.ElevToBlueBrinstar1)) return RoomStateDefinitions.ElevToBlueBrinstar1;
+                return RoomStateDefinitions.ElevToBlueBrinstar0;
             case nameof(RoomHeaderDefinitions.BombTorizo):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), 0x984f)) return target;
-                if (Match(selection.IsBossDead(BossBits.AreaTorizo), 0x9835)) return target;
-                return 0x981b;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.BombTorizo2)) return RoomStateDefinitions.BombTorizo2;
+                if (Match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.BombTorizo1)) return RoomStateDefinitions.BombTorizo1;
+                return RoomStateDefinitions.BombTorizo0;
             case nameof(RoomHeaderDefinitions.Flyway):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), 0x98c4)) return target;
-                if (Match(selection.IsBossDead(BossBits.AreaTorizo), 0x98aa)) return target;
-                return 0x9890;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesTimebombSet), RoomStateDefinitions.Flyway2)) return RoomStateDefinitions.Flyway2;
+                if (Match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.Flyway1)) return RoomStateDefinitions.Flyway1;
+                return RoomStateDefinitions.Flyway0;
             case nameof(RoomHeaderDefinitions.FinalMissileBombway):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x9a70)) return target;
-                return 0x9a56;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.FinalMissileBombway1)) return RoomStateDefinitions.FinalMissileBombway1;
+                return RoomStateDefinitions.FinalMissileBombway0;
             case nameof(RoomHeaderDefinitions.FinalMissile):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x9abc)) return target;
-                return 0x9aa2;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.FinalMissile1)) return RoomStateDefinitions.FinalMissile1;
+                return RoomStateDefinitions.FinalMissile0;
             case nameof(RoomHeaderDefinitions.SporeSpawn):
-                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), 0x9df3)) return target;
-                return 0x9dd9;
+                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.SporeSpawn1)) return RoomStateDefinitions.SporeSpawn1;
+                return RoomStateDefinitions.SporeSpawn0;
             case nameof(RoomHeaderDefinitions.MorphBall):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x9ecb)) return target;
-                return 0x9eb1;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.MorphBall1)) return RoomStateDefinitions.MorphBall1;
+                return RoomStateDefinitions.MorphBall0;
             case nameof(RoomHeaderDefinitions.ConstructionZone):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x9f3d)) return target;
-                return 0x9f23;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.ConstructionZone1)) return RoomStateDefinitions.ConstructionZone1;
+                return RoomStateDefinitions.ConstructionZone0;
             case nameof(RoomHeaderDefinitions.BlueBrinstarETank):
-                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), 0x9f90)) return target;
-                return 0x9f76;
+                if (Match(selection.IsEventSet((byte)EventNumber.ZebesAwake), RoomStateDefinitions.BlueBrinstarETank1)) return RoomStateDefinitions.BlueBrinstarETank1;
+                return RoomStateDefinitions.BlueBrinstarETank0;
             case nameof(RoomHeaderDefinitions.MiniKraid):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xa54d)) return target;
-                return 0xa533;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.MiniKraid1)) return RoomStateDefinitions.MiniKraid1;
+                return RoomStateDefinitions.MiniKraid0;
             case nameof(RoomHeaderDefinitions.Kraid):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xa5cb)) return target;
-                return 0xa5b1;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Kraid1)) return RoomStateDefinitions.Kraid1;
+                return RoomStateDefinitions.Kraid0;
             case nameof(RoomHeaderDefinitions.Crocomire):
-                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), 0xa9b9)) return target;
-                return 0xa99f;
+                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.Crocomire1)) return RoomStateDefinitions.Crocomire1;
+                return RoomStateDefinitions.Crocomire0;
             case nameof(RoomHeaderDefinitions.GoldenTorizo):
-                if (Match(selection.IsBossDead(BossBits.AreaTorizo), 0xb2af)) return target;
-                return 0xb295;
+                if (Match(selection.IsBossDead(BossBits.AreaTorizo), RoomStateDefinitions.GoldenTorizo1)) return RoomStateDefinitions.GoldenTorizo1;
+                return RoomStateDefinitions.GoldenTorizo0;
             case nameof(RoomHeaderDefinitions.Ridley):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xb35a)) return target;
-                return 0xb340;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Ridley1)) return RoomStateDefinitions.Ridley1;
+                return RoomStateDefinitions.Ridley0;
             case nameof(RoomHeaderDefinitions.BowlingAlley):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xc9ba)) return target;
-                return 0xc9a0;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.BowlingAlley1)) return RoomStateDefinitions.BowlingAlley1;
+                return RoomStateDefinitions.BowlingAlley0;
             case nameof(RoomHeaderDefinitions.WreckedShipEntrance):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xca34)) return target;
-                return 0xca1a;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipEntrance1)) return RoomStateDefinitions.WreckedShipEntrance1;
+                return RoomStateDefinitions.WreckedShipEntrance0;
             case nameof(RoomHeaderDefinitions.Attic):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xca7e)) return target;
-                return 0xca64;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Attic1)) return RoomStateDefinitions.Attic1;
+                return RoomStateDefinitions.Attic0;
             case nameof(RoomHeaderDefinitions.AssemblyLine):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcada)) return target;
-                return 0xcac0;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.AssemblyLine1)) return RoomStateDefinitions.AssemblyLine1;
+                return RoomStateDefinitions.AssemblyLine0;
             case nameof(RoomHeaderDefinitions.WreckedShipMainShaft):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcb22)) return target;
-                return 0xcb08;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipMainShaft1)) return RoomStateDefinitions.WreckedShipMainShaft1;
+                return RoomStateDefinitions.WreckedShipMainShaft0;
             case nameof(RoomHeaderDefinitions.SpikyDeath):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcbb7)) return target;
-                return 0xcb9d;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.SpikyDeath1)) return RoomStateDefinitions.SpikyDeath1;
+                return RoomStateDefinitions.SpikyDeath0;
             case nameof(RoomHeaderDefinitions.ElectricDeath):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcc01)) return target;
-                return 0xcbe7;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.ElectricDeath1)) return RoomStateDefinitions.ElectricDeath1;
+                return RoomStateDefinitions.ElectricDeath0;
             case nameof(RoomHeaderDefinitions.WreckedShipETank):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcc53)) return target;
-                return 0xcc39;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipETank1)) return RoomStateDefinitions.WreckedShipETank1;
+                return RoomStateDefinitions.WreckedShipETank0;
             case nameof(RoomHeaderDefinitions.Basement):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcc9b)) return target;
-                return 0xcc81;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Basement1)) return RoomStateDefinitions.Basement1;
+                return RoomStateDefinitions.Basement0;
             case nameof(RoomHeaderDefinitions.WreckedShipMap):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xccf7)) return target;
-                return 0xccdd;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipMap1)) return RoomStateDefinitions.WreckedShipMap1;
+                return RoomStateDefinitions.WreckedShipMap0;
             case nameof(RoomHeaderDefinitions.Phantoon):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcd3f)) return target;
-                return 0xcd25;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Phantoon1)) return RoomStateDefinitions.Phantoon1;
+                return RoomStateDefinitions.Phantoon0;
             case nameof(RoomHeaderDefinitions.SpongeBath):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcd88)) return target;
-                return 0xcd6e;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.SpongeBath1)) return RoomStateDefinitions.SpongeBath1;
+                return RoomStateDefinitions.SpongeBath0;
             case nameof(RoomHeaderDefinitions.WSWestSuper):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xcdd4)) return target;
-                return 0xcdba;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WSWestSuper1)) return RoomStateDefinitions.WSWestSuper1;
+                return RoomStateDefinitions.WSWestSuper0;
             case nameof(RoomHeaderDefinitions.WSEastSuper):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xce1d)) return target;
-                return 0xce03;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WSEastSuper1)) return RoomStateDefinitions.WSEastSuper1;
+                return RoomStateDefinitions.WSEastSuper0;
             case nameof(RoomHeaderDefinitions.GravitySuit):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xce6c)) return target;
-                return 0xce52;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.GravitySuit1)) return RoomStateDefinitions.GravitySuit1;
+                return RoomStateDefinitions.GravitySuit0;
             case nameof(RoomHeaderDefinitions.WreckedShipSave):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xceb6)) return target;
-                return 0xce9c;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.WreckedShipSave1)) return RoomStateDefinitions.WreckedShipSave1;
+                return RoomStateDefinitions.WreckedShipSave0;
             case nameof(RoomHeaderDefinitions.GlassTunnel):
-                if (Match(selection.IsEventSet((byte)EventNumber.MaridiaNoobTubeBroken), 0xcf27)) return target;
-                return 0xcf0d;
+                if (Match(selection.IsEventSet((byte)EventNumber.MaridiaNoobTubeBroken), RoomStateDefinitions.GlassTunnel1)) return RoomStateDefinitions.GlassTunnel1;
+                return RoomStateDefinitions.GlassTunnel0;
             case nameof(RoomHeaderDefinitions.ThePrecious):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xd7bb)) return target;
-                return 0xd7a1;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.ThePrecious1)) return RoomStateDefinitions.ThePrecious1;
+                return RoomStateDefinitions.ThePrecious0;
             case nameof(RoomHeaderDefinitions.Shaktool):
-                if (Match(selection.IsEventSet((byte)EventNumber.ShaktoolClearedPath), 0xd8f1)) return target;
-                return 0xd8d7;
+                if (Match(selection.IsEventSet((byte)EventNumber.ShaktoolClearedPath), RoomStateDefinitions.Shaktool1)) return RoomStateDefinitions.Shaktool1;
+                return RoomStateDefinitions.Shaktool0;
             case nameof(RoomHeaderDefinitions.Botwoon):
-                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), 0xd98a)) return target;
-                return 0xd970;
+                if (Match(selection.IsBossDead(BossBits.AreaMiniBoss), RoomStateDefinitions.Botwoon1)) return RoomStateDefinitions.Botwoon1;
+                return RoomStateDefinitions.Botwoon0;
             case nameof(RoomHeaderDefinitions.Draygon):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xda8c)) return target;
-                return 0xda72;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Draygon1)) return RoomStateDefinitions.Draygon1;
+                return RoomStateDefinitions.Draygon0;
             case nameof(RoomHeaderDefinitions.Metroids1):
-                if (Match(selection.IsEventSet((byte)EventNumber.FirstMetroidHallCleared), 0xdb0d)) return target;
-                return 0xdaf3;
+                if (Match(selection.IsEventSet((byte)EventNumber.FirstMetroidHallCleared), RoomStateDefinitions.Metroids11)) return RoomStateDefinitions.Metroids11;
+                return RoomStateDefinitions.Metroids10;
             case nameof(RoomHeaderDefinitions.Metroids2):
-                if (Match(selection.IsEventSet((byte)EventNumber.FirstMetroidShaftCleared), 0xdb5d)) return target;
-                return 0xdb43;
+                if (Match(selection.IsEventSet((byte)EventNumber.FirstMetroidShaftCleared), RoomStateDefinitions.Metroids21)) return RoomStateDefinitions.Metroids21;
+                return RoomStateDefinitions.Metroids20;
             case nameof(RoomHeaderDefinitions.Metroids3):
-                if (Match(selection.IsEventSet((byte)EventNumber.SecondMetroidHallCleared), 0xdba9)) return target;
-                return 0xdb8f;
+                if (Match(selection.IsEventSet((byte)EventNumber.SecondMetroidHallCleared), RoomStateDefinitions.Metroids31)) return RoomStateDefinitions.Metroids31;
+                return RoomStateDefinitions.Metroids30;
             case nameof(RoomHeaderDefinitions.Metroids4):
-                if (Match(selection.IsEventSet((byte)EventNumber.SecondMetroidShaftCleared), 0xdbf9)) return target;
-                return 0xdbdf;
+                if (Match(selection.IsEventSet((byte)EventNumber.SecondMetroidShaftCleared), RoomStateDefinitions.Metroids41)) return RoomStateDefinitions.Metroids41;
+                return RoomStateDefinitions.Metroids40;
             case nameof(RoomHeaderDefinitions.BlueHopper):
-                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), 0xdc45)) return target;
-                return 0xdc2b;
+                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.BlueHopper1)) return RoomStateDefinitions.BlueHopper1;
+                return RoomStateDefinitions.BlueHopper0;
             case nameof(RoomHeaderDefinitions.DustTorizo):
-                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), 0xdc91)) return target;
-                return 0xdc77;
+                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.DustTorizo1)) return RoomStateDefinitions.DustTorizo1;
+                return RoomStateDefinitions.DustTorizo0;
             case nameof(RoomHeaderDefinitions.BigBoy):
-                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), 0xdcdd)) return target;
-                return 0xdcc3;
+                if (Match(selection.IsEventSet((byte)EventNumber.Unused14), RoomStateDefinitions.BigBoy1)) return RoomStateDefinitions.BigBoy1;
+                return RoomStateDefinitions.BigBoy0;
             case nameof(RoomHeaderDefinitions.MotherBrain):
-                if (Match(selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss), 0xdda2)) return target;
-                if (Match(selection.IsEventSet((byte)EventNumber.MotherBrainGlassDestroyed), 0xdd88)) return target;
-                return 0xdd6e;
+                if (Match(selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss), RoomStateDefinitions.MotherBrain2)) return RoomStateDefinitions.MotherBrain2;
+                if (Match(selection.IsEventSet((byte)EventNumber.MotherBrainGlassDestroyed), RoomStateDefinitions.MotherBrain1)) return RoomStateDefinitions.MotherBrain1;
+                return RoomStateDefinitions.MotherBrain0;
             case nameof(RoomHeaderDefinitions.CeresElev):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xdf71)) return target;
-                return 0xdf57;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.CeresElev1)) return RoomStateDefinitions.CeresElev1;
+                return RoomStateDefinitions.CeresElev0;
             case nameof(RoomHeaderDefinitions.FallingTile):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xdfb9)) return target;
-                return 0xdf9f;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.FallingTile1)) return RoomStateDefinitions.FallingTile1;
+                return RoomStateDefinitions.FallingTile0;
             case nameof(RoomHeaderDefinitions.MagnetStairs):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xe003)) return target;
-                return 0xdfe9;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.MagnetStairs1)) return RoomStateDefinitions.MagnetStairs1;
+                return RoomStateDefinitions.MagnetStairs0;
             case nameof(RoomHeaderDefinitions.DeadScientist):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xe04d)) return target;
-                return 0xe033;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.DeadScientist1)) return RoomStateDefinitions.DeadScientist1;
+                return RoomStateDefinitions.DeadScientist0;
             case nameof(RoomHeaderDefinitions.Room58Escape):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xe097)) return target;
-                return 0xe07d;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.Room58Escape1)) return RoomStateDefinitions.Room58Escape1;
+                return RoomStateDefinitions.Room58Escape0;
             case nameof(RoomHeaderDefinitions.CeresRidley):
-                if (Match(selection.IsBossDead(BossBits.AreaBoss), 0xe0e1)) return target;
-                return 0xe0c7;
+                if (Match(selection.IsBossDead(BossBits.AreaBoss), RoomStateDefinitions.CeresRidley1)) return RoomStateDefinitions.CeresRidley1;
+                return RoomStateDefinitions.CeresRidley0;
             case nameof(RoomHeaderDefinitions.CrateriaPowerBombs):
-                return 0x93b7;
+                return RoomStateDefinitions.CrateriaPowerBombs;
             case nameof(RoomHeaderDefinitions.CrateriaSave):
-                return 0x93e2;
+                return RoomStateDefinitions.CrateriaSave;
             case nameof(RoomHeaderDefinitions.WestOcean):
-                return 0x940b;
+                return RoomStateDefinitions.WestOcean;
             case nameof(RoomHeaderDefinitions.BowlingAlleyPath):
-                return 0x946e;
+                return RoomStateDefinitions.BowlingAlleyPath;
             case nameof(RoomHeaderDefinitions.CrateriaKihunter):
-                return 0x9499;
+                return RoomStateDefinitions.CrateriaKihunter;
             case nameof(RoomHeaderDefinitions.ForgottenHighwayElev):
-                return 0x94d9;
+                return RoomStateDefinitions.ForgottenHighwayElev;
             case nameof(RoomHeaderDefinitions.EastOcean):
-                return 0x950a;
+                return RoomStateDefinitions.EastOcean;
             case nameof(RoomHeaderDefinitions.ForgottenHighwayKagos):
-                return 0x955f;
+                return RoomStateDefinitions.ForgottenHighwayKagos;
             case nameof(RoomHeaderDefinitions.CrabMaze):
-                return 0x958a;
+                return RoomStateDefinitions.CrabMaze;
             case nameof(RoomHeaderDefinitions.ForgottenHighwayElbow):
-                return 0x95b5;
+                return RoomStateDefinitions.ForgottenHighwayElbow;
             case nameof(RoomHeaderDefinitions.CrateriaTube):
-                return 0x95e1;
+                return RoomStateDefinitions.CrateriaTube;
             case nameof(RoomHeaderDefinitions.Moat):
-                return 0x960c;
+                return RoomStateDefinitions.Moat;
             case nameof(RoomHeaderDefinitions.RedBinstarElev):
-                return 0x9637;
+                return RoomStateDefinitions.RedBinstarElev;
             case nameof(RoomHeaderDefinitions.GauntletETank):
-                return 0x9668;
+                return RoomStateDefinitions.GauntletETank;
             case nameof(RoomHeaderDefinitions.PreBowling):
-                return 0x969c;
+                return RoomStateDefinitions.PreBowling;
             case nameof(RoomHeaderDefinitions.PreMapFlyway):
-                return 0x98ef;
+                return RoomStateDefinitions.PreMapFlyway;
             case nameof(RoomHeaderDefinitions.Terminator):
-                return 0x991a;
+                return RoomStateDefinitions.Terminator;
             case nameof(RoomHeaderDefinitions.GreenBrinstarElev):
-                return 0x9945;
+                return RoomStateDefinitions.GreenBrinstarElev;
             case nameof(RoomHeaderDefinitions.LowerMushrooms):
-                return 0x9976;
+                return RoomStateDefinitions.LowerMushrooms;
             case nameof(RoomHeaderDefinitions.CrateriaMap):
-                return 0x99a1;
+                return RoomStateDefinitions.CrateriaMap;
             case nameof(RoomHeaderDefinitions.GreenPiratesShaft):
-                return 0x99ca;
+                return RoomStateDefinitions.GreenPiratesShaft;
             case nameof(RoomHeaderDefinitions.CrateriaSuper):
-                return 0x9a06;
+                return RoomStateDefinitions.CrateriaSuper;
             case nameof(RoomHeaderDefinitions.GreenBrinstarMainShaft):
-                return 0x9ae6;
+                return RoomStateDefinitions.GreenBrinstarMainShaft;
             case nameof(RoomHeaderDefinitions.SporeSpawnSuper):
-                return 0x9b68;
+                return RoomStateDefinitions.SporeSpawnSuper;
             case nameof(RoomHeaderDefinitions.BrinstarPreMap):
-                return 0x9baa;
+                return RoomStateDefinitions.BrinstarPreMap;
             case nameof(RoomHeaderDefinitions.EarlySupers):
-                return 0x9bd5;
+                return RoomStateDefinitions.EarlySupers;
             case nameof(RoomHeaderDefinitions.BrinstarReserveTank):
-                return 0x9c14;
+                return RoomStateDefinitions.BrinstarReserveTank;
             case nameof(RoomHeaderDefinitions.GreenBrinstarMap):
-                return 0x9c42;
+                return RoomStateDefinitions.GreenBrinstarMap;
             case nameof(RoomHeaderDefinitions.GreenBrinstarFirefleas):
-                return 0x9c6b;
+                return RoomStateDefinitions.GreenBrinstarFirefleas;
             case nameof(RoomHeaderDefinitions.GreenBrinstarMissileRefill):
-                return 0x9c96;
+                return RoomStateDefinitions.GreenBrinstarMissileRefill;
             case nameof(RoomHeaderDefinitions.Dachora):
-                return 0x9cc0;
+                return RoomStateDefinitions.Dachora;
             case nameof(RoomHeaderDefinitions.BigPink):
-                return 0x9d26;
+                return RoomStateDefinitions.BigPink;
             case nameof(RoomHeaderDefinitions.SporeSpawnKihunters):
-                return 0x9da9;
+                return RoomStateDefinitions.SporeSpawnKihunters;
             case nameof(RoomHeaderDefinitions.PinkBrinstarPowerBombs):
-                return 0x9e1e;
+                return RoomStateDefinitions.PinkBrinstarPowerBombs;
             case nameof(RoomHeaderDefinitions.GreenHillZone):
-                return 0x9e5f;
+                return RoomStateDefinitions.GreenHillZone;
             case nameof(RoomHeaderDefinitions.NoobBridge):
-                return 0x9fc7;
+                return RoomStateDefinitions.NoobBridge;
             case nameof(RoomHeaderDefinitions.GreenBrinstarBeetoms):
-                return 0x9ff2;
+                return RoomStateDefinitions.GreenBrinstarBeetoms;
             case nameof(RoomHeaderDefinitions.EtecoonETank):
-                return 0xa01e;
+                return RoomStateDefinitions.EtecoonETank;
             case nameof(RoomHeaderDefinitions.EtecoonSuper):
-                return 0xa05e;
+                return RoomStateDefinitions.EtecoonSuper;
             case nameof(RoomHeaderDefinitions.DachoraEnergyRefill):
-                return 0xa088;
+                return RoomStateDefinitions.DachoraEnergyRefill;
             case nameof(RoomHeaderDefinitions.SporeSpawnFarming):
-                return 0xa0b1;
+                return RoomStateDefinitions.SporeSpawnFarming;
             case nameof(RoomHeaderDefinitions.WaterwayETank):
-                return 0xa0df;
+                return RoomStateDefinitions.WaterwayETank;
             case nameof(RoomHeaderDefinitions.FirstMissile):
-                return 0xa114;
+                return RoomStateDefinitions.FirstMissile;
             case nameof(RoomHeaderDefinitions.PinkBrinstarHoppers):
-                return 0xa13d;
+                return RoomStateDefinitions.PinkBrinstarHoppers;
             case nameof(RoomHeaderDefinitions.HopperETank):
-                return 0xa168;
+                return RoomStateDefinitions.HopperETank;
             case nameof(RoomHeaderDefinitions.BigPinkSaveRoom):
-                return 0xa191;
+                return RoomStateDefinitions.BigPinkSaveRoom;
             case nameof(RoomHeaderDefinitions.BlueBrinstarBoulders):
-                return 0xa1ba;
+                return RoomStateDefinitions.BlueBrinstarBoulders;
             case nameof(RoomHeaderDefinitions.BillyMays):
-                return 0xa1e5;
+                return RoomStateDefinitions.BillyMays;
             case nameof(RoomHeaderDefinitions.GreenBrinstarSave):
-                return 0xa20e;
+                return RoomStateDefinitions.GreenBrinstarSave;
             case nameof(RoomHeaderDefinitions.EtecoonSave):
-                return 0xa237;
+                return RoomStateDefinitions.EtecoonSave;
             case nameof(RoomHeaderDefinitions.RedTower):
-                return 0xa260;
+                return RoomStateDefinitions.RedTower;
             case nameof(RoomHeaderDefinitions.RedBrinstarFirefleas):
-                return 0xa2a0;
+                return RoomStateDefinitions.RedBrinstarFirefleas;
             case nameof(RoomHeaderDefinitions.XrayScope):
-                return 0xa2db;
+                return RoomStateDefinitions.XrayScope;
             case nameof(RoomHeaderDefinitions.Hellway):
-                return 0xa304;
+                return RoomStateDefinitions.Hellway;
             case nameof(RoomHeaderDefinitions.Caterpillar):
-                return 0xa32f;
+                return RoomStateDefinitions.Caterpillar;
             case nameof(RoomHeaderDefinitions.BetaPowerBomb):
-                return 0xa389;
+                return RoomStateDefinitions.BetaPowerBomb;
             case nameof(RoomHeaderDefinitions.AlphaPowerBomb):
-                return 0xa3bb;
+                return RoomStateDefinitions.AlphaPowerBomb;
             case nameof(RoomHeaderDefinitions.SkreeBoost):
-                return 0xa3ea;
+                return RoomStateDefinitions.SkreeBoost;
             case nameof(RoomHeaderDefinitions.BelowSpazer):
-                return 0xa415;
+                return RoomStateDefinitions.BelowSpazer;
             case nameof(RoomHeaderDefinitions.Spazer):
-                return 0xa454;
+                return RoomStateDefinitions.Spazer;
             case nameof(RoomHeaderDefinitions.WarehouseZeela):
-                return 0xa47e;
+                return RoomStateDefinitions.WarehouseZeela;
             case nameof(RoomHeaderDefinitions.WarehouseETank):
-                return 0xa4be;
+                return RoomStateDefinitions.WarehouseETank;
             case nameof(RoomHeaderDefinitions.WarehouseKihunter):
-                return 0xa4e7;
+                return RoomStateDefinitions.WarehouseKihunter;
             case nameof(RoomHeaderDefinitions.KraidEyeDoor):
-                return 0xa578;
+                return RoomStateDefinitions.KraidEyeDoor;
             case nameof(RoomHeaderDefinitions.StatuesHallway):
-                return 0xa5fa;
+                return RoomStateDefinitions.StatuesHallway;
             case nameof(RoomHeaderDefinitions.RedTowerRefill):
-                return 0xa625;
+                return RoomStateDefinitions.RedTowerRefill;
             case nameof(RoomHeaderDefinitions.KraidRefill):
-                return 0xa64e;
+                return RoomStateDefinitions.KraidRefill;
             case nameof(RoomHeaderDefinitions.Statues):
-                return 0xa677;
+                return RoomStateDefinitions.Statues;
             case nameof(RoomHeaderDefinitions.WarehouseEntrance):
-                return 0xa6ae;
+                return RoomStateDefinitions.WarehouseEntrance;
             case nameof(RoomHeaderDefinitions.VariaSuit):
-                return 0xa6ef;
+                return RoomStateDefinitions.VariaSuit;
             case nameof(RoomHeaderDefinitions.WarehouseSave):
-                return 0xa718;
+                return RoomStateDefinitions.WarehouseSave;
             case nameof(RoomHeaderDefinitions.RedBrinstarSave):
-                return 0xa741;
+                return RoomStateDefinitions.RedBrinstarSave;
             case nameof(RoomHeaderDefinitions.IceBeamAcid):
-                return 0xa76a;
+                return RoomStateDefinitions.IceBeamAcid;
             case nameof(RoomHeaderDefinitions.Cathedral):
-                return 0xa795;
+                return RoomStateDefinitions.Cathedral;
             case nameof(RoomHeaderDefinitions.CathedralEntrance):
-                return 0xa7c0;
+                return RoomStateDefinitions.CathedralEntrance;
             case nameof(RoomHeaderDefinitions.BusinessCenter):
-                return 0xa7eb;
+                return RoomStateDefinitions.BusinessCenter;
             case nameof(RoomHeaderDefinitions.IceBeamGate):
-                return 0xa822;
+                return RoomStateDefinitions.IceBeamGate;
             case nameof(RoomHeaderDefinitions.IceBeamTutorial):
-                return 0xa872;
+                return RoomStateDefinitions.IceBeamTutorial;
             case nameof(RoomHeaderDefinitions.IceBeam):
-                return 0xa89d;
+                return RoomStateDefinitions.IceBeam;
             case nameof(RoomHeaderDefinitions.IceBeamSnake):
-                return 0xa8c6;
+                return RoomStateDefinitions.IceBeamSnake;
             case nameof(RoomHeaderDefinitions.CrumbleShaft):
-                return 0xa905;
+                return RoomStateDefinitions.CrumbleShaft;
             case nameof(RoomHeaderDefinitions.CrocomireSpeedway):
-                return 0xa930;
+                return RoomStateDefinitions.CrocomireSpeedway;
             case nameof(RoomHeaderDefinitions.HiJumpBoots):
-                return 0xa9f2;
+                return RoomStateDefinitions.HiJumpBoots;
             case nameof(RoomHeaderDefinitions.CrocomireEscape):
-                return 0xaa1b;
+                return RoomStateDefinitions.CrocomireEscape;
             case nameof(RoomHeaderDefinitions.HiJumpETank):
-                return 0xaa4e;
+                return RoomStateDefinitions.HiJumpETank;
             case nameof(RoomHeaderDefinitions.PostCrocFarming):
-                return 0xaa8f;
+                return RoomStateDefinitions.PostCrocFarming;
             case nameof(RoomHeaderDefinitions.PostCrocSave):
-                return 0xaac2;
+                return RoomStateDefinitions.PostCrocSave;
             case nameof(RoomHeaderDefinitions.PostCrocPowerBombs):
-                return 0xaaeb;
+                return RoomStateDefinitions.PostCrocPowerBombs;
             case nameof(RoomHeaderDefinitions.PostCrocShaft):
-                return 0xab14;
+                return RoomStateDefinitions.PostCrocShaft;
             case nameof(RoomHeaderDefinitions.PostCrocMissile):
-                return 0xab48;
+                return RoomStateDefinitions.PostCrocMissile;
             case nameof(RoomHeaderDefinitions.GrappleTutorial3):
-                return 0xab71;
+                return RoomStateDefinitions.GrappleTutorial3;
             case nameof(RoomHeaderDefinitions.PostCrocJump):
-                return 0xab9c;
+                return RoomStateDefinitions.PostCrocJump;
             case nameof(RoomHeaderDefinitions.GrappleTutorial2):
-                return 0xabdf;
+                return RoomStateDefinitions.GrappleTutorial2;
             case nameof(RoomHeaderDefinitions.GrappleTutorial1):
-                return 0xac0d;
+                return RoomStateDefinitions.GrappleTutorial1;
             case nameof(RoomHeaderDefinitions.GrappleBeam):
-                return 0xac38;
+                return RoomStateDefinitions.GrappleBeam;
             case nameof(RoomHeaderDefinitions.NorfairReserveTank):
-                return 0xac67;
+                return RoomStateDefinitions.NorfairReserveTank;
             case nameof(RoomHeaderDefinitions.GreenBubblesMissiles):
-                return 0xac90;
+                return RoomStateDefinitions.GreenBubblesMissiles;
             case nameof(RoomHeaderDefinitions.BubbleMountain):
-                return 0xacc0;
+                return RoomStateDefinitions.BubbleMountain;
             case nameof(RoomHeaderDefinitions.SpeedBoosterHall):
-                return 0xacfd;
+                return RoomStateDefinitions.SpeedBoosterHall;
             case nameof(RoomHeaderDefinitions.SpeedBooster):
-                return 0xad28;
+                return RoomStateDefinitions.SpeedBooster;
             case nameof(RoomHeaderDefinitions.SingleChamber):
-                return 0xad6b;
+                return RoomStateDefinitions.SingleChamber;
             case nameof(RoomHeaderDefinitions.DoubleChamber):
-                return 0xadba;
+                return RoomStateDefinitions.DoubleChamber;
             case nameof(RoomHeaderDefinitions.WaveBeam):
-                return 0xadeb;
+                return RoomStateDefinitions.WaveBeam;
             case nameof(RoomHeaderDefinitions.SpikyPlatformsTunnel):
-                return 0xae14;
+                return RoomStateDefinitions.SpikyPlatformsTunnel;
             case nameof(RoomHeaderDefinitions.Volcano):
-                return 0xae3f;
+                return RoomStateDefinitions.Volcano;
             case nameof(RoomHeaderDefinitions.KronicBoost):
-                return 0xae81;
+                return RoomStateDefinitions.KronicBoost;
             case nameof(RoomHeaderDefinitions.MagdolliteTunnel):
-                return 0xaec1;
+                return RoomStateDefinitions.MagdolliteTunnel;
             case nameof(RoomHeaderDefinitions.PurpleShaft):
-                return 0xaeec;
+                return RoomStateDefinitions.PurpleShaft;
             case nameof(RoomHeaderDefinitions.LavaDive):
-                return 0xaf21;
+                return RoomStateDefinitions.LavaDive;
             case nameof(RoomHeaderDefinitions.LowerNorfairElev):
-                return 0xaf4c;
+                return RoomStateDefinitions.LowerNorfairElev;
             case nameof(RoomHeaderDefinitions.UpperNorfairFarming):
-                return 0xaf7f;
+                return RoomStateDefinitions.UpperNorfairFarming;
             case nameof(RoomHeaderDefinitions.RisingTide):
-                return 0xafb0;
+                return RoomStateDefinitions.RisingTide;
             case nameof(RoomHeaderDefinitions.AcidSnakesTunnel):
-                return 0xafdb;
+                return RoomStateDefinitions.AcidSnakesTunnel;
             case nameof(RoomHeaderDefinitions.SpikyAcidSnakesTunnel):
-                return 0xb008;
+                return RoomStateDefinitions.SpikyAcidSnakesTunnel;
             case nameof(RoomHeaderDefinitions.UpperNorfairRefill):
-                return 0xb033;
+                return RoomStateDefinitions.UpperNorfairRefill;
             case nameof(RoomHeaderDefinitions.PurpleFarming):
-                return 0xb05e;
+                return RoomStateDefinitions.PurpleFarming;
             case nameof(RoomHeaderDefinitions.BatCave):
-                return 0xb087;
+                return RoomStateDefinitions.BatCave;
             case nameof(RoomHeaderDefinitions.NorfairMap):
-                return 0xb0c1;
+                return RoomStateDefinitions.NorfairMap;
             case nameof(RoomHeaderDefinitions.BubbleMountainSave):
-                return 0xb0ea;
+                return RoomStateDefinitions.BubbleMountainSave;
             case nameof(RoomHeaderDefinitions.FrogSpeedway):
-                return 0xb113;
+                return RoomStateDefinitions.FrogSpeedway;
             case nameof(RoomHeaderDefinitions.RedPirateShaft):
-                return 0xb146;
+                return RoomStateDefinitions.RedPirateShaft;
             case nameof(RoomHeaderDefinitions.FrogSave):
-                return 0xb174;
+                return RoomStateDefinitions.FrogSave;
             case nameof(RoomHeaderDefinitions.CrocomireSave):
-                return 0xb19f;
+                return RoomStateDefinitions.CrocomireSave;
             case nameof(RoomHeaderDefinitions.LNElevSave):
-                return 0xb1c8;
+                return RoomStateDefinitions.LNElevSave;
             case nameof(RoomHeaderDefinitions.AcidStatue):
-                return 0xb1f2;
+                return RoomStateDefinitions.AcidStatue;
             case nameof(RoomHeaderDefinitions.MainHall):
-                return 0xb243;
+                return RoomStateDefinitions.MainHall;
             case nameof(RoomHeaderDefinitions.FastRipper):
-                return 0xb2e7;
+                return RoomStateDefinitions.FastRipper;
             case nameof(RoomHeaderDefinitions.GTEnergyRefill):
-                return 0xb312;
+                return RoomStateDefinitions.GTEnergyRefill;
             case nameof(RoomHeaderDefinitions.LNFarming):
-                return 0xb387;
+                return RoomStateDefinitions.LNFarming;
             case nameof(RoomHeaderDefinitions.FastPillarsSetup):
-                return 0xb3b2;
+                return RoomStateDefinitions.FastPillarsSetup;
             case nameof(RoomHeaderDefinitions.UnusedRoom8FB3E1):
-                return 0xb3ee;
+                return RoomStateDefinitions.UnusedRoom8FB3EE;
             case nameof(RoomHeaderDefinitions.MickeyMouse):
-                return 0xb417;
+                return RoomStateDefinitions.MickeyMouse;
             case nameof(RoomHeaderDefinitions.Pillar):
-                return 0xb464;
+                return RoomStateDefinitions.Pillar;
             case nameof(RoomHeaderDefinitions.Plowerhouse):
-                return 0xb48f;
+                return RoomStateDefinitions.Plowerhouse;
             case nameof(RoomHeaderDefinitions.WorstRoomInTheGame):
-                return 0xb4ba;
+                return RoomStateDefinitions.WorstRoomInTheGame;
             case nameof(RoomHeaderDefinitions.Amphitheatre):
-                return 0xb4f2;
+                return RoomStateDefinitions.Amphitheatre;
             case nameof(RoomHeaderDefinitions.LNSpringBallMaze):
-                return 0xb51d;
+                return RoomStateDefinitions.LNSpringBallMaze;
             case nameof(RoomHeaderDefinitions.LNEscapePowerBombs):
-                return 0xb567;
+                return RoomStateDefinitions.LNEscapePowerBombs;
             case nameof(RoomHeaderDefinitions.RedKihunterShaft):
-                return 0xb592;
+                return RoomStateDefinitions.RedKihunterShaft;
             case nameof(RoomHeaderDefinitions.Wasteland):
-                return 0xb5e2;
+                return RoomStateDefinitions.Wasteland;
             case nameof(RoomHeaderDefinitions.MetalPirates):
-                return 0xb638;
+                return RoomStateDefinitions.MetalPirates;
             case nameof(RoomHeaderDefinitions.ThreeMusketeers):
-                return 0xb663;
+                return RoomStateDefinitions.ThreeMusketeers;
             case nameof(RoomHeaderDefinitions.RidleyETank):
-                return 0xb6a5;
+                return RoomStateDefinitions.RidleyETank;
             case nameof(RoomHeaderDefinitions.ScrewAttack):
-                return 0xb6ce;
+                return RoomStateDefinitions.ScrewAttack;
             case nameof(RoomHeaderDefinitions.LNFireflea):
-                return 0xb6fb;
+                return RoomStateDefinitions.LNFireflea;
             case nameof(RoomHeaderDefinitions.LNSave):
-                return 0xb74e;
+                return RoomStateDefinitions.LNSave;
             case nameof(RoomHeaderDefinitions.GlassTunnelSave):
-                return 0xcedf;
+                return RoomStateDefinitions.GlassTunnelSave;
             case nameof(RoomHeaderDefinitions.WestTunnel):
-                return 0xcf61;
+                return RoomStateDefinitions.WestTunnel;
             case nameof(RoomHeaderDefinitions.EastTunnel):
-                return 0xcf8d;
+                return RoomStateDefinitions.EastTunnel;
             case nameof(RoomHeaderDefinitions.MainStreet):
-                return 0xcfd6;
+                return RoomStateDefinitions.MainStreet;
             case nameof(RoomHeaderDefinitions.FishTank):
-                return 0xd024;
+                return RoomStateDefinitions.FishTank;
             case nameof(RoomHeaderDefinitions.MamaTurtle):
-                return 0xd062;
+                return RoomStateDefinitions.MamaTurtle;
             case nameof(RoomHeaderDefinitions.CrabTunnel):
-                return 0xd097;
+                return RoomStateDefinitions.CrabTunnel;
             case nameof(RoomHeaderDefinitions.MtEverest):
-                return 0xd0c6;
+                return RoomStateDefinitions.MtEverest;
             case nameof(RoomHeaderDefinitions.RedFish):
-                return 0xd111;
+                return RoomStateDefinitions.RedFish;
             case nameof(RoomHeaderDefinitions.WateringHole):
-                return 0xd148;
+                return RoomStateDefinitions.WateringHole;
             case nameof(RoomHeaderDefinitions.NWestMaridiaBug):
-                return 0xd17a;
+                return RoomStateDefinitions.NWestMaridiaBug;
             case nameof(RoomHeaderDefinitions.CrabShaft):
-                return 0xd1b0;
+                return RoomStateDefinitions.CrabShaft;
             case nameof(RoomHeaderDefinitions.PseudoPlasmaSpark):
-                return 0xd1ea;
+                return RoomStateDefinitions.PseudoPlasmaSpark;
             case nameof(RoomHeaderDefinitions.CrabHole):
-                return 0xd229;
+                return RoomStateDefinitions.CrabHole;
             case nameof(RoomHeaderDefinitions.WestSandHallTunnel):
-                return 0xd25f;
+                return RoomStateDefinitions.WestSandHallTunnel;
             case nameof(RoomHeaderDefinitions.PlasmaTutorial):
-                return 0xd28b;
+                return RoomStateDefinitions.PlasmaTutorial;
             case nameof(RoomHeaderDefinitions.Plasma):
-                return 0xd2b7;
+                return RoomStateDefinitions.Plasma;
             case nameof(RoomHeaderDefinitions.ThreadTheNeedle):
-                return 0xd2e6;
+                return RoomStateDefinitions.ThreadTheNeedle;
             case nameof(RoomHeaderDefinitions.MaridiaElev):
-                return 0xd318;
+                return RoomStateDefinitions.MaridiaElev;
             case nameof(RoomHeaderDefinitions.PlasmaSpark):
-                return 0xd34d;
+                return RoomStateDefinitions.PlasmaSpark;
             case nameof(RoomHeaderDefinitions.Kassiuz):
-                return 0xd394;
+                return RoomStateDefinitions.Kassiuz;
             case nameof(RoomHeaderDefinitions.MaridiaMap):
-                return 0xd3c3;
+                return RoomStateDefinitions.MaridiaMap;
             case nameof(RoomHeaderDefinitions.ForgottenHighwaySave):
-                return 0xd3ec;
+                return RoomStateDefinitions.ForgottenHighwaySave;
             case nameof(RoomHeaderDefinitions.Toilet):
-                return 0xd415;
+                return RoomStateDefinitions.Toilet;
             case nameof(RoomHeaderDefinitions.BugSandHole):
-                return 0xd440;
+                return RoomStateDefinitions.BugSandHole;
             case nameof(RoomHeaderDefinitions.WestSandHall):
-                return 0xd46e;
+                return RoomStateDefinitions.WestSandHall;
             case nameof(RoomHeaderDefinitions.Oasis):
-                return 0xd49b;
+                return RoomStateDefinitions.Oasis;
             case nameof(RoomHeaderDefinitions.EastSandHall):
-                return 0xd4cf;
+                return RoomStateDefinitions.EastSandHall;
             case nameof(RoomHeaderDefinitions.WestSandHole):
-                return 0xd4fc;
+                return RoomStateDefinitions.WestSandHole;
             case nameof(RoomHeaderDefinitions.EastSandHole):
-                return 0xd52b;
+                return RoomStateDefinitions.EastSandHole;
             case nameof(RoomHeaderDefinitions.WestAqueductQuicksand):
-                return 0xd55a;
+                return RoomStateDefinitions.WestAqueductQuicksand;
             case nameof(RoomHeaderDefinitions.EastAqueductQuicksand):
-                return 0xd587;
+                return RoomStateDefinitions.EastAqueductQuicksand;
             case nameof(RoomHeaderDefinitions.Aqueduct):
-                return 0xd5b4;
+                return RoomStateDefinitions.Aqueduct;
             case nameof(RoomHeaderDefinitions.Butterfly):
-                return 0xd5f9;
+                return RoomStateDefinitions.Butterfly;
             case nameof(RoomHeaderDefinitions.BotwoonHallway):
-                return 0xd624;
+                return RoomStateDefinitions.BotwoonHallway;
             case nameof(RoomHeaderDefinitions.Pants):
-                return 0xd653;
+                return RoomStateDefinitions.Pants;
             case nameof(RoomHeaderDefinitions.EastPants):
-                return 0xd6a7;
+                return RoomStateDefinitions.EastPants;
             case nameof(RoomHeaderDefinitions.Springball):
-                return 0xd6dd;
+                return RoomStateDefinitions.Springball;
             case nameof(RoomHeaderDefinitions.BelowBotwoonETank):
-                return 0xd70a;
+                return RoomStateDefinitions.BelowBotwoonETank;
             case nameof(RoomHeaderDefinitions.Colosseum):
-                return 0xd737;
+                return RoomStateDefinitions.Colosseum;
             case nameof(RoomHeaderDefinitions.AqueductSave):
-                return 0xd772;
+                return RoomStateDefinitions.AqueductSave;
             case nameof(RoomHeaderDefinitions.BotwoonETank):
-                return 0xd7f1;
+                return RoomStateDefinitions.BotwoonETank;
             case nameof(RoomHeaderDefinitions.DraygonSave):
-                return 0xd827;
+                return RoomStateDefinitions.DraygonSave;
             case nameof(RoomHeaderDefinitions.MaridiaMissileRefill):
-                return 0xd852;
+                return RoomStateDefinitions.MaridiaMissileRefill;
             case nameof(RoomHeaderDefinitions.PlasmaBeachQuicksand):
-                return 0xd87b;
+                return RoomStateDefinitions.PlasmaBeachQuicksand;
             case nameof(RoomHeaderDefinitions.BotwoonQuicksand):
-                return 0xd8a5;
+                return RoomStateDefinitions.BotwoonQuicksand;
             case nameof(RoomHeaderDefinitions.HalfieClimb):
-                return 0xd920;
+                return RoomStateDefinitions.HalfieClimb;
             case nameof(RoomHeaderDefinitions.SpaceJump):
-                return 0xd9b7;
+                return RoomStateDefinitions.SpaceJump;
             case nameof(RoomHeaderDefinitions.MaridiaEnergyRefill):
-                return 0xd9e1;
+                return RoomStateDefinitions.MaridiaEnergyRefill;
             case nameof(RoomHeaderDefinitions.WestCactusAlley):
-                return 0xda0b;
+                return RoomStateDefinitions.WestCactusAlley;
             case nameof(RoomHeaderDefinitions.EastCactusAlley):
-                return 0xda38;
+                return RoomStateDefinitions.EastCactusAlley;
             case nameof(RoomHeaderDefinitions.TourianFirst):
-                return 0xdabb;
+                return RoomStateDefinitions.TourianFirst;
             case nameof(RoomHeaderDefinitions.Seaweed):
-                return 0xdd0c;
+                return RoomStateDefinitions.Seaweed;
             case nameof(RoomHeaderDefinitions.TourianRecharge):
-                return 0xdd3b;
+                return RoomStateDefinitions.TourianRecharge;
             case nameof(RoomHeaderDefinitions.TourianEyeDoor):
-                return 0xddd1;
+                return RoomStateDefinitions.TourianEyeDoor;
             case nameof(RoomHeaderDefinitions.RinkaShaft):
-                return 0xde00;
+                return RoomStateDefinitions.RinkaShaft;
             case nameof(RoomHeaderDefinitions.MotherBrainSave):
-                return 0xde30;
+                return RoomStateDefinitions.MotherBrainSave;
             case nameof(RoomHeaderDefinitions.TourianEscape1):
-                return 0xde5a;
+                return RoomStateDefinitions.TourianEscape1;
             case nameof(RoomHeaderDefinitions.TourianEscape2):
-                return 0xde87;
+                return RoomStateDefinitions.TourianEscape2;
             case nameof(RoomHeaderDefinitions.TourianEscape3):
-                return 0xdeb4;
+                return RoomStateDefinitions.TourianEscape3;
             case nameof(RoomHeaderDefinitions.TourianEscape4):
-                return 0xdeeb;
+                return RoomStateDefinitions.TourianEscape4;
             case nameof(RoomHeaderDefinitions.UpperTourianSave):
-                return 0xdf28;
+                return RoomStateDefinitions.UpperTourianSave;
             default:
                 throw new ArgumentOutOfRangeException(nameof(room), room.Name,
                     "Room is not one of the 262 compiled retail rooms.");

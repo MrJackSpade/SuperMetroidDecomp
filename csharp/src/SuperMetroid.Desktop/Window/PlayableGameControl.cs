@@ -323,7 +323,7 @@ public sealed class PlayableGameControl : UserControl
             slot, addressSpace, game);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
-            FormatStateRoom(metadata.Room, metadata.RoomStatePointer);
+            FormatStateRoom(metadata.Room, metadata.RoomState);
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
@@ -399,14 +399,14 @@ public sealed class PlayableGameControl : UserControl
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
             $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
-            FormatStateRoom(loaded.Metadata.Room, loaded.Metadata.RoomStatePointer);
+            FormatStateRoom(loaded.Metadata.Room, loaded.Metadata.RoomState);
         SetPlaying(resumePlayback);
     }
 
     /// <summary>Formats a room/state identity or a frontend-only state for toolbar text.</summary>
-    private static string FormatStateRoom(string? room, ushort? state) =>
-        room is not null && state is ushort statePointer
-            ? $"room {room}/state $8F:{statePointer:X4}"
+    private static string FormatStateRoom(string? room, string? state) =>
+        room is not null && state is not null
+            ? $"room {room}/state {state}"
             : "frontend/no active room";
 
     /// <summary>
@@ -559,7 +559,7 @@ public sealed class PlayableGameControl : UserControl
                         Phase: game.CurrentFrame.Phase,
                         ControllerInput: input,
                         Room: game.GameplayActiveRoom?.Name,
-                        RoomStatePointer: game.GameplayActiveRoomStatePointer,
+                        RoomState: game.GameplayActiveRoomState?.Name,
                         Door: game.GameplayActiveDoor?.Name,
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
@@ -629,7 +629,7 @@ public sealed class PlayableGameControl : UserControl
                     Phase: game.CurrentFrame.Phase,
                     ControllerInput: input,
                     Room: game.GameplayActiveRoom?.Name,
-                    RoomStatePointer: game.GameplayActiveRoomStatePointer,
+                    RoomState: game.GameplayActiveRoomState?.Name,
                     Door: game.GameplayActiveDoor?.Name,
                     InputRecordingPath: inputRecorder?.Path,
                     FrameDiagnostics: frameDiagnostics));
@@ -744,11 +744,11 @@ public sealed class PlayableGameControl : UserControl
             return;
         }
 
-        ushort state = game.GameplayActiveRoomStatePointer
-            ?? throw new InvalidOperationException($"Room {room.Name} has no selected room-state pointer.");
+        CartridgeRoomState state = game.GameplayActiveRoomState
+            ?? throw new InvalidOperationException($"Room {room.Name} has no selected room state.");
         RoomIdentity identity = game.GameplayActiveRoomIdentity
             ?? throw new InvalidOperationException($"Room {room.Name} has no logical room identity.");
-        host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state $8F:{state:X4}]";
+        host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state {state.Name}]";
     }
 
     /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>

@@ -41,9 +41,8 @@ internal static class LandingSiteEntryStateAccess
                     $"{RoomIdentities.LandingSite}.");
             }
 
-            ushort statePointer = RoomStateSelectionDefinitions.Select(
+            CartridgeRoomState state = RoomStateSelectionDefinitions.Select(
                 RoomHeaderDefinitions.LandingSite, default);
-            CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
             LibraryBackgroundInstruction transfer =
                 LibraryBackgroundProgramDefinitions.GetDoorTransfer(
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),

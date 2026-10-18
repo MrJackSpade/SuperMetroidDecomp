@@ -510,8 +510,11 @@ Commit and push that update too.
     - Step 3f (`be1d2a36e`, 100 -> 98): room states hold a named `RoomFxDefinition` (an FX header's records in native
       order, selecting the entry door's record itself); records have no pointer; AssetExtraction's `RoomFxSources`
       owns the header pointers and test support's `RoomFxDefinitionsAccess` derives record pointers from them.
-    - Step 3g (this commit, 98 -> 97): room states hold a named `XrayRoomOverlayDefinition`; the installed overlay
+    - Step 3g (`910bd329f`, 98 -> 97): room states hold a named `XrayRoomOverlayDefinition`; the installed overlay
       catalog is keyed by overlay; reveals.json keeps its pointer key, resolved by AssetExtraction's
       `XrayRoomOverlaySources`.
-    - Next: room-state identity (`CartridgeRoomState.Pointer`, the gameplay-active room-state pointer, the frontend's
-      last audio room state, the debugger header and error reports), named by the disassembly's `RoomState_` labels.
+    - Step 3h (this commit, 97 -> 94): room states are named by the disassembly's `RoomState_` labels; selection
+      returns states; the frontend, hosts, error reports and the debugger header (schema 8) name the state;
+      AssetExtraction's `RoomStateSources` owns the pointers.
+    - Q7 is complete. Next: the standalone rows (sprite-part Y bytes, projectile requests, graphics-set words and
+      similar), then Q9, Q6, Q8, Q2 and Q5.

@@ -110,7 +110,7 @@ internal static class VramDmaDomains
         // index 6..8 ocean rows below the six-screen room. Last-row blue scrolls
         // align at zero; nonblue rows permit the camera's additional $1F.
         foreach (var room in RoomHeaderDefinitions.All)
-        foreach (var state in RoomStateSelectionDefinitions.GetStatePointers(room).Select(RoomStateDefinitions.Get)
+        foreach (var state in RoomStateSelectionDefinitions.GetStates(room)
                      .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback)))
         {
             ScrollingSkyChunkTable table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean

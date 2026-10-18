@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The fields copied by <c>LoadStateHeader</c> at $82:DEF2.</summary>
 public sealed record CartridgeRoomState(
-    ushort Pointer,
+    string Name,
     int CompressedLevelDataAddress,
     int GraphicsSet,
     int MusicDataIndex,
@@ -18,6 +18,9 @@ public sealed record CartridgeRoomState(
     Backgrounds.LibraryBackgroundProgram? Background,
     RoomSetupCallback SetupCallback)
 {
+    /// <summary>The state's name, the disassembly's label for it without its prefix.</summary>
+    public string Name { get; init; } = Ensure.NotNull(Name);
+
     /// <summary>The room state's graphics theme, 0 through 255.</summary>
     public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
 

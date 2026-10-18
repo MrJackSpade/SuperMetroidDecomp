@@ -37,7 +37,7 @@ internal static class DoorWaitsForMessageBoxVerification
             .First();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
-        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.

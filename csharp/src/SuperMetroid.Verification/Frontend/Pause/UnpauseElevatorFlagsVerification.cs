@@ -29,7 +29,7 @@ internal static class UnpauseElevatorFlagsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
-        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         AssertEqual(ElevatorJourneyFlag.DoorContact, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");

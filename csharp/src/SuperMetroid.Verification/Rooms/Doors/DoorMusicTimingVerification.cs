@@ -52,7 +52,7 @@ internal static class DoorMusicTimingVerification
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
-        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         var audio = game.Session.audio;
         audio.AdvanceFrame(default);

@@ -50,7 +50,7 @@ internal static class DoorEntryEnemySoundVerification
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
-        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)

@@ -57,7 +57,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     session.demoHoldFramesRemaining = 0;
                     session.demoCancelled = false;
                     session.demoLoadFramesRemaining = AttractDemoRomData.EnemyTransferFrames;
-                    session.lastAudioRoomStatePointer = null;
+                    session.lastAudioRoomState = null;
                     session.lastAudioRuntimeGameplayPublication = null;
                 }
                 else

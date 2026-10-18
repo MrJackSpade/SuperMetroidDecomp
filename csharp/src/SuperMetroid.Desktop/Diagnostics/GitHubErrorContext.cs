@@ -9,7 +9,7 @@ public sealed record GitHubErrorContext(
     string? Phase = null,
     SnesButton? ControllerInput = null,
     string? Room = null,
-    ushort? RoomStatePointer = null,
+    string? RoomState = null,
     string? Door = null,
     string? InputRecordingPath = null,
     string? FrameDiagnostics = null);

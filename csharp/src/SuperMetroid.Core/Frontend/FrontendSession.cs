@@ -149,8 +149,8 @@ internal sealed class FrontendSession
     internal IReadOnlyList<AudioEvent> lastAudioEvents = Array.Empty<AudioEvent>();
     /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
     internal ulong? lastAudioRuntimeGameplayPublication;
-    /// <summary>Room-state pointer associated with the last copied audio publication.</summary>
-    internal ushort? lastAudioRoomStatePointer;
+    /// <summary>Room state associated with the last copied audio publication.</summary>
+    internal CartridgeRoomState? lastAudioRoomState;
     /// <summary>The handlers of the game's save-RAM-changed event.</summary>
     internal Action? saveRamChanged;
     /// <summary>Raises the game's save-RAM-changed event after translated code changed save RAM.</summary>
@@ -175,7 +175,7 @@ internal sealed class FrontendSession
         if (runtime?.AttractDemo.IsAttractDemo == true)
             return;
         if (runtime?.Room.ActiveRoom?.State is { } roomState &&
-            roomState.Pointer != lastAudioRoomStatePointer)
+            roomState != lastAudioRoomState)
         {
             // $82:E071 loads data during door setup. $82:E664 selects the track
             // only after the opening scroll and this data queue have completed.
@@ -183,7 +183,7 @@ internal sealed class FrontendSession
                 audio.QueueRoomMusicData(roomState.MusicDataIndex);
             else
                 audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
-            lastAudioRoomStatePointer = roomState.Pointer;
+            lastAudioRoomState = roomState;
         }
         // Enemy initialization follows the room's music-data queueing in native loading.
         if (runtime is not null)
@@ -513,7 +513,7 @@ internal sealed class FrontendSession
             audio.QueueMusicDelayed(
                 MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
                 MusicCommandDelay.FromDelayedYArgument(360 + 5));
-            lastAudioRoomStatePointer = loadedState.Pointer;
+            lastAudioRoomState = loadedState;
             return false;
         }
 

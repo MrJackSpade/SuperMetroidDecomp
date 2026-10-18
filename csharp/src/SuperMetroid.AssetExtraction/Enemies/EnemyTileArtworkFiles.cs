@@ -59,9 +59,9 @@ public static class EnemyTileArtworkFiles
         Directory.CreateDirectory(directory);
 
         var entries = new Dictionary<ushort, EnemyTileFileEntry>();
-        foreach (ushort graphicsSetPointer in RoomStateDefinitions.All
-                     .Select(state => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                         RoomStateSourceDefinitions.Bank | (state.Pointer + RoomStateSourceDefinitions.EnemySetOffset)))
+        foreach (ushort graphicsSetPointer in RoomStateSources.Pointers
+                     .Select(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                         RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
                      .Distinct().Order())
         {
             int cursor = RoomEnemyRomLayout.TilesetBank | graphicsSetPointer;

@@ -155,9 +155,9 @@ public static class RoomVisualLayoutFiles
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             int width = header.Size.ToRoomBlocks().X;
-            foreach (ushort pointer in RoomStateSelectionDefinitions.GetStatePointers(header))
+            foreach (CartridgeRoomState state in RoomStateSelectionDefinitions.GetStates(header))
             {
-                int source = RoomStateDefinitions.Get(pointer).CompressedLevelDataAddress;
+                int source = state.CompressedLevelDataAddress;
                 if (sources.TryGetValue(source, out int existing) && existing != width)
                     throw new InvalidDataException(
                         $"Room level ${source:X6} is shared by {existing}- and {width}-block row strides.");

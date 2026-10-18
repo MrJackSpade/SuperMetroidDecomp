@@ -50,7 +50,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.Artwork.MapPresentation?.TitlePalette,
             session.Artwork.MapPresentation?.TitleGraphics);
         session.lastAudioRuntimeGameplayPublication = null;
-        session.lastAudioRoomStatePointer = null;
+        session.lastAudioRoomState = null;
         session.fileSelect = null;
         session.fileSelectMap = null;
         session.gameOver = null;

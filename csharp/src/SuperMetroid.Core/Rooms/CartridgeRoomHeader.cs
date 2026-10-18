@@ -50,5 +50,5 @@ public sealed record CartridgeRoomHeader(RoomHeaderDefinition Definition, Cartri
     public static CartridgeRoomHeader LoadUsingCompiledSelection(
         RoomHeaderDefinition room,
         RoomStateSelectionContext selection = default) =>
-        new(Ensure.NotNull(room), RoomStateDefinitions.Get(RoomStateSelectionDefinitions.Select(room, selection)));
+        new(Ensure.NotNull(room), RoomStateSelectionDefinitions.Select(room, selection));
 }

@@ -8,5 +8,5 @@ internal readonly record struct DebuggerSaveStateMetadata(
     ushort FrameNumber,
     SuperMetroidGameState GameState,
     string? Room,
-    ushort? RoomStatePointer,
+    string? RoomState,
     string Path);

@@ -74,7 +74,7 @@ internal static class DesktopSessionLogSmokeTest
             using (var reporter = new GitHubErrorReporter("fixture/diagnostics", new LocalIssueClient()))
             {
                 reporter.Report(nested, new GitHubErrorContext("fixture frame boundary", Room: "FixtureRoom",
-                    RoomStatePointer: 0x5678, InputRecordingPath: "fixture.smrec"));
+                    RoomState: "FixtureRoomState", InputRecordingPath: "fixture.smrec"));
             }
             Console.WriteLine("after checkpoint and reporter shutdown");
         }

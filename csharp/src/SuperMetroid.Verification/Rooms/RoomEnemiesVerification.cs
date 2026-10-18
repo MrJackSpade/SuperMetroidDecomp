@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Ripper;
@@ -543,13 +544,15 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
     AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
         enemies.RipperBehavior._extensions[ripper.SlotIndex].Program, "Ripper init right animation");
-    AssertEqual(1, ripper.VariableD, "Ripper init signed whole X velocity");
-    AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");
+    RipperEnemyState ripperState = ripper.SpeciesState<RipperEnemyState>()
+        ?? throw new InvalidOperationException("The initialized Ripper has no state.");
+    AssertEqual(1, ripperState.XVelocity.WholeWord, "Ripper init signed whole X velocity");
+    AssertEqual(0, ripperState.XVelocity.Fraction, "Ripper init X subvelocity");
 
     for (int frame = 0; frame < 9; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Level = level });
     AssertEqual(88, ripper.Position.X.Whole, "Ripper wall-aligned reversal X");
-    AssertEqual(0xffff, ripper.VariableD, "Ripper reversal signed whole X velocity");
+    AssertEqual(0xffff, ripperState.XVelocity.WholeWord, "Ripper reversal signed whole X velocity");
     AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
 
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap
@@ -918,7 +921,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     SeedCeresDoorQuakeOverlay(bus);
     RoomEnemySlot overlayDoor = enemies.SlotTable.Slots[1];
     overlayDoor.Bind(ceresDoorDefinitionPointer, overlayDoor.Definition);
-    overlayDoor.VariableB = 1;
+    var overlayDoorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
+    overlayDoor.SetSpeciesState(overlayDoorState, overlayDoorState.ClearWithRecord);
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
     enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

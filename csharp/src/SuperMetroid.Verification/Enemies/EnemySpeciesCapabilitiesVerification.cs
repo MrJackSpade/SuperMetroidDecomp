@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -186,9 +187,11 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
+            var doorState = new CeresDoorEnemyState();
+            slot.SetSpeciesState(doorState, doorState.ClearWithRecord);
             foreach (bool handed in new[] { false, true })
             {
-                slot.VariableB = handed ? (ushort)1 : (ushort)0;
+                doorState.HandsDrawingToRidley = handed;
                 bool drawnByRidley = entity is IDrawnByCeresRidleyScene door && door.HandsDrawingToRidley;
                 AssertEqual(definition == EnemyDefinitionId.CeresDoor && handed, drawnByRidley,
                     $"{definition} hands its drawing to Ceres Ridley's scene with the hand-drawing flag {(handed ? "set" : "clear")}");

@@ -152,7 +152,8 @@ internal static class LookupStream5Verification
             var system = new RoomEnemySystem();
             var slot = system.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(origin);
-            slot.VariableD = 48; slot.VariableE = 0; slot.VariableF = 0;
+            var doorState = new CeresDoorEnemyState { RumbleCallsLeft = 48 };
+            slot.SetSpeciesState(doorState, doorState.ClearWithRecord);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0));
@@ -1841,7 +1842,9 @@ internal static class LookupStream5Verification
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         var door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
-        door.VariableB = 1; door.Position = door.Position.WithWholeY(80);
+        var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
+        door.SetSpeciesState(doorState, doorState.ClearWithRecord);
+        door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
         for (ushort phase = 0; phase < 4; phase++)

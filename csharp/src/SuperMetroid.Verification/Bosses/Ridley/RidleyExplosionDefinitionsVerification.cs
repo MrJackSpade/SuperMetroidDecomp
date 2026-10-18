@@ -215,11 +215,13 @@ internal static class RidleyExplosionDefinitionsVerification
                     "Ridley breakup production instruction timer");
                 AssertEqual(EnemyPaletteBits.Palette7, fragment.PaletteIndex,
                     "Ridley breakup production palette");
+                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
+                    ?? throw new InvalidOperationException("The initialized fragment has no state.");
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)),
-                    fragment.VariableF,
+                    fragmentState.Lifetime.RawValue,
                     $"Ridley breakup production lifetime ${parameter:X2}");
-                AssertEqual(unchecked((ushort)-0x0130), fragment.VariableB,
+                AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
                     "Ridley breakup production signed random velocity");
 
                 if (parameter <= (ushort)RidleyExplosionPart.TailTip)

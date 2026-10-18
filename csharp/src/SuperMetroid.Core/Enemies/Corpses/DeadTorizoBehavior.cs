@@ -70,15 +70,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _room.Staging.CorpseTiles.Fill(0);
 
-        slot.VariableA = (ushort)DeadTorizoFunction.Wait;
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         _deadTorizoProgram = AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
-        slot.VariableB = 0;
-        slot.VariableC = 8;
 
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
         int yLimit = definition.EntryCount - 1;
@@ -87,7 +84,10 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
             SandLineCounter = 15,
+            Function = DeadTorizoFunction.Wait,
+            Velocity = new(default, new SnesSignedEightEight(8)),
         };
+        slot.SetSpeciesState(_deadTorizo, _deadTorizo.ClearWithRecord);
 
         CorpseRottingTableProcessor.Initialize(_deadTorizo.RotTable);
         InitializeDeadTorizoGraphics();
@@ -107,11 +107,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (ClosedNativeWords.Decode<DeadTorizoFunction>(slot.VariableA, "Dead Torizo corpse function"))
+        switch (state.Function ?? throw new InvalidDataException("Dead Torizo has no corpse function."))
         {
             case DeadTorizoFunction.Wait:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.NativeIndex) == true)
-                    slot.VariableA = (ushort)DeadTorizoFunction.PreRot;
+                    state.Function = DeadTorizoFunction.PreRot;
                 break;
 
             case DeadTorizoFunction.PreRot:
@@ -119,7 +119,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.PreRotDelayCounter >= 16)
                 {
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-                    slot.VariableA = (ushort)DeadTorizoFunction.Rotting;
+                    state.Function = DeadTorizoFunction.Rotting;
                     RunDeadTorizoRotting(slot, state);
                 }
                 break;
@@ -133,7 +133,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Dead Torizo function $A9:{slot.VariableA:X4} is not translated.");
+                    $"Dead Torizo function {state.Function} is not translated.");
         }
 
         BuildDeadTorizoVramTransfers(state);
@@ -154,8 +154,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        slot.VariableC = unchecked((ushort)(slot.VariableC + 1));
-        MoveBankA9EnemyWithVelocity(slot, new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC)));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
+        MoveBankA9EnemyWithVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
             state.RotTable,
@@ -164,15 +164,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
             _ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
-            slot.VariableA = (ushort)DeadTorizoFunction.NoOperation;
+            state.Function = DeadTorizoFunction.NoOperation;
     }
 
     /// <summary>Shot/touch tail at <c>$A9:D433</c>.</summary>
     internal void TriggerDeadTorizoRotting(RoomEnemySlot slot)
     {
-        RequireDeadTorizoState(slot);
+        DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        slot.VariableA = (ushort)DeadTorizoFunction.Rotting;
+        state.Function = DeadTorizoFunction.Rotting;
     }
 
     /// <summary>Power-bomb entry at <c>$A9:D42A</c>.</summary>

@@ -43,7 +43,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
     internal void InitializeGRipper(RoomEnemySlot slot)
     {
-        var state = CreateRipperVariantState(slot);
+        var state = CreateRipperState(slot);
 
         // GRipper overloads the population's initialization-list word as a packed speed
         // selector. Only its low byte reaches the eight-byte speed-table multiplication.
@@ -52,7 +52,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort packedSelector = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
         bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
-        LoadRipperVariantVelocity(state, selectsPositiveVelocity);
+        LoadRipperVelocity(state, selectsPositiveVelocity);
         SetRipperProgram(
             slot,
             state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
@@ -67,7 +67,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
     private void RunGRipperMain(
         RoomEnemySlot slot,
-        RipperVariantEnemyState state,
+        RipperEnemyState state,
         RoomLevelData? level)
     {
         RequireRipperTerrain(level, "GRipper");
@@ -96,7 +96,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Ripper2</c> at $A2:E318.</summary>
     internal void InitializeRipper2(RoomEnemySlot slot)
     {
-        RipperVariantEnemyState state = CreateRipperVariantState(slot);
+        RipperEnemyState state = CreateRipperState(slot);
         state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
@@ -104,12 +104,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative speed pair with the moving-right list, while nonzero uses positive speed
         // with the moving-left list.
         bool movingPositive = slot.Parameter2 != 0;
-        LoadRipperVariantVelocity(state, movingPositive);
+        LoadRipperVelocity(state, movingPositive);
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
-    private void RunRipper2Main(RoomEnemySlot slot, RipperVariantEnemyState state, RoomLevelData? level)
+    private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
         int displacement = state.XVelocity.RawValue;
@@ -136,9 +136,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // Each logical speed occupies eight bytes in the common table:
         //   +0 signed pixel velocity, +2 subpixel velocity,
         //   +4 negated pixel velocity, +6 negated subpixel velocity.
-        // Variable E retains the byte offset because the reversal routine reuses it.
-        slot.VariableE = unchecked((ushort)(slot.Parameter1 * 8));
-        LoadRipperVelocity(slot, movingRight);
+        // The state retains the byte offset because the reversal routine reuses it.
+        RipperEnemyState state = CreateRipperState(slot);
+        state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
+        LoadRipperVelocity(state, movingRight);
     }
 
     /// <summary>Ports <c>Ripper_Main</c> at $A2:E4DA.</summary>
@@ -146,34 +147,27 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RequireRipperTerrain(level, "Ripper");
 
-        // $A0:C6AB consumes a signed 16.16 displacement whose high and low words are kept
-        // in Variables D/C. On collision the native helper aligns the actor flush with the
-        // wall before Ripper swaps direction and animation.
-        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
+        // $A0:C6AB consumes the signed 16.16 velocity as a displacement. On collision the
+        // native helper aligns the actor flush with the wall before Ripper swaps direction
+        // and animation.
+        RipperEnemyState state = RequireRipperState(slot);
+        int displacement = state.XVelocity.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
-        bool wasMovingLeft = (short)slot.VariableD < 0;
+        bool wasMovingLeft = state.XVelocity.WholePixels < 0;
         bool nowMovingRight = wasMovingLeft;
-        LoadRipperVelocity(slot, nowMovingRight);
+        LoadRipperVelocity(state, nowMovingRight);
         SetRipperProgram(slot, nowMovingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
     }
 
-    /// <summary>Loads a GRipper's or Ripper II's velocity from its shared eight-byte speed record.</summary>
-    /// <param name="state">The variant's state, whose speed record is read.</param>
+    /// <summary>Loads a Ripper-family enemy's velocity from its shared eight-byte speed record.</summary>
+    /// <param name="state">The enemy's state, whose speed record is read.</param>
     /// <param name="movingRight">Whether the record's positive half is loaded rather than its negative half.</param>
-    internal static void LoadRipperVariantVelocity(RipperVariantEnemyState state, bool movingRight)
+    internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight)
     {
         (short whole, ushort fraction) = EnemyLinearSpeedDefinitions.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
         state.XVelocity = SnesSignedSixteenSixteen.FromParts(whole, fraction);
-    }
-
-    /// <summary>Loads the signed whole and fractional velocity pair from the shared eight-byte speed record.</summary>
-    internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
-    {
-        var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
-        slot.VariableD = unchecked((ushort)velocity.Whole);
-        slot.VariableC = velocity.Fraction;
     }
 
     /// <summary>
@@ -185,15 +179,15 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.FrozenTimer.IsZero)
             return;
-        slot.SpritemapPointer = RequireRipperVariantState(slot).XVelocity.WholePixels < 0
+        slot.SpritemapPointer = RequireRipperState(slot).XVelocity.WholePixels < 0
             ? RipperFrameDefinitions.FrozenFacingLeftSpritemap
             : RipperFrameDefinitions.FrozenFacingRightSpritemap;
     }
 
-    /// <summary>Binds a variant slot to its per-room patrol arrays and retains its AI state.</summary>
-    private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
+    /// <summary>Binds a Ripper-family slot to its per-room words and retains its AI state.</summary>
+    private RipperEnemyState CreateRipperState(RoomEnemySlot slot)
     {
-        var state = new RipperVariantEnemyState(_extensions[slot.SlotIndex]);
+        var state = new RipperEnemyState(_extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
@@ -214,9 +208,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperProgram positiveProgram,
         RipperProgram negativeProgram)
     {
-        RipperVariantEnemyState state = RequireRipperVariantState(slot);
+        RipperEnemyState state = RequireRipperState(slot);
         bool wasMovingNegative = state.XVelocity.WholePixels < 0;
-        LoadRipperVariantVelocity(state, movingRight: wasMovingNegative);
+        LoadRipperVelocity(state, movingRight: wasMovingNegative);
         SetRipperProgram(slot, wasMovingNegative ? positiveProgram : negativeProgram);
     }
 
@@ -239,8 +233,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
-    private static RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
-        slot.SpeciesState<RipperVariantEnemyState>() ?? throw new InvalidOperationException(
+    private static RipperEnemyState RequireRipperState(RoomEnemySlot slot) =>
+        slot.SpeciesState<RipperEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
@@ -274,13 +268,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports GRipper's main AI.</summary>
     internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunGRipperMain(slot, RequireRipperVariantState(slot), frame.Level);
+        RunGRipperMain(slot, RequireRipperState(slot), frame.Level);
     }
 
     /// <summary>Ports Ripper2's main AI.</summary>
     internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRipper2Main(slot, RequireRipperVariantState(slot), frame.Level);
+        RunRipper2Main(slot, RequireRipperState(slot), frame.Level);
     }
 
     /// <summary>Ports Ripper's main AI.</summary>

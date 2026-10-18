@@ -40,7 +40,7 @@ internal static class EnemyLinearSpeedsVerification
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
         var owtch = new Action<RoomEnemySlot>(OwtchBehavior.InitializeOwtch);
         var stoke = new Action<RoomEnemySlot>(StokeBehavior.InitializeStoke);
-        Action<RoomEnemySlot, bool> ripper = RipperBehavior.LoadRipperVelocity;
+        Action<RipperEnemyState, bool> ripper = RipperBehavior.LoadRipperVelocity;
         var slot = enemies.SlotTable.Slots[0];
         for (int index = 0; index < 65; index++)
         {
@@ -62,11 +62,11 @@ internal static class EnemyLinearSpeedsVerification
             stoke(slot);
             var s = enemies.StokeStates[0];
             AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity.WholeWord, s.RightVelocity.Fraction, s.LeftVelocity.WholeWord, s.LeftVelocity.Fraction), "Stoke native speed setup");
-            slot.VariableE = (ushort)(index * 8);
-            ripper(slot, true);
-            AssertEqual((right, rightFraction), (slot.VariableD, slot.VariableC), "Ripper right speed");
-            ripper(slot, false);
-            AssertEqual((left, leftFraction), (slot.VariableD, slot.VariableC), "Ripper reversal speed");
+            var ripperState = new RipperEnemyState(new RipperExtensionWords()) { SpeedTableByteOffset = index * 8 };
+            ripper(ripperState, true);
+            AssertEqual((right, rightFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper right speed");
+            ripper(ripperState, false);
+            AssertEqual((left, leftFraction), (ripperState.XVelocity.WholeWord, ripperState.XVelocity.Fraction), "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: 517 byte windows, bank mirror and all 65 speeds in four direct family callers match the cartridge without speed-table ROM reads.");
     }

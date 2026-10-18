@@ -59,9 +59,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 return null;
             case CeresSteamCueKind.CountDownToActivation:
             {
-                // Variable D holds the vent's activation delay, which initialization staggers.
-                NativeWordCounterStep step = NativeCountdown.FromRaw(slot.VariableD).Decrement();
-                slot.VariableD = step.Value;
+                // The vent's activation delay, which initialization staggers.
+                CeresSteamEnemyState state = RequireCeresSteamState(slot);
+                NativeWordCounterStep step = state.ActivationDelay.Decrement();
+                state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
                     return cue.Target;
                 slot.Properties = slot.Properties.Without(
@@ -100,12 +101,16 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = CeresSteamPaletteIndex;
 
-        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then
+        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. The delay is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
-        slot.VariableD = unchecked((ushort)((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1));
+        var state = new CeresSteamEnemyState
+        {
+            ActivationDelay = NativeCountdown.Start((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1),
+        };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         _ventPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program);
-        slot.VariableA = (ushort)initialization.Function;
+        state.Function = initialization.Function;
     }
 
     /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
@@ -117,7 +122,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // cannot be destroyed by a projectile that happened to overlap an active plume.
         slot.Health = CeresSteamIndestructibleHealth;
 
-        switch ((CeresSteamFunction)slot.VariableA)
+        CeresSteamEnemyState state = RequireCeresSteamState(slot);
+        switch (state.Function)
         {
             // Parameters zero through three point at `$EFF4`, a literal RTS. Their base
             // world position is also their draw position, so no graphical word is changed.
@@ -142,9 +148,13 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres steam function $A6:{slot.VariableA:X4} is not translated.");
+                    $"Ceres steam function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
+
+    /// <summary>The vent's state, failing if the vent never initialized.</summary>
+    private static CeresSteamEnemyState RequireCeresSteamState(RoomEnemySlot slot) =>
+        slot.SpeciesState<CeresSteamEnemyState>() ?? throw new InvalidOperationException("A Ceres steam vent has no state.");
 
     /// <summary>Ports CeresSteam's initialization AI.</summary>
     internal void RunCeresSteamInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)

@@ -58,7 +58,8 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
-        door.VariableB = 1;
+        var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
+        door.SetSpeciesState(doorState, doorState.ClearWithRecord);
         door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
@@ -110,7 +111,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
             "private-overlay visual edit preserves the native quake/X coordinate");
         AssertEqual(nativeOverlay.GetEntry(0).Position.Y + 1, editedOverlay.GetEntry(0).Position.Y,
             "private-overlay visual edit changes only its authored Y offset");
-        AssertEqual((ushort)1, door.VariableB,
+        AssertTrue(doorState.HandsDrawingToRidley,
             "private-overlay visual edit preserves the door's control flag");
 
         Console.WriteLine(

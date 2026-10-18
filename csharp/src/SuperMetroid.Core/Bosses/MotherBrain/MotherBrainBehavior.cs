@@ -2253,19 +2253,25 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
         _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
         tube.Radius = new(xRadius, yRadius);
-        tube.VariableA = (ushort)(tubeIndex == (int)MotherBrainTubePiece.Main
-            ? MotherBrainTubeFunction.MainTube_WaitingToFall
-            : MotherBrainTubeFunction.NonMainTube);
-        tube.VariableB = floor;
-        tube.VariableC = 0;
-        tube.VariableD = 0;
-        tube.VariableE = 0;
+        var state = new MotherBrainFallingTubeState
+        {
+            Function = tubeIndex == (int)MotherBrainTubePiece.Main
+                ? MotherBrainTubeFunction.MainTube_WaitingToFall
+                : MotherBrainTubeFunction.NonMainTube,
+            FloorY = floor,
+        };
+        tube.SetSpeciesState(state, state.ClearWithRecord);
     }
+
+    /// <summary>A falling tube's state, failing if the tube never initialized.</summary>
+    private static MotherBrainFallingTubeState RequireFallingTubeState(RoomEnemySlot tube) =>
+        tube.SpeciesState<MotherBrainFallingTubeState>() ?? throw new InvalidOperationException("A falling tube has no state.");
 
     /// <summary>Ports the $A9:8B85 function-pointer dispatcher for physical tube enemies.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
-        switch (ClosedNativeWords.Decode<MotherBrainTubeFunction>(tube.VariableA, "Mother Brain tube function"))
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        switch (tubeState.Function ?? throw new InvalidDataException("A falling tube has no function."))
         {
             case MotherBrainTubeFunction.NonMainTube:
                 FallMotherBrainTube(tube, mainTube: false);
@@ -2276,7 +2282,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 tube.Parameter2 = fallDelay.Remaining.RawValue;
                 if (fallDelay.IsNonNegative)
                     return;
-                tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
+                tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
                 FallMotherBrainTube(tube, mainTube: true);
                 return;
             case MotherBrainTubeFunction.MainTube_Falling:
@@ -2284,19 +2290,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain falling tube function $A9:{tube.VariableA:X4} is not translated.");
+                    $"Mother Brain falling tube function {tubeState.Function} is not translated.");
         }
     }
 
     /// <summary>Moves a falling tube, with a distinct path for the main tube.</summary>
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
-        tube.VariableC = unchecked((ushort)(tube.VariableC + 6));
-        tube.Position = tube.Position.AdvanceY(new SnesSignedEightEight(tube.VariableC).ToSixteenSixteenDelta());
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        tubeState.FallSpeed = new SnesSignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
+        tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
 
         if (!mainTube)
         {
-            if (tube.Position.Y.Whole >= tube.VariableB)
+            if (tube.Position.Y.Whole >= tubeState.FloorY)
                 ExplodeMotherBrainTube(tube);
             else
                 SpawnMotherBrainTubeSmoke(tube);
@@ -2344,16 +2351,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits smoke at the falling tube's current position.</summary>
     private void SpawnMotherBrainTubeSmoke(RoomEnemySlot tube)
     {
-        // The smoke cadence counts down in variable D and emits when it passes zero.
-        NativeWordCounterStep smokeDelay = NativeCountdown.FromRaw(tube.VariableD).Decrement();
-        tube.VariableD = smokeDelay.Remaining.RawValue;
+        // The smoke cadence counts down and emits when it passes zero.
+        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        NativeWordCounterStep smokeDelay = tubeState.SmokeDelay.Decrement();
+        tubeState.SmokeDelay = smokeDelay.Remaining;
         if (smokeDelay.IsNonNegative)
             return;
 
-        tube.VariableD = 8;
-        tube.VariableE = unchecked((ushort)((tube.VariableE + 1) & 3));
+        tubeState.SmokeDelay = NativeCountdown.Start(8);
+        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tube.VariableE])), 208),
+            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex])), 208),
             MiscDustAnimation.SmallDustCloud);
     }
 

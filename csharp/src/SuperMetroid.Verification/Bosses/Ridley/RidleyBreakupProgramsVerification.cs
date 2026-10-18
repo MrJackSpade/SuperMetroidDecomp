@@ -100,7 +100,10 @@ internal static class RidleyBreakupProgramsVerification
         }
         var expiring = fragments[0];
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
-        expiring.VariableF = 0; expiring.VariableB = 0; expiring.VariableC = 0;
+        RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
+            ?? throw new InvalidOperationException("The spawned fragment has no state.");
+        expiringState.Lifetime = NativeCountdown.Start(0);
+        expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.RidleyBehavior.RunNorfairRidleyExplosionMain(expiring);
         AssertEqual(EnemyDefinitionId.None, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");

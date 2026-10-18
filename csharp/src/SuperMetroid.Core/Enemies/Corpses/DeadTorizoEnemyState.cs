@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Dead Torizo's corpse state: its rot table and schedule, transfer half, contact delay and sand-heap progress.</summary>
+/// <summary>
+/// Dead Torizo's corpse state: its function and velocity, rot table and schedule, transfer half, contact delay and
+/// sand-heap progress. The function and velocity are values the cartridge keeps in the enemy's common record, emptied
+/// with it when the corpse is killed (<see cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class DeadTorizoEnemyState
 {
     /// <summary>Captures the corpse's rot schedule for this actor.</summary>
@@ -12,7 +16,7 @@ public sealed class DeadTorizoEnemyState
         WrapOffset = rotting.WrapOffset;
     }
 
-    /// <summary>Physical enemy slot zero, owning the corpse's position, collision/instruction words, bank-$A9 dispatcher in VariableA, and signed 8.8 velocities in Variables B and C.</summary>
+    /// <summary>Physical enemy slot zero, owning the corpse's position and collision/instruction words.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's ninety-six (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
     internal CorpseRotTable RotTable { get; init; }
@@ -50,5 +54,18 @@ public sealed class DeadTorizoEnemyState
         if (SandLineCounter <= 0)
             throw new InvalidOperationException("Dead Torizo has no sand row left to copy.");
         SandLineCounter--;
+    }
+
+    /// <summary>The bank-$A9 corpse function; none once a kill has emptied the record.</summary>
+    internal DeadTorizoFunction? Function { get; set; }
+
+    /// <summary>Signed 8.8 velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        Velocity = default;
     }
 }

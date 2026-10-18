@@ -49,7 +49,6 @@ internal static class HopperHopArcVerification
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(expected, state.YSpeedTableIndex, context);
-            AssertEqual(expected, slot.VariableB, $"{context}: slot variable");
             AssertEqual(expectedFalling, state.Falling, $"{context}: direction");
         }
         Console.WriteLine("  Hopper hop arc: the record clamps to zero past the apex and caps at 64 on the way back.");

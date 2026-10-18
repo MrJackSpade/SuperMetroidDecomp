@@ -45,7 +45,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
 
-            AssertEqual((ushort)definition.MainFunction, slot.VariableA,
+            AssertEqual<CeresDoorFunction?>(definition.MainFunction, slot.SpeciesState<CeresDoorEnemyState>()?.Function,
                 $"production Ceres door function selector {variant}");
             AssertEqual(AnimationProgramCursor<CeresDoorProgram>.Start(definition.Program), enemies.CeresDoorPrograms[slot.SlotIndex],
                 $"production Ceres door program selector {variant}");

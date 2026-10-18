@@ -3064,8 +3064,10 @@ internal static class LookupStream4Verification
             {
                 RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
                 AssertEqual(expected[index], fragment.Parameter1, "Actual breakup slot order follows original native spawn calls");
-                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragment.VariableB, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragment.VariableF, "Actual breakup preserves each unresolved native lifetime");
+                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
+                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
+                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.RawValue, "Actual breakup preserves each unresolved native lifetime");
             }
             spawn(body, state);
             AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");

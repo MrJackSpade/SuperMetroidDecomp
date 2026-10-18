@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.PipeBugs;
@@ -75,6 +77,37 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
+        {
+            ceresSteamRecord.Function = slot.VariableA == 0 ? null : (CeresSteamFunction)slot.VariableA;
+            ceresSteamRecord.ActivationDelay = NativeCountdown.FromRaw(slot.VariableD);
+        }
+        if (slot.SpeciesState<CeresDoorEnemyState>() is { } ceresDoorRecord)
+        {
+            ceresDoorRecord.Function = slot.VariableA == 0 ? null : (CeresDoorFunction)slot.VariableA;
+            ceresDoorRecord.HandsDrawingToRidley = slot.VariableB != 0;
+            ceresDoorRecord.RumbleCallsLeft = slot.VariableD;
+            ceresDoorRecord.ExplosionIntervalLeft = slot.VariableE;
+            ceresDoorRecord.ExplosionPositionIndex = slot.VariableF;
+        }
+        if (slot.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
+        {
+            deadTorizoRecord.Function = slot.VariableA == 0 ? null : (DeadTorizoFunction)slot.VariableA;
+            deadTorizoRecord.Velocity = new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC));
+        }
+        if (slot.SpeciesState<MotherBrainFallingTubeState>() is { } fallingTubeRecord)
+        {
+            fallingTubeRecord.Function = slot.VariableA == 0 ? null : (MotherBrainTubeFunction)slot.VariableA;
+            fallingTubeRecord.FloorY = slot.VariableB;
+            fallingTubeRecord.FallSpeed = new SnesSignedEightEight(slot.VariableC);
+            fallingTubeRecord.SmokeDelay = NativeCountdown.FromRaw(slot.VariableD);
+            fallingTubeRecord.SmokePositionIndex = slot.VariableE;
+        }
+        if (slot.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
+        {
+            ridleyFragmentRecord.Velocity = new(new SnesSignedEightEight(slot.VariableB), new SnesSignedEightEight(slot.VariableC));
+            ridleyFragmentRecord.Lifetime = NativeCountdown.FromRaw(slot.VariableF);
+        }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
             draygonRecord.Function = (DraygonAiFunction)slot.VariableA;
@@ -561,8 +594,8 @@ internal static class NativeEnemyFamilyStateImport
             funeNamihe.ShowsActiveAnimation = active;
             funeNamihe.FacingRight = right;
         }
-        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-            slot.SpeciesState<RipperVariantEnemyState>() is { } ripperVariant)
+        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.Ripper2 &&
+            slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.XVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableD), slot.VariableC);
             ripperVariant.SpeedTableByteOffset = slot.VariableE;

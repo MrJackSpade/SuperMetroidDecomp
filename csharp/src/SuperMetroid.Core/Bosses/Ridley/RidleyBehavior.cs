@@ -1487,14 +1487,16 @@ internal sealed class RidleyBehavior : IEnemySpecies
         fragment.Timer = NativeCountdown.Start(0);
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
-        fragment.VariableF = RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Parameter1)).Lifetime;
-
         ushort random = _room.Random.Generate();
         ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
-        fragment.VariableB = unchecked((short)random) < 0
-            ? unchecked((ushort)-horizontalMagnitude)
-            : horizontalMagnitude;
-        fragment.VariableC = 0;
+        var fragmentState = new RidleyExplosionFragmentState
+        {
+            Lifetime = NativeCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Parameter1)).Lifetime),
+            Velocity = new(new SnesSignedEightEight(unchecked((short)random) < 0
+                ? unchecked((ushort)-horizontalMagnitude)
+                : horizontalMagnitude), default),
+        };
+        fragment.SetSpeciesState(fragmentState, fragmentState.ClearWithRecord);
 
         if (part <= RidleyExplosionPart.TailTip)
         {
@@ -1548,14 +1550,18 @@ internal sealed class RidleyBehavior : IEnemySpecies
             fragment.Properties = fragment.Properties.Without(EnemyProperties.Invisible);
         fragment.FrameCounter &= 1;
 
-        int horizontal = unchecked((short)fragment.VariableB);
+        RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
+            ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");
+        int horizontal = fragmentState.Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
-        fragment.VariableB = unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude));
-        fragment.VariableC = unchecked((ushort)(fragment.VariableC + 4));
-        fragment.Position = fragment.Position.Advance(new(new SnesSignedEightEight(fragment.VariableB).ToSixteenSixteenDelta(), new SnesSignedEightEight(fragment.VariableC).ToSixteenSixteenDelta()));
+        var velocity = new EightEightVector<RoomPixels>(
+            new SnesSignedEightEight(unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude))),
+            new SnesSignedEightEight(unchecked((ushort)(fragmentState.Velocity.Y.RawValue + 4))));
+        fragmentState.Velocity = velocity;
+        fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 
-        NativeWordCounterStep lifetime = NativeWordCounter.Decrement(fragment.VariableF);
-        fragment.VariableF = lifetime.Value;
+        NativeWordCounterStep lifetime = fragmentState.Lifetime.Decrement();
+        fragmentState.Lifetime = lifetime.Remaining;
         if (lifetime.IsNonNegative)
             return;
 

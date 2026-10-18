@@ -43,9 +43,11 @@ internal static class CeresSteamDefinitionsVerification
 
             AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), enemies.CeresSteamPrograms[slot.SlotIndex],
                 $"production Ceres steam {variant} program");
-            AssertEqual(definition.Function, (CeresSteamFunction)slot.VariableA,
+            CeresSteamEnemyState steamState = slot.SpeciesState<CeresSteamEnemyState>()
+                ?? throw new InvalidOperationException("The initialized vent has no state.");
+            AssertEqual<CeresSteamFunction?>(definition.Function, steamState.Function,
                 $"production Ceres steam {variant} function");
-            AssertEqual(0x0020, slot.VariableD,
+            AssertEqual(NativeCountdown.Start(0x0020), steamState.ActivationDelay,
                 $"production Ceres steam {variant} activation timer");
         }
 

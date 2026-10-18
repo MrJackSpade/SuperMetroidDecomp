@@ -22,7 +22,7 @@ internal static class RipperVariantOwnedStateVerification
         slot.Parameter1 = speedRecord;
         slot.Parameter2 = 0;
         enemies.RipperBehavior.InitializeRipper2(slot);
-        RipperVariantEnemyState state = slot.SpeciesState<RipperVariantEnemyState>()
+        RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
         (short negativeWhole, ushort negativeFraction) = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);

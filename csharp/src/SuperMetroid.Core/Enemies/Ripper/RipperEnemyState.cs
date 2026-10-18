@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The state of one GRipper or Ripper II: its patrol velocity, its linear-speed record, and GRipper's two patrol
+/// The state of one Ripper, GRipper or Ripper II: its patrol velocity, its linear-speed record, and GRipper's two patrol
 /// bounds. The velocity and speed record are values the cartridge keeps in the enemy's common record, so they are
 /// emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>); the bounds outlive the kill.
 /// </summary>
-public sealed class RipperVariantEnemyState
+public sealed class RipperEnemyState
 {
     /// <summary>The slot's Ripper extension words, kept for the room across occupants.</summary>
     private readonly RipperExtensionWords _words;
 
     /// <summary>Binds a variant to its slot's GRipper patrol-bound storage.</summary>
-    internal RipperVariantEnemyState(RipperExtensionWords words) => _words = words;
+    internal RipperEnemyState(RipperExtensionWords words) => _words = words;
 
     /// <summary>Signed 16.16 horizontal velocity per update, one half of the selected linear-speed record.</summary>
     public SnesSignedSixteenSixteen XVelocity { get; internal set; }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Enemies;
@@ -60,11 +61,13 @@ internal static class DeadTorizoCollisionVerification
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
-            ushort phase = slot.VariableA;
-            slot.VariableA = 0xd3c7; // Native completed/no-operation phase.
+            DeadTorizoEnemyState corpse = slot.SpeciesState<DeadTorizoEnemyState>()
+                ?? throw new InvalidOperationException("The initialized corpse has no state.");
+            DeadTorizoFunction? phase = corpse.Function;
+            corpse.Function = DeadTorizoFunction.NoOperation;
             enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot);
-            Require(slot.VariableA == 0xd3c7, "An ignored corpse must not restart from another power bomb.");
-            Require(phase == 0xd3e6, "Each trigger must enter the native rotting phase.");
+            Require(corpse.Function == DeadTorizoFunction.NoOperation, "An ignored corpse must not restart from another power bomb.");
+            Require(phase == DeadTorizoFunction.Rotting, "Each trigger must enter the native rotting phase.");
 
             bool IsInteractive()
             {

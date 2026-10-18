@@ -53,7 +53,6 @@ internal static class MaridiaLargeSnailBounceVerification
             enemies.MaridiaLargeSnailBehavior.RunMaridiaLargeSnailMainAi(slot, frame);
 
             AssertEqual(expected, state.YSpeedTableIndex, $"Oum {context}: record");
-            AssertEqual(unchecked((ushort)(short)expected), slot.VariableB, $"Oum {context}: slot variable");
             AssertEqual(expectedPhase, state.BounceFunction, $"Oum {context}: bounce phase");
             AssertEqual(expectedSettled, state.RemainingBounces.IsZero, $"Oum {context}: bounces ended");
         }

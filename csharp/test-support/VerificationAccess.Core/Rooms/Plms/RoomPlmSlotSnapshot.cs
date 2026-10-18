@@ -6,7 +6,6 @@ internal readonly record struct RoomPlmSlotSnapshot(
     PlmHeaderId HeaderPointer,
     int BlockIndex,
     ushort RoomArgument,
-    ushort InstructionPointer,
     ushort PreInstruction,
     ushort InstructionTimer,
     ushort LoopTimer,

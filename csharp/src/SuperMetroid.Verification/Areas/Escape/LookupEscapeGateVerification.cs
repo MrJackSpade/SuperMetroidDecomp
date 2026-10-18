@@ -33,8 +33,6 @@ internal static class LookupEscapeGateVerification
             {
                 byte expected = EscapeGateProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Escape gate original field byte");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Escape gate composed byte reader");
-                AssertEqual(expected, shared, "Escape gate composed original byte");
             }
             if (!wordOwned) AssertEqual((ushort)0, w, "Escape gate missing word output");
             else
@@ -43,8 +41,6 @@ internal static class LookupEscapeGateVerification
                 if (mask == 0) continue;
                 int expected = ReadSamusEaterPlmWord(rom, 0x840000 | raw) & mask;
                 AssertEqual(expected, w & mask, "Escape gate original field in overlapping word");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Escape gate composed word reader");
-                AssertEqual(expected, shared & mask, "Escape gate composed original overlapping field");
             }
         }
     }

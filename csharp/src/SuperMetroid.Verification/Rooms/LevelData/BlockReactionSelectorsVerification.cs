@@ -75,8 +75,6 @@ internal static class BlockReactionSelectorsVerification
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native control owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal native one-frame duration/delete");
-            AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared control reader");
-            AssertEqual(value,shared,"bombed reveal shared control value");
         }
     }
 
@@ -88,8 +86,6 @@ internal static class BlockReactionSelectorsVerification
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native draw operand owned");
             AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal named draw selection matches native operand");
-            AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared draw reader");
-            AssertEqual(value,shared,"bombed reveal shared draw value");
         }
     }
 

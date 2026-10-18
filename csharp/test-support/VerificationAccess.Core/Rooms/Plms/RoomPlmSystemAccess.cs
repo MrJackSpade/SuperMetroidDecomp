@@ -164,17 +164,6 @@ internal static class RoomPlmSystemAccess
             active[0].InstructionTimer = NativeCountdown.Start(1);
         }
 
-        /// <summary>Points the sole live PLM at a native list, as a native list store does.</summary>
-        internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
-        {
-            PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
-            if (active.Length != 1)
-                throw new InvalidOperationException(
-                    "Instruction probe requires exactly one active PLM slot.");
-            active[0].InstructionPointer = instructionPointer;
-            active[0].InstructionTimer = NativeCountdown.Start(1);
-        }
-
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
         internal ushort MotherBrainGlassInstructionTimer => MotherBrainGlassSlot(self) is { } slot
             ? slot.InstructionTimer.RawValue
@@ -233,7 +222,6 @@ internal static class RoomPlmSystemAccess
                 HeaderPointer: slot.HeaderPointer,
                 BlockIndex: slot.BlockIndex,
                 RoomArgument: slot.RoomArgument,
-                InstructionPointer: slot.InstructionPointer,
                 PreInstruction: slot.PreInstruction.NativeRoutine,
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LoopTimer: checked((ushort)slot.LoopTimer),

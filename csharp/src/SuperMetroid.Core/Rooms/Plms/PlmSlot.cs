@@ -18,23 +18,7 @@ internal sealed class PlmSlot
     /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
     /// </summary>
     public RoomLevelWord RestoreLevelWord { get; set; }
-    /// <summary>
-    /// Current bank-$84 instruction-list position for the slot's generic interpreter; zero while a typed program runs.
-    /// Storing a list pointer ends any typed program, as a native list store replaces the running program.
-    /// </summary>
-    public ushort InstructionPointer
-    {
-        get;
-        set
-        {
-            field = value;
-            Animation = null;
-        }
-    }
-    /// <summary>
-    /// The typed program replacing this slot's native instruction list (#1296), or null when the bank-$84 interpreter
-    /// runs <see cref="InstructionPointer"/>.
-    /// </summary>
+    /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
     public NativeCountdown InstructionTimer { get; set; }
@@ -66,7 +50,7 @@ internal sealed class PlmSlot
         HeaderPointer = 0;
         BlockIndex = 0;
         RestoreLevelWord = 0;
-        InstructionPointer = 0;
+        Animation = null;
         InstructionTimer = NativeCountdown.Start(0);
         PreInstruction = PlmPreInstructions.Inert;
         RoomArgument = 0;
@@ -74,37 +58,20 @@ internal sealed class PlmSlot
         Family = null;
     }
 
-    /// <summary>Runs <paramref name="animation"/> in place of any native list; the caller keeps the slot's timer.</summary>
-    internal void StartAnimation(PlmAnimation animation)
-    {
-        InstructionPointer = 0;
-        Animation = Ensure.NotNull(animation);
-    }
+    /// <summary>Runs <paramref name="animation"/>; the caller keeps the slot's timer.</summary>
+    internal void StartAnimation(PlmAnimation animation) => Animation = Ensure.NotNull(animation);
 
-    /// <summary>
-    /// A pre-instruction's wake: a typed program resumes at the program it linked, on the next pass. Only typed programs
-    /// record a link, so a slot running a native list has none and resumes at the cleared list word, as the cartridge's
-    /// zero link word directs.
-    /// </summary>
+    /// <summary>A pre-instruction's wake: the typed program resumes at the program it linked, on the next pass.</summary>
     internal void WakeAtLink()
     {
-        if (Animation is { } animation)
-            animation.WakeAtLink();
-        else
-            InstructionPointer = 0;
+        (Animation ?? throw new InvalidOperationException("A PLM woke at its link without a typed program.")).WakeAtLink();
         InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>
-    /// A pre-instruction's wake past the sleep the slot rests on: the native list steps over its sleep instruction, a
-    /// typed program over its hold, on the next pass.
-    /// </summary>
+    /// <summary>A pre-instruction's wake past the sleep the slot rests on: the typed program steps over its hold, on the next pass.</summary>
     internal void WakePastSleep()
     {
-        if (Animation is { } animation)
-            animation.WakePastSleep();
-        else
-            InstructionPointer = unchecked((ushort)(InstructionPointer + 2));
+        (Animation ?? throw new InvalidOperationException("A PLM woke past its sleep without a typed program.")).WakePastSleep();
         InstructionTimer = NativeCountdown.Start(1);
     }
 }

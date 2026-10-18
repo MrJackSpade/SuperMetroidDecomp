@@ -55,8 +55,6 @@ internal static class LookupElevatubeVerification
             else if (draw == (raw == 0xb8f2))
             {
                 AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), value, "Elevatube native program field");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord((ushort)raw, out ushort shared), "Elevatube shared reader ownership");
-                AssertEqual(value, shared, "Elevatube shared reader value");
             }
         }
     }

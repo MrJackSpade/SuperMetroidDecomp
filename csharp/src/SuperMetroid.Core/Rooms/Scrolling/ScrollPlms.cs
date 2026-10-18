@@ -48,7 +48,6 @@ internal sealed class ScrollPlms : IPlmFamilySource
             {
                 scroll.Triggered = true;
                 slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
-                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerActivated;
                 slot.InstructionTimer = NativeCountdown.Start(1);
             }
             return true;
@@ -112,7 +111,6 @@ internal sealed class ScrollPlms : IPlmFamilySource
         // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
         ((slot.Family as ScrollPlmState) ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
         slot.RestoreLevelWord = 0;
-        slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
             slot.BlockIndex,
@@ -147,7 +145,6 @@ internal sealed class ScrollPlms : IPlmFamilySource
             return;
         }
 
-        slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         slot.Family = new ScrollPlmState
         {
             Program = compiledSource.HasValue ? null : program.ToArray(),

@@ -577,11 +577,6 @@ internal static class RoomPlmPopulationVerification
             "inert attic callback leaves its resident actor alive");
         AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "inert attic callback leaves authored terrain unchanged");
-
-        // No slot can hold an untranslated pre-instruction: a list's $84:86C1 operand is rejected where it is decoded.
-        AssertThrows<InvalidDataException>(
-            () => PlmPreInstructions.FromListOperand(0x9876),
-            "an untranslated list-installed pre-instruction fails loudly at decode");
     }
 
     /// <summary>

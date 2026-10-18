@@ -220,7 +220,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 RoomCollisionType.SpecialBlock,
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
-                slot.InstructionPointer, "save-station animation list");
+                RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction, "save-station animation list");
             slot.Family = new StationPlmState(
                 kind,
                 area,
@@ -246,12 +246,12 @@ internal sealed class StationPlms : IPlmFamilySource
         WriteAccessBlock(level, streamer, slot.BlockIndex + leftOffset, leftBts);
 
         StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
-            unchecked((ushort)(slot.InstructionPointer + StationNormalAnimationOffset)),
+            unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + StationNormalAnimationOffset)),
             "station animation list");
         StationAnimationList completedAnimationList = kind switch
         {
             StationKind.Map => ClosedNativeWords.Decode<StationAnimationList>(
-                unchecked((ushort)(slot.InstructionPointer + MapStationAcquiredAnimationOffset)),
+                unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + MapStationAcquiredAnimationOffset)),
                 "map-station acquired animation list"),
             StationKind.Energy or StationKind.Missile => normalAnimationList,
             _ => throw new InvalidOperationException(),

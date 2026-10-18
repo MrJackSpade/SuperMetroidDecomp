@@ -35,9 +35,6 @@ internal static class LookupElevatorPlatformProgramVerification
             if (!addresses.Contains(address)) continue;
             ushort expected = ReadSamusEaterPlmWord(rom, 0x840000 | raw);
             AssertEqual(expected, value, "Elevator platform original program field");
-            AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort composed),
-                "Elevator platform shared program ownership");
-            AssertEqual(expected, composed, "Elevator platform composed original field");
         }
     }
 }

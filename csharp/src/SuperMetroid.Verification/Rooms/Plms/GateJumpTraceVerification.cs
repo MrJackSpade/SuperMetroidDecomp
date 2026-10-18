@@ -62,11 +62,10 @@ internal static class GateJumpTraceVerification
         Console.WriteLine("PASS 1120 original-CPU gate jump frames: ordinary/spin successes, adjacent misses and falling control.");
     }
 
-    /// <summary>The gate's native instruction pointer, or the address its typed program stands for.</summary>
+    /// <summary>The native instruction address the gate's typed program stands for.</summary>
     private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomPlmSlotSnapshot gate) =>
-        gate.Animation is DownwardGatePlmAnimation typed
-            ? RoomPlmProgramsVerification.DownwardGateNativeInstruction(bus, typed)
-            : gate.InstructionPointer;
+        RoomPlmProgramsVerification.DownwardGateNativeInstruction(bus, gate.Animation as DownwardGatePlmAnimation
+            ?? throw new InvalidDataException($"Gate at block {gate.BlockIndex} runs no typed gate program."));
 
     /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]

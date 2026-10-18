@@ -72,7 +72,6 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = origin;
-            slot.InstructionPointer = instructionList;
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Family = new WreckedShipTreadmillPlmState(
                 direction,

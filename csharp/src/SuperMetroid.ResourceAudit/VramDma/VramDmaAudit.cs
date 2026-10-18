@@ -106,8 +106,6 @@ internal static class VramDmaAudit
                 if (!adapted.Add(owner)) continue;
                 foreach (VramDmaTransfer transfer in VramDmaDomains.ForFamily((family ?? throw new InvalidOperationException("Verification requires family.")), owner).Distinct())
                     Check(transfer, Location(syntax));
-                if (family == "plm" && root is not null && PlmProgramAudit.Run(root, null) != 0)
-                    report.Findings.Add(new("unresolved-plm-program", owner, Location(syntax), "The PLM descriptor/ownership audit failed."));
             }
             // A future delegate can invoke the queue without naming its API at
             // the actual producer. Fail on the method-group escape rather than

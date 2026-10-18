@@ -90,8 +90,7 @@ internal sealed class PlmPopulationLoader
                     error);
             }
 
-            PlmSlot? slot = AllocateRoomPopulationSlot(
-                record, blockIndex, placement.Header.InitialInstruction);
+            PlmSlot? slot = AllocateRoomPopulationSlot(record, blockIndex);
             if (slot is null)
                 continue; // The native routine returns carry set when all forty IDs are live.
 
@@ -120,8 +119,7 @@ internal sealed class PlmPopulationLoader
     /// <summary>Claims the highest inactive native slot, resets recycled family state, and installs record identity before setup runs.</summary>
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,
-        int blockIndex,
-        ushort initialInstruction)
+        int blockIndex)
     {
         for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
         {
@@ -133,7 +131,6 @@ internal sealed class PlmPopulationLoader
             slot.Active = true;
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = initialInstruction;
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.RoomArgument = record.RoomArgument;
             return slot;

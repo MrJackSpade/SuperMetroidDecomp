@@ -3,10 +3,7 @@ using SuperMetroid.Verification.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 
-/// <summary>
-/// Relates <see cref="PlmProgramStart"/> values to the native bank-$84 lists they replace (#1296): a list whose program
-/// is typed starts that program, every other list still runs natively.
-/// </summary>
+/// <summary>Relates <see cref="PlmProgramStart"/> values to the native bank-$84 lists they replace (#1296).</summary>
 internal static class PlmProgramStartOracle
 {
     /// <summary>The shared delete list's native entry (<c>InstList_PLM_Delete</c>).</summary>
@@ -24,19 +21,15 @@ internal static class PlmProgramStartOracle
     ];
 
     /// <summary>The start production must hold where the cartridge names native list <paramref name="list"/>.</summary>
+    /// <exception cref="InvalidOperationException">No typed program stands for <paramref name="list"/>.</exception>
     internal static PlmProgramStart ForNativeList(ushort list) =>
         TypedStarts.Where(typed => typed.Entry == list).Select(typed => (PlmProgramStart?)typed.Start).SingleOrDefault()
-            ?? PlmProgramStart.Native(list);
+            ?? throw new InvalidOperationException($"No typed PLM program stands for native list ${list:X4}.");
 
     /// <summary>The native list <paramref name="start"/> stands for.</summary>
-    internal static ushort NativeListOf(PlmProgramStart start) =>
-        start.TypedProgram is null
-            ? start.NativeList
-            : TypedStarts.Single(typed => typed.Start == start).Entry;
+    internal static ushort NativeListOf(PlmProgramStart start) => TypedStarts.Single(typed => typed.Start == start).Entry;
 
     /// <summary>Whether <paramref name="slot"/> runs <paramref name="start"/>.</summary>
     internal static bool IsRunning(PlmProgramStart start, RoomPlmSlotSnapshot slot) =>
-        start.TypedProgram is { } program
-            ? slot.Animation is { } animation && animation.RunningProgram.Equals(program)
-            : slot.Animation is null && slot.InstructionPointer == start.NativeList;
+        slot.Animation is { } animation && animation.RunningProgram.Equals(start.TypedProgram);
 }

@@ -1379,7 +1379,6 @@ internal static class RidleyFullMovieVerification
                     bool active = plmSlots.TryGetValue(slotIndex, out var slot);
                     Check($"PLM {slotIndex} header", active ? (ushort)slot.HeaderPointer : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
-                    ushort instruction = slot.InstructionPointer;
                     ushort preInstruction = slot.PreInstruction;
                     var greyDoor = runtime.Plms.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
                     AssertTrue(greyDoor.Header != PlmHeaderId.None,
@@ -1392,7 +1391,7 @@ internal static class RidleyFullMovieVerification
                     // cap's link is the one its previous program left, which the closing never reads.
                     GreyDoorPlmAnimation typedDoor = slot.Animation as GreyDoorPlmAnimation
                         ?? throw new InvalidDataException($"Movie grey door at block {slot.BlockIndex} runs no typed program.");
-                    instruction = RoomPlmProgramsVerification.GreyDoorNativeInstruction(bus, typedDoor);
+                    ushort instruction = RoomPlmProgramsVerification.GreyDoorNativeInstruction(bus, typedDoor);
                     if (greyDoor.Phase != GreyDoorPhase.Closing && typedDoor.Link is { } link)
                         Check($"PLM {slotIndex} grey-door link", RoomPlmProgramsVerification.GreyDoorNativeEntry(typedDoor.Variant, link),
                             NativeSnapshotMemory.PlmLinkInstruction + offset);

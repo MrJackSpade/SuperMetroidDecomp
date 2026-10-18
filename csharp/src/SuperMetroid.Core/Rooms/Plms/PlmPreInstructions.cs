@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class PlmPreInstructions
 {
     /// <summary>The return every spawn installs and <c>$84:86CA</c> restores: no pre-instruction work.</summary>
-    internal static PlmPreInstruction Inert { get; } = PlmPreInstruction.NoOp("inert", PlmPreInstructionDefinitions.SpawnDefault);
+    internal static PlmPreInstruction Inert { get; } = PlmPreInstruction.NoOp("inert");
 }

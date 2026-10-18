@@ -26,5 +26,5 @@ internal static class ColoredDoorPreInstructions
 
     /// <summary>The wake object for <paramref name="routine"/>.</summary>
     private static PlmPreInstruction Wake(ColoredDoorPreInstruction routine) =>
-        new($"coloured door {routine}", (ushort)routine, (slot, context) => context.Plms.DoorPlms.RunColoredDoorWake(slot, routine));
+        new($"coloured door {routine}", (slot, context) => context.Plms.DoorPlms.RunColoredDoorWake(slot, routine));
 }

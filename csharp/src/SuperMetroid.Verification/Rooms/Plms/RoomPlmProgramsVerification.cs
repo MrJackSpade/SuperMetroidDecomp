@@ -87,9 +87,9 @@ internal static class RoomPlmProgramsVerification
             case RoomPlmInstruction.InstallPreInstruction:
                 ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
                 ScriptedRoomPlmPreInstruction installed =
-                    routine == SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions.Controller.NativeRoutine ? ScriptedRoomPlmPreInstruction.ShaktoolRoomController
-                    : routine == SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus.NativeRoutine ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
-                    : routine == SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand.NativeRoutine ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
+                    routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions.Controller) ? ScriptedRoomPlmPreInstruction.ShaktoolRoomController
+                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
+                    : routine == PlmPreInstructionNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand) ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
                     : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
                 (cue, length) = (new(ScriptedRoomPlmCueKind.InstallPreInstruction, PreInstruction: installed), 4);
                 return true;

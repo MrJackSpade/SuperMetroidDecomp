@@ -101,7 +101,7 @@ internal static class RoomPlmSystemAccess
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     checked((byte)(entry.door).HitCounter),
                     entry.slot.Animation,
-                    entry.slot.PreInstruction.NativeRoutine)),
+                    PlmPreInstructionNativeRoutines.Of(entry.slot.PreInstruction))),
         ];
 
         /// <summary>
@@ -222,7 +222,7 @@ internal static class RoomPlmSystemAccess
                 HeaderPointer: slot.HeaderPointer,
                 BlockIndex: slot.BlockIndex,
                 RoomArgument: slot.RoomArgument,
-                PreInstruction: slot.PreInstruction.NativeRoutine,
+                PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LoopTimer: checked((ushort)slot.LoopTimer),
                 Animation: slot.Animation);

@@ -10,7 +10,7 @@ internal static class GreyDoorPreInstructions
         Enum.GetValues<GreyDoorPreInstruction>()
             .Where(routine => routine != GreyDoorPreInstruction.None)
             .ToDictionary(routine => routine, routine => new PlmPreInstruction(
-                $"grey door {routine}", (ushort)routine, (slot, context) => context.Plms.GreyDoors.RunGreyDoorPreInstruction(
+                $"grey door {routine}", (slot, context) => context.Plms.GreyDoors.RunGreyDoorPreInstruction(
                     slot, routine, context.Frame.EnemyDeaths, context.Frame.EnemyDeathQuota)));
 
     /// <summary>The behavior of <paramref name="routine"/>.</summary>

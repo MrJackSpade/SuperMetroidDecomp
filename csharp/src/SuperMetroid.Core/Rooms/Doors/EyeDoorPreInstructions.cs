@@ -13,5 +13,5 @@ internal static class EyeDoorPreInstructions
 
     /// <summary>The behavior object for <paramref name="routine"/>.</summary>
     private static PlmPreInstruction Of(EyeDoorPreInstruction routine) =>
-        new($"eye door {routine}", (ushort)routine, (slot, context) => context.Plms.EyeDoors.RunEyeDoorPreInstruction(slot, routine));
+        new($"eye door {routine}", (slot, context) => context.Plms.EyeDoors.RunEyeDoorPreInstruction(slot, routine));
 }

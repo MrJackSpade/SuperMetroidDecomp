@@ -10,10 +10,10 @@ internal static class NoobTubePreInstructions
     internal static PlmPreInstruction WakeOnAcceptedInput { get; } = Wake(NoobTubePlmPreInstruction.WakeOnAcceptedInput);
 
     /// <summary><c>$84:86D0</c>, the return the shattered tube installs: it does nothing.</summary>
-    internal static PlmPreInstruction Inactive { get; } = PlmPreInstruction.NoOp("n00b tube inactive", (ushort)NoobTubePlmPreInstruction.Inactive);
+    internal static PlmPreInstruction Inactive { get; } = PlmPreInstruction.NoOp("n00b tube inactive");
 
     /// <summary>The wake object for <paramref name="routine"/>.</summary>
     private static PlmPreInstruction Wake(NoobTubePlmPreInstruction routine) =>
-        new($"n00b tube {routine}", (ushort)routine,
+        new($"n00b tube {routine}",
             (slot, context) => context.Plms.NoobTube.RunNoobTubePreInstruction(slot, routine, context.Frame.ControllerNewInput));
 }

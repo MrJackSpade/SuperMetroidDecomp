@@ -7,6 +7,6 @@ internal static class BombTorizoHandPreInstructions
 {
     /// <summary><c>$84:D33B</c>: the sleeping hand wakes once Samus has bombs.</summary>
     internal static PlmPreInstruction WakeIfSamusHasBombs { get; } = new(
-        "Bomb Torizo hand wake", BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction,
+        "Bomb Torizo hand wake",
         static (slot, context) => context.Plms.BombTorizoHand.RunBombTorizoHandPreInstruction(slot));
 }

@@ -10,9 +10,9 @@ internal static class DownwardGatePreInstructions
     internal static PlmPreInstruction WakeIfTriggeredOrSamusBelow { get; } = Wake(DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow);
 
     /// <summary><c>$84:BB6A</c>, the return a woken gate installs: it does nothing.</summary>
-    internal static PlmPreInstruction Inert { get; } = PlmPreInstruction.NoOp("downward gate rest", (ushort)DownwardGatePreInstruction.Inert);
+    internal static PlmPreInstruction Inert { get; } = PlmPreInstruction.NoOp("downward gate rest");
 
     /// <summary>The wake object for <paramref name="routine"/>.</summary>
     private static PlmPreInstruction Wake(DownwardGatePreInstruction routine) =>
-        new($"downward gate {routine}", (ushort)routine, (slot, context) => context.Plms.Gates.RunDownwardGatePreInstruction(slot, routine));
+        new($"downward gate {routine}", (slot, context) => context.Plms.Gates.RunDownwardGatePreInstruction(slot, routine));
 }

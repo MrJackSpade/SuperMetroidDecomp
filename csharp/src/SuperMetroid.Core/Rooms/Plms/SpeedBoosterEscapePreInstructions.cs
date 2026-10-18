@@ -8,7 +8,7 @@ internal static class SpeedBoosterEscapePreInstructions
         Enum.GetValues<SpeedBoosterEscapePreInstruction>()
             .Where(routine => routine != SpeedBoosterEscapePreInstruction.None)
             .ToDictionary(routine => routine, routine => new PlmPreInstruction(
-                $"Speed Booster escape {routine}", (ushort)routine,
+                $"Speed Booster escape {routine}",
                 (slot, context) => context.Plms.SpeedBoosterEscape.RunSpeedBoosterEscapePreInstruction(slot, routine)));
 
     /// <summary>The behavior of <paramref name="routine"/>.</summary>

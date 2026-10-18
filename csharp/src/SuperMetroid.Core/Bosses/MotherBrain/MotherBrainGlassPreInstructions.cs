@@ -7,6 +7,6 @@ internal static class MotherBrainGlassPreInstructions
 {
     /// <summary><c>$84:D1E6</c>: missile hits advance the glass's hit count.</summary>
     internal static PlmPreInstruction Hit { get; } = new(
-        "Mother Brain glass hit", MotherBrainGlassPlmProgramDefinitions.HitPreInstruction,
+        "Mother Brain glass hit",
         static (slot, _) => MotherBrainGlassPlms.RunMotherBrainGlassPreInstruction(slot));
 }

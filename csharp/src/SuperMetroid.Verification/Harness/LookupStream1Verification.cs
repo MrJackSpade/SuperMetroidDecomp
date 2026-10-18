@@ -2077,7 +2077,7 @@ internal static class LookupStream1Verification
         for (ushort argument = 0; argument <= 24; argument += 2)
         {
             ushort pointer = Word(0x84db28 + argument);
-            AssertEqual(pointer, SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolvePreInstruction(argument), "native Metroid quota dispatcher identity");
+            AssertEqual(pointer, SuperMetroid.Core.Rooms.Plms.PlmPreInstructionNativeRoutines.MetroidsCleared(argument), "native Metroid quota dispatcher identity");
             var eventNumber = SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolveEvent(argument);
             if (argument < 18)
             {
@@ -2088,7 +2088,7 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.PlmPreInstructionNativeRoutines.MetroidsCleared(invalid), "quota pointer argument domain");
             AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
         }
     }

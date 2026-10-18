@@ -7,9 +7,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal interface IPlmPreInstruction
 {
-    /// <summary>The bank-$84 routine this behavior ports: its identity in native PLM RAM.</summary>
-    ushort NativeRoutine { get; }
-
     /// <summary>Runs the routine for <paramref name="slot"/> on this handler pass.</summary>
     /// <param name="slot">The slot whose pre-instruction this is.</param>
     /// <param name="context">The handler pass.</param>

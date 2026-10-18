@@ -3,17 +3,17 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete late-Crateria escape palette control program.</summary>
 public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
 {
-    /// <summary>Stores a program's native setup, destination, and color-row dimensions.</summary>
+    /// <summary>Stores a program's object, first record, destination, and color-row width.</summary>
     internal CrateriaEscapeLightningPaletteFxColorDefinition(
         CrateriaEscapeLightningPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        ushort programStart,
+        int firstRecord,
         ushort colorByteIndex,
         int colorsPerFrame)
     {
         Owner = owner;
         Object = paletteFxObject;
-        ProgramStart = programStart;
+        Rows = new(firstRecord, CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
         ColorsPerFrame = colorsPerFrame;
     }
@@ -22,31 +22,16 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     public CrateriaEscapeLightningPaletteOwner Owner { get; }
     /// <summary>The palette-FX object that installs this program.</summary>
     public PaletteFxObject Object { get; }
-    /// <summary>The color-index setup entry.</summary>
-    public ushort ProgramStart { get; }
     /// <summary>The first destination byte in CGRAM.</summary>
     public ushort ColorByteIndex { get; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public int ColorsPerFrame { get; }
-    /// <summary>The first timed record after color-index setup.</summary>
-    public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => sizeof(ushort) * (ColorsPerFrame + 2);
 
-    /// <summary>Returns one timed-record pointer.</summary>
-    public ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public PaletteFxColorRows Rows { get; }
 
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
-    public ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

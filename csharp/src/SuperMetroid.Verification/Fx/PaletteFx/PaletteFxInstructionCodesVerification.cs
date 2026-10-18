@@ -1234,7 +1234,7 @@ internal static class PaletteFxInstructionCodesVerification
             foreach (PaletteFxHeatProgramDefinition definition in
                      PaletteFxHeatProgramMechanicsDefinitions.All)
             {
-                foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+                foreach (var frame in definition.Frames)
                 {
                     int colorOffset = source.Offset - frame.FirstColorPointer;
                     if ((uint)colorOffset <
@@ -1338,7 +1338,7 @@ internal static class PaletteFxInstructionCodesVerification
             foreach (CrateriaLightningPaletteFxColorDefinition definition in
                      CrateriaLightningPaletteFxColorDefinitions.All)
             {
-                foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+                foreach (var frame in definition.Frames)
                 {
                     int colorOffset = source.Offset - frame.FirstColorPointer;
                     if ((uint)colorOffset < frame.ColorCount * sizeof(ushort))

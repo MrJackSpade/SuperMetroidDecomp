@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
 {
-    /// <summary>The shared timed-record loop at <c>$8D:F94D</c>.</summary>
-    public const ushort FirstFramePointer = 0xf94d;
 
     /// <summary>The shared loop contains fourteen records.</summary>
     public const int FrameCount = 14;
@@ -20,20 +18,9 @@ public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 20;
 
-    /// <summary>Calculates a timed-record address from the first frame and its 20-byte stride, rejecting out-of-range frames.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(553, FrameCount, ColorsPerFrame);
 
-    /// <summary>Locates a live color word, accounting for the inline CGRAM-index instruction before the seventh color.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        int offset = color < 6 ? sizeof(ushort) + color * sizeof(ushort) : 16;
-        return unchecked((ushort)(FramePointer(frame) + offset));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

@@ -17,9 +17,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianGlowPaletteFxColorDefinitions
 {
 
-    /// <summary>First timed record at <c>$8D:F63A</c>.</summary>
-    public const ushort FirstFramePointer = 0xf63a;
-
     /// <summary>Eleven ten-frame records form one complete glow cycle.</summary>
     public const int FrameCount = 11;
 
@@ -29,33 +26,9 @@ public static class TourianGlowPaletteFxColorDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 22;
 
-    /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(514, FrameCount, ColorsPerFrame);
 
-    /// <summary>Returns one split presentation-color address within a frame.</summary>
-    /// <remarks>
-    /// For frame f=0..10, color c=0..7, and d=min(f,11-f), decode
-    /// base BGR555 words ($5294,$0019,$0012,$5C00,$4000,$1084,
-    /// $197F,$7FFF) into red, green, and blue channels. Subtract
-    /// step[c]*d from each channel independently, clamp each at zero,
-    /// then re-encode BGR555. Steps are (2,3,3,3,3,0,3,3).
-    /// Color 0 is at $F63A + 22*f + 2; colors 1..7 begin at offset 6
-    /// after the inline CGRAM skip. All 88 words match the pinned NTSC
-    /// J/U v1.0 ROM, including clamped channels. Frame eleven reaches
-    /// loop control; both entries read the colors live.
-    /// </remarks>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        int offset = color == 0
-            ? sizeof(ushort)
-            : 6 + (color - 1) * sizeof(ushort);
-        return unchecked((ushort)(FramePointer(frame) + offset));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

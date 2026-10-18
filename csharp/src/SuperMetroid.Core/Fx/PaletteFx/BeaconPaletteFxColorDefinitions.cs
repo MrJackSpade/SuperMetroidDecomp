@@ -18,12 +18,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class BeaconPaletteFxColorDefinitions
 {
 
-    /// <summary>First timed record at <c>$8D:EFFB</c>.</summary>
-    public const ushort FirstFramePointer = 0xeffb;
-
-    /// <summary>First timed record after the byte-sized sound command.</summary>
-    public const ushort PostSoundFramePointer = 0xf052;
-
     /// <summary>Ten ten-frame records form one complete flash cycle.</summary>
     public const int FrameCount = 10;
 
@@ -36,41 +30,9 @@ public static class BeaconPaletteFxColorDefinitions
     /// <summary>Frames before the mid-cycle sound command.</summary>
     public const int PreSoundFrameCount = 6;
 
-    /// <summary>Three colors precede each record's inline CGRAM-index skip.</summary>
-    private const int ColorsBeforeIndexSkip = 3;
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(424, FrameCount, ColorsPerFrame);
 
-    /// <summary>The fourth color follows the inline CGRAM-index skip at byte ten.</summary>
-    private const int PostSkipColorOffset = 10;
-
-    /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        if (frame < PreSoundFrameCount)
-            return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-        return unchecked((ushort)(
-            PostSoundFramePointer + (frame - PreSoundFrameCount) * FrameByteCount));
-    }
-
-    /// <summary>Returns one live BGR555 word, skipping the inline CGRAM-index command.</summary>
-    /// <remarks>
-    /// The valid frame range is 0..9, with four colors each: offsets 2, 4,
-    /// 6, and 10 from FramePointer. Frames 0..5 contain authored BGR555
-    /// rows ($02BF,$017F,$0015,$7FFF), ($023B,$00FB,$0011,$739C),
-    /// ($01D8,$0098,$000E,$5AD6), ($0154,$0055,$000B,$4E73),
-    /// ($00D0,$0010,$0007,$4631), ($00AA,$000B,$0004,$3DEF).
-    /// Frames 6..9 mirror rows 4..1. This schedule matches all 40 words
-    /// in the pinned NTSC J/U v1.0 ROM. The six irregular color rows are
-    /// retained as live presentation data rather than generated at runtime.
-    /// </remarks>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        int offset = color < ColorsBeforeIndexSkip
-            ? sizeof(ushort) + color * sizeof(ushort)
-            : PostSkipColorOffset;
-        return unchecked((ushort)(FramePointer(frame) + offset));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

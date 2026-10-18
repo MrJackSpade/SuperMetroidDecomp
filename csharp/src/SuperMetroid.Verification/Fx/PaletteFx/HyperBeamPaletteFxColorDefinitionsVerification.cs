@@ -37,13 +37,13 @@ internal static class HyperBeamPaletteFxColorDefinitionsVerification
             HyperBeamPaletteFxColorDefinitions.NativeFirstFrameTimerAddress;
         if (relative is < 0 or
             >= (HyperBeamPaletteFxColorDefinitionsConstants.FrameCount *
-                HyperBeamPaletteFxColorDefinitions.FrameByteCount))
+                HyperBeamPaletteFxColorDefinitionsConstants.FrameByteCount))
         {
             return false;
         }
 
-        int inFrame = relative % HyperBeamPaletteFxColorDefinitions.FrameByteCount;
+        int inFrame = relative % HyperBeamPaletteFxColorDefinitionsConstants.FrameByteCount;
         return inFrame is < sizeof(ushort) or
-            >= (HyperBeamPaletteFxColorDefinitions.FrameByteCount - sizeof(ushort));
+            >= (HyperBeamPaletteFxColorDefinitionsConstants.FrameByteCount - sizeof(ushort));
     }
 }

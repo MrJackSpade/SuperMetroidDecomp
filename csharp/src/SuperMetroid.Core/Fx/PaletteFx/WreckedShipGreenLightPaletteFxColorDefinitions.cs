@@ -16,9 +16,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class WreckedShipGreenLightPaletteFxColorDefinitions
 {
 
-    /// <summary>First timed record, <c>InstList_PaletteFXObject_WreckedShip1_1</c>.</summary>
-    public const ushort FirstFramePointer = 0xeae6;
-
     /// <summary>Eight ten-frame records form the powered-light cycle.</summary>
     public const int FrameCount = 8;
 
@@ -28,29 +25,9 @@ public static class WreckedShipGreenLightPaletteFxColorDefinitions
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 8;
 
-    /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(347, FrameCount, ColorsPerFrame);
 
-    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
-    /// <remarks>
-    /// For frame f=0..7 and color c=0..1 at $8D:EAE8 + 8*f + 2*c,
-    /// let d=min(f,8-f). Base BGR555 (red,green,blue) channels are
-    /// (9,21,7) for c=0 and (17,29,2) for c=1. Subtract 2*d or 3*d,
-    /// respectively, from each channel, clamp each at zero, and
-    /// re-encode BGR555. All sixteen words match the pinned NTSC J/U
-    /// v1.0 ROM, including clamped channels. Frame eight reaches the
-    /// loop command; both definitions read these colors live.
-    /// </remarks>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

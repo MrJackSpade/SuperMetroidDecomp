@@ -1,10 +1,11 @@
 using System.Collections;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Loading tint inputs with derived endpoint channels removed.</summary>
-/// <remarks>Original $8D:DB62/DCC8/DE2E endpoint words preserve channels of
+/// <remarks>Original loading endpoint words preserve channels of
 /// normal suit colors and the reviewed additive tint rules. Only differing
 /// components are stored. The nine independent choices are Power dim1 red14/
 /// green6, dim2 blue13, bright9 blue21, dim12 red22/green16; Varia bright10
@@ -17,53 +18,52 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// painting, the #1165 nonsense exception. This narrow disposition does not
 /// exempt other normal/speed-boost palettes or their unreviewed relationships.
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
-internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
+internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, Bgr555>
 {
+    /// <summary>The eight tinted endpoints, by the color each names.</summary>
+    private static readonly Dictionary<PaletteFxColorKey, LoadingSuitColor> Endpoints =
+        Enum.GetValues<LoadingSuitColor>().ToDictionary(LoadingPaletteColorDefinitions.Key);
+
     /// <summary>Ordinary stored suit colors after the eight selected tinted endpoints are removed.</summary>
-    private readonly Dictionary<ushort, Bgr555> colors;
-    /// <summary>Power dim slot1, $8D:DC7E.</summary>
+    private readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
+    /// <summary>Power dim slot1.</summary>
     internal readonly Channels powerDim1;
-    /// <summary>Power dim slot2, $8D:DC80.</summary>
+    /// <summary>Power dim slot2.</summary>
     internal readonly Channels powerDim2;
-    /// <summary>Power bright slot9, $8D:DBA1.</summary>
+    /// <summary>Power bright slot9.</summary>
     internal readonly Channels powerBright9;
-    /// <summary>Power dim slot12, $8D:DC94.</summary>
+    /// <summary>Power dim slot12.</summary>
     internal readonly Channels powerDim12;
-    /// <summary>Varia bright slot10, $8D:DD09.</summary>
+    /// <summary>Varia bright slot10.</summary>
     internal readonly Channels variaBright10;
-    /// <summary>Varia bright slot11, $8D:DD0B; shares slot10 blue.</summary>
+    /// <summary>Varia bright slot11; shares slot10 blue.</summary>
     internal readonly Channels variaBright11;
-    /// <summary>Varia dim slot12, $8D:DDFA.</summary>
+    /// <summary>Varia dim slot12.</summary>
     internal readonly Channels variaDim12;
-    /// <summary>Gravity dim slot2, $8D:DF4C.</summary>
+    /// <summary>Gravity dim slot2.</summary>
     internal readonly Channels gravityDim2;
 
     /// <summary>Captures only channels differing from calculated tint endpoints, then removes those endpoints from ordinary storage.</summary>
-    internal LoadingPaletteInputView(Dictionary<ushort, Bgr555> colors)
+    internal LoadingPaletteInputView(Dictionary<PaletteFxColorKey, Bgr555> colors)
     {
         this.colors = colors;
-        powerDim1 = new(colors[(ushort)LoadingSuitColor.PowerDim1], Expected(LoadingSuitColor.PowerDim1));
-        powerDim2 = new(colors[(ushort)LoadingSuitColor.PowerDim2], Expected(LoadingSuitColor.PowerDim2));
-        powerBright9 = new(colors[(ushort)LoadingSuitColor.PowerBright9], Expected(LoadingSuitColor.PowerBright9));
-        powerDim12 = new(colors[(ushort)LoadingSuitColor.PowerDim12], Expected(LoadingSuitColor.PowerDim12));
-        variaBright10 = new(colors[(ushort)LoadingSuitColor.VariaBright10], Expected(LoadingSuitColor.VariaBright10));
-        variaBright11 = new(colors[(ushort)LoadingSuitColor.VariaBright11], Expected(LoadingSuitColor.VariaBright11));
-        variaDim12 = new(colors[(ushort)LoadingSuitColor.VariaDim12], Expected(LoadingSuitColor.VariaDim12));
-        gravityDim2 = new(colors[(ushort)LoadingSuitColor.GravityDim2], Expected(LoadingSuitColor.GravityDim2));
-        colors.Remove((ushort)LoadingSuitColor.PowerDim1);
-        colors.Remove((ushort)LoadingSuitColor.PowerDim2);
-        colors.Remove((ushort)LoadingSuitColor.PowerBright9);
-        colors.Remove((ushort)LoadingSuitColor.PowerDim12);
-        colors.Remove((ushort)LoadingSuitColor.VariaBright10);
-        colors.Remove((ushort)LoadingSuitColor.VariaBright11);
-        colors.Remove((ushort)LoadingSuitColor.VariaDim12);
-        colors.Remove((ushort)LoadingSuitColor.GravityDim2);
+        Bgr555 Supplied(LoadingSuitColor slot) => colors[LoadingPaletteColorDefinitions.Key(slot)];
+        powerDim1 = new(Supplied(LoadingSuitColor.PowerDim1), Expected(LoadingSuitColor.PowerDim1));
+        powerDim2 = new(Supplied(LoadingSuitColor.PowerDim2), Expected(LoadingSuitColor.PowerDim2));
+        powerBright9 = new(Supplied(LoadingSuitColor.PowerBright9), Expected(LoadingSuitColor.PowerBright9));
+        powerDim12 = new(Supplied(LoadingSuitColor.PowerDim12), Expected(LoadingSuitColor.PowerDim12));
+        variaBright10 = new(Supplied(LoadingSuitColor.VariaBright10), Expected(LoadingSuitColor.VariaBright10));
+        variaBright11 = new(Supplied(LoadingSuitColor.VariaBright11), Expected(LoadingSuitColor.VariaBright11));
+        variaDim12 = new(Supplied(LoadingSuitColor.VariaDim12), Expected(LoadingSuitColor.VariaDim12));
+        gravityDim2 = new(Supplied(LoadingSuitColor.GravityDim2), Expected(LoadingSuitColor.GravityDim2));
+        foreach (PaletteFxColorKey endpoint in Endpoints.Keys)
+            colors.Remove(endpoint);
     }
 
     /// <summary>Requires the normal-suit source color used to derive a loading tint endpoint.</summary>
-    private Bgr555 Normal(ushort pointer) =>
-        LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out Bgr555 value)
-            ? value : throw new InvalidDataException($"Missing loading base ${pointer:X4}.");
+    private Bgr555 Normal(PaletteFxColorKey key) =>
+        LoadingPaletteColorDefinitions.TryReadColor(key, colors, out Bgr555 value)
+            ? value : throw new InvalidDataException($"Missing loading base {key}.");
 
     /// <summary>Calculates the selected loading tint from a normal-suit source and shared channel rules.</summary>
     private Bgr555 Expected(LoadingSuitColor slot) => slot switch
@@ -101,12 +101,11 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
     }
 
     /// <summary>Resolves an ordinary stored color or reconstructs one of eight derived loading-tint endpoints.</summary>
-    public bool TryGetValue(ushort pointer, out Bgr555 value)
+    public bool TryGetValue(PaletteFxColorKey key, out Bgr555 value)
     {
-        // Pointers outside the eight tinted slots are ordinary stored colors.
-        if (!Enum.IsDefined((LoadingSuitColor)pointer))
-            return colors.TryGetValue(pointer, out value);
-        var slot = (LoadingSuitColor)pointer;
+        // Colors other than the eight tinted endpoints are ordinary stored colors.
+        if (!Endpoints.TryGetValue(key, out LoadingSuitColor slot))
+            return colors.TryGetValue(key, out value);
         Channels channels = slot switch
         {
             LoadingSuitColor.PowerDim1 => powerDim1,
@@ -122,28 +121,20 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         value = channels.Apply(Expected(slot));
         return true;
     }
-    /// <summary>Requires a stored or derived loading color at its native pointer.</summary>
-    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Requires a stored or derived loading color.</summary>
+    public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and the eight reconstructed tint endpoints.</summary>
-    public int Count => colors.Count + 8;
-    /// <summary>Checks whether a native pointer identifies a stored or derived loading color.</summary>
-    public bool ContainsKey(ushort key) => TryGetValue(key, out _);
-    /// <summary>Enumerates stored pointers followed by the eight derived tint addresses.</summary>
-    public IEnumerable<ushort> Keys
-    {
-        get
-        {
-            foreach (ushort key in colors.Keys) yield return key;
-            yield return (ushort)LoadingSuitColor.PowerDim1; yield return (ushort)LoadingSuitColor.PowerDim2; yield return (ushort)LoadingSuitColor.PowerBright9; yield return (ushort)LoadingSuitColor.PowerDim12;
-            yield return (ushort)LoadingSuitColor.VariaBright10; yield return (ushort)LoadingSuitColor.VariaBright11; yield return (ushort)LoadingSuitColor.VariaDim12; yield return (ushort)LoadingSuitColor.GravityDim2;
-        }
-    }
+    public int Count => colors.Count + Endpoints.Count;
+    /// <summary>Checks whether a color is stored or derived.</summary>
+    public bool ContainsKey(PaletteFxColorKey key) => TryGetValue(key, out _);
+    /// <summary>Enumerates stored colors followed by the eight derived tint endpoints.</summary>
+    public IEnumerable<PaletteFxColorKey> Keys => colors.Keys.Concat(Endpoints.Keys);
     /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
-    /// <summary>Enumerates stored and reconstructed colors by their native pointers.</summary>
-    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
+    /// <summary>Enumerates stored and reconstructed colors.</summary>
+    public IEnumerator<KeyValuePair<PaletteFxColorKey, Bgr555>> GetEnumerator()
     {
-        foreach (ushort key in Keys) yield return new(key, this[key]);
+        foreach (PaletteFxColorKey key in Keys) yield return new(key, this[key]);
     }
     /// <summary>Exposes the same loading color pairs to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

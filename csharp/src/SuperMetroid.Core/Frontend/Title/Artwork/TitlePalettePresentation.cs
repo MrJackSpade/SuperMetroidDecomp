@@ -14,12 +14,12 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <summary>Compiled initial CGRAM image in native slot order.</summary>
     internal readonly Bgr555[] colors;
     /// <summary>Ambient samples retained only when they differ from the calculated paint.</summary>
-    internal readonly Dictionary<ushort, Bgr555> animatedColors;
+    internal readonly Dictionary<PaletteFxColorKey, Bgr555> animatedColors;
 
     /// <summary>Retains the selected initial image, ambient edits, and independent skip-only inks.</summary>
     private TitlePalettePresentation(
         Bgr555[] colors,
-        Dictionary<ushort, Bgr555> animatedColors,
+        Dictionary<PaletteFxColorKey, Bgr555> animatedColors,
         Bgr555 skipCopyrightWhite,
         Bgr555 skipCopyrightRed)
     {
@@ -35,12 +35,12 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public Bgr555 SkipCopyrightRed { get; }
 
     /// <inheritdoc />
-    /// <param name="pointer">Bank-$8D address of a color operand in the tube-light or display program, not its duration or instruction word.</param>
+    /// <param name="key">A color the tube-light or display program writes.</param>
     /// <param name="color">Selected native BGR555 word when found, otherwise zero.</param>
-    /// <returns>True when the pointer identifies an authored or matching calculated ambient color; false for unrelated program addresses.</returns>
-    public bool TryReadColor(ushort pointer, out Bgr555 color) =>
-        animatedColors.TryGetValue(pointer, out color) ||
-        TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out color);
+    /// <returns>True when the key identifies an authored or matching calculated ambient color; false for other records.</returns>
+    public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color) =>
+        animatedColors.TryGetValue(key, out color) ||
+        TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out color);
 
     /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
     /// <param name="destination">Color memory whose full initial palette is replaced; ambient animation and skip-only replacements are applied separately by the title state.</param>
@@ -82,7 +82,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             }
             colors[index] = color.ToBgr555();
         }
-        var animatedColors = new Dictionary<ushort, Bgr555>();
+        var animatedColors = new Dictionary<PaletteFxColorKey, Bgr555>();
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
@@ -123,11 +123,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
                             "requires RGB components from 0 to 31.");
                     }
 
-                    ushort pointer = unchecked((ushort)(
-                        definition.FramePointer(frame) + Bgr555.ByteCount +
-                        index * Bgr555.ByteCount));
                     animatedColors.Add(
-                        pointer,
+                        definition.Color(frame, index),
                         color.ToBgr555());
                 }
             }
@@ -137,9 +134,9 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
-            ushort pointer = (ushort)(program.FramePointer(frame) + Bgr555.ByteCount * (index + 1));
-            if (TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out Bgr555 calculated) &&
-                animatedColors[pointer] == calculated) animatedColors.Remove(pointer);
+            PaletteFxColorKey key = program.Color(frame, index);
+            if (TitleAmbientColorDefinitions.TryCalculate(key, colors, animatedColors, out Bgr555 calculated) &&
+                animatedColors[key] == calculated) animatedColors.Remove(key);
         }
         return new TitlePalettePresentation(colors, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),

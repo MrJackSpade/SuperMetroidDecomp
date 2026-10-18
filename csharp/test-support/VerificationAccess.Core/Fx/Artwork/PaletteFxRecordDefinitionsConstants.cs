@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class PaletteFxRecordDefinitionsConstants
 {
     /// <summary>The records the programs show.</summary>
-    internal static int RecordCount => PaletteFxRecordDefinitions.Records.Length;
+    internal static int RecordCount => SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources.RecordCount;
 }

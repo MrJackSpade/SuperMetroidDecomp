@@ -14,6 +14,7 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -137,10 +138,10 @@ internal static class AuditContractChecks
         var report = new AuditReport();
         foreach (BrinstarBlueSporePaletteFxColorDefinition definition in BrinstarBlueSporePaletteFxColorDefinitions.All)
             report.Require(ResourceDomains.PaletteFx, "alias fixture",
-                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, definition.ColorPointer(0, 0)), "fixture.cs", exports);
+                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(definition.Color(0, 0))), "fixture.cs", exports);
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
             report.Require(ResourceDomains.PaletteFx, "title fixture",
-                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, definition.FramePointer(0) + sizeof(ushort)), "fixture.cs", exports);
+                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(definition.Color(0, 0))), "fixture.cs", exports);
         Require(report.Findings.Count == 0, "shared aliases and the independent title provider must be recognized");
     }
 

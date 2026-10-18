@@ -3,16 +3,16 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete old-Tourian escape accent control program.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
 {
-    /// <summary>Records one accent destination and its independent bank 8D setup list.</summary>
+    /// <summary>Records one accent destination, its object and first record.</summary>
     internal OldTourianEscapeAccentPaletteFxColorDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        ushort programStart,
+        int firstRecord,
         ushort colorByteIndex)
     {
         Owner = owner;
         Object = paletteFxObject;
-        ProgramStart = programStart;
+        Rows = new(firstRecord, OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
         ColorByteIndex = colorByteIndex;
     }
 
@@ -22,34 +22,12 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     public PaletteFxObject Object { get; }
 
-    /// <summary>The color-index setup entry.</summary>
-    public ushort ProgramStart { get; }
-
     /// <summary>The first destination byte in CGRAM.</summary>
     public ushort ColorByteIndex { get; }
 
-    /// <summary>The first timed record after color-index setup.</summary>
-    public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
+    /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public PaletteFxColorRows Rows { get; }
 
-    /// <summary>Locates one of fifteen timed records after this entry's color-index setup.</summary>
-    public ushort FramePointer(int frame)
-    {
-        if ((uint)frame >=
-            OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount)
-        {
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        }
-        return unchecked((ushort)(FirstFramePointer + frame *
-            OldTourianEscapeAccentPaletteFxColorDefinitions.FrameByteCount));
-    }
-
-    /// <summary>Locates one of three live BGR555 words immediately after a record's duration.</summary>
-    public ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= OldTourianEscapeAccentPaletteFxColorDefinitions
-                .ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

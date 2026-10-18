@@ -53,10 +53,10 @@ internal static class PaletteDefinitionAudit
                         covered |= CheckColorMethod(row.GetType(), row, method, string.Empty, audit);
                     if (row is PaletteFxHeatProgramDefinition heat)
                     {
-                        foreach (PaletteFxHeatProgramFrameDefinition frame in heat.Frames)
-                        for (int color = 0; color < PaletteFxHeatProgramDefinition.ColorsPerFrame; color++)
+                        for (int frame = 0; frame < heat.Rows.FrameCount; frame++)
+                        for (int color = 0; color < heat.Rows.ColorsPerFrame; color++)
                             report.Require(ResourceDomains.PaletteFx, catalog.Name,
-                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, frame.FirstColorPointer + color * sizeof(ushort)), source, exports);
+                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(heat.Rows.Color(frame, color))), source, exports);
                         covered = true;
                     }
                     if (row is TitleScreenAmbientPaletteFxColorDefinition ambient)
@@ -64,8 +64,7 @@ internal static class PaletteDefinitionAudit
                         for (int frame = 0; frame < ambient.FrameCount; frame++)
                         for (int color = 0; color < ambient.ColorsPerFrame; color++)
                             report.Require(ResourceDomains.PaletteFx, catalog.Name,
-                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, ambient.FramePointer(frame) +
-                                    sizeof(ushort) + color * sizeof(ushort)), source, exports);
+                                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(ambient.Color(frame, color))), source, exports);
                         covered = true;
                     }
                 }

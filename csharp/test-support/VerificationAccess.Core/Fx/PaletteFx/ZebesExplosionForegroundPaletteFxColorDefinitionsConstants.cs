@@ -14,7 +14,7 @@ internal static class ZebesExplosionForegroundPaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>The terminal <c>delete</c> command at <c>$8D:CD60</c>.</summary>
-    public const ushort DeleteInstructionPointer = ZebesExplosionForegroundPaletteFxColorDefinitions.FirstFramePointer + ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount * ZebesExplosionForegroundPaletteFxColorDefinitions.FrameByteCount;
+    internal static ushort DeleteInstructionPointer => checked((ushort)(ZebesExplosionForegroundPaletteFxColorDefinitions.FirstFramePointer + ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount * ZebesExplosionForegroundPaletteFxColorDefinitions.FrameByteCount));
     /// <summary>The foreground explosion writes CGRAM from byte index <c>$0002</c>.</summary>
     public const ushort ColorByteIndex = 0x0002;
     /// <summary>The complete one-shot foreground explosion lasts 144 frames, the ending's $8B:EB71 right-star exposure.</summary>

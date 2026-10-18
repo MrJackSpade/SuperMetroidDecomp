@@ -1,11 +1,12 @@
 using System.Collections;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Installed palette inputs with calculated heat endpoint channels.</summary>
 /// <remarks>
-/// Native $8D:E55C preserves the base green/blue at $E46E; $E55E preserves the
-/// base green-minus-blue difference at $E470. Only the shared red target and the
+/// The red endpoint preserves the base green/blue of its phase-zero color; the mixed endpoint preserves the
+/// base green-minus-blue difference of its phase-zero color. Only the shared red target and the
 /// mixed target's red/green are independent stock inputs. They specify the chosen
 /// heat tint, not samples indexed by time or distance. The native consumer supplies
 /// no temperature/intensity parameter deriving those targets: it selects painted
@@ -15,29 +16,29 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// the underlying normal suit artwork from its own review. Nonmatching player channel
 /// edits remain explicit overrides. No complete stock endpoint word is cached.
 /// </remarks>
-internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
+internal sealed class HeatPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, Bgr555>
 {
     /// <summary>Installed base and edited heat colors excluding the two calculated endpoints.</summary>
-    private readonly Dictionary<ushort, Bgr555> colors;
-    /// <summary>Selected red channel of the $E55C heat endpoint.</summary>
+    private readonly Dictionary<PaletteFxColorKey, Bgr555> colors;
+    /// <summary>Selected red channel of the red heat endpoint.</summary>
     private readonly int redTarget;
-    /// <summary>Selected red channel of the mixed $E55E endpoint.</summary>
+    /// <summary>Selected red channel of the mixed endpoint.</summary>
     private readonly int mixedRedTarget;
-    /// <summary>Selected green channel of the mixed $E55E endpoint.</summary>
+    /// <summary>Selected green channel of the mixed endpoint.</summary>
     private readonly int mixedGreenTarget;
-    /// <summary>Player edit to $E55C green when it differs from the current base color.</summary>
+    /// <summary>Player edit to the red endpoint's green when it differs from the current base color.</summary>
     internal readonly int? greenOverride;
-    /// <summary>Player edit to $E55C blue when it differs from the current base color.</summary>
+    /// <summary>Player edit to the red endpoint's blue when it differs from the current base color.</summary>
     internal readonly int? blueOverride;
-    /// <summary>Player edit to $E55E blue when it differs from the preserved base green-blue difference.</summary>
+    /// <summary>Player edit to the mixed endpoint's blue when it differs from the preserved base green-blue difference.</summary>
     internal readonly int? mixedBlueOverride;
 
     /// <summary>Separates selected heat-tint channels from base-dependent channels and retains nonmatching edits.</summary>
-    internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
+    internal HeatPaletteInputView(Dictionary<PaletteFxColorKey, Bgr555> colors)
     {
         this.colors = colors;
-        Bgr555 red = colors[(ushort)HeatPaletteEndpoint.Red];
-        Bgr555 mixed = colors[(ushort)HeatPaletteEndpoint.Mixed];
+        Bgr555 red = colors[HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red)];
+        Bgr555 mixed = colors[HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed)];
         Bgr555 redBase = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
         Bgr555 mixedBase = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
         redTarget = red.Red;
@@ -47,61 +48,64 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         blueOverride = red.Blue == redBase.Blue ? null : red.Blue;
         int calculatedBlue = mixedBase.Blue + mixedGreenTarget - mixedBase.Green;
         mixedBlueOverride = mixed.Blue == calculatedBlue ? null : mixed.Blue;
-        colors.Remove((ushort)HeatPaletteEndpoint.Red);
-        colors.Remove((ushort)HeatPaletteEndpoint.Mixed);
+        colors.Remove(HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red));
+        colors.Remove(HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed));
     }
 
     /// <summary>Resolves a base suit color from installed entries or its compiled loading-palette alias.</summary>
-    private Bgr555 ReadBase(ushort pointer)
+    private Bgr555 ReadBase(PaletteFxColorKey key)
     {
-        if (colors.TryGetValue(pointer, out Bgr555 value)) return value;
-        if (HeatPaletteColorDefinitions.TryBasePalettePointer(pointer, out ushort source) &&
+        if (colors.TryGetValue(key, out Bgr555 value)) return value;
+        if (HeatPaletteColorDefinitions.TryBasePalette(key, out PaletteFxColorKey source) &&
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value)) return value;
-        throw new InvalidDataException($"Missing installed heat base ${pointer:X4}.");
+        throw new InvalidDataException($"Missing installed heat base {key}.");
     }
 
-    /// <summary>Reconstructs $E55C/$E55E from selected channels and live base colors, or reads another installed entry.</summary>
-    public bool TryGetValue(ushort pointer, out Bgr555 value)
+    /// <summary>Reconstructs the two endpoints from selected channels and live base colors, or reads another installed entry.</summary>
+    public bool TryGetValue(PaletteFxColorKey key, out Bgr555 value)
     {
-        if ((HeatPaletteEndpoint)pointer == HeatPaletteEndpoint.Red)
+        if (key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red))
         {
             Bgr555 original = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
             value = new(redTarget, greenOverride ?? original.Green, blueOverride ?? original.Blue);
             return true;
         }
-        if ((HeatPaletteEndpoint)pointer == HeatPaletteEndpoint.Mixed)
+        if (key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed))
         {
             Bgr555 original = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
             int blue = mixedBlueOverride ?? (original.Blue + mixedGreenTarget - original.Green);
             value = new(mixedRedTarget, mixedGreenTarget, blue);
             return true;
         }
-        return colors.TryGetValue(pointer, out value);
+        return colors.TryGetValue(key, out value);
     }
 
-    /// <summary>Resolves a heat color or rejects an absent native pointer.</summary>
-    public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Resolves a heat color or rejects an absent one.</summary>
+    public Bgr555 this[PaletteFxColorKey key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     /// <summary>Installed entries plus the two calculated heat endpoints.</summary>
     public int Count => colors.Count + 2;
-    /// <summary>Recognizes either calculated endpoint or a remaining installed pointer.</summary>
-    public bool ContainsKey(ushort key) => Enum.IsDefined((HeatPaletteEndpoint)key) || colors.ContainsKey(key);
-    /// <summary>Enumerates installed pointers followed by the two calculated endpoint pointers.</summary>
-    public IEnumerable<ushort> Keys
+    /// <summary>Recognizes either calculated endpoint or a remaining installed color.</summary>
+    public bool ContainsKey(PaletteFxColorKey key) =>
+        key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red) ||
+        key == HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed) ||
+        colors.ContainsKey(key);
+    /// <summary>Enumerates installed colors followed by the two calculated endpoints.</summary>
+    public IEnumerable<PaletteFxColorKey> Keys
     {
         get
         {
-            foreach (ushort key in colors.Keys) yield return key;
-            yield return (ushort)HeatPaletteEndpoint.Red;
-            yield return (ushort)HeatPaletteEndpoint.Mixed;
+            foreach (PaletteFxColorKey key in colors.Keys) yield return key;
+            yield return HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Red);
+            yield return HeatPaletteColorDefinitions.Key(HeatPaletteEndpoint.Mixed);
         }
     }
     /// <summary>Resolves every current heat color in key-enumeration order.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
-    /// <summary>Yields native pointers paired with their current derived or installed color.</summary>
-    public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
+    /// <summary>Yields colors paired with their current derived or installed value.</summary>
+    public IEnumerator<KeyValuePair<PaletteFxColorKey, Bgr555>> GetEnumerator()
     {
-        foreach (ushort key in Keys) yield return new(key, this[key]);
+        foreach (PaletteFxColorKey key in Keys) yield return new(key, this[key]);
     }
-    /// <summary>Exposes the same pointer-color pairs to non-generic consumers.</summary>
+    /// <summary>Exposes the same color pairs to non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

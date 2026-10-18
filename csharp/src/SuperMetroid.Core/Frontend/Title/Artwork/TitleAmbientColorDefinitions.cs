@@ -16,22 +16,21 @@ internal static class TitleAmbientColorDefinitions
     private const int DimGreenPaint = 19;
 
     /// <summary>Derives a title tube shade or display paint from the selected initial palette and any supplied first-frame edit.</summary>
-    internal static bool TryCalculate(ushort pointer, ReadOnlySpan<Bgr555> initial,
-        IReadOnlyDictionary<ushort, Bgr555> supplied, out Bgr555 color)
+    internal static bool TryCalculate(PaletteFxColorKey key, ReadOnlySpan<Bgr555> initial,
+        IReadOnlyDictionary<PaletteFxColorKey, Bgr555> supplied, out Bgr555 color)
     {
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
-        if (TryCoordinates(tube, pointer, out int frame, out int index))
+        if (tube.Rows.TryLocate(key, out int frame, out int index))
         {
             Bgr555 first = initial[tube.ColorByteIndex / Bgr555.ByteCount + index];
             if (frame == 0) { color = first; return true; }
-            ushort firstPointer = (ushort)(tube.FirstFramePointer + Bgr555.ByteCount * (index + 1));
-            if (supplied.TryGetValue(firstPointer, out Bgr555 edited)) first = edited;
+            if (supplied.TryGetValue(tube.Color(0, index), out Bgr555 edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
             color = first.Map((_, channel) => Channel(channel, phase));
             return true;
         }
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
-        if (TryCoordinates(displays, pointer, out frame, out index))
+        if (displays.Rows.TryLocate(key, out frame, out index))
         {
             int paletteIndex = frame == 0 ? displays.ColorByteIndex / Bgr555.ByteCount + index
                 : index == 0 ? DimWarmPaint : DimGreenPaint;
@@ -56,14 +55,4 @@ internal static class TitleAmbientColorDefinitions
             ? quotient + 1 : quotient;
     }
 
-    /// <summary>Decodes an aligned color pointer within a title FX program into frame and within-frame color indices.</summary>
-    private static bool TryCoordinates(TitleScreenAmbientPaletteFxColorDefinition program,
-        ushort pointer, out int frame, out int index)
-    {
-        int offset = pointer - program.FirstFramePointer - Bgr555.ByteCount;
-        frame = offset / program.FrameByteCount;
-        index = offset % program.FrameByteCount / Bgr555.ByteCount;
-        return (uint)offset < program.FrameCount * program.FrameByteCount &&
-            (offset & 1) == 0 && offset % program.FrameByteCount < program.ColorsPerFrame * Bgr555.ByteCount;
-    }
 }

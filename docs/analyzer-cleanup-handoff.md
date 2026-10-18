@@ -528,10 +528,22 @@ Commit and push that update too.
       pointers.
     - `399561a9d`: library-background destinations are range-checked ints.
     - `2d4e7d60b` and `b7922adca` repaired the retail intro render test's music queues and the ending DMA check.
-  - Q8 (this commit, 81 -> 75): room sprite objects run typed `RoomSpriteObjectAnimations` programs (23 programs, 276
+  - Q8 (`04cdb5919`, 81 -> 75): room sprite objects run typed `RoomSpriteObjectAnimations` programs (23 programs, 276
     frames, generated from the disassembly's `InstList_SpriteObject_` lists) instead of interpreting bank-$B4
     instruction words. A slot holds a program cursor, a `NativeCountdown`, the frame shown, typed OBJ attributes and an
     updates-disabled flag; kinds select programs by name. Test support's `RoomSpriteObjectProgramAddresses` and
     `RoomSpriteObjectSlotAccess` give the oracles native record addresses, and `--room-sprite-object-definitions` runs
     every spawned kind beside an independent reading of the cartridge's list.
-  - Next: Q9 (palette FX), then Q5 with the enemy AI pointers, Q2, PLM words, the enemy projectile slot and Q13.
+  - Q9, palette FX:
+    - Q9a (`c2b5eb0fc`, 75 -> 73): palette-FX objects are a value-free `PaletteFxObject` named by the disassembly's
+      `PaletteFXObjects_` labels; slots, spawns, area bits and every owner name the object. Test support's
+      `PaletteFxObjectAccess` owns the object-to-address map.
+    - Q9b (this commit, 73 -> 71): colours are keyed by `PaletteFxColorKey` (record, written-colour ordinal). Each
+      colour family exposes `PaletteFxColorRows` (its first record, rows and colours; a probe confirmed every family
+      is consecutive records with ordinal equal to colour), and the heat, loading, gunship, glare, Maridia, lightning,
+      PLANET ZEBES, statue and title derivations work in rows and colours. The record table keeps layouts only;
+      AssetExtraction's `PaletteFxRecordSources` maps record addresses to frames for extraction, and test support's
+      `PaletteFxColorLayoutAccess`/`PaletteFxColorAddressAccess`/`PaletteFxProgramLayoutAccess` keep the ROM oracles
+      comparing words.
+  - Next: Q5 with the enemy AI pointers, Q2, PLM words, the enemy projectile slot and Q13. The palette-FX setup and
+    pre-instruction enums still carry bank-$8D values.

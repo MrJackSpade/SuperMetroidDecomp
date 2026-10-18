@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
 public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
 {
-    /// <summary>Captures one palette loop's owner, native addresses, color width, and cycle length.</summary>
+    /// <summary>Captures one palette loop's owner, object, first record, color width, and cycle length.</summary>
     internal ZebesExplosionAmbientPaletteFxColorDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
-        ushort programStart,
+        int firstRecord,
         ushort colorByteIndex,
         int frameCount,
         int colorsPerFrame,
@@ -15,7 +15,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     {
         Owner = owner;
         Object = paletteFxObject;
-        ProgramStart = programStart;
+        Rows = new(firstRecord, frameCount, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
         FrameCount = frameCount;
         ColorsPerFrame = colorsPerFrame;
@@ -28,10 +28,6 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks><c>$8D:E1D4</c> is afterglow and <c>$8D:E1D8</c> is lava.</remarks>
     public PaletteFxObject Object { get; }
-
-    /// <summary>The native instruction-list entry.</summary>
-    /// <remarks><c>$8D:D3CA</c> is afterglow and <c>$8D:D44A</c> is lava.</remarks>
-    public ushort ProgramStart { get; }
 
     /// <summary>The first destination byte in CGRAM.</summary>
     public ushort ColorByteIndex { get; }
@@ -48,23 +44,9 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => (ColorsPerFrame + 2) * sizeof(ushort);
 
-    /// <summary>The first timed record after color-index setup.</summary>
-    public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
+    /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public PaletteFxColorRows Rows { get; }
 
-    /// <summary>Returns one timed-record pointer.</summary>
-    public ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
-
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
-    public ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

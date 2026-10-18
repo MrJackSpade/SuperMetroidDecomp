@@ -36,12 +36,13 @@ internal static class InterfacePresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Fx.Artwork;
+            using SuperMetroid.Core.Fx.PaletteFx;
             using SuperMetroid.Core.Hardware;
             class InterfaceConsumer {
-                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, OamBuffer oam) {
+                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, PaletteFxColorKey key, OamBuffer oam) {
                     sprites.Draw(pointer, oam, default, 0, true);
                     sprites.Draw(0, oam, default, 0, true);
-                    colors.TryReadColor(pointer, out _);
+                    colors.TryReadColor(key, out _);
                 }
             }
             """, path: "fixture-interface-presentation-consumer.cs");
@@ -66,7 +67,7 @@ internal static class InterfacePresentationContractChecks
             "reviewed interface operations qualify but an unowned cinematic frame remains a finding" + " (" + after.Describe() + ")");
         foreach (string extra in new[] {
             "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Hardware.OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen) {} }",
-            "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(ushort pointer, out ushort color) { color = 0; return false; } }" })
+            "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey key, out SuperMetroid.Core.Hardware.Bgr555 color) { color = default; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);
             Require(revoked.Classifications.Count == 1 && revoked.UnresolvedCount == 2 && revoked.Consumers.Count == 3,

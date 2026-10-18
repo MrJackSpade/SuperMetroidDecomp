@@ -402,20 +402,18 @@ public sealed class RoomPaletteFxSystem
         PaletteFxFrame frame)
     {
         int colorIndex = slot.ColorIndex;
-        // The record's colour words follow its timer word; each skip command occupies one word too.
-        ushort colorWord = unchecked((ushort)(PaletteFxRecordDefinitions.Address(frame) + sizeof(ushort)));
+        int written = 0;
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
             if (part.Skip)
             {
                 colorIndex += part.Count;
-                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
                 continue;
             }
             for (int index = 0; index < part.Count; index++)
             {
-                if (!colors.TryReadColor(colorWord, out Bgr555 color))
-                    throw new InvalidDataException($"Palette-FX colour $8D:{colorWord:X4} of object {slot.Object} has no installed definition.");
+                if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out Bgr555 color))
+                    throw new InvalidDataException($"Palette-FX colour {written} of record {frame.Record} of object {slot.Object} has no installed definition.");
                 if (colorIndex >= CgramPalettes.ColorCount)
                 {
                     throw new InvalidDataException(
@@ -424,7 +422,7 @@ public sealed class RoomPaletteFxSystem
                 // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
                 new CgramPalettes(cgram).All.Write(colorIndex, color);
                 colorIndex++;
-                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
+                written++;
             }
         }
     }

@@ -21,9 +21,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {
 
-    /// <summary>The first shared timed record at <c>$8D:D36E</c>.</summary>
-    public const ushort FirstFramePointer = 0xd36e;
-
     /// <summary>The shared one-shot ramp contains fifteen timed records.</summary>
     public const int FrameCount = 15;
 
@@ -33,20 +30,9 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 6;
 
-    /// <summary>Returns one shared timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(154, FrameCount, ColorsPerFrame);
 
-    /// <summary>Returns the shared whiteout BGR555 color word in a timed record.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

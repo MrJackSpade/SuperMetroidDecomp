@@ -19,8 +19,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class TourianStatueGreyPaletteFxColorDefinitions
 {
-    /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>
-    public const ushort FirstFramePointer = 0xe23e;
 
     /// <summary>Eight eight-frame records form the statue grey-out sequence.</summary>
     public const int FrameCount = 8;
@@ -31,35 +29,9 @@ public static class TourianStatueGreyPaletteFxColorDefinitions
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 20;
 
-    /// <summary>Returns the timed-record pointer for one zero-based fade frame.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(279, FrameCount, ColorsPerFrame);
 
-    /// <summary>Returns the presentation-owned BGR555 word for one fade frame/color.</summary>
-    /// <remarks>
-    /// For frame f=0..7 and color c=0..7, the live word is at
-    /// $8D:E240 + 20*f + 2*c. Color zero is $0000 at f=0 and $3800
-    /// for f=1..7. For colors 1..7, initial endpoint BGR555 words are
-    /// ($57FF,$2BFF,$1F3C,$0278,$01B0,$010B,$0087), and final
-    /// endpoints are ($7F58,$6ED5,$5A71,$49EE,$356A,$24E7,$1083).
-    /// Decode each red, green, and blue channel. With delta=end-start,
-    /// each channel at f is start + sign(delta)*floor((abs(delta)*f+3)/7);
-    /// re-encode BGR555. This nearest-integer interpolation matches all
-    /// 64 words in the pinned NTSC J/U v1.0 ROM. Frame eight reaches
-    /// delete; all four callers read these presentation colors live.
-    /// </remarks>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
-            color * sizeof(ushort)));
-    }
-
-    /// <summary>A color operand's byte offset from the first frame's first color, after the frame's leading command word.</summary>
-    internal static int ColorOffset(ushort pointer) => pointer - (FirstFramePointer + 2);
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

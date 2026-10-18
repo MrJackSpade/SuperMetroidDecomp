@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>The first timed record at <c>$8D:FA6D</c>.</summary>
-    public const ushort FirstFramePointer = 0xfa6d;
-
     /// <summary>The loop contains fourteen timed records.</summary>
     public const int FrameCount = 14;
 
@@ -21,22 +18,9 @@ public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 24;
 
-    /// <summary>Returns one timed-record pointer.</summary>
-    public static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
-    }
+    /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public static PaletteFxColorRows Rows { get; } = new(567, FrameCount, ColorsPerFrame);
 
-    /// <summary>Returns one color word, skipping the two inline CGRAM-index instructions.</summary>
-    public static ushort ColorPointer(int frame, int color)
-    {
-        if ((uint)color >= ColorsPerFrame)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        // Each preceding inline command occupies one word without supplying a color.
-        int skippedCommands = (color >= 3 ? 1 : 0) + (color >= 7 ? 1 : 0);
-        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) *
-            (1 + color + skippedCommands)));
-    }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

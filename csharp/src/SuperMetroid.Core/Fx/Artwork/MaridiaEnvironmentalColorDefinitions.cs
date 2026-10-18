@@ -2,38 +2,34 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Native $8D:F4EF..F61A sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
+/// <summary>Native Maridia sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
 internal static class MaridiaEnvironmentalColorDefinitions
 {
-    /// <summary>Maps a bounded sand or waterfall color word to its first-frame source after native cyclic rotation.</summary>
-    /// <remarks>Sand falls take their edited colors from the lower sand-pit band; rejected pointers clear the output.</remarks>
-    internal static bool TrySourcePointer(ushort pointer, out ushort source)
+    /// <summary>Maps a sand or waterfall color to its first-frame source after native cyclic rotation.</summary>
+    /// <remarks>Sand falls take their edited colors from the lower sand-pit band; rejected colors clear the output.</remarks>
+    internal static bool TrySource(PaletteFxColorKey key, out PaletteFxColorKey source)
     {
         foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
-            int offset = pointer - program.ColorPointer(0, 0);
-            if (offset < 0 || offset >= program.FrameCount * program.FrameByteCount
-                || (offset & 1) != 0 || offset % program.FrameByteCount >= 2 * program.ColorsPerFrame) continue;
-            int frame = offset / program.FrameByteCount;
-            int color = offset % program.FrameByteCount / 2;
+            if (!program.Rows.TryLocate(key, out int frame, out int color)) continue;
             int group = color / program.FrameCount;
             int rotated = (color + frame) % program.FrameCount;
             if (program.Owner == MaridiaEnvironmentalPaletteOwner.SandFalls)
             {
                 var pits = MaridiaEnvironmentalPaletteFxColorDefinitions.All[0];
-                source = pits.ColorPointer(0, pits.FrameCount + rotated);
+                source = pits.Color(0, pits.FrameCount + rotated);
             }
-            else source = program.ColorPointer(0, group * program.FrameCount + rotated);
+            else source = program.Color(0, group * program.FrameCount + rotated);
             return true;
         }
-        source = 0;
+        source = default;
         return false;
     }
 
-    /// <summary>$8D:F4EF..F4FD and F57F..F58D: eight required sand colors and eight required waterfall colors, selected by cyclic phase.</summary>
-    internal static bool TryReadColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> inputs, out Bgr555 color)
+    /// <summary>Eight required sand colors and eight required waterfall colors, selected by cyclic phase.</summary>
+    internal static bool TryReadColor(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, Bgr555> inputs, out Bgr555 color)
     {
         color = Bgr555.Black;
-        return TrySourcePointer(pointer, out ushort source) && inputs.TryGetValue(source, out color);
+        return TrySource(key, out PaletteFxColorKey source) && inputs.TryGetValue(source, out color);
     }
 }

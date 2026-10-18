@@ -20,12 +20,8 @@ public static class CinematicGlowPaletteFxColorDefinitions
     /// <summary>Both glow loops contain fourteen timed records.</summary>
     public const int FrameCount = 14;
 
-    /// <summary>$8D:C9BA: old Mother Brain three-color pulse program.</summary>
-    private const ushort MotherBrainProgram = 0xc9ba;
     /// <summary>$0028: CGRAM byte destination of the old Mother Brain lights.</summary>
     private const ushort MotherBrainColorByte = 0x0028;
-    /// <summary>$8D:CA4E: cinematic gunship one-color pulse program.</summary>
-    private const ushort GunshipProgram = 0xca4e;
     /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
     private const ushort GunshipColorByte = 0x01fe;
 
@@ -40,11 +36,11 @@ public static class CinematicGlowPaletteFxColorDefinitions
             {
                 CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights => new(
                     CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-                    PaletteFxObject.OldMotherBrainFightBackgroundLights, MotherBrainProgram, MotherBrainColorByte,
+                    PaletteFxObject.OldMotherBrainFightBackgroundLights, 58, MotherBrainColorByte,
                     colorsPerFrame: 3, frameDuration: 6),
                 CinematicGlowPaletteFxProgramOwner.GunshipGlow => new(
                     CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-                    PaletteFxObject.GunshipGlow, GunshipProgram, GunshipColorByte,
+                    PaletteFxObject.GunshipGlow, 72, GunshipColorByte,
                     colorsPerFrame: 1, frameDuration: 5),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
@@ -7,6 +9,6 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public interface IPaletteFxColorSource
 {
-    /// <summary>Resolves one BGR555 color by its native bank-local presentation address.</summary>
-    bool TryReadColor(ushort pointer, out Bgr555 color);
+    /// <summary>Resolves one BGR555 color by the record that writes it and its position among the record's colors.</summary>
+    bool TryReadColor(PaletteFxColorKey key, out Bgr555 color);
 }

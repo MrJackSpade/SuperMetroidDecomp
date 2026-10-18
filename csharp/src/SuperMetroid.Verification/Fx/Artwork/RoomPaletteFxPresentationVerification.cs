@@ -203,11 +203,11 @@ internal static class RoomPaletteFxPresentationVerification
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         AssertEqual(17, inputs.Count, "gunship reveal independent source-color count");
         ushort[] inputPointers = inputs.Keys.ToArray();
-        var inputView = new EndingGunshipPaletteInputView(ToColors(inputs));
-        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Keys), "gunship input identities survive shared-channel calculation");
+        var inputView = new EndingGunshipPaletteInputView(PaletteFxColorAddressAccess.Keyed(ToColors(inputs)));
+        AssertTrue(inputPointers.ToHashSet().SetEquals(inputView.Pointers), "gunship input identities survive shared-channel calculation");
         AssertEqual(17, inputView.Count, "gunship input view keeps its complete logical key count");
         foreach (ushort pointer in inputPointers)
-            AssertEqual(original[pointer], inputView[pointer], "original gunship base word reconstructed from independent channels");
+            AssertEqual(original[pointer], inputView[PaletteFxColorAddressAccess.KeyAt(pointer)], "original gunship base word reconstructed from independent channels");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -340,7 +340,7 @@ internal static class RoomPaletteFxPresentationVerification
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             var supplied = new Dictionary<ushort, ushort>(endpointFixture) { [endpoint] = (ushort)rgb };
-            Dictionary<ushort, Bgr555> source = ToColors(supplied);
+            Dictionary<PaletteFxColorKey, Bgr555> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
             var view = new LoadingPaletteInputView(source);
             foreach (ushort selected in splitEndpoints)
             {
@@ -499,7 +499,7 @@ internal static class RoomPaletteFxPresentationVerification
                 [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
             };
             supplied[endpoint] = (ushort)rgb;
-            Dictionary<ushort, Bgr555> source = ToColors(supplied);
+            Dictionary<PaletteFxColorKey, Bgr555> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
             var split = new HeatPaletteInputView(source);
             AssertTrue(split.TryGetValue(endpoint, out Bgr555 actual), "Split endpoint remains owned");
             AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
@@ -669,7 +669,7 @@ internal static class RoomPaletteFxPresentationVerification
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {
             var forbidden = new HashSet<int>();
-            foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+            foreach (var frame in definition.Frames)
             for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
             {
                 ushort pointer = unchecked((ushort)(frame.FirstColorPointer +

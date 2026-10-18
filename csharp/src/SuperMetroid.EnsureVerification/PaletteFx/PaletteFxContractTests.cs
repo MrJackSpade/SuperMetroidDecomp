@@ -88,11 +88,11 @@ internal static class PaletteFxContractTests
     /// <summary>Supplies constructed red for the first gunship-engine frame after null rejection.</summary>
     internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
-        /// <summary>Accepts only the first native engine color pointer to expose timer advancement.</summary>
-        public bool TryReadColor(ushort pointer, out Bgr555 color)
+        /// <summary>Accepts only the first engine color to expose timer advancement.</summary>
+        public bool TryReadColor(PaletteFxColorKey key, out Bgr555 color)
         {
             color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
-            return pointer == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorPointer(0, 0);
+            return key == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineRows.Color(0, 0);
         }
     }
 }

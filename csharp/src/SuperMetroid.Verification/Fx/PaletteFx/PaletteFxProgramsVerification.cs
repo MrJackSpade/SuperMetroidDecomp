@@ -77,7 +77,7 @@ internal static class PaletteFxProgramsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed record");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(cursor, PaletteFxRecordDefinitions.Address(step.Frame), $"{at}: record address");
+                AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(step.Frame), $"{at}: record address");
                 cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(step.Frame), at);
                 continue;
             }

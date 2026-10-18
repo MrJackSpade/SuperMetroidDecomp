@@ -6,6 +6,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -39,27 +40,7 @@ internal static class TitlePaletteExtractor
             TitleScreenAmbientPaletteFxColorDefinition definition =
                 TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
-            var frames = new PaletteRgb5[definition.FrameCount][];
-            for (int frame = 0; frame < frames.Length; frame++)
-            {
-                frames[frame] = new PaletteRgb5[definition.ColorsPerFrame];
-                for (int color = 0; color < frames[frame].Length; color++)
-                {
-                    ushort pointer = unchecked((ushort)(
-                        definition.FramePointer(frame) + sizeof(ushort) +
-                        color * sizeof(ushort)));
-                    ushort bgr555 = RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(bus),
-                        RoomFxRomData.Banks.PaletteFx | pointer);
-                    frames[frame][color] = new PaletteRgb5
-                    {
-                        Red = bgr555 & 31,
-                        Green = bgr555 >> 5 & 31,
-                        Blue = bgr555 >> 10 & 31,
-                    };
-                }
-            }
-            return frames;
+            return PaletteFxColorExtraction.ReadFrames(bus, definition.Rows);
         }
     }
 }

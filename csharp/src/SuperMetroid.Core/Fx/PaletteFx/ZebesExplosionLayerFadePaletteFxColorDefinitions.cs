@@ -35,13 +35,13 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
             paletteFxObject: PaletteFxObject.FadeOutExplodingZebesCrust,
-            programStart: 0xd48e,
+            firstRecord: 185,
             colorByteIndex: 0x0082,
             frameDuration: 20),
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
             paletteFxObject: PaletteFxObject.FadeOutExplodingZebesGreyClouds,
-            programStart: 0xd5a4,
+            firstRecord: 193,
             colorByteIndex: 0x00a2,
             frameDuration: 14),
     ];

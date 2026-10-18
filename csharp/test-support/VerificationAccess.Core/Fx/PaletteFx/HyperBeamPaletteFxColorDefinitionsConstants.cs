@@ -26,6 +26,8 @@ internal static class HyperBeamPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="HyperBeamPaletteFxColorDefinitionsConstants.NativeLoopControlAddress"/>
         internal static int NativeLoopControlAddress => HyperBeamPaletteFxColorDefinitionsConstants.NativeLoopControlAddress;
     }
+    /// <summary>Bytes occupied by one timer, eight colors, and the done command.</summary>
+    public const int FrameByteCount = 20;
     /// <summary>Number of authored timed color records.</summary>
     public const int FrameCount = 10;
     /// <summary>Fixed duration loaded by every authored color record.</summary>

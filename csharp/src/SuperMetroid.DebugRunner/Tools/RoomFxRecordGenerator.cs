@@ -11,8 +11,8 @@ internal static class RoomFxRecordGenerator
         if (File.Exists(RoomFxRecordCatalogSource.GeneratedPath))
             throw new IOException($"Refusing to overwrite existing compiled definitions: {RoomFxRecordCatalogSource.GeneratedPath}");
         var bus = RepositoryRom.Load();
-        SortedDictionary<ushort, RoomFxRecordDefinition> records = RoomFxRecordCatalogSource.CaptureRetailRoomFxRecords(bus);
-        File.WriteAllText(RoomFxRecordCatalogSource.GeneratedPath, RoomFxRecordCatalogSource.RenderRoomFxDefinitions(records.Values));
-        Console.WriteLine($"Generated {records.Count} typed room-FX records at {RoomFxRecordCatalogSource.GeneratedPath}.");
+        RoomFxRecordCatalogSource.RetailRoomFxCapture capture = RoomFxRecordCatalogSource.CaptureRetailRoomFx(bus);
+        File.WriteAllText(RoomFxRecordCatalogSource.GeneratedPath, RoomFxRecordCatalogSource.RenderRoomFxDefinitions(capture));
+        Console.WriteLine($"Generated {capture.Lists.Count} room FX headers with {capture.Records.Count} records at {RoomFxRecordCatalogSource.GeneratedPath}.");
     }
 }

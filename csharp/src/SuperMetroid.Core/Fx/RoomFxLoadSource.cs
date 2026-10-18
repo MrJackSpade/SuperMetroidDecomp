@@ -3,11 +3,11 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Where a room's layer-3 FX comes from: its FX pointer and entry door, RNG, room, and an optional supplied definition (#633).</summary>
+/// <summary>Where a room's layer-3 FX comes from: its FX header and entry door, RNG, room, and an optional supplied definition (#633).</summary>
 internal sealed record RoomFxLoadSource
 {
-    /// <summary>Fx pointer.</summary>
-    public required ushort FxPointer { get; init; }
+    /// <summary>The room's FX header, or null for a load without one.</summary>
+    public required RoomFxDefinition? Fx { get; init; }
 
     /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
     public required CartridgeDoorHeader? Door { get; init; }

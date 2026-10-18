@@ -60,8 +60,7 @@ internal static class RoomFxPaletteBlendsVerification
                     $"room-FX blend {(int)id:X2} installed load color {index}");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {(int)id:X2} load does not read bank-$89");
 
-            ushort reloadRecord = SelectCompiledBlendRecord((byte)id).Pointer;
-            _ = state.ApplyEntry(cgram, reloadRecord);
+            _ = state.ApplyEntry(cgram, SelectCompiledBlendRecord((byte)id));
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], cgram.Colors[RoomFxRomData.Layer3.PaletteBlendDestinationIndex + index],
                     $"room-FX blend {(int)id:X2} installed FX-entry color {index}");
@@ -212,13 +211,13 @@ internal static class RoomFxPaletteBlendsVerification
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,
         };
-        state.Load(new SnesVram(), cgram, record.Pointer, door: null, randomNumber: 0);
+        state.LoadDefinition(new SnesVram(), cgram, record, randomNumber: 0);
         return (state, bus, cgram);
     }
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
     private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
-        RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+        RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 

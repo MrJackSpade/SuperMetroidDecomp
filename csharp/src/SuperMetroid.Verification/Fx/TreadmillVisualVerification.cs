@@ -34,8 +34,8 @@ internal static class TreadmillVisualVerification
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
-            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, null);
-            byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+            ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
+            byte bits = record == 0 ? (byte)0 : RoomFxDefinitions.RecordAt(record).AnimatedTileBitset;
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
             if ((bits & 12) == 0) continue;
             var images = new HashSet<string>();

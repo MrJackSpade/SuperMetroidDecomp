@@ -916,9 +916,9 @@ internal sealed class RoomLoader
         // The main callback streams offscreen tilemap rows even in Crateria's rock room.
         // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
         // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
-        ushort selectedFx = RoomFxRecordDefinitions.Select(room.State.FxPointer, door);
+        RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
         bool skyHdmaConfigured =
-            (selectedFx != 0 && RoomFxRecordDefinitions.Get(selectedFx).Type == (byte)RoomFxType.ScrollingSky) ||
+            selectedFx?.Type == (byte)RoomFxType.ScrollingSky ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         _room.BackgroundStreamer = _room.LevelData.CreateBackgroundStreamer(
@@ -943,7 +943,7 @@ internal sealed class RoomLoader
         _roomLayer3Fx.Load(
             _vram,
             _cgram,
-            room.State.FxPointer,
+            room.State.Fx,
             door,
             _system.RandomNumber,
             room.Definition);
@@ -951,11 +951,11 @@ internal sealed class RoomLoader
         _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        _sandAnimatedTiles.LoadRoom(room.State.FxPointer, door,
+        _sandAnimatedTiles.LoadRoom(room.State.Fx, door,
             room.AreaIndex);
-        _roomSpikes.LoadRoom(room.State.FxPointer, door,
+        _roomSpikes.LoadRoom(room.State.Fx, door,
             room.AreaIndex);
-        _roomTreadmills.LoadRoom(room.State.FxPointer, door,
+        _roomTreadmills.LoadRoom(room.State.Fx, door,
             room.AreaIndex);
         if (_player.Samus is not null)
             _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
@@ -965,7 +965,7 @@ internal sealed class RoomLoader
         // be created on every shared room-load path; Landing Site bit zero replaces CGRAM
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
         _roomPaletteFx.LoadRoom(
-            room.State.FxPointer,
+            room.State.Fx,
             door,
             room.AreaIndex,
             _player.Samus?.EquippedItems ?? 0,

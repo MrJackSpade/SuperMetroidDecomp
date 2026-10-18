@@ -83,15 +83,15 @@ public sealed class RoomPaletteFxSystem
     /// sixteen-byte bank-$83 FX record.
     /// </summary>
     public void LoadRoom(
-        ushort fxPointer,
+        RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         AreaId area,
         SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        LoadRoomCore(fxPointer, door, area, equippedItems, areaMiniBossDefeated, null);
+        LoadRoomCore(fx, door, area, equippedItems, areaMiniBossDefeated, null);
 
     /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
-    internal void LoadRoomCore(ushort fxPointer, CartridgeDoorHeader? door,
+    internal void LoadRoomCore(RoomFxDefinition? fx, CartridgeDoorHeader? door,
         AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -100,16 +100,15 @@ public sealed class RoomPaletteFxSystem
         soundRequests.Clear();
         musicRequests.Clear();
 
-        if (fxPointer == 0)
+        if (suppliedDefinition is null && fx is null)
             return;
         int areaIndex = AreaIds.ToIndex(area);
 
-        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, door);
-        if (record == 0)
+        if ((suppliedDefinition ?? fx?.Select(door)) is not { } record)
             return;
 
         // Palette FX and animated tiles have separate owners and bitsets.
-        byte paletteFxBits = (suppliedDefinition ?? RoomFxRecordDefinitions.Get(record)).PaletteFxBitset;
+        byte paletteFxBits = record.PaletteFxBitset;
         if (paletteFxBits == 0)
             return;
 

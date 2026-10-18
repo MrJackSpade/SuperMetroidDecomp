@@ -14,13 +14,11 @@ public sealed class RoomTreadmillAnimatedTilesState
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
-    public void LoadRoom(ushort fxPointer, CartridgeDoorHeader? door, AreaId area)
+    public void LoadRoom(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
     {
         objects.Clear();
-        if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, door);
-        if (record == 0) return;
-        byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+        if (fx?.Select(door) is not { } record) return;
+        byte bits = record.AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
         {
             if ((bits & (1 << bit)) == 0) continue;

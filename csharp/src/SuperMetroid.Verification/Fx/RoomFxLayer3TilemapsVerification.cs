@@ -110,7 +110,7 @@ internal static class RoomFxLayer3TilemapsVerification
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out CartridgeReadGuard guarded)
     {
-        RoomFxRecordDefinition record = RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
+        RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.Type == (byte)type)
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
@@ -121,7 +121,7 @@ internal static class RoomFxLayer3TilemapsVerification
             PaletteBlendColors = paletteColors,
         };
         var vram = new SnesVram();
-        state.Load(vram, new SnesCgram(), record.Pointer, door: null, randomNumber: 0);
+        state.LoadDefinition(vram, new SnesCgram(), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return vram;
     }

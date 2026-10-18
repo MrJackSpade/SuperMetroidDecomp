@@ -45,7 +45,7 @@ internal static class SandAnimatedTilesVerification
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        sand.LoadRoom(sandFxRecord, null, AreaId.Maridia);
+        sand.LoadRoom(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
@@ -80,7 +80,7 @@ internal static class SandAnimatedTilesVerification
                 }
             }
         }
-        sand.LoadRoom(0, null, AreaId.Maridia);
+        sand.LoadRoom(null, null, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
         sand.Step(vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");

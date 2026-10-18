@@ -31,7 +31,7 @@ internal static class FirefleaFxVerification
         var fx = new RoomLayer3FxState();
         FixedColorState fixedColor = fx.FixedColors;
         var vram = new SnesVram();
-        ushort record = RoomFxRecordDefinitions.All.First(record => record.Type == (byte)RoomFxType.Fireflea && record.DoorPointer == 0).Pointer;
+        RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == (byte)RoomFxType.Fireflea && candidate.DoorPointer == 0);
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
         // generated from the production catalog or implementation.
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
@@ -43,7 +43,7 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         Suite(nameof(VerifyFirefleaFrozenDarkness), VerifyFirefleaFrozenDarkness);
         Suite(nameof(VerifyFirefleaUninitializedTimerWrap), VerifyFirefleaUninitializedTimerWrap);
-        fx.Load(vram, new SnesCgram(), record, null, 0);
+        fx.LoadDefinition(vram, new SnesCgram(), record, 0);
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fx.Fireflea.Timer.RawValue, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
@@ -64,7 +64,7 @@ internal static class FirefleaFxVerification
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
-            fx.Load(vram, new SnesCgram(), record, null, 0);
+            fx.LoadDefinition(vram, new SnesCgram(), record, 0);
             for (int frame = 1; frame <= 78; frame++)
             {
                 fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
@@ -81,7 +81,7 @@ internal static class FirefleaFxVerification
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
-        fx.Load(vram, new SnesCgram(), 0, null, 0);
+        fx.Load(vram, new SnesCgram(), null, null, 0);
         fixedColor.Red = 0x25;
         fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");

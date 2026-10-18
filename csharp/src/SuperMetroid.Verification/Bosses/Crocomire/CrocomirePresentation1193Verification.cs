@@ -111,7 +111,7 @@ internal static class CrocomirePresentation1193Verification
         if (spikes)
         {
             VerifyCrocomireSpikeCompatibility(runtime, maps.RoomFxAnimatedTiles);
-            runtime.RoomSpikes.LoadRoom(runtime.Room.LoadedRoom.State.FxPointer,
+            runtime.RoomSpikes.LoadRoom(runtime.Room.LoadedRoom.State.Fx,
                 (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")), runtime.Room.LoadedRoom.AreaIndex);
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
@@ -121,7 +121,7 @@ internal static class CrocomirePresentation1193Verification
             game.Step(0);
             AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.Destination.Encoded == 0x3d60).SourceAddress,
                 "Re-enabled spikes resume the pending first frame");
-            runtime.RoomSpikes.LoadRoom(0, null, AreaId.Norfair);
+            runtime.RoomSpikes.LoadRoom(null, null, AreaId.Norfair);
             var clearedWrites = new VramWriteQueue();
             runtime.RoomSpikes.Step(runtime.Vram, clearedWrites);
             AssertEqual(0, clearedWrites.Entries.Count, "Room replacement without selected spikes clears their owner");

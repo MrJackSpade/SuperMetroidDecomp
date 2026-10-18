@@ -7,7 +7,7 @@ public sealed record CartridgeRoomState(
     int GraphicsSet,
     int MusicDataIndex,
     int MusicTrackIndex,
-    ushort FxPointer,
+    SuperMetroid.Core.Fx.RoomFxDefinition? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
     SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,

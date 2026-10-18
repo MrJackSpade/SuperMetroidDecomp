@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks><c>Door</c> is the door the record applies to, or null for the list's default record or its terminator;
 /// <c>Terminates</c> ends the list without selecting FX.</remarks>
 public sealed record RoomFxRecordDefinition(
-    ushort Pointer,
     CartridgeDoorHeader? Door,
     bool Terminates,
     ushort BaseYPosition,

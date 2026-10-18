@@ -54,7 +54,7 @@ internal static class RoomFxWidenedInputsVerification
         static RoomLayer3FxFrame FrameRandom(int randomNumber) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, RandomNumber = randomNumber };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
-            new() { FxPointer = 0, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
+            new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }
 
     /// <summary>Dispatches the widened room-FX input checks.</summary>

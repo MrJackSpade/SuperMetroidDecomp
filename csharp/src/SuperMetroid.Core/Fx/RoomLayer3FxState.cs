@@ -166,11 +166,11 @@ public sealed class RoomLayer3FxState
     public void Load(
         SnesVram vram,
         SnesCgram cgram,
-        ushort fxPointer,
+        RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        LoadCore(vram, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>
     /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
@@ -195,13 +195,8 @@ public sealed class RoomLayer3FxState
 
         if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
             earthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
-        if (source.FxPointer == 0)
+        if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
-
-        ushort record = source.SuppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(source.FxPointer, source.Door);
-        if (record == 0)
-            return;
-        RoomFxRecordDefinition definition = source.SuppliedDefinition ?? RoomFxRecordDefinitions.Get(record);
 
         BaseY = BaseY.WithWhole(definition.BaseYPosition);
         TargetSurface = new(0, definition.TargetYPosition);
@@ -212,10 +207,10 @@ public sealed class RoomLayer3FxState
 
         Type = RoomFxTypes.FromCartridge(
             definition.Type,
-            $"bank-$83 FX record ${record:X4}");
+            $"room FX {source.Fx?.Name}");
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend,
-            $"bank-$83 FX record ${record:X4}");
+            $"room FX {source.Fx?.Name}");
         animatedTiles.Load(Type);
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
@@ -478,9 +473,9 @@ public sealed class RoomLayer3FxState
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal LayerBlendingConfiguration ApplyEntry(SnesCgram cgram,
-        ushort record)
+        RoomFxRecordDefinition definition)
     {
-        RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
+        Ensure.NotNull(definition);
         BaseY = BaseY.WithWhole(definition.BaseYPosition);
         TargetSurface = new(0, definition.TargetYPosition);
         YVelocity = new(definition.PackedYVelocity);

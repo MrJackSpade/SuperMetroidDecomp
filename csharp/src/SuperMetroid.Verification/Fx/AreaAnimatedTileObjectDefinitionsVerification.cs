@@ -50,8 +50,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState();
         var treadmills = new RoomTreadmillAnimatedTilesState();
-        sand.LoadRoom(fxRecord, door: null, area);
-        treadmills.LoadRoom(fxRecord, door: null, area);
+        sand.LoadRoom(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
+        treadmills.LoadRoom(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
 
         AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
         AssertEqual(expectedTreadmills, treadmills.Count,

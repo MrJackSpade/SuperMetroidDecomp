@@ -10,13 +10,11 @@ public sealed class RoomSpikeAnimatedTilesState
     private readonly RoomFxAnimatedTilesState animation = new();
 
     /// <summary>Replaces the previous room's animation using the selected door-specific FX record.</summary>
-    public void LoadRoom(ushort fxPointer, CartridgeDoorHeader? door, AreaId area)
+    public void LoadRoom(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
     {
         animation.Reset();
-        if (fxPointer == 0) return;
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, door);
-        if (record == 0) return;
-        byte bits = RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+        if (fx?.Select(door) is not { } record) return;
+        byte bits = record.AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)
             if ((bits & (1 << bit)) != 0 &&
                 AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)

@@ -30,7 +30,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceHdmaSharedState(system, true);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx.Load(vram, cgram, 0, null, 0);
+        fx.Load(vram, cgram, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceHdmaSharedState(system, false);
         fx.AdvanceHdmaSharedState(system, false);

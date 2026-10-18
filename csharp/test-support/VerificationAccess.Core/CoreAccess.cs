@@ -330,9 +330,7 @@ internal static class CoreAccess
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
     internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
     {
-        for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-            if (RoomFxRecordDefinitions.SelectRecord((ushort)pointer) is RoomFxRecordDefinition record)
-                yield return record;
+        return RoomFxDefinitions.AllRecords;
     }
 
     /// <summary>Keeps per-game projectile observations without extending frontend lifetime.</summary>

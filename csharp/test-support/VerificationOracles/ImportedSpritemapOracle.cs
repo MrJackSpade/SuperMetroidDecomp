@@ -45,7 +45,8 @@ internal static class ImportedSpritemapOracle
     /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
     public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, EnemySpritemapDraw draw) =>
         oam.AddEnemySpritemap(ReadEnemyParts(source, draw.Bank, draw.Pointer), draw.Origin,
-            draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
+            checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap,
+            draw.OriginYIsOnScreen);
 
     /// <summary>Uses bank $8D enemy-projectile graphics bits for palette and base tile selection.</summary>
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,

@@ -13,10 +13,18 @@ internal sealed record EnemySpritemapDraw
     public required Position16<OamPixels> Origin { get; init; }
 
     /// <summary>Palette bits.</summary>
-    public required ushort PaletteBits { get; init; }
+    public required int PaletteBits
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Base tile index.</summary>
-    public required ushort BaseTileIndex { get; init; }
+    public required int BaseTileIndex
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Clip vertical wrap.</summary>
     public bool ClipVerticalWrap { get; init; } = false;

@@ -176,7 +176,7 @@ public sealed class CeresElevatorArrivalState
             "Ceres elevator projectiles require installed sprite artwork.");
         oam.AddEnemySpritemap(installed.Get(projectile.SpritemapPointer).Span,
             screen.ToOam(),
-            new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
+            new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits,
             unchecked((byte)projectile.GraphicsIndex),
             clipVerticalWrap: true,
             originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
@@ -189,7 +189,7 @@ public sealed class CeresElevatorArrivalState
         public CeresElevatorProjectile(
             CeresElevatorArrivalProgram program,
             Position16<RoomPixels> position,
-            ushort graphicsIndex)
+            int graphicsIndex)
         {
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
             Position = position;
@@ -197,7 +197,11 @@ public sealed class CeresElevatorArrivalState
         }
 
         /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
-        public ushort GraphicsIndex { get; }
+        public int GraphicsIndex
+        {
+            get;
+            private init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>

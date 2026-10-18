@@ -85,7 +85,8 @@ internal sealed class EnemyPresentation
                 out EnemySpritemapParts installed) == true)
         {
             oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
-                draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
+                checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap,
+                draw.OriginYIsOnScreen);
             return;
         }
         // The common empty frame is compiled definition data, not missing artwork.

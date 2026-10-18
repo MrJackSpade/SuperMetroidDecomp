@@ -136,6 +136,8 @@ internal static class DraygonAnimationsVerification
             Arms = enemies.SlotTable.Slots[3],
         };
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
+        var eyeState = new DraygonEyeState();
+        state.Eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
@@ -167,7 +169,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual((ushort)1, part.InstructionTimer.RawValue, "the reset's started parts run on their next update");
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
         AssertEqual(new DraygonFrame(63).Spritemap, state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
-        AssertEqual((ushort)DraygonEyeFunction.FacingRight, state.Eye.VariableA, "the reset gives the eye its tracking function");
+        AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
         AssertEqual(RoomLoadingInterruptCommand.BeginHudDraw, state.RoomLoadingIrqCommand, "the reset selects the HUD-draw interrupt");
     }
 

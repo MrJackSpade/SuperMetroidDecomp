@@ -40,6 +40,8 @@ internal static class EnemyEffectsFixtureVerification
             if (art is not null)
                 Enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireMelting = art });
             Actor = new CrocomireEnemyState(Enemies.SlotTable.Slots[0]) { Tongue = Enemies.SlotTable.Slots[1] };
+            var tongueState = new CrocomireTongueState();
+            Enemies.SlotTable.Slots[1].SetSpeciesState(tongueState, tongueState.ClearWithRecord);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             Effect.AcidSmokeTimer = NativeCountdown.Start(1);

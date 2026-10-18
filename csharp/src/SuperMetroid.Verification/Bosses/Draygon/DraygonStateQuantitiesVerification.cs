@@ -69,8 +69,7 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyGoopBobWrap()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.Body.VariableD = 0;
-        state.Body.VariableE = 0;
+        state.SwoopVelocity = 0;
         state.GoopYOscillationAngle = SnesAngle.FromTableIndex(byte.MaxValue);
         DraygonBehavior.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(byte.MaxValue, 32))), state.Body.Position.Y.Whole,
@@ -168,8 +167,7 @@ internal static class DraygonStateQuantitiesVerification
             AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
         AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
         uint velocity = SnesSixteenSixteen.FromWhole((uint)EnemyMath.WrappedMagnitude(unchecked((ushort)(resetX - 200)))) / (uint)expected.Count;
-        AssertEqual(unchecked((ushort)SnesSixteenSixteen.WholeOf(velocity)), state.Body.VariableD, "swoop horizontal speed whole pixels");
-        AssertEqual(unchecked((ushort)velocity), state.Body.VariableE, "swoop horizontal speed fraction");
+        AssertEqual(velocity, state.SwoopVelocity, "swoop horizontal speed");
     }
 
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>
@@ -186,6 +184,8 @@ internal static class DraygonStateQuantitiesVerification
             Arms = enemies.SlotTable.Slots[3],
         };
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
+        var eyeState = new DraygonEyeState();
+        state.Eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })

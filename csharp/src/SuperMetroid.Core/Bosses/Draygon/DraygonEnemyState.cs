@@ -6,9 +6,10 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide WRAM extension. The four visible enemy records remain physical
-/// <see cref="RoomEnemySlot"/> instances; only the bank-$A5 words outside those common
-/// records live here. This avoids pretending that the boss is one ordinary compact actor.
+/// Draygon's encounter-wide state: its bank-$A5 extension words and the values the cartridge keeps in the body's common
+/// record, which are emptied with the record when the body is killed (<see cref="ClearWithRecord"/>). The four visible
+/// enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live in its own
+/// <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState
 {
@@ -189,17 +190,73 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonCannonControlWord> DisabledCannonWords { get; } = [];
 
-    /// <summary>Bank-$A5 body-function address stored in native <c>var_A</c>; body main AI dispatches this before copying coordinates to the three parts.</summary>
+    /// <summary>The body-function word.</summary>
+    private int _functionWord;
+
+    /// <summary>The word holding the function timer or the swoop path cursor, according to <see cref="Function"/>.</summary>
+    private int _timerOrSwoopOffsetWord;
+
+    /// <summary>The swoop path's end cursor.</summary>
+    private int _swoopEndOffsetWord;
+
+    /// <summary>The horizontal velocity's whole pixels.</summary>
+    private int _velocityWholeWord;
+
+    /// <summary>The horizontal velocity's fraction in 65536ths of a pixel.</summary>
+    private int _velocityFractionWord;
+
+    /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function
     {
-        get => (DraygonAiFunction)Body.VariableA;
-        internal set => Body.VariableA = (ushort)value;
+        get => (DraygonAiFunction)_functionWord;
+        internal set => _functionWord = (ushort)value;
     }
 
-    /// <summary>Body <c>var_B</c>: intro elapsed-frame count, swoop-table byte offset advanced by four, or burial-wait countdown according to <see cref="Function"/>.</summary>
+    /// <summary>
+    /// Intro elapsed-frame count or burial-wait countdown according to <see cref="Function"/>. The cartridge keeps it in
+    /// the word that holds <see cref="SwoopOffset"/> during swoops.
+    /// </summary>
     public NativeCountdown FunctionTimer
     {
-        get => NativeCountdown.FromRaw(Body.VariableB);
-        internal set => Body.VariableB = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_timerOrSwoopOffsetWord));
+        internal set => _timerOrSwoopOffsetWord = value.RawValue;
+    }
+
+    /// <summary>
+    /// The swoop path cursor, a byte offset advanced or retreated by four per entry, kept in the word that holds
+    /// <see cref="FunctionTimer"/> outside swoops.
+    /// </summary>
+    internal int SwoopOffset
+    {
+        get => _timerOrSwoopOffsetWord;
+        set => _timerOrSwoopOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>The swoop path's end cursor, the byte offset one past its last entry.</summary>
+    internal int SwoopEndOffset
+    {
+        get => _swoopEndOffsetWord;
+        set => _swoopEndOffsetWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
+    internal uint SwoopVelocity
+    {
+        get => SnesSixteenSixteen.Compose(checked((ushort)_velocityWholeWord), checked((ushort)_velocityFractionWord));
+        set
+        {
+            _velocityWholeWord = unchecked((ushort)SnesSixteenSixteen.WholeOf(value));
+            _velocityFractionWord = unchecked((ushort)value);
+        }
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        _functionWord = 0;
+        _timerOrSwoopOffsetWord = 0;
+        _swoopEndOffsetWord = 0;
+        _velocityWholeWord = 0;
+        _velocityFractionWord = 0;
     }
 }

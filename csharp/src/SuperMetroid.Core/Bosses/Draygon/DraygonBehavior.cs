@@ -109,6 +109,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
+        body.SetSpeciesState(Draygon, Draygon.ClearWithRecord);
         Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
         Draygon.DisabledCannonWords.Add(DraygonCannonControlWord.UnusedBottom);
     }
@@ -125,7 +126,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case EnemyDefinitionId.DraygonEye:
                 if (part.SlotIndex != 1)
                     throw new InvalidDataException("Draygon's eye must own native slot $0040.");
-                part.VariableA = (ushort)DraygonEyeFunction.Inert; // Inert until the body publishes facing AI.
+                // Inert until the body publishes facing AI.
+                var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
+                part.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
                 state.Eye = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingLeftIdle));
                 return;
@@ -275,8 +278,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
-        DraygonEyeFunction function = ClosedNativeWords.Decode<DraygonEyeFunction>(
-            part.VariableA, "Draygon eye function");
+        DraygonEyeFunction function = RequireEyeState(part).Function
+            ?? throw new InvalidDataException("Draygon's eye has no function.");
         switch (function)
         {
             case DraygonEyeFunction.Inert:
@@ -433,10 +436,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.LeftSideReset.X - samus.Position.X.Whole)));
         uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.Body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
-        state.Body.VariableE = unchecked((ushort)velocity);
-        state.Body.VariableB = unchecked((ushort)byteOffset);
-        state.Body.VariableC = unchecked((ushort)byteOffset);
+        state.SwoopVelocity = velocity;
+        state.SwoopOffset = byteOffset;
+        state.SwoopEndOffset = byteOffset;
     }
 
     /// <summary>Ports the descending half at <c>$A5:88B1</c>.</summary>
@@ -448,20 +450,20 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
-        int pathIndex = body.VariableB / 4;
+        int pathIndex = state.SwoopOffset / 4;
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon descent path index {pathIndex} is outside WRAM.");
-        if (body.VariableB == DraygonSwoopApexArmsByteOffset)
+        if (state.SwoopOffset == DraygonSwoopApexArmsByteOffset)
             StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightNearSwoopApex);
 
         body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        body.VariableB = unchecked((ushort)(body.VariableB - 4));
-        if (body.VariableB == 0)
+        state.SwoopOffset = state.SwoopOffset - 4;
+        if (state.SwoopOffset == 0)
         {
             state.Function = DraygonAiFunction.SwoopRightApex;
             return;
         }
-        AddDraygonHorizontalVelocity(body);
+        AddDraygonHorizontalVelocity(state);
     }
 
     /// <summary>Ports the velocity recalculation at the bottom of the swoop, $A5:8922.</summary>
@@ -472,13 +474,12 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        int frameCount = body.VariableC / 4;
+        int frameCount = state.SwoopEndOffset / 4;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
         ushort distance = unchecked((ushort)(672 - body.Position.X.Whole));
         uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
-        body.VariableE = unchecked((ushort)velocity);
+        state.SwoopVelocity = velocity;
         state.Function = DraygonAiFunction.SwoopRightAscending;
     }
 
@@ -490,24 +491,24 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        int pathIndex = body.VariableB / 4;
+        int pathIndex = state.SwoopOffset / 4;
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon ascent path index {pathIndex} is outside WRAM.");
-        if (body.VariableB == DraygonSwoopApexArmsByteOffset)
+        if (state.SwoopOffset == DraygonSwoopApexArmsByteOffset)
             StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightIdle);
 
         body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        body.VariableB = unchecked((ushort)(body.VariableB + 4));
-        if (body.VariableB == body.VariableC)
+        state.SwoopOffset = state.SwoopOffset + 4;
+        if (state.SwoopOffset == state.SwoopEndOffset)
         {
-            body.VariableB = 0;
+            state.SwoopOffset = 0;
             ushort random = _room.Random.Read();
             state.Function = (random & 1) != 0
                 ? DraygonAiFunction.SwoopLeftSetup
                 : DraygonAiFunction.GoopLeftSetup;
             return;
         }
-        AddDraygonHorizontalVelocity(body);
+        AddDraygonHorizontalVelocity(state);
     }
 
     /// <summary>Ports the mirrored left-swoop setup at <c>$A5:89B3</c>.</summary>
@@ -519,19 +520,18 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
-        int frameCount = state.Body.VariableC / 4;
+        int frameCount = state.SwoopEndOffset / 4;
         if (frameCount == 0 || frameCount != state.SwoopPathEntryCount)
             throw new InvalidDataException("Draygon lost the generated swoop duration.");
 
         ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.RightSideReset.X - samus.Position.X.Whole)));
         uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.Body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
-        state.Body.VariableE = unchecked((ushort)velocity);
+        state.SwoopVelocity = velocity;
         state.Function = DraygonAiFunction.SwoopLeftDescending;
         StartDraygonProgram(state.Body, DraygonProgram.BodyFacingLeftReset);
         state.FacingRight = false;
-        state.Body.VariableB = state.Body.VariableC;
+        state.SwoopOffset = state.SwoopEndOffset;
     }
 
     /// <summary>Ports the descending half at <c>$A5:8A00</c>.</summary>
@@ -543,20 +543,20 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
-        int pathIndex = body.VariableB / 4;
+        int pathIndex = state.SwoopOffset / 4;
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon descent path index {pathIndex} is outside WRAM.");
-        if (body.VariableB == DraygonSwoopApexArmsByteOffset)
+        if (state.SwoopOffset == DraygonSwoopApexArmsByteOffset)
             StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingLeftNearSwoopApex);
 
         body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        body.VariableB = unchecked((ushort)(body.VariableB - 4));
-        if (body.VariableB == 0)
+        state.SwoopOffset = state.SwoopOffset - 4;
+        if (state.SwoopOffset == 0)
         {
             state.Function = DraygonAiFunction.SwoopLeftApex;
             return;
         }
-        SubtractDraygonHorizontalVelocity(body);
+        SubtractDraygonHorizontalVelocity(state);
     }
 
     /// <summary>Ports the mirrored velocity calculation at <c>$A5:8A50</c>.</summary>
@@ -567,7 +567,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        int frameCount = body.VariableC / 4;
+        int frameCount = state.SwoopEndOffset / 4;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the left apex.");
 
@@ -580,8 +580,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 unchecked((ushort)-resetX) + body.Position.X.Whole))
             : unchecked((ushort)(body.Position.X.Whole - resetX));
         uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
-        body.VariableE = unchecked((ushort)velocity);
+        state.SwoopVelocity = velocity;
         state.Function = DraygonAiFunction.SwoopLeftAscending;
     }
 
@@ -594,21 +593,21 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
-        int pathIndex = body.VariableB / 4;
+        int pathIndex = state.SwoopOffset / 4;
         if ((uint)pathIndex >= state.SwoopYPositions.Length)
             throw new InvalidDataException($"Draygon ascent path index {pathIndex} is outside WRAM.");
-        if (body.VariableB == DraygonSwoopApexArmsByteOffset)
+        if (state.SwoopOffset == DraygonSwoopApexArmsByteOffset)
             StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingLeftIdle);
 
         body.Position = body.Position.WithWholeY(state.SwoopYPositions[pathIndex]);
-        body.VariableB = unchecked((ushort)(body.VariableB + 4));
-        if (body.VariableB == body.VariableC)
+        state.SwoopOffset = state.SwoopOffset + 4;
+        if (state.SwoopOffset == state.SwoopEndOffset)
         {
             ushort random = _room.Random.Read();
             body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
             if ((random & 1) != 0)
             {
-                body.VariableB = 0;
+                state.SwoopOffset = 0;
                 body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);
                 state.Function = DraygonAiFunction.SwoopRightSetup;
             }
@@ -618,23 +617,25 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             return;
         }
-        SubtractDraygonHorizontalVelocity(body);
+        SubtractDraygonHorizontalVelocity(state);
     }
 
     /// <summary>Advances Draygon's X position using the current signed 16.16 velocity.</summary>
-    private static void AddDraygonHorizontalVelocity(RoomEnemySlot body)
+    private static void AddDraygonHorizontalVelocity(DraygonEnemyState state)
     {
+        RoomEnemySlot body = state.Body;
         uint position = body.Position.X.RawValue;
-        uint velocity = SnesSixteenSixteen.Compose(body.VariableD, body.VariableE);
+        uint velocity = state.SwoopVelocity;
         position = unchecked(position + velocity);
         body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
     /// <summary>Moves Draygon left by the current 16.16 velocity without losing its fraction.</summary>
-    private static void SubtractDraygonHorizontalVelocity(RoomEnemySlot body)
+    private static void SubtractDraygonHorizontalVelocity(DraygonEnemyState state)
     {
+        RoomEnemySlot body = state.Body;
         uint position = body.Position.X.RawValue;
-        uint velocity = SnesSixteenSixteen.Compose(body.VariableD, body.VariableE);
+        uint velocity = state.SwoopVelocity;
         position = unchecked(position - velocity);
         body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
@@ -653,8 +654,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(movingRight ? DraygonOffscreenLeftX : state.RightSideReset.X, 384));
-        body.VariableD = 1;
-        body.VariableE = 0;
+        state.SwoopVelocity = SnesSixteenSixteen.FromWhole(1u);
         state.GoopYOscillationAngle = SnesAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
         // the body reset opcode replaces all four lists. Preserve the literal write.
@@ -769,7 +769,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!offScreen)
             return;
 
-        state.Body.VariableB = state.Body.VariableC;
+        state.SwoopOffset = state.SwoopEndOffset;
         if (movingRight)
         {
             state.Function = DraygonAiFunction.SwoopLeftSetup;
@@ -790,9 +790,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.TableIndex, 32))));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.AddTableUnits(1);
         if (movingRight)
-            AddDraygonHorizontalVelocity(state.Body);
+            AddDraygonHorizontalVelocity(state);
         else
-            SubtractDraygonHorizontalVelocity(state.Body);
+            SubtractDraygonHorizontalVelocity(state);
     }
 
     /// <summary>Emits a breath bubble every 128 body frames when a sprite slot is available.</summary>
@@ -916,10 +916,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
                 return null;
             case DraygonCue.SetEyeFunction eyeFunction:
-                RequirePart(state.Eye).VariableA = (ushort)eyeFunction.Function;
+                RequireEyeState(RequirePart(state.Eye)).Function = eyeFunction.Function;
                 return null;
             case DraygonCue.SetOwnEyeFunction ownFunction:
-                part.VariableA = (ushort)ownFunction.Function;
+                RequireEyeState(part).Function = ownFunction.Function;
                 return null;
             case DraygonCue.DisplaceBodyGraphics displace:
                 state.BodyGraphicsDisplacement = displace.Offset;
@@ -958,6 +958,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
 
+    /// <summary>The eye's state, failing if the eye never initialized.</summary>
+    private static DraygonEyeState RequireEyeState(RoomEnemySlot eye) =>
+        eye.SpeciesState<DraygonEyeState>() ?? throw new InvalidDataException("Draygon's eye has no state.");
+
     /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
     private void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
@@ -992,10 +996,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             eye.Position.X.Whole + (facingRight ? 24 : -24)))));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
         byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY));
-        if (angle == (byte)eye.VariableF)
+        DraygonEyeState eyeState = RequireEyeState(eye);
+        if (angle == (byte)eyeState.LookAngle)
             return;
 
-        eye.VariableF = angle;
+        eyeState.LookAngle = angle;
         DraygonProgram look = angle switch
         {
             < 32 => facingRight
@@ -1224,7 +1229,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DraygonProgram.EyeFacingRightDying
                 : DraygonProgram.EyeFacingLeftDying);
-        state.Eye.VariableA = (ushort)DraygonEyeFunction.Inert;
+        RequireEyeState(RequirePart(state.Eye)).Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 
         // The native death callback releases Samus unconditionally, even during an
@@ -1313,7 +1318,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DraygonProgram.EyeFacingRightDead
                 : DraygonProgram.EyeFacingLeftDead);
-        eye.VariableA = (ushort)DraygonEyeFunction.Inert;
+        RequireEyeState(eye).Function = DraygonEyeFunction.Inert;
     }
 
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>
@@ -1749,7 +1754,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Function = DraygonAiFunction.SwoopRightSetup;
-        body.VariableB = 0;
+        state.SwoopOffset = 0;
         body.Position = body.Position.WithWhole(state.LeftSideReset);
     }
 

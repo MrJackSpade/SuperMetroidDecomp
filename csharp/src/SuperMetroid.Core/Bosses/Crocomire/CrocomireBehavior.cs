@@ -76,6 +76,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort CrocomireSpikeWallThreshold = 768;
     /// <summary>The melt's BG2 distortion step stops growing at 80 pixels (8.8).</summary>
     private const int MaximumCrocomireDistortionStep = 20480;
+
+    /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
+    private const int CrocomireTongueBodyXOffset = 23;
     /// <summary>The projectile attack's last spawn parameter: its ninth shot, after which Crocomire steps forward.</summary>
     private const int LastProjectileSpawnParameter = 18;
     /// <summary>Camera position tracked during Crocomire's BG2 body and death presentation; its X places the BG2 body.</summary>
@@ -133,6 +136,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _roomStatus.BossId = 6;
         var state = new CrocomireEnemyState(slot);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         Crocomire = state;
         CrocomireDeath = new CrocomireDeathState();
         ClearCrocomireBg2WorkingTilemap();
@@ -200,7 +204,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             .WithUntranslatedBits(
                 EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
                 "Crocomire initializer");
-        slot.VariableA = 23;
+        var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireTongueBodyXOffset };
+        slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
     }
 
@@ -621,11 +626,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
                 body.Position.Y.Whole, body.SpritemapPointer));
 
-        // The tongue is a normal second enemy actor whose var A is the body-relative X
-        // offset. $8BA4 updates it even while the body's bulk is represented by BG2.
+        // The tongue is a normal second enemy actor placed at its body-relative X offset.
+        // $8BA4 updates it even while the body's bulk is represented by BG2.
         if (state.Tongue is { } tongue)
         {
-            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + tongue.VariableA)), body.Position.Y.Whole));
+            int offset = (tongue.SpeciesState<CrocomireTongueState>()
+                ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
+            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + offset)), body.Position.Y.Whole));
         }
 
         ushort horizontal;
@@ -1720,8 +1727,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     return CrocomireBodyProgram.StepForward;
                 }
                 state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
-                if (state.Tongue is not null)
-                    state.Tongue.VariableD = 0;
                 state.FightFlags |= CrocomireFightFlags.UnusedClawsMoving;
                 return CrocomireBodyProgram.MovingClaws;
 

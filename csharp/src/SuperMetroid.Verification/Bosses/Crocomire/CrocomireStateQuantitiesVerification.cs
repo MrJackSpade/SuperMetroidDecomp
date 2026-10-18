@@ -32,19 +32,18 @@ internal static class CrocomireStateQuantitiesVerification
 
     /// <summary>
     /// The queued step count stores the whole range its signed comparisons read correctly and rejects anything
-    /// outside it without touching the slot word, instead of wrapping as a native word would.
+    /// outside it without changing the count, instead of wrapping as a native word would.
     /// </summary>
     private static void VerifyStepCounterRange()
     {
         (_, CrocomireEnemyState state) = NewCrocomire();
         state.StepCounter = short.MaxValue;
-        AssertEqual(short.MaxValue, state.Body.VariableD, "the largest step count reaches the slot word unchanged");
         AssertEqual(short.MaxValue, state.StepCounter, "the largest step count reads back");
         AssertThrows<ArgumentOutOfRangeException>(() => state.StepCounter = short.MaxValue + 1,
             "a step count the signed comparisons would read as negative is rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => state.StepCounter = -1,
             "a step count below zero is rejected instead of wrapping");
-        AssertEqual(short.MaxValue, state.Body.VariableD, "a rejected step count leaves the slot word unchanged");
+        AssertEqual(short.MaxValue, state.StepCounter, "a rejected step count leaves the count unchanged");
     }
 
     /// <summary>
@@ -110,9 +109,10 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopSink;
-        body.VariableD = acceleration;
-        body.VariableE = speed;
-        body.VariableF = subposition;
+        state.VerticalAcceleration = acceleration;
+        state.VerticalSpeed = speed;
+        // The whole subposition word, whose high byte is the vertical subpixel; combat names it the projectile counter.
+        state.ProjectileCounter = subposition;
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -134,9 +134,10 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
         state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopRise;
-        body.VariableD = acceleration;
-        body.VariableE = speed;
-        body.VariableF = subposition;
+        state.VerticalAcceleration = acceleration;
+        state.VerticalSpeed = speed;
+        // The whole subposition word, whose high byte is the vertical subpixel; combat names it the projectile counter.
+        state.ProjectileCounter = subposition;
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -152,13 +153,13 @@ internal static class CrocomireStateQuantitiesVerification
         throw new InvalidOperationException($"Verification failed: {name} did not clear the surface.");
     }
 
-    /// <summary>Compares the three slot words and the body's Y with the native reference.</summary>
+    /// <summary>Compares the three motion words and the body's Y with the native reference.</summary>
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual(acceleration, state.Body.VariableD, $"{at}: acceleration word");
-        AssertEqual(speed, state.Body.VariableE, $"{at}: speed word");
-        AssertEqual(subposition, state.Body.VariableF, $"{at}: subposition word");
+        AssertEqual((int)acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
+        AssertEqual((int)speed, state.VerticalSpeed, $"{at}: speed word");
+        AssertEqual((int)subposition, state.ProjectileCounter, $"{at}: subposition word");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 
@@ -232,8 +233,7 @@ internal static class CrocomireStateQuantitiesVerification
         CrocomireDeathState death = behavior.CrocomireDeath ?? throw new InvalidOperationException("Verification requires the death state.");
         ushort fraction = 0;
         ushort whole = 0;
-        body.VariableE = fraction;
-        body.VariableF = whole;
+        state.SkeletonVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
         body.Position = body.Position.WithWhole(new(100, 54));
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
@@ -271,8 +271,8 @@ internal static class CrocomireStateQuantitiesVerification
         {
             NativeAccelerate(ref fraction, ref whole, SnesSixteenSixteen.FromEightEight(16u), 6);
             behavior.RunCrocomireSkeletonCollapse(state);
-            AssertEqual(fraction, body.VariableE, $"skeleton collapse frame {frame}: speed fraction word");
-            AssertEqual(whole, body.VariableF, $"skeleton collapse frame {frame}: speed whole word");
+            AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
+            AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"skeleton collapse frame {frame}: speed whole word");
         }
     }
 
@@ -280,8 +280,8 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertSkeletonWords(CrocomireEnemyState state, ushort fraction, ushort whole,
         FixedPosition<RoomPixels> position, string at)
     {
-        AssertEqual(fraction, state.Body.VariableE, $"{at}: speed fraction word");
-        AssertEqual(whole, state.Body.VariableF, $"{at}: speed whole word");
+        AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"{at}: speed fraction word");
+        AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"{at}: speed whole word");
         AssertEqual(position, state.Body.Position, $"{at}: position");
     }
 

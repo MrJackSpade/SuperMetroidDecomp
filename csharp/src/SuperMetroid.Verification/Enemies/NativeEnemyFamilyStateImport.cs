@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -73,6 +75,29 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
+        {
+            draygonRecord.Function = (DraygonAiFunction)slot.VariableA;
+            draygonRecord.SwoopOffset = slot.VariableB;
+            draygonRecord.SwoopEndOffset = slot.VariableC;
+            draygonRecord.SwoopVelocity = SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableE);
+        }
+        if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
+        {
+            draygonEyeRecord.Function = slot.VariableA == 0 ? null : (DraygonEyeFunction)slot.VariableA;
+            draygonEyeRecord.LookAngle = slot.VariableF;
+        }
+        if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
+        {
+            crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)slot.VariableA;
+            crocomireRecord.FightFlags = (CrocomireFightFlags)slot.VariableB;
+            crocomireRecord.FightFunction = (CrocomireFightFunction)slot.VariableC;
+            crocomireRecord.RumbleTableOffset = slot.VariableD;
+            crocomireRecord.VerticalSpeed = slot.VariableE;
+            crocomireRecord.ProjectileCounter = slot.VariableF;
+        }
+        if (slot.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
+            crocomireTongueRecord.BodyXOffset = slot.VariableA;
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Function = slot.VariableA == 0 ? null : (DeadSidehopperAiFunction)slot.VariableA;

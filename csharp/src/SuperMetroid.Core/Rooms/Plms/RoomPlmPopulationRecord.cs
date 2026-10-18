@@ -5,4 +5,4 @@ public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     PlmHeaderId HeaderPointer,
     Position16<RoomBlocks> Block,
-    ushort RoomArgument);
+    int RoomArgument);

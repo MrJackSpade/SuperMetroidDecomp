@@ -67,7 +67,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new ColoredDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
                         : throw new InvalidOperationException($"Coloured cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
@@ -82,7 +82,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new GreyDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     entry.slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
                         : throw new InvalidOperationException($"Grey cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
@@ -97,7 +97,7 @@ internal static class RoomPlmSystemAccess
                 .Select(entry => new EyeDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
-                    entry.slot.RoomArgument,
+                    checked((ushort)entry.slot.RoomArgument),
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     checked((byte)(entry.door).HitCounter),
                     entry.slot.Animation,
@@ -221,7 +221,7 @@ internal static class RoomPlmSystemAccess
                 NativeSlotIndex: index,
                 HeaderPointer: slot.HeaderPointer,
                 BlockIndex: slot.BlockIndex,
-                RoomArgument: slot.RoomArgument,
+                RoomArgument: checked((ushort)slot.RoomArgument),
                 PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LoopTimer: checked((ushort)slot.LoopTimer),

@@ -135,7 +135,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         PlmSlot slot,
         ColoredDoorOrientation orientation)
     {
-        ushort rawRoomArgument = slot.RoomArgument;
+        int rawRoomArgument = slot.RoomArgument;
         int conditionOffset = GreyDoorRoomArgumentDefinitions.ConditionOffset(rawRoomArgument);
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {

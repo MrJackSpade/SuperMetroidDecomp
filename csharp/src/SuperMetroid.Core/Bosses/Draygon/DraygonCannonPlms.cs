@@ -42,7 +42,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
                 nameof(slot), slot.HeaderPointer, "Not a retail Draygon cannon header."),
         };
 
-        ushort variablePointer = slot.RoomArgument;
+        ushort variablePointer = checked((ushort)slot.RoomArgument);
         if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out DraygonCannonControlWord controlWord))
         {
             throw new InvalidDataException(

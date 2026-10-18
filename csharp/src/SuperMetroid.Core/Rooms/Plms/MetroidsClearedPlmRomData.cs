@@ -19,7 +19,7 @@ internal static class MetroidsClearedPlmRomData
     /// Resolves the event written after the enemy death quota is met, or null for one of the
     /// cartridge's nine intentional no-op argument entries.
     /// </summary>
-    public static EventNumber? ResolveEvent(ushort roomArgument)
+    public static EventNumber? ResolveEvent(int roomArgument)
     {
         int wordIndex = ValidateAndGetWordIndex(roomArgument);
         return wordIndex < 9 ? null : QuotaObserverEvents[wordIndex - 9];
@@ -35,7 +35,7 @@ internal static class MetroidsClearedPlmRomData
     ];
 
     /// <summary>Converts a room argument into one of thirteen native table entries, rejecting odd or out-of-range byte offsets.</summary>
-    private static int ValidateAndGetWordIndex(ushort roomArgument)
+    private static int ValidateAndGetWordIndex(int roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument / 2 >= 13)
         {

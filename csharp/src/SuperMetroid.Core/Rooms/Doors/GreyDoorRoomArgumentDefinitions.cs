@@ -12,9 +12,9 @@ internal static class GreyDoorRoomArgumentDefinitions
     private const ushort DoorBitArgumentBits = 0x83ff;
 
     /// <summary>The byte offset of the unlock condition in the <c>$84:BE4B</c> table.</summary>
-    internal static int ConditionOffset(ushort roomArgument) =>
-        (SnesLittleEndian.HighByte(roomArgument) & ConditionBits) >> 1;
+    internal static int ConditionOffset(int roomArgument) =>
+        (SnesLittleEndian.HighByte(checked((ushort)roomArgument)) & ConditionBits) >> 1;
 
     /// <summary>The argument the setup leaves: the door bit and the never-persist flag.</summary>
-    internal static ushort DoorBitArgument(ushort roomArgument) => unchecked((ushort)(roomArgument & DoorBitArgumentBits));
+    internal static int DoorBitArgument(int roomArgument) => roomArgument & DoorBitArgumentBits;
 }

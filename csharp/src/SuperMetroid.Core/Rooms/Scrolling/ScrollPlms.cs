@@ -120,7 +120,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     internal static void SetupScrollSlot(RoomLevelData level, PlmSlot slot,
-        PlmHeaderId header, ReadOnlySpan<byte> program, ushort? compiledSource)
+        PlmHeaderId header, ReadOnlySpan<byte> program, int? compiledSource)
     {
         if (header != PlmHeaderId.ScrollTrigger)
         {
@@ -166,7 +166,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         /// <summary>Latched on first touch until ordered scroll writes finish.</summary>
         public bool Triggered { get; set; }
         /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
-        public ushort? CompiledSource { get; set; }
+        public int? CompiledSource { get; set; }
         /// <summary>Validated constructed pairs. Null executes the retail identity directly, including historical states.</summary>
         public byte[]? Program { get; set; }
     }

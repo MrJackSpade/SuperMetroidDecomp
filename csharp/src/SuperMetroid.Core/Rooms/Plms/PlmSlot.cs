@@ -25,7 +25,7 @@ internal sealed class PlmSlot
     /// <summary>The pre-instruction run before the timer/list pass (native bank-$84 pointer <c>$1CD7,x</c>).</summary>
     internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
     /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
-    public ushort RoomArgument { get; set; }
+    public int RoomArgument { get; set; }
     /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
     public int LoopTimer
     {

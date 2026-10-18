@@ -34,7 +34,7 @@ internal static class TourianPreInstructions
 
     /// <summary>The routine setup <c>$84:DB1E</c> selects for <paramref name="roomArgument"/>.</summary>
     /// <exception cref="InvalidDataException">The argument is not an even offset into the table.</exception>
-    internal static PlmPreInstruction MetroidsClearedFor(ushort roomArgument)
+    internal static PlmPreInstruction MetroidsClearedFor(int roomArgument)
     {
         MetroidsClearedPlmRomData.ResolveEvent(roomArgument);
         return MetroidsCleared[roomArgument / 2];

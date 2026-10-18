@@ -47,11 +47,11 @@ public sealed class RoomPlmPopulationDefinition
         if (placement.Header.Header == 0)
             throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
         byte[] program = placement.ScrollProgram.ToArray();
-        ushort? compiledSource = program.Length == 0 ? placement.CompiledScrollSource : null;
+        int? compiledSource = program.Length == 0 ? placement.CompiledScrollSource : null;
         if (compiledSource is { } sourcePointer)
         {
             if (placement.Header.Header != PlmHeaderId.ScrollTrigger || program.Length != 0 ||
-                !RoomPlmScrollProgramDefinitions.TryApply(sourcePointer, null))
+                !RoomPlmScrollProgramDefinitions.TryApply(checked((ushort)sourcePointer), null))
                 throw new InvalidDataException("Retail scroll placement has an invalid program identity.");
         }
         else if (placement.Header.Header == PlmHeaderId.ScrollTrigger)

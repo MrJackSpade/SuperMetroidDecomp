@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Projectiles;
 internal static class MiscDustProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MiscDustProjectileAnimations.Programs, MiscDustProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MiscDustProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(MiscDustProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMiscDustProjectileAnimations(SuperMetroidAddressSpace rom)

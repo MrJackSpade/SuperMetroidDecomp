@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
 /// The presentation boundary of Spore Spawn's projectiles (#641): the bank-$86 list entries the projectile
-/// definitions name, and each typed frame's installed artwork key, which is its native spritemap operand's address.
+/// definitions name, and the projectile frame each typed frame shows.
 /// </summary>
 internal static class SporeSpawnProjectileVisualDefinitions
 {
@@ -25,26 +27,26 @@ internal static class SporeSpawnProjectileVisualDefinitions
             Enumerable.Range(0, SporeSpawnProjectileAnimations.PoseCount(program)).Select(phase => new SporeSpawnProjectileFrame(program, phase))),
     ];
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>: its native operand's address.</summary>
-    internal static ushort PresentationKey(SporeSpawnProjectileFrame frame) => (frame.Program, frame.Phase) switch
-    {
-        (P.SpawnerClosed, 0) => 0xdc02,
-        (P.SpawnerRelease, 0) => 0xdc08,
-        (P.SpawnerRelease, 1) => 0xdc0c,
-        (P.SpawnerRelease, 2) => 0xdc12,
-        (P.SpawnerRelease, 3) => 0xdc16,
-        (P.SpawnerRelease, 4) => 0xdc1a,
-        (P.Spore, 0) => 0xdc20,
-        (P.Spore, 1) => 0xdc24,
-        (P.Spore, 2) => 0xdc28,
-        (P.Stalk, 0) => 0xdc30,
-        (P.SporeShot, 0) => 0xdc36,
-        (P.SporeShot, 1) => 0xdc3c,
-        (P.SporeShot, 2) => 0xdc40,
-        (P.SporeShot, 3) => 0xdc44,
-        (P.SporeShot, 4) => 0xdc4a,
-        (P.SporeShot, 5) => 0xdc4e,
-        (P.SporeShot, 6) => 0xdc52,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Spore Spawn projectile frame."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<SporeSpawnProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<SporeSpawnProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(SporeSpawnProjectileProgram.SpawnerClosed, 0)] = EnemyProjectileFrameId.SporeSpawnFrame00,
+            [new(SporeSpawnProjectileProgram.SpawnerRelease, 0)] = EnemyProjectileFrameId.SporeSpawnFrame01,
+            [new(SporeSpawnProjectileProgram.SpawnerRelease, 1)] = EnemyProjectileFrameId.SporeSpawnFrame02,
+            [new(SporeSpawnProjectileProgram.SpawnerRelease, 2)] = EnemyProjectileFrameId.SporeSpawnFrame03,
+            [new(SporeSpawnProjectileProgram.SpawnerRelease, 3)] = EnemyProjectileFrameId.SporeSpawnFrame04,
+            [new(SporeSpawnProjectileProgram.SpawnerRelease, 4)] = EnemyProjectileFrameId.SporeSpawnFrame05,
+            [new(SporeSpawnProjectileProgram.Spore, 0)] = EnemyProjectileFrameId.SporeSpawnFrame06,
+            [new(SporeSpawnProjectileProgram.Spore, 1)] = EnemyProjectileFrameId.SporeSpawnFrame07,
+            [new(SporeSpawnProjectileProgram.Spore, 2)] = EnemyProjectileFrameId.SporeSpawnFrame08,
+            [new(SporeSpawnProjectileProgram.Stalk, 0)] = EnemyProjectileFrameId.SporeSpawnFrame09,
+            [new(SporeSpawnProjectileProgram.SporeShot, 0)] = EnemyProjectileFrameId.SporeSpawnFrame10,
+            [new(SporeSpawnProjectileProgram.SporeShot, 1)] = EnemyProjectileFrameId.SporeSpawnFrame11,
+            [new(SporeSpawnProjectileProgram.SporeShot, 2)] = EnemyProjectileFrameId.SporeSpawnFrame12,
+            [new(SporeSpawnProjectileProgram.SporeShot, 3)] = EnemyProjectileFrameId.SporeSpawnFrame13,
+            [new(SporeSpawnProjectileProgram.SporeShot, 4)] = EnemyProjectileFrameId.SporeSpawnFrame14,
+            [new(SporeSpawnProjectileProgram.SporeShot, 5)] = EnemyProjectileFrameId.SporeSpawnFrame15,
+            [new(SporeSpawnProjectileProgram.SporeShot, 6)] = EnemyProjectileFrameId.SporeSpawnFrame16,
+        };
 }

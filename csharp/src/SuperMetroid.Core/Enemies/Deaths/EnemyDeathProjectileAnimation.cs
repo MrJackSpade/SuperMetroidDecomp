@@ -13,6 +13,6 @@ internal sealed class EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram 
     private protected override AnimationProgramSet<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Programs => EnemyDeathProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(EnemyDeathProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(EnemyDeathProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(EnemyDeathProjectileFrame frame) =>
+        EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

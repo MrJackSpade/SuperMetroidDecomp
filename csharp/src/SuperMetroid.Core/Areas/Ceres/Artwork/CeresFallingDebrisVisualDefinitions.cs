@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisProgram;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -13,11 +15,11 @@ internal static class CeresFallingDebrisVisualDefinitions
     /// <summary>The frames in installed order.</summary>
     internal static IReadOnlyList<CeresFallingDebrisProgram> Frames { get; } = [P.Light, P.Dark];
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>: its native operand's address.</summary>
-    internal static ushort PresentationKey(CeresFallingDebrisProgram frame) => frame switch
-    {
-        P.Light => 0x9752,
-        P.Dark => 0x9758,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ceres falling tile."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId>
+        {
+            [CeresFallingDebrisProgram.Light] = EnemyProjectileFrameId.CeresFallingDebrisFrame00,
+            [CeresFallingDebrisProgram.Dark] = EnemyProjectileFrameId.CeresFallingDebrisFrame01,
+        };
 }

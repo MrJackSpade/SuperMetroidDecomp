@@ -13,6 +13,6 @@ internal sealed class TourianStatueProjectileAnimation(TourianStatueProjectilePr
         TourianStatueProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(TourianStatueProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(TourianStatueProjectileFrameDefinitions.PresentationKeys[frame]);
+    private protected override EnemyProjectileFrameId Present(TourianStatueProjectileFrame frame) =>
+        TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

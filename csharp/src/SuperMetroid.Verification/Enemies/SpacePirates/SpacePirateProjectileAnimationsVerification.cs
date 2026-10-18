@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
@@ -12,7 +13,7 @@ internal static class SpacePirateProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SpacePirateProjectileAnimations.Programs,
-        frame => SpacePirateProjectileFrameDefinitions.PresentationKeys[frame], SpacePirateProjectileCueRules.Rules);
+        frame => EnemyProjectileFrames.ProgramFrameKey(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[frame]), SpacePirateProjectileCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifySpacePirateProjectileAnimations(SuperMetroidAddressSpace rom)

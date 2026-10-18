@@ -235,7 +235,7 @@ internal static class DraygonAnimationsVerification
         var samus = new SamusState();
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
         AssertEqual(EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
-        AssertEqual(DraygonProjectileVisualDefinitions.PresentationKey(new(DraygonProjectileFrameKind.Goop, 0)), goop.PresentationOperandAddress,
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.InstructionTimer.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");
@@ -262,7 +262,7 @@ internal static class DraygonAnimationsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), DraygonProjectileVisualDefinitions.PresentationKey(step.Frame), $"{at}: frame operand");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: frame operand");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

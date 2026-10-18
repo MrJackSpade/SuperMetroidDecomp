@@ -13,7 +13,6 @@ internal sealed class SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram 
     private protected override AnimationProgramSet<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Programs => SkreeMetareeParticleAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(SkreeMetareeParticleFrame frame) =>
-        EnemyProjectileFramePresentation.Composition(
-            Enemies.Artwork.SkreeMetareeParticleVisualDefinitions.Resolve(SkreeMetareeParticleFrameDefinitions.PresentationKey(frame)));
+    private protected override EnemyProjectileFrameId Present(SkreeMetareeParticleFrame frame) =>
+        SkreeMetareeParticleFrameDefinitions.ShownProjectileFrames[frame];
 }

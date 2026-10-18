@@ -53,7 +53,7 @@ internal static class AlcoonFireballBehaviorVerification
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
-            ushort key = AlcoonFireballFrameDefinitions.PresentationKey(frame);
+            ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, key, out ushort selected), $"pose {pose} has a calculated selector");
             AssertEqual(AlcoonFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }

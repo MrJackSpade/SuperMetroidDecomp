@@ -69,7 +69,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         AssertEqual(NoobTubeProjectileFrameDefinitions.PoseCount, executedOperands.Count, "every native visual operand is shown");
         for (int pose = 0; pose < NoobTubeProjectileFrameDefinitions.PoseCount; pose++)
         {
-            ushort key = NoobTubeProjectileFrameDefinitions.PresentationKey(new(pose));
+            ushort key = EnemyProjectileFrames.ProgramFrameKey(NoobTubeProjectileFrameDefinitions.ShownProjectileFrames[new(pose)]);
             AssertTrue(executedOperands.Contains(key), $"production shows n00b-tube presentation $86:{key:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the n00b tube's native list bytes");

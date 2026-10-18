@@ -13,6 +13,6 @@ internal sealed class EyeDoorSweatAnimation(EyeDoorSweatProgram program)
     private protected override AnimationProgramSet<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Programs => EyeDoorSweatAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(EyeDoorSweatFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(EyeDoorSweatFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(EyeDoorSweatFrame frame) =>
+        EyeDoorSweatFrameDefinitions.ShownProjectileFrames[frame];
 }

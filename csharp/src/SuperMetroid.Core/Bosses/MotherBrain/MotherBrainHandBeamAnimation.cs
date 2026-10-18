@@ -13,6 +13,6 @@ internal sealed class MotherBrainHandBeamAnimation : EnemyProjectileTimelineAnim
         MotherBrainHandBeamAnimations.Timeline;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MotherBrainHandBeamFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MotherBrainHandBeamVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MotherBrainHandBeamFrame frame) =>
+        MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames[frame];
 }

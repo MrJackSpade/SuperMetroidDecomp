@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -50,13 +51,13 @@ internal static class CompiledEnemyVisualSelectorsTooling
         if (index < AlcoonFireballFrameDefinitions.PoseCount)
         {
             AlcoonFireballFrame fireball = new(index);
-            return new(0x860000 | AlcoonFireballFrameDefinitions.PresentationKey(fireball), AlcoonFireballFrameDefinitions.Spritemap(fireball));
+            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameDefinitions.Spritemap(fireball));
         }
         index -= AlcoonFireballFrameDefinitions.PoseCount;
         if (index < FuneNamiheFireballFrameDefinitions.PoseCount)
         {
             FuneNamiheFireballFrame fune = new(index);
-            return new(0x860000 | FuneNamiheFireballFrameDefinitions.PresentationKey(fune), FuneNamiheFireballFrameDefinitions.Spritemap(fune));
+            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameDefinitions.Spritemap(fune));
         }
         throw new IndexOutOfRangeException();
     }

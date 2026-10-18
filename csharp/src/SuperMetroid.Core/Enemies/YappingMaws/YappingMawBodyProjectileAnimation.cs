@@ -13,6 +13,6 @@ internal sealed class YappingMawBodyProjectileAnimation(YappingMawBodyProjectile
     private protected override AnimationProgramSet<YappingMawBodyProjectileProgram, YappingMawBodyProjectileFrame, EnemyProjectileCommonCue> Programs => YappingMawBodyProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(YappingMawBodyProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(YappingMawBodyProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(YappingMawBodyProjectileFrame frame) =>
+        YappingMawBodyProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

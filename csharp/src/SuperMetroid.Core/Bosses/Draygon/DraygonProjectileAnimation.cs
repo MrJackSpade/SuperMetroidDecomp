@@ -14,6 +14,6 @@ internal sealed class DraygonProjectileAnimation(DraygonProjectileProgram progra
         DraygonProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(DraygonProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(DraygonProjectileVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(DraygonProjectileFrame frame) =>
+        DraygonProjectileVisualDefinitions.ShownProjectileFrames[frame];
 }

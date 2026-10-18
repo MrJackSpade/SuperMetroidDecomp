@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Stoke;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 internal static class StokeProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, StokeProjectileAnimations.Programs, StokeProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, StokeProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(StokeProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyStokeProjectileAnimations(SuperMetroidAddressSpace rom)

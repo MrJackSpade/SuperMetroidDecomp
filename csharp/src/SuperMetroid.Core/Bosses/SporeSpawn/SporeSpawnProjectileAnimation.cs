@@ -14,6 +14,6 @@ internal sealed class SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram 
         SporeSpawnProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(SporeSpawnProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(SporeSpawnProjectileVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(SporeSpawnProjectileFrame frame) =>
+        SporeSpawnProjectileVisualDefinitions.ShownProjectileFrames[frame];
 }

@@ -64,14 +64,13 @@ internal static class EnemySpriteArtworkBoundaryVerification
         }
 
         RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles[17];
-        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
+        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (255, 252), (0, ushort.MaxValue) })
         {
             ushort pointer = source.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             roomSlot.DrawPriority = EnemyProjectileDrawPriority.High;
-            roomSlot.PresentationOperandAddress = frame.OperandAddress;
-            roomSlot.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
+            roomSlot.Frame = EnemyProjectileSlotFrameAccess.ProgramFrameAt(frame.OperandAddress);
             roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (SnesLittleEndian.HighByteInPlace(y)) == 0);
@@ -83,12 +82,14 @@ internal static class EnemySpriteArtworkBoundaryVerification
         roomSlot.Clear();
         AssertEqual(0, (projectileArtwork ?? throw new InvalidOperationException("Verification requires projectileArtwork.")).Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
             "native initial blank projectile is compiled as a zero-part frame");
-        foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
+        foreach (EnemyProjectileFrameId composition in Enum.GetValues<EnemyProjectileFrameId>().Where(EnemyProjectileFrames.IsComposition))
         {
+            ushort pointer = EnemyProjectileFrames.Composition(composition);
+            string name = composition.ToString();
             roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             roomSlot.DrawPriority = EnemyProjectileDrawPriority.High;
             roomSlot.Position = roomSlot.Position.WithWhole(new(128, 96));
-            roomSlot.GraphicsIndex = 0x0a04; roomSlot.SpritemapPointer = pointer;
+            roomSlot.GraphicsIndex = 0x0a04; roomSlot.Frame = composition;
             var actual = new OamBuffer(); var expected = new OamBuffer();
             enemies.Projectiles.DrawEnemyProjectilePass(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(128, 96), 0x0a04, true);

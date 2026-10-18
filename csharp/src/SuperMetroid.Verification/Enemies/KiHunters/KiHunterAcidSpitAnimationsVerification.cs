@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 internal static class KiHunterAcidSpitAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KiHunterAcidSpitAnimations.Programs, KiHunterAcidSpitFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KiHunterAcidSpitAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyKiHunterAcidSpitAnimations(SuperMetroidAddressSpace rom)

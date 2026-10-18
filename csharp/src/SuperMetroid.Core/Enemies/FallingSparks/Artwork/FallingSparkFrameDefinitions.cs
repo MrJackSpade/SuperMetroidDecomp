@@ -1,31 +1,33 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.FallingSparks.Artwork;
 
 /// <summary>
-/// The presentation boundary of the falling spark's programs (#641): the installed artwork key of each
-/// <see cref="FallingSparkFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the falling spark's programs (#641): the projectile frame each
+/// <see cref="FallingSparkFrame"/> pose shows.
 /// </summary>
 internal static class FallingSparkFrameDefinitions
 {
     /// <summary>The poses, in installed artwork order.</summary>
     internal const int PoseCount = 14;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(FallingSparkFrame frame) => frame.Pose switch
-    {
-        0 => 0xf355,
-        1 => 0xf359,
-        2 => 0xf35d,
-        3 => 0xf365,
-        4 => 0xf369,
-        5 => 0xf36d,
-        6 => 0xf371,
-        7 => 0xf375,
-        8 => 0xf379,
-        9 => 0xf37d,
-        10 => 0xf381,
-        11 => 0xf385,
-        12 => 0xf389,
-        13 => 0xf38d,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined falling spark pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<FallingSparkFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<FallingSparkFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.FallingSparkFrame00,
+            [new(1)] = EnemyProjectileFrameId.FallingSparkFrame01,
+            [new(2)] = EnemyProjectileFrameId.FallingSparkFrame02,
+            [new(3)] = EnemyProjectileFrameId.FallingSparkFrame03,
+            [new(4)] = EnemyProjectileFrameId.FallingSparkFrame04,
+            [new(5)] = EnemyProjectileFrameId.FallingSparkFrame05,
+            [new(6)] = EnemyProjectileFrameId.FallingSparkFrame06,
+            [new(7)] = EnemyProjectileFrameId.FallingSparkFrame07,
+            [new(8)] = EnemyProjectileFrameId.FallingSparkFrame08,
+            [new(9)] = EnemyProjectileFrameId.FallingSparkFrame09,
+            [new(10)] = EnemyProjectileFrameId.FallingSparkFrame10,
+            [new(11)] = EnemyProjectileFrameId.FallingSparkFrame11,
+            [new(12)] = EnemyProjectileFrameId.FallingSparkFrame12,
+            [new(13)] = EnemyProjectileFrameId.FallingSparkFrame13,
+        };
 }

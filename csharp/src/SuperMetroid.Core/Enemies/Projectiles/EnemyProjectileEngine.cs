@@ -411,7 +411,7 @@ internal sealed class EnemyProjectileEngine
 
             if (!projectile.IsActive ||
                 projectile.DrawPriority != priority ||
-                projectile.SpritemapPointer == 0)
+                projectile.Frame is not { } frame)
                 continue;
 
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
@@ -420,9 +420,7 @@ internal sealed class EnemyProjectileEngine
 
             var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
                 "Room enemy projectiles require installed sprite artwork.");
-            ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
-                ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
-                : artwork.Get(projectile.SpritemapPointer);
+            ReadOnlyMemory<EnemySpritemapPart> parts = EnemyProjectileFrames.Parts(artwork, frame);
             oam.AddEnemySpritemap(parts.Span, screen.ToOam(),
                 new SnesObjAttributeWord(checked((ushort)projectile.GraphicsIndex)).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
@@ -466,9 +464,9 @@ internal sealed class EnemyProjectileEngine
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
 
-        // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
-        // It is intentionally not the first list map; bank-$86 advances it on its own pass.
-        projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
+        // SpawnEprojInner shows the blank frame before the first list tick. It is intentionally not the program's first
+        // frame; bank-$86 advances to that on its own pass.
+        projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.InvincibilityFrames = 96;

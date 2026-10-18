@@ -44,7 +44,7 @@ internal static class ImportedSpritemapsVerification
         var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
             frame => frame.Name, frame => EnemySpritemapFiles.ExtractParts(bus, 0x8d, frame.Pointer));
         var programs = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
+        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
         {
             ushort pointer = bus.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             // An unwritten fixture operand has no art. Do not turn a zero selector into

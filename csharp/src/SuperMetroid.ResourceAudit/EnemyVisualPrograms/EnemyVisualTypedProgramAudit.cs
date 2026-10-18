@@ -122,6 +122,7 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 
@@ -154,7 +155,7 @@ internal static class EnemyVisualTypedProgramAudit
         }
         foreach (BotwoonProjectileFrame frame in BotwoonVisualDefinitions.ProjectileFrames)
         {
-            ProjectileDefinitionAudit.RequireFrame(BotwoonVisualDefinitions.ProjectilePresentationKey(frame),
+            ProjectileDefinitionAudit.RequireFrame(EnemyProjectileFrames.ProgramFrameKey(BotwoonVisualDefinitions.ShownProjectileFrames[frame]),
                 nameof(BotwoonVisualDefinitions), botwoonSource, exports, report);
         }
         rows.Add(new(botwoonHeadFrames.Length + BotwoonVisualDefinitions.ProjectileFrames.Count));

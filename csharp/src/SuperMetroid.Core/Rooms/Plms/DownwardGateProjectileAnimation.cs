@@ -13,6 +13,6 @@ internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileProg
     private protected override AnimationProgramSet<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Programs => DownwardGateProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(DownwardGateProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(DownwardGateProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(DownwardGateProjectileFrame frame) =>
+        DownwardGateProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

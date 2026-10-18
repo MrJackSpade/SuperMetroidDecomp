@@ -285,7 +285,7 @@ internal static class PhantoonAnimationsVerification
             // The native operand selects the empty projectile spritemap, which has no installed program frame.
             AssertEqual(cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | native.Operand), projectile.SpritemapPointer,
                 $"pre-Phantoon room update {update}: spritemap");
-            AssertEqual(EnemyProjectileAnimation.EmptyFrameKey, projectile.PresentationOperandAddress, $"pre-Phantoon room update {update}: no program frame");
+            AssertTrue(projectile.Frame == EnemyProjectileFrameId.Blank, $"pre-Phantoon room update {update}: the blank frame, no program frame");
         }
         AssertTrue(native.Deleted, "the pre-Phantoon room projectile deletes itself");
     }

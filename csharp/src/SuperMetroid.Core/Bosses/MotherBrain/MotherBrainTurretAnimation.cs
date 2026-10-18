@@ -32,6 +32,6 @@ internal sealed class MotherBrainTurretAnimation : EnemyProjectileTimelineAnimat
     private protected override AnimationTimeline<MotherBrainTurretFrame, MotherBrainTurretCue> Timeline => timeline;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MotherBrainTurretFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MotherBrainTurretVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MotherBrainTurretFrame frame) =>
+        MotherBrainTurretVisualDefinitions.ShownProjectileFrames[frame];
 }

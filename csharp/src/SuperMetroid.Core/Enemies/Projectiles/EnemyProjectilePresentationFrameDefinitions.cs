@@ -1,330 +1,1182 @@
-using SuperMetroid.Core.Rooms.Plms.Artwork;
-using SuperMetroid.Core.Rooms.Doors.Artwork;
-using SuperMetroid.Core.Enemies.Kago.Artwork;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
-using SuperMetroid.Core.Enemies.Shaktool.Artwork;
-using SuperMetroid.Core.Enemies.Stoke.Artwork;
-using SuperMetroid.Core.Enemies.Nuclear.Artwork;
-using SuperMetroid.Core.Enemies.Cacatac.Artwork;
-using SuperMetroid.Core.Enemies.Deaths.Artwork;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Core.Enemies.Magdollite.Artwork;
-using SuperMetroid.Core.Enemies.Polyp.Artwork;
-using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
-using SuperMetroid.Core.Enemies.Alcoon.Artwork;
-using SuperMetroid.Core.Enemies.KiHunters.Artwork;
-using SuperMetroid.Core.Enemies.Powamp.Artwork;
-using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
-using SuperMetroid.Core.Enemies.Dragon.Artwork;
-using SuperMetroid.Core.Enemies.Gunship.Artwork;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Alcoon;
-using SuperMetroid.Core.Enemies.Cacatac;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Dragon;
-using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.Kago;
-using SuperMetroid.Core.Enemies.KiHunters;
-using SuperMetroid.Core.Enemies.Magdollite;
-using SuperMetroid.Core.Enemies.Nuclear;
-using SuperMetroid.Core.Enemies.Polyp;
-using SuperMetroid.Core.Enemies.Powamp;
-using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Enemies.Stoke;
-using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.YappingMaws;
-using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
-
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// Presentation-only bank-$86 spritemap operands already identified by translated
-/// enemy-projectile programs. Their bank-$8D targets and OAM parts are extracted as
-/// editable artwork; no timing, collision, callback, or motion value lives here.
+/// The installed program frames each artwork schema generation added, keyed by bank-$86 operand and sorted by it. Each
+/// frame keeps the name it was first published under; a frame several producers share is named after the first.
 /// </summary>
 internal static class EnemyProjectilePresentationFrameDefinitions
 {
-    // Each generation is a complete historical set of named visual operands. Their
-    // order matches the published artwork schema, so an older override can be merged
-    // by operand identity without assuming that the sorted current catalog is a prefix.
-    /// <summary>Published artwork schema boundaries used to merge older projectile overrides by operand identity.</summary>
-    private enum CatalogGeneration
-    {
-        /// <summary>Base projectile families before Golden Torizo's super missile and eye beam.</summary>
-        PreGoldenTorizo,
-        /// <summary>Adds Golden Torizo's super missile and eye beam frames.</summary>
-        PreGoldenTorizoEgg,
-        /// <summary>Adds Golden Torizo egg frames.</summary>
-        PreTorizoEffects,
-        /// <summary>Adds Torizo drool, swipe, boom, dust, explosion, and orb effects.</summary>
-        PreGenericEnemyDeath,
-        /// <summary>Adds enemy pickup and generic death frames.</summary>
-        PreEnvironmentAndAttack,
-        /// <summary>Adds environmental and common attack effects.</summary>
-        PreMotherBrainAndStatue,
-        /// <summary>Adds Mother Brain and Bomb Torizo statue projectile frames.</summary>
-        PreWorkRobot,
-        /// <summary>Adds Work Robot laser frames.</summary>
-        PrePolypRock,
-        /// <summary>Adds the Polyp Rock visual operand.</summary>
-        Current,
-    }
-
-    /// <summary>Base schema frame set retained for pre-Golden-Torizo overrides.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
-        Build(CatalogGeneration.PreGoldenTorizo);
-    /// <summary>Historical frame set including Golden Torizo's super missile and eye beam.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
-        Build(CatalogGeneration.PreGoldenTorizoEgg);
-    /// <summary>Historical frame set including Golden Torizo egg artwork.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
-        Build(CatalogGeneration.PreTorizoEffects);
-    /// <summary>Historical frame set including the Torizo effect family.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreGenericEnemyDeathFrames =
-        Build(CatalogGeneration.PreGenericEnemyDeath);
-    /// <summary>Historical frame set including pickups and generic enemy deaths.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreEnvironmentAndAttackFrames =
-        Build(CatalogGeneration.PreEnvironmentAndAttack);
-    /// <summary>Historical frame set including environmental and attack effects.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreMotherBrainAndStatueFrames =
-        Build(CatalogGeneration.PreMotherBrainAndStatue);
-    /// <summary>Historical frame set including Mother Brain and statue projectiles.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PreWorkRobotFrames =
-        Build(CatalogGeneration.PreWorkRobot);
-    /// <summary>Current sorted visual-operand set used by production catalog lookup.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
-        Build(CatalogGeneration.Current);
-    /// <summary>Historical frame set including Work Robot laser and excluding Polyp Rock.</summary>
-    private static readonly EnemyProjectilePresentationFrameDefinition[] PrePolypRockFrames =
-        Build(CatalogGeneration.PrePolypRock);
-
-    /// <summary>Current projectile visual operands sorted by bank-$86 address.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
-    /// <summary>Schema set before the Polyp Rock projectile frame was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PrePolypRock =>
-        PrePolypRockFrames;
-    /// <summary>Base schema set before Golden Torizo projectile art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
-        PreGoldenTorizoFrames;
-    /// <summary>Schema set before Golden Torizo egg art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
-        PreGoldenTorizoEggFrames;
-    /// <summary>Schema set before the broader Torizo effect family was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreTorizoEffects =>
-        PreTorizoEffectsFrames;
-    /// <summary>Schema set before generic enemy pickup and death art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeath =>
-        PreGenericEnemyDeathFrames;
-    /// <summary>Schema set before environmental and attack effect art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttack =>
-        PreEnvironmentAndAttackFrames;
-    /// <summary>Schema set before Mother Brain and statue projectile art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatue =>
-        PreMotherBrainAndStatueFrames;
-    /// <summary>Schema set before Work Robot laser art was added.</summary>
-    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreWorkRobot =>
-        PreWorkRobotFrames;
-
-    /// <summary>Checks whether a bank-$86 visual operand belongs to the current published artwork catalog.</summary>
-    internal static bool Contains(ushort operandAddress) =>
-        Array.BinarySearch(Frames,
-            new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
-            AddressComparer.Instance) >= 0;
-
-    /// <summary>Collects visual operands through a selected schema generation, retaining the first name for shared physical frames.</summary>
-    private static EnemyProjectilePresentationFrameDefinition[] Build(
-        CatalogGeneration generation)
-    {
-        var frames = new Dictionary<ushort, string>();
-        foreach (EnemyProjectilePresentationFrameDefinition frame in
-                 EnemyProjectileFirstProgramFrameManifest.Frames)
-            frames.Add(frame.OperandAddress, frame.Name);
-
-        static void Add(Dictionary<ushort, string> target, string family, int count,
-            Func<int, ushort> addressAt)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                ushort address = addressAt(index);
-                // Different producers can reuse one physical bank-$86 frame. Its first
-                // family name is the editable identity; later owners share that artwork.
-                target.TryAdd(address, $"{family}_frame_{index:D2}");
-            }
-        }
-
-        // Torizo's families install their typed frames in each family's native operand order.
-        static void AddTorizo(Dictionary<ushort, string> target, string family, TorizoProjectileFamily torizoFamily)
-        {
-            IReadOnlyList<TorizoProjectileFrame> torizoFrames = TorizoProjectileVisualDefinitions.Frames(torizoFamily);
-            Add(target, family, torizoFrames.Count, index => TorizoProjectileVisualDefinitions.PresentationKey(torizoFrames[index]));
-        }
-
-        Add(frames, "ceres_ridley", RidleyFireballVisualDefinitions.ProjectileFrameCount,
-            index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "old_tourian_escape_wall_explosion", OldTourianWallExplosionAnimation.PoseCount,
-            OldTourianWallExplosionAnimation.PresentationKey);
-        Add(frames, "cacatac_spike", CacatacProjectileFrameDefinitions.PoseCount,
-            index => CacatacProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,
-            index => BotwoonVisualDefinitions.ProjectilePresentationKey(BotwoonVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "crocomire", CrocomireProjectileVisualDefinitions.ProjectileFrameCount,
-            index => CrocomireProjectileVisualDefinitions.PresentationKey(CrocomireProjectileVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "draygon", DraygonProjectileVisualDefinitions.ProjectileFrameCount,
-            index => DraygonProjectileVisualDefinitions.PresentationKey(DraygonProjectileVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "downward_gate", DownwardGateProjectileFrameDefinitions.PoseCount,
-            index => DownwardGateProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "eye_door", EyeDoorProjectileFrameDefinitions.PoseCount,
-            index => EyeDoorProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "fake_kraid", FakeKraidProjectileAnimation.Poses.Count,
-            index => FakeKraidProjectileAnimation.PresentationKey(FakeKraidProjectileAnimation.Poses[index]));
-        Add(frames, "kago_bug", KagoBugProjectileFrameDefinitions.PoseCount,
-            index => KagoBugProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "kraid_rock", KraidRockVisualDefinitions.ProjectileFrameCount,
-            index => KraidRockVisualDefinitions.PresentationKey(KraidRockVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "noob_tube", NoobTubeProjectileFrameDefinitions.PoseCount,
-            index => NoobTubeProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "nuclear_waffle", NuclearWaffleProjectileFrameDefinitions.PoseCount,
-            index => NuclearWaffleProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "phantoon", PhantoonFlameVisualDefinitions.ProjectileFrameCount,
-            index => PhantoonFlameVisualDefinitions.PresentationKey(PhantoonFlameVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "shaktool", ShaktoolProjectileFrameDefinitions.PoseCount,
-            index => ShaktoolProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "space_pirate", SpacePirateProjectileFrameDefinitions.PoseCount,
-            index => SpacePirateProjectileFrameDefinitions.PresentationKeys[new(index)]);
-        Add(frames, "spore_spawn", SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount,
-            index => SporeSpawnProjectileVisualDefinitions.PresentationKey(SporeSpawnProjectileVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "stoke", StokeProjectileFrameDefinitions.PoseCount,
-            index => StokeProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "tourian_statue", TourianStatueProjectileFrameDefinitions.PoseCount,
-            index => TourianStatueProjectileFrameDefinitions.PresentationKeys[new(index)]);
-        Add(frames, "yapping_maw", YappingMawBodyProjectileFrameDefinitions.PoseCount,
-            index => YappingMawBodyProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "alcoon_fireball", AlcoonFireballFrameDefinitions.PoseCount,
-            index => AlcoonFireballFrameDefinitions.PresentationKey(new(index)));
-        if (generation >= CatalogGeneration.PreGoldenTorizoEgg)
-        {
-            AddTorizo(frames, "golden_torizo_super_missile", TorizoProjectileFamily.SuperMissile);
-            AddTorizo(frames, "golden_torizo_eye_beam", TorizoProjectileFamily.EyeBeam);
-        }
-        if (generation >= CatalogGeneration.PreTorizoEffects)
-        {
-            AddTorizo(frames, "golden_torizo_egg", TorizoProjectileFamily.Egg);
-        }
-        if (generation >= CatalogGeneration.PreGenericEnemyDeath)
-        {
-            AddTorizo(frames, "torizo_drool", TorizoProjectileFamily.Drool);
-            AddTorizo(frames, "torizo_explosive_swipe", TorizoProjectileFamily.Swipe);
-            AddTorizo(frames, "torizo_sonic_boom", TorizoProjectileFamily.SonicBoom);
-            AddTorizo(frames, "torizo_landing_dust", TorizoProjectileFamily.LandingDust);
-            AddTorizo(frames, "torizo_explosion", TorizoProjectileFamily.Explosion);
-            AddTorizo(frames, "torizo_chozo_orb", TorizoProjectileFamily.ChozoOrb);
-        }
-        if (generation >= CatalogGeneration.PreEnvironmentAndAttack)
-        {
-            Add(frames, "enemy_pickup",
-                EnemyDeathProjectileFrameDefinitions.PoseCount - DeathFrameCount,
-                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(DeathFrameCount + index)));
-            Add(frames, "enemy_death",
-                DeathFrameCount,
-                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(index)));
-        }
-        if (generation >= CatalogGeneration.PreMotherBrainAndStatue)
-        {
-            Add(frames, "ceres_falling_debris", CeresFallingDebrisVisualDefinitions.Frames.Count,
-                index => CeresFallingDebrisVisualDefinitions.PresentationKey(CeresFallingDebrisVisualDefinitions.Frames[index]));
-            Add(frames, "save_station_electricity",
-                SaveStationElectricityFrameDefinitions.PoseCount,
-                index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "gunship_dust", GunshipDustVisualDefinitions.Frames.Count,
-                index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index]));
-            Add(frames, "falling_spark",
-                FallingSparkFrameDefinitions.PoseCount,
-                index => FallingSparkFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "magdollite_lava",
-                MagdolliteLavaFrameDefinitions.PoseCount,
-                index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "chozo_tourian_dust",
-                ChozoTourianDustFrameDefinitions.PoseCount,
-                index => ChozoTourianDustFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "eye_door_sweat",
-                EyeDoorSweatFrameDefinitions.PoseCount,
-                index => EyeDoorSweatFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "ki_hunter_acid_spit",
-                KiHunterAcidSpitFrameDefinitions.PoseCount,
-                index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "fune_namihe_fireball",
-                FuneNamiheFireballFrameDefinitions.PoseCount,
-                index => FuneNamiheFireballFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "dragon_fireball",
-                DragonFireballFrameDefinitions.PoseCount,
-                index => DragonFireballFrameDefinitions.PresentationKey(new(index)));
-            Add(frames, "powamp_spike",
-                PowampSpikeFrameDefinitions.PoseCount,
-                index => PowampSpikeFrameDefinitions.PresentationKey(new(index)));
-        }
-        if (generation >= CatalogGeneration.PreWorkRobot)
-        {
-            AddTorizo(frames, "bomb_torizo_statue_fragment", TorizoProjectileFamily.StatueFragment);
-            Add(frames, "mother_brain_glass", MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index]));
-            Add(frames, "mother_brain_hand_beam", MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainHandBeamVisualDefinitions.PresentationKey(MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]));
-            Add(frames, "mother_brain_top_tube",
-                MotherBrainTopTubeFrameDefinitions.PresentationKeys.Count,
-                index => MotherBrainTopTubeFrameDefinitions.PresentationKeys[(MotherBrainTopTubeProgram)index]);
-            Add(frames, "mother_brain_turret",
-                MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
-                index => MotherBrainTurretVisualDefinitions.PresentationKey(MotherBrainTurretVisualDefinitions.ProjectileFrames[index]));
-        }
-        if (generation >= CatalogGeneration.PrePolypRock)
-        {
-            Add(frames, "work_robot_laser",
-                WorkRobotLaserFrameDefinitions.PoseCount,
-                index => WorkRobotLaserFrameDefinitions.PresentationKey(new(index)));
-        }
-        if (generation >= CatalogGeneration.Current)
-            frames.Add(PolypRockFrameDefinitions.PresentationKey(new(0)), "polyp_rock_00");
-
-        return frames.OrderBy(entry => entry.Key)
-            .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))
-            .ToArray();
-    }
-
     /// <summary>The generic death explosions' frames, which install first; the drops' frames follow them.</summary>
     internal const int DeathFrameCount = 31;
 
-    /// <summary>Orders frame definitions by physical bank-$86 operand address for binary search.</summary>
-    private sealed class AddressComparer : IComparer<EnemyProjectilePresentationFrameDefinition>
-    {
-        /// <summary>Shared stateless address comparer for current-catalog lookups.</summary>
-        internal static readonly AddressComparer Instance = new();
-        /// <summary>Compares only operand addresses; family names do not affect lookup identity.</summary>
-        public int Compare(EnemyProjectilePresentationFrameDefinition left,
-            EnemyProjectilePresentationFrameDefinition right) =>
-            left.OperandAddress.CompareTo(right.OperandAddress);
-    }
+    /// <summary>
+    /// The program frames the first program-frame artwork schema published
+    /// (<see cref="SuperMetroid.Core.Enemies.Artwork.EnemyProjectileSpritemapVersion.FirstProgramFrame"/>): every Mother
+    /// Brain effect and misc-dust pose with the installed name it was first published under, in that schema's order.
+    /// </summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> FirstProgramFrames { get; } =
+    [
+        new(0xc438, "mother_brain_blue_ring_00"),
+        new(0xc440, "mother_brain_blue_ring_01"),
+        new(0xc448, "mother_brain_blue_ring_02"),
+        new(0xc450, "mother_brain_blue_ring_03"),
+        new(0xc458, "mother_brain_blue_ring_04"),
+        new(0xc460, "mother_brain_blue_ring_05"),
+        new(0xc46a, "mother_brain_blue_ring_impact_00"),
+        new(0xc46e, "mother_brain_blue_ring_impact_01"),
+        new(0xc472, "mother_brain_blue_ring_impact_02"),
+        new(0xc476, "mother_brain_blue_ring_impact_03"),
+        new(0xc47a, "mother_brain_blue_ring_impact_04"),
+        new(0xc47e, "mother_brain_blue_ring_impact_05"),
+        new(0xc770, "projectile_86_c76e_frame_00"),
+        new(0xc774, "projectile_86_c76e_frame_01"),
+        new(0xc778, "projectile_86_c76e_frame_02"),
+        new(0xc77c, "projectile_86_c76e_frame_03"),
+        new(0xc780, "projectile_86_c76e_frame_04"),
+        new(0xc784, "projectile_86_c76e_frame_05"),
+        new(0xc788, "projectile_86_c76e_frame_06"),
+        new(0xc78c, "projectile_86_c76e_frame_07"),
+        new(0xc790, "projectile_86_c76e_frame_08"),
+        new(0xc82b, "projectile_86_c829_frame_00"),
+        new(0xc82f, "projectile_86_c829_frame_01"),
+        new(0xc833, "projectile_86_c829_frame_02"),
+        new(0xc837, "projectile_86_c829_frame_03"),
+        new(0xc83b, "projectile_86_c829_frame_04"),
+        new(0xc83f, "projectile_86_c829_frame_05"),
+        new(0xc8b2, "mother_brain_drool_attached_00"),
+        new(0xc8b6, "mother_brain_drool_attached_01"),
+        new(0xc8ba, "mother_brain_drool_attached_02"),
+        new(0xc8be, "mother_brain_drool_attached_03"),
+        new(0xc8c2, "mother_brain_drool_attached_04"),
+        new(0xc8cc, "mother_brain_drool_released"),
+        new(0xc8e5, "projectile_86_c8e1_frame_00"),
+        new(0xc8e9, "projectile_86_c8e1_frame_01"),
+        new(0xc8ed, "projectile_86_c8e1_frame_02"),
+        new(0xc8f1, "projectile_86_c8e1_frame_03"),
+        new(0xca24, "projectile_86_ca22_frame_00"),
+        new(0xca28, "projectile_86_ca22_frame_01"),
+        new(0xca2c, "projectile_86_ca22_frame_02"),
+        new(0xca30, "projectile_86_ca22_frame_03"),
+        new(0xca34, "projectile_86_ca22_frame_04"),
+        new(0xca38, "projectile_86_ca22_frame_05"),
+        new(0xca3c, "projectile_86_ca22_frame_06"),
+        new(0xca40, "projectile_86_ca22_frame_07"),
+        new(0xcaa8, "projectile_86_caa4_frame_00"),
+        new(0xcaac, "projectile_86_caa4_frame_01"),
+        new(0xcab0, "projectile_86_caa4_frame_02"),
+        new(0xcab4, "projectile_86_caa4_frame_03"),
+        new(0xcab8, "projectile_86_caa4_frame_04"),
+        new(0xcabc, "projectile_86_caa4_frame_05"),
+        new(0xcac0, "projectile_86_caa4_frame_06"),
+        new(0xcac4, "projectile_86_caa4_frame_07"),
+        new(0xcb0f, "projectile_86_cb0d_frame_00"),
+        new(0xe0f0, "projectile_86_e0ee_frame_00"),
+        new(0xe0f4, "projectile_86_e0ee_frame_01"),
+        new(0xe0f8, "projectile_86_e0ee_frame_02"),
+        new(0xe0fc, "projectile_86_e0ee_frame_03"),
+        new(0xe102, "projectile_86_e100_frame_00"),
+        new(0xe106, "projectile_86_e100_frame_01"),
+        new(0xe10a, "projectile_86_e100_frame_02"),
+        new(0xe10e, "projectile_86_e100_frame_03"),
+        new(0xe112, "projectile_86_e100_frame_04"),
+        new(0xe116, "projectile_86_e100_frame_05"),
+        new(0xe11c, "projectile_86_e11a_frame_00"),
+        new(0xe120, "projectile_86_e11a_frame_01"),
+        new(0xe124, "projectile_86_e11a_frame_02"),
+        new(0xe128, "projectile_86_e11a_frame_03"),
+        new(0xe12c, "projectile_86_e11a_frame_04"),
+        new(0xe130, "projectile_86_e11a_frame_05"),
+        new(0xe134, "projectile_86_e11a_frame_06"),
+        new(0xe13a, "projectile_86_e138_frame_00"),
+        new(0xe13e, "projectile_86_e138_frame_01"),
+        new(0xe142, "projectile_86_e138_frame_02"),
+        new(0xe146, "projectile_86_e138_frame_03"),
+        new(0xe14a, "projectile_86_e138_frame_04"),
+        new(0xe14e, "projectile_86_e138_frame_05"),
+        new(0xe154, "projectile_86_e152_frame_00"),
+        new(0xe158, "projectile_86_e152_frame_01"),
+        new(0xe15c, "projectile_86_e152_frame_02"),
+        new(0xe160, "projectile_86_e152_frame_03"),
+        new(0xe164, "projectile_86_e152_frame_04"),
+        new(0xe16a, "projectile_86_e168_frame_00"),
+        new(0xe16e, "projectile_86_e168_frame_01"),
+        new(0xe172, "projectile_86_e168_frame_02"),
+        new(0xe176, "projectile_86_e168_frame_03"),
+        new(0xe17a, "projectile_86_e168_frame_04"),
+        new(0xe180, "projectile_86_e17e_frame_00"),
+        new(0xe184, "projectile_86_e17e_frame_01"),
+        new(0xe188, "projectile_86_e17e_frame_02"),
+        new(0xe18c, "projectile_86_e17e_frame_03"),
+        new(0xe190, "projectile_86_e17e_frame_04"),
+        new(0xe194, "projectile_86_e17e_frame_05"),
+        new(0xe19a, "projectile_86_e198_frame_00"),
+        new(0xe19e, "projectile_86_e198_frame_01"),
+        new(0xe1a2, "projectile_86_e198_frame_02"),
+        new(0xe1a8, "projectile_86_e1a6_frame_00"),
+        new(0xe1ac, "projectile_86_e1a6_frame_01"),
+        new(0xe1b2, "projectile_86_e1b0_frame_00"),
+        new(0xe1b6, "projectile_86_e1b0_frame_01"),
+        new(0xe1ba, "projectile_86_e1b0_frame_02"),
+        new(0xe1be, "projectile_86_e1b0_frame_03"),
+        new(0xe1c2, "projectile_86_e1b0_frame_04"),
+        new(0xe1c8, "projectile_86_e1c6_frame_00"),
+        new(0xe1cc, "projectile_86_e1c6_frame_01"),
+        new(0xe1d0, "projectile_86_e1c6_frame_02"),
+        new(0xe1d4, "projectile_86_e1c6_frame_03"),
+        new(0xe1da, "projectile_86_e1d8_frame_00"),
+        new(0xe1de, "projectile_86_e1d8_frame_01"),
+        new(0xe1e2, "projectile_86_e1d8_frame_02"),
+        new(0xe1e6, "projectile_86_e1d8_frame_03"),
+        new(0xe1ec, "projectile_86_e1ea_frame_00"),
+        new(0xe1f0, "projectile_86_e1ea_frame_01"),
+        new(0xe1f4, "projectile_86_e1ea_frame_02"),
+        new(0xe1f8, "projectile_86_e1ea_frame_03"),
+        new(0xe1fe, "projectile_86_e1fc_frame_00"),
+        new(0xe202, "projectile_86_e1fc_frame_01"),
+        new(0xe20a, "projectile_86_e208_frame_00"),
+        new(0xe20e, "projectile_86_e208_frame_01"),
+        new(0xe212, "projectile_86_e208_frame_02"),
+        new(0xe216, "projectile_86_e208_frame_03"),
+        new(0xe21a, "projectile_86_e208_frame_04"),
+        new(0xe21e, "projectile_86_e208_frame_05"),
+        new(0xe224, "projectile_86_e222_frame_00"),
+        new(0xe228, "projectile_86_e222_frame_01"),
+        new(0xe22c, "projectile_86_e222_frame_02"),
+        new(0xe230, "projectile_86_e222_frame_03"),
+        new(0xe236, "projectile_86_e234_frame_00"),
+        new(0xe23a, "projectile_86_e234_frame_01"),
+        new(0xe23e, "projectile_86_e234_frame_02"),
+        new(0xe242, "projectile_86_e234_frame_03"),
+        new(0xe248, "projectile_86_e246_frame_00"),
+        new(0xe24c, "projectile_86_e246_frame_01"),
+        new(0xe250, "projectile_86_e246_frame_02"),
+        new(0xe254, "projectile_86_e246_frame_03"),
+        new(0xe25a, "projectile_86_e258_frame_00"),
+        new(0xe25e, "projectile_86_e258_frame_01"),
+        new(0xe262, "projectile_86_e258_frame_02"),
+        new(0xe268, "projectile_86_e266_frame_00"),
+        new(0xe26c, "projectile_86_e266_frame_01"),
+        new(0xe270, "projectile_86_e266_frame_02"),
+        new(0xe274, "projectile_86_e266_frame_03"),
+        new(0xe278, "projectile_86_e266_frame_04"),
+        new(0xe27c, "projectile_86_e266_frame_05"),
+        new(0xe280, "projectile_86_e266_frame_06"),
+        new(0xe284, "projectile_86_e266_frame_07"),
+        new(0xe288, "projectile_86_e266_frame_08"),
+        new(0xe28c, "projectile_86_e266_frame_09"),
+        new(0xe290, "projectile_86_e266_frame_10"),
+        new(0xe294, "projectile_86_e266_frame_11"),
+        new(0xe298, "projectile_86_e266_frame_12"),
+        new(0xe29c, "projectile_86_e266_frame_13"),
+        new(0xe2a0, "projectile_86_e266_frame_14"),
+        new(0xe2a4, "projectile_86_e266_frame_15"),
+        new(0xe2aa, "projectile_86_e2a8_frame_00"),
+        new(0xe2ae, "projectile_86_e2a8_frame_01"),
+        new(0xe2b2, "projectile_86_e2a8_frame_02"),
+        new(0xe2b6, "projectile_86_e2a8_frame_03"),
+        new(0xe2bc, "projectile_86_e2ba_frame_00"),
+        new(0xe2c0, "projectile_86_e2ba_frame_01"),
+        new(0xe2c4, "projectile_86_e2ba_frame_02"),
+        new(0xe2c8, "projectile_86_e2ba_frame_03"),
+        new(0xe2cc, "projectile_86_e2ba_frame_04"),
+        new(0xe2d0, "projectile_86_e2ba_frame_05"),
+        new(0xe2d6, "projectile_86_e2d4_frame_00"),
+        new(0xe2da, "projectile_86_e2d4_frame_01"),
+        new(0xe2de, "projectile_86_e2d4_frame_02"),
+        new(0xe2e2, "projectile_86_e2d4_frame_03"),
+        new(0xe2e6, "projectile_86_e2d4_frame_04"),
+        new(0xe2ea, "projectile_86_e2d4_frame_05"),
+        new(0xe2ee, "projectile_86_e2d4_frame_06"),
+        new(0xe2f4, "projectile_86_e2f2_frame_00"),
+        new(0xe2f8, "projectile_86_e2f2_frame_01"),
+        new(0xe2fc, "projectile_86_e2f2_frame_02"),
+        new(0xe300, "projectile_86_e2f2_frame_03"),
+        new(0xe304, "projectile_86_e2f2_frame_04"),
+        new(0xe308, "projectile_86_e2f2_frame_05"),
+        new(0xe30c, "projectile_86_e2f2_frame_06"),
+        new(0xe310, "projectile_86_e2f2_frame_07"),
+        new(0xe316, "projectile_86_e314_frame_00"),
+        new(0xe31a, "projectile_86_e314_frame_01"),
+        new(0xe31e, "projectile_86_e314_frame_02"),
+        new(0xe322, "projectile_86_e314_frame_03"),
+        new(0xe326, "projectile_86_e314_frame_04"),
+        new(0xe32a, "projectile_86_e314_frame_05"),
+        new(0xe32e, "projectile_86_e314_frame_06"),
+        new(0xe332, "projectile_86_e314_frame_07"),
+        new(0xe336, "projectile_86_e314_frame_08"),
+        new(0xe33a, "projectile_86_e314_frame_09"),
+        new(0xe33e, "projectile_86_e314_frame_10"),
+        new(0xe342, "projectile_86_e314_frame_11"),
+        new(0xe346, "projectile_86_e314_frame_12"),
+        new(0xe34a, "projectile_86_e314_frame_13"),
+        new(0xe34e, "projectile_86_e314_frame_14"),
+        new(0xe352, "projectile_86_e314_frame_15"),
+        new(0xe356, "projectile_86_e314_frame_16"),
+        new(0xe35a, "projectile_86_e314_frame_17"),
+        new(0xe35e, "projectile_86_e314_frame_18"),
+        new(0xe362, "projectile_86_e314_frame_19"),
+        new(0xe366, "projectile_86_e314_frame_20"),
+        new(0xe36a, "projectile_86_e314_frame_21"),
+        new(0xe36e, "projectile_86_e314_frame_22"),
+        new(0xe372, "projectile_86_e314_frame_23"),
+        new(0xe376, "projectile_86_e314_frame_24"),
+        new(0xe37a, "projectile_86_e314_frame_25"),
+        new(0xe37e, "projectile_86_e314_frame_26"),
+        new(0xe382, "projectile_86_e314_frame_27"),
+        new(0xe386, "projectile_86_e314_frame_28"),
+        new(0xe38a, "projectile_86_e314_frame_29"),
+        new(0xe38e, "projectile_86_e314_frame_30"),
+        new(0xe394, "projectile_86_e392_frame_00"),
+        new(0xe398, "projectile_86_e392_frame_01"),
+        new(0xe39c, "projectile_86_e392_frame_02"),
+        new(0xe3a2, "projectile_86_e3a0_frame_00"),
+        new(0xe3a6, "projectile_86_e3a0_frame_01"),
+        new(0xe3aa, "projectile_86_e3a0_frame_02"),
+        new(0xe3ae, "projectile_86_e3a0_frame_03"),
+        new(0xe3b2, "projectile_86_e3a0_frame_04"),
+        new(0xe3b6, "projectile_86_e3a0_frame_05"),
+        new(0xe3ba, "projectile_86_e3a0_frame_06"),
+        new(0xe3be, "projectile_86_e3a0_frame_07"),
+        new(0xe3c2, "projectile_86_e3a0_frame_08"),
+        new(0xe3c8, "projectile_86_e3c6_frame_00"),
+        new(0xe3cc, "projectile_86_e3c6_frame_01"),
+        new(0xe3d0, "projectile_86_e3c6_frame_02"),
+        new(0xe3d4, "projectile_86_e3c6_frame_03"),
+        new(0xe3d8, "projectile_86_e3c6_frame_04"),
+        new(0xe3dc, "projectile_86_e3c6_frame_05"),
+        new(0xe3e0, "projectile_86_e3c6_frame_06"),
+        new(0xe3e4, "projectile_86_e3c6_frame_07"),
+        new(0xe3ea, "projectile_86_e3e8_frame_00"),
+        new(0xe3ee, "projectile_86_e3e8_frame_01"),
+        new(0xe3f2, "projectile_86_e3e8_frame_02"),
+        new(0xe3f6, "projectile_86_e3e8_frame_03"),
+        new(0xe3fa, "projectile_86_e3e8_frame_04"),
+        new(0xe3fe, "projectile_86_e3e8_frame_05"),
+        new(0xe402, "projectile_86_e3e8_frame_06"),
+        new(0xe406, "projectile_86_e3e8_frame_07"),
+        new(0xe40c, "projectile_86_e40a_frame_00"),
+        new(0xe410, "projectile_86_e40a_frame_01"),
+        new(0xe414, "projectile_86_e40a_frame_02"),
+        new(0xe418, "projectile_86_e40a_frame_03"),
+        new(0xe41c, "projectile_86_e40a_frame_04"),
+        new(0xe420, "projectile_86_e40a_frame_05"),
+        new(0xe424, "projectile_86_e40a_frame_06"),
+        new(0xe428, "projectile_86_e40a_frame_07"),
+        new(0xcacc, "projectile_86_cac8_frame_00"),
+        new(0xcad0, "projectile_86_cac8_frame_01"),
+        new(0xcad4, "projectile_86_cac8_frame_02"),
+        new(0xcad8, "projectile_86_cac8_frame_03"),
+        new(0xcadc, "projectile_86_cac8_frame_04"),
+        new(0xcae0, "projectile_86_cac8_frame_05"),
+        new(0xcae4, "projectile_86_cac8_frame_06"),
+        new(0xcae8, "projectile_86_cac8_frame_07"),
+    ];
+
+    /// <summary>The base program frames the pre-Golden Torizo schema added to the first program-frame schema.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoAdditions { get; } =
+    [
+        new(0x8c3c, "draygon_frame_00"),
+        new(0x8c40, "draygon_frame_01"),
+        new(0x8c44, "draygon_frame_02"),
+        new(0x8c48, "draygon_frame_03"),
+        new(0x8c4c, "draygon_frame_04"),
+        new(0x8c50, "draygon_frame_05"),
+        new(0x8c5a, "draygon_frame_06"),
+        new(0x8c5e, "draygon_frame_07"),
+        new(0x8ca6, "draygon_frame_08"),
+        new(0x8caa, "draygon_frame_09"),
+        new(0x8cae, "draygon_frame_10"),
+        new(0x8cb2, "draygon_frame_11"),
+        new(0x8cb6, "draygon_frame_12"),
+        new(0x8cba, "draygon_frame_13"),
+        new(0x8cbe, "draygon_frame_14"),
+        new(0x8cc2, "draygon_frame_15"),
+        new(0x8cc6, "draygon_frame_16"),
+        new(0x8cca, "draygon_frame_17"),
+        new(0x8cce, "draygon_frame_18"),
+        new(0x8cd2, "draygon_frame_19"),
+        new(0x8cd6, "draygon_frame_20"),
+        new(0x8cda, "draygon_frame_21"),
+        new(0x8cde, "draygon_frame_22"),
+        new(0x8ce2, "draygon_frame_23"),
+        new(0x8ce8, "draygon_frame_24"),
+        new(0x8cec, "draygon_frame_25"),
+        new(0x8cf0, "draygon_frame_26"),
+        new(0x8fd1, "crocomire_frame_00"),
+        new(0x8fd5, "crocomire_frame_01"),
+        new(0x8fd9, "crocomire_frame_02"),
+        new(0x8fdd, "crocomire_frame_03"),
+        new(0x8fe1, "crocomire_frame_04"),
+        new(0x8fe5, "crocomire_frame_05"),
+        new(0x8fed, "crocomire_frame_06"),
+        new(0x8ff5, "crocomire_frame_07"),
+        new(0x9009, "crocomire_frame_08"),
+        new(0x900d, "crocomire_frame_09"),
+        new(0x9011, "crocomire_frame_10"),
+        new(0x9015, "crocomire_frame_11"),
+        new(0x9019, "crocomire_frame_12"),
+        new(0x9556, "ceres_ridley_frame_00"),
+        new(0x955e, "ceres_ridley_frame_01"),
+        new(0x9562, "ceres_ridley_frame_02"),
+        new(0x9566, "ceres_ridley_frame_03"),
+        new(0x956a, "ceres_ridley_frame_04"),
+        new(0x956e, "ceres_ridley_frame_05"),
+        new(0x9578, "ceres_ridley_frame_06"),
+        new(0x957c, "ceres_ridley_frame_07"),
+        new(0x9580, "ceres_ridley_frame_08"),
+        new(0x9584, "ceres_ridley_frame_09"),
+        new(0x9588, "ceres_ridley_frame_10"),
+        new(0x95a4, "ceres_ridley_frame_11"),
+        new(0x95aa, "ceres_ridley_frame_12"),
+        new(0x95ae, "ceres_ridley_frame_13"),
+        new(0x95b2, "ceres_ridley_frame_14"),
+        new(0x95b6, "ceres_ridley_frame_15"),
+        new(0x95d7, "ceres_ridley_frame_16"),
+        new(0x95dd, "ceres_ridley_frame_17"),
+        new(0x95e1, "ceres_ridley_frame_18"),
+        new(0x95e5, "ceres_ridley_frame_19"),
+        new(0x95e9, "ceres_ridley_frame_20"),
+        new(0x960a, "ceres_ridley_frame_21"),
+        new(0x9610, "ceres_ridley_frame_22"),
+        new(0x9614, "ceres_ridley_frame_23"),
+        new(0x9618, "ceres_ridley_frame_24"),
+        new(0x961c, "ceres_ridley_frame_25"),
+        new(0x975e, "phantoon_frame_00"),
+        new(0x9762, "phantoon_frame_01"),
+        new(0x9766, "phantoon_frame_02"),
+        new(0x976e, "phantoon_frame_03"),
+        new(0x9774, "phantoon_frame_04"),
+        new(0x9778, "phantoon_frame_05"),
+        new(0x977c, "phantoon_frame_06"),
+        new(0x9784, "phantoon_frame_07"),
+        new(0x9788, "phantoon_frame_08"),
+        new(0x978c, "phantoon_frame_09"),
+        new(0x9790, "phantoon_frame_10"),
+        new(0x9794, "phantoon_frame_11"),
+        new(0x9798, "phantoon_frame_12"),
+        new(0x979c, "phantoon_frame_13"),
+        new(0x97a0, "phantoon_frame_14"),
+        new(0x97a4, "phantoon_frame_15"),
+        new(0x97a8, "phantoon_frame_16"),
+        new(0x97ae, "phantoon_frame_17"),
+        new(0x97ba, "phantoon_frame_18"),
+        new(0x97be, "phantoon_frame_19"),
+        new(0x97ca, "phantoon_frame_20"),
+        new(0x97ce, "phantoon_frame_21"),
+        new(0x97da, "phantoon_frame_22"),
+        new(0x97de, "phantoon_frame_23"),
+        new(0x97ea, "phantoon_frame_24"),
+        new(0x97ee, "phantoon_frame_25"),
+        new(0x97f2, "phantoon_frame_26"),
+        new(0x97fc, "phantoon_frame_27"),
+        new(0x9800, "phantoon_frame_28"),
+        new(0x9804, "phantoon_frame_29"),
+        new(0x9808, "phantoon_frame_30"),
+        new(0x9c7f, "kraid_rock_frame_00"),
+        new(0x9c85, "kraid_rock_frame_01"),
+        new(0x9c8f, "kraid_rock_frame_02"),
+        new(0x9c93, "kraid_rock_frame_03"),
+        new(0x9c97, "kraid_rock_frame_04"),
+        new(0x9c9b, "kraid_rock_frame_05"),
+        new(0x9c9f, "kraid_rock_frame_06"),
+        new(0x9ddc, "fake_kraid_frame_00"),
+        new(0x9de2, "fake_kraid_frame_01"),
+        new(0x9de8, "fake_kraid_frame_02"),
+        new(0x9ea0, "alcoon_fireball_frame_00"),
+        new(0x9ea4, "alcoon_fireball_frame_01"),
+        new(0x9ea8, "alcoon_fireball_frame_02"),
+        new(0x9eac, "alcoon_fireball_frame_03"),
+        new(0x9f43, "space_pirate_frame_00"),
+        new(0x9f47, "space_pirate_frame_01"),
+        new(0x9f4b, "space_pirate_frame_02"),
+        new(0x9f53, "space_pirate_frame_03"),
+        new(0x9f57, "space_pirate_frame_04"),
+        new(0x9f5b, "space_pirate_frame_05"),
+        new(0x9f5f, "space_pirate_frame_06"),
+        new(0x9f63, "space_pirate_frame_07"),
+        new(0x9f67, "space_pirate_frame_08"),
+        new(0x9f6b, "space_pirate_frame_09"),
+        new(0x9f6f, "space_pirate_frame_10"),
+        new(0x9f73, "space_pirate_frame_11"),
+        new(0x9f77, "space_pirate_frame_12"),
+        new(0x9f7f, "space_pirate_frame_13"),
+        new(0x9f83, "space_pirate_frame_14"),
+        new(0x9f87, "space_pirate_frame_15"),
+        new(0x9f8f, "space_pirate_frame_16"),
+        new(0x9f93, "space_pirate_frame_17"),
+        new(0x9f97, "space_pirate_frame_18"),
+        new(0x9f9b, "space_pirate_frame_19"),
+        new(0x9f9f, "space_pirate_frame_20"),
+        new(0x9fa3, "space_pirate_frame_21"),
+        new(0x9fa7, "space_pirate_frame_22"),
+        new(0x9fab, "space_pirate_frame_23"),
+        new(0x9faf, "space_pirate_frame_24"),
+        new(0x9fb3, "space_pirate_frame_25"),
+        new(0x9fbf, "space_pirate_frame_26"),
+        new(0x9fc3, "space_pirate_frame_27"),
+        new(0x9fc7, "space_pirate_frame_28"),
+        new(0x9fcb, "space_pirate_frame_29"),
+        new(0x9fcf, "space_pirate_frame_30"),
+        new(0x9fd3, "space_pirate_frame_31"),
+        new(0x9fd7, "space_pirate_frame_32"),
+        new(0x9fdb, "space_pirate_frame_33"),
+        new(0x9fe7, "space_pirate_frame_34"),
+        new(0x9feb, "space_pirate_frame_35"),
+        new(0x9fef, "space_pirate_frame_36"),
+        new(0x9ff3, "space_pirate_frame_37"),
+        new(0x9ff7, "space_pirate_frame_38"),
+        new(0x9ffb, "space_pirate_frame_39"),
+        new(0x9fff, "space_pirate_frame_40"),
+        new(0xa003, "space_pirate_frame_41"),
+        new(0xb454, "old_tourian_escape_wall_explosion_frame_00"),
+        new(0xb458, "old_tourian_escape_wall_explosion_frame_01"),
+        new(0xb45c, "old_tourian_escape_wall_explosion_frame_02"),
+        new(0xb460, "old_tourian_escape_wall_explosion_frame_03"),
+        new(0xb464, "old_tourian_escape_wall_explosion_frame_04"),
+        new(0xb468, "old_tourian_escape_wall_explosion_frame_05"),
+        new(0xb5db, "eye_door_frame_00"),
+        new(0xb5df, "eye_door_frame_01"),
+        new(0xb5e3, "eye_door_frame_02"),
+        new(0xb5ed, "eye_door_frame_03"),
+        new(0xb5f7, "eye_door_frame_04"),
+        new(0xb5fb, "eye_door_frame_05"),
+        new(0xb5ff, "eye_door_frame_06"),
+        new(0xb605, "eye_door_frame_07"),
+        new(0xb609, "eye_door_frame_08"),
+        new(0xb60d, "eye_door_frame_09"),
+        new(0xb611, "eye_door_frame_10"),
+        new(0xb7a3, "tourian_statue_frame_00"),
+        new(0xb7a7, "tourian_statue_frame_01"),
+        new(0xb7ab, "tourian_statue_frame_02"),
+        new(0xb7af, "tourian_statue_frame_03"),
+        new(0xb7b5, "tourian_statue_frame_04"),
+        new(0xb7b9, "tourian_statue_frame_05"),
+        new(0xb7bd, "tourian_statue_frame_06"),
+        new(0xb7c1, "tourian_statue_frame_07"),
+        new(0xb7c5, "tourian_statue_frame_08"),
+        new(0xb7c9, "tourian_statue_frame_09"),
+        new(0xb7cd, "tourian_statue_frame_10"),
+        new(0xb7d1, "tourian_statue_frame_11"),
+        new(0xb7d5, "tourian_statue_frame_12"),
+        new(0xb7d9, "tourian_statue_frame_13"),
+        new(0xb804, "tourian_statue_frame_14"),
+        new(0xb808, "tourian_statue_frame_15"),
+        new(0xb80e, "tourian_statue_frame_16"),
+        new(0xb812, "tourian_statue_frame_17"),
+        new(0xb825, "tourian_statue_frame_18"),
+        new(0xb82d, "tourian_statue_frame_19"),
+        new(0xb835, "tourian_statue_frame_20"),
+        new(0xb83d, "tourian_statue_frame_21"),
+        new(0xb850, "tourian_statue_frame_22"),
+        new(0xb854, "tourian_statue_frame_23"),
+        new(0xb85c, "tourian_statue_frame_24"),
+        new(0xb864, "tourian_statue_frame_25"),
+        new(0xb86c, "tourian_statue_frame_26"),
+        new(0xb874, "tourian_statue_frame_27"),
+        new(0xbb60, "nuclear_waffle_frame_00"),
+        new(0xbb64, "nuclear_waffle_frame_01"),
+        new(0xbb68, "nuclear_waffle_frame_02"),
+        new(0xbb6c, "nuclear_waffle_frame_03"),
+        new(0xbb70, "nuclear_waffle_frame_04"),
+        new(0xbb74, "nuclear_waffle_frame_05"),
+        new(0xbb78, "nuclear_waffle_frame_06"),
+        new(0xbb7c, "nuclear_waffle_frame_07"),
+        new(0xbb80, "nuclear_waffle_frame_08"),
+        new(0xbb84, "nuclear_waffle_frame_09"),
+        new(0xbb88, "nuclear_waffle_frame_10"),
+        new(0xbb8c, "nuclear_waffle_frame_11"),
+        new(0xbd6a, "shaktool_frame_00"),
+        new(0xbd6e, "shaktool_frame_01"),
+        new(0xbd72, "shaktool_frame_02"),
+        new(0xbd7a, "shaktool_frame_03"),
+        new(0xbd82, "shaktool_frame_04"),
+        new(0xbd86, "shaktool_frame_05"),
+        new(0xbd8e, "shaktool_frame_06"),
+        new(0xbd96, "shaktool_frame_07"),
+        new(0xd03e, "kago_bug_frame_00"),
+        new(0xd044, "kago_bug_frame_01"),
+        new(0xd04c, "kago_bug_frame_02"),
+        new(0xd054, "kago_bug_frame_03"),
+        new(0xd058, "kago_bug_frame_04"),
+        new(0xd05e, "kago_bug_frame_05"),
+        new(0xd068, "kago_bug_frame_06"),
+        new(0xd06c, "kago_bug_frame_07"),
+        new(0xd070, "kago_bug_frame_08"),
+        new(0xd074, "kago_bug_frame_09"),
+        new(0xd078, "kago_bug_frame_10"),
+        new(0xd3d9, "noob_tube_frame_00"),
+        new(0xd3dd, "noob_tube_frame_01"),
+        new(0xd3e1, "noob_tube_frame_02"),
+        new(0xd3e5, "noob_tube_frame_03"),
+        new(0xd3e9, "noob_tube_frame_04"),
+        new(0xd3ed, "noob_tube_frame_05"),
+        new(0xd3f5, "noob_tube_frame_06"),
+        new(0xd3f9, "noob_tube_frame_07"),
+        new(0xd3fd, "noob_tube_frame_08"),
+        new(0xd401, "noob_tube_frame_09"),
+        new(0xd405, "noob_tube_frame_10"),
+        new(0xd409, "noob_tube_frame_11"),
+        new(0xd40d, "noob_tube_frame_12"),
+        new(0xd411, "noob_tube_frame_13"),
+        new(0xd415, "noob_tube_frame_14"),
+        new(0xd419, "noob_tube_frame_15"),
+        new(0xd421, "noob_tube_frame_16"),
+        new(0xd425, "noob_tube_frame_17"),
+        new(0xd429, "noob_tube_frame_18"),
+        new(0xd42d, "noob_tube_frame_19"),
+        new(0xd431, "noob_tube_frame_20"),
+        new(0xd435, "noob_tube_frame_21"),
+        new(0xd439, "noob_tube_frame_22"),
+        new(0xd43d, "noob_tube_frame_23"),
+        new(0xd441, "noob_tube_frame_24"),
+        new(0xd445, "noob_tube_frame_25"),
+        new(0xd449, "noob_tube_frame_26"),
+        new(0xd44d, "noob_tube_frame_27"),
+        new(0xd451, "noob_tube_frame_28"),
+        new(0xd455, "noob_tube_frame_29"),
+        new(0xd459, "noob_tube_frame_30"),
+        new(0xd45d, "noob_tube_frame_31"),
+        new(0xd461, "noob_tube_frame_32"),
+        new(0xd465, "noob_tube_frame_33"),
+        new(0xd469, "noob_tube_frame_34"),
+        new(0xd471, "noob_tube_frame_35"),
+        new(0xd475, "noob_tube_frame_36"),
+        new(0xd483, "noob_tube_frame_37"),
+        new(0xd485, "noob_tube_frame_38"),
+        new(0xd497, "noob_tube_frame_39"),
+        new(0xd499, "noob_tube_frame_40"),
+        new(0xd4a7, "noob_tube_frame_41"),
+        new(0xd4a9, "noob_tube_frame_42"),
+        new(0xd4bb, "noob_tube_frame_43"),
+        new(0xd4bd, "noob_tube_frame_44"),
+        new(0xd4cb, "noob_tube_frame_45"),
+        new(0xd4cd, "noob_tube_frame_46"),
+        new(0xd4df, "noob_tube_frame_47"),
+        new(0xd4e1, "noob_tube_frame_48"),
+        new(0xd4ef, "noob_tube_frame_49"),
+        new(0xd4f1, "noob_tube_frame_50"),
+        new(0xd503, "noob_tube_frame_51"),
+        new(0xd505, "noob_tube_frame_52"),
+        new(0xd513, "noob_tube_frame_53"),
+        new(0xd515, "noob_tube_frame_54"),
+        new(0xd527, "noob_tube_frame_55"),
+        new(0xd529, "noob_tube_frame_56"),
+        new(0xd537, "noob_tube_frame_57"),
+        new(0xd539, "noob_tube_frame_58"),
+        new(0xd54b, "noob_tube_frame_59"),
+        new(0xd54d, "noob_tube_frame_60"),
+        new(0xd55b, "noob_tube_frame_61"),
+        new(0xd55d, "noob_tube_frame_62"),
+        new(0xd56f, "noob_tube_frame_63"),
+        new(0xd571, "noob_tube_frame_64"),
+        new(0xd57f, "noob_tube_frame_65"),
+        new(0xd581, "noob_tube_frame_66"),
+        new(0xd593, "noob_tube_frame_67"),
+        new(0xd595, "noob_tube_frame_68"),
+        new(0xd5a3, "noob_tube_frame_69"),
+        new(0xd5b5, "noob_tube_frame_70"),
+        new(0xd5c3, "noob_tube_frame_71"),
+        new(0xd5c5, "noob_tube_frame_72"),
+        new(0xd5d7, "noob_tube_frame_73"),
+        new(0xd5d9, "noob_tube_frame_74"),
+        new(0xd658, "noob_tube_frame_75"),
+        new(0xd65c, "noob_tube_frame_76"),
+        new(0xd660, "noob_tube_frame_77"),
+        new(0xd664, "noob_tube_frame_78"),
+        new(0xd66e, "noob_tube_frame_79"),
+        new(0xd672, "noob_tube_frame_80"),
+        new(0xd676, "noob_tube_frame_81"),
+        new(0xd67a, "noob_tube_frame_82"),
+        new(0xd67e, "noob_tube_frame_83"),
+        new(0xd682, "noob_tube_frame_84"),
+        new(0xd686, "noob_tube_frame_85"),
+        new(0xd68a, "noob_tube_frame_86"),
+        new(0xd68e, "noob_tube_frame_87"),
+        new(0xd692, "noob_tube_frame_88"),
+        new(0xd696, "noob_tube_frame_89"),
+        new(0xd930, "cacatac_spike_frame_00"),
+        new(0xd936, "cacatac_spike_frame_01"),
+        new(0xd93c, "cacatac_spike_frame_02"),
+        new(0xd942, "cacatac_spike_frame_03"),
+        new(0xd948, "cacatac_spike_frame_04"),
+        new(0xd94e, "cacatac_spike_frame_05"),
+        new(0xd954, "cacatac_spike_frame_06"),
+        new(0xd95a, "cacatac_spike_frame_07"),
+        new(0xd960, "cacatac_spike_frame_08"),
+        new(0xd966, "cacatac_spike_frame_09"),
+        new(0xdb0e, "stoke_frame_00"),
+        new(0xdb12, "stoke_frame_01"),
+        new(0xdc02, "spore_spawn_frame_00"),
+        new(0xdc08, "spore_spawn_frame_01"),
+        new(0xdc0c, "spore_spawn_frame_02"),
+        new(0xdc12, "spore_spawn_frame_03"),
+        new(0xdc16, "spore_spawn_frame_04"),
+        new(0xdc1a, "spore_spawn_frame_05"),
+        new(0xdc20, "spore_spawn_frame_06"),
+        new(0xdc24, "spore_spawn_frame_07"),
+        new(0xdc28, "spore_spawn_frame_08"),
+        new(0xdc30, "spore_spawn_frame_09"),
+        new(0xdc36, "spore_spawn_frame_10"),
+        new(0xdc3c, "spore_spawn_frame_11"),
+        new(0xdc40, "spore_spawn_frame_12"),
+        new(0xdc44, "spore_spawn_frame_13"),
+        new(0xdc4a, "spore_spawn_frame_14"),
+        new(0xdc4e, "spore_spawn_frame_15"),
+        new(0xdc52, "spore_spawn_frame_16"),
+        new(0xe546, "downward_gate_frame_00"),
+        new(0xe54c, "downward_gate_frame_01"),
+        new(0xe552, "downward_gate_frame_02"),
+        new(0xe558, "downward_gate_frame_03"),
+        new(0xe564, "downward_gate_frame_04"),
+        new(0xe56e, "downward_gate_frame_05"),
+        new(0xe574, "downward_gate_frame_06"),
+        new(0xe57a, "downward_gate_frame_07"),
+        new(0xe580, "downward_gate_frame_08"),
+        new(0xe811, "botwoon_frame_00"),
+        new(0xe815, "botwoon_frame_01"),
+        new(0xe819, "botwoon_frame_02"),
+        new(0xe81d, "botwoon_frame_03"),
+        new(0xe825, "botwoon_frame_04"),
+        new(0xe829, "botwoon_frame_05"),
+        new(0xe82d, "botwoon_frame_06"),
+        new(0xe831, "botwoon_frame_07"),
+        new(0xe839, "botwoon_frame_08"),
+        new(0xe83d, "botwoon_frame_09"),
+        new(0xe841, "botwoon_frame_10"),
+        new(0xe845, "botwoon_frame_11"),
+        new(0xe861, "botwoon_frame_12"),
+        new(0xe865, "botwoon_frame_13"),
+        new(0xe869, "botwoon_frame_14"),
+        new(0xe86d, "botwoon_frame_15"),
+        new(0xe875, "botwoon_frame_16"),
+        new(0xe879, "botwoon_frame_17"),
+        new(0xe87d, "botwoon_frame_18"),
+        new(0xe881, "botwoon_frame_19"),
+        new(0xe889, "botwoon_frame_20"),
+        new(0xe88d, "botwoon_frame_21"),
+        new(0xe891, "botwoon_frame_22"),
+        new(0xe895, "botwoon_frame_23"),
+        new(0xe89d, "botwoon_frame_24"),
+        new(0xe8a1, "botwoon_frame_25"),
+        new(0xe8a5, "botwoon_frame_26"),
+        new(0xe8a9, "botwoon_frame_27"),
+        new(0xe8b1, "botwoon_frame_28"),
+        new(0xe8b5, "botwoon_frame_29"),
+        new(0xe8b9, "botwoon_frame_30"),
+        new(0xe8bd, "botwoon_frame_31"),
+        new(0xe8c5, "botwoon_frame_32"),
+        new(0xe8cb, "botwoon_frame_33"),
+        new(0xe8d1, "botwoon_frame_34"),
+        new(0xe8d7, "botwoon_frame_35"),
+        new(0xe8dd, "botwoon_frame_36"),
+        new(0xe8e3, "botwoon_frame_37"),
+        new(0xe8e9, "botwoon_frame_38"),
+        new(0xe8ef, "botwoon_frame_39"),
+        new(0xe8f5, "botwoon_frame_40"),
+        new(0xebb0, "botwoon_frame_41"),
+        new(0xebb4, "botwoon_frame_42"),
+        new(0xebb8, "botwoon_frame_43"),
+        new(0xebbc, "botwoon_frame_44"),
+        new(0xebc0, "botwoon_frame_45"),
+        new(0xec58, "yapping_maw_frame_00"),
+        new(0xec5e, "yapping_maw_frame_01"),
+    ];
+
+    /// <summary>Golden Torizo's super missile and eye beam frames.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEggAdditions { get; } =
+    [
+        new(0xb295, "golden_torizo_super_missile_frame_00"),
+        new(0xb29f, "golden_torizo_super_missile_frame_01"),
+        new(0xb2a3, "golden_torizo_super_missile_frame_02"),
+        new(0xb2a7, "golden_torizo_super_missile_frame_03"),
+        new(0xb2ab, "golden_torizo_super_missile_frame_04"),
+        new(0xb2af, "golden_torizo_super_missile_frame_05"),
+        new(0xb2b3, "golden_torizo_super_missile_frame_06"),
+        new(0xb2b7, "golden_torizo_super_missile_frame_07"),
+        new(0xb2bb, "golden_torizo_super_missile_frame_08"),
+        new(0xb2c3, "golden_torizo_super_missile_frame_09"),
+        new(0xb2cd, "golden_torizo_super_missile_frame_10"),
+        new(0xb2d1, "golden_torizo_super_missile_frame_11"),
+        new(0xb2d5, "golden_torizo_super_missile_frame_12"),
+        new(0xb2d9, "golden_torizo_super_missile_frame_13"),
+        new(0xb2dd, "golden_torizo_super_missile_frame_14"),
+        new(0xb2e1, "golden_torizo_super_missile_frame_15"),
+        new(0xb2e5, "golden_torizo_super_missile_frame_16"),
+        new(0xb2e9, "golden_torizo_super_missile_frame_17"),
+        new(0xb302, "golden_torizo_super_missile_frame_18"),
+        new(0xb306, "golden_torizo_super_missile_frame_19"),
+        new(0xb30a, "golden_torizo_super_missile_frame_20"),
+        new(0xb30e, "golden_torizo_super_missile_frame_21"),
+        new(0xb312, "golden_torizo_super_missile_frame_22"),
+        new(0xb316, "golden_torizo_super_missile_frame_23"),
+        new(0xb3d1, "golden_torizo_eye_beam_frame_00"),
+        new(0xb3d5, "golden_torizo_eye_beam_frame_01"),
+        new(0xb3d9, "golden_torizo_eye_beam_frame_02"),
+        new(0xb3dd, "golden_torizo_eye_beam_frame_03"),
+        new(0xb3e1, "golden_torizo_eye_beam_frame_04"),
+        new(0xb3e9, "golden_torizo_eye_beam_frame_05"),
+        new(0xb3f4, "golden_torizo_eye_beam_frame_06"),
+        new(0xb3f8, "golden_torizo_eye_beam_frame_07"),
+        new(0xb400, "golden_torizo_eye_beam_frame_08"),
+        new(0xb404, "golden_torizo_eye_beam_frame_09"),
+        new(0xb408, "golden_torizo_eye_beam_frame_10"),
+        new(0xb40c, "golden_torizo_eye_beam_frame_11"),
+        new(0xb412, "golden_torizo_eye_beam_frame_12"),
+        new(0xb416, "golden_torizo_eye_beam_frame_13"),
+        new(0xb41a, "golden_torizo_eye_beam_frame_14"),
+        new(0xb41e, "golden_torizo_eye_beam_frame_15"),
+        new(0xb422, "golden_torizo_eye_beam_frame_16"),
+    ];
+
+    /// <summary>Golden Torizo egg frames.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreTorizoEffectsAdditions { get; } =
+    [
+        new(0xb106, "golden_torizo_egg_frame_00"),
+        new(0xb10e, "golden_torizo_egg_frame_01"),
+        new(0xb112, "golden_torizo_egg_frame_02"),
+        new(0xb116, "golden_torizo_egg_frame_03"),
+        new(0xb11e, "golden_torizo_egg_frame_04"),
+        new(0xb126, "golden_torizo_egg_frame_05"),
+        new(0xb12a, "golden_torizo_egg_frame_06"),
+        new(0xb12e, "golden_torizo_egg_frame_07"),
+        new(0xb154, "golden_torizo_egg_frame_08"),
+        new(0xb158, "golden_torizo_egg_frame_09"),
+        new(0xb15c, "golden_torizo_egg_frame_10"),
+        new(0xb160, "golden_torizo_egg_frame_11"),
+        new(0xb16f, "golden_torizo_egg_frame_12"),
+        new(0xb173, "golden_torizo_egg_frame_13"),
+        new(0xb177, "golden_torizo_egg_frame_14"),
+        new(0xb17b, "golden_torizo_egg_frame_15"),
+        new(0xb194, "golden_torizo_egg_frame_16"),
+        new(0xb198, "golden_torizo_egg_frame_17"),
+        new(0xb19c, "golden_torizo_egg_frame_18"),
+        new(0xb1a0, "golden_torizo_egg_frame_19"),
+        new(0xb1a4, "golden_torizo_egg_frame_20"),
+        new(0xb1ac, "golden_torizo_egg_frame_21"),
+        new(0xb1b0, "golden_torizo_egg_frame_22"),
+        new(0xb1b4, "golden_torizo_egg_frame_23"),
+        new(0xb1b8, "golden_torizo_egg_frame_24"),
+        new(0xb1bc, "golden_torizo_egg_frame_25"),
+    ];
+
+    /// <summary>The Torizo effect family.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeathAdditions { get; } =
+    [
+        new(0xa3e2, "torizo_explosion_frame_00"),
+        new(0xa3e6, "torizo_explosion_frame_01"),
+        new(0xa3ea, "torizo_explosion_frame_02"),
+        new(0xa3ee, "torizo_explosion_frame_03"),
+        new(0xa3f2, "torizo_explosion_frame_04"),
+        new(0xa415, "torizo_explosion_frame_05"),
+        new(0xa419, "torizo_explosion_frame_06"),
+        new(0xa41d, "torizo_explosion_frame_07"),
+        new(0xa421, "torizo_explosion_frame_08"),
+        new(0xa425, "torizo_explosion_frame_09"),
+        new(0xa429, "torizo_explosion_frame_10"),
+        new(0xa442, "torizo_explosion_frame_11"),
+        new(0xa446, "torizo_explosion_frame_12"),
+        new(0xa44a, "torizo_explosion_frame_13"),
+        new(0xa44e, "torizo_explosion_frame_14"),
+        new(0xa46c, "torizo_drool_frame_00"),
+        new(0xa470, "torizo_drool_frame_01"),
+        new(0xa47c, "torizo_drool_frame_02"),
+        new(0xa484, "torizo_drool_frame_03"),
+        new(0xa492, "torizo_drool_frame_04"),
+        new(0xa496, "torizo_drool_frame_05"),
+        new(0xa49a, "torizo_drool_frame_06"),
+        new(0xa4af, "torizo_explosive_swipe_frame_00"),
+        new(0xa4b3, "torizo_explosive_swipe_frame_01"),
+        new(0xa4b7, "torizo_explosive_swipe_frame_02"),
+        new(0xa4bb, "torizo_explosive_swipe_frame_03"),
+        new(0xa4bf, "torizo_explosive_swipe_frame_04"),
+        new(0xab17, "torizo_chozo_orb_frame_00"),
+        new(0xab1f, "torizo_chozo_orb_frame_01"),
+        new(0xab2d, "torizo_chozo_orb_frame_02"),
+        new(0xab31, "torizo_chozo_orb_frame_03"),
+        new(0xab35, "torizo_chozo_orb_frame_04"),
+        new(0xab39, "torizo_chozo_orb_frame_05"),
+        new(0xab3d, "torizo_chozo_orb_frame_06"),
+        new(0xab50, "torizo_chozo_orb_frame_07"),
+        new(0xab54, "torizo_chozo_orb_frame_08"),
+        new(0xab58, "torizo_chozo_orb_frame_09"),
+        new(0xab5c, "torizo_chozo_orb_frame_10"),
+        new(0xab60, "torizo_chozo_orb_frame_11"),
+        new(0xab64, "torizo_chozo_orb_frame_12"),
+        new(0xab70, "torizo_chozo_orb_frame_13"),
+        new(0xab74, "torizo_chozo_orb_frame_14"),
+        new(0xab78, "torizo_chozo_orb_frame_15"),
+        new(0xab7c, "torizo_chozo_orb_frame_16"),
+        new(0xab80, "torizo_chozo_orb_frame_17"),
+        new(0xadc4, "torizo_sonic_boom_frame_00"),
+        new(0xadc8, "torizo_sonic_boom_frame_01"),
+        new(0xadcc, "torizo_sonic_boom_frame_02"),
+        new(0xadd7, "torizo_sonic_boom_frame_03"),
+        new(0xaddb, "torizo_sonic_boom_frame_04"),
+        new(0xaddf, "torizo_sonic_boom_frame_05"),
+        new(0xadfb, "torizo_sonic_boom_frame_06"),
+        new(0xadff, "torizo_sonic_boom_frame_07"),
+        new(0xae03, "torizo_sonic_boom_frame_08"),
+        new(0xae07, "torizo_sonic_boom_frame_09"),
+        new(0xae0b, "torizo_sonic_boom_frame_10"),
+        new(0xaf9f, "torizo_landing_dust_frame_00"),
+        new(0xafa5, "torizo_landing_dust_frame_01"),
+        new(0xafab, "torizo_landing_dust_frame_02"),
+        new(0xafb1, "torizo_landing_dust_frame_03"),
+        new(0xafb7, "torizo_landing_dust_frame_04"),
+        new(0xafbd, "torizo_landing_dust_frame_05"),
+        new(0xafc3, "torizo_landing_dust_frame_06"),
+        new(0xafc9, "torizo_landing_dust_frame_07"),
+    ];
+
+    /// <summary>Enemy pickups and generic enemy deaths.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttackAdditions { get; } =
+    [
+        new(0xeca5, "enemy_death_frame_00"),
+        new(0xecb9, "enemy_death_frame_01"),
+        new(0xecd7, "enemy_death_frame_02"),
+        new(0xed4d, "enemy_death_frame_03"),
+        new(0xed51, "enemy_death_frame_04"),
+        new(0xed55, "enemy_death_frame_05"),
+        new(0xed5b, "enemy_death_frame_06"),
+        new(0xed5f, "enemy_death_frame_07"),
+        new(0xed63, "enemy_death_frame_08"),
+        new(0xed6b, "enemy_death_frame_09"),
+        new(0xed6f, "enemy_death_frame_10"),
+        new(0xed73, "enemy_death_frame_11"),
+        new(0xed79, "enemy_death_frame_12"),
+        new(0xed7d, "enemy_death_frame_13"),
+        new(0xed81, "enemy_death_frame_14"),
+        new(0xed8f, "enemy_pickup_frame_00"),
+        new(0xed93, "enemy_pickup_frame_01"),
+        new(0xed97, "enemy_pickup_frame_02"),
+        new(0xed9b, "enemy_pickup_frame_03"),
+        new(0xeda5, "enemy_pickup_frame_04"),
+        new(0xeda9, "enemy_pickup_frame_05"),
+        new(0xedad, "enemy_pickup_frame_06"),
+        new(0xedb1, "enemy_pickup_frame_07"),
+        new(0xedbb, "enemy_pickup_frame_08"),
+        new(0xedbf, "enemy_pickup_frame_09"),
+        new(0xeddf, "enemy_pickup_frame_10"),
+        new(0xede3, "enemy_pickup_frame_11"),
+        new(0xeded, "enemy_pickup_frame_12"),
+        new(0xedf1, "enemy_pickup_frame_13"),
+        new(0xedf5, "enemy_pickup_frame_14"),
+        new(0xedf9, "enemy_pickup_frame_15"),
+        new(0xee01, "enemy_death_frame_15"),
+        new(0xee05, "enemy_death_frame_16"),
+        new(0xee09, "enemy_death_frame_17"),
+        new(0xee0d, "enemy_death_frame_18"),
+        new(0xee11, "enemy_death_frame_19"),
+        new(0xee15, "enemy_death_frame_20"),
+        new(0xee19, "enemy_death_frame_21"),
+        new(0xee1f, "enemy_death_frame_22"),
+        new(0xee23, "enemy_death_frame_23"),
+        new(0xee27, "enemy_death_frame_24"),
+        new(0xee2b, "enemy_death_frame_25"),
+        new(0xee2f, "enemy_death_frame_26"),
+        new(0xee33, "enemy_death_frame_27"),
+        new(0xee37, "enemy_death_frame_28"),
+        new(0xee3b, "enemy_death_frame_29"),
+        new(0xee3f, "enemy_death_frame_30"),
+    ];
+
+    /// <summary>Environmental and attack effects.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatueAdditions { get; } =
+    [
+        new(0x9752, "ceres_falling_debris_frame_00"),
+        new(0x9758, "ceres_falling_debris_frame_01"),
+        new(0xa19d, "gunship_dust_frame_00"),
+        new(0xa1a1, "gunship_dust_frame_01"),
+        new(0xa1a5, "gunship_dust_frame_02"),
+        new(0xa1a9, "gunship_dust_frame_03"),
+        new(0xa1ad, "gunship_dust_frame_04"),
+        new(0xa1b1, "gunship_dust_frame_05"),
+        new(0xa1b5, "gunship_dust_frame_06"),
+        new(0xa1b9, "gunship_dust_frame_07"),
+        new(0xa1c7, "gunship_dust_frame_08"),
+        new(0xa1cb, "gunship_dust_frame_09"),
+        new(0xa1cf, "gunship_dust_frame_10"),
+        new(0xa1d3, "gunship_dust_frame_11"),
+        new(0xa1d7, "gunship_dust_frame_12"),
+        new(0xa1db, "gunship_dust_frame_13"),
+        new(0xa1df, "gunship_dust_frame_14"),
+        new(0xa1e3, "gunship_dust_frame_15"),
+        new(0xa1f1, "gunship_dust_frame_16"),
+        new(0xa1f5, "gunship_dust_frame_17"),
+        new(0xa1f9, "gunship_dust_frame_18"),
+        new(0xa1fd, "gunship_dust_frame_19"),
+        new(0xa201, "gunship_dust_frame_20"),
+        new(0xa205, "gunship_dust_frame_21"),
+        new(0xa209, "gunship_dust_frame_22"),
+        new(0xa217, "gunship_dust_frame_23"),
+        new(0xa21b, "gunship_dust_frame_24"),
+        new(0xa21f, "gunship_dust_frame_25"),
+        new(0xa223, "gunship_dust_frame_26"),
+        new(0xa227, "gunship_dust_frame_27"),
+        new(0xa22b, "gunship_dust_frame_28"),
+        new(0xa22f, "gunship_dust_frame_29"),
+        new(0xa233, "gunship_dust_frame_30"),
+        new(0xa241, "gunship_dust_frame_31"),
+        new(0xa245, "gunship_dust_frame_32"),
+        new(0xa249, "gunship_dust_frame_33"),
+        new(0xa24d, "gunship_dust_frame_34"),
+        new(0xa251, "gunship_dust_frame_35"),
+        new(0xa255, "gunship_dust_frame_36"),
+        new(0xa259, "gunship_dust_frame_37"),
+        new(0xa25d, "gunship_dust_frame_38"),
+        new(0xa26b, "gunship_dust_frame_39"),
+        new(0xa26f, "gunship_dust_frame_40"),
+        new(0xa273, "gunship_dust_frame_41"),
+        new(0xa277, "gunship_dust_frame_42"),
+        new(0xa27b, "gunship_dust_frame_43"),
+        new(0xa27f, "gunship_dust_frame_44"),
+        new(0xa283, "gunship_dust_frame_45"),
+        new(0xaecc, "chozo_tourian_dust_frame_00"),
+        new(0xaed0, "chozo_tourian_dust_frame_01"),
+        new(0xaed4, "chozo_tourian_dust_frame_02"),
+        new(0xaed8, "chozo_tourian_dust_frame_03"),
+        new(0xaee4, "chozo_tourian_dust_frame_04"),
+        new(0xaee8, "chozo_tourian_dust_frame_05"),
+        new(0xaeec, "chozo_tourian_dust_frame_06"),
+        new(0xaef0, "chozo_tourian_dust_frame_07"),
+        new(0xaef4, "chozo_tourian_dust_frame_08"),
+        new(0xaef8, "chozo_tourian_dust_frame_09"),
+        new(0xaf22, "chozo_tourian_dust_frame_10"),
+        new(0xaf26, "chozo_tourian_dust_frame_11"),
+        new(0xaf2a, "chozo_tourian_dust_frame_12"),
+        new(0xaf2e, "chozo_tourian_dust_frame_13"),
+        new(0xb4c1, "dragon_fireball_frame_00"),
+        new(0xb4c5, "dragon_fireball_frame_01"),
+        new(0xb4cd, "dragon_fireball_frame_02"),
+        new(0xb4d1, "dragon_fireball_frame_03"),
+        new(0xb4d9, "dragon_fireball_frame_04"),
+        new(0xb4dd, "dragon_fireball_frame_05"),
+        new(0xb4e5, "dragon_fireball_frame_06"),
+        new(0xb4e9, "dragon_fireball_frame_07"),
+        new(0xb617, "eye_door_sweat_frame_00"),
+        new(0xb621, "eye_door_sweat_frame_01"),
+        new(0xb625, "eye_door_sweat_frame_02"),
+        new(0xb629, "eye_door_sweat_frame_03"),
+        new(0xcf36, "ki_hunter_acid_spit_frame_00"),
+        new(0xcf3a, "ki_hunter_acid_spit_frame_01"),
+        new(0xcf3e, "ki_hunter_acid_spit_frame_02"),
+        new(0xcf42, "ki_hunter_acid_spit_frame_03"),
+        new(0xcf46, "ki_hunter_acid_spit_frame_04"),
+        new(0xcf4e, "ki_hunter_acid_spit_frame_05"),
+        new(0xcf52, "ki_hunter_acid_spit_frame_06"),
+        new(0xcf5a, "ki_hunter_acid_spit_frame_07"),
+        new(0xcf5e, "ki_hunter_acid_spit_frame_08"),
+        new(0xcf62, "ki_hunter_acid_spit_frame_09"),
+        new(0xcf66, "ki_hunter_acid_spit_frame_10"),
+        new(0xcf6a, "ki_hunter_acid_spit_frame_11"),
+        new(0xcf70, "ki_hunter_acid_spit_frame_12"),
+        new(0xcf74, "ki_hunter_acid_spit_frame_13"),
+        new(0xcf78, "ki_hunter_acid_spit_frame_14"),
+        new(0xcf7c, "ki_hunter_acid_spit_frame_15"),
+        new(0xcf80, "ki_hunter_acid_spit_frame_16"),
+        new(0xcf88, "ki_hunter_acid_spit_frame_17"),
+        new(0xcf8c, "ki_hunter_acid_spit_frame_18"),
+        new(0xd20a, "powamp_spike_frame_00"),
+        new(0xd20e, "powamp_spike_frame_01"),
+        new(0xd212, "powamp_spike_frame_02"),
+        new(0xde98, "fune_namihe_fireball_frame_00"),
+        new(0xde9c, "fune_namihe_fireball_frame_01"),
+        new(0xdea0, "fune_namihe_fireball_frame_02"),
+        new(0xdea8, "fune_namihe_fireball_frame_03"),
+        new(0xdeac, "fune_namihe_fireball_frame_04"),
+        new(0xdeb0, "fune_namihe_fireball_frame_05"),
+        new(0xdfda, "magdollite_lava_frame_00"),
+        new(0xdfe0, "magdollite_lava_frame_01"),
+        new(0xe689, "save_station_electricity_frame_00"),
+        new(0xe68d, "save_station_electricity_frame_01"),
+        new(0xe691, "save_station_electricity_frame_02"),
+        new(0xe695, "save_station_electricity_frame_03"),
+        new(0xe699, "save_station_electricity_frame_04"),
+        new(0xe69d, "save_station_electricity_frame_05"),
+        new(0xe6a1, "save_station_electricity_frame_06"),
+        new(0xe6a5, "save_station_electricity_frame_07"),
+        new(0xf355, "falling_spark_frame_00"),
+        new(0xf359, "falling_spark_frame_01"),
+        new(0xf35d, "falling_spark_frame_02"),
+        new(0xf365, "falling_spark_frame_03"),
+        new(0xf369, "falling_spark_frame_04"),
+        new(0xf36d, "falling_spark_frame_05"),
+        new(0xf371, "falling_spark_frame_06"),
+        new(0xf375, "falling_spark_frame_07"),
+        new(0xf379, "falling_spark_frame_08"),
+        new(0xf37d, "falling_spark_frame_09"),
+        new(0xf381, "falling_spark_frame_10"),
+        new(0xf385, "falling_spark_frame_11"),
+        new(0xf389, "falling_spark_frame_12"),
+        new(0xf38d, "falling_spark_frame_13"),
+    ];
+
+    /// <summary>Mother Brain and statue projectiles.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PreWorkRobotAdditions { get; } =
+    [
+        new(0xa4c5, "bomb_torizo_statue_fragment_frame_00"),
+        new(0xa4d0, "bomb_torizo_statue_fragment_frame_01"),
+        new(0xa4d6, "bomb_torizo_statue_fragment_frame_02"),
+        new(0xa4e1, "bomb_torizo_statue_fragment_frame_03"),
+        new(0xa4e7, "bomb_torizo_statue_fragment_frame_04"),
+        new(0xa4f2, "bomb_torizo_statue_fragment_frame_05"),
+        new(0xa4f8, "bomb_torizo_statue_fragment_frame_06"),
+        new(0xa503, "bomb_torizo_statue_fragment_frame_07"),
+        new(0xa509, "bomb_torizo_statue_fragment_frame_08"),
+        new(0xa514, "bomb_torizo_statue_fragment_frame_09"),
+        new(0xa51a, "bomb_torizo_statue_fragment_frame_10"),
+        new(0xa525, "bomb_torizo_statue_fragment_frame_11"),
+        new(0xa52b, "bomb_torizo_statue_fragment_frame_12"),
+        new(0xa536, "bomb_torizo_statue_fragment_frame_13"),
+        new(0xa53c, "bomb_torizo_statue_fragment_frame_14"),
+        new(0xa547, "bomb_torizo_statue_fragment_frame_15"),
+        new(0xa54d, "bomb_torizo_statue_fragment_frame_16"),
+        new(0xa558, "bomb_torizo_statue_fragment_frame_17"),
+        new(0xa55e, "bomb_torizo_statue_fragment_frame_18"),
+        new(0xa569, "bomb_torizo_statue_fragment_frame_19"),
+        new(0xa56f, "bomb_torizo_statue_fragment_frame_20"),
+        new(0xa57a, "bomb_torizo_statue_fragment_frame_21"),
+        new(0xa580, "bomb_torizo_statue_fragment_frame_22"),
+        new(0xa58b, "bomb_torizo_statue_fragment_frame_23"),
+        new(0xa591, "bomb_torizo_statue_fragment_frame_24"),
+        new(0xa59c, "bomb_torizo_statue_fragment_frame_25"),
+        new(0xa5a2, "bomb_torizo_statue_fragment_frame_26"),
+        new(0xa5ad, "bomb_torizo_statue_fragment_frame_27"),
+        new(0xa5b3, "bomb_torizo_statue_fragment_frame_28"),
+        new(0xa5be, "bomb_torizo_statue_fragment_frame_29"),
+        new(0xa5c4, "bomb_torizo_statue_fragment_frame_30"),
+        new(0xa5cf, "bomb_torizo_statue_fragment_frame_31"),
+        new(0xc103, "mother_brain_turret_frame_00"),
+        new(0xc109, "mother_brain_turret_frame_01"),
+        new(0xc10f, "mother_brain_turret_frame_02"),
+        new(0xc115, "mother_brain_turret_frame_03"),
+        new(0xc11b, "mother_brain_turret_frame_04"),
+        new(0xc121, "mother_brain_turret_frame_05"),
+        new(0xc127, "mother_brain_turret_frame_06"),
+        new(0xc12d, "mother_brain_turret_frame_07"),
+        new(0xc145, "mother_brain_turret_frame_08"),
+        new(0xc14b, "mother_brain_turret_frame_09"),
+        new(0xc151, "mother_brain_turret_frame_10"),
+        new(0xc157, "mother_brain_turret_frame_11"),
+        new(0xc15d, "mother_brain_turret_frame_12"),
+        new(0xc163, "mother_brain_turret_frame_13"),
+        new(0xc169, "mother_brain_turret_frame_14"),
+        new(0xc16f, "mother_brain_turret_frame_15"),
+        new(0xc1a0, "mother_brain_turret_frame_16"),
+        new(0xc1a4, "mother_brain_turret_frame_17"),
+        new(0xc1a8, "mother_brain_turret_frame_18"),
+        new(0xc1ac, "mother_brain_turret_frame_19"),
+        new(0xc1b0, "mother_brain_turret_frame_20"),
+        new(0xc798, "mother_brain_hand_beam_frame_00"),
+        new(0xc7a1, "mother_brain_hand_beam_frame_01"),
+        new(0xc7a5, "mother_brain_hand_beam_frame_02"),
+        new(0xc7a9, "mother_brain_hand_beam_frame_03"),
+        new(0xc7ad, "mother_brain_hand_beam_frame_04"),
+        new(0xc7b1, "mother_brain_hand_beam_frame_05"),
+        new(0xc7b5, "mother_brain_hand_beam_frame_06"),
+        new(0xc7b9, "mother_brain_hand_beam_frame_07"),
+        new(0xc7c2, "mother_brain_hand_beam_frame_08"),
+        new(0xc7c6, "mother_brain_hand_beam_frame_09"),
+        new(0xc7ca, "mother_brain_hand_beam_frame_10"),
+        new(0xc7ce, "mother_brain_hand_beam_frame_11"),
+        new(0xc7d2, "mother_brain_hand_beam_frame_12"),
+        new(0xc7d6, "mother_brain_hand_beam_frame_13"),
+        new(0xc7da, "mother_brain_hand_beam_frame_14"),
+        new(0xc7e3, "mother_brain_hand_beam_frame_15"),
+        new(0xc7e7, "mother_brain_hand_beam_frame_16"),
+        new(0xc7eb, "mother_brain_hand_beam_frame_17"),
+        new(0xc7ef, "mother_brain_hand_beam_frame_18"),
+        new(0xc7f3, "mother_brain_hand_beam_frame_19"),
+        new(0xc7f7, "mother_brain_hand_beam_frame_20"),
+        new(0xcc45, "mother_brain_top_tube_frame_00"),
+        new(0xcc4b, "mother_brain_top_tube_frame_01"),
+        new(0xcc51, "mother_brain_top_tube_frame_02"),
+        new(0xcc57, "mother_brain_top_tube_frame_03"),
+        new(0xcc95, "mother_brain_glass_frame_00"),
+        new(0xcc99, "mother_brain_glass_frame_01"),
+        new(0xcc9d, "mother_brain_glass_frame_02"),
+        new(0xcca1, "mother_brain_glass_frame_03"),
+        new(0xcca5, "mother_brain_glass_frame_04"),
+        new(0xcca9, "mother_brain_glass_frame_05"),
+        new(0xccad, "mother_brain_glass_frame_06"),
+        new(0xccb1, "mother_brain_glass_frame_07"),
+        new(0xccb9, "mother_brain_glass_frame_08"),
+        new(0xccbd, "mother_brain_glass_frame_09"),
+        new(0xccc1, "mother_brain_glass_frame_10"),
+        new(0xccc5, "mother_brain_glass_frame_11"),
+        new(0xccc9, "mother_brain_glass_frame_12"),
+        new(0xcccd, "mother_brain_glass_frame_13"),
+        new(0xccd1, "mother_brain_glass_frame_14"),
+        new(0xccd5, "mother_brain_glass_frame_15"),
+        new(0xccdd, "mother_brain_glass_frame_16"),
+        new(0xcce1, "mother_brain_glass_frame_17"),
+        new(0xcce5, "mother_brain_glass_frame_18"),
+        new(0xcce9, "mother_brain_glass_frame_19"),
+        new(0xcced, "mother_brain_glass_frame_20"),
+        new(0xccf1, "mother_brain_glass_frame_21"),
+        new(0xccf5, "mother_brain_glass_frame_22"),
+        new(0xccf9, "mother_brain_glass_frame_23"),
+        new(0xcd01, "mother_brain_glass_frame_24"),
+        new(0xcd05, "mother_brain_glass_frame_25"),
+        new(0xcd09, "mother_brain_glass_frame_26"),
+        new(0xcd0d, "mother_brain_glass_frame_27"),
+        new(0xcd11, "mother_brain_glass_frame_28"),
+        new(0xcd15, "mother_brain_glass_frame_29"),
+        new(0xcd19, "mother_brain_glass_frame_30"),
+        new(0xcd1d, "mother_brain_glass_frame_31"),
+        new(0xcd25, "mother_brain_glass_frame_32"),
+        new(0xcd29, "mother_brain_glass_frame_33"),
+        new(0xcd2d, "mother_brain_glass_frame_34"),
+        new(0xcd31, "mother_brain_glass_frame_35"),
+        new(0xcd35, "mother_brain_glass_frame_36"),
+        new(0xcd39, "mother_brain_glass_frame_37"),
+        new(0xcd3d, "mother_brain_glass_frame_38"),
+        new(0xcd41, "mother_brain_glass_frame_39"),
+        new(0xcd49, "mother_brain_glass_frame_40"),
+        new(0xcd4d, "mother_brain_glass_frame_41"),
+        new(0xcd51, "mother_brain_glass_frame_42"),
+        new(0xcd55, "mother_brain_glass_frame_43"),
+        new(0xcd59, "mother_brain_glass_frame_44"),
+        new(0xcd5d, "mother_brain_glass_frame_45"),
+        new(0xcd61, "mother_brain_glass_frame_46"),
+        new(0xcd65, "mother_brain_glass_frame_47"),
+        new(0xcd6d, "mother_brain_glass_frame_48"),
+        new(0xcd71, "mother_brain_glass_frame_49"),
+        new(0xcd75, "mother_brain_glass_frame_50"),
+        new(0xcd79, "mother_brain_glass_frame_51"),
+        new(0xcd7d, "mother_brain_glass_frame_52"),
+        new(0xcd81, "mother_brain_glass_frame_53"),
+        new(0xcd85, "mother_brain_glass_frame_54"),
+        new(0xcd89, "mother_brain_glass_frame_55"),
+        new(0xcd91, "mother_brain_glass_frame_56"),
+        new(0xcd95, "mother_brain_glass_frame_57"),
+        new(0xcd99, "mother_brain_glass_frame_58"),
+        new(0xcd9d, "mother_brain_glass_frame_59"),
+        new(0xcda1, "mother_brain_glass_frame_60"),
+        new(0xcda5, "mother_brain_glass_frame_61"),
+        new(0xcda9, "mother_brain_glass_frame_62"),
+        new(0xcdad, "mother_brain_glass_frame_63"),
+        new(0xcdb5, "mother_brain_glass_frame_64"),
+        new(0xcdb9, "mother_brain_glass_frame_65"),
+        new(0xcdbd, "mother_brain_glass_frame_66"),
+        new(0xcdc1, "mother_brain_glass_frame_67"),
+    ];
+
+    /// <summary>The Work Robot laser.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> PrePolypRockAdditions { get; } =
+    [
+        new(0xd2ee, "work_robot_laser_frame_00"),
+        new(0xd2f2, "work_robot_laser_frame_01"),
+        new(0xd2f6, "work_robot_laser_frame_02"),
+        new(0xd2fa, "work_robot_laser_frame_03"),
+        new(0xd2fe, "work_robot_laser_frame_04"),
+        new(0xd302, "work_robot_laser_frame_05"),
+        new(0xd306, "work_robot_laser_frame_06"),
+    ];
+
+    /// <summary>The Polyp Rock lava rock.</summary>
+    internal static IReadOnlyList<EnemyProjectilePresentationFrameDefinition> CurrentAdditions { get; } =
+    [
+        new(0xbbd7, "polyp_rock_00"),
+    ];
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 internal static class AlcoonFireballAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, AlcoonFireballAnimations.Programs, AlcoonFireballFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, AlcoonFireballAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
@@ -20,7 +21,7 @@ internal static class AlcoonFireballAnimationsVerification
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);
-            ushort key = AlcoonFireballFrameDefinitions.PresentationKey(frame);
+            ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), AlcoonFireballFrameDefinitions.Spritemap(frame),
                 $"Alcoon fireball pose {pose} spritemap");
             AssertTrue(AlcoonFireballFrameDefinitions.TryFrame(key, out AlcoonFireballFrame found) && found == frame, $"Alcoon fireball pose {pose} is found by its key");

@@ -175,7 +175,7 @@ internal static class RidleyAnimationsVerification
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                 AssertEqual((int)word, step.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), RidleyFireballVisualDefinitions.PresentationKey(step.Frame), $"{at}: presentation key");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

@@ -64,7 +64,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
 
     /// <summary>Locates a laser or claw projectile drawing operand: the installed artwork key of its pose.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < (uint)PresentationWordCount
-        ? SpacePirateProjectileFrameDefinitions.PresentationKeys[new(index)]
+        ? EnemyProjectileFrames.ProgramFrameKey(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[new(index)])
         : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>Matches either byte of a compiled pirate projectile word in bank $86.</summary>

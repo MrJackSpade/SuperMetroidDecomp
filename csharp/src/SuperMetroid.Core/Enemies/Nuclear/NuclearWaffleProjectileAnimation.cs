@@ -13,6 +13,6 @@ internal sealed class NuclearWaffleProjectileAnimation(NuclearWaffleProjectilePr
     private protected override AnimationProgramSet<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Programs => NuclearWaffleProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(NuclearWaffleProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(NuclearWaffleProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(NuclearWaffleProjectileFrame frame) =>
+        NuclearWaffleProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

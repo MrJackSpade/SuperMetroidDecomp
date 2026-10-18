@@ -13,6 +13,6 @@ internal sealed class StokeProjectileAnimation(StokeProjectileProgram program)
     private protected override AnimationProgramSet<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Programs => StokeProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(StokeProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(StokeProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(StokeProjectileFrame frame) =>
+        StokeProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

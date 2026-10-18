@@ -1,27 +1,29 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.Cacatac.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Cacatac's spike programs (#641): the installed artwork key of each
-/// <see cref="CacatacProjectileFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the Cacatac's spike programs (#641): the projectile frame each
+/// <see cref="CacatacProjectileFrame"/> pose shows.
 /// </summary>
 internal static class CacatacProjectileFrameDefinitions
 {
     /// <summary>The poses, in installed artwork order.</summary>
     internal const int PoseCount = 10;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(CacatacProjectileFrame frame) => frame.Pose switch
-    {
-        0 => 0xd930,
-        1 => 0xd936,
-        2 => 0xd93c,
-        3 => 0xd942,
-        4 => 0xd948,
-        5 => 0xd94e,
-        6 => 0xd954,
-        7 => 0xd95a,
-        8 => 0xd960,
-        9 => 0xd966,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Cacatac spike pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<CacatacProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<CacatacProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.CacatacSpikeFrame00,
+            [new(1)] = EnemyProjectileFrameId.CacatacSpikeFrame01,
+            [new(2)] = EnemyProjectileFrameId.CacatacSpikeFrame02,
+            [new(3)] = EnemyProjectileFrameId.CacatacSpikeFrame03,
+            [new(4)] = EnemyProjectileFrameId.CacatacSpikeFrame04,
+            [new(5)] = EnemyProjectileFrameId.CacatacSpikeFrame05,
+            [new(6)] = EnemyProjectileFrameId.CacatacSpikeFrame06,
+            [new(7)] = EnemyProjectileFrameId.CacatacSpikeFrame07,
+            [new(8)] = EnemyProjectileFrameId.CacatacSpikeFrame08,
+            [new(9)] = EnemyProjectileFrameId.CacatacSpikeFrame09,
+        };
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -26,7 +27,7 @@ internal static class MotherBrainTopTubeAnimationsVerification
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainTopTubeAnimations.Programs,
-        frame => MotherBrainTopTubeFrameDefinitions.PresentationKeys[frame], Rules);
+        frame => EnemyProjectileFrames.ProgramFrameKey(MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame]), Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMotherBrainTopTubeAnimations(SuperMetroidAddressSpace rom)

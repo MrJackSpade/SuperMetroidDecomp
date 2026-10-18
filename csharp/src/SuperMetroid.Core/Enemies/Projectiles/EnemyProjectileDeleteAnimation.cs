@@ -19,11 +19,11 @@ internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
 
     /// <inheritdoc/>
     private protected override bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFramePresentation presentation)
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
     {
         context.Projectile.Clear();
         duration = 0;
-        presentation = default;
+        frame = default;
         return false;
     }
 }

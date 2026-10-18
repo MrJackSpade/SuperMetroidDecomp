@@ -13,6 +13,6 @@ internal sealed class MagdolliteLavaAnimation(MagdolliteLavaProgram program)
     private protected override AnimationProgramSet<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Programs => MagdolliteLavaAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MagdolliteLavaFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MagdolliteLavaFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MagdolliteLavaFrame frame) =>
+        MagdolliteLavaFrameDefinitions.ShownProjectileFrames[frame];
 }

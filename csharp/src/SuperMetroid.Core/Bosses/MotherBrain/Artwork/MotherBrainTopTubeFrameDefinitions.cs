@@ -1,17 +1,19 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// The presentation boundary of the ceiling-tube programs (#641): the installed artwork key of each tube's pose, which is
-/// the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the ceiling-tube programs (#641): the projectile frame each tube's pose shows.
 /// </summary>
 internal static class MotherBrainTopTubeFrameDefinitions
 {
-    /// <summary>The installed artwork key of each tube's pose, in installed artwork order.</summary>
-    internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, ushort> PresentationKeys { get; } = new Dictionary<MotherBrainTopTubeProgram, ushort>
-    {
-        [MotherBrainTopTubeProgram.TopRight] = 0xcc45,
-        [MotherBrainTopTubeProgram.TopLeft] = 0xcc4b,
-        [MotherBrainTopTubeProgram.TopMiddleLeft] = 0xcc51,
-        [MotherBrainTopTubeProgram.TopMiddleRight] = 0xcc57,
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId>
+        {
+            [MotherBrainTopTubeProgram.TopRight] = EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
+            [MotherBrainTopTubeProgram.TopLeft] = EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
+            [MotherBrainTopTubeProgram.TopMiddleLeft] = EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
+            [MotherBrainTopTubeProgram.TopMiddleRight] = EnemyProjectileFrameId.MotherBrainTopTubeFrame03,
+        };
 }

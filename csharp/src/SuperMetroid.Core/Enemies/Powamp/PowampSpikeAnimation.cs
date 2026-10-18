@@ -13,6 +13,6 @@ internal sealed class PowampSpikeAnimation(PowampSpikeProgram program)
     private protected override AnimationProgramSet<PowampSpikeProgram, PowampSpikeFrame, EnemyProjectileCommonCue> Programs => PowampSpikeAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(PowampSpikeFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(PowampSpikeFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(PowampSpikeFrame frame) =>
+        PowampSpikeFrameDefinitions.ShownProjectileFrames[frame];
 }

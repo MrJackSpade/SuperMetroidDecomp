@@ -13,6 +13,6 @@ internal sealed class FuneNamiheFireballAnimation(FuneNamiheFireballProgram prog
     private protected override AnimationProgramSet<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Programs => FuneNamiheFireballAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(FuneNamiheFireballFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(FuneNamiheFireballFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(FuneNamiheFireballFrame frame) =>
+        FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame];
 }

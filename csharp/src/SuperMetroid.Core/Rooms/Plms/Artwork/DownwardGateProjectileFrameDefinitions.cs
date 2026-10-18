@@ -1,26 +1,28 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Rooms.Plms.Artwork;
 
 /// <summary>
-/// The presentation boundary of the downward shot gate's programs (#641): the installed artwork key of each
-/// <see cref="DownwardGateProjectileFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of the downward shot gate's programs (#641): the projectile frame each
+/// <see cref="DownwardGateProjectileFrame"/> pose shows.
 /// </summary>
 internal static class DownwardGateProjectileFrameDefinitions
 {
     /// <summary>The poses, in installed artwork order.</summary>
     internal const int PoseCount = 9;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(DownwardGateProjectileFrame frame) => frame.Pose switch
-    {
-        0 => 0xe546,
-        1 => 0xe54c,
-        2 => 0xe552,
-        3 => 0xe558,
-        4 => 0xe564,
-        5 => 0xe56e,
-        6 => 0xe574,
-        7 => 0xe57a,
-        8 => 0xe580,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined downward gate pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<DownwardGateProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<DownwardGateProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.DownwardGateFrame00,
+            [new(1)] = EnemyProjectileFrameId.DownwardGateFrame01,
+            [new(2)] = EnemyProjectileFrameId.DownwardGateFrame02,
+            [new(3)] = EnemyProjectileFrameId.DownwardGateFrame03,
+            [new(4)] = EnemyProjectileFrameId.DownwardGateFrame04,
+            [new(5)] = EnemyProjectileFrameId.DownwardGateFrame05,
+            [new(6)] = EnemyProjectileFrameId.DownwardGateFrame06,
+            [new(7)] = EnemyProjectileFrameId.DownwardGateFrame07,
+            [new(8)] = EnemyProjectileFrameId.DownwardGateFrame08,
+        };
 }

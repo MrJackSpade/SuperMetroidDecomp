@@ -82,7 +82,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(definition => (int)definition.DefinitionPointer).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "Get", "pointer") => EnemyProjectileSpritemapDefinitions.Frames
             .Select(frame => (int)frame.Pointer).Append(EnemyProjectileSpritemapDefinitions.BlankSpritemap).ToArray(),
-        ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameDefinitions.All
+        ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameSets.All
             .SelectToArray(frame => (int)frame.OperandAddress),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.

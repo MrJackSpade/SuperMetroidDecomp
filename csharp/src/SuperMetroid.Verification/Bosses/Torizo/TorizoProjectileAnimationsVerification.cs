@@ -99,7 +99,7 @@ internal static class TorizoProjectileAnimationsVerification
                 .Where(step => step.Kind == AnimationProgramStepKind.Show)
                 .Select(step => step.Frame).ToHashSet();
             AssertTrue(shown.SetEquals(installed), $"the {family} programs show exactly the installed frames");
-            ushort[] keys = [.. installed.Select(TorizoProjectileVisualDefinitions.PresentationKey)];
+            ushort[] keys = [.. installed.Select((frame => EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[frame])))];
             AssertTrue(keys.Zip(keys.Skip(1)).All(pair => pair.First < pair.Second), $"the {family} frames install in native operand order");
             frames += installed.Count;
         }
@@ -153,7 +153,7 @@ internal static class TorizoProjectileAnimationsVerification
                 var show = Next("frame");
                 AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
                 AssertEqual((int)word, show.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), TorizoProjectileVisualDefinitions.PresentationKey(show.Frame), $"{at}: installed frame");
+                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: installed frame");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

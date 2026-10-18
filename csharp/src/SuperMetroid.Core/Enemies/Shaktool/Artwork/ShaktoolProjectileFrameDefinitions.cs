@@ -1,25 +1,27 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Enemies.Shaktool.Artwork;
 
 /// <summary>
-/// The presentation boundary of Shaktool's attack circles programs (#641): the installed artwork key of each
-/// <see cref="ShaktoolProjectileFrame"/> pose, which is the bank-$86 address of the native frame's spritemap operand.
+/// The presentation boundary of Shaktool's attack circles programs (#641): the projectile frame each
+/// <see cref="ShaktoolProjectileFrame"/> pose shows.
 /// </summary>
 internal static class ShaktoolProjectileFrameDefinitions
 {
     /// <summary>The poses, in installed artwork order.</summary>
     internal const int PoseCount = 8;
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    internal static ushort PresentationKey(ShaktoolProjectileFrame frame) => frame.Pose switch
-    {
-        0 => 0xbd6a,
-        1 => 0xbd6e,
-        2 => 0xbd72,
-        3 => 0xbd7a,
-        4 => 0xbd82,
-        5 => 0xbd86,
-        6 => 0xbd8e,
-        7 => 0xbd96,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Shaktool attack circle pose."),
-    };
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<ShaktoolProjectileFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<ShaktoolProjectileFrame, EnemyProjectileFrameId>
+        {
+            [new(0)] = EnemyProjectileFrameId.ShaktoolFrame00,
+            [new(1)] = EnemyProjectileFrameId.ShaktoolFrame01,
+            [new(2)] = EnemyProjectileFrameId.ShaktoolFrame02,
+            [new(3)] = EnemyProjectileFrameId.ShaktoolFrame03,
+            [new(4)] = EnemyProjectileFrameId.ShaktoolFrame04,
+            [new(5)] = EnemyProjectileFrameId.ShaktoolFrame05,
+            [new(6)] = EnemyProjectileFrameId.ShaktoolFrame06,
+            [new(7)] = EnemyProjectileFrameId.ShaktoolFrame07,
+        };
 }

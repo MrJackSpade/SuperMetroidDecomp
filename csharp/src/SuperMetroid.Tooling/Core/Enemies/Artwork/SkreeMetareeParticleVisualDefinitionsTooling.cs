@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Programs;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Operand resolution for the shared bank-$86 visual scans in the development audits.</summary>
@@ -20,5 +22,17 @@ internal static class SkreeMetareeParticleVisualDefinitionsTooling
             composition = SkreeMetareeParticleVisualDefinitions.Resolve((SkreeMetareeParticleOperand)operandAddress);
             return true;
         }
+
+        /// <summary>Decodes a raw bank-$86 operand, rejecting addresses outside the two particle programs.</summary>
+        internal static ushort Resolve(ushort operandAddress) =>
+            SkreeMetareeParticleVisualDefinitions.Resolve(ClosedNativeWords.Decode<SkreeMetareeParticleOperand>(operandAddress, "Skree/Metaree visual operand"));
+
+        /// <summary>Maps the typed Skree or Metaree selector to its bank-$8D composition pointer.</summary>
+        internal static ushort Resolve(SkreeMetareeParticleOperand operand) => operand switch
+        {
+            SkreeMetareeParticleOperand.Skree => SkreeMetareeParticleVisualDefinitions.SkreeComposition,
+            SkreeMetareeParticleOperand.Metaree => SkreeMetareeParticleVisualDefinitions.MetareeComposition,
+            _ => throw new InvalidOperationException($"Undefined Skree/Metaree visual operand {operand}."),
+        };
     }
 }

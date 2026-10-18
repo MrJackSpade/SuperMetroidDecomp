@@ -108,29 +108,29 @@ public sealed class EnemyProjectileSpritemapCatalog
             EnemyProjectilePresentationFrameDefinition[] definitions = version switch
             {
                 EnemyProjectileSpritemapVersion.FirstProgramFrame =>
-                    [.. EnemyProjectileFirstProgramFrameManifest.Frames],
+                    [.. EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames],
                 EnemyProjectileSpritemapVersion.PreAlcoon =>
-                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+                    EnemyProjectilePresentationFrameSets.PreGoldenTorizo
                         .WhereToArray(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
                         ,
                 EnemyProjectileSpritemapVersion.PreGoldenTorizo =>
-                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreGoldenTorizo.ToArray(),
                 EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg =>
-                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreGoldenTorizoEgg.ToArray(),
                 EnemyProjectileSpritemapVersion.PreTorizoEffects =>
-                    EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreTorizoEffects.ToArray(),
                 EnemyProjectileSpritemapVersion.PreGenericEnemyDeath =>
-                    EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreGenericEnemyDeath.ToArray(),
                 EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack =>
-                    EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreEnvironmentAndAttack.ToArray(),
                 EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue =>
-                    EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreMotherBrainAndStatue.ToArray(),
                 EnemyProjectileSpritemapVersion.PreWorkRobot =>
-                    EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PreWorkRobot.ToArray(),
                 EnemyProjectileSpritemapVersion.PrePolypRock =>
-                    EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
+                    EnemyProjectilePresentationFrameSets.PrePolypRock.ToArray(),
                 EnemyProjectileSpritemapVersion.Current =>
-                    EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
+                    EnemyProjectilePresentationFrameSets.All.ToArray(),
                 _ => throw new InvalidOperationException(
                     $"Enemy-projectile schema {version} has no program frames."),
             };

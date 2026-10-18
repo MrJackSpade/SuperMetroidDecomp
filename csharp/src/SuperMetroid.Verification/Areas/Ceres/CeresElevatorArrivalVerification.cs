@@ -43,7 +43,7 @@ internal static class CeresElevatorArrivalVerification
                 frame => frame.Name,
                 frame => frame.Pointer is 0xb1ba or 0xb1d0 or 0x846d
                     ? new[] { part } : Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
+            ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
         };
         var artwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(

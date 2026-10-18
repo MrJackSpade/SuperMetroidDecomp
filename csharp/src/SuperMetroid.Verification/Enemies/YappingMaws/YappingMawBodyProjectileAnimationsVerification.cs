@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 internal static class YappingMawBodyProjectileAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, YappingMawBodyProjectileAnimations.Programs, YappingMawBodyProjectileFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, YappingMawBodyProjectileAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(YappingMawBodyProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyYappingMawBodyProjectileAnimations(SuperMetroidAddressSpace rom)

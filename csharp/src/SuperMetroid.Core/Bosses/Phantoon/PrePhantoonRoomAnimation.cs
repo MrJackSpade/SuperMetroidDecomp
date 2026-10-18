@@ -21,6 +21,6 @@ internal sealed class PrePhantoonRoomAnimation : EnemyProjectileTimelineAnimatio
     private protected override AnimationTimeline<PrePhantoonRoomFrame, PrePhantoonRoomCue> Timeline => Program;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(PrePhantoonRoomFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(PrePhantoonRoomVisualDefinitions.BlankFrameKey);
+    private protected override EnemyProjectileFrameId Present(PrePhantoonRoomFrame frame) =>
+        EnemyProjectileFrameId.Blank;
 }

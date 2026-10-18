@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainEffectAnimationsVerification
 {
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Programs, MotherBrainEffectFrameDefinitions.PresentationKey, MotherBrainEffectCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MotherBrainEffectAnimations.Programs, (frame => EnemyProjectileFrames.ProgramFrameKey(MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame])), MotherBrainEffectCueRules.Rules);
 
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyMotherBrainEffectAnimations(SuperMetroidAddressSpace rom)

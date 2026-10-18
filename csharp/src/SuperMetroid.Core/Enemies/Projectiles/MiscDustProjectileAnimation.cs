@@ -13,6 +13,6 @@ internal sealed class MiscDustProjectileAnimation(MiscDustProjectileProgram prog
     private protected override AnimationProgramSet<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue> Programs => MiscDustProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MiscDustProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MiscDustProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MiscDustProjectileFrame frame) =>
+        MiscDustProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

@@ -20,7 +20,7 @@ internal static class EnemyProjectileArtworkContractChecks
     internal static void Run()
     {
         var direct = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
-        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? stock = null) =>
@@ -28,7 +28,7 @@ internal static class EnemyProjectileArtworkContractChecks
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         ushort directId = EnemyProjectileSpritemapDefinitions.Frames[0].Pointer;
-        EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameDefinitions.All[0];
+        EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
         Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.OperandAddress).IsEmpty &&
             catalog.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).IsEmpty, "complete authored empty compositions and native blank");
         string directName = EnemyProjectileSpritemapDefinitions.Frames[0].Name;

@@ -30,13 +30,8 @@ public sealed class RoomEnemyProjectileSlot
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
-    /// <summary>Gets the native spritemap identity selected by the current draw instruction, initially the blank map.</summary>
-    public ushort SpritemapPointer { get; internal set; }
-    /// <summary>
-    /// Host-only visual identity for an installed enemy-projectile program frame.
-    /// Zero selects a named direct composition, including the native empty frame.
-    /// </summary>
-    public ushort PresentationOperandAddress { get; internal set; }
+    /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
+    public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
     internal EnemyProjectilePreInstruction PreInstruction { get; set; }
     /// <summary>Gets the native combined sprite tile-base and palette word used when composing projectile OAM.</summary>
@@ -176,10 +171,9 @@ public sealed class RoomEnemyProjectileSlot
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
         PreInstruction = 0;
-        SpritemapPointer = 0;
+        Frame = null;
         InstructionTimer = NativeCountdown.Start(0);
         Animation = null;
-        PresentationOperandAddress = 0;
         Radius = Extent16<RoomPixels>.Zero;
         GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;
         DrawPriority = EnemyProjectileDrawPriority.Low;

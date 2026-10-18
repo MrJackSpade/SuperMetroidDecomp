@@ -73,9 +73,9 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
         // them; those keys still select the native spritemap through the shared selector table.
         foreach ((string owner, IEnumerable<ushort> keys) in new (string, IEnumerable<ushort>)[]
                  {
-                     (nameof(CrocomireProjectileVisualDefinitions), CrocomireProjectileVisualDefinitions.ProjectileFrames.Select(CrocomireProjectileVisualDefinitions.PresentationKey)),
-                     (nameof(DraygonProjectileVisualDefinitions), DraygonProjectileVisualDefinitions.ProjectileFrames.Select(DraygonProjectileVisualDefinitions.PresentationKey)),
-                     (nameof(KraidRockVisualDefinitions), KraidRockVisualDefinitions.ProjectileFrames.Select(KraidRockVisualDefinitions.PresentationKey)),
+                     (nameof(CrocomireProjectileVisualDefinitions), CrocomireProjectileVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileFrames.ProgramFrameKey(CrocomireProjectileVisualDefinitions.ShownProjectileFrames[frame])))),
+                     (nameof(DraygonProjectileVisualDefinitions), DraygonProjectileVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[frame])))),
+                     (nameof(KraidRockVisualDefinitions), KraidRockVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileFrames.ProgramFrameKey(KraidRockVisualDefinitions.ShownProjectileFrames[frame])))),
                  })
         {
             foreach (ushort key in keys)

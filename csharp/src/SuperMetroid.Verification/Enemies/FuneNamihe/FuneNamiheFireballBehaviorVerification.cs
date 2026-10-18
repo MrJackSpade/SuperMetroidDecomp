@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 
@@ -46,7 +47,7 @@ internal static class FuneNamiheFireballBehaviorVerification
         for (int pose = 0; pose < FuneNamiheFireballFrameDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, FuneNamiheFireballFrameDefinitions.PresentationKey(frame), out ushort selected),
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
                 $"pose {pose} has a calculated selector");
             AssertEqual(FuneNamiheFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }

@@ -13,6 +13,6 @@ internal sealed class CacatacProjectileAnimation(CacatacProjectileProgram progra
     private protected override AnimationProgramSet<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Programs => CacatacProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(CacatacProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(CacatacProjectileFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(CacatacProjectileFrame frame) =>
+        CacatacProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

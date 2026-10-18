@@ -13,6 +13,6 @@ internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram prog
         MotherBrainTopTubeAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MotherBrainTopTubeProgram frame) =>
-        EnemyProjectileFramePresentation.Installed(MotherBrainTopTubeFrameDefinitions.PresentationKeys[frame]);
+    private protected override EnemyProjectileFrameId Present(MotherBrainTopTubeProgram frame) =>
+        MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame];
 }

@@ -13,6 +13,6 @@ internal sealed class SpacePirateProjectileAnimation(SpacePirateProjectileProgra
         SpacePirateProjectileAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(SpacePirateProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(SpacePirateProjectileFrameDefinitions.PresentationKeys[frame]);
+    private protected override EnemyProjectileFrameId Present(SpacePirateProjectileFrame frame) =>
+        SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[frame];
 }

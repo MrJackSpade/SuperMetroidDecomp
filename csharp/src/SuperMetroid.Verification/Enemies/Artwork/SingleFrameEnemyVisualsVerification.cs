@@ -76,20 +76,20 @@ internal static class SingleFrameEnemyVisualsVerification
         var projectileLegacy = projectileDocument with
         {
             Version = (int)EnemyProjectileSpritemapVersion.PrePolypRock,
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.PrePolypRock
+            ProgramFrames = EnemyProjectilePresentationFrameSets.PrePolypRock
                 .ToDictionary(frame => frame.Name, frame => (projectileDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectileDocument.ProgramFrames."))[frame.Name]),
         };
-        string editedProjectile = EnemyProjectilePresentationFrameDefinitions.PrePolypRock[0].Name;
+        string editedProjectile = EnemyProjectilePresentationFrameSets.PrePolypRock[0].Name;
         projectileLegacy.ProgramFrames[editedProjectile] =
             [projectileLegacy.ProgramFrames[editedProjectile][0] with { OffsetX = -12 }];
         byte[] projectileLegacyBytes = JsonSerializer.SerializeToUtf8Bytes(projectileLegacy, options);
         var projectileMerged = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes), projectileStock);
         AssertEqual(-12, projectileMerged.GetProgramFrame(
-            EnemyProjectilePresentationFrameDefinitions.PrePolypRock[0].OperandAddress).Span[0].X.SignedOffset,
+            EnemyProjectilePresentationFrameSets.PrePolypRock[0].OperandAddress).Span[0].X.SignedOffset,
             "schema-12 projectile edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes)),
             "old projectile stock requests reimport");
-        var rockParts = projectileMerged.GetProgramFrame(PolypRockFrameDefinitions.PresentationKey(new(0)));
+        var rockParts = projectileMerged.GetProgramFrame(EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]));
         var rockActual = new OamBuffer();
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
         ushort rockPointer = PolypRockFrameDefinitions.Spritemap(new(0));

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -9,12 +8,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal abstract class EnemyProjectileAnimation
 {
-    /// <summary>
-    /// The frame key of a frame that shows the empty projectile spritemap ($8D:8000) rather than an installed program
-    /// frame, as a native list operand selecting that spritemap does.
-    /// </summary>
-    internal const ushort EmptyFrameKey = 0;
-
     /// <summary>
     /// Advances one projectile pass: the frame expires on the update its native timer would. A cue published
     /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
@@ -27,7 +20,7 @@ internal abstract class EnemyProjectileAnimation
         projectile.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
-        bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFramePresentation presentation);
+        bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFrameId frame);
         if (projectile.Animation != this)
             return;
         if (!shown)
@@ -37,15 +30,14 @@ internal abstract class EnemyProjectileAnimation
             return;
         }
         projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
-        projectile.PresentationOperandAddress = presentation.PresentationKey;
-        projectile.SpritemapPointer = presentation.SpritemapPointer;
+        projectile.Frame = frame;
     }
 
     /// <summary>Advances the timeline to its next frame, or reports that it holds.</summary>
     /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
     /// <param name="duration">How many projectile passes the frame lasts.</param>
-    /// <param name="presentation">How the frame is drawn.</param>
+    /// <param name="frame">The frame shown.</param>
     private protected abstract bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFramePresentation presentation);
+        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame);
 }

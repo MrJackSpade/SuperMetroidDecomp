@@ -343,7 +343,7 @@ internal static class EnemyContentIdentityFixtureVerification
         public EnemyProjectileSpritemapDocument ProjectileDocument()
         {
             var frames = EnemyProjectileSpritemapDefinitions.Frames.ToArray();
-            var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray();
+            var programs = EnemyProjectilePresentationFrameSets.All.ToArray();
             return new EnemyProjectileSpritemapDocument
             {
                 Version = (int)EnemyProjectileSpritemapVersion.Current,

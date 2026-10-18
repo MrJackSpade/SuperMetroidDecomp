@@ -181,7 +181,7 @@ internal static class BotwoonAnimationsVerification
         animate(segment, 0);
         AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
-        AssertEqual(BotwoonVisualDefinitions.ProjectilePresentationKey(new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)),
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.

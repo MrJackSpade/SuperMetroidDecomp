@@ -607,6 +607,13 @@ Commit and push that update too.
   - `EnemyProjectilePreInstruction` is a value-free identity. Its bank-$86 routine addresses live in Tooling's
     `EnemyProjectilePreInstructionWords`, which the Tooling layouts and test support's word view read; oracle cue
     rules compare operands through it.
+  - Enemy projectile frames are identities: `RoomEnemyProjectileSlot.Frame` holds an `EnemyProjectileFrameId?`
+    (named from the installed program frames, plus the blank map and the Skree/Metaree compositions), and the
+    engine draws through `EnemyProjectileFrames`, which binds identities to installed keys by name. Each family's
+    key function became a generated `ShownProjectileFrames` table over its full frame domain (record frames take
+    the product of their enum fields and phases, aliases included). The presentation registry is generation data
+    (`EnemyProjectilePresentationFrameDefinitions` additions, `EnemyProjectilePresentationFrameSets` selection).
+    Test support's `EnemyProjectileSlotFrameAccess` gives the native key/spritemap views.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

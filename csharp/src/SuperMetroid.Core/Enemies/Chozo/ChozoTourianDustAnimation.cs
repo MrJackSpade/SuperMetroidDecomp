@@ -13,6 +13,6 @@ internal sealed class ChozoTourianDustAnimation(ChozoTourianDustProgram program)
     private protected override AnimationProgramSet<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Programs => ChozoTourianDustAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(ChozoTourianDustFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(ChozoTourianDustFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(ChozoTourianDustFrame frame) =>
+        ChozoTourianDustFrameDefinitions.ShownProjectileFrames[frame];
 }

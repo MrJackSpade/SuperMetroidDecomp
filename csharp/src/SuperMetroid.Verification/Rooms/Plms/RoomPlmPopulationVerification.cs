@@ -1268,12 +1268,12 @@ internal static class RoomPlmPopulationVerification
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
         HashSet<ushort> electricityOperands = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
-            .Select(index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))).ToHashSet();
+            .Select(index => EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
+            ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
@@ -1287,7 +1287,7 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(SaveStationElectricityFrameDefinitions.PresentationKey(new(0)),
+        AssertEqual(EnemyProjectileFrames.ProgramFrameKey(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(0)]),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");

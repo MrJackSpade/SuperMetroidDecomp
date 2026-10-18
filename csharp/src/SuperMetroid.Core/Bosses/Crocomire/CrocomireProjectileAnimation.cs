@@ -25,6 +25,6 @@ internal sealed class CrocomireProjectileAnimation : EnemyProjectileTimelineAnim
     };
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(CrocomireProjectileFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(CrocomireProjectileVisualDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(CrocomireProjectileFrame frame) =>
+        CrocomireProjectileVisualDefinitions.ShownProjectileFrames[frame];
 }

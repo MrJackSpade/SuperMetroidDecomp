@@ -13,6 +13,6 @@ internal sealed class MotherBrainEffectAnimation(MotherBrainEffectProgram progra
     private protected override AnimationProgramSet<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Programs => MotherBrainEffectAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(MotherBrainEffectFrame frame) =>
-        EnemyProjectileFramePresentation.Installed(MotherBrainEffectFrameDefinitions.PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(MotherBrainEffectFrame frame) =>
+        MotherBrainEffectFrameDefinitions.ShownProjectileFrames[frame];
 }

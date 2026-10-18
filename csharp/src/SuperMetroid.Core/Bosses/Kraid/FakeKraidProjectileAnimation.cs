@@ -25,18 +25,9 @@ internal sealed class FakeKraidProjectileAnimation : EnemyProjectileTimelineAnim
     internal static IReadOnlyList<FakeKraidProjectilePose> Poses { get; } =
         [FakeKraidProjectilePose.Spit, FakeKraidProjectilePose.SpikeLeft, FakeKraidProjectilePose.SpikeRight];
 
-    /// <summary>The installed artwork key of <paramref name="pose"/>: its native visual operand.</summary>
-    internal static ushort PresentationKey(FakeKraidProjectilePose pose) => pose switch
-    {
-        FakeKraidProjectilePose.Spit => FakeKraidProjectileInstructionProgramDefinitions.SpitOperand,
-        FakeKraidProjectilePose.SpikeLeft => FakeKraidProjectileInstructionProgramDefinitions.SpikeLeftOperand,
-        FakeKraidProjectilePose.SpikeRight => FakeKraidProjectileInstructionProgramDefinitions.SpikeRightOperand,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Fake Kraid projectile pose."),
-    };
-
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(FakeKraidProjectilePose frame) =>
-        EnemyProjectileFramePresentation.Installed(PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>
+        ShownProjectileFrames[frame];
 
     /// <summary><c>InstList_EnemyProjectile_MiniKraidSpit</c>: the spit pose, then sleep.</summary>
     private static AnimationTimeline<FakeKraidProjectilePose, NoAnimationCue> SpitProgram { get; } = Held(FakeKraidProjectilePose.Spit);
@@ -51,4 +42,13 @@ internal sealed class FakeKraidProjectileAnimation : EnemyProjectileTimelineAnim
     private static AnimationTimeline<FakeKraidProjectilePose, NoAnimationCue> Held(FakeKraidProjectilePose pose) => new(
         AnimationStep<FakeKraidProjectilePose, NoAnimationCue>.Show(pose, FakeKraidProjectileInstructionProgramDefinitions.PoseDuration),
         AnimationStep<FakeKraidProjectilePose, NoAnimationCue>.Hold);
+
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<FakeKraidProjectilePose, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<FakeKraidProjectilePose, EnemyProjectileFrameId>
+        {
+            [FakeKraidProjectilePose.Spit] = EnemyProjectileFrameId.FakeKraidFrame00,
+            [FakeKraidProjectilePose.SpikeLeft] = EnemyProjectileFrameId.FakeKraidFrame01,
+            [FakeKraidProjectilePose.SpikeRight] = EnemyProjectileFrameId.FakeKraidFrame02,
+        };
 }

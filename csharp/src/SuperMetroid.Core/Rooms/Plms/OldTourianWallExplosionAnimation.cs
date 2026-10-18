@@ -39,18 +39,18 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionPr
     internal static int PoseCount => D.FrameDurations.Length;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFramePresentation Present(int frame) =>
-        EnemyProjectileFramePresentation.Installed(PresentationKey(frame));
+    private protected override EnemyProjectileFrameId Present(int frame) =>
+        ShownProjectileFrames[frame];
 
-    /// <summary>The installed artwork key of pose <paramref name="frame"/>: its native visual operand.</summary>
-    internal static ushort PresentationKey(int frame) => frame switch
+    /// <summary>The projectile frame each frame of the family shows.</summary>
+    internal static IReadOnlyDictionary<int, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<int, EnemyProjectileFrameId>
         {
-            0 => D.FirstFrameOperand,
-            1 => D.SecondFrameOperand,
-            2 => D.ThirdFrameOperand,
-            3 => D.FourthFrameOperand,
-            4 => D.FifthFrameOperand,
-            5 => D.SixthFrameOperand,
-            _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "The wall explosion has six poses."),
+            [0] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame00,
+            [1] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame01,
+            [2] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame02,
+            [3] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame03,
+            [4] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame04,
+            [5] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame05,
         };
 }

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Rooms;
 

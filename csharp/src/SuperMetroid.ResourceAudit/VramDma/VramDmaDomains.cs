@@ -18,6 +18,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.ResourceAudit.VramDma;
 
@@ -88,7 +89,7 @@ internal static class VramDmaDomains
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
                     (WreckedShipTreadmillRomData.FrameSource(index), (int)WreckedShipTreadmillRomData.TransferByteCount)));
             case "landing":
-                return Native(LibraryBackgroundProgramDefinitionsTooling.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
+                return Native(LibraryBackgroundSources.Program(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
                     .Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
                     .Select(instruction => (instruction.SourceAddress, (int)instruction.ByteCount)));
             case "sky":

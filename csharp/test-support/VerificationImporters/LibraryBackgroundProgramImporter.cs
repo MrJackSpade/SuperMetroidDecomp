@@ -27,7 +27,7 @@ internal static class LibraryBackgroundProgramImporter
             LibraryBackgroundCommand command = (LibraryBackgroundCommand)Word(cursor);
             cursor = (ushort)(cursor + 2);
             if (command == LibraryBackgroundCommand.End)
-                return new LibraryBackgroundProgram(pointer, instructions.ToArray(), (ushort)(cursor - pointer));
+                return new LibraryBackgroundProgram($"$8F:{pointer:X4}", instructions.ToArray(), (ushort)(cursor - pointer));
             ushort door = 0;
             if (command == LibraryBackgroundCommand.TransferForDoor)
             {

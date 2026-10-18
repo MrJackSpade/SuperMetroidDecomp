@@ -15,29 +15,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </remarks>
 public static class LibraryBackgroundLoader
 {
-    /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
-    public static LibraryBackgroundExecutionResult Execute(LibraryBackgroundStaging staging, SnesVram vram, ushort listPointer, CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork)
-    {
-        Ensure.NotNull(staging);
-        Ensure.NotNull(vram);
-        if (unchecked((short)listPointer) >= 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(listPointer),
-                $"Library-background pointers must address the high half of bank $8F, not ${listPointer:X4}.");
-        }
-
-        if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
-                out LibraryBackgroundProgram? program))
-            return ExecuteProgram(staging, vram, program, activeDoor, artwork);
-
-        // All retail high-bank lists are compiled. Once the host has bound every
-        // direct-transfer catalog, a missing list is a definition error rather
-        // than permission to interpret unknown cartridge bytes at runtime.
-        throw new InvalidDataException(
-            $"Library-background program $8F:{listPointer:X4} is not compiled.");
-    }
-
     /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
     public static LibraryBackgroundExecutionResult ExecuteProgram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundProgram program, CartridgeDoorHeader activeDoor, LibraryBackgroundArtwork artwork)
     {
@@ -76,7 +53,7 @@ public static class LibraryBackgroundLoader
                 default:
                     throw new InvalidDataException(
                         $"Unknown compiled library-background command {instruction.Command} " +
-                        $"in list $8F:{program.Pointer:X4}.");
+                        $"in list {program.Name}.");
             }
         }
 

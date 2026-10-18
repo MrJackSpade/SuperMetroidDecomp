@@ -26,13 +26,14 @@ try {
         throw 'The ROM does not match the pinned Japan/USA NTSC v1.0 cartridge.'
     }
 
-    $states = [IO.File]::ReadAllLines([IO.Path]::Combine($workspace, 'csharp', 'src',
-        'SuperMetroid.Core', 'Rooms', 'RoomStateDefinitions.cs'))
-    $pointers = @($states | Where-Object { $_ -match '^\s*new\(0x' } | ForEach-Object {
-        $fields = ($_.Trim() -replace '^new\(', '' -replace '\),?$', '').Split(',')
-        if ($fields.Length -ne 16) { throw "Unexpected room-state definition: $_" }
-        [Convert]::ToInt32($fields[14].Trim().Substring(2), 16)
-    } | Where-Object { $_ -ge 0x8000 } | Sort-Object -Unique)
+    $programFile = [IO.File]::ReadAllText([IO.Path]::Combine($workspace, 'csharp', 'src',
+        'SuperMetroid.AssetExtraction', 'Rooms', 'LibraryBackgroundSourceDefinitions.cs'))
+    $programNames = @{}
+    foreach ($match in [regex]::Matches($programFile, '\[0x([0-9a-f]{4})\] = LibraryBackgroundProgramDefinitions\.(\w+),')) {
+        $programNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value
+    }
+    $pointers = @($programNames.Keys | Sort-Object)
+    if ($pointers.Count -ne 68) { throw "Expected 68 library-background programs, found $($pointers.Count)." }
 
     function Read-Word([int]$pointer) {
         if ($pointer -lt 0x8000 -or $pointer -gt 0xFFFE) {
@@ -75,12 +76,12 @@ try {
     $lines.Add('')
     $lines.Add('public static partial class LibraryBackgroundProgramDefinitions')
     $lines.Add('{')
-    $lines.Add('    private static readonly LibraryBackgroundProgram[] programs =')
-    $lines.Add('    [')
     $instructionCount = 0
     foreach ($pointer in $pointers) {
         $cursor = $pointer
-        $lines.Add(('        new(0x{0:X4}, [' -f $pointer))
+        $name = $programNames[$pointer]
+        $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $name))
+        $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(nameof({0}), [' -f $name))
         $terminated = $false
         for ($guard = 0; $guard -lt 128; $guard++) {
             $command = Read-Word $cursor
@@ -109,13 +110,18 @@ try {
                 default { throw ('Unknown bank-$8F library command ${0:X4} at ${1:X4}.' -f
                         $command, ($cursor - 2)) }
             }
-            $lines.Add(('            new(LibraryBackgroundCommand.{0}, 0x{1:X6}, 0x{2:X4}, 0x{3:X4}, {4}),' -f
+            $lines.Add(('        new(LibraryBackgroundCommand.{0}, 0x{1:X6}, 0x{2:X4}, 0x{3:X4}, {4}),' -f
                 $name, $source, $destination, $byteCount, (Format-Door $door)))
             $instructionCount++
         }
         if (-not $terminated) { throw ('Unterminated library list ${0:X4}.' -f $pointer) }
-        $lines.Add(('        ], 0x{0:X4}),' -f ($cursor - $pointer)))
+        $lines.Add(('    ], 0x{0:X4});' -f ($cursor - $pointer)))
+        $lines.Add('')
     }
+    $lines.Add('    /// <summary>The retail programs in the cartridge''s list order.</summary>')
+    $lines.Add('    private static readonly LibraryBackgroundProgram[] programs =')
+    $lines.Add('    [')
+    foreach ($pointer in $pointers) { $lines.Add(('        {0},' -f $programNames[$pointer])) }
     $lines.Add('    ];')
     $lines.Add('}')
     [IO.File]::WriteAllLines($target, $lines, [Text.UTF8Encoding]::new($false))

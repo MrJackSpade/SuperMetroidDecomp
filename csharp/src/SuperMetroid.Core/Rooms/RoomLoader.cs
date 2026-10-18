@@ -971,14 +971,14 @@ internal sealed class RoomLoader
             _player.Samus?.EquippedItems ?? 0,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
 
-        // A negative background-data pointer names bank-$82's command interpreter. Rooms
-        // whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
+        // A room state's library-background program runs through bank $82's command interpreter.
+        // Rooms whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
         // it must run before the initial BG1 fill so a door cannot expose the previous
         // room's tilemap. Ceres $DF8D, for example, decompresses the Tourian statue hall to
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
-        if (unchecked((short)room.State.BackgroundDataPointer) < 0)
+        if (room.State.Background is { } background)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, room.State.BackgroundDataPointer, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
             if (backgroundResult.SelectsKraidHudCharacters)
                 _display.SelectKraidHudCharacterBase();
         }

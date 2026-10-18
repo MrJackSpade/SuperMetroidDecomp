@@ -15,7 +15,7 @@ public sealed record CartridgeRoomState(
     ushort XrayPointer,
     RoomMainCallback MainCallback,
     Plms.RoomPlmPopulationDefinition PlmPopulation,
-    ushort BackgroundDataPointer,
+    Backgrounds.LibraryBackgroundProgram? Background,
     RoomSetupCallback SetupCallback)
 {
     /// <summary>The room state's graphics theme, 0 through 255.</summary>

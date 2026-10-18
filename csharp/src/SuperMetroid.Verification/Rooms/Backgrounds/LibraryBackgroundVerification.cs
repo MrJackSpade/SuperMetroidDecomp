@@ -104,7 +104,7 @@ static void VerifyKraidLibraryHudArtwork(
     LibraryBackgroundExecutionResult native = SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     var installedVram = new SnesVram();
-    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), installedVram, transfer.ListPointer, activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
+    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), installedVram, LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
@@ -114,7 +114,7 @@ static void VerifyKraidLibraryHudArtwork(
 
     pixels[0] = (byte)((pixels[0] + 1) & 3);
     var editedVram = new SnesVram();
-    LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), editedVram, transfer.ListPointer, activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
+    LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), editedVram, LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
         throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");

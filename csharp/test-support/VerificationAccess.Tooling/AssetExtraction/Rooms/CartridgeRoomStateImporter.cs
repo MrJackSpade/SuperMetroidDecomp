@@ -28,6 +28,7 @@ public static class CartridgeRoomStateImporter
             Word(6), SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions.Get(Word(8)),
             SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions.Get(Word(10)), SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes.FromHeader(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16),
-            RoomCallbackDefinitions.ResolveMain(Word(18)), SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Get(Word(20)), Word(22), RoomCallbackDefinitions.ResolveSetup(Word(24)));
+            RoomCallbackDefinitions.ResolveMain(Word(18)), SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinitions.Get(Word(20)),
+            Word(22) == 0 ? null : LibraryBackgroundSources.Program(Word(22)), RoomCallbackDefinitions.ResolveSetup(Word(24)));
     }
 }

@@ -32,7 +32,7 @@ internal static class MotherBrainTankBackgroundVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), expectedVram, 0xe48a, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
+        LibraryBackgroundLoader.ExecuteProgram(LibraryBackgroundStagingFixtures.Fresh(), expectedVram, LibraryBackgroundProgramDefinitions.Get(0xe48a), FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         const int bg2ByteAddress = 0x9000;

@@ -65,7 +65,7 @@ internal static class RoomBackgroundLibraryParityVerification
 
                 LibraryBackgroundStaging selectedStaging = LibraryBackgroundStagingFixtures.Fresh();
                 var selectedVram = new SnesVram();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(selectedStaging, selectedVram, program.Pointer, door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
+                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.ExecuteProgram(selectedStaging, selectedVram, LibraryBackgroundProgramDefinitions.Get(program.Pointer), door == 0 ? FixtureRoomHeaders.UnmatchedDoor : DoorDefinitions.Get(door), new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
@@ -90,17 +90,6 @@ internal static class RoomBackgroundLibraryParityVerification
 
         AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
             "library background parity included door-selected variants");
-        try
-        {
-            LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), new SnesVram(), 0xf000, FixtureRoomHeaders.UnmatchedDoor, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
-            throw new InvalidOperationException(
-                "Installed library background accepted an uncompiled bank-$8F list.");
-        }
-        catch (InvalidDataException error)
-        {
-            AssertTrue(error.Message.Contains("$8F:F000", StringComparison.Ordinal),
-                "unknown installed background list identifies its pointer");
-        }
         Suite(nameof(VerifyInstalledBackgroundTransferFailures), () => VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters));
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM/WRAM without command-list or visual ROM-source reads.");

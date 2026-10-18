@@ -37,7 +37,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     public ushort VisualWord => (ushort)(Raw & VisualBitsMask);
 
     /// <summary>Whether a standalone visual reference contains only the twelve presentation bits.</summary>
-    public static bool IsValidVisualWord(ushort visualWord) =>
+    public static bool IsValidVisualWord(int visualWord) =>
         (visualWord & ~VisualBitsMask) == 0;
 
     /// <summary>

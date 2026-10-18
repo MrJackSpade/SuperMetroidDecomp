@@ -117,7 +117,7 @@ internal static class GrappleBlockProgramsVerification
         entries[0] = new(pointers[0],0x0058);
         entries[4] = new(pointers[4],0x0453);
         var mixed = new RoomPlmGrappleBlockVisualCatalog(entries);
-        var expected = entries.ToDictionary(entry => entry.DrawPointer,entry => entry.VisualWord);
+        var expected = entries.ToDictionary(entry => checked((ushort)entry.DrawPointer),entry => checked((ushort)entry.VisualWord));
         AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmGrappleBlockVisualCatalog),expected),
             mixed.ContentIdentity,"Grapple mixed stock/override identity");
         entries[0] = new(pointers[0],0x0054);

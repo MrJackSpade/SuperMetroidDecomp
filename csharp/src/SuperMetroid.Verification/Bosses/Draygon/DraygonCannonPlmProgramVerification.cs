@@ -81,7 +81,7 @@ internal static class DraygonCannonPlmProgramVerification
             level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
             "edited right shield retains native physical collision and tile reference");
         // The immediate redraw is identified by its BG1 ring destination (bg1XOffset 0).
-        ushort rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
+        int rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
             rightShieldBlock, bg1XOffset: 0).TopRowDestination;
         AssertEqual((ushort)0x0053,
             plms.TilemapUpdates.Last(update =>

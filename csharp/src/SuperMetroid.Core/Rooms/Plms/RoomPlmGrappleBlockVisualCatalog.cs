@@ -23,7 +23,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     });
 
     /// <summary>Only Grapple-block frame appearances that differ from compiled visual bits.</summary>
-    private readonly Dictionary<ushort, ushort>? customWords;
+    private readonly Dictionary<int, int>? customWords;
 
     /// <summary>Validates all five compiled one-block frames and retains authored visual differences without changing Grapple collision, breakup timing, or draw shape.</summary>
     /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>
@@ -32,12 +32,12 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort>();
-        var seen = new HashSet<ushort>();
+        var selected = new Dictionary<int, int>();
+        var seen = new HashSet<int>();
         foreach (RoomPlmGrappleBlockVisualEntry entry in entries)
         {
             if (entry is null ||
-                !RoomPlmGrappleBlockDrawDefinitions.TryGet(entry.DrawPointer, out var draw) ||
+                !RoomPlmGrappleBlockDrawDefinitions.TryGet(checked((ushort)entry.DrawPointer), out var draw) ||
                 !RoomLevelWord.IsValidVisualWord(entry.VisualWord))
                 throw new InvalidDataException(
                     "Grapple-block visuals changed a compiled draw identity or collision bits.");
@@ -62,7 +62,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     {
         if (!RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var draw))
             throw new InvalidDataException($"Grapple-block visuals lack draw list ${drawPointer:X4}.");
-        return customWords is not null && customWords.TryGetValue(drawPointer, out ushort word)
-            ? word : new RoomLevelWord(draw.LevelWord).VisualWord;
+        return customWords is not null && customWords.TryGetValue(drawPointer, out int word)
+            ? checked((ushort)word) : new RoomLevelWord(draw.LevelWord).VisualWord;
     }
 }

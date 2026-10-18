@@ -185,7 +185,7 @@ internal static class LinkedRestoreVisualsVerification
         var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
         bool sawImmediate = false;
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
-        ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
+        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

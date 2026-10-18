@@ -143,7 +143,7 @@ internal static class KraidRoomVisualsVerification
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).PackedWord.Raw,
             "elevatube retains shared native physical word");
         // A PLM redraw identifies its block by the BG1 ring destination of that block.
-        ushort tubeDestination = tubeLevel.CreateBackgroundStreamer()
+        int tubeDestination = tubeLevel.CreateBackgroundStreamer()
             .BuildPlmLevelBlockUpdate(tubeBlock, 0).TopRowDestination;
         AssertTrue(tubePlms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == tubeDestination && update.TopRow[0] == 0x005b),
@@ -181,7 +181,7 @@ internal static class KraidRoomVisualsVerification
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 blockIndex, 0).TopRow[0],
             $"Kraid draw ${drawPointer:X4} edit survives streaming");
-        ushort blockDestination = level.CreateBackgroundStreamer()
+        int blockDestination = level.CreateBackgroundStreamer()
             .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&

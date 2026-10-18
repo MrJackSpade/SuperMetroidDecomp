@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </remarks>
 /// <param name="DrawPointer">Compiled bank-$84 draw-list identity, not a PLM header or instruction-list pointer.</param>
 /// <param name="Runs">Caller-owned run/word arrays in native draw order, with the compiled one- or two-run shape and one or two words per run; every word contains visual bits 0..11 only.</param>
-public sealed record RoomPlmShotBlockVisualEntry(ushort DrawPointer, ushort[][] Runs);
+public sealed record RoomPlmShotBlockVisualEntry(int DrawPointer, ushort[][] Runs);

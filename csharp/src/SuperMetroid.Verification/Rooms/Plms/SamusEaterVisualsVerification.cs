@@ -262,7 +262,7 @@ internal static class SamusEaterVisualsVerification
             level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "Samus Eater edited draw retains native collision word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        ushort originDestination = level.CreateBackgroundStreamer()
+        int originDestination = level.CreateBackgroundStreamer()
             .BuildPlmLevelBlockUpdate(origin, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == originDestination && update.TopRow[0] == visualWord),

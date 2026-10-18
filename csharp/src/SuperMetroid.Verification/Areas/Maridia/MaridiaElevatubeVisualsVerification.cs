@@ -70,7 +70,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            ushort blockDestination = level.CreateBackgroundStreamer()
+            int blockDestination = level.CreateBackgroundStreamer()
                 .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
             AssertTrue(plms.TilemapUpdates.Any(update =>
                     update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),

@@ -32,7 +32,7 @@ internal static class LookupCollectibleStockVerification
         entries[5] = entries[5] with { VisualWord = 0xc58 };
         var mixed = new RoomPlmCollectibleVisualCatalog(entries);
         var expected = frames.Select((frame, index) => (frame.Pointer, entries[index].VisualWord))
-            .ToDictionary(pair => pair.Pointer, pair => pair.VisualWord);
+            .ToDictionary(pair => checked((ushort)pair.Pointer), pair => checked((ushort)pair.VisualWord));
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Collectible mixed custom/stock identity");
         entries[5] = entries[5] with { VisualWord = 0x5a };
         entries[6] = entries[6] with { VisualWord = 0x5b };

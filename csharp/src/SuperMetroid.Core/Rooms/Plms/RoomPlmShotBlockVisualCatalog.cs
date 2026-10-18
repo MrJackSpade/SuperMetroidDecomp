@@ -24,7 +24,7 @@ public sealed class RoomPlmShotBlockVisualCatalog
     });
 
     /// <summary>Deep-copied edited run words; stock-identical draw lists stay calculated.</summary>
-    private readonly Dictionary<ushort, ushort[][]>? customWords;
+    private readonly Dictionary<int, ushort[][]>? customWords;
 
     /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists, deep-copying edited runs while retaining calculated stock visuals where supplied words match; native collision words and run placement are never replaced.</summary>
     /// <param name="entries">Complete, duplicate-free draw identity set with unchanged native run counts/lengths and low-twelve-bit visual words.</param>
@@ -33,12 +33,12 @@ public sealed class RoomPlmShotBlockVisualCatalog
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[][]>();
-        var seen = new HashSet<ushort>();
+        var selected = new Dictionary<int, ushort[][]>();
+        var seen = new HashSet<int>();
         foreach (RoomPlmShotBlockVisualEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
-                !RoomPlmShotBlockDrawDefinitions.TryGet(entry.DrawPointer, out var definition) ||
+                !RoomPlmShotBlockDrawDefinitions.TryGet(checked((ushort)entry.DrawPointer), out var definition) ||
                 entry.Runs.Length != definition.RunCount)
                 throw new InvalidDataException("Shot-block visuals changed a compiled draw-list identity or shape.");
             for (int run = 0; run < entry.Runs.Length; run++)

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -55,7 +57,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
     internal static bool TryGetWord(ushort pointer, out ushort word)
     {
         bool found = TryResolve(pointer, false, out var frame);
-        word = frame.LevelWord;
+        word = frame.LevelWord.Raw;
         return found;
     }
 
@@ -109,7 +111,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
                 DrawGroup.ShotReveal => ((ushort)(0x8053 + index), includeId ? $"shot-reveal-{index}" : string.Empty),
                 _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
             };
-            frame = new(pointer, word, id);
+            frame = new(pointer, new RoomLevelWord(word), id);
             return true;
         }
         frame = default;

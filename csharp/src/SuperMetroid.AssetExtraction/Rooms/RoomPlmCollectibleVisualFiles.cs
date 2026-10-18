@@ -122,7 +122,7 @@ public static class RoomPlmCollectibleVisualFiles
                 throw new InvalidDataException(
                     $"Collectible draw list $84:{frame.Pointer:X4} differs from compiled geometry or level word.");
             entries.Add(new RoomPlmCollectibleVisualEntry(frame.Id,
-                new RoomLevelWord(frame.LevelWord).VisualWord));
+                frame.LevelWord.VisualWord));
         }
         return entries.ToArray();
     }
@@ -132,8 +132,8 @@ public static class RoomPlmCollectibleVisualFiles
         string path)
     {
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-            if (catalog.GetWord(frame.Pointer) !=
-                new RoomLevelWord(frame.LevelWord).VisualWord)
+            if (catalog.GetWord(checked((ushort)frame.Pointer)) !=
+                frame.LevelWord.VisualWord)
                 throw new InvalidDataException(
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }

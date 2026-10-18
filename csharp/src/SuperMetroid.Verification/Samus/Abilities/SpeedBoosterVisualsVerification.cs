@@ -104,7 +104,7 @@ internal static class SpeedBoosterVisualsVerification
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited reveal retains compiled type-B physical level word");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            ushort blockDestination = level.CreateBackgroundStreamer()
+            int blockDestination = level.CreateBackgroundStreamer()
                 .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
             AssertTrue(plms.TilemapUpdates.Any(update =>
                     update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),

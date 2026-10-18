@@ -182,7 +182,7 @@ internal static class TourianAccessVisualsVerification
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
+        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
             $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");

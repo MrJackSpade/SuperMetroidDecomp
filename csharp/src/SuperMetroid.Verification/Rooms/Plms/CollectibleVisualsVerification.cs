@@ -39,7 +39,7 @@ internal static class CollectibleVisualsVerification
         RoomPlmCollectibleVisualEntry[] entries =
             RoomPlmCollectibleDrawDefinitions.All
                 .Select(frame => new RoomPlmCollectibleVisualEntry(frame.Id,
-                    new RoomLevelWord(frame.LevelWord).VisualWord))
+                    frame.LevelWord.VisualWord))
                 .ToArray();
         int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
         entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0053 };

@@ -47,7 +47,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.Plms.RoomPlmEyeDoorVisualCatalog" => EyeDoorPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGatePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All
-            .Select(frame => SingleWord(frame.Pointer, frame.LevelWord)).ToArray(),
+            .Select(frame => SingleWord(checked((ushort)frame.Pointer), frame.LevelWord.Raw)).ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmGrappleBlockVisualCatalog" => RoomPlmGrappleBlockDrawDefinitions.All
             .Select(frame => SingleWord(frame.Pointer, frame.LevelWord)).ToArray(),
         _ => null,

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -78,10 +79,13 @@ internal sealed class EnemyPresentation
     public HudTileAtlas? HudTileArtwork { get; set; }
 
     /// <summary>Draws an installed enemy composition or accepts the compiled common empty frame.</summary>
-    /// <remarks>A nonempty pointer without installed display art is an asset error rather than a cartridge fallback.</remarks>
+    /// <remarks>A nonempty frame without installed display art is an asset error rather than a cartridge fallback.</remarks>
     internal void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
     {
-        if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer,
+        // The common empty frame is compiled definition data, not missing artwork.
+        if (draw.Frame == EnemyFrameId.Empty)
+            return;
+        if (_room.Artwork?.Spritemaps?.TryGetDisplay(EnemyFrames.Bank(draw.Frame), EnemyFrames.Spritemap(draw.Frame),
                 out EnemySpritemapParts installed) == true)
         {
             oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
@@ -89,10 +93,6 @@ internal sealed class EnemyPresentation
                 draw.OriginYIsOnScreen);
             return;
         }
-        // The common empty frame is compiled definition data, not missing artwork.
-        if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer))
-            return;
-        throw new InvalidDataException(
-            $"Enemy sprite ${draw.Bank:X2}:{draw.Pointer:X4} requires an installed display composition.");
+        throw new InvalidDataException($"Enemy frame {draw.Frame} requires an installed display composition.");
     }
 }

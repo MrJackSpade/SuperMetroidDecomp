@@ -114,7 +114,14 @@ internal sealed class EnemyDrawList
                     drawHooks.DrawBeforeBody(oam, camera);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = EnemyFrames.Spritemap(slot.Frame), Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
+                    EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
+                        $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} draws before showing a frame.");
+                    // Only the enemy banks carrying the shared empty record can show the common empty frame.
+                    if (frame == EnemyFrameId.Empty &&
+                        !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, EnemyFrames.Spritemap(frame)))
+                        throw new InvalidDataException(
+                            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} in bank ${slot.Definition.Bank:X2} has no common empty frame.");
+                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
                     continue;
                 }
 

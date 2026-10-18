@@ -32,7 +32,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             var ordinaryEnemies = new RoomEnemySystem { TileArtwork = stock };
             ordinaryEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var emptyDraw = new OamBuffer();
-            ordinaryEnemies.Presentation.DrawEnemySpritemap(emptyDraw, new EnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            ordinaryEnemies.Presentation.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.Frame));

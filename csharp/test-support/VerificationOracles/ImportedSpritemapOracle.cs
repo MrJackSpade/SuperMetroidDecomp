@@ -43,7 +43,7 @@ internal static class ImportedSpritemapOracle
     }
 
     /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
-    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, EnemySpritemapDraw draw) =>
+    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
         oam.AddEnemySpritemap(ReadEnemyParts(source, draw.Bank, draw.Pointer), draw.Origin,
             checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap,
             draw.OriginYIsOnScreen);
@@ -52,7 +52,7 @@ internal static class ImportedSpritemapOracle
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        DrawEnemy(source, oam, new EnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
+        DrawEnemy(source, oam, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 
     /// <summary>Reads a packed enemy spritemap's part count and five-byte records from its data bank.</summary>
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,

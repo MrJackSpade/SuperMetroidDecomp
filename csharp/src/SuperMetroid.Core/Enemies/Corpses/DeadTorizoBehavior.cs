@@ -383,7 +383,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = DeadTorizoArtworkDefinitions.HookSpritemap, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

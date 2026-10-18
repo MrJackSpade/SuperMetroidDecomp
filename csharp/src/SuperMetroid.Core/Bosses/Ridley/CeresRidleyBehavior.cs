@@ -1158,13 +1158,13 @@ internal sealed class CeresRidleyBehavior
             // The tip's sixteen poses split the byte angle into sixteenths.
             int tipIndex = unchecked((byte)(
                 tip.Angle + state.TailSegments[5].Angle + 8)) / 16;
-            ushort tipSpritemap = RidleySupplementalVisualDefinitions.TailTipFrameAt(
+            EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(
                 oam,
                 state.SpritemapPaletteIndex,
                 tip,
-                tipSpritemap,
+                tipFrame,
                 camera);
 
             // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
@@ -1175,16 +1175,16 @@ internal sealed class CeresRidleyBehavior
                     oam,
                     state.SpritemapPaletteIndex,
                     state.TailSegments[index],
-                    RidleySupplementalVisualDefinitions.SegmentFrameAt(index),
+                    RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
                     camera);
         }
 
         if (state.FacingDirection == RidleyFacing.Turning)
             return;
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
-        ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
+        EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingPointerIndex);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = wingFrame, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
     }
 
     /// <summary>
@@ -1238,10 +1238,9 @@ internal sealed class CeresRidleyBehavior
 
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
-            if (babySpritemap != 0)
+            if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyFrameDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.Whole.ToScreen(camera).Y < 256 });
+                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = babyFrame, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.Whole.ToScreen(camera).Y < 256 });
             }
         }
 
@@ -1258,7 +1257,7 @@ internal sealed class CeresRidleyBehavior
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
-            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorFrameDefinitions.Bank, Pointer = CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
 
@@ -1266,12 +1265,12 @@ internal sealed class CeresRidleyBehavior
     /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. $A6:DBE7 counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
-    internal ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
+    internal EnemyFrameId? AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyInstructionTimer)
         {
             state.BabyInstructionTimer++;
-            return CeresBabySpritemap(state.BabyCurrentPose);
+            return CeresBabyFrame(state.BabyCurrentPose);
         }
 
         AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
@@ -1284,12 +1283,12 @@ internal sealed class CeresRidleyBehavior
         state.BabyPoseDuration = advance.Duration;
         state.BabyInstructionTimer = 1;
         state.BabyCurrentPose = advance.Frame;
-        return CeresBabySpritemap(state.BabyCurrentPose);
+        return CeresBabyFrame(state.BabyCurrentPose);
     }
 
-    /// <summary>The spritemap the draw shows for <paramref name="pose"/>, or zero (nothing drawn) before the Baby's first pose.</summary>
-    private static ushort CeresBabySpritemap(CeresBabyPose? pose) =>
-        pose is { } shown ? CeresBabyFrameDefinitions.Spritemap(shown) : (ushort)0;
+    /// <summary>The frame the draw shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
+    private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
+        pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
     private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
@@ -1358,11 +1357,11 @@ internal sealed class CeresRidleyBehavior
         OamBuffer oam,
         SnesObjAttributeWord paletteIndex,
         RidleyTailSegment segment,
-        ushort spritemap,
+        EnemyFrameId frame,
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>

@@ -3329,7 +3329,7 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
             enemies.Presentation._cgram = cgram;
-            Func<RidleyEnemyState, ushort> advance = enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction;
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;

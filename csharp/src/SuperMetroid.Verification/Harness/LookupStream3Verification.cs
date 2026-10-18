@@ -2673,7 +2673,7 @@ internal static class LookupStream3Verification
                 "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(calculatedOam),
                 "stream 3 calculated Baby view matches native OAM drawing");

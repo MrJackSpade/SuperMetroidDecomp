@@ -465,7 +465,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnMotherBrainPurpleBreathSmall(state);
         // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
-        if (AdvanceMotherBrainBrain(state, _deathsAndDrops._samusForEnemyDrops) is not ushort brainSpritemap)
+        if (AdvanceMotherBrainBrain(state, _deathsAndDrops._samusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
@@ -475,7 +475,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
-            brainSpritemap,
+            MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
             head.Position.Whole + brainShake,
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
@@ -503,7 +503,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
                 oam,
-                spritemapPointer: MotherBrainVisualDefinitions.NeckJoint.Pointer,
+                frame: MotherBrainVisualDefinitions.NeckJointFrame,
                 segment + neckShake,
                 state.NeckPalette.PaletteBits,
                 checked((ushort)head.VramTilesIndex),
@@ -518,7 +518,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Draws a selected world-space Mother Brain frame with palette and camera offsets.</summary>
     internal void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
-        ushort spritemapPointer,
+        EnemyFrameId frame,
         Position16<RoomPixels> world,
         ushort paletteIndex,
         ushort vramTilesIndex,
@@ -531,7 +531,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)screen.Y) < 0)
             return;
 
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = MotherBrainVisualDefinitions.Bank, Pointer = spritemapPointer, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
@@ -599,7 +599,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (CMP/BPL), the timer counting up; past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
-    internal ushort? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
+    internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
     {
         if (state.BrainCursor is not { } cursor)
             return null;
@@ -607,7 +607,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
         if (_frameContext._enemyFrameTimeIsFrozen)
         {
-            return step.Kind == AnimationProgramStepKind.Show ? MotherBrainVisualDefinitions.Frame(step.Frame.Index).Pointer : throw new InvalidOperationException(
+            return step.Kind == AnimationProgramStepKind.Show ? step.Frame : throw new InvalidOperationException(
                 $"Mother Brain's frozen brain rests on {step.Kind} step {cursor.Position} of {cursor.Program}, not a frame.");
         }
 
@@ -616,7 +616,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.BrainFrameTimer <= step.Duration)
             {
                 state.BrainFrameTimer++;
-                return MotherBrainVisualDefinitions.Frame(step.Frame.Index).Pointer;
+                return step.Frame;
             }
             cursor = cursor with { Position = cursor.Position + 1 };
         }
@@ -629,7 +629,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native pointer rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
-        return MotherBrainVisualDefinitions.Frame(advance.Frame.Index).Pointer;
+        return advance.Frame;
     }
 
     /// <summary>Advances MotherBrainTubes's typed animation.</summary>

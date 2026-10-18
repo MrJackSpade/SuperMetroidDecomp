@@ -17,6 +17,9 @@ internal static class CeresDoorFrameDefinitions
     /// <summary>The Ridley-room door overlay $A6:A329 that Ridley's scene draws while it holds the door.</summary>
     internal const ushort RidleyPrivateOverlaySpritemap = 0xa329;
 
+    /// <summary>The Ridley scene's private door overlay frame.</summary>
+    internal const EnemyFrameId RidleyPrivateOverlayFrame = EnemyFrameId.CeresDoorRidleyPrivateOverlay;
+
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(CeresDoorFrame frame) => frame.Pose switch
     {

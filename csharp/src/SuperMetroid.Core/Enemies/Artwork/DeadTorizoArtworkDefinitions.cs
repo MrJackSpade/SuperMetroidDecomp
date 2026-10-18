@@ -9,6 +9,9 @@ internal static class DeadTorizoArtworkDefinitions
     /// <summary>$A9:D761, the fixed corpse map drawn by the $A9:D39A hook.</summary>
     internal const ushort HookSpritemap = 0xd761;
 
+    /// <summary>The corpse hook frame drawn after the enemy queue.</summary>
+    internal const EnemyFrameId HookFrame = EnemyFrameId.DeadTorizoCorpseA9D761;
+
     /// <summary>Publishes the fixed hook corpse composition independently of the stationary instruction list.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         [new(SpritemapBank, HookSpritemap, "dead_torizo_corpse_a9_d761")];

@@ -44,8 +44,8 @@ internal static class EnemySpriteArtworkBoundaryVerification
             { (128, 96, false), (511, 1, true), (0, ushort.MaxValue, true) })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
-            enemies.Presentation.DrawEnemySpritemap(actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
+            DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
+            enemies.Presentation.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
@@ -57,7 +57,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             sprite.Attributes = new SnesObjAttributeWord(0x0a04);
             actual = new OamBuffer(); expected = new OamBuffer();
             enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
-            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });
+            DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });
             Equal(expected, actual, $"room sprite object {frame.Name}");
             sprite.Clear();
             spriteObjectCases++;

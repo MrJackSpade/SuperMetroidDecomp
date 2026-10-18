@@ -474,7 +474,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 var native = new OamBuffer();
                 var installed = new OamBuffer();
-                DrawImportedEnemySpritemap(rom, native, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = palette, BaseTileIndex = baseTile });
+                DrawImportedEnemySpritemap(rom, native, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = palette, BaseTileIndex = baseTile });
                 installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
@@ -622,7 +622,7 @@ internal static class EnemySpritemapArtworkVerification
                                                                                                 ? EnemyDefinitionId.Magdollite
                                 : EnemyDefinitionId.Atomic, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeRoom, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeRoom, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080), PaletteBits = 0, BaseTileIndex = 0 });
             AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
@@ -3056,7 +3056,7 @@ internal static class EnemySpritemapArtworkVerification
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = 0x0400, BaseTileIndex = 0x0010 });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = 0x0400, BaseTileIndex = 0x0010 });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
@@ -3076,7 +3076,8 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
-        enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, pointer, world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
+        enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
+            ?? throw new InvalidOperationException("A Mother Brain draw shows a frame."), world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
         return oam;
     }
 

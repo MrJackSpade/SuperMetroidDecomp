@@ -562,6 +562,13 @@ Commit and push that update too.
     now `EnemyFrameTable<TFrame>` data (`ShownFrames`, keyed by the frame value; the lookup that fails loudly lives
     in the table type), Botwoon's head is a table, Tripper's frozen-frame choice moved to `PlatformsBehavior`, and
     Mother Brain's unread head table was deleted.
+  - Q5.2a: `EnemySpritemapDraw` names its `EnemyFrameId` instead of a bank and word. `EnemyPresentation` draws
+    nothing for `Empty` (the audited renderer no-op) and resolves other frames' installed art through
+    `EnemyFrames.Bank`/`Spritemap`; the slot draw path keeps the supported-bank check for the empty frame. Mother
+    Brain's brain returns its `MotherBrainHeadFrame` and draws through `HeadFrames`; Ridley's wings, tail tip and
+    links, the Ceres Baby, the Ceres door overlay and the Dead Torizo hook draw named frames. ROM oracles take test
+    support's `NativeEnemySpritemapDraw`, and native fixtures reach the renderer through
+    `EnemyPresentationNativeDrawAccess`.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

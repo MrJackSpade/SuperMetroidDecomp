@@ -15,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ImportedSpritemapsVerification
 {
     /// <summary>Draws a native enemy map through the import boundary, including constructed cartridge fixtures.</summary>
-    internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
+    internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
     /// <summary>

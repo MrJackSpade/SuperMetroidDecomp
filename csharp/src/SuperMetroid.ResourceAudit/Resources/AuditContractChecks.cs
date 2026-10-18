@@ -167,13 +167,13 @@ internal static class AuditContractChecks
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
         const string renderer = "class Fixture { void DrawEnemySpritemap(EnemySpritemapDraw draw) { " +
-            "if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer)) return; } }";
+            "if (draw.Frame == EnemyFrameId.Empty) return; } }";
         MethodDeclarationSyntax ParseMethod(string text) => CSharpSyntaxTree.ParseText(text)
             .GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
         Require(CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer)),
             "the precise reviewed no-op branch must be recognized");
         Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("return;", "DrawArt();", StringComparison.Ordinal))) &&
-            !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("draw.Bank, draw.Pointer", "draw.Bank, otherPointer", StringComparison.Ordinal))),
+            !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("EnemyFrameId.Empty", "EnemyFrameId.EmptyExtended", StringComparison.Ordinal))),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }
 

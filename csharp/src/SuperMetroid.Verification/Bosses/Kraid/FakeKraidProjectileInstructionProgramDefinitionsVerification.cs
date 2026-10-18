@@ -83,7 +83,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 $"{testCase.Kind} pose lasts the native duration");
 
             RunForcedTick(projectile);
-            AssertEqual((ushort)EnemyProjectileInstruction.Sleep, ReadFakeKraidProjectileInstructionWord(rom, unchecked((ushort)(testCase.List + 4))),
+            AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, ReadFakeKraidProjectileInstructionWord(rom, unchecked((ushort)(testCase.List + 4))),
                 $"{testCase.Kind} native list sleeps after its pose");
             AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
                 $"{testCase.Kind} held pose leaves the timer stopped, as the native sleep does");

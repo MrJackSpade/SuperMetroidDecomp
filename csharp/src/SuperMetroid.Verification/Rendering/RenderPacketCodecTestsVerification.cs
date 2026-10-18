@@ -153,8 +153,8 @@ internal static class RenderPacketCodecTestsVerification
     {
         const int lastWord = VramWordRangeConstants.MaximumWord;
         const int lastColumn = XrayWindowLine.MaximumColumn;
-        var windows = new SnesWindowRegisters(SnesWindowSelectionPair.LowerEnableFirst | SnesWindowSelectionPair.UpperInvertSecond,
-            SnesWindowSelectionPair.UpperEnableSecond, SnesWindowSelectionPair.LowerInvertFirst,
+        var windows = new SnesWindowRegisters(SnesWindowSelectionPairBits.LowerEnableFirst | SnesWindowSelectionPairBits.UpperInvertSecond,
+            SnesWindowSelectionPairBits.UpperEnableSecond, SnesWindowSelectionPairBits.LowerInvertFirst,
             lastColumn, 1, 2, lastColumn, SnesWindowRegisters.MaximumLogic, SnesWindowRegisters.MaximumLogic);
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(1, 2), new Position16<Bg2Pixels>(3, 4),
             new Extent16<TilemapCells>(64, 32), lastWord, lastWord - 1, lastWord - 2, lastWord - 3,

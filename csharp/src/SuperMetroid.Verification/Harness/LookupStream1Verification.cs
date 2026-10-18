@@ -1954,7 +1954,7 @@ internal static class LookupStream1Verification
                 AssertEqual((byte)1, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked((ushort)(0x804f))))), "native common extended frame has one component");
             }
         }
-        AssertEqual((ushort)EnemyProjectileInstruction.Delete, (ushort)(SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd))), "shared projectile delete native instruction");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, (ushort)(SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd))), "shared projectile delete native instruction");
     }
 
     /// <summary>Reads empty extended enemy frame headers across supported banks.</summary>

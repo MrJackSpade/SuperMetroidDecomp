@@ -21,9 +21,9 @@ internal static class CrocomireNativeListAddresses
     /// <summary>The bank-$86 opcodes a Crocomire projectile list uses besides frames.</summary>
     private static readonly Dictionary<ushort, ProjectileWordKind> ProjectileWords = new()
     {
-        [(ushort)EnemyProjectileInstruction.GotoY] = ProjectileWordKind.GoTo,
-        [(ushort)EnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances] = ProjectileWordKind.CrocomireDrop,
-        [(ushort)EnemyProjectileInstruction.Delete] = ProjectileWordKind.Delete,
+        [(ushort)NativeEnemyProjectileInstruction.GotoY] = ProjectileWordKind.GoTo,
+        [(ushort)NativeEnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances] = ProjectileWordKind.CrocomireDrop,
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = ProjectileWordKind.Delete,
     };
 
     /// <summary>Each typed body program's native entry point in bank $A4, in authored order.</summary>

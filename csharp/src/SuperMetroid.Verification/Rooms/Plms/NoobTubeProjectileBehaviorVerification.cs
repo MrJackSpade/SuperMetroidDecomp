@@ -123,15 +123,15 @@ internal static class NoobTubeProjectileBehaviorVerification
                 // A flicker program's list begins with its flicker command: odd frames show its first operand at the
                 // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard.
                 ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.Cursor.Program);
-                var command = (EnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
+                var command = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
                 bool oddFrame = (system.Projectiles.CurrentFrame8 & 1) != 0;
-                if (command == EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
+                if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));
                     AssertEqual(oddFrame ? projectile.Variable1 : unchecked((ushort)(256 - projectile.Variable1)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
                 }
-                else if (command == EnemyProjectileInstruction.NoobTubeShardFlicker)
+                else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
                     AssertEqual(oddFrame ? projectile.Variable1 : NoobTubeProjectileRomData.HiddenXPosition, projectile.Position.X.Whole,

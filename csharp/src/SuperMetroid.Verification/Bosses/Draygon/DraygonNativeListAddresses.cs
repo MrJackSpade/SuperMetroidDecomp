@@ -139,10 +139,10 @@ internal static class DraygonNativeListAddresses
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>
     internal static readonly Dictionary<ushort, DraygonProjectileCue> ProjectileCallbacks = new()
     {
-        [(ushort)EnemyProjectileInstruction.DraygonGoop_SamusCollision] = DraygonProjectileCue.StickToSamus,
-        [(ushort)EnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances] = DraygonProjectileCue.SpawnDrops,
-        [(ushort)EnemyProjectileInstruction.Delete] = DraygonProjectileCue.Delete,
-        [(ushort)EnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired] = DraygonProjectileCue.Fire,
+        [(ushort)NativeEnemyProjectileInstruction.DraygonGoop_SamusCollision] = DraygonProjectileCue.StickToSamus,
+        [(ushort)NativeEnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances] = DraygonProjectileCue.SpawnDrops,
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = DraygonProjectileCue.Delete,
+        [(ushort)NativeEnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired] = DraygonProjectileCue.Fire,
     };
 
     /// <summary>The projectile program whose native list starts at <paramref name="address"/>, if one does.</summary>
@@ -153,5 +153,5 @@ internal static class DraygonNativeListAddresses
     internal static bool IsProjectileGoTo(ushort word) => ProjectileGoTo.Contains(word);
 
     /// <summary>The projectile goto opcode.</summary>
-    private static readonly HashSet<ushort> ProjectileGoTo = [(ushort)EnemyProjectileInstruction.GotoY];
+    private static readonly HashSet<ushort> ProjectileGoTo = [(ushort)NativeEnemyProjectileInstruction.GotoY];
 }

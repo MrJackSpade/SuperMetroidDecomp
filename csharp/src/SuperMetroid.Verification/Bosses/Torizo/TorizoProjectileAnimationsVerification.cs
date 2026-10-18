@@ -40,42 +40,42 @@ internal static class TorizoProjectileAnimationsVerification
     }
 
     /// <summary>Each native command Torizo's lists use: what it becomes and, for a cue, which cue.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, (ProjectileWord Word, TorizoProjectileCueKind Cue)> Words = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, (ProjectileWord Word, TorizoProjectileCueKind Cue)> Words = new()
     {
-        [EnemyProjectileInstruction.Sleep] = (ProjectileWord.Sleep, default),
-        [EnemyProjectileInstruction.GotoY] = (ProjectileWord.GoTo, default),
-        [EnemyProjectileInstruction.Delete] = (ProjectileWord.Delete, TorizoProjectileCueKind.Delete),
-        [EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = (ProjectileWord.Hatch, TorizoProjectileCueKind.Hatch),
-        [EnemyProjectileInstruction.TimerInY] = (ProjectileWord.SetCounter, default),
-        [EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = (ProjectileWord.RepeatWhileCounting, default),
-        [EnemyProjectileInstruction.ClearPreInstruction] = (ProjectileWord.Cue, TorizoProjectileCueKind.ClearPreInstruction),
-        [EnemyProjectileInstruction.PreInstructionInY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetPreInstruction),
-        [EnemyProjectileInstruction.Properties_OrY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetProperties),
-        [EnemyProjectileInstruction.Properties_AndY] = (ProjectileWord.Cue, TorizoProjectileCueKind.ClearProperties),
-        [EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
-        [EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
-        [EnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
-        [EnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = (ProjectileWord.Cue, TorizoProjectileCueKind.GoToIfEyeBeamExplosionsDisabled),
-        [EnemyProjectileInstruction.GotoY_Probability_1_4] = (ProjectileWord.Cue, TorizoProjectileCueKind.GoToSometimes),
-        [EnemyProjectileInstruction.AimSuperMissile_Rightwards] = (ProjectileWord.Cue, TorizoProjectileCueKind.AimSuperMissileTowardSamus),
-        [EnemyProjectileInstruction.AimSuperMissile_Leftwards] = (ProjectileWord.Cue, TorizoProjectileCueKind.AimSuperMissileAwayFromSamus),
-        [EnemyProjectileInstruction.XYRadiusInY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetRadius),
-        [EnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances] = (ProjectileWord.Cue, TorizoProjectileCueKind.SpawnOrbDrops),
-        [EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (ProjectileWord.Cue, TorizoProjectileCueKind.Scatter),
-        [EnemyProjectileInstruction.Torizo_ResetPosition] = (ProjectileWord.Cue, TorizoProjectileCueKind.ReturnToOrigin),
-        [EnemyProjectileInstruction.TorizoLandingDustClouds] = (ProjectileWord.Cue, TorizoProjectileCueKind.RaiseDust),
-        [EnemyProjectileInstruction.DisableCollisionWIthSamusProj] = (ProjectileWord.Cue, TorizoProjectileCueKind.StopBlockingShots),
-        [EnemyProjectileInstruction.DisableCollisionWithSamus] = (ProjectileWord.Cue, TorizoProjectileCueKind.StopHarmingSamus),
-        [EnemyProjectileInstruction.SetHighPriority] = (ProjectileWord.Cue, TorizoProjectileCueKind.DrawInFront),
-        [EnemyProjectileInstruction.RTS_8681DE] = (ProjectileWord.Cue, TorizoProjectileCueKind.NoOperation),
+        [NativeEnemyProjectileInstruction.Sleep] = (ProjectileWord.Sleep, default),
+        [NativeEnemyProjectileInstruction.GotoY] = (ProjectileWord.GoTo, default),
+        [NativeEnemyProjectileInstruction.Delete] = (ProjectileWord.Delete, TorizoProjectileCueKind.Delete),
+        [NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched] = (ProjectileWord.Hatch, TorizoProjectileCueKind.Hatch),
+        [NativeEnemyProjectileInstruction.TimerInY] = (ProjectileWord.SetCounter, default),
+        [NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = (ProjectileWord.RepeatWhileCounting, default),
+        [NativeEnemyProjectileInstruction.ClearPreInstruction] = (ProjectileWord.Cue, TorizoProjectileCueKind.ClearPreInstruction),
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetPreInstruction),
+        [NativeEnemyProjectileInstruction.Properties_OrY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetProperties),
+        [NativeEnemyProjectileInstruction.Properties_AndY] = (ProjectileWord.Cue, TorizoProjectileCueKind.ClearProperties),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (ProjectileWord.Cue, TorizoProjectileCueKind.PlaySound),
+        [NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled] = (ProjectileWord.Cue, TorizoProjectileCueKind.GoToIfEyeBeamExplosionsDisabled),
+        [NativeEnemyProjectileInstruction.GotoY_Probability_1_4] = (ProjectileWord.Cue, TorizoProjectileCueKind.GoToSometimes),
+        [NativeEnemyProjectileInstruction.AimSuperMissile_Rightwards] = (ProjectileWord.Cue, TorizoProjectileCueKind.AimSuperMissileTowardSamus),
+        [NativeEnemyProjectileInstruction.AimSuperMissile_Leftwards] = (ProjectileWord.Cue, TorizoProjectileCueKind.AimSuperMissileAwayFromSamus),
+        [NativeEnemyProjectileInstruction.XYRadiusInY] = (ProjectileWord.Cue, TorizoProjectileCueKind.SetRadius),
+        [NativeEnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances] = (ProjectileWord.Cue, TorizoProjectileCueKind.SpawnOrbDrops),
+        [NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (ProjectileWord.Cue, TorizoProjectileCueKind.Scatter),
+        [NativeEnemyProjectileInstruction.Torizo_ResetPosition] = (ProjectileWord.Cue, TorizoProjectileCueKind.ReturnToOrigin),
+        [NativeEnemyProjectileInstruction.TorizoLandingDustClouds] = (ProjectileWord.Cue, TorizoProjectileCueKind.RaiseDust),
+        [NativeEnemyProjectileInstruction.DisableCollisionWIthSamusProj] = (ProjectileWord.Cue, TorizoProjectileCueKind.StopBlockingShots),
+        [NativeEnemyProjectileInstruction.DisableCollisionWithSamus] = (ProjectileWord.Cue, TorizoProjectileCueKind.StopHarmingSamus),
+        [NativeEnemyProjectileInstruction.SetHighPriority] = (ProjectileWord.Cue, TorizoProjectileCueKind.DrawInFront),
+        [NativeEnemyProjectileInstruction.RTS_8681DE] = (ProjectileWord.Cue, TorizoProjectileCueKind.NoOperation),
     };
 
     /// <summary>The library and queue limit of each sound command Torizo's lists use; its one operand byte is the sound.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, (SoundEffectLibrary Library, byte MaximumQueued)> SoundCommands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, (SoundEffectLibrary Library, byte MaximumQueued)> SoundCommands = new()
     {
-        [EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (SoundEffectLibrary.Library2, 6),
-        [EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (SoundEffectLibrary.Library3, 6),
-        [EnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (SoundEffectLibrary.Library2, 1),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (SoundEffectLibrary.Library2, 6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = (SoundEffectLibrary.Library3, 6),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = (SoundEffectLibrary.Library2, 1),
     };
 
     /// <summary>Every projectile program matches its native list.</summary>
@@ -116,7 +116,7 @@ internal static class TorizoProjectileAnimationsVerification
             var held = TorizoProjectileAnimations.Programs.Steps(sleeping);
             AssertEqual(AnimationProgramStepKind.Hold, held[^1].Kind, $"{sleeping} sleeps");
             ushort sleep = unchecked((ushort)(ProjectileEntry(sleeping) + 4));
-            AssertEqual(ProjectileWord.Sleep, Words[(EnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
+            AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
                 $"{sleeping}'s sleep follows its frame");
             AssertEqual(ProjectileProgramAt(unchecked((ushort)(sleep + 2))), TorizoProjectileAnimations.AfterSleep(sleeping),
                 $"{sleeping} resumes past its sleep");
@@ -157,7 +157,7 @@ internal static class TorizoProjectileAnimationsVerification
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
-            var instruction = (EnemyProjectileInstruction)word;
+            var instruction = (NativeEnemyProjectileInstruction)word;
             AssertTrue(Words.TryGetValue(instruction, out var meaning), $"{at}: native command ${word:X4} is known");
             switch (meaning.Word)
             {
@@ -215,7 +215,7 @@ internal static class TorizoProjectileAnimationsVerification
     }
 
     /// <summary>Compares a command's operands with its cue's typed fields and returns their byte count.</summary>
-    private static int CompareOperands(IImportCartridgeSource cartridge, EnemyProjectileInstruction instruction, int address, TorizoProjectileCue cue, string at)
+    private static int CompareOperands(IImportCartridgeSource cartridge, NativeEnemyProjectileInstruction instruction, int address, TorizoProjectileCue cue, string at)
     {
         ushort first = cartridge.ReadCartridgeWord(address + 2);
         if (SoundCommands.TryGetValue(instruction, out var sound))

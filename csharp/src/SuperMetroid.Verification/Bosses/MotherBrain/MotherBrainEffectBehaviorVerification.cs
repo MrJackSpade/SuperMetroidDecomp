@@ -136,7 +136,7 @@ internal static class MotherBrainEffectBehaviorVerification
                     ushort word = cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | referenceCursor);
                     if ((word & NativeEnemyListDefinitions.InstructionBit) != 0)
                     {
-                        AssertEqual((ushort)EnemyProjectileInstruction.CallExternalFunctionInY, word,
+                        AssertEqual((ushort)NativeEnemyProjectileInstruction.CallExternalFunctionInY, word,
                             "hand-beam native stage transition calls the child-spawn callback");
                         referenceCursor += 5;
                         word = cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | referenceCursor);

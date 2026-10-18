@@ -7,15 +7,15 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 internal static class MagdolliteLavaCueRules
 {
     /// <summary>Each command the lava's lists use and the cue it becomes; neither carries an operand.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, MagdolliteLavaCueKind> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, MagdolliteLavaCueKind> Commands = new()
     {
-        [EnemyProjectileInstruction.Delete] = MagdolliteLavaCueKind.Delete,
-        [EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = MagdolliteLavaCueKind.SpawnDrops,
+        [NativeEnemyProjectileInstruction.Delete] = MagdolliteLavaCueKind.Delete,
+        [NativeEnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = MagdolliteLavaCueKind.SpawnDrops,
     };
 
     /// <summary>The oracle rules for the lava's programs.</summary>
     internal static NativeEnemyProjectileCueRules<MagdolliteLavaCue> Rules { get; } = new(
-        word => Commands.ContainsKey((EnemyProjectileInstruction)word) ? 0 : null,
-        (word, operands, cue, at) => AssertEqual(Commands[(EnemyProjectileInstruction)word], cue.Kind, $"{at}: cue"),
+        word => Commands.ContainsKey((NativeEnemyProjectileInstruction)word) ? 0 : null,
+        (word, operands, cue, at) => AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue"),
         cue => cue.Kind == MagdolliteLavaCueKind.Delete);
 }

@@ -13,11 +13,11 @@ internal static class NativeEnemyProjectileCommonCues
     /// <summary>Each general command a common-cue family's lists use: its cue and operand byte count.</summary>
     private static readonly Dictionary<ushort, (EnemyProjectileCommonCueKind Kind, int OperandBytes)> Commands = new()
     {
-        [(ushort)EnemyProjectileInstruction.Delete] = (EnemyProjectileCommonCueKind.Delete, 0),
-        [(ushort)EnemyProjectileInstruction.PreInstructionInY] = (EnemyProjectileCommonCueKind.SetPreInstruction, 2),
-        [(ushort)EnemyProjectileInstruction.ClearPreInstruction] = (EnemyProjectileCommonCueKind.ClearPreInstruction, 0),
-        [(ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (EnemyProjectileCommonCueKind.Scatter, 4),
-        [(ushort)TourianStatueInstruction.ResetDustPosition] = (EnemyProjectileCommonCueKind.ReturnToOrigin, 0),
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = (EnemyProjectileCommonCueKind.Delete, 0),
+        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = (EnemyProjectileCommonCueKind.SetPreInstruction, 2),
+        [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = (EnemyProjectileCommonCueKind.ClearPreInstruction, 0),
+        [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = (EnemyProjectileCommonCueKind.Scatter, 4),
+        [(ushort)NativeEnemyProjectileInstruction.TourianStatueResetDustPosition] = (EnemyProjectileCommonCueKind.ReturnToOrigin, 0),
     };
 
     /// <summary>The oracle rules for a common-cue family.</summary>

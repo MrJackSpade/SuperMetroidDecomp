@@ -7,18 +7,18 @@ namespace SuperMetroid.Verification.Enemies.Kago;
 internal static class KagoBugProjectileCueRules
 {
     /// <summary>Each command the bugs' lists use and the cue it becomes; none carries an operand.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, KagoBugProjectileCueKind> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, KagoBugProjectileCueKind> Commands = new()
     {
-        [EnemyProjectileInstruction.Delete] = KagoBugProjectileCueKind.Delete,
-        [EnemyProjectileInstruction.KagoBugStartJumpInstruction] = KagoBugProjectileCueKind.StartJump,
-        [EnemyProjectileInstruction.KagoBugStartIdleInstruction] = KagoBugProjectileCueKind.StartIdle,
-        [EnemyProjectileInstruction.KagoBugSpawnDropInstruction] = KagoBugProjectileCueKind.SpawnDrop,
-        [EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = KagoBugProjectileCueKind.UsePaletteZero,
+        [NativeEnemyProjectileInstruction.Delete] = KagoBugProjectileCueKind.Delete,
+        [NativeEnemyProjectileInstruction.KagoBugStartJumpInstruction] = KagoBugProjectileCueKind.StartJump,
+        [NativeEnemyProjectileInstruction.KagoBugStartIdleInstruction] = KagoBugProjectileCueKind.StartIdle,
+        [NativeEnemyProjectileInstruction.KagoBugSpawnDropInstruction] = KagoBugProjectileCueKind.SpawnDrop,
+        [NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = KagoBugProjectileCueKind.UsePaletteZero,
     };
 
     /// <summary>The oracle rules for the bugs' programs.</summary>
     internal static NativeEnemyProjectileCueRules<KagoBugProjectileCue> Rules { get; } = new(
-        word => Commands.ContainsKey((EnemyProjectileInstruction)word) ? 0 : null,
-        (word, operands, cue, at) => AssertEqual(Commands[(EnemyProjectileInstruction)word], cue.Kind, $"{at}: cue"),
+        word => Commands.ContainsKey((NativeEnemyProjectileInstruction)word) ? 0 : null,
+        (word, operands, cue, at) => AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue"),
         cue => cue.Kind == KagoBugProjectileCueKind.Delete);
 }

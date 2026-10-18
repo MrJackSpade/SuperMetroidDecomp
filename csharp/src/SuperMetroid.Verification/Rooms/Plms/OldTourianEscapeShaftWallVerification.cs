@@ -73,9 +73,9 @@ internal static class OldTourianEscapeShaftWallVerification
         var start = programs.Steps(OldTourianWallExplosionProgram.Start);
         AssertEqual(3, start.Count, "the setup has three steps");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.InitialInstructionList, (ushort)0xb443, "the setup starts the list");
-        AssertEqual((ushort)EnemyProjectileInstruction.ClearPreInstruction, Word(0xb443), "the list first clears the movement");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearPreInstruction, Word(0xb443), "the list first clears the movement");
         AssertEqual(OldTourianWallExplosionCue.ClearPreInstruction, start[0].PublishedCue, "the setup clears the movement");
-        AssertEqual((ushort)EnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         AssertEqual(AnimationProgramStepKind.SetCounter, start[1].Kind, "the setup loads the counter");
         AssertEqual((int)Word(0xb447), start[1].Duration, "the burst count");
         AssertEqual(AnimationProgramStepKind.FallInto, start[2].Kind, "the setup runs on into the burst");
@@ -83,12 +83,12 @@ internal static class OldTourianEscapeShaftWallVerification
 
         var burst = programs.Steps(OldTourianWallExplosionProgram.Burst);
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
-        AssertEqual((ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
         AssertEqual(OldTourianWallExplosionCue.Scatter, burst[0].PublishedCue, "the burst scatters");
         EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter;
         AssertEqual(SnesLittleEndian.Word(checked((byte)scatter.Range.X), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
         AssertEqual(SnesLittleEndian.Word(checked((byte)scatter.Range.Y), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
-        AssertEqual((ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
         AssertEqual(OldTourianWallExplosionCue.ExplosionSound, burst[1].PublishedCue, "the burst sounds");
 
         int cursor = 0xb452;
@@ -102,11 +102,11 @@ internal static class OldTourianEscapeShaftWallVerification
                 $"pose {frame} operand follows its duration");
         }
 
-        AssertEqual((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
         AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, burst[8].Kind, "the burst repeats while counting");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
         AssertEqual(OldTourianWallExplosionProgram.Burst, burst[8].Target, "the repeat returns to the burst");
-        AssertEqual((ushort)EnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
         AssertEqual(OldTourianWallExplosionCue.Delete, burst[9].PublishedCue, "the burst deletes the explosion");
         AssertEqual(AnimationProgramStepKind.Hold, burst[10].Kind, "the deleted explosion holds");
         AssertEqual(11, burst.Count, "the burst has eleven steps");

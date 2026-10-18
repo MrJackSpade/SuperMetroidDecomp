@@ -35,13 +35,13 @@ internal static class TourianStatueProjectileAnimationsVerification
     /// <summary>Each command the lists use, the cue it becomes and its operand bytes.</summary>
     private static readonly Dictionary<ushort, (TourianStatueProjectileCueKind Kind, int OperandBytes)> Commands = new()
     {
-        [(ushort)EnemyProjectileInstruction.Delete] = (TourianStatueProjectileCueKind.Delete, 0),
-        [(ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (TourianStatueProjectileCueKind.PlayReleaseSound, 1),
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = (TourianStatueProjectileCueKind.Delete, 0),
+        [(ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = (TourianStatueProjectileCueKind.PlayReleaseSound, 1),
         [(ushort)TourianStatueInstruction.Earthquake] = (TourianStatueProjectileCueKind.Earthquake, 0),
         [(ushort)TourianStatueInstruction.SpawnParticle] = (TourianStatueProjectileCueKind.SpawnParticle, 0),
         [(ushort)TourianStatueInstruction.SpawnTail] = (TourianStatueProjectileCueKind.SpawnTail, 0),
         [(ushort)TourianStatueInstruction.AddY] = (TourianStatueProjectileCueKind.MoveDown, 2),
-        [(ushort)EnemyProjectileInstruction.PreInstructionInY] = (TourianStatueProjectileCueKind.StartMoving, 2),
+        [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = (TourianStatueProjectileCueKind.StartMoving, 2),
     };
 
     /// <summary>The oracle rules for the statue projectile programs.</summary>

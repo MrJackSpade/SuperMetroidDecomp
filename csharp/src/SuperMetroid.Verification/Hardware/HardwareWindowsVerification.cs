@@ -56,8 +56,8 @@ internal static class HardwareWindowsVerification
             byte selection = (byte)(flags << ((selected & 1) * 4));
             byte logic = (byte)(operation << ((selected < 4 ? selected : selected - 4) * 2));
             var pair = (SnesWindowSelectionPair)selection;
-            var registers = new SnesWindowRegisters(selected < 2 ? pair : SnesWindowSelectionPair.None,
-                selected is 2 or 3 ? pair : SnesWindowSelectionPair.None, selected >= 4 ? pair : SnesWindowSelectionPair.None,
+            var registers = new SnesWindowRegisters(selected < 2 ? pair : SnesWindowSelectionPairBits.None,
+                selected is 2 or 3 ? pair : SnesWindowSelectionPairBits.None, selected >= 4 ? pair : SnesWindowSelectionPairBits.None,
                 32, 96, 64, 128, selected < 4 ? logic : (byte)0, selected >= 4 ? logic : (byte)0);
             for (int x = 0; x < 256; x++)
             {

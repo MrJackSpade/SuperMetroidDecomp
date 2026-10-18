@@ -119,7 +119,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             {
                 if (address == 0)
                     return;
-                AssertEqual((ushort)EnemyProjectileInstruction.Delete,
+                AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
                     $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
                 entryCount++;

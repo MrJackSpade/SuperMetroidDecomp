@@ -3,8 +3,6 @@
 /// <summary>The bank-$86 instructions private to Tourian statue unlocking effects and the Chozo dust.</summary>
 internal enum TourianStatueInstruction : ushort
 {
-    /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>
-    ResetDustPosition = 0xaf36,
     /// <summary>$86:B7EA spawn particle at this projectile.</summary>
     SpawnParticle = 0xb7ea,
     /// <summary>$86:B7F5 unlocking earthquake.</summary>

@@ -179,23 +179,23 @@ internal static class RidleyAnimationsVerification
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }
-            switch ((EnemyProjectileInstruction)word)
+            switch ((NativeEnemyProjectileInstruction)word)
             {
-                case EnemyProjectileInstruction.ClearPreInstruction:
+                case NativeEnemyProjectileInstruction.ClearPreInstruction:
                     AssertEqual(RidleyFireballCue.ClearPreInstruction, step.Cue, $"{at}: clear pre-instruction");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
-                case EnemyProjectileInstruction.PreInstructionInY:
+                case NativeEnemyProjectileInstruction.PreInstructionInY:
                     AssertEqual(EnemyProjectilePreInstructionAccess.Word(EnemyProjectilePreInstruction.RidleyFireball), operand, $"{at}: the fireball's moving pre-instruction");
                     AssertEqual(RidleyFireballCue.BeginFlight, step.Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
-                case EnemyProjectileInstruction.GotoY:
+                case NativeEnemyProjectileInstruction.GotoY:
                     AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
                     AssertEqual(FireballProgramAt(operand), step.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return addresses;
-                case EnemyProjectileInstruction.Delete:
+                case NativeEnemyProjectileInstruction.Delete:
                     AssertEqual(RidleyFireballCue.Delete, step.Cue, $"{at}: delete");
                     AssertEqual(AnimationProgramStepKind.Hold, steps[index + 1].Kind, $"{at}: deletion ends the program");
                     AssertEqual(steps.Count, index + 2, $"{at}: deletion ends the program");

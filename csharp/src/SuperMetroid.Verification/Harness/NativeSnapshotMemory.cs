@@ -351,7 +351,7 @@ internal static class NativeSnapshotMemory
     /// <summary>$1ADB: enemy projectile YVelocity, word-strided per slot.</summary>
     public const int EnemyProjectileYVelocity = 0x1adb;
     /// <summary>$1B47: enemy projectile Instruction, word-strided per slot.</summary>
-    public const int EnemyProjectileInstruction = 0x1b47;
+    public const int NativeEnemyProjectileInstruction = 0x1b47;
     /// <summary>$1B6B: enemy projectile Spritemap, word-strided per slot.</summary>
     public const int EnemyProjectileSpritemap = 0x1b6b;
     /// <summary>$1B8F: enemy projectile InstructionTimer, word-strided per slot.</summary>

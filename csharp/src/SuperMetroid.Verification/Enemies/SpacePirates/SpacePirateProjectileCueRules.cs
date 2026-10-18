@@ -7,18 +7,18 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class SpacePirateProjectileCueRules
 {
     /// <summary>Each command the lists use and the cue it becomes; both carry the movement routine as a word operand.</summary>
-    private static readonly Dictionary<EnemyProjectileInstruction, SpacePirateProjectileCueKind> Commands = new()
+    private static readonly Dictionary<NativeEnemyProjectileInstruction, SpacePirateProjectileCueKind> Commands = new()
     {
-        [EnemyProjectileInstruction.PreInstructionInY] = SpacePirateProjectileCueKind.StartMoving,
-        [EnemyProjectileInstruction.PreInstructionInY_ExecuteY] = SpacePirateProjectileCueKind.StartMovingNow,
+        [NativeEnemyProjectileInstruction.PreInstructionInY] = SpacePirateProjectileCueKind.StartMoving,
+        [NativeEnemyProjectileInstruction.PreInstructionInY_ExecuteY] = SpacePirateProjectileCueKind.StartMovingNow,
     };
 
     /// <summary>The oracle rules for the laser and claw programs.</summary>
     internal static NativeEnemyProjectileCueRules<SpacePirateProjectileCue> Rules { get; } = new(
-        word => Commands.ContainsKey((EnemyProjectileInstruction)word) ? 2 : null,
+        word => Commands.ContainsKey((NativeEnemyProjectileInstruction)word) ? 2 : null,
         (word, operands, cue, at) =>
         {
-            AssertEqual(Commands[(EnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
+            AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
             AssertEqual((ushort)(operands[0] | operands[1] << 8), EnemyProjectilePreInstructionAccess.Word(cue.Movement), $"{at}: movement");
         });
 }

@@ -271,12 +271,12 @@ internal static class BotwoonAnimationsVerification
                         cursor = unchecked((ushort)(cursor + 4));
                         break;
                     }
-                    if (word == (ushort)EnemyProjectileInstruction.GotoY)
+                    if (word == (ushort)NativeEnemyProjectileInstruction.GotoY)
                     {
                         cursor = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
                         continue;
                     }
-                    AssertEqual((ushort)EnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
+                    AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
                     timer = 0;
                     break;
                 }

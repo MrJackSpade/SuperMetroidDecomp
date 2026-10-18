@@ -361,7 +361,7 @@ internal static class NativeSnapshotImportVerification
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
-            ushort instruction = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
+            ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(
                 $"Initial enemy projectile {projectile.SlotIndex} kind {kind} starts no typed program.");

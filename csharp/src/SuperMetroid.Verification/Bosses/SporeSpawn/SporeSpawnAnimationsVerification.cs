@@ -177,7 +177,7 @@ internal static class SporeSpawnAnimationsVerification
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
-                drops += native.Callbacks.Count(callback => callback == EnemyProjectileInstruction.Spores_SpawnEnemyDrops);
+                drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
                 string at = $"Spore Spawn projectile {program} update {update}";
                 AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
                 if (native.Deleted)

@@ -1519,7 +1519,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
                 Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);
                 Check(owner + " YVelocity", projectile.Velocity.Y.RawValue, NativeSnapshotMemory.EnemyProjectileYVelocity + index);
-                Check(owner + " Instruction", pointers.Projectile(projectile), NativeSnapshotMemory.EnemyProjectileInstruction + index);
+                Check(owner + " Instruction", pointers.Projectile(projectile), NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
                 ushort nativeMap = W(NativeSnapshotMemory.EnemyProjectileSpritemap + index);
                 if (checkedProjectileCompositions.Add((projectile.PresentationOperandAddress, projectile.SpritemapPointer, nativeMap)))
                 {

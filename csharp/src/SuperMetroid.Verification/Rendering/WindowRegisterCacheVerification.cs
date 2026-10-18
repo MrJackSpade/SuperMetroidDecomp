@@ -38,7 +38,7 @@ internal static class WindowRegisterCacheVerification
         state.LatchNmi();
         var first = state.Displayed;
         AssertEqual(new SnesWindowRegisters((SnesWindowSelectionPair)0x34, (SnesWindowSelectionPair)0x12,
-                SnesWindowSelectionPair.None, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xCD),
+                SnesWindowSelectionPairBits.None, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xCD),
             first.Windows, "all uploaded window bytes");
         AssertEqual((SnesMainScreenLayers)0xAB, first.MainScreen, "upload retains unused TM bits");
         AssertEqual((byte)0xAB, state.ReadByte(0x6A), "accepted NMI copies gameplay_TM");

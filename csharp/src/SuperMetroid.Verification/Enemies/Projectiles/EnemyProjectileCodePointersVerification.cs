@@ -20,7 +20,7 @@ internal static class EnemyProjectileCodePointersVerification
             .. Enum.GetValues<EnemyProjectilePreInstruction>()
                 .Where(code => code != EnemyProjectilePreInstruction.None)
                 .Select(code => ($"pre-instruction {code}", EnemyProjectilePreInstructionAccess.Word(code))),
-            .. Enum.GetValues<EnemyProjectileInstruction>().Select(code => ($"instruction {code}", (ushort)code)),
+            .. Enum.GetValues<NativeEnemyProjectileInstruction>().Select(code => ($"instruction {code}", (ushort)code)),
         ];
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
 

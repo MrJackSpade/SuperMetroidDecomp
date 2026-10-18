@@ -376,7 +376,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.ShotAiPointer == 0 && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
-            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
+            c => ResolveCrocomireHitboxShot(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
@@ -440,7 +440,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
+                ResolveCrocomireHitboxShot(c.Projectile.PackedType.Raw, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },
         });

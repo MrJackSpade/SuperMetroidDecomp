@@ -36,7 +36,7 @@ internal sealed class ProjectileAnimation
             return true;
         }
         slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
-        slot.SpritemapPointer = FrameBindings?.Resolve(record.Address) ?? record.Spritemap;
+        slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;
         slot.Cursor = cursor;
@@ -70,7 +70,7 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(slot.SpritemapPointer), artwork.Page,
+        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(checked((ushort)slot.SpritemapPointer)), artwork.Page,
             new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
     }
 

@@ -349,7 +349,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // then returns to the multibox walker that has already installed direction bit `$10`. `$94B5` is the
                 // adjacent literal RTL used by protected arm frames and every foot rectangle.
                 if (c.SelectedShotAi == EnemyInteractionCallback.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
+                    SpawnKraidArmShotExplosion(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole);
             });
     }
 
@@ -753,10 +753,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (index < SamusProjectileSystem.SlotCount)
             {
                 SamusProjectileSlot shot = _projectiles.Slots[index];
-                return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage);
+                return new(shot.Position.Whole, shot.Radius, shot.PackedType.Raw, shot.Damage);
             }
             SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-            return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage);
+            return new(bomb.Position.Whole, bomb.Radius, bomb.PackedType.Raw, bomb.Damage);
         }
 
         /// <summary>Marks the selected shot or bomb as having collided with Kraid.</summary>
@@ -770,7 +770,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-                bomb.Direction = new SamusProjectileDirectionWord(bomb.Direction).WithCollisionLifecycleState();
+                bomb.Direction = bomb.PackedDirection.WithCollisionLifecycleState();
             }
         }
     }

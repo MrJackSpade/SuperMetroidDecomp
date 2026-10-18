@@ -31,7 +31,7 @@ internal sealed class ProjectileTrails
         {
             // Missiles and supers map families $01/$02 to table entries $20/$21. Other
             // projectile families return carry set and do not consume a trail slot.
-            int family = SamusProjectileFamilies.IndexOf(projectile.Type);
+            int family = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
             if (family >= 3)
                 return;
             pointerIndex = family + 31;
@@ -127,7 +127,7 @@ internal sealed class ProjectileTrails
             side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
             if (side.InstructionTimer.IsZero)
             {
-                ushort pointer = side.InstructionPointer;
+                ushort pointer = checked((ushort)side.InstructionPointer);
                 while (true)
                 {
                     ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
@@ -201,7 +201,7 @@ internal sealed class ProjectileTrails
             return;
 
         SnesObjAttributeWord attributes = artwork is null
-            ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes);
+            ? side.TileNumberAttributes : artwork.ResolveCurrent(checked((ushort)side.InstructionPointer), side.TileNumberAttributes);
         sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (isLeft ? 0 : 1)),
             ObjPartFrames.SmallObject(attributes, 0), objects.Page,
             new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));

@@ -8,7 +8,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
-    public ushort InstructionPointer { get; internal set; }
+    public int InstructionPointer { get; internal set; }
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public SnesObjAttributeWord TileNumberAttributes { get; internal set; }
     /// <summary>

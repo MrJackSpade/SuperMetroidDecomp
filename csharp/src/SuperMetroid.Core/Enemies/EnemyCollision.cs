@@ -227,9 +227,9 @@ internal sealed class EnemyCollision
                 // rewrites that slot to explosion family `$0700`, so retain the incoming
                 // word instead of accidentally asking the vulnerability table about the
                 // newly-created visual effect.
-                ushort projectileType = projectile.Type;
+                ushort projectileType = projectile.PackedType.Raw;
                 ushort projectileDamage = checked((ushort)projectile.Damage);
-                ushort projectileDirection = projectile.Direction;
+                ushort projectileDirection = projectile.PackedDirection.Raw;
                 SamusProjectileFamily family = projectile.PackedType.Family;
                 if (!projectile.HasEnemyCollisionPayload)
                     continue;

@@ -165,7 +165,7 @@ internal static class ProjectileTrailArtworkVerification
             if (side.InstructionTimer.IsZero) continue;
             if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
-                ushort cursor = side.InstructionPointer;
+                ushort cursor = checked((ushort)side.InstructionPointer);
                 for (int operations = 0; ; operations++)
                 {
                     AssertTrue(operations < 16, "native trail reaches a timed frame or terminator");

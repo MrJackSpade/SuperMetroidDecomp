@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>A lossless view over one native projectile type/family word.</summary>
+[SnesEncodingOwner]
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
     /// <summary>Beam equipment combination carried by the projectile's four low bits.</summary>

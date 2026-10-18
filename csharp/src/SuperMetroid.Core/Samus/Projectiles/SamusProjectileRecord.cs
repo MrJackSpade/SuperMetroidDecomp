@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Spritemap">The stock spritemap the record draws when no binding replaces it.</param>
 /// <param name="Radius">The hitbox's radii.</param>
 /// <param name="AnimationFrame">The animation frame word a projectile trail reads.</param>
-internal readonly record struct SamusProjectileRecord(ushort Address, ushort Spritemap, Extent16<RoomPixels> Radius, ushort AnimationFrame);
+internal readonly record struct SamusProjectileRecord(int Address, int Spritemap, Extent16<RoomPixels> Radius, int AnimationFrame);

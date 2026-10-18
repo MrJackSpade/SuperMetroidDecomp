@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>A lossless view over one native projectile direction/lifecycle word.</summary>
+[SnesEncodingOwner]
 public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 {
     /// <summary>Four-bit direction-table index retained alongside lifecycle state.</summary>

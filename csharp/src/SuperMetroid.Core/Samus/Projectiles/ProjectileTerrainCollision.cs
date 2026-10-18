@@ -304,7 +304,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return true;
         }
 
@@ -315,7 +315,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
                 endSpan = roomPlms?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Bts, slot.Type,
+                    level, block.Index, block.Bts, slot.PackedType.Raw,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -409,7 +409,7 @@ internal sealed class ProjectileTerrainCollision
         // after generic trigger $C83E publishes the projectile word.
         if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return;
         }
 
@@ -424,7 +424,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Bts,
-                slot.Type);
+                slot.PackedType.Raw);
             return;
         }
 
@@ -444,7 +444,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Bts,
-                slot.Type,
+                slot.PackedType.Raw,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }

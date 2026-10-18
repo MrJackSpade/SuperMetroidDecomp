@@ -68,7 +68,7 @@ internal static class HeroShotRuntimeVerification
                         samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
                         runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y,
                         shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                        unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
+                        unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(expected))
                     {

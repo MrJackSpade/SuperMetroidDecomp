@@ -253,7 +253,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 BullEnemyState bullState = RequireBullState(c.Enemy);
                 bullState.PreviousHealth = c.HealthBefore;
                 if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, bullState, c.Bomb.Direction);
+                    ResolveBullImmuneShot(c.Enemy, bullState, c.Bomb.PackedDirection.Raw);
             },
         };
 

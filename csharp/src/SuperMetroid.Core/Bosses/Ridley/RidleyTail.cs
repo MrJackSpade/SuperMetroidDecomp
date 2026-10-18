@@ -475,7 +475,7 @@ internal sealed class RidleyTail
         // rejects bomb, power-bomb, and already-converted impact families.
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            int typeNibble = SamusProjectileFamilies.IndexOf(projectile.Type);
+            int typeNibble = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
             if (!projectile.HasEnemyCollisionPayload ||
                 unchecked((short)projectile.Type) >= 0 ||
                 typeNibble >= 3)

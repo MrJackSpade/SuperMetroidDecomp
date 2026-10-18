@@ -114,7 +114,7 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual(SamusProjectileAnimations.Programs.Steps(editedRecord.Program)[editedRecord.Position].Duration,
             (int)editedShot.InstructionTimer.RawValue, "visual edit does not change frame duration");
         var editedOam = new OamBuffer();
-        compositions.Draw(editedShot.SpritemapPointer, editedOam, new(100, 100));
+        compositions.Draw(checked((ushort)editedShot.SpritemapPointer), editedOam, new(100, 100));
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) ||
             !editedOam.HighTable.SequenceEqual(stockOam.HighTable),
             "edited visual binding changes emitted OAM, not merely a cached pointer");

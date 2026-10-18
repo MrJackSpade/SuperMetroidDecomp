@@ -185,7 +185,7 @@ public sealed class SamusBombProjectileSystem
         for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
-            if (slot.InstructionPointer == 0)
+            if (slot.Cursor is null)
                 continue;
 
             bool wasNormalBomb = slot.PackedType.Family == SamusProjectileFamily.Bomb;
@@ -275,7 +275,7 @@ public sealed class SamusBombProjectileSystem
             // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
             // color-math window and is composed separately from OAM.
             SamusProjectileFamily family = slot.PackedType.Family;
-            if (slot.InstructionPointer == 0 ||
+            if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
@@ -296,7 +296,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
-                artwork.Sprites.Frame(slot.SpritemapPointer), artwork.Page,
+                artwork.Sprites.Frame(checked((ushort)slot.SpritemapPointer)), artwork.Page,
                 new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
         }
     }
@@ -557,7 +557,7 @@ public sealed class SamusBombProjectileSystem
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
-        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.Type);
+        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
@@ -666,7 +666,7 @@ public sealed class SamusBombProjectileSystem
                     blockReactions,
                     roomPlms,
                     areaIndex,
-                    slot.Type);
+                    slot.PackedType.Raw);
             }
 
         }
@@ -833,7 +833,7 @@ public sealed class SamusBombProjectileSystem
                 reactions,
                 roomPlms,
                 areaIndex,
-                slot.Type);
+                slot.PackedType.Raw);
         }
     }
 
@@ -1063,7 +1063,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record $93:{record.Address:X4} has zero duration.");
         slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
-        slot.SpritemapPointer = FrameBindings?.Resolve(record.Address) ?? record.Spritemap;
+        slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
         return false;

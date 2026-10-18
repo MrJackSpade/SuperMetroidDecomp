@@ -91,6 +91,6 @@ internal sealed class ChainsawWindow
             reactions,
             roomPlms,
             samus.LiquidPhysics.AreaIndex,
-            slot.Type);
+            slot.PackedType.Raw);
     }
 }

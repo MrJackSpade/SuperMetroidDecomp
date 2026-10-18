@@ -1448,7 +1448,7 @@ internal static class LookupStream2Verification
             if (side.InstructionTimer.IsZero) return;
             if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
-                ushort cursor = side.InstructionPointer;
+                ushort cursor = checked((ushort)side.InstructionPointer);
                 while (true)
                 {
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);

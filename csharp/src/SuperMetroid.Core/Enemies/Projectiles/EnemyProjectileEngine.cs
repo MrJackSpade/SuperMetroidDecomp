@@ -217,7 +217,7 @@ internal sealed class EnemyProjectileEngine
                 // cannot rewrite a freshly fired Super Missile (or its invisible link) to
                 // family $0800 in the producer frame. Its own pre-instruction consumes the
                 // mark on the next projectile pass.
-                ushort collidedProjectileType = shot.Type;
+                ushort collidedProjectileType = shot.PackedType.Raw;
                 if ((collidedProjectileType & 8) == 0)
                     shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
 

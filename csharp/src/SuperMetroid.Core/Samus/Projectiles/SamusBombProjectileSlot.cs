@@ -17,11 +17,13 @@ public sealed class SamusBombProjectileSlot
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Raw native <c>SamusProjectile_BombDirections</c> word at <c>$0C0E + 2*Index</c>; any <c>$F0</c> kill-request bit clears the slot before its pre-instruction, and the <c>$10</c> collision marker also excludes Samus overlap.</summary>
-    public ushort Direction { get; internal set; }
+    public int Direction { get; internal set; }
     /// <summary>Packed native projectile family/type word at <c>$0C22 + 2*Index</c>, preserving bomb, Power Bomb, spread, and status bits; use <see cref="PackedType"/> for semantic decoding.</summary>
-    public ushort Type { get; internal set; }
+    public int Type { get; internal set; }
     /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
-    public SamusProjectileTypeWord PackedType => new(Type);
+    public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));
+    /// <summary>Lossless semantic view of the native direction/lifecycle word.</summary>
+    public SamusProjectileDirectionWord PackedDirection => new(checked((ushort)Direction));
     /// <summary>Native damage word at <c>$0C36 + 2*Index</c>, initialized from bank-$93 projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
     public int Damage
     {
@@ -31,11 +33,11 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>The bank-$93 instruction pointer at <c>$0C4A + 2*Index</c> the cursor stands for; zero marks an inactive slot.</summary>
-    public ushort InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
+    public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>
-    public ushort SpritemapPointer { get; internal set; }
+    public int SpritemapPointer { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from timed-frame bytes and stored in native <c>SamusProjectile_X/YRadii</c> at <c>$0BBE/$0BD2 + 2*Index</c>; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 

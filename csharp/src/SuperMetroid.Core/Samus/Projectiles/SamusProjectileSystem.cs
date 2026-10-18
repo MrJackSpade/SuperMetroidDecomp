@@ -414,7 +414,7 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = SlotTable._slots[slotIndex];
-            if (slot.InstructionPointer == 0)
+            if (slot.Cursor is null)
                 continue;
 
             if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
@@ -525,7 +525,7 @@ public sealed class SamusProjectileSystem
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.
-            if (slot.InstructionPointer != 0)
+            if (slot.Cursor is not null)
                 projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
         }
 
@@ -639,7 +639,7 @@ public sealed class SamusProjectileSystem
                 // wave, which use NMI bit zero. Keeping these branches separate is what
                 // prevents the wider beam art from disappearing on the wrong video field.
                 bool oddNativeSlot = (slotIndex & 1) != 0;
-                bool skip = new SamusProjectileTypeWord(slot.Type).HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
+                bool skip = slot.PackedType.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
                     ? oddNativeSlot != ((nmiFrameCounter & 2) != 0)
                     : oddNativeSlot == ((nmiFrameCounter & 1) != 0);
                 if (skip)

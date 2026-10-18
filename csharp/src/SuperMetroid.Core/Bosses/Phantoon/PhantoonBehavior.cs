@@ -715,7 +715,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
                 int appliedDamage = c.HealthBefore - c.Enemy.Health;
                 phantoon.AcceptedProjectileHits++;
-                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
+                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.PackedType.Raw, appliedDamage);
             },
         });
     }
@@ -831,7 +831,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!projectile.HasEnemyCollisionPayload)
                 continue;
 
-            ushort projectileType = projectile.Type;
+            ushort projectileType = projectile.PackedType.Raw;
             ushort projectileDamage = checked((ushort)projectile.Damage);
             SamusProjectileFamily family = projectile.PackedType.Family;
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
@@ -870,7 +870,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
                     body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                        !new SamusProjectileTypeWord(projectile.Type).HasAnyBeam(SamusBeamFlags.Plasma));
+                        !projectile.PackedType.HasAnyBeam(SamusBeamFlags.Plasma));
                 return 1;
             }
 

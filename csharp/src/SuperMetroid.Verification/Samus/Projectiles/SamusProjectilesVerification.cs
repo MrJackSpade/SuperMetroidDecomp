@@ -250,7 +250,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), spazerArtwork.Sprites.Frame(spazerShot.SpritemapPointer), spazerArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), spazerArtwork.Sprites.Frame(checked((ushort)spazerShot.SpritemapPointer)), spazerArtwork,
         new Position16<ScreenPixels>((ushort)spazerShot.Position.X.Whole, (ushort)spazerShot.Position.Y.Whole), "Spazer shot");
     spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, InstalledFixtures.ProjectileArtwork(fixtureSprites)));
     AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
@@ -767,14 +767,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertProjectileEntry(
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, fixtureTrails, trailArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectileTrail, chargedTrailSlot * 2),
-        ObjPartFrames.SmallObject(fixtureTrails.ResolveCurrent(chargedTrail.Left.InstructionPointer, chargedTrail.Left.TileNumberAttributes), 0),
+        ObjPartFrames.SmallObject(fixtureTrails.ResolveCurrent(checked((ushort)chargedTrail.Left.InstructionPointer), chargedTrail.Left.TileNumberAttributes), 0),
         trailArtwork, new Position16<ScreenPixels>(chargedTrail.Left.DisplayedPosition.X, chargedTrail.Left.DisplayedPosition.Y), "Charged trail");
     AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
     AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
 
     // Time freeze bypasses DEC and command parsing but not OAM emission. The same record and
     // instruction pointer must remain visible and unchanged for an arbitrary frozen frame.
-    ushort frozenTrailPointer = chargedTrail.Left.InstructionPointer;
+    ushort frozenTrailPointer = checked((ushort)chargedTrail.Left.InstructionPointer);
     ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer.RawValue;
     trailOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
@@ -1049,7 +1049,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork(fixtureSprites);
     AssertProjectileEntry(
         DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, missileArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), missileArtwork.Sprites.Frame(missile.SpritemapPointer), missileArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), missileArtwork.Sprites.Frame(checked((ushort)missile.SpritemapPointer)), missileArtwork,
         new Position16<ScreenPixels>((ushort)missile.Position.X.Whole, (ushort)missile.Position.Y.Whole), "Missile");
     AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
         "missile draw consumes its `$2A44` fixture OBJ");

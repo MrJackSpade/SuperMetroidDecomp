@@ -53,7 +53,7 @@ internal static class XrayControlsVerification
             var pendingBomb = runtime.BombProjectiles.Slots[0];
             pendingBomb.Type = (ushort)SamusProjectileFamily.Bomb;
             pendingBomb.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.Bomb);
-            pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(pendingBomb.InstructionPointer);
+            pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));
             pendingBomb.InstructionTimer = NativeCountdown.Start(100);
             pendingBomb.BombTimer = NativeCountdown.Start(60);
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));

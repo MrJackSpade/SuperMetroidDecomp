@@ -60,6 +60,6 @@ internal static class SamusProjectilePrograms
         var previous = SamusProjectileAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1];
         if (previous.Kind != AnimationProgramStepKind.Show)
             throw new InvalidOperationException($"Samus projectile program {cursor.Program} continues past a non-record step.");
-        return SamusProjectileRecordDefinitions.Get(previous.Frame).AnimationFrame;
+        return checked((ushort)SamusProjectileRecordDefinitions.Get(previous.Frame).AnimationFrame);
     }
 }

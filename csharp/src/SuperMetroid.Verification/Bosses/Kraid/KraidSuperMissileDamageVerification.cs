@@ -169,7 +169,7 @@ internal static class KraidSuperMissileDamageVerification
         bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
         AssertEqual((ushort)1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
-        AssertEqual(true, new SamusProjectileDirectionWord(bomb.Direction).HasLowByteLifecycleState,
+        AssertEqual(true, bomb.PackedDirection.HasLowByteLifecycleState,
             "Count five reaches and marks the adjacent physical bomb slot");
         AssertEqual(true, runtime.Enemies.RoomSpriteObjects.Any(sprite =>
             sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),

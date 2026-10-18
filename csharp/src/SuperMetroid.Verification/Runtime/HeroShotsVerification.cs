@@ -67,7 +67,7 @@ internal static class HeroShotsVerification
                 {
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
                         shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
-                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
+                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
                     AssertTrue(actual.SequenceEqual(native[(vertical ? 1 : 0, cameraMode, frame)]),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;

@@ -97,7 +97,8 @@ These are condensed from the manifesto and AGENTS.md; the full text wins.
   - full movie replays
   - `tools/verify-all.ps1`
   - exploratory tests
-  - the Discord update drain (another machine owns it)
+  - the Discord update drain, unless this machine owns it: one machine runs the drain after every push, and the
+    agent's memory on that machine records it
   - `dotnet build` of the solution (the census is the compile check)
 - **Never guess APIs.** Confirm every member you call exists with `git grep -n -w <member> -- csharp`. Most compile
   errors this run were guessed members or missed consumers. Before changing any member's type, grep **every**
@@ -440,3 +441,25 @@ Commit and push that update too.
     switches replaced by data-only mechanics tables read outside the catalog (Tooling and tests consume both), plus
     a ROM-oracle check; the SME6342 instruction-byte observations; the SME6292 frontend and runtime bus fields; and
     the remaining SME6347 storage rows (projectile slots, room state, Samus projectile slots).
+- 2026-10-17, same session continued (`f8011980b` through `cdfb5d24b`):
+  - Word-ranged int storage for the enemy projectile slot (`f8011980b`, SME6347 179 -> 168) and Samus projectile
+    damage, frame and variable (`f587de1c7`, 168 -> 164).
+  - The full no-argument suite found five failures; all are fixed: the layer-2 scroll default (`07bfd748a`, a
+    regression from `2b7ae32bf`), four stale checks and a DebugRunner build break (`cb0333f6c`), and the Core WRAM
+    cells #1319 forbids (`0e7de3454`, progression staged in an owned `SaveMirrorImage`). A second full run failed only
+    the typed-projectile coverage list, which `fa64b2f2d` fixed.
+  - `0e7de3454`'s message says the architecture and module inventories were regenerated; they were not committed.
+    The architecture audit reports 46 type findings and the Core module cycle (see below), so its inventories are
+    regenerated together with that work.
+  - SME6341 10 -> 0 (`d8203133b`): Fake Kraid's projectiles and the old Tourian wall explosion are typed programs,
+    with ROM-oracle checks.
+  - SME6342 6 -> 0 (`f50384954`): the overread bytes come from the player's cartridge through the new
+    `samus-overreads` installed family and `SamusOverreadCatalog`.
+  - SME6292 6 -> 0 (`cdfb5d24b`): the VRAM queue drains from installed artwork only; the runtime, session and game
+    take no bus. The desktop host's debugger save states still store an address space beside the game (outside
+    Core); dropping it from those states is a follow-up.
+  - Census 164 sites, all Core SME6347. They are address-valued identities: room, state, door, FX and population
+    pointers (owner question 7), frame spritemap pointers (5), the sprite-object pool (8), hitbox callback and
+    instruction pointers, and the RNG word (10).
+  - Architecture audit: 46 flagged types (20 large, 14 back-reference, 12 context-bag) and the cycle among the eleven
+    Simulation modules; `9a5a48ca4` opened them for the cleanup.

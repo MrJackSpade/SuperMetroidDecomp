@@ -281,7 +281,7 @@ firingLevel, firingSamus, SnesButton.X);
         "BTS-one grapple firing connects through PLM setup");
     AssertEqual(1, breakableFiringPlms.SlotTable.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
-    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior,
+    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Bts.Value,
         "BTS-one acquisition synchronously clears low BTS byte");
 
     // Bank $94 does not treat extension blocks as collision results of their own. Instead,

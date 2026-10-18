@@ -25,7 +25,7 @@ public static class SamusSlopePhysics
     /// value suppresses grounded slope scaling exactly as the native routine does.
     /// </param>
     public static int ScaleGroundedHorizontalDisplacement(
-        byte behavior,
+        int behavior,
         int displacement,
         uint verticalSpeed)
         => ScaleGroundedHorizontalDisplacement(

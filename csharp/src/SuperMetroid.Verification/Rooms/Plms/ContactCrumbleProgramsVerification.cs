@@ -188,11 +188,11 @@ internal static class ContactCrumbleProgramsVerification
                     $"contact-crumble BTS {bts} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).LevelWord,
-                        compiled.Level.GetCollisionBlockByIndex(block).LevelWord,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
+                        compiled.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                         $"contact-crumble BTS {bts} block {block}, frame {frame}");
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior,
-                        compiled.Level.GetCollisionBlockByIndex(block).Behavior,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Bts.Value,
+                        compiled.Level.GetCollisionBlockByIndex(block).Bts.Value,
                         $"contact-crumble BTS {bts} behavior {block}, frame {frame}");
                 }
             }
@@ -251,7 +251,7 @@ internal static class ContactCrumbleProgramsVerification
                 "contact-break draw avoids compiled source bytes");
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "contact-break first frame publishes one immediate upload");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);
@@ -290,7 +290,7 @@ internal static class ContactCrumbleProgramsVerification
                 plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);
         }

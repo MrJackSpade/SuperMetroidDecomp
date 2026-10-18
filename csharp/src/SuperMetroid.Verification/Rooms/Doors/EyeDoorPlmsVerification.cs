@@ -154,7 +154,7 @@ internal static class EyeDoorPlmsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock).CollisionType,
             $"{orientation} eye setup installs collision type C");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(eyeBlock).Behavior,
+        AssertEqual(0x44, level.GetCollisionBlockByIndex(eyeBlock).Bts.Value,
             $"{orientation} eye setup installs BTS 44");
         AssertEqual((int)RoomCollisionType.SpikeBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock + roomWidth * 2).CollisionType,
@@ -223,7 +223,7 @@ internal static class EyeDoorPlmsVerification
             orientation == EyeDoorOrientation.Right
                 ? RoomBlockBehaviorValues.BlueDoorFacingRight.Value
                 : RoomBlockBehaviorValues.BlueDoorFacingLeft.Value,
-            cap.Behavior,
+            cap.Bts.Value,
             $"{orientation} opening produces correct blue-door BTS");
         for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
         {
@@ -232,7 +232,7 @@ internal static class EyeDoorPlmsVerification
             AssertEqual((int)RoomCollisionType.VerticalExtension,
                 (int)extension.CollisionType,
                 $"{orientation} blue-door extension row {row} type");
-            AssertEqual(unchecked((byte)-row), extension.Behavior,
+            AssertEqual(unchecked((byte)-row), extension.Bts.Value,
                 $"{orientation} blue-door extension row {row} BTS");
         }
     }

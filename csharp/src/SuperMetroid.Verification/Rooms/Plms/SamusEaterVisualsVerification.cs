@@ -259,7 +259,7 @@ internal static class SamusEaterVisualsVerification
         int origin = 8 * width + 8;
         plms.Drawing.DrawPlmInstruction(level, streamer, origin, pointer, default);
         AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(origin).LevelWord,
+            level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "Samus Eater edited draw retains native collision word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
         ushort originDestination = level.CreateBackgroundStreamer()
@@ -274,7 +274,7 @@ internal static class SamusEaterVisualsVerification
             int count = ReadSamusEaterPlmWord(rom, nativeCursor);
             for (int block = 0; block < count; block++)
                 AssertEqual(ReadSamusEaterPlmWord(rom, nativeCursor + 2 + block * 2),
-                    level.GetCollisionBlockByIndex(expectedY * width + expectedX + block).LevelWord,
+                    level.GetCollisionBlockByIndex(expectedY * width + expectedX + block).PackedWord.Raw,
                     "plant live placement follows native signed run offsets");
             ushort offset = ReadSamusEaterPlmWord(rom, nativeCursor + 2 + count * 2);
             expectedX = 8 + unchecked((sbyte)offset);

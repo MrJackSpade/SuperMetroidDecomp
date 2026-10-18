@@ -117,9 +117,9 @@ internal static class RoomVisualLayoutsVerification
                         ? BinaryPrimitives.ReadUInt16LittleEndian(
                             native.AsSpan(bg2Offset + blockIndex * 2))
                         : RoomLevelMemoryLayout.PrefilledLevelWord;
-                    AssertEqual(nativeWord, block.LevelWord,
+                    AssertEqual(nativeWord, block.PackedWord.Raw,
                         $"room ${header.Pointer:X4} state ${statePointer:X4} collision word {blockIndex}");
-                    AssertEqual(nativeBts, block.Behavior,
+                    AssertEqual(nativeBts, block.Bts.Value,
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BTS {blockIndex}");
                     AssertEqual(nativeBg2Word, loaded.BackgroundEntries.Span[blockIndex],
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BG2 word {blockIndex}");

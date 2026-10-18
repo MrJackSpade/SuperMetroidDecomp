@@ -79,7 +79,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
@@ -110,7 +110,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
                 AssertEqual((int)behavior.Value,
-                    level.GetCollisionBlockByIndex(origin).Behavior,
+                    level.GetCollisionBlockByIndex(origin).Bts.Value,
                     $"{orientation} {program} restores the blue-door BTS");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,

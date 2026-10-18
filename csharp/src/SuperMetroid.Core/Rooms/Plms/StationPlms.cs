@@ -176,7 +176,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
                 // bit 15 and the visual payload. The list at $AFB6 is then handled by the
                 // ordinary timer/draw interpreter without an elevator-specific animation.
-                ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+                ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
                 ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
                 level.SetForegroundEntry(slot.BlockIndex, deactivated);
                 streamer.SetLevelEntry(slot.BlockIndex, deactivated);
@@ -209,7 +209,7 @@ internal sealed class StationPlms : IPlmFamilySource
         PlmSlot slot,
         StationKind kind)
     {
-        ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        ushort original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         if (kind == StationKind.Save)
         {
             WriteStationBlock(
@@ -279,7 +279,7 @@ internal sealed class StationPlms : IPlmFamilySource
             throw new InvalidDataException(
                 $"Station access setup targets out-of-room block index {blockIndex}.");
         }
-        ushort original = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort original = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         WriteStationBlock(
             level,
             streamer,

@@ -180,7 +180,7 @@ internal static class TourianAccessVisualsVerification
         // immediate VRAM update; the physical level mutation is world-relative.
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 12 * 16), Bg1XOffset = 0 });
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
         ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         AssertTrue(plms.TilemapUpdates.Any(update =>

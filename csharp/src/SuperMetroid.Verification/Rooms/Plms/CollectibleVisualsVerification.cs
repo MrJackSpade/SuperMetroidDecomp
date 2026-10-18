@@ -63,7 +63,7 @@ internal static class CollectibleVisualsVerification
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(fixture.Plms.TilemapUpdates.Count > 0,
                 "collectible frame publishes an immediate BG1 redraw");
-            var result = (fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
+            var result = (fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
                 fixture.Plms.TilemapUpdates[0].TopRow[0],
                 fixture.Streamer.BuildPlmLevelBlockUpdate(fixture.BlockIndex, 0).TopRow[0]);
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),

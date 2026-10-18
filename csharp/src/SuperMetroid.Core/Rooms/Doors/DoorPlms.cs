@@ -116,7 +116,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, PlmSlot slot)
     {
         var levelWord = new RoomLevelWord(
-            level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord);
+            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw);
         RoomCollisionType deactivatedType = levelWord.CollisionTypeValue >=
             (byte)RoomCollisionType.SolidBlock
                 ? RoomCollisionType.SolidBlock
@@ -131,7 +131,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
         // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
-        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
             new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
@@ -336,7 +336,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
             // animated draw occurs on this actor's next handler pass and owns the VRAM
             // update, while collision observes the type-$8 origin immediately.
-            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+            ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
             level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
             return true;
         }

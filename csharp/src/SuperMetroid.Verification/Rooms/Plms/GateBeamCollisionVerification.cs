@@ -78,7 +78,7 @@ internal static class GateBeamCollisionVerification
                 : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, plms);
             AssertEqual(full ? 40 : 1, plms.SlotTable.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
-            AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).LevelWord, "Gate scan does not mutate terrain");
+            AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).PackedWord.Raw, "Gate scan does not mutate terrain");
         }
     }
 

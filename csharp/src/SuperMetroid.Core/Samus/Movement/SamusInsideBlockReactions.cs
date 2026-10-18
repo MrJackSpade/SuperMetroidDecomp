@@ -34,7 +34,7 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Behavior);
+                ApplyConveyor(block.Bts.Value);
                 return;
             }
             SpecialAirReactionDefinition areaReaction =
@@ -129,7 +129,7 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined special-air setup {setup}.");
             }
         }
-        void ApplyConveyor(byte bts)
+        void ApplyConveyor(int bts)
         {
             // The normal special-air table shares its BTS space; only conveyor entries react here.
             if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;

@@ -185,7 +185,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         ushort expectedPhysical = clear ? (ushort)0x00ff : (ushort)0x0053;
         ushort expectedVisual = clear ? (ushort)0x0059 : (ushort)0x0058;
         AssertEqual(expectedPhysical,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
         ushort blockDestination = level.CreateBackgroundStreamer()

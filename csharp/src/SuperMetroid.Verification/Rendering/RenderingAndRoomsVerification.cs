@@ -899,8 +899,8 @@ internal static void VerifyRoomLevelData()
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");
-    AssertEqual(0xe002, block.LevelWord, "room collision level word");
-    AssertEqual(0x22, block.Behavior, "room collision parallel BTS byte");
+    AssertEqual(0xe002, block.PackedWord.Raw, "room collision level word");
+    AssertEqual(0x22, block.Bts.Value, "room collision parallel BTS byte");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType,
         "room collision high-nibble dispatcher type");
     AssertEqual(2, block.VisualBlockIndex, "room collision visual block index");

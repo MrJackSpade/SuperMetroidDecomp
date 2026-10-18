@@ -117,7 +117,7 @@ internal static class CrocomireArenaVisualsVerification
         plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Crocomire visual header ${(int)header:X4} retains physical block");
         // $84:8E7C places block (x, y) in BG1's two-screen ring at this word (BG1 X offset zero).
         int ringX = (blockIndex % width) & 0x1f;

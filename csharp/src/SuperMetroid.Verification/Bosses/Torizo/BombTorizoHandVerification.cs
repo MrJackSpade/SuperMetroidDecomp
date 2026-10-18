@@ -67,7 +67,7 @@ internal static class BombTorizoHandVerification
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int handOrigin = level.GetBlockIndex(new(13, 11));
         AssertEqual((ushort)0x8065,
-            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
             "edited Bomb Torizo hand keeps the cartridge's physical level word");
         AssertEqual((ushort)0x0053,
             plms.TilemapUpdates[0].TopRow[0],
@@ -76,9 +76,9 @@ internal static class BombTorizoHandVerification
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 handOrigin, 0).TopRow[0],
             "edited hand survives later background streaming");
-        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).LevelWord,
+        AssertEqual((ushort)0x8064, level.GetCollisionBlock(new(12, 11)).PackedWord.Raw,
             "multi-run hand geometry retains the second native run");
-        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).LevelWord,
+        AssertEqual((ushort)0x8049, level.GetCollisionBlock(new(14, 12)).PackedWord.Raw,
             "multi-run hand geometry retains the fourth native run");
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         for (int frame = 0; frame < 180; frame++)
@@ -144,7 +144,7 @@ internal static class BombTorizoHandVerification
         AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(handOrigin).LevelWord,
+            level.GetCollisionBlockByIndex(handOrigin).PackedWord.Raw,
             "five-run cleared hand removes its physical origin block");
         AssertEqual(1, plms.BombTorizoHand.MusicRequests.Count,
             "terminal hand pass queues one music command");

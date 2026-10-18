@@ -28,7 +28,7 @@ internal static class ShotBlockPlmProgramsVerification
         ShotBlockFixture reported = NewShotBlockFixture(4);
         reported.Plms.Step(reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x0053,
-            reported.Level.GetCollisionBlockByIndex(27).LevelWord,
+            reported.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
             "reported permanent shot block draws its first break frame without a cartridge read");
 
         // The same timed-record contract owns all eight ordinary shot-block lists.
@@ -40,7 +40,7 @@ internal static class ShotBlockPlmProgramsVerification
             var memory = new SuperMetroidAddressSpace();
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x0053,
-                fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+                fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                 $"shot-block BTS {behavior} first physical break frame");
             for (int frame = 1; frame < 420; frame++)
                 fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -52,7 +52,7 @@ internal static class ShotBlockPlmProgramsVerification
                 3 => 0xc099,
                 _ => 0x00ff,
             };
-            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
+            AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                 $"shot-block BTS {behavior} restores or permanently clears the native parent");
             AssertEqual(0, fixture.Plms.SlotTable.ActiveCount,
                 $"shot-block BTS {behavior} finishes its compiled program");
@@ -183,8 +183,8 @@ internal static class ShotBlockPlmProgramsVerification
                 AssertEqual(stock.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"shot-block BTS {behavior} sound count at frame {frame}");
                 for (int index = 0; index < 64; index++)
-                    AssertEqual(stock.Level.GetCollisionBlockByIndex(index).LevelWord,
-                        compiled.Level.GetCollisionBlockByIndex(index).LevelWord,
+                    AssertEqual(stock.Level.GetCollisionBlockByIndex(index).PackedWord.Raw,
+                        compiled.Level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                         $"shot-block BTS {behavior} block {index} at frame {frame}");
             }
 
@@ -390,7 +390,7 @@ internal static class ShotBlockPlmProgramsVerification
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "visual-only edit publishes one immediate PLM tilemap update");
-            return (level.GetCollisionBlockByIndex(block).LevelWord,
+            return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
         }

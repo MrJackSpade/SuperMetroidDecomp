@@ -166,7 +166,7 @@ public static class SamusBlockCollision
                         }
 
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
-                            block.Behavior,
+                            block.Bts.Value,
                             acceptedDisplacement,
                             state.VerticalSpeedFixed);
                         break;
@@ -189,7 +189,7 @@ public static class SamusBlockCollision
                         // Samus into the doorway. Elevator pseudo-destinations have bit 15
                         // clear and fall through to the ordinary solid clipping routine.
                         DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
-                            block.Behavior,
+                            block.Bts.Value,
                             state.CollisionPose,
                             move.PublishDoorSideEffects);
                         if (horizontalDoor.IsElevatorPseudoDoor)
@@ -290,7 +290,7 @@ public static class SamusBlockCollision
                                  roomWidthInBlocks: terrain.Level.Size.X)))
                         {
                             throw new InvalidOperationException(
-                                $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                                $"Station access block {block.Index} BTS ${block.Bts.Value:X2} " +
                                 "has no active map/resource/save-station PLM owner.");
                         }
                         acceptedDisplacement = ClipHorizontalToSolid(
@@ -322,7 +322,7 @@ public static class SamusBlockCollision
                         if (!block.Bts.IsNormalReactionIndex(8))
                         {
                             throw new InvalidDataException(
-                                $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                                $"Collision bomb block {block.Index} has invalid BTS ${block.Bts.Value:X2}.");
                         }
                         // Production movement supplies the active room PLM owner, matching
                         // `$94:933F`'s immediate long call into Spawn_PLM. Keeping the null
@@ -551,7 +551,7 @@ public static class SamusBlockCollision
                     // its carry result here; the room-level owner publishes the same
                     // native door pointer for the frontend dispatcher to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
-                        block.Behavior,
+                        block.Bts.Value,
                         state.CollisionPose,
                         move.PublishDoorSideEffects);
                     if (verticalDoor.IsElevatorPseudoDoor)
@@ -650,7 +650,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Contact crumble block {block.Index} BTS " +
-                                $"${block.Behavior:X2} requires an active room PLM owner.");
+                                $"${block.Bts.Value:X2} requires an active room PLM owner.");
                         }
 
                         // `$94:9102` always returns carry set for CE37. Setup removes
@@ -676,7 +676,7 @@ public static class SamusBlockCollision
                              roomWidthInBlocks: terrain.Level.Size.X)))
                     {
                         throw new InvalidOperationException(
-                            $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
+                            $"Station access block {block.Index} BTS ${block.Bts.Value:X2} " +
                             "has no active map/resource/save-station PLM owner.");
                     }
                     acceptedDisplacement = ClipVerticalToSolid(
@@ -708,7 +708,7 @@ public static class SamusBlockCollision
                     if (!block.Bts.IsNormalReactionIndex(8))
                     {
                         throw new InvalidDataException(
-                            $"Collision bomb block {block.Index} has invalid BTS ${block.Behavior:X2}.");
+                            $"Collision bomb block {block.Index} has invalid BTS ${block.Bts.Value:X2}.");
                     }
                     if (terrain.Plms is null)
                         ClearCollisionTypeWithoutLifecycle(terrain.Level, block.Index);
@@ -1136,7 +1136,7 @@ public static class SamusBlockCollision
             {
                 throw new InvalidDataException(
                     $"Collision extension block {block.Index} type ${(int)block.CollisionType:X1}/" +
-                    $"BTS ${block.Behavior:X2} resolves outside room level data.");
+                    $"BTS ${block.Bts.Value:X2} resolves outside room level data.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);
         }

@@ -47,7 +47,7 @@ public static class SamusTerrainHazardCollision
             return;
 
         // Every other spike-block BTS value selects a harmless reaction.
-        var behavior = (SpikeBlockBehavior)block.Behavior;
+        var behavior = (SpikeBlockBehavior)block.Bts.Value;
         if (!Enum.IsDefined(behavior))
             return;
         ushort damage = behavior switch
@@ -75,7 +75,7 @@ public static class SamusTerrainHazardCollision
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
-            block.Behavior != SamusTerrainHazardRomData.DamagingSpikeAirBehavior)
+            block.Bts.Value != SamusTerrainHazardRomData.DamagingSpikeAirBehavior)
         {
             return;
         }

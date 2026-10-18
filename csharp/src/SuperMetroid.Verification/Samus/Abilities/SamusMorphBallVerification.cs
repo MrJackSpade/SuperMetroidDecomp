@@ -707,7 +707,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         explosion = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
-    AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).LevelWord,
+    AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).PackedWord.Raw,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
     AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
         "normal bomb fuse expiry publishes exactly one sound request");
@@ -1069,7 +1069,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
     AssertEqual(0x8058,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
         "CEDA keeps a type-F bomb block temporarily solid through movement beta");
 
     // PLM_Handler runs after movement beta in the same gameplay frame. Normal-bomb setup
@@ -1077,7 +1077,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // reaction head's sound $0A. The bomb explosion itself remains the sound owner.
     reactionPlms.Step(reactionLevel, reactionStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0x0053,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
         "same-frame PLM pass draws the first bomb-block air frame");
     AssertEqual(0, reactionPlms.Sounds.SoundRequests.Count,
         "normal bomb setup skips reaction PLM sound $0A");
@@ -1087,12 +1087,12 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // setup CEDA synthesized PLM_Vars by replacing all twelve low bits with `$058`.
     StepFrames(12, _ => reactionPlms.Step(reactionLevel, reactionStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0x00ff,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
         "bomb reaction reaches blank air after three four-frame transitions");
     StepFrames(384 + 12, _ =>
         reactionPlms.Step(reactionLevel, reactionStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0xf058,
-        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
+        reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).PackedWord.Raw,
         "bomb reaction restores synthesized type-F parent after native hold");
     AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
@@ -1134,11 +1134,11 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(1, integratedRevealPlms.SlotTable.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
     AssertEqual(0xc000,
-        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).PackedWord.Raw,
         "CF2E leaves required-weapon parent unchanged through movement beta");
     integratedRevealPlms.Step(integratedRevealLevel, integratedRevealStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0xc057,
-        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
+        integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).PackedWord.Raw,
         "same-frame PLM pass reveals required power-bomb block");
 
     // The player's recording that reached room `$8F:9B9D` detonated a normal bomb beside
@@ -1198,11 +1198,11 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, 0x0500),
         "normal bomb allocates respawning shot-block PLM");
     AssertEqual(0x8052,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "CE6B installs synthesized temporary shot-block word");
     shotPlms.Step(shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0x0053,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "respawning shot block begins with retail air frame");
     AssertEqual(1, shotPlms.Sounds.SoundRequests.Count,
         "shot-block head queues one sound request");
@@ -1212,12 +1212,12 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotPlms.Step(shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0x00ff,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "respawning shot block reaches its blank hold word");
     StepFrames(384 + 12, _ =>
         shotPlms.Step(shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0xc052,
-        shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        shotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "respawning shot block restores CE6B's synthesized parent");
     shotPlms.Step(shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0, shotPlms.SlotTable.ActiveCount,
@@ -1241,18 +1241,18 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             solidBlock: true),
         "power bomb allocates BTS-eight respawning block PLM");
     AssertEqual(0x8057,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "CF2E installs synthesized temporary power-bomb word");
     powerBombShotPlms.Step(powerBombShotLevel, powerBombShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0x0053,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "power-bomb block begins with retail air frame");
     AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 1), powerBombShotPlms.Sounds.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
         powerBombShotPlms.Step(powerBombShotLevel, powerBombShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0xc057,
-        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "respawning power-bomb block restores synthesized $C057 parent");
     powerBombShotPlms.Step(powerBombShotLevel, powerBombShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0, powerBombShotPlms.SlotTable.ActiveCount,
@@ -1288,19 +1288,19 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     }
     AssertEqual(0xc321,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "power-bomb fuse frame leaves gated block intact before radius scan");
     integratedPowerBombs.StepFrame(new SamusTerrain { Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     AssertTrue(integratedPowerBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits BTS-eight shootable block");
     AssertEqual(0x8057,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "integrated CF2E setup installs temporary power-bomb block word");
     AssertEqual(1, integratedPowerBombPlms.SlotTable.ActiveCount,
         "integrated power-bomb radius allocates the gated block PLM exactly once");
     integratedPowerBombPlms.Step(integratedPowerBombLevel, integratedPowerBombStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0x0053,
-        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "integrated power-bomb reaction draws the first cleared-air frame");
 
     // Issue #298 reached the deliberate seventeenth `$94:9EA6` table entry through the
@@ -1322,7 +1322,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(4, collisionProbePlms.SlotTable.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");
     AssertEqual(0xc321,
-        collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "B974 boundary reaction leaves terrain unchanged");
 
     // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
@@ -1340,7 +1340,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             solidBlock: true),
         "ordinary missile is rejected by Super Missile block setup");
     AssertEqual(0xc321,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "rejected missile leaves Super Missile block word untouched");
     AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
         "rejected missile leaves no live PLM header");
@@ -1352,7 +1352,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             solidBlock: true),
         "Super Missile allocates BTS-A respawning block PLM");
     AssertEqual(0x809f,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "CF67 installs synthesized temporary Super Missile word");
     superShotPlms.Step(superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), superShotPlms.Sounds.SoundRequests[0],
@@ -1360,7 +1360,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     StepFrames(12 + 384 + 12, _ =>
         superShotPlms.Step(superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0xc09f,
-        superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        superShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "respawning Super Missile block restores synthesized $C09F parent");
     superShotPlms.Step(superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
@@ -1391,7 +1391,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             permanentWeaponPlms.Step(permanentWeaponLevel, permanentWeaponStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         }
         AssertEqual(0x00ff,
-            permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+            permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
             $"permanent {familyName} block ends on retail blank word");
         AssertEqual(0, permanentWeaponPlms.SlotTable.ActiveCount,
             $"permanent {familyName} block deletes without restoration");
@@ -1435,7 +1435,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(3, noOpShotPlms.SlotTable.ActiveCount,
         "the three solid/no-op reactions occupy native slots");
     AssertEqual(0xc321,
-        noOpShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        noOpShotLevel.GetCollisionBlockByIndex(shotIndex).PackedWord.Raw,
         "all no-op shot reactions preserve terrain");
     noOpShotPlms.Step(noOpShotLevel, noOpShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0, noOpShotPlms.SlotTable.ActiveCount,
@@ -1465,15 +1465,15 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "negative type-C BTS allocates area-table no-op PLM");
     revealPlms.Step(revealLevel, revealStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0xc057,
-        revealLevel.GetCollisionBlockByIndex(powerRevealIndex).LevelWord,
+        revealLevel.GetCollisionBlockByIndex(powerRevealIndex).PackedWord.Raw,
         "normal bomb reveals visible power-bomb block word");
     AssertEqual(0xc09f,
-        revealLevel.GetCollisionBlockByIndex(superRevealIndex).LevelWord,
+        revealLevel.GetCollisionBlockByIndex(superRevealIndex).PackedWord.Raw,
         "normal bomb reveals visible super-missile block word");
     AssertEqual(0, revealPlms.Sounds.SoundRequests.Count,
         "weapon-required reveal lists do not queue shot-break sound");
     AssertEqual(0xc222,
-        revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).LevelWord,
+        revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).PackedWord.Raw,
         "area-dependent shootable no-op leaves terrain unchanged");
     AssertEqual(2, revealPlms.SlotTable.ActiveCount,
         "area no-op deletes while both one-frame reveal PLMs remain timed");
@@ -1506,7 +1506,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
         tablePlms.Step(tableLevel, tableLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? 0xb0b6 : 0xb000,
-            tableLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
+            tableLevel.GetCollisionBlockByIndex(crumbleIndex).PackedWord.Raw,
             $"extended bomb-special BTS {behavior:X2} native reveal/no-op terrain");
     }
         var specialPlms = new RoomPlmSystem();
@@ -1526,19 +1526,19 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "rejected Power Bomb special reveal leaves no active PLM slot");
     specialPlms.Step(specialLevel, specialStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0xb0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex).PackedWord.Raw,
         "crumble reveal writes parent word");
     AssertEqual(0x50bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + 1).LevelWord,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + 1).PackedWord.Raw,
         "crumble reveal writes right extension");
     AssertEqual(0xd0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width).LevelWord,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width).PackedWord.Raw,
         "crumble reveal writes lower vertical extension");
     AssertEqual(0xd0bc,
-        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width + 1).LevelWord,
+        specialLevel.GetCollisionBlockByIndex(crumbleIndex + width + 1).PackedWord.Raw,
         "crumble reveal writes lower-right vertical extension");
     AssertEqual(0xb0b6,
-        specialLevel.GetCollisionBlockByIndex(speedIndex).LevelWord,
+        specialLevel.GetCollisionBlockByIndex(speedIndex).PackedWord.Raw,
         "Brinstar area table reveals speed-booster block");
     specialPlms.Step(specialLevel, specialStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0, specialPlms.SlotTable.ActiveCount,

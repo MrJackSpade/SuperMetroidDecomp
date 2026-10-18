@@ -118,7 +118,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
-    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Behavior,
+    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Bts.Value,
         "grounding collision probe's target block carries slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
@@ -233,7 +233,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
         "prefilled right room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(4, 1)).LevelWord,
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(4, 1)).PackedWord.Raw,
         "prefilled right room edge probe reads native $8000 word");
 
     var bottomEdgeBody = new SamusKinematicsState
@@ -245,7 +245,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
         "prefilled bottom room edge clips at logical boundary");
-    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(3, 4)).LevelWord,
+    AssertEqual(0x8000, level.GetCollisionBlockOrPrefilledSolid(new(3, 4)).PackedWord.Raw,
         "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of
@@ -255,11 +255,11 @@ internal static void VerifySamusBlockCollision()
         level.GetCollisionBlockOrPrefilledSolid(new(level.Size.X, 0));
     AssertEqual(-1, coordinatePrefill.Index,
         "coordinate prefill is outside the logical room plane");
-    AssertEqual(0x8000, coordinatePrefill.LevelWord,
+    AssertEqual(0x8000, coordinatePrefill.PackedWord.Raw,
         "coordinate prefill exposes native solid word");
     RoomCollisionBlock linearPrefill =
         level.GetCollisionBlockByIndexOrPrefilledSolid(-1);
-    AssertEqual(0x8000, linearPrefill.LevelWord,
+    AssertEqual(0x8000, linearPrefill.PackedWord.Raw,
         "linear extension prefill exposes native solid word");
 
     // Exercise every formerly open body-dispatch entry through the public movement seam.

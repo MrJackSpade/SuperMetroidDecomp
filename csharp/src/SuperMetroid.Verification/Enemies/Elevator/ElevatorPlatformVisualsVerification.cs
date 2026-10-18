@@ -63,8 +63,8 @@ internal static class ElevatorPlatformVisualsVerification
                 "elevator visual fixture loads one real PLM");
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
-                level.GetCollisionBlockByIndex(block).LevelWord == 0x8085);
-            return (level.GetCollisionBlockByIndex(index).LevelWord,
+                level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
+            return (level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 level.CreateBackgroundStreamer()
                     .BuildPlmLevelBlockUpdate(index, 0).TopRow[0]);
         }

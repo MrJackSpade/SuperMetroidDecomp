@@ -643,7 +643,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
     AssertTrue(screwBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == screwBombIndex),
         "Screw vertical collision reacts at the exact BTS-4 block");
     AssertEqual(0x0058,
-        screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).LevelWord,
+        screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).PackedWord.Raw,
         "Screw setup installs CE83's replacement visual before the PLM handler");
     AssertEqual(1, screwBombPlms.SlotTable.ActiveCount,
         "Screw pose installs the BTS-4 bank-$84 lifecycle in the room owner");

@@ -399,11 +399,11 @@ internal static class RoomPlmSystemAccess
                     // CE6B throws away the original visual/BTS low twelve bits. The generated
                     // `$x052` word is both PLM_Vars and the source of the temporary collision
                     // word, exactly like the retail setup's two consecutive stores.
-                    slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
+                    slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
                     slot.InstructionPointer = RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                     level.SetForegroundEntry(
                         blockIndex,
-                        unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
+                        unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
                     return true;
                 }
 
@@ -415,7 +415,7 @@ internal static class RoomPlmSystemAccess
                     slot.InstructionPointer = RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                     level.SetForegroundEntry(
                         blockIndex,
-                        unchecked((ushort)(block.LevelWord & 0x8fff)));
+                        unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
                     return true;
                 }
 

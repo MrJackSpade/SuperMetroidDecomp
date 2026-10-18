@@ -47,7 +47,7 @@ internal static class WrapShotWidthsVerification
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Slots[0];
-                ushort targetWord = level.GetCollisionBlockByIndex(target).LevelWord;
+                ushort targetWord = level.GetCollisionBlockByIndex(target).PackedWord.Raw;
                 if (hit < 0 && targetWord == 0x840c) hit = frame;
                 string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{targetWord:X4}";
                 string expected = native[cursor++];

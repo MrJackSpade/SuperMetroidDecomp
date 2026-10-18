@@ -936,7 +936,7 @@ public sealed class SamusBombProjectileSystem
                 // nonnegative bombable BTS within that table; a larger value would make
                 // the 65C816 read unrelated following ROM as a PLM header.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    $"Bombable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
                     "the native $94:A012 reaction table.");
             }
             if (roomPlms is null)
@@ -945,7 +945,7 @@ public sealed class SamusBombProjectileSystem
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated cartridge behavior.
                 throw new InvalidOperationException(
-                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"Bombed block reaction type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -991,7 +991,7 @@ public sealed class SamusBombProjectileSystem
                 !block.Bts.IsShootableCollisionProbe)
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
+                    $"Shootable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
                     "the translated native bomb-reaction table range.");
             }
             if (block.Bts.UsesAreaReactionTable &&
@@ -999,12 +999,12 @@ public sealed class SamusBombProjectileSystem
             {
                 throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Index} has BTS " +
-                    $"${block.Behavior:X2} outside its eight-entry native table.");
+                    $"${block.Bts.Value:X2} outside its eight-entry native table.");
             }
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Behavior:X2} " +
+                    $"Bombed shootable type ${(int)block.CollisionType:X1}/BTS ${block.Bts.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
@@ -1022,7 +1022,7 @@ public sealed class SamusBombProjectileSystem
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed special block BTS ${block.Behavior:X2} at ({x},{y}) " +
+                    $"Bombed special block BTS ${block.Bts.Value:X2} at ({x},{y}) " +
                     "requires a room PLM owner.");
             }
 
@@ -1040,7 +1040,7 @@ public sealed class SamusBombProjectileSystem
         // the guard for corrupted packed words, but do not label it missing behavior.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type ${(int)block.CollisionType:X1}/" +
-            $"BTS ${block.Behavior:X2} at ({x},{y}).");
+            $"BTS ${block.Bts.Value:X2} at ({x},{y}).");
     }
 
     /// <summary>Ticks the bank-$93 bomb instruction list, including timed maps, delete and goto opcodes.</summary>

@@ -162,7 +162,7 @@ internal static class BotwoonWallVisualsVerification
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int blockIndex = 7 * width + 15;
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             "edited Botwoon wall art retains the physical clear word");
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
         ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;

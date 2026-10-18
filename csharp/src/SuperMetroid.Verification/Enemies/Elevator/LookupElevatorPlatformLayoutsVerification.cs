@@ -98,7 +98,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).LevelWord,
+                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
                             "ElevatorPlatform native physical word at original absolute run position");
                     drawX = 3 + unchecked((sbyte)offset);
                     drawY = 4 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));

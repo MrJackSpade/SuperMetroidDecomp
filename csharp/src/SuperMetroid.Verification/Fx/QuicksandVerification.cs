@@ -128,7 +128,7 @@ internal static class QuicksandVerification
             int displacement = 0x28000;
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 body,
-                new RoomCollisionBlock(0, 0x3000, unchecked((byte)(0x80 + index))),
+                new RoomCollisionBlock(0, 0x3000, new RoomBlockBehavior(0x80 + index)),
                 vertical: true,
                 ref displacement,
                 out bool surfaceContact);

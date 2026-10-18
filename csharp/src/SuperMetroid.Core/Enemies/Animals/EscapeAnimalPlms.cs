@@ -83,8 +83,8 @@ internal sealed class EscapeAnimalPlms
             slot.InstructionPointer = EscapeAnimalPlmRomData.ReactionList;
             slot.InstructionTimer = NativeCountdown.Start(1);
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.RestoreLevelWord = (ushort)((block.LevelWord & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
-            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
+            slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
+            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
             return true;
         }
         return false;

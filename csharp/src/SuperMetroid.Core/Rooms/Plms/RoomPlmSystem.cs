@@ -396,7 +396,7 @@ public sealed class RoomPlmSystem
                     // occurs on the next PLM pass rather than this restoration pass.
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     slot.InstructionTimer = NativeCountdown.Start(1);
-                    Drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                    Drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, view);
                     return;
 
                 case RoomPlmInstruction.Delete:

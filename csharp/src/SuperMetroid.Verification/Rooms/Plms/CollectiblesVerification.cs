@@ -190,7 +190,7 @@ internal static class CollectiblesVerification
         // visible for their native timed window, and after pickup restore as an empty
         // shootable block rather than deleting the location owner.
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 123, precollected: false);
-        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
+        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).PackedWord.Raw,
             "shot-item setup installs type-C concealed block");
         AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
             "concealed shot item accepts projectile reaction");
@@ -217,7 +217,7 @@ internal static class CollectiblesVerification
             _ => shot.Plms.Step(shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
             maximumFrames: 220,
             context: "collected shot block restoration");
-        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
+        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).PackedWord.Raw,
             "collected shot block restores concealed collision word");
 
         Suite(nameof(VerifyCollectedItemSaveRoundTrip), () => VerifyCollectedItemSaveRoundTrip());
@@ -249,7 +249,7 @@ internal static class CollectiblesVerification
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
         fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
-        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
+        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");

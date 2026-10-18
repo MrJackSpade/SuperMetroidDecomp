@@ -293,15 +293,15 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
         AssertEqual(0xb6df, (ushort)slots[2].HeaderPointer, "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
-        AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).LevelWord,
+        AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).PackedWord.Raw,
             "elevator setup clears collision bits through shared setup dispatcher");
 
         // Energy right access is parent+1 and retains solid type B while publishing the
         // parent trigger. The next PLM pass refills through live Samus state and emits the
         // cartridge message ID; it does not require a room-name callback.
-        AssertEqual(0xb000, level.GetCollisionBlock(new(21, 8)).LevelWord,
+        AssertEqual(0xb000, level.GetCollisionBlock(new(21, 8)).PackedWord.Raw,
             "energy setup installs type-B right access");
-        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Behavior,
+        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Bts.Value,
             "energy setup installs BTS $49");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
             "generic BTS dispatcher locates energy-station parent");
@@ -400,7 +400,7 @@ internal static class RoomPlmPopulationVerification
             "redirected actor retains explicit grey-door ownership while closing");
 
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
-        AssertEqual(0x0482, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
+        AssertEqual(0x0482, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
@@ -411,7 +411,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
                 GreyDoorProgram.Waiting),
             "rejoined actor's waiting program stands for the cartridge first list");
-        AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
+        AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");
@@ -575,7 +575,7 @@ internal static class RoomPlmPopulationVerification
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");
-        AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
+        AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "inert attic callback leaves authored terrain unchanged");
 
         // No slot can hold an untranslated pre-instruction: a list's $84:86C1 operand is rejected where it is decoded.
@@ -782,13 +782,13 @@ internal static class RoomPlmPopulationVerification
             "off-room record retains native unchecked row-major block index");
         AssertEqual(38, slots[1].NativeSlotIndex,
             "following record retains descending native slot order");
-        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).LevelWord,
+        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).PackedWord.Raw,
             "off-room setup cannot corrupt the final authored host block");
 
         // Both resident actors execute their first draw. The off-room write remains in the
         // bounded native tail while the ordinary record updates logical terrain normally.
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).LevelWord,
+        AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).PackedWord.Raw,
             "in-room record following the harmless tail actor still draws normally");
 
         var malformed = new RoomPlmPopulationDefinition(malformedPopulation,
@@ -855,7 +855,7 @@ internal static class RoomPlmPopulationVerification
         var system = new Bank80SystemState();
         AssertEqual(1, ordinary.PopulationLoader.LoadRoomPopulation(new PlmRoom(ordinaryLevel, ordinaryStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
-        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
             "escape gate retains the highest native population slot");
@@ -864,7 +864,7 @@ internal static class RoomPlmPopulationVerification
             "ordinary entry retains C8CA's first closed-gate list");
         ordinary.Step(ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(closedGateMiddleWord,
-            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).LevelWord,
+            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
             "non-escape entry draws the cartridge's already-closed gate");
         for (int frame = 0; frame < 6; frame++)
             ordinary.Step(ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -898,17 +898,17 @@ internal static class RoomPlmPopulationVerification
             "door transition selects C8CA's second instruction list");
 
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "closing frame one draws the fully open gate");
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "two-frame gate timer retains the open image on its countdown frame");
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).LevelWord,
+        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
             "closing frame two draws the half-closed gate");
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).LevelWord,
+        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
             "closing frame three installs the final solid gate collision");
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -926,7 +926,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
             "fallback actor uses the cartridge's dedicated C8D0 header");
-        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
+        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
             "fallback C8D0 executes the shared deactivate setup");
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
@@ -1129,15 +1129,15 @@ internal static class RoomPlmPopulationVerification
         plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, plms.StationSnapshots.Count, "map, missile, and save parents share one pool");
-        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Behavior,
+        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Bts.Value,
             "map right access setup uses BTS $47");
-        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Behavior,
+        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Bts.Value,
             "map left access setup uses native two-block offset");
-        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Behavior,
+        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Bts.Value,
             "missile right access setup uses BTS $4B");
-        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Behavior,
+        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Bts.Value,
             "missile left access setup uses BTS $4C");
-        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Behavior,
+        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Bts.Value,
             "save station setup installs trigger BTS $4D");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),
@@ -1151,11 +1151,11 @@ internal static class RoomPlmPopulationVerification
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(!system.HasAreaMap(2), "map station has not activated before its 103rd pass");
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xb859, level.GetCollisionBlock(new(18, 6)).LevelWord,
+        AssertEqual(0xb859, level.GetCollisionBlock(new(18, 6)).PackedWord.Raw,
             "compiled save-pod idle draw installs its physical floor word");
-        AssertEqual(0x005b, level.GetCollisionBlock(new(18, 2)).LevelWord,
+        AssertEqual(0x005b, level.GetCollisionBlock(new(18, 2)).PackedWord.Raw,
             "compiled save-pod draw extends its shaft above the trigger");
-        AssertEqual(0x8059, level.GetCollisionBlock(new(18, 1)).LevelWord,
+        AssertEqual(0x8059, level.GetCollisionBlock(new(18, 1)).PackedWord.Raw,
             "compiled save-pod draw installs its upper cap");
         AssertTrue(system.HasAreaMap(2), "map station marks current area acquired");
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
@@ -1171,11 +1171,11 @@ internal static class RoomPlmPopulationVerification
         // hold, retract, and final hold, without looping the access sound.
         for (int frame = 0; frame < 18; frame++)
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x8128, level.GetCollisionBlock(new(7, 6)).LevelWord,
+        AssertEqual(0x8128, level.GetCollisionBlock(new(7, 6)).PackedWord.Raw,
             "map access retracts to its compiled right-side parent word");
-        AssertEqual(0x8528, level.GetCollisionBlock(new(4, 6)).LevelWord,
+        AssertEqual(0x8528, level.GetCollisionBlock(new(4, 6)).PackedWord.Raw,
             "map access retracts its linked left-side block");
-        AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).LevelWord,
+        AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).PackedWord.Raw,
             "missile access retracts to its compiled resource word");
         AssertTrue(!samus.InputLocked,
             "Samus stays released through the post-message retraction");
@@ -1191,7 +1191,7 @@ internal static class RoomPlmPopulationVerification
         StationActivationEvent saveRequest = plms.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);
         ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
-            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord)
+            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw)
             .ToArray();
         SaveStationConfirmationResult confirmation =
             plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level, streamer: streamer, view: new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -1200,7 +1200,7 @@ internal static class RoomPlmPopulationVerification
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
             "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
-                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord),
+                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw),
             "the confirming pass draws the first electricity frame");
         AssertEqual(0x0120, samus.Position.X.Whole,
             "save animation centers Samus on the station's 16-pixel boundary");

@@ -105,7 +105,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
                     $"resident grey-door ${(int)header:X4} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident grey-door ${(int)header:X4} avoids draw payload ROM reads");
@@ -290,12 +290,12 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         var guarded = NewGreyDoorDrawGuard(rom, lists);
         int frame = 0;
         while (frame++ < 200 &&
-            level.GetCollisionBlockByIndex(origin).LevelWord != 0x0482)
+            level.GetCollisionBlockByIndex(origin).PackedWord.Raw != 0x0482)
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(frame <= 200,
             "blue-door opening reaches the shared right-facing clear draw");
         AssertEqual((ushort)0x0482,
-            level.GetCollisionBlockByIndex(origin).LevelWord,
+            level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "shared clear art leaves the native physical air word intact");
         AssertEqual((ushort)0x0054,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],

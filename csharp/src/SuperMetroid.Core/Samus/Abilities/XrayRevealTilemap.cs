@@ -73,8 +73,8 @@ public static class XrayRevealTilemap
         {
             RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(index);
             return visuals is not null
-                ? visuals.Apply(block.CollisionType, block.Behavior)
-                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
+                ? visuals.Apply(block.CollisionType, block.Bts.Value)
+                : XrayRevealTable.Find(block.CollisionType, block.Bts.Value);
         }
         ushort ReadBg1(int x, int y)
         {

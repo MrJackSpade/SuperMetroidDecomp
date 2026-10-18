@@ -41,25 +41,25 @@ internal static class ScrollPlmsVerification
             "extension setup consumes no persistent PLM slot");
 
         int origin = level.GetBlockIndex(new(3, 3));
-        AssertEqual(0x3000, level.GetCollisionBlockByIndex(origin).LevelWord,
+        AssertEqual(0x3000, level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "B703 setup installs type-three special air");
-        AssertEqual(0x46, level.GetCollisionBlockByIndex(origin).Behavior,
+        AssertEqual(0x46, level.GetCollisionBlockByIndex(origin).Bts.Value,
             "B703 setup installs BTS $46");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(4, 3)).LevelWord,
+        AssertEqual(0x5000, level.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
             "right extension setup installs type five");
-        AssertEqual(0xff, level.GetCollisionBlock(new(4, 3)).Behavior,
+        AssertEqual(0xff, level.GetCollisionBlock(new(4, 3)).Bts.Value,
             "right extension points one block left");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(2, 3)).LevelWord,
+        AssertEqual(0x5000, level.GetCollisionBlock(new(2, 3)).PackedWord.Raw,
             "left extension setup installs type five");
-        AssertEqual(0x01, level.GetCollisionBlock(new(2, 3)).Behavior,
+        AssertEqual(0x01, level.GetCollisionBlock(new(2, 3)).Bts.Value,
             "left extension points one block right");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 4)).LevelWord,
+        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
             "down extension setup installs type D");
-        AssertEqual(0xff, level.GetCollisionBlock(new(3, 4)).Behavior,
+        AssertEqual(0xff, level.GetCollisionBlock(new(3, 4)).Bts.Value,
             "down extension points one row up");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 2)).LevelWord,
+        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 2)).PackedWord.Raw,
             "up extension setup installs type D");
-        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Behavior,
+        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Bts.Value,
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(

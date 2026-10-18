@@ -63,7 +63,7 @@ internal sealed class MotherBrainGlassPlms
         slot.StartAnimation(new MotherBrainGlassPlmAnimation());
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        ushort glassLevelWord = unchecked((ushort)((original.LevelWord & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
+        ushort glassLevelWord = unchecked((ushort)((original.PackedWord.Raw & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);

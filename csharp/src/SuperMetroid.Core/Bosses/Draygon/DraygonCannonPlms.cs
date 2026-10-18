@@ -136,7 +136,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         int blockIndex,
         ushort typeAndBts)
     {
-        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetPlmForegroundEntry(
             blockIndex,
             new RoomLevelWord(original).WithCollisionType(new RoomLevelWord(typeAndBts).CollisionType).Raw);

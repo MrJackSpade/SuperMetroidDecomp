@@ -955,7 +955,7 @@ public static class SamusGrappleMovement
                     // Nonnegative BTS values beyond the four authored grapple reactions
                     // would index outside $D0D8-$D0E0 in the native selection table.
                     throw new InvalidDataException(
-                        $"Invalid grapple block BTS ${block.Behavior:X2} at ({resolvedX},{resolvedY}).");
+                        $"Invalid grapple block BTS ${block.Bts.Value:X2} at ({resolvedX},{resolvedY}).");
 
                 case RoomCollisionType.ShootableAir:
                 case RoomCollisionType.ShootableBlock:
@@ -1002,8 +1002,8 @@ public static class SamusGrappleMovement
                         catch (ArgumentOutOfRangeException error) when (error.ParamName == "bts")
                         {
                             throw new CartridgeDispatchException(
-                                $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Behavior:X2}",
-                                $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Behavior:X2} " +
+                                $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",
+                                $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Bts.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
                                 isRoomIndependent: true, error);
                         }
@@ -2105,7 +2105,7 @@ public static class SamusGrappleMovement
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
                     // check must precede the BTS lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Behavior, solidSpike: false);
+                    ApplySwingSpikeDamage(samus, block.Bts.Value, solidSpike: false);
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
@@ -2122,7 +2122,7 @@ public static class SamusGrappleMovement
                     // `$94:AB17` always reports collision. Before setting carry it applies
                     // `$003C` for BTS zero or `$0010` for BTS one; every other entry is
                     // literally zero. A negative BTS skips the table entirely.
-                    ApplySwingSpikeDamage(samus, block.Behavior, solidSpike: true);
+                    ApplySwingSpikeDamage(samus, block.Bts.Value, solidSpike: true);
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
@@ -2165,7 +2165,7 @@ public static class SamusGrappleMovement
     /// <summary>Applies BTS-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        byte behavior,
+        int behavior,
         bool solidSpike)
     {
         // Both native handlers return immediately while `$18A8` is nonzero or when BTS is

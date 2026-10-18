@@ -113,7 +113,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         ((slot.Family as ScrollPlmState) ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
         slot.RestoreLevelWord = 0;
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
-        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
             slot.BlockIndex,
             new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);
@@ -135,7 +135,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };
-            ushort originalWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+            ushort originalWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
             level.SetForegroundEntry(
                 slot.BlockIndex,
                 new RoomLevelWord(originalWord).WithCollisionType(collisionType).Raw);
@@ -153,7 +153,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             Program = compiledSource.HasValue ? null : program.ToArray(),
             CompiledSource = compiledSource,
         };
-        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
+        ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
         level.SetForegroundEntry(
             slot.BlockIndex,
             new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);

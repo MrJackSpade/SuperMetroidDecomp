@@ -28,15 +28,15 @@ internal static class PillarFirstEntryVerification
         runtime.LoadCartridgeRoomForDebug(source);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
-        byte behavior = 0;
+        int behavior = 0;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose, false);
+            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != destination) continue;
-            doorX = x; doorY = y; behavior = block.Behavior;
+            doorX = x; doorY = y; behavior = block.Bts.Value;
             break;
         }
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");

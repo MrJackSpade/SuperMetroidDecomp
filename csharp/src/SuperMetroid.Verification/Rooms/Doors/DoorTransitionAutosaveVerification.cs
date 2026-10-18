@@ -160,7 +160,7 @@ internal static class DoorTransitionAutosaveVerification
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                     if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                    var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose, false);
+                    var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
                     if (door.Door?.DestinationRoomPointer != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
                     var samus = runtime.Player.IntroducedSamus;
@@ -168,7 +168,7 @@ internal static class DoorTransitionAutosaveVerification
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
-                    runtime.Room.LoadedLevelData.ResolveDoorCollision(block.Behavior, samus.Pose, true);
+                    runtime.Room.LoadedLevelData.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
                     game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
                     game.GameState = SuperMetroidGameState.HitDoorBlock;
                     return;

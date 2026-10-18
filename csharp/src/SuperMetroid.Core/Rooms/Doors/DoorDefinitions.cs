@@ -625,7 +625,7 @@ public static class DoorDefinitions
             ClosedNativeWords.Decode<DoorSetupCode>(setupCode, "door setup routine"));
 
     /// <summary>Resolves type-$9 BTS through the room's bounded physical-header progression.</summary>
-    public static DoorListEntry Resolve(ushort doorListPointer, byte behavior)
+    public static DoorListEntry Resolve(ushort doorListPointer, int behavior)
     {
         DoorListLayout layout = ListLayout(doorListPointer);
         ushort pointer = PointerAt(doorListPointer, layout, behavior & 0x7f);

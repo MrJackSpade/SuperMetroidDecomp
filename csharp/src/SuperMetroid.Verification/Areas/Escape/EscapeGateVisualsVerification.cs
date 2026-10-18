@@ -108,7 +108,7 @@ internal static class EscapeGateVisualsVerification
             "edited escape gate loads its real resident header");
         closed.Step(closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
-            closedLevel.GetCollisionBlockByIndex(origin).LevelWord,
+            closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited closed gate preserves native physical collision");
         AssertEqual((ushort)0x0053, closed.TilemapUpdates[0].TopRow[0],
             "edited closed gate reaches immediate visible tilemap update");
@@ -136,7 +136,7 @@ internal static class EscapeGateVisualsVerification
         for (int frame = 0; frame < 3; frame++)
             closing.Step(closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
-            closingLevel.GetCollisionBlockByIndex(origin).LevelWord,
+            closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited half-closed gate preserves native physical collision");
         AssertEqual((ushort)0x0054, closing.TilemapUpdates[0].TopRow[0],
             "edited half-closed gate reaches immediate visible tilemap update");

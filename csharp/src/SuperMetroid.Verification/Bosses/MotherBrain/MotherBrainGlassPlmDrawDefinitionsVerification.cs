@@ -115,7 +115,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             entryY = originY + run.Next.Y;
         }
         foreach ((int index, ushort word) in expected)
-            AssertEqual(word, level.GetCollisionBlockByIndex(index).LevelWord,
+            AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 $"glass draw ${selected.Pointer:X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"glass draw ${selected.Pointer:X4} avoids source payload reads");
@@ -129,7 +129,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                     .BuildPlmLevelBlockUpdate(editedBlock, 0).TopRow[0],
                 "edited glass tile survives later camera streaming");
             AssertEqual((ushort)0x0ecf,
-                level.GetCollisionBlockByIndex(editedBlock).LevelWord,
+                level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,
                 "edited glass appearance does not change the physical shatter block");
         }
     }

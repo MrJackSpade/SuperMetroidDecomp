@@ -578,10 +578,10 @@ internal sealed class ProjectileTerrainCollision
                 {
                     if (index + 1 >= level.ForegroundEntries.Length)
                         throw new NotSupportedException("Odd Wave collision read crosses the modeled level-data allocation.");
-                    ushort next = level.GetCollisionBlockByIndex(index + 1).LevelWord;
+                    ushort next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { LevelWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.LevelWord), unchecked((byte)next)) };
+                    block = block with { PackedWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.PackedWord.Raw), unchecked((byte)next)) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.

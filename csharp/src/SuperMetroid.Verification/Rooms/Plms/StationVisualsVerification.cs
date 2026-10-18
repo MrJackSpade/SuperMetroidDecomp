@@ -65,7 +65,7 @@ internal static class StationVisualsVerification
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(plms.TilemapUpdates.Count > 0,
                 "station frame publishes an immediate PLM redraw");
-            return (level.GetCollisionBlockByIndex(block).LevelWord,
+            return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
         }

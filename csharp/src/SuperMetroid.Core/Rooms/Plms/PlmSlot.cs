@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>One of the forty native PLM slots: header, block, instruction state and the family state it carries.</summary>
@@ -15,7 +17,7 @@ internal sealed class PlmSlot
     /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
     /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
     /// </summary>
-    public ushort RestoreLevelWord { get; set; }
+    public RoomLevelWord RestoreLevelWord { get; set; }
     /// <summary>
     /// Current bank-$84 instruction-list position for the slot's generic interpreter; zero while a typed program runs.
     /// Storing a list pointer ends any typed program, as a native list store replaces the running program.

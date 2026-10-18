@@ -54,12 +54,12 @@ internal static class DraygonCannonPlmsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(rightBlock).CollisionType,
             "shielded right cannon setup installs type C");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(rightBlock).Behavior,
+        AssertEqual(0x44, level.GetCollisionBlockByIndex(rightBlock).Bts.Value,
             "shielded right cannon setup installs BTS 44");
         AssertEqual((int)RoomCollisionType.VerticalExtension,
             (int)level.GetCollisionBlockByIndex(rightBlock + roomWidth).CollisionType,
             "shielded right cannon setup installs its vertical extension");
-        AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Behavior,
+        AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Bts.Value,
             "shielded right cannon extension points to its origin");
 
         StepDraygonCannonPlms(plms, level, streamer);
@@ -141,7 +141,7 @@ internal static class DraygonCannonPlmsVerification
             AssertEqual((int)RoomCollisionType.SpikeBlock,
                 (int)level.GetCollisionBlockByIndex(cell).CollisionType,
                 $"{context} replaces cell {cell} with type A");
-            AssertEqual(0x03, level.GetCollisionBlockByIndex(cell).Behavior,
+            AssertEqual(0x03, level.GetCollisionBlockByIndex(cell).Bts.Value,
                 $"{context} replaces cell {cell} with BTS 03");
         }
     }

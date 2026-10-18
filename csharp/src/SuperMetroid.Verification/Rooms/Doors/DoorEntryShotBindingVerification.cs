@@ -52,7 +52,7 @@ internal static class DoorEntryShotBindingVerification
             {
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                level.ResolveDoorCollision(block.Behavior, samus.Pose, true);
+                level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
                 selected = true;
             }
             AssertTrue(selected, "the Ceres start room has an exit");

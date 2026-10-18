@@ -28,7 +28,7 @@ internal readonly record struct PlmStepContext(
     /// respawning block.
     /// </summary>
     internal void DrawRestoredBlock(PlmSlot slot) =>
-        Plms.Drawing.DrawLevelWord(Level, Streamer, slot.BlockIndex, slot.RestoreLevelWord, View);
+        Plms.Drawing.DrawLevelWord(Level, Streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, View);
 
     /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
     internal void QueueSound(SoundEffectId sound, int maximumQueued) =>

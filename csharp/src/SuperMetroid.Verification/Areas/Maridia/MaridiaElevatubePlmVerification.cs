@@ -42,7 +42,7 @@ internal static class MaridiaElevatubePlmVerification
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0)
                 AssertEqual((ushort)0x8180,
-                    level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                    level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                     "first elevatube handler pass draws its physical block");
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(

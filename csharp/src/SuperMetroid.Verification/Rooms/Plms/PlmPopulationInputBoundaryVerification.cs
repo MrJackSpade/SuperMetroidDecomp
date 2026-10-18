@@ -44,7 +44,7 @@ internal static class PlmPopulationInputBoundaryVerification
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(ReusedPopulationSlots),
             "extension deletion permits immediate highest-slot reuse in authored order");
-        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior,
+        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Bts.Value,
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");

@@ -112,7 +112,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
                 AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
                     $"resident colored-door ${(int)header:X4} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored-door ${(int)header:X4} avoids program and draw ROM reads");

@@ -70,7 +70,7 @@ internal static class XrayInputVerification
         var horizontal = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetPlmCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
-        AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Behavior).")).TopLeft,
+        AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Bts.Value).")).TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()));
         int revealedAirPixel = 120 * 256 + 200;

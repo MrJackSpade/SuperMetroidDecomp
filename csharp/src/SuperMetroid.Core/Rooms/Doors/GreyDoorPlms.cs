@@ -121,7 +121,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
         // Preserve the authored visual payload while replacing only type and BTS.
-        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw;
         level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }

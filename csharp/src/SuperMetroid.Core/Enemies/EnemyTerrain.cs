@@ -192,7 +192,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= (uint)level.Size.X ||
                 (uint)row >= (uint)level.Size.Y ||
-                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).LevelWord).HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
             {
                 return true;
             }
@@ -226,7 +226,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= (uint)level.Size.X ||
                 (uint)row >= (uint)level.Size.Y ||
-                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).LevelWord).HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
             {
                 return true;
             }
@@ -253,7 +253,7 @@ internal sealed class EnemyTerrain
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
             if ((uint)blockX >= (uint)level.Size.X ||
-                new RoomLevelWord(level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).LevelWord).HasSolidProbeBit)
+                level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).PackedWord.HasSolidProbeBit)
                 return true;
         }
         return false;
@@ -391,8 +391,8 @@ internal sealed class EnemyTerrain
     {
         var block = new RoomCollisionBlock(
             Index: -1,
-            LevelWord: level.ReadAllocationTailLevelWord(blockIndex),
-            Behavior: 0);
+            PackedWord: level.ReadAllocationTailLevelWord(blockIndex),
+            Bts: new RoomBlockBehavior(0));
         // Slopes, extensions and spike blocks read BTS, and native BTS past the authored
         // room ($7F:6402 + index) is unbounded memory left by earlier rooms.
         if (block.CollisionType is RoomCollisionType.Slope or
@@ -613,7 +613,7 @@ internal sealed class EnemyTerrain
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
-        if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Behavior)) return true;
+        if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Bts.Value)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
         plms.BreakableTerrain.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // $A0:C2D6 clears carry even if the PLM pool was full.

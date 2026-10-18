@@ -46,7 +46,7 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
-        AssertEqual((byte)0x83, hand.Behavior, "Norfair hand activation BTS");
+        AssertEqual((byte)0x83, hand.Bts.Value, "Norfair hand activation BTS");
         var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {

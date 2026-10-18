@@ -198,7 +198,7 @@ internal static class LinkedRestoreVisualsVerification
         AssertTrue(sawImmediate,
             $"{editedId} reaches an immediate tilemap update");
         AssertEqual(bomb ? (ushort)0xf058 : (ushort)0xb0bc,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"{editedId} preserves its native physical parent word");
         AssertEqual(editedWord,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

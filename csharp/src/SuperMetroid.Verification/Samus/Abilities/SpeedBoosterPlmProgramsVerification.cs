@@ -151,7 +151,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             "normal bomb allocates the Speed Booster reveal PLM");
         bombPlms.Step(bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0xb0b6,
-            bombLevel.GetCollisionBlockByIndex(bombBlock).LevelWord,
+            bombLevel.GetCollisionBlockByIndex(bombBlock).PackedWord.Raw,
             "bombed speed block draws the native physical reveal word");
         bombPlms.Step(bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, bombPlms.SlotTable.ActiveCount,

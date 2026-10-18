@@ -140,7 +140,7 @@ internal static class KraidRoomVisualsVerification
         int tubeBlock = tubeLevel.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         AssertEqual((ushort)0x8180,
-            tubeLevel.GetCollisionBlockByIndex(tubeBlock).LevelWord,
+            tubeLevel.GetCollisionBlockByIndex(tubeBlock).PackedWord.Raw,
             "elevatube retains shared native physical word");
         // A PLM redraw identifies its block by the BG1 ring destination of that block.
         ushort tubeDestination = tubeLevel.CreateBackgroundStreamer()
@@ -175,7 +175,7 @@ internal static class KraidRoomVisualsVerification
         plms.Step(level, streamer, new PlmView { Layer1Position = new(layer1X, 0), Bg1XOffset = 0 });
         int blockIndex = 5 * width + 5 + blockOffset;
         AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Kraid draw ${drawPointer:X4} retains physical block {blockOffset}");
         AssertEqual(visualWord,
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

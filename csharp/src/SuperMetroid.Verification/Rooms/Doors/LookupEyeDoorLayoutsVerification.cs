@@ -93,7 +93,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 plms.DrawSolePlmFrameForVerification(level, level.CreateBackgroundStreamer(), pointer);
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),
-                        level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).LevelWord,
+                        level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).PackedWord.Raw,
                         "Eye door production draw native word and position");
             }
             cells += count;

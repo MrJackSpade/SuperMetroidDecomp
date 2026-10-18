@@ -169,7 +169,7 @@ internal sealed class ChozoStatuePlms
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
         int index = level.GetBlockIndex(new(ChozoStatuePlmRomData.LowerNorfairTriggerX, ChozoStatuePlmRomData.LowerNorfairTriggerY));
-        if (level.GetCollisionBlockByIndex(index).LevelWord != ChozoStatuePlmRomData.BlankAirLevelWord) return;
+        if (level.GetCollisionBlockByIndex(index).PackedWord.Raw != ChozoStatuePlmRomData.BlankAirLevelWord) return;
         WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
             ChozoStatuePlmRomData.LowerNorfairHandBts.Value);
         slot.Active = false;

@@ -206,7 +206,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 level, streamer, vram, kind, suppliedGraphic)
             : -1;
 
-        ushort setupWord = new RoomLevelWord(original.LevelWord).WithCollisionType(
+        ushort setupWord = original.PackedWord.WithCollisionType(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air).Raw;
         level.SetForegroundEntry(slot.BlockIndex, setupWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
@@ -474,7 +474,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, view);
                 item.Phase = CollectiblePhase.ShotBlock;
                 return true;
 
@@ -493,7 +493,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                _drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord.Raw, view);
                 item.Phase = CollectiblePhase.CollectedShotBlock;
                 return true;
 

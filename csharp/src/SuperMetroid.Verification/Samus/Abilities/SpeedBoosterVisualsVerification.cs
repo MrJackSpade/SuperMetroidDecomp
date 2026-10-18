@@ -101,7 +101,7 @@ internal static class SpeedBoosterVisualsVerification
                 "bomb triggers the production Speed Booster reveal PLM");
             plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0xb0b6,
-                level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited reveal retains compiled type-B physical level word");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
             ushort blockDestination = level.CreateBackgroundStreamer()

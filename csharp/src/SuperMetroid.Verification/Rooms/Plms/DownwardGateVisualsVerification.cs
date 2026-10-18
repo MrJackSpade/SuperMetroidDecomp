@@ -63,9 +63,9 @@ internal static class DownwardGateVisualsVerification
                 .BuildPlmLevelBlockUpdate(columnIndex, 0).TopRow[0];
             ushort triggerStreamed = level.CreateBackgroundStreamer()
                 .BuildPlmLevelBlockUpdate(triggerIndex, 0).TopRow[0];
-            return (level.GetCollisionBlockByIndex(columnIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
                 streamed,
-                level.GetCollisionBlockByIndex(triggerIndex).LevelWord,
+                level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,
                 triggerStreamed);
         }
 

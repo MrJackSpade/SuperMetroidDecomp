@@ -46,7 +46,7 @@ internal sealed class BlockReactionPlms
             slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = block.LevelWord;
+            slot.RestoreLevelWord = block.PackedWord.Raw;
             slot.InstructionPointer = bts.GrappleReactionIndex == 1
                 ? RoomPlmInstructionLists.RespawningBreakableGrappleBlock
                 : RoomPlmInstructionLists.PermanentBreakableGrappleBlock;
@@ -141,7 +141,7 @@ internal sealed class BlockReactionPlms
             slot.HeaderPointer =
                 RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.BlockIndex = blockIndex;
-            RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
+            RoomLevelWord restoreWord = block.PackedWord
                 .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.ContactCrumbleParent);
             slot.RestoreLevelWord = restoreWord.Raw;
             slot.InstructionPointer =
@@ -208,14 +208,14 @@ internal sealed class BlockReactionPlms
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord)
+            slot.RestoreLevelWord = block.PackedWord
                 .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.SpeedBoosterParent)
                 .Raw;
             slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             level.SetForegroundEntry(
                 blockIndex,
-                new RoomLevelWord(slot.RestoreLevelWord)
+                slot.RestoreLevelWord
                     .WithCollisionType(RoomCollisionType.Air)
                     .Raw);
             return true;
@@ -273,7 +273,7 @@ internal sealed class BlockReactionPlms
             // Setup_CEDA discards the original low twelve bits rather than preserving the
             // visible tile number. Dimension-specific final draw lists reconstruct linked
             // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
-            slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord).WithVisualWord(RoomPlmVisualBlockDefinitions.CollisionBombParent).Raw;
+            slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.CollisionBombParent).Raw;
             ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex(bts.NormalReactionIndex);
 
             // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
@@ -282,7 +282,7 @@ internal sealed class BlockReactionPlms
                 ? unchecked((ushort)(instructionPointer + 3))
                 : instructionPointer;
 
-            ushort temporaryLevelWord = new RoomLevelWord(slot.RestoreLevelWord).WithPlmDeactivation().Raw;
+            ushort temporaryLevelWord = slot.RestoreLevelWord.WithPlmDeactivation().Raw;
             level.SetForegroundEntry(blockIndex, temporaryLevelWord);
             return true;
         }
@@ -370,12 +370,12 @@ internal sealed class BlockReactionPlms
             {
                 // `$84:CE6B` synthesizes `$x052`, stores it for the 384-frame restoration,
                 // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
-                slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord).WithVisualWord(RoomPlmVisualBlockDefinitions.ShotBlockParent).Raw;
+                slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.ShotBlockParent).Raw;
                 slot.InstructionPointer =
                     RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                 level.SetForegroundEntry(
                     blockIndex,
-                    new RoomLevelWord(slot.RestoreLevelWord).WithPlmDeactivation().Raw);
+                    slot.RestoreLevelWord.WithPlmDeactivation().Raw);
                 return true;
             }
 
@@ -388,7 +388,7 @@ internal sealed class BlockReactionPlms
                     RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                 level.SetForegroundEntry(
                     blockIndex,
-                    new RoomLevelWord(block.LevelWord).WithPlmDeactivation().Raw);
+                    block.PackedWord.WithPlmDeactivation().Raw);
                 return true;
             }
 
@@ -405,13 +405,13 @@ internal sealed class BlockReactionPlms
                 // A power bomb synthesizes `$x057`, applies `AND $8FFF`, and retains the
                 // exact list selected by header `$D084/$D088`. BTS eight uses the ordinary
                 // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
-                slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord).WithVisualWord(RoomPlmVisualBlockDefinitions.PowerBombBlockParent).Raw;
+                slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.PowerBombBlockParent).Raw;
                 slot.InstructionPointer = bts.NormalReactionIndex == 8
                     ? RoomPlmInstructionLists.RespawningPowerBombBlock
                     : RoomPlmInstructionLists.PermanentPowerBombBlock;
                 level.SetForegroundEntry(
                     blockIndex,
-                    new RoomLevelWord(slot.RestoreLevelWord).WithPlmDeactivation().Raw);
+                    slot.RestoreLevelWord.WithPlmDeactivation().Raw);
                 return true;
             }
 
@@ -427,13 +427,13 @@ internal sealed class BlockReactionPlms
 
                 // Super Missiles synthesize `$x09F`. Header `$D08C` owns the respawning
                 // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
-                slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord).WithVisualWord(RoomPlmVisualBlockDefinitions.SuperMissileBlockParent).Raw;
+                slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.SuperMissileBlockParent).Raw;
                 slot.InstructionPointer = bts.NormalReactionIndex == 10
                     ? RoomPlmInstructionLists.RespawningSuperMissileBlock
                     : RoomPlmInstructionLists.PermanentSuperMissileBlock;
                 level.SetForegroundEntry(
                     blockIndex,
-                    new RoomLevelWord(slot.RestoreLevelWord).WithPlmDeactivation().Raw);
+                    slot.RestoreLevelWord.WithPlmDeactivation().Raw);
                 return true;
             }
 

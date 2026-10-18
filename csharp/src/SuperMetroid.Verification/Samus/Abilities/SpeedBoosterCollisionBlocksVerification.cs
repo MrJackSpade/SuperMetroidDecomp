@@ -68,7 +68,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "accepted setup clears the live collision nibble in the contact frame");
         AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
-            new RoomLevelWord(level.GetCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex,
             "accepted setup installs cartridge visual parent $0B6");
         RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
         AssertEqual(PlmHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
@@ -93,7 +93,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "respawning list restores special-solid collision");
         AssertEqual(RoomPlmVisualBlockDefinitions.SpeedBoosterParent,
-            new RoomLevelWord(level.GetCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex,
             "respawning list restores synthesized visual parent $0B6");
     }
 

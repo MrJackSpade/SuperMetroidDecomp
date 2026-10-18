@@ -86,7 +86,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain mutation ${(int)header:X4} allocates");
         ushort[] expected = Enumerable.Range(0, words.Length)
-            .Select(index => level.GetCollisionBlockByIndex(index).LevelWord)
+            .Select(index => level.GetCollisionBlockByIndex(index).PackedWord.Raw)
             .ToArray();
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
             $"Mother Brain mutation ${(int)header:X4} starts its typed program");
@@ -112,7 +112,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             $"Mother Brain mutation ${(int)header:X4} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
-                level.GetCollisionBlockByIndex(index).LevelWord,
+                level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 $"Mother Brain mutation ${(int)header:X4} level block {index}");
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.SlotTable.ActiveCount,

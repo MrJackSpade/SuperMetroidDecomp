@@ -67,7 +67,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x8180,
-                level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+                level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
             ushort blockDestination = level.CreateBackgroundStreamer()

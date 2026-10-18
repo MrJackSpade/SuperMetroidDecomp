@@ -952,7 +952,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     int synthesizedSolidShotBlocks = 0;
     for (int y = 0; y < height; y++)
     {
-        if (solidShotWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x8052)
+        if (solidShotWall.GetCollisionBlock(new(6, checked((ushort)y))).PackedWord.Raw == 0x8052)
             synthesizedSolidShotBlocks++;
     }
     AssertTrue(synthesizedSolidShotBlocks > 0,
@@ -993,7 +993,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     int synthesizedAirShotBlocks = 0;
     for (int y = 0; y < height; y++)
     {
-        if (waveShotWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x0052)
+        if (waveShotWall.GetCollisionBlock(new(6, checked((ushort)y))).PackedWord.Raw == 0x0052)
             synthesizedAirShotBlocks++;
     }
     AssertTrue(synthesizedAirShotBlocks > 0,
@@ -1255,9 +1255,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         RoomCollisionBlock block = coloredDoors.GetCollisionBlock(new(checked((ushort)(index + 1)), 3));
         AssertEqual(RoomCollisionType.ShootableBlock, block.CollisionType,
             $"colored-door setup installs shootable collision for header {index}");
-        AssertEqual(0x44, block.Behavior,
+        AssertEqual(0x44, block.Bts.Value,
             $"colored-door setup installs shared BTS for header {index}");
-        AssertEqual(0x0120 + index, block.LevelWord & 0x0fff,
+        AssertEqual(0x0120 + index, block.PackedWord.Raw & 0x0fff,
             $"colored-door setup preserves tile payload for header {index}");
     }
 
@@ -1318,7 +1318,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var reopenedDoorPlms = new RoomPlmSystem();
     reopenedDoorPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reopenedDoorPlms.Step(reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
-    AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior,
+    AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Bts.Value,
         "persisted left-facing red door reloads as ordinary left blue cap");
     AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
@@ -1347,7 +1347,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
         "grey-door setup installs shootable-solid collision");
-    AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+    AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Bts.Value,
         "grey-door setup installs generic resident-PLM BTS");
     GreyDoorPlmSnapshot lockedGreyDoor = greyDoorPlms.GreyDoorSnapshots.Single();
     AssertEqual(GreyDoorCondition.EnemyDeathQuota, lockedGreyDoor.Condition,
@@ -1393,7 +1393,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var reloadedGreyPlms = new RoomPlmSystem();
     reloadedGreyPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reloadedGreyPlms.Step(reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
-    AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+    AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Bts.Value,
         "persisted left grey door reloads as ordinary left blue cap");
     AssertEqual(0, reloadedGreyPlms.GreyDoorSnapshots.Count,
         "persisted grey-door conversion releases resident actor");
@@ -1641,7 +1641,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     int integratedSuperMutations = 0;
     for (int y = 0; y < height; y++)
     {
-        if (integratedSuperWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x809f)
+        if (integratedSuperWall.GetCollisionBlock(new(6, checked((ushort)y))).PackedWord.Raw == 0x809f)
             integratedSuperMutations++;
     }
     AssertTrue(integratedSuperMutations > 0,

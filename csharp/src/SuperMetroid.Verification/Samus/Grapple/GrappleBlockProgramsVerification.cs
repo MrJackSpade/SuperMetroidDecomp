@@ -164,11 +164,11 @@ internal static class GrappleBlockProgramsVerification
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).LevelWord,
-                    compiled.Level.GetCollisionBlockByIndex(27).LevelWord,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
+                    compiled.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                     $"Grapple BTS {bts} level word, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Behavior,
-                    compiled.Level.GetCollisionBlockByIndex(27).Behavior,
+                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Bts.Value,
+                    compiled.Level.GetCollisionBlockByIndex(27).Bts.Value,
                     $"Grapple BTS {bts} BTS, frame {frame}");
             }
 
@@ -219,7 +219,7 @@ internal static class GrappleBlockProgramsVerification
             plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first Grapple draw publishes one immediate tile upload");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);

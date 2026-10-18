@@ -38,7 +38,7 @@ internal sealed class SamusEaterPlms
             slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
-            level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
+            level.SetForegroundEntry(block.Index, (ushort)(block.PackedWord.Raw & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
         }
         // Native descending allocation simply returns when all slots are occupied.

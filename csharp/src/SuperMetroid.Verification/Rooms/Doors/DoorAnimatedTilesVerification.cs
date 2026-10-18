@@ -40,9 +40,9 @@ internal static class DoorAnimatedTilesVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Behavior, samus.Pose, false).Door;
+            CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, false).Door;
             if (door?.DestinationRoomPointer == 0xa66a)
-                entry = level.ResolveDoorCollision(block.Behavior, samus.Pose, true).Door;
+                entry = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true).Door;
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
 

@@ -114,14 +114,14 @@ internal static class DownwardGatePlmsVerification
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {
             AssertEqual(DownwardGatePlmRomData.ClosedGateBts,
-                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Behavior,
+                level.GetCollisionBlockByIndex(gateBlockIndex + row * level.Size.X).Bts.Value,
                 $"gate setup writes BTS $10 to row {row}");
         }
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
         AssertEqual((int)DownwardGateTriggerBehavior.BlueLeft,
-            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
+            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts.Value,
             "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
@@ -154,7 +154,7 @@ internal static class DownwardGatePlmsVerification
         StepDownwardGatePlm(plms, level, streamer);
         StepDownwardGatePlm(plms, level, streamer);
         AssertEqual((ushort)0xc0ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
@@ -183,7 +183,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
             "opened gate actor retracts four tiles and deletes");
         AssertEqual((ushort)0x00ff,
-            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
+            level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).PackedWord.Raw,
             "compiled final open draw clears the second column collision word");
         RoomPlmSlotSnapshot openedGate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -239,7 +239,7 @@ internal static class DownwardGatePlmsVerification
             ? checked((ushort)(0xc0db - color))
             : checked((ushort)(0xc4db - color));
         AssertEqual(expectedTriggerWord,
-            level.GetCollisionBlockByIndex(triggerBlockIndex).LevelWord,
+            level.GetCollisionBlockByIndex(triggerBlockIndex).PackedWord.Raw,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(plms.PopulationSlots.All(slot =>
                 slot.HeaderPointer != PlmHeaderId.DownwardGateShotBlock),

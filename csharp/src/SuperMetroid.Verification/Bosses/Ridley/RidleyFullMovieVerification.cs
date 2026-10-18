@@ -748,9 +748,9 @@ internal static class RidleyFullMovieVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose, false);
+            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != NativeSnapshotMemory.RidleyRoom) continue;
-            level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose, true);
+            level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, true);
             found = true;
         }
         AssertTrue(found, "native Ridley entry door");

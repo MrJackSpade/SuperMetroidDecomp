@@ -76,7 +76,7 @@ internal static class CrocomireArenaPlmsVerification
         for (int y = 0; y < 9; y++)
         for (int x = 0; x < 11; x++)
             AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
-                level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).LevelWord,
+                level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).PackedWord.Raw,
                 $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.SlotTable.ActiveCount,

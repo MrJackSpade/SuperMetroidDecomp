@@ -13,7 +13,7 @@ public static class EnemyBreakableTerrainDefinitions
     /// <c>$A0:C2DA-$A0:C2F9</c>. The cartridge masks bit seven, treats entries zero
     /// through fourteen as solid, and spawns <see cref="PlmHeaderId.EnemyBreakableBlock"/> for entry fifteen.
     /// </summary>
-    public static bool IsEnemyBreakable(byte behavior)
+    public static bool IsEnemyBreakable(int behavior)
     {
         int index = behavior & 0x7f;
         if (index > 15)

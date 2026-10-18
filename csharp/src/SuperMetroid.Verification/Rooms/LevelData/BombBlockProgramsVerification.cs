@@ -193,11 +193,11 @@ internal static class BombBlockProgramsVerification
                     $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).LevelWord,
-                        compiled.Level.GetCollisionBlockByIndex(block).LevelWord,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
+                        compiled.Level.GetCollisionBlockByIndex(block).PackedWord.Raw,
                         $"bomb BTS {behavior}/{producer} block {block}, frame {frame}");
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior,
-                        compiled.Level.GetCollisionBlockByIndex(block).Behavior,
+                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Bts.Value,
+                        compiled.Level.GetCollisionBlockByIndex(block).Bts.Value,
                         $"bomb BTS {behavior}/{producer} BTS {block}, frame {frame}");
                 }
             }
@@ -251,7 +251,7 @@ internal static class BombBlockProgramsVerification
             plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first bomb-break frame publishes one immediate tile upload");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 plms.TilemapUpdates[0].TopRow[0],
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);
@@ -289,7 +289,7 @@ internal static class BombBlockProgramsVerification
                 plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
-            return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
+            return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0]);
         }

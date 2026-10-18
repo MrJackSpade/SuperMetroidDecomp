@@ -110,7 +110,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             int stride = (run.DirectionAndCount & 0x8000) != 0 ? width : 1;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 AssertEqual(run.LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origins[component] + block * stride).LevelWord,
+                    level.GetCollisionBlockByIndex(origins[component] + block * stride).PackedWord.Raw,
                     $"{orientation} component {component} draws physical block {block}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -196,7 +196,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertEqual(orientation == EyeDoorOrientation.Left
                 ? RoomBlockBehaviorValues.BlueDoorFacingLeft.Value
                 : RoomBlockBehaviorValues.BlueDoorFacingRight.Value,
-            cap.Behavior,
+            cap.Bts.Value,
             $"{orientation} retail eye opening selects the blue-cap orientation");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");

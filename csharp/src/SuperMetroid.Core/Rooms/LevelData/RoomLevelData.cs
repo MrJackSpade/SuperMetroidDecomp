@@ -252,7 +252,7 @@ public sealed class RoomLevelData
         return new RoomCollisionBlock(
             blockIndex,
             _plmForegroundAllocation[blockIndex],
-            _plmBehaviorAllocation[blockIndex]);
+            new RoomBlockBehavior(_plmBehaviorAllocation[blockIndex]));
     }
 
     /// <summary>
@@ -327,8 +327,8 @@ public sealed class RoomLevelData
         {
             return new RoomCollisionBlock(
                 Index: -1,
-                LevelWord: PrefilledSolidWord,
-                Behavior: 0);
+                PackedWord: PrefilledSolidWord,
+                Bts: new RoomBlockBehavior(0));
         }
 
         return GetCollisionBlock(block);
@@ -344,8 +344,8 @@ public sealed class RoomLevelData
         {
             return new RoomCollisionBlock(
                 Index: -1,
-                LevelWord: PrefilledSolidWord,
-                Behavior: 0);
+                PackedWord: PrefilledSolidWord,
+                Bts: new RoomBlockBehavior(0));
         }
 
         return GetCollisionBlockByIndex(blockIndex);
@@ -361,7 +361,7 @@ public sealed class RoomLevelData
         return new RoomCollisionBlock(
             blockIndex,
             _foregroundEntries[blockIndex],
-            _behaviorBytes[blockIndex]);
+            new RoomBlockBehavior(_behaviorBytes[blockIndex]));
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ public sealed class RoomLevelData
     /// does, then publishes the normal-door transition request for the top-level dispatcher.
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
-        byte behavior,
+        int behavior,
         SamusPoseId samusPose,
         bool publishDoorSideEffects = true)
     {

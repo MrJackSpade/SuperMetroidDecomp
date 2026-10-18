@@ -145,7 +145,7 @@ internal static class SporeSpawnCeilingPlmsVerification
                 for (int y = 30; y <= 31; y++)
                 for (int x = 7; x <= 8; x++)
                     AssertEqual(expected,
-                        level.GetCollisionBlockByIndex(y * width + x).LevelWord,
+                        level.GetCollisionBlockByIndex(y * width + x).PackedWord.Raw,
                         $"Spore Spawn {(clear ? "clear" : "crumble")} frame {frame} ({x},{y})");
             }
             if (plms.SlotTable.ActiveCount == 0)

@@ -67,7 +67,7 @@ internal static class WrapShotEnemiesVerification
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
-            AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");
+            AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).PackedWord.Raw, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
             AssertEqual(0, enemy.FlashTimer.RawValue, "Remote enemy receives no impact flash");
 

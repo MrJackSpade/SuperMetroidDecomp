@@ -29,15 +29,15 @@ internal static class DoorMusicTimingVerification
         runtime.LoadCartridgeRoomForDebug(0x92fd);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
-        byte behavior = 0;
+        int behavior = 0;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose, false);
+            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
             if (door.Door?.DestinationRoomPointer != 0x91f8) continue;
-            doorX = x; doorY = y; behavior = block.Behavior; break;
+            doorX = x; doorY = y; behavior = block.Bts.Value; break;
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
         runtime.LoadCartridgeRoomForDebug(0x92fd,

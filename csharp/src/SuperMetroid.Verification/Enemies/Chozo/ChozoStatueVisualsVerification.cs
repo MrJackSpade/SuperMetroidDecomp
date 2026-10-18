@@ -85,7 +85,7 @@ internal static class ChozoStatueVisualsVerification
                 plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
-                    level.GetCollisionBlockByIndex(origin).LevelWord,
+                    level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
                     $"edited Chozo art retains native physical word for ${(int)header:X4}");
                 AssertEqual(visual,
                     level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
@@ -107,7 +107,7 @@ internal static class ChozoStatueVisualsVerification
             for (int frame = 0; frame < 15; frame++)
             {
                 crumblePlms.Step(crumbleLevel, crumbleLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).LevelWord);
+                seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).PackedWord.Raw);
             }
             foreach (ushort word in new ushort[] { 0x0053, 0x0054, 0x0055, 0x00ff })
                 AssertTrue(seenCrumbleWords.Contains(word),

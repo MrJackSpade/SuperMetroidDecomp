@@ -91,7 +91,7 @@ internal static class BotwoonWallPlmsVerification
             {
                 for (int y = 4; y <= 12; y++)
                     AssertEqual((ushort)0x00ff,
-                        level.GetCollisionBlockByIndex(y * width + 15).LevelWord,
+                        level.GetCollisionBlockByIndex(y * width + 15).PackedWord.Raw,
                         $"Botwoon clear row {y}");
             }
             if (!clear && frame >= 63 && frame <= 203 &&
@@ -107,7 +107,7 @@ internal static class BotwoonWallPlmsVerification
                     _ => 0x00ff,
                 };
                 AssertEqual(appearance,
-                    level.GetCollisionBlockByIndex((4 + row) * width + 15).LevelWord,
+                    level.GetCollisionBlockByIndex((4 + row) * width + 15).PackedWord.Raw,
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {

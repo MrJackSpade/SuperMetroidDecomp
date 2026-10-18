@@ -72,10 +72,10 @@ internal static class NoobTubePlmVerification
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
-            level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
+            level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "n00b-tube setup installs the complete type-$8 collision word");
         AssertEqual((int)RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
-            level.GetCollisionBlock(new(blockX, blockY)).Behavior,
+            level.GetCollisionBlock(new(blockX, blockY)).Bts.Value,
             "n00b-tube setup installs BTS $44");
 
         // First pass follows the event-not-set branch, publishes intact art, and sleeps

@@ -109,7 +109,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             entryY = originY + run.Next.Y;
         }
         foreach ((int index, ushort word) in expected)
-            AssertEqual(word, level.GetCollisionBlockByIndex(index).LevelWord,
+            AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
                 $"n00b-tube draw ${selected.Pointer:X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"n00b-tube draw ${selected.Pointer:X4} avoids source payload reads");
@@ -123,7 +123,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                     .BuildPlmLevelBlockUpdate(editedBlock, 0).TopRow[0],
                 "edited tube tile survives later camera streaming");
             AssertEqual((ushort)0x0323,
-                level.GetCollisionBlockByIndex(editedBlock).LevelWord,
+                level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,
                 "edited tube appearance does not change the physical block");
         }
     }

@@ -64,7 +64,7 @@ internal static class CeilingWrapRoomVerification
         var plms = runtime.Plms;
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
-        ushort blocker = level.GetCollisionBlock(new(76, 9)).LevelWord;
+        ushort blocker = level.GetCollisionBlock(new(76, 9)).PackedWord.Raw;
         var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");
         int firstFull = -1;
@@ -81,7 +81,7 @@ internal static class CeilingWrapRoomVerification
         var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
-        AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).LevelWord, "Exhaustion bypass does not break the block");
+        AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).PackedWord.Raw, "Exhaustion bypass does not break the block");
         AssertEqual(40, plms.SlotTable.ActiveCount, "Contact cannot allocate a forty-first slot");
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
     }

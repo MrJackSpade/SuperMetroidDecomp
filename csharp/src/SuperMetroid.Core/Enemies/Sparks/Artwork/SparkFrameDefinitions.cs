@@ -24,18 +24,17 @@ internal static class SparkFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Spark pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(SparkFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="SparkFrame"/> shows.</summary>
+    internal static EnemyFrameTable<SparkFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.NorfairLavaJumper804d,
-        { Pose: 1 } => EnemyFrameId.Spark04,
-        { Pose: 2 } => EnemyFrameId.Spark05,
-        { Pose: 3 } => EnemyFrameId.Spark06,
-        { Pose: 4 } => EnemyFrameId.Spark07,
-        { Pose: 5 } => EnemyFrameId.Spark00,
-        { Pose: 6 } => EnemyFrameId.Spark01,
-        { Pose: 7 } => EnemyFrameId.Spark02,
-        { Pose: 8 } => EnemyFrameId.Spark03,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the SparkFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.NorfairLavaJumper804d },
+        { new(Pose: 1), EnemyFrameId.Spark04 },
+        { new(Pose: 2), EnemyFrameId.Spark05 },
+        { new(Pose: 3), EnemyFrameId.Spark06 },
+        { new(Pose: 4), EnemyFrameId.Spark07 },
+        { new(Pose: 5), EnemyFrameId.Spark00 },
+        { new(Pose: 6), EnemyFrameId.Spark01 },
+        { new(Pose: 7), EnemyFrameId.Spark02 },
+        { new(Pose: 8), EnemyFrameId.Spark03 },
     };
 }

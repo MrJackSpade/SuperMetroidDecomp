@@ -558,6 +558,10 @@ Commit and push that update too.
     runner takes a generated `Frame(TFrame)` table (81 families, Ridley's body and Crocomire's tongue included);
     named writers install identities. Test support's `RoomEnemySlotFrameAccess` keeps the native word view, mapping
     (bank, word) back to a frame.
+  - Q5.1b: the generated tables were switch expressions inside catalog files, which the manifesto forbids. Each is
+    now `EnemyFrameTable<TFrame>` data (`ShownFrames`, keyed by the frame value; the lookup that fails loudly lives
+    in the table type), Botwoon's head is a table, Tripper's frozen-frame choice moved to `PlatformsBehavior`, and
+    Mother Brain's unread head table was deleted.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

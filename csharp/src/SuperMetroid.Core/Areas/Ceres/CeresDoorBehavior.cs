@@ -61,7 +61,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresDoorProgram> cursor = _doorPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
         _doorPrograms[slot.SlotIndex] = cursor;
     }

@@ -61,32 +61,13 @@ internal static class MotherBrainVisualDefinitions
         for (int index = 0; index < FrameCount; index++) yield return Frame(index);
     }
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(MotherBrainHeadFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="MotherBrainTubeFrame"/> shows.</summary>
+    internal static EnemyFrameTable<MotherBrainTubeFrame> TubeFrames { get; } = new()
     {
-        { Index: 0 } => EnemyFrameId.MotherBrainA9A586,
-        { Index: 1 } => EnemyFrameId.MotherBrainA9A5bf,
-        { Index: 10 } => EnemyFrameId.MotherBrainA9A789,
-        { Index: 11 } => EnemyFrameId.MotherBrainA9Ad3e,
-        { Index: 12 } => EnemyFrameId.MotherBrainA9Ad6d,
-        { Index: 2 } => EnemyFrameId.MotherBrainA9A5f8,
-        { Index: 3 } => EnemyFrameId.MotherBrainA9A62c,
-        { Index: 4 } => EnemyFrameId.MotherBrainA9A660,
-        { Index: 6 } => EnemyFrameId.MotherBrainA9A69b,
-        { Index: 7 } => EnemyFrameId.MotherBrainA9A6d9,
-        { Index: 8 } => EnemyFrameId.MotherBrainA9A717,
-        { Index: 9 } => EnemyFrameId.MotherBrainA9A750,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MotherBrainHeadFrame programs show."),
-    };
-
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(MotherBrainTubeFrame frame) => frame switch
-    {
-        { Index: 0 } => EnemyFrameId.MotherBrainA9Ada1,
-        { Index: 1 } => EnemyFrameId.MotherBrainA9Add5,
-        { Index: 2 } => EnemyFrameId.MotherBrainA9Ae09,
-        { Index: 3 } => EnemyFrameId.MotherBrainA9Ae33,
-        { Index: 4 } => EnemyFrameId.MotherBrainA9Ae5d,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MotherBrainTubeFrame programs show."),
+        { new(Index: 0), EnemyFrameId.MotherBrainA9Ada1 },
+        { new(Index: 1), EnemyFrameId.MotherBrainA9Add5 },
+        { new(Index: 2), EnemyFrameId.MotherBrainA9Ae09 },
+        { new(Index: 3), EnemyFrameId.MotherBrainA9Ae33 },
+        { new(Index: 4), EnemyFrameId.MotherBrainA9Ae5d },
     };
 }

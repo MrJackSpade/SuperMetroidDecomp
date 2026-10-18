@@ -437,7 +437,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePuyoState(slot);
         AnimationProgramCursor<PuyoProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

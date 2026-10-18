@@ -126,7 +126,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 tube.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                tube.Frame = MotherBrainVisualDefinitions.Frame(advance.Frame);
+                tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(advance.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -677,7 +677,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.Frame = MotherBrainBodyVisualDefinitions.Frame(advance.Frame);
+                slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(advance.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

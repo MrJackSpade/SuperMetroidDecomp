@@ -229,7 +229,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<RipperProgram> cursor = _extensions[slot.SlotIndex].Program;
-        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.ShownFrames.Of);
         _extensions[slot.SlotIndex].Program = cursor;
     }
 

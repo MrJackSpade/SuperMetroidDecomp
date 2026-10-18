@@ -308,7 +308,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         var state = RequireElevatorState(slot);
         AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

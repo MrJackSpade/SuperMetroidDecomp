@@ -250,7 +250,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireOwtchState(slot);
         AnimationProgramCursor<OwtchProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyOwtchCue(state, cue));
         state.Program = cursor;
     }

@@ -198,7 +198,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireSkreeState(slot);
         AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplySkreeCue(slot, state, cue));
         state.Program = cursor;
     }

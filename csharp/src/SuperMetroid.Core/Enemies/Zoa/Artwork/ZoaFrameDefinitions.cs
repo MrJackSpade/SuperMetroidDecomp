@@ -27,21 +27,20 @@ internal static class ZoaFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Zoa pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(ZoaFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="ZoaFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ZoaFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.ZoaShootLeft0,
-        { Pose: 1 } => EnemyFrameId.ZoaShootLeft1,
-        { Pose: 10 } => EnemyFrameId.ZoaRiseRight0,
-        { Pose: 11 } => EnemyFrameId.ZoaRiseRight2,
-        { Pose: 2 } => EnemyFrameId.ZoaShootLeft2,
-        { Pose: 3 } => EnemyFrameId.ZoaRiseLeft1,
-        { Pose: 4 } => EnemyFrameId.ZoaRiseLeft0,
-        { Pose: 5 } => EnemyFrameId.ZoaRiseLeft2,
-        { Pose: 6 } => EnemyFrameId.ZoaShootRight0,
-        { Pose: 7 } => EnemyFrameId.ZoaShootRight1,
-        { Pose: 8 } => EnemyFrameId.ZoaShootRight2,
-        { Pose: 9 } => EnemyFrameId.ZoaRiseRight1,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ZoaFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.ZoaShootLeft0 },
+        { new(Pose: 1), EnemyFrameId.ZoaShootLeft1 },
+        { new(Pose: 10), EnemyFrameId.ZoaRiseRight0 },
+        { new(Pose: 11), EnemyFrameId.ZoaRiseRight2 },
+        { new(Pose: 2), EnemyFrameId.ZoaShootLeft2 },
+        { new(Pose: 3), EnemyFrameId.ZoaRiseLeft1 },
+        { new(Pose: 4), EnemyFrameId.ZoaRiseLeft0 },
+        { new(Pose: 5), EnemyFrameId.ZoaRiseLeft2 },
+        { new(Pose: 6), EnemyFrameId.ZoaShootRight0 },
+        { new(Pose: 7), EnemyFrameId.ZoaShootRight1 },
+        { new(Pose: 8), EnemyFrameId.ZoaShootRight2 },
+        { new(Pose: 9), EnemyFrameId.ZoaRiseRight1 },
     };
 }

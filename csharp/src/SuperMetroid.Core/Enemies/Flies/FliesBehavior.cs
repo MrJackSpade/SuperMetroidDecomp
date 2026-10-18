@@ -173,7 +173,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         FlyEnemyState state = RequireFlyState(slot);
         AnimationProgramCursor<FlyProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

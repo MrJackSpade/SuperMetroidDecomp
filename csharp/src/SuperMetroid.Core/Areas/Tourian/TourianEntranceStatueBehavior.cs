@@ -152,7 +152,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             return;
         AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _extensions[slot.SlotIndex].Program ??
             throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
-        EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
         _extensions[slot.SlotIndex].Program = cursor;
     }
 

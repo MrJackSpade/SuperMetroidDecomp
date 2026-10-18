@@ -220,7 +220,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireSkulteraState(slot);
         AnimationProgramCursor<SkulteraProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplySkulteraCue(slot, state, cue));
         state.Program = cursor;
     }

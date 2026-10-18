@@ -51,33 +51,29 @@ internal static class BotwoonVisualDefinitions
     }
 
     /// <summary>
-    /// The installed frame the head shows: the visible frames are named in the physical order of <see cref="Frames"/>,
-    /// closed then open; the hidden head shows the shared empty frame.
+    /// The installed frame each head pose shows: the visible frames are named in the physical order of
+    /// <see cref="Frames"/>, closed then open; the hidden head shows the shared empty frame.
     /// </summary>
-    internal static EnemyFrameId HeadFrame(BotwoonHeadFrame frame) => frame.Visible
-        ? HeadFrames[(frame.MouthOpen ? PhysicalOrder.Length : 0) + Array.IndexOf(PhysicalOrder, frame.Facing)]
-        : EnemyFrameId.Empty;
-
-    /// <summary>The sixteen visible head frames' identities, closed then open, in physical order.</summary>
-    private static readonly EnemyFrameId[] HeadFrames =
-    [
-        EnemyFrameId.BotwoonHead00,
-        EnemyFrameId.BotwoonHead01,
-        EnemyFrameId.BotwoonHead02,
-        EnemyFrameId.BotwoonHead03,
-        EnemyFrameId.BotwoonHead04,
-        EnemyFrameId.BotwoonHead05,
-        EnemyFrameId.BotwoonHead06,
-        EnemyFrameId.BotwoonHead07,
-        EnemyFrameId.BotwoonHead08,
-        EnemyFrameId.BotwoonHead09,
-        EnemyFrameId.BotwoonHead10,
-        EnemyFrameId.BotwoonHead11,
-        EnemyFrameId.BotwoonHead12,
-        EnemyFrameId.BotwoonHead13,
-        EnemyFrameId.BotwoonHead14,
-        EnemyFrameId.BotwoonHead15,
-    ];
+    internal static EnemyFrameTable<BotwoonHeadFrame> HeadFrames { get; } = new()
+    {
+        { BotwoonHeadFrame.Hidden, EnemyFrameId.Empty },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.UpLeft), EnemyFrameId.BotwoonHead00 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.Left), EnemyFrameId.BotwoonHead01 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.DownLeft), EnemyFrameId.BotwoonHead02 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.Down), EnemyFrameId.BotwoonHead03 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.DownRight), EnemyFrameId.BotwoonHead04 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.Right), EnemyFrameId.BotwoonHead05 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.UpRight), EnemyFrameId.BotwoonHead06 },
+        { BotwoonHeadFrame.Closed(BotwoonFacing.Up), EnemyFrameId.BotwoonHead07 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.UpLeft), EnemyFrameId.BotwoonHead08 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.Left), EnemyFrameId.BotwoonHead09 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.DownLeft), EnemyFrameId.BotwoonHead10 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.Down), EnemyFrameId.BotwoonHead11 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.DownRight), EnemyFrameId.BotwoonHead12 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.Right), EnemyFrameId.BotwoonHead13 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.UpRight), EnemyFrameId.BotwoonHead14 },
+        { BotwoonHeadFrame.Open(BotwoonFacing.Up), EnemyFrameId.BotwoonHead15 },
+    };
 
     /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>

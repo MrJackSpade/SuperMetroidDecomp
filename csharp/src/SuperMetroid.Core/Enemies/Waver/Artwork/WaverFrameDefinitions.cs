@@ -25,19 +25,18 @@ internal static class WaverFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Waver pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(WaverFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="WaverFrame"/> shows.</summary>
+    internal static EnemyFrameTable<WaverFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.WaverSpinLeft2,
-        { Pose: 1 } => EnemyFrameId.WaverSpinLeft3,
-        { Pose: 2 } => EnemyFrameId.WaverSteadyLeft,
-        { Pose: 3 } => EnemyFrameId.WaverSpinLeft0,
-        { Pose: 4 } => EnemyFrameId.WaverSpinLeft1,
-        { Pose: 5 } => EnemyFrameId.WaverSpinRight2,
-        { Pose: 6 } => EnemyFrameId.WaverSpinRight3,
-        { Pose: 7 } => EnemyFrameId.WaverSteadyRight,
-        { Pose: 8 } => EnemyFrameId.WaverSpinRight0,
-        { Pose: 9 } => EnemyFrameId.WaverSpinRight1,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the WaverFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.WaverSpinLeft2 },
+        { new(Pose: 1), EnemyFrameId.WaverSpinLeft3 },
+        { new(Pose: 2), EnemyFrameId.WaverSteadyLeft },
+        { new(Pose: 3), EnemyFrameId.WaverSpinLeft0 },
+        { new(Pose: 4), EnemyFrameId.WaverSpinLeft1 },
+        { new(Pose: 5), EnemyFrameId.WaverSpinRight2 },
+        { new(Pose: 6), EnemyFrameId.WaverSpinRight3 },
+        { new(Pose: 7), EnemyFrameId.WaverSteadyRight },
+        { new(Pose: 8), EnemyFrameId.WaverSpinRight0 },
+        { new(Pose: 9), EnemyFrameId.WaverSpinRight1 },
     };
 }

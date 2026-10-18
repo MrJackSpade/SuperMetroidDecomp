@@ -22,16 +22,15 @@ internal static class BoyonFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Boyon pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(BoyonFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="BoyonFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BoyonFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.BoyonIdle0,
-        { Pose: 1 } => EnemyFrameId.BoyonIdle1,
-        { Pose: 2 } => EnemyFrameId.BoyonIdle2,
-        { Pose: 3 } => EnemyFrameId.BoyonBounce0,
-        { Pose: 4 } => EnemyFrameId.BoyonBounce1,
-        { Pose: 5 } => EnemyFrameId.BoyonBounce2,
-        { Pose: 6 } => EnemyFrameId.BoyonBounce3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BoyonFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.BoyonIdle0 },
+        { new(Pose: 1), EnemyFrameId.BoyonIdle1 },
+        { new(Pose: 2), EnemyFrameId.BoyonIdle2 },
+        { new(Pose: 3), EnemyFrameId.BoyonBounce0 },
+        { new(Pose: 4), EnemyFrameId.BoyonBounce1 },
+        { new(Pose: 5), EnemyFrameId.BoyonBounce2 },
+        { new(Pose: 6), EnemyFrameId.BoyonBounce3 },
     };
 }

@@ -446,7 +446,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireChozoStatueState(slot);
         AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
         state.Program = cursor;
     }

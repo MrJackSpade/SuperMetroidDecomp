@@ -36,22 +36,21 @@ internal static class CeresDoorFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ceres door pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(CeresDoorFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="CeresDoorFrame"/> shows.</summary>
+    internal static EnemyFrameTable<CeresDoorFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.CeresDoorRotatingOverlay,
-        { Pose: 1 } => EnemyFrameId.CeresDoorLeftHold,
-        { Pose: 10 } => EnemyFrameId.CeresDoorRightTransition3,
-        { Pose: 11 } => EnemyFrameId.CeresDoorMode7LeftWall,
-        { Pose: 12 } => EnemyFrameId.CeresDoorMode7RightWall,
-        { Pose: 2 } => EnemyFrameId.CeresDoorLeftTransition0,
-        { Pose: 3 } => EnemyFrameId.CeresDoorLeftTransition1,
-        { Pose: 4 } => EnemyFrameId.CeresDoorLeftTransition2,
-        { Pose: 5 } => EnemyFrameId.CeresDoorLeftTransition3,
-        { Pose: 6 } => EnemyFrameId.CeresDoorRightHold,
-        { Pose: 7 } => EnemyFrameId.CeresDoorRightTransition0,
-        { Pose: 8 } => EnemyFrameId.CeresDoorRightTransition1,
-        { Pose: 9 } => EnemyFrameId.CeresDoorRightTransition2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CeresDoorFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.CeresDoorRotatingOverlay },
+        { new(Pose: 1), EnemyFrameId.CeresDoorLeftHold },
+        { new(Pose: 10), EnemyFrameId.CeresDoorRightTransition3 },
+        { new(Pose: 11), EnemyFrameId.CeresDoorMode7LeftWall },
+        { new(Pose: 12), EnemyFrameId.CeresDoorMode7RightWall },
+        { new(Pose: 2), EnemyFrameId.CeresDoorLeftTransition0 },
+        { new(Pose: 3), EnemyFrameId.CeresDoorLeftTransition1 },
+        { new(Pose: 4), EnemyFrameId.CeresDoorLeftTransition2 },
+        { new(Pose: 5), EnemyFrameId.CeresDoorLeftTransition3 },
+        { new(Pose: 6), EnemyFrameId.CeresDoorRightHold },
+        { new(Pose: 7), EnemyFrameId.CeresDoorRightTransition0 },
+        { new(Pose: 8), EnemyFrameId.CeresDoorRightTransition1 },
+        { new(Pose: 9), EnemyFrameId.CeresDoorRightTransition2 },
     };
 }

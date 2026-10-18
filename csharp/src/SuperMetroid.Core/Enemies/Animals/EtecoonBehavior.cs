@@ -779,7 +779,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireEtecoonState(slot);
         AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

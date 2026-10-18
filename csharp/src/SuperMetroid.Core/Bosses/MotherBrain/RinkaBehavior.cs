@@ -518,7 +518,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireRinkaState(slot);
         AnimationProgramCursor<RinkaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyRinkaCue(slot, state, cue));
         state.Program = cursor;
     }

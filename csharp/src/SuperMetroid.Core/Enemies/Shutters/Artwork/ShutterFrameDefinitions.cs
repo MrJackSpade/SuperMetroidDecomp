@@ -24,18 +24,17 @@ internal static class ShutterFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined shutter pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(ShutterFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="ShutterFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ShutterFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.ShutterGrowing10px,
-        { Pose: 1 } => EnemyFrameId.ShutterGrowing20px,
-        { Pose: 2 } => EnemyFrameId.ShutterGrowing30px,
-        { Pose: 3 } => EnemyFrameId.ShutterVertical40px,
-        { Pose: 4 } => EnemyFrameId.ShutterHorizontal,
-        { Pose: 5 } => EnemyFrameId.KamerPlatform0,
-        { Pose: 6 } => EnemyFrameId.KamerPlatform1,
-        { Pose: 7 } => EnemyFrameId.KamerPlatform2,
-        { Pose: 8 } => EnemyFrameId.KamerPlatform3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ShutterFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.ShutterGrowing10px },
+        { new(Pose: 1), EnemyFrameId.ShutterGrowing20px },
+        { new(Pose: 2), EnemyFrameId.ShutterGrowing30px },
+        { new(Pose: 3), EnemyFrameId.ShutterVertical40px },
+        { new(Pose: 4), EnemyFrameId.ShutterHorizontal },
+        { new(Pose: 5), EnemyFrameId.KamerPlatform0 },
+        { new(Pose: 6), EnemyFrameId.KamerPlatform1 },
+        { new(Pose: 7), EnemyFrameId.KamerPlatform2 },
+        { new(Pose: 8), EnemyFrameId.KamerPlatform3 },
     };
 }

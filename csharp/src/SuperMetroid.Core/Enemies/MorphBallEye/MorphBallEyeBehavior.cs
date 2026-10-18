@@ -338,7 +338,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMorphBallEyeState(slot);
         AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

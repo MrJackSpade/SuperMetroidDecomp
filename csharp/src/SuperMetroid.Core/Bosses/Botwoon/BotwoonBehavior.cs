@@ -658,7 +658,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Held)
             return;
         head.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        head.Frame = BotwoonVisualDefinitions.HeadFrame(advance.Frame);
+        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(advance.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

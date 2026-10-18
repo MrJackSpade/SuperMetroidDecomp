@@ -910,7 +910,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireKiHunterState(slot);
         AnimationProgramCursor<KiHunterProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyKiHunterCue(slot, cue));
         state.Program = cursor;
     }

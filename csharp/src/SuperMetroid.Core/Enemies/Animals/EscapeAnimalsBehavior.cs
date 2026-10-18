@@ -172,14 +172,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
             AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.Frame,
+            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyEscapeEtecoonCue(slot, state, samus, cue));
             state.Program = cursor;
             return;
         }
         EscapeDachoraEnemyState dachora = RequireEscapeDachoraState(slot);
         AnimationProgramCursor<EscapeDachoraProgram> dachoraCursor = dachora.Program;
-        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyEscapeDachoraCue(slot, samus, cue));
         dachora.Program = dachoraCursor;
     }

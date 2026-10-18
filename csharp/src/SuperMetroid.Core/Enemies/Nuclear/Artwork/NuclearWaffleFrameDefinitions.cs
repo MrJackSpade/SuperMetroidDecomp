@@ -23,17 +23,16 @@ internal static class NuclearWaffleFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Nuclear Waffle pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(NuclearWaffleFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="NuclearWaffleFrame"/> shows.</summary>
+    internal static EnemyFrameTable<NuclearWaffleFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.NuclearWaffle00,
-        { Pose: 1 } => EnemyFrameId.NuclearWaffle01,
-        { Pose: 2 } => EnemyFrameId.NuclearWaffle03,
-        { Pose: 3 } => EnemyFrameId.NuclearWaffle04,
-        { Pose: 4 } => EnemyFrameId.NuclearWaffle02,
-        { Pose: 5 } => EnemyFrameId.NuclearWaffle05,
-        { Pose: 6 } => EnemyFrameId.NuclearWaffle06,
-        { Pose: 7 } => EnemyFrameId.NuclearWaffle07,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the NuclearWaffleFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.NuclearWaffle00 },
+        { new(Pose: 1), EnemyFrameId.NuclearWaffle01 },
+        { new(Pose: 2), EnemyFrameId.NuclearWaffle03 },
+        { new(Pose: 3), EnemyFrameId.NuclearWaffle04 },
+        { new(Pose: 4), EnemyFrameId.NuclearWaffle02 },
+        { new(Pose: 5), EnemyFrameId.NuclearWaffle05 },
+        { new(Pose: 6), EnemyFrameId.NuclearWaffle06 },
+        { new(Pose: 7), EnemyFrameId.NuclearWaffle07 },
     };
 }

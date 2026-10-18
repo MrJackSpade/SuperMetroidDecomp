@@ -27,21 +27,20 @@ internal static class DragonFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Dragon pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(DragonFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="DragonFrame"/> shows.</summary>
+    internal static EnemyFrameTable<DragonFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.DragonBodyIdleLeft,
-        { Pose: 1 } => EnemyFrameId.DragonBodyAttackLeft0,
-        { Pose: 10 } => EnemyFrameId.DragonWingRight0,
-        { Pose: 11 } => EnemyFrameId.DragonWingRight1,
-        { Pose: 2 } => EnemyFrameId.DragonBodyAttackLeft1,
-        { Pose: 3 } => EnemyFrameId.DragonBodyAttackLeft2,
-        { Pose: 4 } => EnemyFrameId.DragonWingLeft0,
-        { Pose: 5 } => EnemyFrameId.DragonWingLeft1,
-        { Pose: 6 } => EnemyFrameId.DragonBodyIdleRight,
-        { Pose: 7 } => EnemyFrameId.DragonBodyAttackRight0,
-        { Pose: 8 } => EnemyFrameId.DragonBodyAttackRight1,
-        { Pose: 9 } => EnemyFrameId.DragonBodyAttackRight2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the DragonFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.DragonBodyIdleLeft },
+        { new(Pose: 1), EnemyFrameId.DragonBodyAttackLeft0 },
+        { new(Pose: 10), EnemyFrameId.DragonWingRight0 },
+        { new(Pose: 11), EnemyFrameId.DragonWingRight1 },
+        { new(Pose: 2), EnemyFrameId.DragonBodyAttackLeft1 },
+        { new(Pose: 3), EnemyFrameId.DragonBodyAttackLeft2 },
+        { new(Pose: 4), EnemyFrameId.DragonWingLeft0 },
+        { new(Pose: 5), EnemyFrameId.DragonWingLeft1 },
+        { new(Pose: 6), EnemyFrameId.DragonBodyIdleRight },
+        { new(Pose: 7), EnemyFrameId.DragonBodyAttackRight0 },
+        { new(Pose: 8), EnemyFrameId.DragonBodyAttackRight1 },
+        { new(Pose: 9), EnemyFrameId.DragonBodyAttackRight2 },
     };
 }

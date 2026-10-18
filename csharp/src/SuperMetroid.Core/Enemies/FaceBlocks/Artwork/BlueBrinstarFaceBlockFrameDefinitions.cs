@@ -20,14 +20,13 @@ internal static class BlueBrinstarFaceBlockFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Blue Brinstar face block pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(BlueBrinstarFaceBlockFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="BlueBrinstarFaceBlockFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BlueBrinstarFaceBlockFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.FaceBlockNeutral,
-        { Pose: 1 } => EnemyFrameId.FaceBlockSamusLeft1,
-        { Pose: 2 } => EnemyFrameId.FaceBlockSamusLeft2,
-        { Pose: 3 } => EnemyFrameId.FaceBlockSamusRight1,
-        { Pose: 4 } => EnemyFrameId.FaceBlockSamusRight2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BlueBrinstarFaceBlockFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.FaceBlockNeutral },
+        { new(Pose: 1), EnemyFrameId.FaceBlockSamusLeft1 },
+        { new(Pose: 2), EnemyFrameId.FaceBlockSamusLeft2 },
+        { new(Pose: 3), EnemyFrameId.FaceBlockSamusRight1 },
+        { new(Pose: 4), EnemyFrameId.FaceBlockSamusRight2 },
     };
 }

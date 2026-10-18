@@ -530,7 +530,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePowampState(slot);
         AnimationProgramCursor<PowampProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

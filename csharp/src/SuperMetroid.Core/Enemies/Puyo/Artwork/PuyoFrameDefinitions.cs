@@ -23,17 +23,16 @@ internal static class PuyoFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Puyo pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(PuyoFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="PuyoFrame"/> shows.</summary>
+    internal static EnemyFrameTable<PuyoFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.PuyoGround0,
-        { Pose: 1 } => EnemyFrameId.PuyoGround1,
-        { Pose: 2 } => EnemyFrameId.PuyoGround2,
-        { Pose: 3 } => EnemyFrameId.PuyoAir0,
-        { Pose: 4 } => EnemyFrameId.PuyoAir1,
-        { Pose: 5 } => EnemyFrameId.PuyoAir2,
-        { Pose: 6 } => EnemyFrameId.PuyoAir3,
-        { Pose: 7 } => EnemyFrameId.PuyoAir4,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PuyoFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.PuyoGround0 },
+        { new(Pose: 1), EnemyFrameId.PuyoGround1 },
+        { new(Pose: 2), EnemyFrameId.PuyoGround2 },
+        { new(Pose: 3), EnemyFrameId.PuyoAir0 },
+        { new(Pose: 4), EnemyFrameId.PuyoAir1 },
+        { new(Pose: 5), EnemyFrameId.PuyoAir2 },
+        { new(Pose: 6), EnemyFrameId.PuyoAir3 },
+        { new(Pose: 7), EnemyFrameId.PuyoAir4 },
     };
 }

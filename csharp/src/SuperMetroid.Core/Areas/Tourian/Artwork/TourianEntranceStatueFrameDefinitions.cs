@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// </summary>
 internal static class TourianEntranceStatueFrameDefinitions
 {
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(TourianEntranceStatueFrame frame) =>
-        throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Tourian entrance statue pose.");
+    /// <summary>The installed frame each <see cref="TourianEntranceStatueFrame"/> shows: none.</summary>
+    internal static EnemyFrameTable<TourianEntranceStatueFrame> ShownFrames { get; } = new();
 }

@@ -95,7 +95,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<GunshipProgram> cursor = _shipPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, GunshipAnimations.Programs, ref cursor, GunshipFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, GunshipAnimations.Programs, ref cursor, GunshipFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
         _shipPrograms[slot.SlotIndex] = cursor;
     }

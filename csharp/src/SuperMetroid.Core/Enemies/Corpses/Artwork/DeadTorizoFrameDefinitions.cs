@@ -16,10 +16,9 @@ internal static class DeadTorizoFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Dead Torizo pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(DeadTorizoFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="DeadTorizoFrame"/> shows.</summary>
+    internal static EnemyFrameTable<DeadTorizoFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.DeadTorizoStationaryA9D6e2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the DeadTorizoFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.DeadTorizoStationaryA9D6e2 },
     };
 }

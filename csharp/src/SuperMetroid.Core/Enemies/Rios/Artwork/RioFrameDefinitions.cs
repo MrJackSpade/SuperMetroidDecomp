@@ -23,17 +23,16 @@ internal static class RioFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Rio pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(RioFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="RioFrame"/> shows.</summary>
+    internal static EnemyFrameTable<RioFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.RioBd6c,
-        { Pose: 1 } => EnemyFrameId.RioBd82,
-        { Pose: 2 } => EnemyFrameId.RioBd98,
-        { Pose: 3 } => EnemyFrameId.RioBdae,
-        { Pose: 4 } => EnemyFrameId.RioBdc4,
-        { Pose: 5 } => EnemyFrameId.RioBdda,
-        { Pose: 6 } => EnemyFrameId.RioBdf0,
-        { Pose: 7 } => EnemyFrameId.RioBe06,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the RioFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.RioBd6c },
+        { new(Pose: 1), EnemyFrameId.RioBd82 },
+        { new(Pose: 2), EnemyFrameId.RioBd98 },
+        { new(Pose: 3), EnemyFrameId.RioBdae },
+        { new(Pose: 4), EnemyFrameId.RioBdc4 },
+        { new(Pose: 5), EnemyFrameId.RioBdda },
+        { new(Pose: 6), EnemyFrameId.RioBdf0 },
+        { new(Pose: 7), EnemyFrameId.RioBe06 },
     };
 }

@@ -499,7 +499,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMetroidState(slot);
         AnimationProgramCursor<MetroidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyMetroidCue(cue));
         state.Program = cursor;
     }

@@ -35,29 +35,28 @@ internal static class CacatacFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Cacatac pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(CacatacFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="CacatacFrame"/> shows.</summary>
+    internal static EnemyFrameTable<CacatacFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.CacatacUprightIdle0,
-        { Pose: 1 } => EnemyFrameId.CacatacUprightIdle1,
-        { Pose: 10 } => EnemyFrameId.CacatacInvertedIdle0,
-        { Pose: 11 } => EnemyFrameId.CacatacInvertedIdle1,
-        { Pose: 12 } => EnemyFrameId.CacatacInvertedIdle2,
-        { Pose: 13 } => EnemyFrameId.CacatacInvertedIdle3,
-        { Pose: 14 } => EnemyFrameId.CacatacInvertedIdle4,
-        { Pose: 15 } => EnemyFrameId.CacatacInvertedIdle5,
-        { Pose: 16 } => EnemyFrameId.CacatacInvertedIdle6,
-        { Pose: 17 } => EnemyFrameId.CacatacInvertedIdle7,
-        { Pose: 18 } => EnemyFrameId.CacatacInvertedAttack1,
-        { Pose: 19 } => EnemyFrameId.CacatacInvertedAttack2,
-        { Pose: 2 } => EnemyFrameId.CacatacUprightIdle2,
-        { Pose: 3 } => EnemyFrameId.CacatacUprightIdle3,
-        { Pose: 4 } => EnemyFrameId.CacatacUprightIdle4,
-        { Pose: 5 } => EnemyFrameId.CacatacUprightIdle5,
-        { Pose: 6 } => EnemyFrameId.CacatacUprightIdle6,
-        { Pose: 7 } => EnemyFrameId.CacatacUprightIdle7,
-        { Pose: 8 } => EnemyFrameId.CacatacUprightAttack1,
-        { Pose: 9 } => EnemyFrameId.CacatacUprightAttack2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CacatacFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.CacatacUprightIdle0 },
+        { new(Pose: 1), EnemyFrameId.CacatacUprightIdle1 },
+        { new(Pose: 10), EnemyFrameId.CacatacInvertedIdle0 },
+        { new(Pose: 11), EnemyFrameId.CacatacInvertedIdle1 },
+        { new(Pose: 12), EnemyFrameId.CacatacInvertedIdle2 },
+        { new(Pose: 13), EnemyFrameId.CacatacInvertedIdle3 },
+        { new(Pose: 14), EnemyFrameId.CacatacInvertedIdle4 },
+        { new(Pose: 15), EnemyFrameId.CacatacInvertedIdle5 },
+        { new(Pose: 16), EnemyFrameId.CacatacInvertedIdle6 },
+        { new(Pose: 17), EnemyFrameId.CacatacInvertedIdle7 },
+        { new(Pose: 18), EnemyFrameId.CacatacInvertedAttack1 },
+        { new(Pose: 19), EnemyFrameId.CacatacInvertedAttack2 },
+        { new(Pose: 2), EnemyFrameId.CacatacUprightIdle2 },
+        { new(Pose: 3), EnemyFrameId.CacatacUprightIdle3 },
+        { new(Pose: 4), EnemyFrameId.CacatacUprightIdle4 },
+        { new(Pose: 5), EnemyFrameId.CacatacUprightIdle5 },
+        { new(Pose: 6), EnemyFrameId.CacatacUprightIdle6 },
+        { new(Pose: 7), EnemyFrameId.CacatacUprightIdle7 },
+        { new(Pose: 8), EnemyFrameId.CacatacUprightAttack1 },
+        { new(Pose: 9), EnemyFrameId.CacatacUprightAttack2 },
     };
 }

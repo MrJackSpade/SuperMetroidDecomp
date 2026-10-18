@@ -658,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireYardState(slot);
         AnimationProgramCursor<YardProgram> cursor = state.Program;
-        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Frame,
+        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.ShownFrames.Of,
                 (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
         state.Program = cursor;
     }

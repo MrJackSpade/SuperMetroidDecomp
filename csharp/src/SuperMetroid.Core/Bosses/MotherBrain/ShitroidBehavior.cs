@@ -890,7 +890,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Kind != AnimationProgramAdvanceKind.Show)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance.Kind} step.");
         slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        slot.Frame = BabyMetroidVisualDefinitions.Frame(advance.Frame);
+        slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(advance.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

@@ -601,7 +601,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireBeetomState(slot);
         AnimationProgramCursor<BeetomProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyBeetomCue(slot, cue));
         state.Program = cursor;
     }

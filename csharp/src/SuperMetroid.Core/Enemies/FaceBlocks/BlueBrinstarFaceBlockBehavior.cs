@@ -211,7 +211,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
         var state = RequireBlueBrinstarFaceBlockState(slot);
         AnimationProgramCursor<BlueBrinstarFaceBlockProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

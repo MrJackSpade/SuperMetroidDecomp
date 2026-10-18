@@ -468,7 +468,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireSbugState(slot);
         AnimationProgramCursor<SbugProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

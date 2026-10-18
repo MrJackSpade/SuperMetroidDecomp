@@ -145,7 +145,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePolypState(slot);
         AnimationProgramCursor<PolypProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

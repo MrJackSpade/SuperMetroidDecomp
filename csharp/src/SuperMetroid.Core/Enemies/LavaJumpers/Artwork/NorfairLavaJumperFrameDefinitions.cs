@@ -26,20 +26,19 @@ internal static class NorfairLavaJumperFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Norfair lava jumper pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(NorfairLavaJumperFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="NorfairLavaJumperFrame"/> shows.</summary>
+    internal static EnemyFrameTable<NorfairLavaJumperFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.NorfairLavaJumper804d,
-        { Pose: 1 } => EnemyFrameId.NorfairLavaJumperC02c,
-        { Pose: 10 } => EnemyFrameId.NorfairLavaJumperC0c5,
-        { Pose: 2 } => EnemyFrameId.NorfairLavaJumperC042,
-        { Pose: 3 } => EnemyFrameId.NorfairLavaJumperC058,
-        { Pose: 4 } => EnemyFrameId.NorfairLavaJumperC064,
-        { Pose: 5 } => EnemyFrameId.NorfairLavaJumperC070,
-        { Pose: 6 } => EnemyFrameId.NorfairLavaJumperC086,
-        { Pose: 7 } => EnemyFrameId.NorfairLavaJumperC09c,
-        { Pose: 8 } => EnemyFrameId.NorfairLavaJumperC0ad,
-        { Pose: 9 } => EnemyFrameId.NorfairLavaJumperC0b9,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the NorfairLavaJumperFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.NorfairLavaJumper804d },
+        { new(Pose: 1), EnemyFrameId.NorfairLavaJumperC02c },
+        { new(Pose: 10), EnemyFrameId.NorfairLavaJumperC0c5 },
+        { new(Pose: 2), EnemyFrameId.NorfairLavaJumperC042 },
+        { new(Pose: 3), EnemyFrameId.NorfairLavaJumperC058 },
+        { new(Pose: 4), EnemyFrameId.NorfairLavaJumperC064 },
+        { new(Pose: 5), EnemyFrameId.NorfairLavaJumperC070 },
+        { new(Pose: 6), EnemyFrameId.NorfairLavaJumperC086 },
+        { new(Pose: 7), EnemyFrameId.NorfairLavaJumperC09c },
+        { new(Pose: 8), EnemyFrameId.NorfairLavaJumperC0ad },
+        { new(Pose: 9), EnemyFrameId.NorfairLavaJumperC0b9 },
     };
 }

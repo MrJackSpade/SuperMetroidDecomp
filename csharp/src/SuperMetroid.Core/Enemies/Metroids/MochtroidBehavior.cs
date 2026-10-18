@@ -273,7 +273,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireMochtroidState(slot);
         AnimationProgramCursor<MochtroidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

@@ -239,7 +239,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireBoyonState(slot);
         AnimationProgramCursor<BoyonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyBoyonCue(slot, state, cue));
         state.Program = cursor;
     }

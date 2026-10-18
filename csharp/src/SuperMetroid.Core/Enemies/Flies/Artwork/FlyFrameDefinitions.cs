@@ -19,13 +19,12 @@ internal static class FlyFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined fly-family pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(FlyFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="FlyFrame"/> shows.</summary>
+    internal static EnemyFrameTable<FlyFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.FlyShared0,
-        { Pose: 1 } => EnemyFrameId.FlyShared1,
-        { Pose: 2 } => EnemyFrameId.FlyShared2,
-        { Pose: 3 } => EnemyFrameId.FlyShared3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the FlyFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.FlyShared0 },
+        { new(Pose: 1), EnemyFrameId.FlyShared1 },
+        { new(Pose: 2), EnemyFrameId.FlyShared2 },
+        { new(Pose: 3), EnemyFrameId.FlyShared3 },
     };
 }

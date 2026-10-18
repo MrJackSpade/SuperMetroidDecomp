@@ -243,7 +243,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireStokeState(slot);
         AnimationProgramCursor<StokeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyStokeCue(slot, state, cue));
         state.Program = cursor;
     }

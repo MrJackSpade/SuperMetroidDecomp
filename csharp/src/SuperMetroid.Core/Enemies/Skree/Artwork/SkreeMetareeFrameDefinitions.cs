@@ -25,19 +25,18 @@ internal static class SkreeMetareeFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Skree or Metaree pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(SkreeMetareeFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="SkreeMetareeFrame"/> shows.</summary>
+    internal static EnemyFrameTable<SkreeMetareeFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.MetareeIdle0,
-        { Pose: 1 } => EnemyFrameId.MetareePrepare1,
-        { Pose: 2 } => EnemyFrameId.MetareeIdle1,
-        { Pose: 3 } => EnemyFrameId.MetareeIdle2,
-        { Pose: 4 } => EnemyFrameId.MetareeIdle3,
-        { Pose: 5 } => EnemyFrameId.SkreeIdle0,
-        { Pose: 6 } => EnemyFrameId.SkreePrepare1,
-        { Pose: 7 } => EnemyFrameId.SkreeIdle1,
-        { Pose: 8 } => EnemyFrameId.SkreeIdle2,
-        { Pose: 9 } => EnemyFrameId.SkreeIdle3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the SkreeMetareeFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.MetareeIdle0 },
+        { new(Pose: 1), EnemyFrameId.MetareePrepare1 },
+        { new(Pose: 2), EnemyFrameId.MetareeIdle1 },
+        { new(Pose: 3), EnemyFrameId.MetareeIdle2 },
+        { new(Pose: 4), EnemyFrameId.MetareeIdle3 },
+        { new(Pose: 5), EnemyFrameId.SkreeIdle0 },
+        { new(Pose: 6), EnemyFrameId.SkreePrepare1 },
+        { new(Pose: 7), EnemyFrameId.SkreeIdle1 },
+        { new(Pose: 8), EnemyFrameId.SkreeIdle2 },
+        { new(Pose: 9), EnemyFrameId.SkreeIdle3 },
     };
 }

@@ -21,12 +21,11 @@ internal static class BabyMetroidVisualDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index), index, "The Baby Metroid has three pulse poses."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(BabyMetroidFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="BabyMetroidFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BabyMetroidFrame> ShownFrames { get; } = new()
     {
-        { Index: 0 } => EnemyFrameId.Shitroid02,
-        { Index: 1 } => EnemyFrameId.Shitroid01,
-        { Index: 2 } => EnemyFrameId.Shitroid00,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BabyMetroidFrame programs show."),
+        { new(Index: 0), EnemyFrameId.Shitroid02 },
+        { new(Index: 1), EnemyFrameId.Shitroid01 },
+        { new(Index: 2), EnemyFrameId.Shitroid00 },
     };
 }

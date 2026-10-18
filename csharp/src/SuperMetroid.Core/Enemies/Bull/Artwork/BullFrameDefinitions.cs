@@ -18,12 +18,11 @@ internal static class BullFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Bull pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(BullFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="BullFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BullFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.BullIdle0,
-        { Pose: 1 } => EnemyFrameId.BullIdle1,
-        { Pose: 2 } => EnemyFrameId.BullIdle2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BullFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.BullIdle0 },
+        { new(Pose: 1), EnemyFrameId.BullIdle1 },
+        { new(Pose: 2), EnemyFrameId.BullIdle2 },
     };
 }

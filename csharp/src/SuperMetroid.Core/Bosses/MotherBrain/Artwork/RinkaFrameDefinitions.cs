@@ -20,14 +20,13 @@ internal static class RinkaFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Rinka pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(RinkaFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="RinkaFrame"/> shows.</summary>
+    internal static EnemyFrameTable<RinkaFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.RinkaSpinBa38,
-        { Pose: 1 } => EnemyFrameId.RinkaSpinBa3f,
-        { Pose: 2 } => EnemyFrameId.RinkaSpinBa46,
-        { Pose: 3 } => EnemyFrameId.RinkaSpinBa4d,
-        { Pose: 4 } => EnemyFrameId.RinkaSpinBa54,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the RinkaFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.RinkaSpinBa38 },
+        { new(Pose: 1), EnemyFrameId.RinkaSpinBa3f },
+        { new(Pose: 2), EnemyFrameId.RinkaSpinBa46 },
+        { new(Pose: 3), EnemyFrameId.RinkaSpinBa4d },
+        { new(Pose: 4), EnemyFrameId.RinkaSpinBa54 },
     };
 }

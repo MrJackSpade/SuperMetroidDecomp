@@ -311,7 +311,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
-        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
         _extensions[slot.SlotIndex].Program = cursor;
     }

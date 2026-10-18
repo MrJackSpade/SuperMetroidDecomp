@@ -372,7 +372,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             return;
         var state = RequireWallSpacePirateState(slot);
         AnimationProgramCursor<WallSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
         state.Program = cursor;
     }

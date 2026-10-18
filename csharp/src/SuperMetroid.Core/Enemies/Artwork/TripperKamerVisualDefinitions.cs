@@ -21,10 +21,6 @@ internal static class TripperKamerVisualDefinitions
     /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
     internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
-
-    /// <summary>The installed frozen frame for <paramref name="direction"/>, chosen as <see cref="FrozenFrame"/> chooses its map.</summary>
-    internal static EnemyFrameId FrozenFrameId(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;
     /// <summary>Enumerates the moving, stationary, and frozen Tripper maps followed by
     /// the four Kamer platform poses for artwork extraction.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>

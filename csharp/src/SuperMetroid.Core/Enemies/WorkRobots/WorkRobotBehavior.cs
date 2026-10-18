@@ -422,7 +422,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireWorkRobotState(slot);
         AnimationProgramCursor<WorkRobotProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WorkRobotAnimations.Programs, ref cursor, WorkRobotFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, WorkRobotAnimations.Programs, ref cursor, WorkRobotFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyWorkRobotCue(slot, state, context, cue));
         state.Program = cursor;
     }

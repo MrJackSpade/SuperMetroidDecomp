@@ -222,7 +222,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireCacatacState(slot);
         AnimationProgramCursor<CacatacProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyCacatacCue(slot, state, cue));
         state.Program = cursor;
     }

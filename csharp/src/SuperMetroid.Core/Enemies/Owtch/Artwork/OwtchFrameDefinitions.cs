@@ -18,12 +18,11 @@ internal static class OwtchFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Owtch pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(OwtchFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="OwtchFrame"/> shows.</summary>
+    internal static EnemyFrameTable<OwtchFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.OwtchLeft0,
-        { Pose: 1 } => EnemyFrameId.OwtchLeft1,
-        { Pose: 2 } => EnemyFrameId.OwtchLeft2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the OwtchFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.OwtchLeft0 },
+        { new(Pose: 1), EnemyFrameId.OwtchLeft1 },
+        { new(Pose: 2), EnemyFrameId.OwtchLeft2 },
     };
 }

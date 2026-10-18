@@ -343,7 +343,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (advance.Held)
             return;
         tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-        tongue.Frame = CrocomireTongueFrameDefinitions.Frame(advance.Frame);
+        tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(advance.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
@@ -1430,7 +1430,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         state.BodyFrame = advance.Frame;
-        body.Frame = CrocomireBodyFrameSpritemaps.Frame(advance.Frame);
+        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(advance.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

@@ -18,12 +18,11 @@ internal static class WreckedShipGhostFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Wrecked Ship ghost pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(WreckedShipGhostFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="WreckedShipGhostFrame"/> shows.</summary>
+    internal static EnemyFrameTable<WreckedShipGhostFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.WreckedShipGhost00,
-        { Pose: 1 } => EnemyFrameId.WreckedShipGhost01,
-        { Pose: 2 } => EnemyFrameId.WreckedShipGhost02,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the WreckedShipGhostFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.WreckedShipGhost00 },
+        { new(Pose: 1), EnemyFrameId.WreckedShipGhost01 },
+        { new(Pose: 2), EnemyFrameId.WreckedShipGhost02 },
     };
 }

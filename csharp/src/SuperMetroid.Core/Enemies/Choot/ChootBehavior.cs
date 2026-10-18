@@ -212,7 +212,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireChootState(slot);
         AnimationProgramCursor<ChootProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ChootAnimations.Programs, ref cursor, ChootFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, ChootAnimations.Programs, ref cursor, ChootFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyChootCue(slot, cue));
         state.Program = cursor;
     }

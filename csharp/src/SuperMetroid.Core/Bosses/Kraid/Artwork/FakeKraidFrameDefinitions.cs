@@ -29,23 +29,22 @@ internal static class FakeKraidFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Mini-Kraid pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(FakeKraidFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="FakeKraidFrame"/> shows.</summary>
+    internal static EnemyFrameTable<FakeKraidFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.FakeKraidWalkLeft0,
-        { Pose: 1 } => EnemyFrameId.FakeKraidWalkLeft1,
-        { Pose: 10 } => EnemyFrameId.FakeKraidWalkRight3,
-        { Pose: 11 } => EnemyFrameId.FakeKraidSpitRight0,
-        { Pose: 12 } => EnemyFrameId.FakeKraidSpitRight1,
-        { Pose: 13 } => EnemyFrameId.FakeKraidSpitRight2,
-        { Pose: 2 } => EnemyFrameId.FakeKraidWalkLeft2,
-        { Pose: 3 } => EnemyFrameId.FakeKraidWalkLeft3,
-        { Pose: 4 } => EnemyFrameId.FakeKraidSpitLeft0,
-        { Pose: 5 } => EnemyFrameId.FakeKraidSpitLeft1,
-        { Pose: 6 } => EnemyFrameId.FakeKraidSpitLeft2,
-        { Pose: 7 } => EnemyFrameId.FakeKraidWalkRight0,
-        { Pose: 8 } => EnemyFrameId.FakeKraidWalkRight1,
-        { Pose: 9 } => EnemyFrameId.FakeKraidWalkRight2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the FakeKraidFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.FakeKraidWalkLeft0 },
+        { new(Pose: 1), EnemyFrameId.FakeKraidWalkLeft1 },
+        { new(Pose: 10), EnemyFrameId.FakeKraidWalkRight3 },
+        { new(Pose: 11), EnemyFrameId.FakeKraidSpitRight0 },
+        { new(Pose: 12), EnemyFrameId.FakeKraidSpitRight1 },
+        { new(Pose: 13), EnemyFrameId.FakeKraidSpitRight2 },
+        { new(Pose: 2), EnemyFrameId.FakeKraidWalkLeft2 },
+        { new(Pose: 3), EnemyFrameId.FakeKraidWalkLeft3 },
+        { new(Pose: 4), EnemyFrameId.FakeKraidSpitLeft0 },
+        { new(Pose: 5), EnemyFrameId.FakeKraidSpitLeft1 },
+        { new(Pose: 6), EnemyFrameId.FakeKraidSpitLeft2 },
+        { new(Pose: 7), EnemyFrameId.FakeKraidWalkRight0 },
+        { new(Pose: 8), EnemyFrameId.FakeKraidWalkRight1 },
+        { new(Pose: 9), EnemyFrameId.FakeKraidWalkRight2 },
     };
 }

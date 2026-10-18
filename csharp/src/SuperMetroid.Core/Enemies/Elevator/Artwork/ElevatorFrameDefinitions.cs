@@ -17,11 +17,10 @@ internal static class ElevatorFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined elevator pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(ElevatorFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="ElevatorFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ElevatorFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.ElevatorPlatform0,
-        { Pose: 1 } => EnemyFrameId.ElevatorPlatform1,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ElevatorFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.ElevatorPlatform0 },
+        { new(Pose: 1), EnemyFrameId.ElevatorPlatform1 },
     };
 }

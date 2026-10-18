@@ -16,10 +16,9 @@ internal static class KzanFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Kzan pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(KzanFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="KzanFrame"/> shows.</summary>
+    internal static EnemyFrameTable<KzanFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.Kzan00,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the KzanFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.Kzan00 },
     };
 }

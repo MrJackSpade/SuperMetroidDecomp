@@ -493,7 +493,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KraidPartState partState = RequireKraidState(part).Parts[part.SlotIndex];
         AnimationProgramCursor<KraidPartProgram> cursor = partState.Cursor;
-        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, KraidPartFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, KraidPartFrameDefinitions.ShownFrames.Of,
             (cue, continuation) => ApplyKraidPartCue(cue));
         partState.Cursor = cursor;
     }
@@ -1704,7 +1704,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
                     SetKraidPartProgram(_slotTable._slots[lintSlot], KraidPartProgram.LintPostGrowth);
-                    _slotTable._slots[lintSlot].Frame = KraidPartFrameDefinitions.Frame(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
+                    _slotTable._slots[lintSlot].Frame = KraidPartFrameDefinitions.ShownFrames.Of(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
                 }
                 TransferKraidBottomTilemap(state);
                 return;

@@ -26,12 +26,11 @@ internal static class CeresBabyFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres Baby pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(CeresBabyPose frame) => frame switch
+    /// <summary>The installed frame each <see cref="CeresBabyPose"/> shows.</summary>
+    internal static EnemyFrameTable<CeresBabyPose> ShownFrames { get; } = new()
     {
-        CeresBabyPose.Horizontal => EnemyFrameId.CeresBabyHorizontal,
-        CeresBabyPose.Round => EnemyFrameId.CeresBabyRound,
-        CeresBabyPose.Vertical => EnemyFrameId.CeresBabyVertical,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the CeresBabyPose programs show."),
+        { CeresBabyPose.Horizontal, EnemyFrameId.CeresBabyHorizontal },
+        { CeresBabyPose.Round, EnemyFrameId.CeresBabyRound },
+        { CeresBabyPose.Vertical, EnemyFrameId.CeresBabyVertical },
     };
 }

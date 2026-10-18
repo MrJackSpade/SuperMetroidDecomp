@@ -559,7 +559,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         var state = RequireMaridiaLargeSnailState(slot);
         AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
         state.Program = cursor;
     }

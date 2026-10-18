@@ -21,15 +21,14 @@ internal static class MochtroidFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Mochtroid pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(MochtroidFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="MochtroidFrame"/> shows.</summary>
+    internal static EnemyFrameTable<MochtroidFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.MochtroidFlight0,
-        { Pose: 1 } => EnemyFrameId.MochtroidFlight1,
-        { Pose: 2 } => EnemyFrameId.MochtroidFlight2,
-        { Pose: 3 } => EnemyFrameId.MochtroidAttached0,
-        { Pose: 4 } => EnemyFrameId.MochtroidAttached1,
-        { Pose: 5 } => EnemyFrameId.MochtroidAttached2,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the MochtroidFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.MochtroidFlight0 },
+        { new(Pose: 1), EnemyFrameId.MochtroidFlight1 },
+        { new(Pose: 2), EnemyFrameId.MochtroidFlight2 },
+        { new(Pose: 3), EnemyFrameId.MochtroidAttached0 },
+        { new(Pose: 4), EnemyFrameId.MochtroidAttached1 },
+        { new(Pose: 5), EnemyFrameId.MochtroidAttached2 },
     };
 }

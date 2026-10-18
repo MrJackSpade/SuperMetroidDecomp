@@ -44,7 +44,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<CeresSteamProgram> cursor = _ventPrograms[slot.SlotIndex];
-        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresSteamCue(slot, cue));
         _ventPrograms[slot.SlotIndex] = cursor;
     }

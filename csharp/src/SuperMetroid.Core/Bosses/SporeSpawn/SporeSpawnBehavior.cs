@@ -420,7 +420,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationProgramCursor<SporeSpawnBodyProgram> cursor = state.BodyProgram;
         // The open-pulse and death-burst repeats count the body's timer word, as the native timer commands do.
-        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.ShownFrames.Of,
             (cue, continuation) =>
             {
                 ApplySporeSpawnCue(body, state, cue);

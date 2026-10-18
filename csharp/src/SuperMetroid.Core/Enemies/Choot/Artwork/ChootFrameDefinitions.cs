@@ -19,13 +19,12 @@ internal static class ChootFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Choot pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(ChootFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="ChootFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ChootFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.ChootIdle,
-        { Pose: 1 } => EnemyFrameId.ChootJump,
-        { Pose: 2 } => EnemyFrameId.ChootJumpApex,
-        { Pose: 3 } => EnemyFrameId.ChootFallEnd,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ChootFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.ChootIdle },
+        { new(Pose: 1), EnemyFrameId.ChootJump },
+        { new(Pose: 2), EnemyFrameId.ChootJumpApex },
+        { new(Pose: 3), EnemyFrameId.ChootFallEnd },
     };
 }

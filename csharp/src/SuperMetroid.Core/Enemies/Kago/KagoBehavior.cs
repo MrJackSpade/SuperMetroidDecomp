@@ -184,7 +184,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KagoEnemyState state = RequireKagoState(slot);
         AnimationProgramCursor<KagoProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

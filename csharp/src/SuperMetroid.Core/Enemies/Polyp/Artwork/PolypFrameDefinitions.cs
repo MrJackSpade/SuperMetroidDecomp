@@ -16,10 +16,9 @@ internal static class PolypFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Polyp pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(PolypFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="PolypFrame"/> shows.</summary>
+    internal static EnemyFrameTable<PolypFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.Polyp00,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PolypFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.Polyp00 },
     };
 }

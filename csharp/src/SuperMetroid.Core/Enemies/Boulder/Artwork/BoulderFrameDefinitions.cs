@@ -23,17 +23,16 @@ internal static class BoulderFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Boulder pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(BoulderFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="BoulderFrame"/> shows.</summary>
+    internal static EnemyFrameTable<BoulderFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.BoulderRoll0,
-        { Pose: 1 } => EnemyFrameId.BoulderRoll1,
-        { Pose: 2 } => EnemyFrameId.BoulderRoll2,
-        { Pose: 3 } => EnemyFrameId.BoulderRoll3,
-        { Pose: 4 } => EnemyFrameId.BoulderRoll4,
-        { Pose: 5 } => EnemyFrameId.BoulderRoll5,
-        { Pose: 6 } => EnemyFrameId.BoulderRoll6,
-        { Pose: 7 } => EnemyFrameId.BoulderRoll7,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the BoulderFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.BoulderRoll0 },
+        { new(Pose: 1), EnemyFrameId.BoulderRoll1 },
+        { new(Pose: 2), EnemyFrameId.BoulderRoll2 },
+        { new(Pose: 3), EnemyFrameId.BoulderRoll3 },
+        { new(Pose: 4), EnemyFrameId.BoulderRoll4 },
+        { new(Pose: 5), EnemyFrameId.BoulderRoll5 },
+        { new(Pose: 6), EnemyFrameId.BoulderRoll6 },
+        { new(Pose: 7), EnemyFrameId.BoulderRoll7 },
     };
 }

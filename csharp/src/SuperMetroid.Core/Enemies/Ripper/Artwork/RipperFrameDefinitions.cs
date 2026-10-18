@@ -33,21 +33,20 @@ internal static class RipperFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ripper pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(RipperFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="RipperFrame"/> shows.</summary>
+    internal static EnemyFrameTable<RipperFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.RipperSharedLeft0,
-        { Pose: 1 } => EnemyFrameId.RipperSharedLeft1,
-        { Pose: 10 } => EnemyFrameId.RipperRight1,
-        { Pose: 11 } => EnemyFrameId.RipperRight2,
-        { Pose: 2 } => EnemyFrameId.RipperSharedLeft2,
-        { Pose: 3 } => EnemyFrameId.RipperSharedRight0,
-        { Pose: 4 } => EnemyFrameId.RipperSharedRight1,
-        { Pose: 5 } => EnemyFrameId.RipperSharedRight2,
-        { Pose: 6 } => EnemyFrameId.RipperLeft0,
-        { Pose: 7 } => EnemyFrameId.RipperLeft1,
-        { Pose: 8 } => EnemyFrameId.RipperLeft2,
-        { Pose: 9 } => EnemyFrameId.RipperRight0,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the RipperFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.RipperSharedLeft0 },
+        { new(Pose: 1), EnemyFrameId.RipperSharedLeft1 },
+        { new(Pose: 10), EnemyFrameId.RipperRight1 },
+        { new(Pose: 11), EnemyFrameId.RipperRight2 },
+        { new(Pose: 2), EnemyFrameId.RipperSharedLeft2 },
+        { new(Pose: 3), EnemyFrameId.RipperSharedRight0 },
+        { new(Pose: 4), EnemyFrameId.RipperSharedRight1 },
+        { new(Pose: 5), EnemyFrameId.RipperSharedRight2 },
+        { new(Pose: 6), EnemyFrameId.RipperLeft0 },
+        { new(Pose: 7), EnemyFrameId.RipperLeft1 },
+        { new(Pose: 8), EnemyFrameId.RipperLeft2 },
+        { new(Pose: 9), EnemyFrameId.RipperRight0 },
     };
 }

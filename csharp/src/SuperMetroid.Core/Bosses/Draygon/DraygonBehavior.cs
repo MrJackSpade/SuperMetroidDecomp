@@ -873,7 +873,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AnimationProgramAdvanceKind.Show:
                 state.SetCursor(part, cursor);
                 part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                part.Frame = DraygonFrameDefinitions.Frame(advance.Frame);
+                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(advance.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Wait:

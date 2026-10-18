@@ -903,7 +903,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
         AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyMamaTurtleCue(slot, cue));
         state.Program = cursor;
     }
@@ -915,7 +915,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
         AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
         state.Program = cursor;
     }

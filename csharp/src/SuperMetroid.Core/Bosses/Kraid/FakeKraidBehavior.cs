@@ -415,7 +415,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireFakeKraidState(slot);
         AnimationProgramCursor<FakeKraidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
         state.Program = cursor;
     }

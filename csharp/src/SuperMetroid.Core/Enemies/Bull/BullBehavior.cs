@@ -240,7 +240,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireBullState(slot);
         AnimationProgramCursor<BullProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BullAnimations.Programs, ref cursor, BullFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, BullAnimations.Programs, ref cursor, BullFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

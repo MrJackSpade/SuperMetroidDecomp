@@ -25,19 +25,18 @@ internal static class StokeFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Stoke pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(StokeFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="StokeFrame"/> shows.</summary>
+    internal static EnemyFrameTable<StokeFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.StokeWalkLeft0,
-        { Pose: 1 } => EnemyFrameId.StokeWalkLeft1,
-        { Pose: 2 } => EnemyFrameId.StokeWalkLeft2,
-        { Pose: 3 } => EnemyFrameId.StokeWalkLeft3,
-        { Pose: 4 } => EnemyFrameId.StokeAttackLeft,
-        { Pose: 5 } => EnemyFrameId.StokeWalkRight0,
-        { Pose: 6 } => EnemyFrameId.StokeWalkRight1,
-        { Pose: 7 } => EnemyFrameId.StokeWalkRight2,
-        { Pose: 8 } => EnemyFrameId.StokeWalkRight3,
-        { Pose: 9 } => EnemyFrameId.StokeAttackRight,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the StokeFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.StokeWalkLeft0 },
+        { new(Pose: 1), EnemyFrameId.StokeWalkLeft1 },
+        { new(Pose: 2), EnemyFrameId.StokeWalkLeft2 },
+        { new(Pose: 3), EnemyFrameId.StokeWalkLeft3 },
+        { new(Pose: 4), EnemyFrameId.StokeAttackLeft },
+        { new(Pose: 5), EnemyFrameId.StokeWalkRight0 },
+        { new(Pose: 6), EnemyFrameId.StokeWalkRight1 },
+        { new(Pose: 7), EnemyFrameId.StokeWalkRight2 },
+        { new(Pose: 8), EnemyFrameId.StokeWalkRight3 },
+        { new(Pose: 9), EnemyFrameId.StokeAttackRight },
     };
 }

@@ -33,21 +33,20 @@ internal static class SporeSpawnFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Spore Spawn frame."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(SporeSpawnFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="SporeSpawnFrame"/> shows.</summary>
+    internal static EnemyFrameTable<SporeSpawnFrame> ShownFrames { get; } = new()
     {
-        { Kind: SporeSpawnFrameKind.Closed, Pose: 0 } => EnemyFrameId.SporeSpawnOamEE6F,
-        { Kind: SporeSpawnFrameKind.Dead, Pose: 0 } => EnemyFrameId.SporeSpawnOamEE65,
-        { Kind: SporeSpawnFrameKind.Open, Pose: 0 } => EnemyFrameId.SporeSpawnOamEF3D,
-        { Kind: SporeSpawnFrameKind.Open, Pose: 1 } => EnemyFrameId.SporeSpawnOamEF4F,
-        { Kind: SporeSpawnFrameKind.Open, Pose: 2 } => EnemyFrameId.SporeSpawnOamEF61,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 0 } => EnemyFrameId.SporeSpawnOamEE79,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 1 } => EnemyFrameId.SporeSpawnOamEE8B,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 2 } => EnemyFrameId.SporeSpawnOamEE9D,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 3 } => EnemyFrameId.SporeSpawnOamEEAF,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 4 } => EnemyFrameId.SporeSpawnOamEEC1,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 5 } => EnemyFrameId.SporeSpawnOamEED3,
-        { Kind: SporeSpawnFrameKind.Opening, Pose: 6 } => EnemyFrameId.SporeSpawnOamEEE5,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the SporeSpawnFrame programs show."),
+        { new(Kind: SporeSpawnFrameKind.Closed, Pose: 0), EnemyFrameId.SporeSpawnOamEE6F },
+        { new(Kind: SporeSpawnFrameKind.Dead, Pose: 0), EnemyFrameId.SporeSpawnOamEE65 },
+        { new(Kind: SporeSpawnFrameKind.Open, Pose: 0), EnemyFrameId.SporeSpawnOamEF3D },
+        { new(Kind: SporeSpawnFrameKind.Open, Pose: 1), EnemyFrameId.SporeSpawnOamEF4F },
+        { new(Kind: SporeSpawnFrameKind.Open, Pose: 2), EnemyFrameId.SporeSpawnOamEF61 },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 0), EnemyFrameId.SporeSpawnOamEE79 },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 1), EnemyFrameId.SporeSpawnOamEE8B },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 2), EnemyFrameId.SporeSpawnOamEE9D },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 3), EnemyFrameId.SporeSpawnOamEEAF },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 4), EnemyFrameId.SporeSpawnOamEEC1 },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 5), EnemyFrameId.SporeSpawnOamEED3 },
+        { new(Kind: SporeSpawnFrameKind.Opening, Pose: 6), EnemyFrameId.SporeSpawnOamEEE5 },
     };
 }

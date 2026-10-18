@@ -554,7 +554,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireDachoraState(slot);
         AnimationProgramCursor<DachoraProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Frame);
+        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
     }
 

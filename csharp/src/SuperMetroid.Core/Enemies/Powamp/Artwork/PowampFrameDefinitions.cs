@@ -21,15 +21,14 @@ internal static class PowampFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Powamp pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(PowampFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="PowampFrame"/> shows.</summary>
+    internal static EnemyFrameTable<PowampFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.Powamp00,
-        { Pose: 1 } => EnemyFrameId.Powamp01,
-        { Pose: 2 } => EnemyFrameId.Powamp02,
-        { Pose: 3 } => EnemyFrameId.Powamp03,
-        { Pose: 4 } => EnemyFrameId.Powamp04,
-        { Pose: 5 } => EnemyFrameId.Powamp05,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the PowampFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.Powamp00 },
+        { new(Pose: 1), EnemyFrameId.Powamp01 },
+        { new(Pose: 2), EnemyFrameId.Powamp02 },
+        { new(Pose: 3), EnemyFrameId.Powamp03 },
+        { new(Pose: 4), EnemyFrameId.Powamp04 },
+        { new(Pose: 5), EnemyFrameId.Powamp05 },
     };
 }

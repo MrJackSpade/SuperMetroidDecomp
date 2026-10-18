@@ -620,7 +620,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
-        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyDeadSidehopperCue(slot, cue));
         _extensions[slot.SlotIndex].Program = cursor;
     }

@@ -27,21 +27,20 @@ internal static class AtomicFrameDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Atomic pose."),
     };
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(AtomicFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="AtomicFrame"/> shows.</summary>
+    internal static EnemyFrameTable<AtomicFrame> ShownFrames { get; } = new()
     {
-        { Pose: 0 } => EnemyFrameId.AtomicUpRight0,
-        { Pose: 1 } => EnemyFrameId.AtomicUpRight1,
-        { Pose: 10 } => EnemyFrameId.AtomicUpLeft4,
-        { Pose: 11 } => EnemyFrameId.AtomicUpLeft5,
-        { Pose: 2 } => EnemyFrameId.AtomicUpRight2,
-        { Pose: 3 } => EnemyFrameId.AtomicUpRight3,
-        { Pose: 4 } => EnemyFrameId.AtomicUpRight4,
-        { Pose: 5 } => EnemyFrameId.AtomicUpRight5,
-        { Pose: 6 } => EnemyFrameId.AtomicUpLeft0,
-        { Pose: 7 } => EnemyFrameId.AtomicUpLeft1,
-        { Pose: 8 } => EnemyFrameId.AtomicUpLeft2,
-        { Pose: 9 } => EnemyFrameId.AtomicUpLeft3,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the AtomicFrame programs show."),
+        { new(Pose: 0), EnemyFrameId.AtomicUpRight0 },
+        { new(Pose: 1), EnemyFrameId.AtomicUpRight1 },
+        { new(Pose: 10), EnemyFrameId.AtomicUpLeft4 },
+        { new(Pose: 11), EnemyFrameId.AtomicUpLeft5 },
+        { new(Pose: 2), EnemyFrameId.AtomicUpRight2 },
+        { new(Pose: 3), EnemyFrameId.AtomicUpRight3 },
+        { new(Pose: 4), EnemyFrameId.AtomicUpRight4 },
+        { new(Pose: 5), EnemyFrameId.AtomicUpRight5 },
+        { new(Pose: 6), EnemyFrameId.AtomicUpLeft0 },
+        { new(Pose: 7), EnemyFrameId.AtomicUpLeft1 },
+        { new(Pose: 8), EnemyFrameId.AtomicUpLeft2 },
+        { new(Pose: 9), EnemyFrameId.AtomicUpLeft3 },
     };
 }

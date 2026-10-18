@@ -38,19 +38,18 @@ internal static class ZebetiteVisualDefinitions
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(Bank, Spritemaps(), FrameCount, "zebetite");
 
-    /// <summary>The installed frame <paramref name="frame"/> shows.</summary>
-    internal static EnemyFrameId Frame(ZebetiteFrame frame) => frame switch
+    /// <summary>The installed frame each <see cref="ZebetiteFrame"/> shows.</summary>
+    internal static EnemyFrameTable<ZebetiteFrame> ShownFrames { get; } = new()
     {
-        { Index: 0 } => EnemyFrameId.Zebetite00,
-        { Index: 1 } => EnemyFrameId.Zebetite01,
-        { Index: 2 } => EnemyFrameId.Zebetite02,
-        { Index: 3 } => EnemyFrameId.Zebetite03,
-        { Index: 4 } => EnemyFrameId.Zebetite04,
-        { Index: 5 } => EnemyFrameId.Zebetite05,
-        { Index: 6 } => EnemyFrameId.Zebetite06,
-        { Index: 7 } => EnemyFrameId.Zebetite07,
-        { Index: 8 } => EnemyFrameId.Zebetite08,
-        { Index: 9 } => EnemyFrameId.Zebetite09,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a frame the ZebetiteFrame programs show."),
+        { new(Index: 0), EnemyFrameId.Zebetite00 },
+        { new(Index: 1), EnemyFrameId.Zebetite01 },
+        { new(Index: 2), EnemyFrameId.Zebetite02 },
+        { new(Index: 3), EnemyFrameId.Zebetite03 },
+        { new(Index: 4), EnemyFrameId.Zebetite04 },
+        { new(Index: 5), EnemyFrameId.Zebetite05 },
+        { new(Index: 6), EnemyFrameId.Zebetite06 },
+        { new(Index: 7), EnemyFrameId.Zebetite07 },
+        { new(Index: 8), EnemyFrameId.Zebetite08 },
+        { new(Index: 9), EnemyFrameId.Zebetite09 },
     };
 }

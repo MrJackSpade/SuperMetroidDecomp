@@ -350,7 +350,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (!c.Enemy.FrozenTimer.IsZero)
-                    c.Enemy.Frame = TripperKamerVisualDefinitions.FrozenFrameId(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }
@@ -374,7 +374,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequirePlatformState(slot);
         AnimationProgramCursor<PlatformProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyPlatformCue(slot, cue));
         state.Program = cursor;
     }
@@ -390,7 +390,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = (c, froze) =>
             {
                 if (froze)
-                    c.Enemy.Frame = TripperKamerVisualDefinitions.FrozenFrameId(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
             },
         });
     }
@@ -410,4 +410,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
     }
+
+    /// <summary>
+    /// The frozen Tripper's frame. $A3:9F14-9F25 tests the complete X-movement word for zero: every nonzero value shows
+    /// the right-moving frame, including values outside the normal dispatcher domain.
+    /// </summary>
+    private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>
+        direction == PlatformHorizontalMovement.Left ? EnemyFrameId.TripperFrozenMovingLeft : EnemyFrameId.TripperFrozenMovingRight;
 }

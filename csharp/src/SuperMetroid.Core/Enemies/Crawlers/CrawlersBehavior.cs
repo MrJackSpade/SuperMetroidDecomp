@@ -557,7 +557,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireCrawlerState(slot);
         AnimationProgramCursor<CrawlerProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyCrawlerCue(state, cue));
         state.Program = cursor;
     }

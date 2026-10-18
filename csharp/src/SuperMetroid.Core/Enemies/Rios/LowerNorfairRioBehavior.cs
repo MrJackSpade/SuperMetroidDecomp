@@ -350,7 +350,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             return;
         var state = RequireLowerNorfairRioState(slot);
         AnimationProgramCursor<LowerNorfairRioProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyLowerNorfairRioCue(state, cue));
         state.Program = cursor;
     }

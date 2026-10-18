@@ -207,7 +207,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireHibashiState(slot);
         AnimationProgramCursor<HibashiProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyHibashiCue(slot, cue));
         state.Program = cursor;
     }

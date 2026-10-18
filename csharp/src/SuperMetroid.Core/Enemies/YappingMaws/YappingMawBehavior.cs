@@ -636,7 +636,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireYappingMawState(slot);
         AnimationProgramCursor<YappingMawProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.Frame,
+        EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyYappingMawCue(state, cue));
         state.Program = cursor;
     }

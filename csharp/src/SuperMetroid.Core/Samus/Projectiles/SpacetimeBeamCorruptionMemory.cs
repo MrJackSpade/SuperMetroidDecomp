@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// progression and level data. Owner decision on #1318: only the progression slice (<c>$7E:D820-D91B</c>) is kept,
 /// exactly; the other regions are not replicated.
 /// </summary>
-[CpuBusBoundary("domain view: SpaceTime Beam corrupted palette copy")]
-internal readonly struct SpacetimeBeamCorruptionMemory(SuperMetroid.Core.Saves.SaveMirrorMemory progressionMirror)
+internal readonly struct SpacetimeBeamCorruptionMemory(SaveMirrorImage progressionMirror)
 {
     /// <summary>
     /// Copies one word from <c>[$00],Y</c> (Y = <paramref name="sourceIndex"/>) to <c>$7E:C1C0,X</c> (X =
@@ -21,14 +20,15 @@ internal readonly struct SpacetimeBeamCorruptionMemory(SuperMetroid.Core.Saves.S
     internal bool CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
     {
         int sourceAddress = (SpacetimeBeamCorruptionLayout.SourceLongPointerValue + sourceIndex) & SnesCpuAddressLayout.AddressMask;
-        int destinationAddress = (SpacetimeBeamCorruptionLayout.SpritePaletteSix.Address + destinationIndex) & SnesCpuAddressLayout.AddressMask;
+        int destinationAddress = (SpacetimeBeamCorruptionLayout.SpritePaletteSixAddress + destinationIndex) & SnesCpuAddressLayout.AddressMask;
         bool progression = false;
         for (int offset = 0; offset < sizeof(ushort); offset++)
         {
             int destination = (destinationAddress + offset) & SnesCpuAddressLayout.AddressMask;
-            if (!SaveMirrorMemory.Overlaps(destination, destination))
+            int mirrorOffset = destination - SpacetimeBeamCorruptionLayout.ProgressionMirrorAddress;
+            if (!SaveMirrorImage.HoldsOffset(mirrorOffset))
                 continue;
-            progressionMirror.WriteProgressionByte(destination,
+            progressionMirror.WriteRawByte(mirrorOffset,
                 SpacetimeBeamCopyDefinitions.ReadCartridgeByte((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask));
             progression = true;
         }

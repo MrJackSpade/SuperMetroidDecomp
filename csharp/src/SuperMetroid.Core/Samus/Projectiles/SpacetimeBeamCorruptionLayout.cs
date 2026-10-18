@@ -14,8 +14,10 @@ public static class SpacetimeBeamCorruptionLayout
     /// $7E:C1C0, the sprite-palette-six destination embedded in the interrupted
     /// <c>STA.l $7EC1C0,X</c> at $90:AD14. The inherited X runs the copy past this palette.
     /// </summary>
-    public static readonly CpuBusCell SpritePaletteSix = CpuBusCell.WramBytes(nameof(SpritePaletteSix), 0x7ec1c0,
-        PaletteByteCount, "BGR555[16] (u16[] little-endian)");
+    public const int SpritePaletteSixAddress = 0x7ec1c0;
+
+    /// <summary>$7E:D820, the event bitset that starts the progression slice of the live SRAM mirror.</summary>
+    public const int ProgressionMirrorAddress = 0x7ed820;
 
     /// <summary>$90:AD1C compares inherited Y against $0020 after incrementing it.</summary>
     public const ushort PaletteByteCount = 0x0020;

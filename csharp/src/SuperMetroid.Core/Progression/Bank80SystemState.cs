@@ -161,42 +161,36 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>
-    /// Publishes the translated progression owners into their literal live-SRAM mirror.
-    /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
-    /// Untranslated padding bytes are deliberately left untouched.
+    /// Publishes the progression owners into the native mirror slice that malformed callbacks overwrite as raw
+    /// bytes. Bytes no owner holds are left as they are.
     /// </summary>
-    public void WritePersistentMirror(SaveMirrorMemory mirror)
+    public void WritePersistentMirror(SaveMirrorImage mirror)
     {
-        mirror.Events.CopyFrom(_events);
-        Span<byte> bossBytes = stackalloc byte[AreaCount];
+        _events.CopyTo(mirror.Events);
+        Span<byte> bossBytes = mirror.BossBits;
         for (int area = 0; area < AreaCount; area++)
             bossBytes[area] = _bossBitsByArea[area].ToNativeByte();
-        mirror.BossBits.CopyFrom(bossBytes);
-        mirror.RoomChozoBits.CopyFrom(_roomChozoBits);
-        mirror.CollectedItemBits.CopyFrom(_collectedItemBits);
-        mirror.OpenedDoorBits.CopyFrom(_openedDoorBits);
-        mirror.UsedSaveStations.CopyFrom(_usedSaveStationsAndElevators);
-        mirror.MapStations.CopyFrom(_mapStations);
-        mirror.LoadedItemCount = LoadedItemCount;
+        _roomChozoBits.CopyTo(mirror.RoomChozoBits);
+        _collectedItemBits.CopyTo(mirror.CollectedItemBits);
+        _openedDoorBits.CopyTo(mirror.OpenedDoorBits);
+        _usedSaveStationsAndElevators.CopyTo(mirror.UsedSaveStations);
+        _mapStations.CopyTo(mirror.MapStations);
         mirror.LoadingGameState = SavedLoadingGameState;
     }
 
     /// <summary>
-    /// Reclaims the translated owners after native-compatible WRAM corruption. This is a
-    /// raw load, not bitwise gameplay API use: every cartridge-written bit must survive.
+    /// Reclaims the owners from the native mirror slice after a raw overwrite. This is a raw load, not bitwise
+    /// gameplay API use: every cartridge-written bit must survive.
     /// </summary>
-    public void LoadPersistentMirror(SaveMirrorMemory mirror)
+    public void LoadPersistentMirror(SaveMirrorImage mirror)
     {
         mirror.Events.CopyTo(_events);
-        Span<byte> bossBytes = stackalloc byte[AreaCount];
-        mirror.BossBits.CopyTo(bossBytes);
-        LoadBossBytes(bossBytes);
+        LoadBossBytes(mirror.BossBits);
         mirror.RoomChozoBits.CopyTo(_roomChozoBits);
         mirror.CollectedItemBits.CopyTo(_collectedItemBits);
         mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
         mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
         mirror.MapStations.CopyTo(_mapStations);
-        LoadedItemCount = mirror.LoadedItemCount;
         SavedLoadingGameState = mirror.LoadingGameState;
     }
 

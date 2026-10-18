@@ -16,15 +16,6 @@ namespace SuperMetroid.Core.Hardware;
 public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, int ByteCount, string Encoding,
     CpuBusCell? AliasOf = null)
 {
-    /// <summary>A little-endian WRAM word.</summary>
-    public static CpuBusCell WramWord(string name, int address, string encoding = "u16 little-endian", CpuBusCell? aliasOf = null) =>
-        new(name, CpuBusRegion.WorkRam, address, 2, encoding, aliasOf);
-
-    /// <summary>A bounded WRAM byte range.</summary>
-    public static CpuBusCell WramBytes(string name, int address, int length, string encoding = "u8[]", CpuBusCell? aliasOf = null) =>
-        new(name, CpuBusRegion.WorkRam, address, length, encoding, aliasOf);
-
-
     /// <summary>A bounded cartridge range read by the asset importer.</summary>
     public static CpuBusCell CartridgeBytes(string name, int address, int length, string encoding, CpuBusCell? aliasOf = null) =>
         new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);

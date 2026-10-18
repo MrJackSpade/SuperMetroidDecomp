@@ -222,7 +222,7 @@ internal sealed class BeamCombos
     /// True when the copy touched a translated persistent-progression or saved-entry byte.
     /// </returns>
     internal static bool RunSpacetimePaletteCopyTail(
-        SuperMetroid.Core.Saves.SaveMirrorMemory? progressionMirror,
+        SuperMetroid.Core.Saves.SaveMirrorImage? progressionMirror,
         SamusProjectileSlot slot)
     {
         ushort inheritedY = slot.SpritemapPointer == 0

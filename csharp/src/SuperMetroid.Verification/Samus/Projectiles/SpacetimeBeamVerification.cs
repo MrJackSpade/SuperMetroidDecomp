@@ -103,28 +103,28 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        system.WritePersistentMirror(new SaveMirrorMemory(bus));
-        FillProgressionPadding(bus, 0xa5);
+        var mirror = new SaveMirrorImage();
+        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = new SaveMirrorMemory(bus) }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertTrue(!held.PersistentMemoryCorrupted,
             "initial inherited Y=$0038 does not enter the palette-copy loop");
         AssertEqual((ushort)0x9137, projectiles.Slots[0].InstructionPointer,
             "native frame-zero next animation record");
-        AssertEqual(0x8e3eec21u, HashWram(bus),
-            "native frame-zero progression hash remains the A5 baseline");
+        AssertEqual(0xa11546b9u, HashProgression(mirror),
+            "native frame-zero progression hash");
 
-        system.WritePersistentMirror(new SaveMirrorMemory(bus));
+        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = new SaveMirrorMemory(bus) }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertTrue(released.PersistentMemoryCorrupted,
             "prior shot's inherited Y=$912F crosses the persistent mirror");
-        system.LoadPersistentMirror(new SaveMirrorMemory(bus));
-        AssertEqual(0x2c169a4au, HashWram(bus),
+        system.LoadPersistentMirror(mirror);
+        AssertEqual(0x601b9b2cu, HashProgression(mirror),
             "retail frame-one progression hash");
         AssertEqual((ushort)0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
@@ -139,14 +139,13 @@ internal static class SpacetimeBeamVerification
             "save retains invalid SpaceTime equipment");
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        var mirror = new SaveMirrorMemory(bus);
-        AssertTrue(saved.EventBytes.SequenceEqual(ReadTable(mirror.Events)),
+        AssertTrue(saved.EventBytes.SequenceEqual(mirror.Events.ToArray()),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.SequenceEqual(ReadTable(mirror.BossBits)),
+        AssertTrue(saved.BossBytes.SequenceEqual(mirror.BossBits.ToArray()),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.SequenceEqual(ReadTable(mirror.CollectedItemBits)),
+        AssertTrue(saved.CollectedItemBytes.SequenceEqual(mirror.CollectedItemBits.ToArray()),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(ReadTable(mirror.OpenedDoorBits)),
+        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(mirror.OpenedDoorBits.ToArray()),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
@@ -183,37 +182,19 @@ internal static class SpacetimeBeamVerification
     }
 
     /// <summary>
-    /// The native Pit Room probe's FNV-1a hash of the raw $7E:D820-$7E:D913 progression mirror,
-    /// unassigned padding included, in address order.
+    /// FNV-1a hash of the owned progression bytes from the event bitset through the map stations, in native mirror
+    /// order. The retail probe's hash also covered the eight unowned bytes after the door bits, which no game logic reads.
     /// </summary>
-    [CpuBusBoundary("exact bus test: native probe hash of the raw $7E:D820-$7E:D913 progression mirror range")]
-    private static uint HashWram(SuperMetroidAddressSpace bus)
+    private static uint HashProgression(SaveMirrorImage mirror)
     {
         uint hash = 2166136261;
-        for (int address = SaveRamLayout.EventsWramAddress;
-            address < SaveRamLayout.MapStationsWramAddress + Bank80SystemState.MapStationByteCount;
-            address++)
+        foreach (byte value in (byte[])[.. mirror.Events, .. mirror.BossBits, .. mirror.RoomChozoBits,
+            .. mirror.CollectedItemBits, .. mirror.OpenedDoorBits, .. mirror.UsedSaveStations, .. mirror.MapStations])
         {
-            hash ^= bus.ReadWorkRamByte(address);
+            hash ^= value;
             hash *= 16777619;
         }
         return hash;
-    }
-
-    /// <summary>Fills the unassigned $7E:D8F0-$7E:D8F7 mirror bytes that the native probe hash covers.</summary>
-    [CpuBusBoundary("exact bus test: seeds the unassigned progression-mirror padding the native probe hash covers")]
-    private static void FillProgressionPadding(SuperMetroidAddressSpace bus, byte value)
-    {
-        for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
-            bus.WriteByte(SaveRamLayout.ProgressionPaddingWramAddress + index, value);
-    }
-
-    /// <summary>Copies a live progression-mirror table for bytewise comparison with the saved snapshot.</summary>
-    private static byte[] ReadTable(WorkRamByteTable table)
-    {
-        var bytes = new byte[table.Length];
-        table.CopyTo(bytes);
-        return bytes;
     }
 
     /// <summary>Loads a SpaceTime-equipped save through both opening paths and checks Ceres restart inventory and progression.</summary>

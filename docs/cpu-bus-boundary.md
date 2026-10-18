@@ -25,8 +25,8 @@ Direction rules:
 | Layer | Lives in | May know addresses? |
 |---|---|---|
 | Address-space implementation | `SuperMetroidAddressSpace` (`ISnesMemoryBus`), cartridge import source | yes — `[CpuBusBoundary("CPU-bus implementation …")]` |
-| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SaveMirrorWorkRamAddresses`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
-| Domain memory views | classes over `ISnesMemoryBus` exposing typed properties/operations/tables (e.g. `SaveMirrorMemory.LoadingGameState`) | through cells only — `[CpuBusBoundary("domain view …")]` |
+| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SamusCartridgeTables`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
+| Domain memory views | classes over `ISnesMemoryBus` exposing typed properties/operations/tables; Core has none left, the last (the save mirror) having become the owned `SaveMirrorImage` | through cells only — `[CpuBusBoundary("domain view …")]` |
 | Native-layout codecs | WRAM snapshot import/export, ROM import decoders | through cells only — `[CpuBusBoundary("codec …")]` |
 | Exact bus tests | mapping/mirror/wrap/side-effect tests and bus test doubles | `[CpuBusBoundary("exact bus test …")]` on the narrowest type or method |
 | Everyone else | gameplay, runtime, rendering, frontend, verification of behaviour | **no** — typed members only |
@@ -34,13 +34,13 @@ Direction rules:
 `[CpuBusAccess]` marks the raw API: `ISnesAddressSpace`, `ISnesMutableMemory`, `ISnesMemoryBus`,
 `ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`,
 `CpuBusCell` and the cell primitives `WramByte`,
-`WramWord`, `WramBytes`, `WramWords`. Import-time raw decoders shared by several
+`WramWord`, `WramBytes`, `WramWords`, which only the exact bus tests still use and which live in test support. Import-time raw decoders shared by several
 codecs (`CartridgePaletteImporter`, `CartridgeBankWindow`) are themselves `[CpuBusAccess]`
 primitives, not boundaries: each importer that calls them is the codec boundary. The address space exposes no raw WRAM
 buffer and maps no SRAM: saves are `SaveSlotStore` state, and `SaveRamCodec` decodes and encodes the 8 KiB SRAM image
 as bytes at the import and export boundaries (legacy `.srm`, recording headers, recorder seeds). This is the
 pattern every other region follows on its way out: an owned store in the simulation, a codec at the edge, and no
-cell in between. Views hand callers bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cells.
+cell in between.
 
 ## Rules (analyzer)
 

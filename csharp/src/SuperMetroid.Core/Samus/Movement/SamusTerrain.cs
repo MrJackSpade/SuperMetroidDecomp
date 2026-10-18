@@ -18,5 +18,5 @@ public readonly record struct SamusTerrain
     /// The progression mirror SpaceTime's malformed palette copy overwrites (#1318), until #1330 gives progression a
     /// single owner. Only the gameplay projectile frame passes it; SpaceTime fails loudly without it.
     /// </summary>
-    public SuperMetroid.Core.Saves.SaveMirrorMemory? ProgressionMirror { get; init; }
+    public SuperMetroid.Core.Saves.SaveMirrorImage? ProgressionMirror { get; init; }
 }

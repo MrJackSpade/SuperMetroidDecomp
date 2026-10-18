@@ -81,7 +81,7 @@ internal static class CpuBusBoundaryVerification
     private static void VerifyWramWordBankWrap()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var word = new WramWord(bus, CpuBusCell.WramWord("WrapProbe", 0x7effff));
+        var word = new WramWord(bus, CpuBusCellConstants.WramWord("WrapProbe", 0x7effff));
         word.Write(0x1234);
         AssertEqual((byte)0x34, bus.ReadWorkRamByte(0x7effff), "low byte stays at $7E:FFFF");
         AssertEqual((byte)0x12, bus.ReadWorkRamByte(0x7e0000), "high byte wraps to $7E:0000");
@@ -104,7 +104,7 @@ internal static class CpuBusBoundaryVerification
         AssertEqual(3, words.Count, "word table count");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = words[-1], "word table rejects index -1");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = words[3], "word table rejects index Count");
-        var bytes = new WramBytes(bus, CpuBusCell.WramBytes("BoundBytes", 0x7e1000, 4));
+        var bytes = new WramBytes(bus, CpuBusCellConstants.WramBytes("BoundBytes", 0x7e1000, 4));
         AssertThrows<ArgumentOutOfRangeException>(() => bytes.Read(-1), "byte range rejects index -1");
         AssertThrows<ArgumentOutOfRangeException>(() => bytes.Read(4), "byte range rejects index Length");
         AssertThrows<ArgumentOutOfRangeException>(() => bytes.Write(4, 1), "byte range rejects a write at Length");
@@ -117,13 +117,13 @@ internal static class CpuBusBoundaryVerification
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         CpuBusCell wramByte = CpuBusCellConstants.WramByte("ShapeByte", 0x7e1000);
-        CpuBusCell wramWord = CpuBusCell.WramWord("ShapeWord", 0x7e1000);
+        CpuBusCell wramWord = CpuBusCellConstants.WramWord("ShapeWord", 0x7e1000);
         AssertThrows<ArgumentException>(() => new WramWord(bus, wramByte), "a word primitive rejects a byte cell");
         AssertThrows<ArgumentException>(() => new WramByte(bus, wramWord), "a byte primitive rejects a word cell");
-        AssertThrows<ArgumentException>(() => new WramWords(bus, CpuBusCell.WramBytes("Odd", 0x7e1000, 3)),
+        AssertThrows<ArgumentException>(() => new WramWords(bus, CpuBusCellConstants.WramBytes("Odd", 0x7e1000, 3)),
             "a word table rejects an odd byte count");
         AssertThrows<ArgumentOutOfRangeException>(() => CpuBusCellConstants.WramByte("Wide", 0x1000000), "a cell address must fit in 24 bits");
-        AssertThrows<ArgumentOutOfRangeException>(() => CpuBusCell.WramBytes("Empty", 0x7e1000, 0), "a cell holds at least one byte");
+        AssertThrows<ArgumentOutOfRangeException>(() => CpuBusCellConstants.WramBytes("Empty", 0x7e1000, 0), "a cell holds at least one byte");
     }
 
     /// <summary>System banks $00-$3F/$80-$BF below $2000 read and write bank-$7E WRAM; nothing else does.</summary>
@@ -135,8 +135,8 @@ internal static class CpuBusBoundaryVerification
         foreach (int mirror in new[] { 0x000123, 0x3f0123, 0x800123, 0xbf0123 })
             AssertEqual((byte)0x9c, new WramByte(bus, CpuBusCellConstants.WramByte("Mirror", mirror)).Read(),
                 $"${SnesAddressMath.BankNumber(mirror):X2}:0123 reads bank-$7E WRAM");
-        new WramWord(bus, CpuBusCell.WramWord("MirrorWord", 0x801ffe)).Write(0x5a6b);
-        AssertEqual((ushort)0x5a6b, new WramWord(bus, CpuBusCell.WramWord("HomeWord", 0x7e1ffe)).Read(),
+        new WramWord(bus, CpuBusCellConstants.WramWord("MirrorWord", 0x801ffe)).Write(0x5a6b);
+        AssertEqual((ushort)0x5a6b, new WramWord(bus, CpuBusCellConstants.WramWord("HomeWord", 0x7e1ffe)).Read(),
             "a mirror write lands in bank-$7E WRAM");
         AssertThrows<ArgumentOutOfRangeException>(() => new WramByte(bus, CpuBusCellConstants.WramByte("PastWindow", 0x002000)).Read(),
             "offset $2000 of a system bank is not WRAM");
@@ -149,7 +149,7 @@ internal static class CpuBusBoundaryVerification
     private static void VerifyCpuBusWritesLowByteFirst()
     {
         var bus = new WriteOrderRecordingBus();
-        new WramWord(bus, CpuBusCell.WramWord("Order", 0x7e1000)).Write(0xabcd);
+        new WramWord(bus, CpuBusCellConstants.WramWord("Order", 0x7e1000)).Write(0xabcd);
         new WramWords(bus, CpuBusCellConstants.WramWords("OrderTable", 0x7e2000, 2))[1].Write(0x1234);
         AssertTrue(bus.Writes.SequenceEqual(new (int, byte)[]
             {
@@ -162,15 +162,6 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: representative typed view round trips")]
     private static void VerifyCpuBusTypedRoundTrips()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var mirror = new SaveMirrorMemory(bus);
-        mirror.LoadingGameState = 0x0022;
-        mirror.LoadedItemCount = 0x1234;
-        mirror.Events.CopyFrom([1, 2, 3, 4, 5, 6, 7, 8]);
-        AssertEqual((ushort)0x0022, mirror.LoadingGameState, "saved dispatcher word round-trips");
-        AssertEqual((ushort)0x1234, new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Read(), "loaded-item count is a $7E:D91A word");
-        AssertEqual((byte)8, bus.ReadWorkRamByte(SaveMirrorWorkRamAddresses.Events.Address + 7), "event bitset lands at $7E:D820");
-
         var scratch = new EnemyStagingSurfaces();
         AssertThrows<InvalidDataException>(() => scratch.RotTable(0x8ffc, 2), "a rot table must lie inside the rotting heap");
         scratch.CorpseTiles.WriteWord(0x10, 0x4321);

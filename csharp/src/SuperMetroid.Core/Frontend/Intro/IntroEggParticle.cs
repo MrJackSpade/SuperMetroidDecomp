@@ -22,7 +22,7 @@ internal sealed class IntroEggParticle
         {
             GeneralTimer = index,
         };
-        sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        sprite.InstallPreInstruction(definition.PreInstruction);
     }
 
     /// <summary>Applies native 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
@@ -30,11 +30,11 @@ internal sealed class IntroEggParticle
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.PreInstructionPointer != IntroEggEffectDefinitions.Particle(
+        if (sprite.PreInstruction != IntroEggEffectDefinitions.Particle(
                 SnesLittleEndian.LowByte(sprite.GeneralTimer)).PreInstruction)
         {
             throw new InvalidDataException(
-                $"Intro egg particle names invalid pre-instruction $8B:{sprite.PreInstructionPointer:X4}.");
+                $"Intro egg particle names invalid pre-instruction {sprite.PreInstruction}.");
         }
 
         // $A994 uses the low timer byte as the immutable fragment number and the high byte

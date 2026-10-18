@@ -116,10 +116,10 @@ internal sealed class IntroRinkaSystem
 
         // Init parameter zero is the sole “hits Samus” route. Parameters one through three
         // select the miss routine and remain in GeneralTimer for its velocity table lookup.
-        rinka.PreInstructionPointerForDiscovery(
-            (ushort)(rinka.GeneralTimer == 0
-                ? IntroRinkaPreInstruction.MovingHitsSamus
-                : IntroRinkaPreInstruction.MovingMissesSamus));
+        rinka.InstallPreInstruction(
+            rinka.GeneralTimer == 0
+                ? CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus
+                : CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus);
     }
 
     /// <summary>Allocates one definition-selected Rinka in the highest available cinematic slot.</summary>
@@ -145,7 +145,7 @@ internal sealed class IntroRinkaSystem
         {
             GeneralTimer = (ushort)parameter,
         };
-        rinka.PreInstructionPointerForDiscovery(
+        rinka.InstallPreInstruction(
             IntroRinkaDefinitions.RinkaActor.PreInstruction);
         slots[slot] = rinka;
     }
@@ -156,14 +156,13 @@ internal sealed class IntroRinkaSystem
         SamusState samus,
         bool motherBrainExploding)
     {
-        switch (CinematicInstructionWords.DecodePreInstruction<IntroRinkaPreInstruction>(
-                    rinka.PreInstructionPointer, rinka.CurrentProgram))
+        switch (rinka.PreInstruction)
         {
-            case IntroRinkaPreInstruction.None:
-            case IntroRinkaPreInstruction.NoOp:
+            case null:
+            case CinematicSpritePreInstruction.NoOp:
                 return;
 
-            case IntroRinkaPreInstruction.MovingHitsSamus:
+            case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
                 MoveHalfPixelX(rinka, IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
@@ -183,7 +182,7 @@ internal sealed class IntroRinkaSystem
                 rinka.Delete();
                 return;
 
-            case IntroRinkaPreInstruction.MovingMissesSamus:
+            case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
                 MoveHalfPixelX(rinka,
                     IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
@@ -193,7 +192,7 @@ internal sealed class IntroRinkaSystem
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined IntroRinkaPreInstruction {rinka.PreInstructionPointer}.");
+                throw new InvalidOperationException($"A Rinka does not run {rinka.PreInstruction}.");
         }
     }
 

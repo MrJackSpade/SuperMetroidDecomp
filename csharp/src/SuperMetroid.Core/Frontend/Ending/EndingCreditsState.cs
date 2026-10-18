@@ -994,7 +994,7 @@ internal sealed class EndingCreditsState
         sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, program), role)
             { NativeSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            sprites[^1].Sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.WaitForFlyaway);
+            sprites[^1].Sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway);
     }
 
     /// <summary>Installs a sprite from its authored position, attributes and program.</summary>
@@ -1402,8 +1402,8 @@ internal sealed class EndingCreditsState
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
                 // The right starfield runs no flyaway pre-instruction until its list installs $F35A.
-                if (Enum.IsDefined((EndingSpritePreInstruction)sprite.PreInstructionPointer))
-                    StepFlyawayStars(sprite, (EndingSpritePreInstruction)sprite.PreInstructionPointer);
+                if (sprite.PreInstruction is CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway or CinematicSpritePreInstruction.ZebesExplosionStarsMoving)
+                    StepFlyawayStars(sprite, sprite.PreInstruction.Value);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -1435,20 +1435,20 @@ internal sealed class EndingCreditsState
     }
 
     /// <summary>Starts starfield motion at flyaway and advances its aliased Y-fraction velocity word.</summary>
-    private void StepFlyawayStars(IntroDiscoverySprite sprite, EndingSpritePreInstruction preInstruction)
+    private void StepFlyawayStars(IntroDiscoverySprite sprite, CinematicSpritePreInstruction preInstruction)
     {
         switch (preInstruction)
         {
-            case EndingSpritePreInstruction.WaitForFlyaway:
+            case CinematicSpritePreInstruction.ZebesExplosionStarsWaitForFlyaway:
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
-                    sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.MoveFlyawayStars);
+                    sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsMoving);
                     // The Y subposition word doubles as the low velocity word.
                     sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction((ushort)(SnesSixteenSixteen.FromWhole(1) / 4)));
                     sprite.GeneralTimer = 0;
                 }
                 break;
-            case EndingSpritePreInstruction.MoveFlyawayStars:
+            case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
                 int velocity = unchecked((int)(SnesSixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
                 sprite.GeneralTimer = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
@@ -1458,7 +1458,7 @@ internal sealed class EndingCreditsState
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(EndingSpritePreInstruction)} {(int)preInstruction}.");
+                    $"Flyaway stars do not run {preInstruction}.");
         }
     }
 

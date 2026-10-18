@@ -81,11 +81,10 @@ internal static class IntroCinematicRomDataVerification
             .Select(field => field.RequiredConstant<ushort>())
             .Concat(new[]
             {
-                typeof(CinematicSpriteInstruction),
-                typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
-                typeof(CinematicSpritePreInstruction), typeof(TitleSequenceInstruction),
+                typeof(CinematicSpriteInstruction), typeof(TitleSequenceInstruction),
                 typeof(CinematicIndirectInstructionFunction),
             }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            .Concat(CinematicSpritePreInstruction.NativeAddresses)
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
             .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)
             .Where(pointer => pointer != 0)

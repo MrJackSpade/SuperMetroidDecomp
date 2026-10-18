@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>
 internal readonly record struct CeresFlightActorDefinition(
-    ushort ActivePreInstruction,
+    CinematicSpritePreInstruction ActivePreInstruction,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     ushort Attributes,

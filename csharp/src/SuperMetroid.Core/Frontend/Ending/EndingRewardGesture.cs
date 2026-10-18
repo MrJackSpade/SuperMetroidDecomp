@@ -78,7 +78,7 @@ internal sealed class EndingRewardGesture
             new((ushort)x, (ushort)y),
             (ushort)palette,
             record.Program);
-        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        actor.InstallPreInstruction(record.PreInstruction);
         actors.Add(actor);
     }
 }

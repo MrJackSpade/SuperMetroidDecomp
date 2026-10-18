@@ -129,7 +129,7 @@ internal static class CinematicSpriteAnimationsVerification
                 case SharedWord.SetPreInstruction:
                     AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: pre-instruction install");
                     AssertEqual(CinematicSpriteCueKind.SetPreInstruction, step.PublishedCue.Kind, $"{at}: pre-instruction cue");
-                    AssertEqual(operand, (ushort)step.PublishedCue.PreInstruction, $"{at}: pre-instruction");
+                    AssertEqual(operand, step.PublishedCue.PreInstruction.NativeAddress, $"{at}: pre-instruction");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.SetCounter:

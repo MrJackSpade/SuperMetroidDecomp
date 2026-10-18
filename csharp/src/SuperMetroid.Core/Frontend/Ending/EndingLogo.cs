@@ -36,7 +36,7 @@ internal sealed class EndingLogo
                 EndingLogoDefinitions.Origin(i),
                 SnesObjPalettes.Index7.Raw,
                 definition.Program);
-            actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
+            actors[i].InstallPreInstruction(definition.PreInstruction);
         }
         new FrontendPalettes(cgram).EndingLogoBackground.Fill(Bgr555.Black);
         (paletteArtwork ?? throw new InvalidOperationException(

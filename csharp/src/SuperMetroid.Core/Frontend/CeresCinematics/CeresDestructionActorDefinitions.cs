@@ -62,17 +62,15 @@ internal static class CeresDestructionActorDefinitions
         return index switch
         {
             0 => new(                flight.ActivePreInstruction, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Position, flight.Attributes,
-                flight.HorizontalDelta, flight.WrapX, 0, 0, false),
+                flight.HorizontalDelta, flight.WrapX, 0, null, false),
             1 => new(                flight.ActivePreInstruction, flight.Program, flight.Position,
-                flight.Attributes, flight.HorizontalDelta, flight.WrapX, 0, 0, false),
+                flight.Attributes, flight.HorizontalDelta, flight.WrapX, 0, null, false),
             // Parameter zero makes BFA0 replace BFC6 with the BFD9 no-op and use X=$70.
-            2 => new(                StationaryVortexCallback, flight.Program, flight.Position.WithX(112), flight.Attributes,
-                0, false, 0, 0, false),
+            2 => new(                CinematicSpritePreInstruction.CeresStationaryVortexNoOp, flight.Program, flight.Position.WithX(112), flight.Attributes,
+                0, false, 0, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };
     }
-    /// <summary>$8B:BFD9, RTS_8BBFD9 installed by the vortex parameter-zero initializer at BFAB.</summary>
-    private const ushort StationaryVortexCallback = 0xbfd9;
 
     /// <summary>Returns planet, four grid-aligned star sheets and title in native spawn order.</summary>
     /// <remarks>
@@ -98,29 +96,21 @@ internal static class CeresDestructionActorDefinitions
     /// waiting callback C84E, list CCAB; operands C83C/C842/C848 set its placement/palette.
     /// C857 selects slide callback C85D, whose C862 operand accelerates by 64/256 pixels.</summary>
     private static CeresDestructionActorDefinition ZebesPlanet =>
-        new(0xc84e, CinematicSpriteProgram.ZebesPlanet,
-            new(136, 111), 0x0e00, 0, false, 64, 0xc85d, false);
+        new(CinematicSpritePreInstruction.Zebes, CinematicSpriteProgram.ZebesPlanet,
+            new(136, 111), 0x0e00, 0, false, 64, CinematicSpritePreInstruction.ZebesSlideSceneAway, false);
 
     /// <summary>$8B:CEAF, CinematicSpriteObjectDefinitions_PlanetZebesText: initializer C992,
     /// no-op 93D9, list CCBB. Operands C993/C999/C99F center the title at (128,186), palette zero.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     private static CeresDestructionActorDefinition ZebesTitle =>
-        new(0x93d9, CinematicSpriteProgram.ZebesTitle,
-            new(128, 186), 0, 0, false, 0, 0, false);
-    /// <summary>$8B:C8F9, PreInstruction_CinematicSpriteObject_ZebesStars_2_3_4 waits for scene sliding.</summary>
-    private const ushort StarWaitCallback = 0xc8f9;
-    /// <summary>$8B:C8AA, PreInstruction_CinematicSpriteObject_ZebesStars5 waits for completion-owner sliding.</summary>
-    private const ushort CompletionStarWaitCallback = 0xc8aa;
-    /// <summary>$8B:C908, PreInstruction_ZebesStars_2_3_4_SlideSceneAway moves and deletes ordinary sheets.</summary>
-    private const ushort StarSlideCallback = 0xc908;
-    /// <summary>$8B:C8B9, PreInstruction_ZebesStars5_SlideSceneAway additionally installs game load at C8F2.</summary>
-    private const ushort CompletionStarSlideCallback = 0xc8b9;
+        new(CinematicSpritePreInstruction.NoOp, CinematicSpriteProgram.ZebesTitle,
+            new(128, 186), 0, 0, false, 0, null, false);
 
     /// <summary>Constructs a star-sheet definition for an already validated row-major quadrant 0..3.</summary>
     private static CeresDestructionActorDefinition ZebesStarSheet(int quadrant)
     {
         bool completesScene = quadrant == 3;
-        ushort wait = completesScene ? CompletionStarWaitCallback : StarWaitCallback;
+        CinematicSpritePreInstruction wait = completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionWait : CinematicSpritePreInstruction.ZebesStarsWait;
         return new(
 wait,
             quadrant switch
@@ -133,7 +123,7 @@ wait,
             },
             new((ushort)(48 + 160 * (quadrant & 1)), (ushort)(47 + 160 * (quadrant >> 1))),
             0x0800, 0, false, 32,
-            completesScene ? CompletionStarSlideCallback : StarSlideCallback,
+            completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway : CinematicSpritePreInstruction.ZebesStarsSlideSceneAway,
             completesScene);
     }
 }

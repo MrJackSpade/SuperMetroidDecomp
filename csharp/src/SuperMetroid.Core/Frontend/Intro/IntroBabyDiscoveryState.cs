@@ -119,12 +119,12 @@ internal sealed class IntroBabyDiscoveryState
 
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
-        if (egg.PreInstructionPointer == IntroBabyActorDefinitions.Egg.PreInstruction &&
+        if (egg.PreInstruction == IntroBabyActorDefinitions.Egg.PreInstruction &&
             unchecked((short)(Samus.Position.X.Whole - 169)) < 0)
         {
             egg.Start(CinematicSpriteProgram.MetroidEggHatching);
-            egg.PreInstructionPointerForDiscovery(
-                CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
+            egg.InstallPreInstruction(
+                CinematicSpritePreInstruction.NoOp);
             EggHatchingStarted = true;
         }
 
@@ -240,44 +240,43 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
-        switch (CinematicInstructionWords.DecodePreInstruction<ConfusedBabyPreInstruction>(
-                    confusedBaby.PreInstructionPointer, confusedBaby.CurrentProgram))
+        switch (confusedBaby.PreInstruction)
         {
-            case ConfusedBabyPreInstruction.WaitingForHatch:
+            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
                 // $BA5E watches the egg's *next* instruction pointer reach CB79, the first fully-hatched frame list:
                 // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
                 if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
                     CinematicSpriteProgram.MetroidEggHatched or CinematicSpriteProgram.Delete)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(
-                        (ushort)ConfusedBabyPreInstruction.Hatched);
+                    confusedBaby.InstallPreInstruction(
+                        CinematicSpritePreInstruction.ConfusedBabyHatched);
                     BabyVelocity = BabyVelocity.WithY(default);
                 }
                 return;
 
-            case ConfusedBabyPreInstruction.Hatched:
+            case CinematicSpritePreInstruction.ConfusedBabyHatched:
                 StepHatchedBaby();
                 return;
 
-            case ConfusedBabyPreInstruction.Idling:
+            case CinematicSpritePreInstruction.ConfusedBabyIdling:
                 BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
                 if (unchecked((short)BabyIdleTimer.RawValue) <= 0)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(
-                        (ushort)ConfusedBabyPreInstruction.Dancing);
+                    confusedBaby.InstallPreInstruction(
+                        CinematicSpritePreInstruction.ConfusedBabyDancing);
                     BabyIdleTimer = NativeCountdown.Start(0);
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
                 return;
 
-            case ConfusedBabyPreInstruction.Dancing:
+            case CinematicSpritePreInstruction.ConfusedBabyDancing:
                 StepDancingBaby(introCrossfadeTimer);
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined ConfusedBabyPreInstruction {confusedBaby.PreInstructionPointer}.");
+                throw new InvalidOperationException($"The confused baby does not run {confusedBaby.PreInstruction}.");
         }
     }
 
@@ -320,8 +319,8 @@ internal sealed class IntroBabyDiscoveryState
         if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
             BabyIdleTimer = NativeCountdown.Start(128);
-            confusedBaby.PreInstructionPointerForDiscovery(
-                (ushort)ConfusedBabyPreInstruction.Idling);
+            confusedBaby.InstallPreInstruction(
+                CinematicSpritePreInstruction.ConfusedBabyIdling);
         }
     }
 
@@ -402,7 +401,7 @@ internal sealed class IntroBabyDiscoveryState
             definition.Position,
             definition.PaletteBits,
             definition.Program);
-        actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        actor.InstallPreInstruction(definition.PreInstruction);
         return actor;
     }
 

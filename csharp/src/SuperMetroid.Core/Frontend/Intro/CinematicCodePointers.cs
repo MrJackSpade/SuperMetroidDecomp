@@ -6,8 +6,6 @@ internal static class CinematicCodePointers
     /// <summary>Bit distinguishing an executable code pointer from a timed list record.</summary>
     public const ushort InstructionCommandBit = 0x8000;
 
-    /// <summary><c>RTS_8B93D9</c>, the shared cinematic-sprite no-op callback.</summary>
-    public const ushort CinematicSpriteObject_PreInstruction_NoOp = 0x93d9;
 
 
     /// <summary>Named bank-$8C background-object lists consumed by translated intro scenes.</summary>

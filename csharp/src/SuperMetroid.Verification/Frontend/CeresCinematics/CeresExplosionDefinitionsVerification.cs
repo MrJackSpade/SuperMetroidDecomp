@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled Ceres destruction actors, placement, timing, and spawn schedules.</summary>
 internal static class CeresExplosionDefinitionsVerification
@@ -67,7 +68,7 @@ internal static class CeresExplosionDefinitionsVerification
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction.NativeAddress,
                 $"{name} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Program),
                 $"{name} instruction list");

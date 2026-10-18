@@ -181,7 +181,7 @@ internal static class EndingLogoVerification
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
             ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction.NativeAddress,
                 $"logo actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"logo actor {index} initial instruction list");

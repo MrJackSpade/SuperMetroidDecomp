@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks front and rear Ceres flight actor metadata against the native setup instructions.</summary>
 internal static class CeresFlightActorMetadataVerification
@@ -34,7 +35,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual((ushort)0, actor.InitialTimer, "rear initializer leaves cleared timer");
             if (index != 4)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((CeresFlightActorDefinitions.NativeBank | (definition + 2))),
-                    actor.ActivePreInstruction, "rear initializer preserves the definition callback");
+                    actor.ActivePreInstruction.NativeAddress, "rear initializer preserves the definition callback");
             switch (index)
             {
                 case 0:
@@ -60,7 +61,7 @@ internal static class CeresFlightActorMetadataVerification
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbea9), actor.Position.Y, "rear stars Y");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), actor.Attributes,
                         "rear stars attributes");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActivePreInstruction,
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), actor.ActivePreInstruction.NativeAddress,
                         "rear stars initializer callback override");
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
                         unchecked((ushort)-actor.HorizontalDelta), "rear stars speed magnitude");
@@ -81,7 +82,7 @@ internal static class CeresFlightActorMetadataVerification
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Program, CeresFlightActorDefinitions.RearViewActor(4).Program, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((CeresFlightActorDefinitions.NativeBank | (frontDefinition + 2))),
-            front.ActivePreInstruction, "front stars preserve the definition callback");
+            front.ActivePreInstruction.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.WrapX, "front stars have no nine-bit wrap");
         static void VerifyActor(

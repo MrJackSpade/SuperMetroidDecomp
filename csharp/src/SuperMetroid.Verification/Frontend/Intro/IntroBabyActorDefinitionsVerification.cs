@@ -48,7 +48,7 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             IntroBabyActorDefinition actual = actors[index].Actor;
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction.NativeAddress,
                 $"intro baby actor {index} pre-instruction callback");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro baby actor {index} instruction list");

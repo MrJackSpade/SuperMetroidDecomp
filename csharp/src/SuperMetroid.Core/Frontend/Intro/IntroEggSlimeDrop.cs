@@ -27,7 +27,7 @@ internal sealed class IntroEggSlimeDrop
         {
             GeneralTimer = index,
         };
-        sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        sprite.InstallPreInstruction(definition.PreInstruction);
     }
 
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
@@ -38,10 +38,10 @@ internal sealed class IntroEggSlimeDrop
 
         if (motionEnabled)
         {
-            if (sprite.PreInstructionPointer != IntroEggEffectDefinitions.SlimeDrop.PreInstruction)
+            if (sprite.PreInstruction != IntroEggEffectDefinitions.SlimeDrop.PreInstruction)
             {
                 throw new InvalidDataException(
-                    $"Intro egg slime names invalid pre-instruction $8B:{sprite.PreInstructionPointer:X4}.");
+                    $"Intro egg slime names invalid pre-instruction {sprite.PreInstruction}.");
             }
             AddVelocity(horizontal: true, IntroEggMotionDefinitions.SlimeX(SnesLittleEndian.LowByte(sprite.GeneralTimer)));
 
@@ -55,8 +55,8 @@ internal sealed class IntroEggSlimeDrop
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
                 sprite.Start(CinematicSpriteProgram.MetroidEggParticleHitGround);
-                sprite.PreInstructionPointerForDiscovery(
-                    CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
+                sprite.InstallPreInstruction(
+                    CinematicSpritePreInstruction.NoOp);
                 motionEnabled = false;
             }
             else

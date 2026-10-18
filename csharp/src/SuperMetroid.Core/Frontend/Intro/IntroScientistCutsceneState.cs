@@ -22,7 +22,7 @@ internal sealed class IntroScientistCutsceneState
             definition.Position,
             definition.PaletteBits,
             definition.Program);
-        baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
+        baby.InstallPreInstruction(definition.PreInstruction);
         Background = delivery ? new(32, 8) : new(0, unchecked((ushort)-24));
     }
 

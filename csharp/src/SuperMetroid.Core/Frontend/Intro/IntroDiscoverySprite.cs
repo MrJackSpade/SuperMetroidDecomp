@@ -73,8 +73,8 @@ internal sealed class IntroDiscoverySprite
         set => GeneralTimer = value.RawValue;
     }
 
-    /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
-    public ushort PreInstructionPointer { get; private set; }
+    /// <summary>The pre-instruction the actor runs, or none.</summary>
+    internal CinematicSpritePreInstruction? PreInstruction { get; private set; }
 
     /// <summary>The pre-instruction the actor's program installed, until an owner installs its own.</summary>
     internal CinematicSpritePreInstruction? ListPreInstruction { get; private set; }
@@ -104,14 +104,10 @@ internal sealed class IntroDiscoverySprite
         instructionTimer = NativeCountdown.Start(frames);
     }
 
-    /// <summary>
-    /// Applies a pre-instruction transition owned by this one translated scene. Keeping the
-    /// setter named and internal prevents unrelated code from treating the native address as
-    /// an arbitrary public state field.
-    /// </summary>
-    public void PreInstructionPointerForDiscovery(ushort pointer)
+    /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
+    internal void InstallPreInstruction(CinematicSpritePreInstruction? preInstruction)
     {
-        PreInstructionPointer = pointer;
+        PreInstruction = preInstruction;
         ListPreInstruction = null;
     }
 
@@ -171,7 +167,7 @@ internal sealed class IntroDiscoverySprite
     {
         if (cue.Kind == CinematicSpriteCueKind.SetPreInstruction)
         {
-            PreInstructionPointer = (ushort)cue.PreInstruction;
+            PreInstruction = cue.PreInstruction;
             ListPreInstruction = cue.PreInstruction;
             return;
         }

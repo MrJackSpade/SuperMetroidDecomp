@@ -42,15 +42,15 @@ internal sealed class EndingRewardJump
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
-            if (InstalledPreInstruction(head) == EndingRewardJumpPreInstruction.HeadFlight)
+            if (head.PreInstruction == CinematicSpritePreInstruction.RewardHeadFlight)
             {
                 Move(head);
                 if (unchecked((short)head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step(HandleCue);
         }
-        EndingRewardJumpPreInstruction? bodyPreInstruction = InstalledPreInstruction(body);
-        if (bodyPreInstruction == EndingRewardJumpPreInstruction.BodyFlight)
+        CinematicSpritePreInstruction? bodyPreInstruction = body.PreInstruction;
+        if (bodyPreInstruction == CinematicSpritePreInstruction.RewardBodyFlight)
         {
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
@@ -58,10 +58,10 @@ internal sealed class EndingRewardJump
                 FallingSheetSelected = true;
                 body.SetAttributes(SnesObjPalettes.Index6);
                 body.Start(CinematicSpriteProgram.Falling);
-                body.PreInstructionPointerForDiscovery((ushort)EndingRewardJumpPreInstruction.Landing);
+                body.InstallPreInstruction(CinematicSpritePreInstruction.RewardLanding);
             }
         }
-        else if (bodyPreInstruction == EndingRewardJumpPreInstruction.Landing)
+        else if (bodyPreInstruction == CinematicSpritePreInstruction.RewardLanding)
         {
             if (uploads < EndingRewardJumpDefinitions.UploadCount) queueGraphicsUpload(uploads++);
             Move(body);
@@ -69,7 +69,7 @@ internal sealed class EndingRewardJump
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Start(CinematicSpriteProgram.Landing);
-                body.PreInstructionPointerForDiscovery(0);
+                body.InstallPreInstruction(null);
             }
         }
         body.Step(HandleCue);
@@ -117,10 +117,6 @@ internal sealed class EndingRewardJump
         }
     }
 
-    /// <summary>The jump-owned pre-instruction an actor runs, or null while it runs the shared no-op or none.</summary>
-    private static EndingRewardJumpPreInstruction? InstalledPreInstruction(IntroDiscoverySprite actor) =>
-        CinematicInstructionWords.TryDecode(actor.PreInstructionPointer, out EndingRewardJumpPreInstruction installed)
-            ? installed : null;
 
     /// <summary>Requires a suited jump's head actor when a head-specific instruction runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
@@ -134,7 +130,7 @@ internal sealed class EndingRewardJump
             new((ushort)x, (ushort)y),
             (ushort)palette,
             record.Program);
-        actor.PreInstructionPointerForDiscovery(record.PreInstruction);
+        actor.InstallPreInstruction(record.PreInstruction);
         return actor;
     }
 }

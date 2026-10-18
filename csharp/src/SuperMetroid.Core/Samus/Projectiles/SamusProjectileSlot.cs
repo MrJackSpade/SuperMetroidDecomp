@@ -14,7 +14,11 @@ public sealed class SamusProjectileSlot
     public int NativeByteIndex => SlotIndex * 2;
 
     /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
-    public ushort Damage { get; internal set; }
+    public int Damage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Projectile family/beam flags from WRAM <c>$0C18</c>.</summary>
     public ushort Type { get; internal set; }
@@ -49,11 +53,19 @@ public sealed class SamusProjectileSlot
     /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>Current animation frame index.</summary>
-    public ushort AnimationFrame { get; internal set; }
+    public int AnimationFrame
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public NativeCountdown TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
-    public ushort Variable { get; internal set; }
+    public int Variable
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
     /// <summary>Semantic identity of the slot's bank-$90 pre-instruction.</summary>

@@ -138,7 +138,7 @@ internal sealed class BeamCombos
             _trails.SpawnTrail(slot);
         }
         ushort distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : (ushort)32;
-        var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
+        var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(checked((ushort)slot.Variable), distance);
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + x)));
         if (outward && (unchecked((short)(slot.Position.X.Whole - camera.X + 32)) < 0 ||
                         unchecked((short)(slot.Position.X.Whole - camera.X - 288)) >= 0))
@@ -186,7 +186,7 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
-            slot.Variable, unchecked((ushort)slot.Velocity.X.SignedRawValue));
+            checked((ushort)slot.Variable), unchecked((ushort)slot.Velocity.X.SignedRawValue));
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(x + samus.Position.X.Whole)), unchecked((ushort)(y + samus.Position.Y.Whole))));
         slot.Variable = unchecked((byte)(slot.Variable + ComboState));
         switch (slot.Velocity.Y.SignedRawValue)
@@ -277,7 +277,7 @@ internal sealed class BeamCombos
         else
         {
             var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
-                slot.Variable, unchecked((ushort)slot.Velocity.X.SignedRawValue));
+                checked((ushort)slot.Variable), unchecked((ushort)slot.Velocity.X.SignedRawValue));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + x)), unchecked((ushort)(samus.Position.Y.Whole + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)))));
             switch (slot.AuxiliaryPhase)
             {

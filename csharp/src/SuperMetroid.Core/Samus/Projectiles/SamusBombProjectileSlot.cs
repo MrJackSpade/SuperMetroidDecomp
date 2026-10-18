@@ -23,7 +23,11 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
     public SamusProjectileTypeWord PackedType => new(Type);
     /// <summary>Native damage word at <c>$0C36 + 2*Index</c>, initialized from bank-$93 projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
-    public ushort Damage { get; internal set; }
+    public int Damage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>The bank-$93 instruction pointer at <c>$0C4A + 2*Index</c> the cursor stands for; zero marks an inactive slot.</summary>

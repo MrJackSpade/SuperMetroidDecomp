@@ -228,7 +228,7 @@ internal sealed class EnemyCollision
                 // word instead of accidentally asking the vulnerability table about the
                 // newly-created visual effect.
                 ushort projectileType = projectile.Type;
-                ushort projectileDamage = projectile.Damage;
+                ushort projectileDamage = checked((ushort)projectile.Damage);
                 ushort projectileDirection = projectile.Direction;
                 SamusProjectileFamily family = projectile.PackedType.Family;
                 if (!projectile.HasEnemyCollisionPayload)

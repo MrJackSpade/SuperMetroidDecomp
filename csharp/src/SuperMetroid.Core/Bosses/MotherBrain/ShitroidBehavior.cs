@@ -844,7 +844,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyInteractionCallback.ShitroidShot,
-            c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
+            c => ResolveShitroidShot(c.Enemy, checked((ushort)c.Bomb.Damage), c.OrdinaryProjectiles.Slots[0]));
     }
 
     /// <summary>Ports Shitroid's initialization AI.</summary>
@@ -931,7 +931,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveShitroidShot(c.Enemy, c.Projectile.Damage, c.Projectiles.Slots[0]);
+                ResolveShitroidShot(c.Enemy, checked((ushort)c.Projectile.Damage), c.Projectiles.Slots[0]);
                 return true;
             },
         });

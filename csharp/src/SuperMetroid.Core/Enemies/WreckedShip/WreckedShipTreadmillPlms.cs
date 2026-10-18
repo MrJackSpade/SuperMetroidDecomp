@@ -115,7 +115,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = RoomPlmInstructionLists.MaridiaElevatube;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MaridiaElevatube));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

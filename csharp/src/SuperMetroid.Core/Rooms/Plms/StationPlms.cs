@@ -174,8 +174,8 @@ internal sealed class StationPlms : IPlmFamilySource
             case PlmHeaderId.ElevatorPlatform:
             {
                 // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
-                // bit 15 and the visual payload. The list at $AFB6 is then handled by the
-                // ordinary timer/draw interpreter without an elevator-specific animation.
+                // bit 15 and the visual payload; the platform then runs its idle loop.
+                slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
                 ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
                 ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
                 level.SetForegroundEntry(slot.BlockIndex, deactivated);

@@ -73,6 +73,7 @@ internal static class ShotBlockPlmProgramsVerification
         Suite(nameof(VerifyRespawningShotSizeSelection), () => VerifyRespawningShotSizeSelection(rom));
         Suite(nameof(VerifyPermanentShotSizeSelection), () => VerifyPermanentShotSizeSelection(rom));
         Suite(nameof(RoomPlmProgramsVerification.VerifyBlockReactionPrograms), () => RoomPlmProgramsVerification.VerifyBlockReactionPrograms(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyScriptedRoomPrograms), () => RoomPlmProgramsVerification.VerifyScriptedRoomPrograms(rom));
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];

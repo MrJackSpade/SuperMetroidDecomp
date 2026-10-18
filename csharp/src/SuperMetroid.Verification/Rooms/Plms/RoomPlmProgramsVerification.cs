@@ -64,6 +64,64 @@ internal static class RoomPlmProgramsVerification
         Console.WriteLine($"  Block-reaction programs: {steps} typed steps match bank $84.");
     }
 
+    /// <summary>The scripted room programs equal their native lists.</summary>
+    internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomPlmProgramDefinitions.Programs, ScriptedRoomEntries,
+            frame => ScriptedRoomPlmDrawDefinitions.DrawLists[frame], ScriptedRoomCueAt, "scripted room");
+        Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The scripted rooms' instructions, with their operands.</summary>
+    private static bool ScriptedRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, out ScriptedRoomPlmCue cue, out int length)
+    {
+        (cue, length) = (default, 2);
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+                (cue, length) = (new(ScriptedRoomPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+                (cue, length) = (new(ScriptedRoomPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.InstallPreInstruction:
+                ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
+                ScriptedRoomPlmPreInstruction installed =
+                    routine == SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions.Controller.NativeRoutine ? ScriptedRoomPlmPreInstruction.ShaktoolRoomController
+                    : routine == SuperMetroid.Core.Areas.Tourian.TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus.NativeRoutine ? ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus
+                    : routine == SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions.WaitForLowerNorfairHand.NativeRoutine ? ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait
+                    : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
+                (cue, length) = (new(ScriptedRoomPlmCueKind.InstallPreInstruction, PreInstruction: installed), 4);
+                return true;
+            case RoomPlmInstruction.ClearPreInstruction:
+                cue = new(ScriptedRoomPlmCueKind.ClearPreInstruction);
+                return true;
+            case RoomPlmInstruction.SetAnimalsEscapedEvent:
+                cue = new(ScriptedRoomPlmCueKind.SetAnimalsEscapedEvent);
+                return true;
+            case RoomPlmInstruction.MoveRightFourBlocks:
+                cue = new(ScriptedRoomPlmCueKind.MoveRightFourBlocks);
+                return true;
+            case RoomPlmInstruction.GotoIfEventSet:
+                AssertEqual((ushort)SuperMetroid.Core.Progression.EventNumber.LowerNorfairChozoLoweredAcid, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
+                AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered).Entry,
+                    cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
+                (cue, length) = (new(ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered), 6);
+                return true;
+            case RoomPlmInstruction.SetLoweredAcidHeight:
+                cue = new(ScriptedRoomPlmCueKind.SetLoweredAcidHeight);
+                return true;
+            case RoomPlmInstruction.TransformSpikesToSlopes:
+                cue = new(ScriptedRoomPlmCueKind.TransformSpikesToSlopes);
+                return true;
+            case RoomPlmInstruction.RevertSlopesToSpikes:
+                cue = new(ScriptedRoomPlmCueKind.RevertSlopesToSpikes);
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /// <summary>The block reactions' sound queues and grapple BTS write.</summary>
     private static bool BlockReactionCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmCue cue, out int length)
     {

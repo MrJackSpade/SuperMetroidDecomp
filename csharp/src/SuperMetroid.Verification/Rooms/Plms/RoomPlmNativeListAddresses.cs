@@ -44,6 +44,26 @@ internal static class RoomPlmNativeListAddresses
     ];
 
     /// <summary>The Speed Booster blocks' lists ($84:C928 and $84:C951..C9F8).</summary>
+    /// <summary>Every scripted room program's native entry.</summary>
+    internal static IReadOnlyList<(ScriptedRoomPlmProgram Program, ushort Entry)> ScriptedRoomEntries { get; } =
+    [
+        (ScriptedRoomPlmProgram.ElevatorPlatform, 0xafb6),
+        (ScriptedRoomPlmProgram.ShaktoolRoomController, 0xb8d6),
+        (ScriptedRoomPlmProgram.MaridiaElevatube, 0xb8f0),
+        (ScriptedRoomPlmProgram.OldTourianWallWait, 0xb919),
+        (ScriptedRoomPlmProgram.OldTourianWallOpen, 0xb91f),
+        (ScriptedRoomPlmProgram.EscapeAnimalReaction, 0xb9a2),
+        (ScriptedRoomPlmProgram.CrateriaPassage, 0xbb19),
+        (ScriptedRoomPlmProgram.MotherBrainEscapeGate, 0xbb34),
+        (ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing, 0xbb44),
+        (ScriptedRoomPlmProgram.EnemyBreakableTerrain, 0xcd53),
+        (ScriptedRoomPlmProgram.ChozoCrumblePlug, 0xd0f6),
+        (ScriptedRoomPlmProgram.LowerNorfairChozoHand, 0xd13f),
+        (ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered, 0xd14d),
+        (ScriptedRoomPlmProgram.ChozoClearSlope, 0xd3cf),
+        (ScriptedRoomPlmProgram.ChozoBlockSlope, 0xd3ec),
+    ];
+
     /// <summary>The native entry of block-reaction program <paramref name="program"/>.</summary>
     internal static ushort BlockReactionEntry(BlockReactionPlmProgram program) =>
         BlockReactionEntries.Single(entry => entry.Program == program).Entry;

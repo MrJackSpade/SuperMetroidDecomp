@@ -30,7 +30,7 @@ internal sealed class EnemyBreakableTerrainPlms
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = EnemyBreakableTerrainDefinitions.InstructionList;
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
             slot.InstructionTimer = NativeCountdown.Start(1);
             level.SetForegroundEntry(blockIndex, block.PackedWord
                 .WithCollisionType(RoomCollisionType.Air).Raw);

@@ -230,6 +230,7 @@ internal sealed class PlmPopulationLoader
         if (header == PlmHeaderId.MotherBrainEscapeRoomGate)
         {
             DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
+            slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MotherBrainEscapeGate));
             return true;
         }
 

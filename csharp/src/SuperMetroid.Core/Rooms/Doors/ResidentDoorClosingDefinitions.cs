@@ -21,7 +21,7 @@ public static class ResidentDoorClosingDefinitions
     /// </summary>
     internal static PlmProgramStart Resolve(PlmHeaderId header) => header switch
     {
-        PlmHeaderId.MotherBrainEscapeRoomGate => PlmProgramStart.Native(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
+        PlmHeaderId.MotherBrainEscapeRoomGate => PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing),
         // $84:DB4C/DB5A carry $84:AAE3 as their secondary list: $82:E91C deletes a resident
         // eye door on entry instead of animating a closing cap.
         PlmHeaderId.EyeDoorFacingRight => PlmProgramStart.Delete,

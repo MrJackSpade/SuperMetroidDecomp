@@ -19,6 +19,7 @@ internal static class PlmProgramStartOracle
         (PlmProgramStart.Delete, SharedDeleteEntry),
         .. RoomPlmNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
         .. RoomPlmNativeListAddresses.BlockReactionEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        .. RoomPlmNativeListAddresses.ScriptedRoomEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
         .. DoorPlmNativeListAddresses.BlueEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
     ];
 

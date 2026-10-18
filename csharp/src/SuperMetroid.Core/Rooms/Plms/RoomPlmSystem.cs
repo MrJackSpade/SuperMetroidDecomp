@@ -411,8 +411,6 @@ public sealed class RoomPlmSystem
                     return;
 
                 default:
-                    if (ChozoStatue.TryExecuteChozoStatueInstruction(level, slot, code))
-                        continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");
             }

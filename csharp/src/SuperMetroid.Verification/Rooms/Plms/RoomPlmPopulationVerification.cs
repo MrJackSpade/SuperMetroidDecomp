@@ -859,9 +859,8 @@ internal static class RoomPlmPopulationVerification
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
             "escape gate retains the highest native population slot");
-        AssertEqual(RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
-            ordinary.PopulationSlots.Single().InstructionPointer,
-            "ordinary entry retains C8CA's first closed-gate list");
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGate), ordinary.PopulationSlots.Single()),
+            "ordinary entry runs C8CA's first closed-gate program");
         ordinary.Step(ordinaryLevel, ordinaryStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(closedGateMiddleWord,
             ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
@@ -893,9 +892,8 @@ internal static class RoomPlmPopulationVerification
             "resident escape gate is redirected in place rather than duplicated");
         AssertEqual(39, escape.PopulationSlots.Single().NativeSlotIndex,
             "redirect preserves native room-population slot ordering");
-        AssertEqual(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
-            escape.PopulationSlots.Single().InstructionPointer,
-            "door transition selects C8CA's second instruction list");
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing), escape.PopulationSlots.Single()),
+            "door transition selects C8CA's second program");
 
         escape.Step(escapeLevel, escapeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
@@ -1087,9 +1085,8 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
         AssertEqual(ShaktoolRoomPlmRomData.PreInstruction, sleeping.PreInstruction,
             "compiled list installs Shaktool room pre-instruction");
-        AssertEqual(checked((ushort)(ShaktoolRoomPlmRomData.InstructionList + 4)),
-            sleeping.InstructionPointer,
-            "compiled list sleeps on its last instruction");
+        AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.ShaktoolRoomController), sleeping),
+            "the controller runs its typed program, resting on its closing sleep");
 
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionStatus = 1 });
         for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)

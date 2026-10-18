@@ -115,55 +115,33 @@ internal sealed class ChozoStatuePlms
         level.SetBehavior(index, new RoomBlockBehavior(bts));
     }
 
-    /// <summary>Handles the hand's event branch, spike/slope changes, and lowered acid FX instruction.</summary>
-    internal bool TryExecuteChozoStatueInstruction(RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
-    {
-        // GotoIfEventSet belongs to this handler only for the Lower Norfair hand.
-        if (instruction is not (
-                RoomPlmInstruction.TransformSpikesToSlopes or
-                RoomPlmInstruction.RevertSlopesToSpikes or
-                RoomPlmInstruction.SetLoweredAcidHeight) &&
-            !(instruction == RoomPlmInstruction.GotoIfEventSet &&
-                slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand))
-            return false;
+    /// <summary>Whether the Lower Norfair acid has been lowered, the event the hand's program branches on.</summary>
+    internal bool HasLoweredLowerNorfairAcid =>
+        (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
+            .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid);
 
-        switch (instruction)
-        {
-            case RoomPlmInstruction.GotoIfEventSet when
-                slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand:
-                ushort eventNumber = RoomPlmSystem.ReadProgramWord(unchecked((ushort)(slot.InstructionPointer + 2)));
-                if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
-                    throw new InvalidDataException($"Lower Norfair hand referenced unexpected event ${eventNumber:X4}.");
-                // The same list initializes the intact hand or restores drained acid on
-                // re-entry. Do not bypass this branch by installing collision at spawn.
-                slot.InstructionPointer = (_bindings.System ??
-                    throw new InvalidOperationException("Chozo hand has no progression owner."))
-                    .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)
-                    ? RoomPlmSystem.ReadProgramWord(unchecked((ushort)(slot.InstructionPointer + 4)))
-                    : unchecked((ushort)(slot.InstructionPointer + 6));
-                return true;
-            case RoomPlmInstruction.TransformSpikesToSlopes:
-                WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
-                    RoomCollisionType.Slope, ChozoStatuePlmRomData.FirstSlopeBts);
-                WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
-                    RoomCollisionType.Slope, ChozoStatuePlmRomData.SecondSlopeBts);
-                break;
-            case RoomPlmInstruction.RevertSlopesToSpikes:
-                WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
-                    RoomCollisionType.SpikeBlock, 0);
-                WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
-                    RoomCollisionType.SpikeBlock, 0);
-                break;
-            case RoomPlmInstruction.SetLoweredAcidHeight:
-                (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
-                    .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
-                break;
-            default:
-                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
-        }
-        slot.InstructionPointer += 2;
-        return true;
+    /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
+    internal static void TransformSpikesToSlopes(RoomLevelData level)
+    {
+        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
+            RoomCollisionType.Slope, ChozoStatuePlmRomData.FirstSlopeBts);
+        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
+            RoomCollisionType.Slope, ChozoStatuePlmRomData.SecondSlopeBts);
     }
+
+    /// <summary>Turns the Wrecked Ship Chozo slopes back into spikes.</summary>
+    internal static void RevertSlopesToSpikes(RoomLevelData level)
+    {
+        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
+            RoomCollisionType.SpikeBlock, 0);
+        WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex + 1,
+            RoomCollisionType.SpikeBlock, 0);
+    }
+
+    /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
+    internal void SetLoweredAcidHeight() =>
+        (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
+            .ApplyCartridgeMotionWrites(baseYPosition: ChozoStatuePlmRomData.LoweredAcidY);
 
     /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)

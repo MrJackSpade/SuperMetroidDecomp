@@ -3,27 +3,27 @@
 /// <summary>The dead Zoomer, Ripper and Skree corpses' header rot-trigger callbacks and installed art layouts.</summary>
 internal static class DeadTourianCorpseProfileDefinitions
 {
-    /// <summary>Dead Zoomer's callback addresses and three installed art variants.</summary>
+    /// <summary>Dead Zoomer's rot-trigger callbacks and three installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
-        TouchAndShotFunction: 0xdcf8,
-        PowerBombFunction: 0xdced,
+        TouchAndShot: EnemyInteractionCallback.DeadZoomerTouchAndShot,
+        PowerBomb: EnemyInteractionCallback.DeadZoomerPowerBomb,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)),
         RowLayout: CorpseRotationTable.Zoomer);
 
-    /// <summary>Dead Ripper's callback addresses and two installed art variants.</summary>
+    /// <summary>Dead Ripper's rot-trigger callbacks and two installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
-        TouchAndShotFunction: 0xdd08,
-        PowerBombFunction: 0xdcfd,
+        TouchAndShot: EnemyInteractionCallback.DeadRipperTouchAndShot,
+        PowerBomb: EnemyInteractionCallback.DeadRipperPowerBomb,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)),
         RowLayout: CorpseRotationTable.Ripper);
 
-    /// <summary>Dead Skree's callback addresses and three installed art variants.</summary>
+    /// <summary>Dead Skree's rot-trigger callbacks and three installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
-        TouchAndShotFunction: 0xdd18,
-        PowerBombFunction: 0xdd0d,
+        TouchAndShot: EnemyInteractionCallback.DeadSkreeTouchAndShot,
+        PowerBomb: EnemyInteractionCallback.DeadSkreePowerBomb,
         Variants: CorpseLayout(columns: 2, rows: 4, workBufferOffset: 0x0640, sheetSources: [0x02a0, 0x00e0, 0x01c0]),
         RowLayout: CorpseRotationTable.Skree);
 

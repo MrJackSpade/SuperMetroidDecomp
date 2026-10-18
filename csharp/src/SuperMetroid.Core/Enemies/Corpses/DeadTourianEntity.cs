@@ -18,7 +18,6 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
 
     /// <summary>The corpse's rot trigger, when its header names it as the shot callback; it is selected by pointer because it is not a named callback.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
-        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && callbackPointer == Slot.Definition.ShotAiPointer;
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
+        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && callback == EnemyCollision.ShotAi(Slot);
 }

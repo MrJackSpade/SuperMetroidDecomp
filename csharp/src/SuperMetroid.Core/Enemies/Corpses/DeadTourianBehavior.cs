@@ -71,8 +71,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
             return false;
-        return slot.Definition.TouchAiPointer ==
-            ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
+        return EnemyCollision.TouchAi(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShot;
     }
 
     /// <summary>Checks that the header's shot AI points to its species' rot trigger.</summary>
@@ -80,8 +79,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
             return false;
-        return slot.Definition.ShotAiPointer ==
-            ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
+        return EnemyCollision.ShotAi(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShot;
     }
 
     /// <summary>Checks that the header's power-bomb AI points to its species' rot trigger.</summary>
@@ -89,8 +87,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
             return false;
-        return slot.Definition.PowerBombReactionPointer ==
-            ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).PowerBombFunction;
+        return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).PowerBomb;
     }
 
     /// <summary>Ports initializers <c>$A9:D849/$D876/$D89F</c>, validating the art variant before registering state and copying tiles into work RAM.</summary>
@@ -271,8 +268,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Groups one corpse species' header rot-trigger callbacks with its tile-row layout and available art layouts.</summary>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
-        ushort TouchAndShotFunction,
-        ushort PowerBombFunction,
+        EnemyInteractionCallback TouchAndShot,
+        EnemyInteractionCallback PowerBomb,
         DeadTourianCorpseVariant[] Variants,
         CorpseRotationTable RowLayout);
 
@@ -301,7 +298,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => HasDeadTourianCorpseShotCallback(c.Enemy) &&
-                                           c.SelectedShotAiPointer == c.Enemy.Definition.ShotAiPointer,
+                                           c.SelectedShotAi == EnemyCollision.ShotAi(c.Enemy),
             c => TriggerDeadTourianCorpseRotting(c.Enemy));
     }
 

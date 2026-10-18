@@ -30,7 +30,6 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
 
     /// <summary>The grapple Ripper's and second Ripper's shared shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         Slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && callback == EnemyInteractionCallback.GRipperRipper2Shot;
 }

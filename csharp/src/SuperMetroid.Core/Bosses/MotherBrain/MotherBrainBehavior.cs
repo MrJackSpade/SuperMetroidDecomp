@@ -1097,7 +1097,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShotAi != EnemyInteractionCallback.MotherBrainBodyShot)
                 {
                     throw new InvalidDataException(
-                        $"Mother Brain's body selected shot AI $A9:{c.HitboxShotAiPointer:X4} from " +
+                        $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
                         $"frame $A9:{c.Enemy.Frame}; only $A9:B503 is ported.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.

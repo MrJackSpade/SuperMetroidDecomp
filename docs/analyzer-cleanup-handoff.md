@@ -618,6 +618,10 @@ Commit and push that update too.
     test-support `<Owner>FramesAccess` extension classes, tool-read ones in Tooling `<Owner>FramesTooling`.
   - `CompiledEnemyVisualSelectors` (the 4011-entry operand-to-spritemap map) lives in Tooling: no Core code read
     it; tests, the resource audit and the generator (which now writes to Tooling) do.
+  - Enemy collision callbacks: the touch/shot/bomb contexts and `IEnemyPrivateShotCallback` carry only
+    `EnemyInteractionCallback?`; Crocomire's private address enum is gone; the dead Tourian corpse profiles name
+    their rot-trigger callbacks. Next: extended-hitbox owners answer with typed callbacks (species codecs map kinds
+    to members), then the enum loses its address values and `EnemyAiCodePointers` leaves Core.
   - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
     run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
     other production projects still reach into test-support), so it was discarded; those findings need a

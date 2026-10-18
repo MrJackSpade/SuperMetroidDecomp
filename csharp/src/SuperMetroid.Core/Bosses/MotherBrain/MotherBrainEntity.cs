@@ -57,8 +57,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
 
     /// <summary>The body's and head's own shot callbacks, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody && callback == EnemyInteractionCallback.MotherBrainBodyShot ||
         Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead && callback == EnemyInteractionCallback.MotherBrainHeadShot;
 }

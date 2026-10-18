@@ -1156,7 +1156,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (context.HitboxTouchAi != EnemyInteractionCallback.DraygonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox touch AI $A5:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Draygon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
                 ResolveDraygonReaction(context.Slot, context.Samus);
@@ -2160,7 +2160,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShotAi != EnemyInteractionCallback.DraygonShot)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox shot AI $A5:{c.HitboxShotAiPointer:X4} is not translated.");
+                        $"Draygon hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 return false;
             },

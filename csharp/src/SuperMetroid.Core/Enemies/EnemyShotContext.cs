@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesExtendedHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HitboxShotAi">The named shot callback of the overlapping hitbox, if named.</param>
-/// <param name="HitboxShotAiPointer">The raw bank-local shot callback word of the overlapping hitbox.</param>
 /// <param name="HealthBefore">Enemy health after impact and before vulnerability damage (set for the later stages).</param>
 internal readonly record struct EnemyShotContext(
     RoomEnemySlot Enemy,
@@ -27,7 +26,6 @@ internal readonly record struct EnemyShotContext(
     SamusProjectileFamily Family,
     bool UsesExtendedHitboxes,
     EnemyInteractionCallback? HitboxShotAi,
-    ushort HitboxShotAiPointer,
     int HealthBefore = 0)
 {
     /// <summary>

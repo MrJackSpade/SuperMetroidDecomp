@@ -60,7 +60,6 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
 
     /// <summary>The body's shot callback and its dud shot, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody && callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot;
 }

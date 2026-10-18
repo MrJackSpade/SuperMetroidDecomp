@@ -25,7 +25,6 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
 
     /// <summary>The Pirate shot callbacks, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         SpacePirateHitboxes.OwnsShotCallback(callback);
 }

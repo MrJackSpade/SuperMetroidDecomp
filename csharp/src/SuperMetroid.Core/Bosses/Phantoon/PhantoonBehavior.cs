@@ -2318,7 +2318,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (context.HitboxTouchAi != EnemyInteractionCallback.PhantoonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Phantoon hitbox touch AI $A7:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Phantoon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
             });

@@ -428,7 +428,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyInteractionCallback.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
-                        $"Space Pirate hitbox touch AI $B2:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 // `$B2:876C` returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.

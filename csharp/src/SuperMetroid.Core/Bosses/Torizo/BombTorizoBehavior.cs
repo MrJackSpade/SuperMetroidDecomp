@@ -66,9 +66,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveTorizoNormalBomb(
         RoomEnemySlot torizo,
         SamusBombProjectileSlot bomb,
-        ushort selectedShotAiPointer)
+        EnemyInteractionCallback? selectedShotAi)
     {
-        EnemyInteractionCallback? selectedShotAi = EnemyCollision.HitboxCallback(torizo, selectedShotAiPointer);
         bool isBombTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
         if (!isBombTorizo && !isGoldenTorizo)
@@ -96,7 +95,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!validMainCallback)
         {
             throw new InvalidDataException(
-                $"Torizo normal-bomb hitbox AI $AA:{selectedShotAiPointer:X4} is not translated.");
+                $"Torizo normal-bomb hitbox AI {selectedShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
 
         // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its
@@ -670,7 +669,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RegisterBombTorizoBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
-            c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAiPointer));
+            c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAi));
     }
 
     /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
@@ -866,7 +865,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                         EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot))
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox shot AI $AA:{c.HitboxShotAiPointer:X4} is not translated.");
+                        $"Torizo hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 return false;
             },
@@ -890,7 +889,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyInteractionCallback.BombTorizoTouch)
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox touch AI $AA:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Torizo hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
                 if (context.Slot.Health == 0)

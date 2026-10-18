@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="OrdinaryProjectiles">Samus's beam/missile slots (callbacks read slot zero's aim).</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
 /// <param name="SelectedShotAi">The named callback of the selected hitbox (the header's on the radius path), if named.</param>
-/// <param name="SelectedShotAiPointer">The raw bank-local callback word of the selected hitbox.</param>
 /// <param name="UsesExtendedHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HealthBefore">Enemy health before common bomb damage (set for the common stages).</param>
 internal readonly record struct EnemyBombContext(
@@ -18,6 +17,5 @@ internal readonly record struct EnemyBombContext(
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState? Samus,
     EnemyInteractionCallback? SelectedShotAi,
-    ushort SelectedShotAiPointer,
     bool UsesExtendedHitboxes,
     int HealthBefore = 0);

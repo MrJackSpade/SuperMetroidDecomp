@@ -586,7 +586,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox shot AI " +
-                        $"$A2:{c.HitboxShotAiPointer:X4} is not translated.");
+                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 return false;
             },
@@ -609,7 +609,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox touch AI " +
-                        $"$A2:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
 
                 // $D388 enters common touch damage and falls directly through $D38C's

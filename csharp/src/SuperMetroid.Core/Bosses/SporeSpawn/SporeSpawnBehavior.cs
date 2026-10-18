@@ -449,7 +449,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShotAi != EnemyInteractionCallback.SporeSpawnShot)
                 {
                     throw new InvalidDataException(
-                        $"Spore Spawn hitbox shot AI $A5:{c.HitboxShotAiPointer:X4} is not translated.");
+                        $"Spore Spawn hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType.Raw))
                 {
@@ -479,7 +479,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (context.HitboxTouchAi != EnemyInteractionCallback.SporeSpawnTouch)
                 {
                     throw new InvalidDataException(
-                        $"Spore Spawn hitbox touch AI $A5:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Spore Spawn hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
                 ResolveSporeSpawnDeathAfterCommon(context.Slot);

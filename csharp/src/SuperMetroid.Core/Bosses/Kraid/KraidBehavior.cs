@@ -342,7 +342,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     throw new InvalidDataException(
                         $"Kraid part ${(int)c.Enemy.EnemyDefinitionPointer:X4} selected " +
-                        $"normal-bomb shot AI $A7:{c.SelectedShotAiPointer:X4}.");
+                        $"normal-bomb shot AI {c.SelectedShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
                 // `$A7:94B6` creates a room-graphics dust actor at the selected physical projectile coordinates,
@@ -547,7 +547,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     throw new InvalidDataException(
                         $"Kraid part ${(int)c.Enemy.EnemyDefinitionPointer:X4} selected " +
-                        $"shot AI $A7:{c.HitboxShotAiPointer:X4}.");
+                        $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);

@@ -1655,7 +1655,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     throw new InvalidDataException(
                         $"Lower Norfair Ridley requires extended shot AI " +
                         $"$A6:{EnemyAiCodePointers.BankA6.RidleyShot:X4}; extended={c.UsesExtendedHitboxes}, " +
-                        $"selected=$A6:{c.HitboxShotAiPointer:X4}, map=$A6:{c.Enemy.Frame}.");
+                        $"selected={c.HitboxShotAi?.ToString() ?? "(unnamed)"}, map=$A6:{c.Enemy.Frame}.");
                 }
                 return false;
             },

@@ -170,7 +170,6 @@ internal sealed class EnemyCollision
                 level,
                 usesExtendedHitboxes,
                 HitboxCallback(slot, hitboxTouchAiPointer),
-                hitboxTouchAiPointer,
                 contactDamageIndex));
             return true;
         }
@@ -300,8 +299,7 @@ internal sealed class EnemyCollision
                     new SamusProjectileDirectionWord(projectileDirection),
                     family,
                     usesExtendedHitboxes,
-                    HitboxCallback(enemy, hitboxShotAiPointer),
-                    hitboxShotAiPointer);
+                    HitboxCallback(enemy, hitboxShotAiPointer));
 
                 if (RunShotStage(reaction.BeforeSuperMissileQuake, shot))
                 {
@@ -560,7 +558,6 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShotAi,
-                    selectedShotAiPointer,
                     usesExtendedHitboxes);
                 var bombReactions = enemy.Entity as IEnemyBombReaction;
                 if (bombReactions?.FindBombSpecial(bombContext) is { } special)
@@ -620,7 +617,7 @@ internal sealed class EnemyCollision
         RoomEnemySlot enemy,
         ushort callbackPointer) =>
         enemy.Entity is IEnemyPrivateShotCallback owner &&
-        owner.OwnsPrivateShotCallback(HitboxCallback(enemy, callbackPointer), callbackPointer);
+        owner.OwnsPrivateShotCallback(HitboxCallback(enemy, callbackPointer));
 
     /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at

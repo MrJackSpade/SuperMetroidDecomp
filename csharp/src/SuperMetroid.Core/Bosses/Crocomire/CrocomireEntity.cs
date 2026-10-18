@@ -62,9 +62,10 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 
-    /// <summary>Crocomire's hitbox shot callbacks, which are selected by pointer because they are not named callbacks.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
-        Enum.IsDefined((CrocomireHitboxShotCallback)callbackPointer);
+    /// <summary>Crocomire's hitbox shot callbacks, including the records that point at the body header's return.</summary>
+    /// <param name="callback">The named callback the header or hitbox selects, or null.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.CrocomireNoOpHitboxShot or EnemyInteractionCallback.CrocomireDustHitboxShot or
+            EnemyInteractionCallback.CrocomireMouthShot or EnemyInteractionCallback.CrocomireAlternateDustHitboxShot or
+            EnemyInteractionCallback.CrocomireHeaderTouch;
 }

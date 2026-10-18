@@ -507,7 +507,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         if (!c.UsesExtendedHitboxes)
             return false;
-        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAiPointer);
+        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAi);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
             // `$A0:9CD1-$9CD6` marks a non-plasma projectile as having entered an extended hitbox before the

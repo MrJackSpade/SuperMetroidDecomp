@@ -189,7 +189,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 {
                     throw new InvalidDataException(
                         $"Ceres steam requires extended touch AI $A6:{EnemyAiCodePointers.BankA6.CeresSteamTouch:X4}; " +
-                        $"extended={context.UsesExtendedHitboxes}, selected=$A6:{context.HitboxTouchAiPointer:X4}, " +
+                        $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
                         $"map=$A6:{context.Slot.Frame}.");
                 }
 

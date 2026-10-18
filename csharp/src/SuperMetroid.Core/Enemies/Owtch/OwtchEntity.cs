@@ -18,7 +18,6 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemySlot slot, Ene
 
     /// <summary>The Owtch's own shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         callback == EnemyInteractionCallback.OwtchShot;
 }

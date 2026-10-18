@@ -3,6 +3,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -157,7 +158,12 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Distinct();
         EnemyInteractionCallback?[] callbacks =
             [null, .. Enum.GetValues<EnemyInteractionCallback>().Select(callback => (EnemyInteractionCallback?)callback)];
-        ushort[] crocomirePointers = Enum.GetValues<CrocomireHitboxShotCallback>().Select(callback => (ushort)callback).ToArray();
+        EnemyInteractionCallback[] crocomireCallbacks =
+        [
+            EnemyInteractionCallback.CrocomireNoOpHitboxShot, EnemyInteractionCallback.CrocomireDustHitboxShot,
+            EnemyInteractionCallback.CrocomireMouthShot, EnemyInteractionCallback.CrocomireAlternateDustHitboxShot,
+            EnemyInteractionCallback.CrocomireHeaderTouch,
+        ];
 
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
@@ -173,17 +179,15 @@ internal static class EnemySpeciesCapabilitiesVerification
                 $"{definition} collision capabilities");
 
             EnemyInteractionCallback[] owned = namedCallbacks.GetValueOrDefault(definition, Array.Empty<EnemyInteractionCallback>());
-            bool ownsByHeaderPointer = DeadTourianCorpses.Contains(definition);
-            bool ownsByCrocomirePointer = CrocomireParts.Contains(definition);
-            ushort[] pointers = [0, slot.Definition.ShotAiPointer, .. crocomirePointers];
+            bool ownsHeaderCallback = DeadTourianCorpses.Contains(definition);
+            bool ownsCrocomireCallbacks = CrocomireParts.Contains(definition);
             foreach (EnemyInteractionCallback? callback in callbacks)
-            foreach (ushort pointer in pointers)
             {
                 bool expected = callback is { } named && owned.Contains(named) ||
-                    ownsByHeaderPointer && pointer == slot.Definition.ShotAiPointer ||
-                    ownsByCrocomirePointer && crocomirePointers.Contains(pointer);
-                bool actual = entity is IEnemyPrivateShotCallback owner && owner.OwnsPrivateShotCallback(callback, pointer);
-                AssertEqual(expected, actual, $"{definition} owns private shot callback {callback?.ToString() ?? "none"} at pointer {pointer}");
+                    ownsHeaderCallback && DeadTourianBehavior.HasDeadTourianCorpseShotCallback(slot) && callback == EnemyCollision.ShotAi(slot) ||
+                    ownsCrocomireCallbacks && callback is { } crocomire && crocomireCallbacks.Contains(crocomire);
+                bool actual = entity is IEnemyPrivateShotCallback owner && owner.OwnsPrivateShotCallback(callback);
+                AssertEqual(expected, actual, $"{definition} owns private shot callback {callback?.ToString() ?? "none"}");
                 answers++;
             }
 

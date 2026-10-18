@@ -36,8 +36,7 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
 
     /// <summary>The Torizo shot callbacks, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    /// <param name="callbackPointer">The selected callback pointer.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         callback is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot ||
         Slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo && callback == EnemyInteractionCallback.GoldenTorizoShot;
 }

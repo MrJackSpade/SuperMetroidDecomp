@@ -706,7 +706,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                                   c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
             c =>
             {
-                PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAiPointer);
+                PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAi);
                 if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
                     throw new InvalidDataException("Gold Ninja normal-bomb callbacks must ignore family $0500.");
                 // Both gold-Ninja component callbacks compare family $0500 against Power Bomb family $0300 and return

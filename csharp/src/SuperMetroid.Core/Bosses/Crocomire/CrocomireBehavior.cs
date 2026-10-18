@@ -376,7 +376,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.ShotAiPointer == 0 && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
-            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAiPointer));
+            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
@@ -440,7 +440,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAiPointer);
+                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },
         });
@@ -463,7 +463,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                         EnemyInteractionCallback.CrocomireClawTouch or EnemyInteractionCallback.NormalEnemyTouch))
                 {
                     throw new InvalidDataException(
-                        $"Crocomire hitbox touch AI $A4:{context.HitboxTouchAiPointer:X4} is not translated.");
+                        $"Crocomire hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
 
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
@@ -664,17 +664,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveCrocomireHitboxShot(
         SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> projectile,
-        ushort callback)
+        EnemyInteractionCallback? callback)
     {
         CrocomireEnemyState state = Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
-        CrocomireHitboxShotCallback shot =
-            ClosedNativeWords.Decode<CrocomireHitboxShotCallback>(callback, "Crocomire hitbox shot AI");
-        switch (shot)
+        switch (callback)
         {
-            case CrocomireHitboxShotCallback.NoOp:
+            case EnemyInteractionCallback.CrocomireNoOpHitboxShot:
             {
                 // $B951 increments a temporary low-nibble value, then ORs it back into the
                 // flags word instead of replacing the nibble. Preserve that odd instruction
@@ -683,12 +681,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            case CrocomireHitboxShotCallback.Dust:
-            case CrocomireHitboxShotCallback.AlternateDust:
+            case EnemyInteractionCallback.CrocomireDustHitboxShot:
+            case EnemyInteractionCallback.CrocomireAlternateDustHitboxShot:
                 SpawnCrocomireShotDust(projectileType, projectile);
                 return;
 
-            case CrocomireHitboxShotCallback.Mouth:
+            case EnemyInteractionCallback.CrocomireMouthShot:
                 ResolveCrocomireMouthShot(
                     state,
                     body,
@@ -696,12 +694,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     projectile);
                 return;
 
-            case CrocomireHitboxShotCallback.HeaderReturn:
+            case EnemyInteractionCallback.CrocomireHeaderTouch:
                 // Some extended-map records deliberately point at the body header's RTL.
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined CrocomireHitboxShotCallback {shot}.");
+                throw new InvalidOperationException($"Crocomire hitbox shot AI {callback?.ToString() ?? "(unnamed)"} is not translated.");
         }
     }
 

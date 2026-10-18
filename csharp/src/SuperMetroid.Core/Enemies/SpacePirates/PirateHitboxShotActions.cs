@@ -13,9 +13,8 @@ internal static class PirateHitboxShotActions
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
         RoomEnemySlot enemy,
         SamusProjectileSlot projectile,
-        ushort hitboxShotAiPointer)
+        EnemyInteractionCallback? hitboxShotAi)
     {
-        EnemyInteractionCallback? hitboxShotAi = EnemyCollision.HitboxCallback(enemy, hitboxShotAiPointer);
         // The empty extended map still has a real point hitbox. Its common callback
         // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
         if (hitboxShotAi is EnemyInteractionCallback.SpacePirateShot or EnemyInteractionCallback.NormalEnemyShot)
@@ -24,7 +23,7 @@ internal static class PirateHitboxShotActions
                 EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate hitbox shot AI $B2:{hitboxShotAiPointer:X4} is not translated.");
+                $"Space Pirate hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
         if (enemy.EnemyDefinitionPointer != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
@@ -70,16 +69,15 @@ internal static class PirateHitboxShotActions
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
         RoomEnemySlot enemy,
-        ushort hitboxShotAiPointer)
+        EnemyInteractionCallback? hitboxShotAi)
     {
-        EnemyInteractionCallback? hitboxShotAi = EnemyCollision.HitboxCallback(enemy, hitboxShotAiPointer);
         if (hitboxShotAi is not (
                 EnemyInteractionCallback.SpacePirateShot or
                 EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
                 EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate normal-bomb hitbox AI $B2:{hitboxShotAiPointer:X4} is not translated.");
+                $"Space Pirate normal-bomb hitbox AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
 
         return enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja

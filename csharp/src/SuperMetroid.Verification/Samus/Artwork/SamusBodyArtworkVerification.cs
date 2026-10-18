@@ -133,16 +133,11 @@ internal static class SamusBodyArtworkVerification
         }
         AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
         int zeroIndex = Array.FindIndex(sprites.Pointers.ToArray(), pointer => pointer == 0);
-        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a mutable-memory entry");
-        var mutableSpriteMemory = new TestAddressSpace();
-        byte[] mutableRecord = [1, 0, 3, 0, 2, 0x34, 0x12];
-        for (int offset = 0; offset < mutableRecord.Length; offset++)
-            WriteTestByte(mutableSpriteMemory, 0x920000 + offset, mutableRecord[offset]);
-        OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)zeroIndex,
+        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a zero entry");
+        // Owner decision on #1318 row 11: a zero entry draws nothing instead of reading direct-page scratch.
+        OamBuffer zeroOam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap((ushort)zeroIndex,
             new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
-        AssertEqual(1, mutableOam.LastFinalizedSpriteCount, "zero Samus pointer emits its WRAM-authored part");
-        AssertTrue(mutableOam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }),
-            "zero Samus pointer reads mutable WRAM rather than cartridge art");
+        AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
             AssertEqual((ushort)bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");

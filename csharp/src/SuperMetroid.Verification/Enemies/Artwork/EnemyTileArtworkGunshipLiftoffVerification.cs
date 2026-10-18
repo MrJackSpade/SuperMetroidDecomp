@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -123,6 +124,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
+            var part = new GunshipPartState();
+            top.SetSpeciesState(part, part.ClearWithRecord);
             var queue = new VramWriteQueue();
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
                 enemies.GunshipBehavior.QueueGunshipTakeoffTiles(top, queue);

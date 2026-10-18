@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -11,7 +10,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
@@ -257,13 +255,9 @@ internal static class SamusEaterVisualsVerification
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
         var plms = new RoomPlmSystem { Drawing = { SamusEaterVisuals = visuals } };
-        var guard = NewSamusEaterVisualSourceGuard();
         var streamer = level.CreateBackgroundStreamer();
-        MethodInfo draw = MetadataShape.Methods(typeof(PlmBlockDrawing), BindingFlags.Instance | BindingFlags.NonPublic)
-            .Single(method => method.Name == "DrawPlmInstruction" &&
-                method.GetParameters().Length == 7);
         int origin = 8 * width + 8;
-        draw.Invoke(plms.Drawing, [guard, level, streamer, (ushort)0, origin, pointer, default(PlmView)]);
+        plms.Drawing.DrawPlmInstruction(level, streamer, origin, pointer, default);
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).LevelWord,
             "Samus Eater edited draw retains native collision word");
@@ -287,15 +281,7 @@ internal static class SamusEaterVisualsVerification
             expectedY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
             nativeCursor += 4 + count * 2;
         }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "compiled Samus Eater draw never reads ROM at runtime");
     }
-
-    /// <summary>Forbids cartridge reads and CPU-bus writes during the installed-artwork redraw path.</summary>
-    private static CartridgeReadGuard NewSamusEaterVisualSourceGuard() =>
-        CartridgeReadGuard.Unbacked()
-            .ForbidAll(address => $"Samus Eater drew from native ROM ${address:X6}.")
-            .RejectWrites(_ => "Samus Eater draw wrote to CPU bus.");
 
     /// <summary>Runs the Samus Eater visual and physical draw checks from the verification command.</summary>
     [VerificationCommand("--samus-eater-visuals")]

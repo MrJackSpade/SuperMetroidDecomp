@@ -27,7 +27,7 @@ internal static class MotherBrainEffectCueRules
         {
             AssertEqual(Commands[(EnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
             if (cue.Kind == MotherBrainEffectCueKind.SetPreInstruction)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), (ushort)cue.PreInstruction, $"{at}: pre-instruction");
+                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
             else if (cue.Kind == MotherBrainEffectCueKind.SetRadius)
                 AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii");
         },

@@ -227,7 +227,7 @@ internal static class TorizoProjectileAnimationsVerification
         switch (cue.Kind)
         {
             case TorizoProjectileCueKind.SetPreInstruction:
-                AssertEqual(first, (ushort)cue.PreInstruction, $"{at}: movement routine");
+                AssertEqual(first, EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCueKind.SetProperties:
                 AssertEqual(first, (ushort)cue.Properties, $"{at}: property bits set");

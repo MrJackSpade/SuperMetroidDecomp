@@ -37,7 +37,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
             if (word < 5)
                 return new((ushort)(start + 12 + (word - 3) * 2),
                     word == 3 ? (ushort)EnemyProjectileInstruction.PreInstructionInY_ExecuteY
-                        : (ushort)(right
+                        : EnemyProjectilePreInstructionWords.Word(right
                             ? EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right
                             : EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left));
             if (word < 15) return new((ushort)(start + 16 + (word - 5) * 4), 1);
@@ -53,7 +53,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
             if (word < 2)
                 return new((ushort)(start + word * 2),
                     word == 0 ? (ushort)EnemyProjectileInstruction.PreInstructionInY
-                        : (ushort)(right
+                        : EnemyProjectilePreInstructionWords.Word(right
                             ? EnemyProjectilePreInstruction.PirateClaw_Right
                             : EnemyProjectilePreInstruction.PirateClaw_Left));
             if (word < 10) return new((ushort)(loop + (word - 2) * 4), 1);

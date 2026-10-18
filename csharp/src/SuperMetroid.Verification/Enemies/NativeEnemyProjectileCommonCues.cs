@@ -30,7 +30,7 @@ internal static class NativeEnemyProjectileCommonCues
             ushort preInstruction = command.Kind == EnemyProjectileCommonCueKind.SetPreInstruction
                 ? SnesLittleEndian.Word(operands[0], operands[1])
                 : (ushort)0;
-            AssertEqual(preInstruction, (ushort)cue.PreInstruction, $"{at}: pre-instruction");
+            AssertEqual(preInstruction, EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
             // The scatter's operands pack each axis's range in the low byte and its center in the high byte.
             EnemyProjectileScatter scatter = command.Kind == EnemyProjectileCommonCueKind.Scatter
                 ? new(new(operands[0], operands[2]), new(operands[1], operands[3]))

@@ -26,7 +26,7 @@ internal static class NoobTubeProjectileCueRules
         {
             AssertEqual(Commands[(EnemyProjectileInstruction)word].Kind, cue.Kind, $"{at}: cue");
             if (cue.Kind == NoobTubeProjectileCueKind.SetPreInstruction)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), (ushort)cue.PreInstruction, $"{at}: pre-instruction");
+                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction");
         },
         cue => cue.Kind == NoobTubeProjectileCueKind.Delete,
         word => (EnemyProjectileInstruction)word is EnemyProjectileInstruction.NoobTubeShardReflectFlicker or EnemyProjectileInstruction.NoobTubeShardFlicker);

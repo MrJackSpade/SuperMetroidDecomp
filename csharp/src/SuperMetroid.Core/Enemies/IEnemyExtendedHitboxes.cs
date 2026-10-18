@@ -9,5 +9,5 @@ internal interface IEnemyExtendedHitboxes : IEnemyEntity
     /// </summary>
     /// <param name="probe">The colliding edges and walker.</param>
     /// <param name="callback">The selected touch or shot callback pointer.</param>
-    bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback);
+    bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback);
 }

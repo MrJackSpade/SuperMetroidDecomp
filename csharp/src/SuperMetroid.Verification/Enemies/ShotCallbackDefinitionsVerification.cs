@@ -75,7 +75,8 @@ internal static class ShotCallbackDefinitionsVerification
             .ToHashSet();
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");
-        var classifyShot = new Func<byte, ushort, bool>(EnemyCollision.IsLiteralNoOpEnemyAi);
+        var classifyShot = new Func<byte, ushort, bool>((bank, pointer) =>
+            EnemyCollision.IsLiteralNoOpShotAi(bank, EnemyInteractionCallbacks.TryDecode(bank, pointer)));
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndian.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
@@ -89,7 +90,8 @@ internal static class ShotCallbackDefinitionsVerification
                 EnemyTouchCallbackDefinitions.IsLiteralNoOp((byte)bank, (ushort)pointer),
                 "bank-qualified touch identity");
         }
-        var shortcut = new Func<ushort, bool>(EnemyCollision.IsCanonicalMultiboxNoOpAi);
+        var shortcut = new Func<ushort, bool>(pointer =>
+            EnemyCollision.IsCanonicalMultiboxNoOpAi(EnemyInteractionCallbacks.TryDecode(0xa7, pointer)));
         AssertTrue(!shortcut(0x94b5) && shortcut(0x804b) && shortcut(0x804c), "Kraid private RTL is not a canonical multibox shortcut");
         Suite(nameof(VerifyLiteralNoOpCombatAdmission), () => VerifyLiteralNoOpCombatAdmission(rom, expectedTouchNoOps, expectedShotNoOps));
         Console.WriteLine(

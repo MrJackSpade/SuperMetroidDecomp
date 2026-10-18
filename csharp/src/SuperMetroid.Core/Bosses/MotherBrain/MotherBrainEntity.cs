@@ -38,7 +38,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => MotherBrainBehavior.FindMotherBrainHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainBehavior.FindMotherBrainHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)

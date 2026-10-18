@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateHitboxes
 {
     /// <summary>The callback of the first Pirate hitbox the probe overlaps.</summary>
-    internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         foreach (SpacePirateCollisionComponent component in
                  SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
@@ -27,8 +27,8 @@ internal static class SpacePirateHitboxes
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? SpacePirateHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : SpacePirateHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? SpacePirateHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : SpacePirateHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

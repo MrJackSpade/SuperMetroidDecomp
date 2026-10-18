@@ -24,9 +24,9 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBombTorizoTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback)
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         return BombTorizoBehavior.FindTorizoHitboxCallback(Slot, probe, out callback);
     }
 

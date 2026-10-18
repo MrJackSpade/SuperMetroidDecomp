@@ -252,4 +252,8 @@ internal enum EnemyInteractionCallback
     DeadSkreeTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreeTouchAndShot,
     /// <summary>Dead Skree's Power Bomb rot trigger at $A9:DD0D.</summary>
     DeadSkreePowerBomb = 0xa90000 | EnemyAiCodePointers.BankA9.DeadSkreePowerBomb,
+    /// <summary><c>RTL_A6F920</c>, the Ceres door shot callback at $A6:F920.</summary>
+    CeresDoorNoOpShot = EnemyShotCallbackDefinitions.CeresDoorNoOp,
+    /// <summary><c>RTL_AAE7DC</c>, the Chozo statue shot callback at $AA:E7DC.</summary>
+    ChozoNoOpShot = EnemyShotCallbackDefinitions.ChozoNoOp,
 }

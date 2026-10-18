@@ -133,7 +133,7 @@ internal sealed class EnemyCollision
             }
 
             bool overlapsSamus;
-            ushort hitboxTouchAiPointer = slot.Definition.TouchAiPointer;
+            EnemyInteractionCallback? hitboxTouchAi = TouchAi(slot);
             if (usesExtendedHitboxes)
             {
                 overlapsSamus = TryFindExtendedHitboxCallback(
@@ -141,7 +141,7 @@ internal sealed class EnemyCollision
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
                     selectShotCallback: false,
-                    out hitboxTouchAiPointer);
+                    out hitboxTouchAi);
             }
             else
             {
@@ -169,7 +169,7 @@ internal sealed class EnemyCollision
                 controllerInput,
                 level,
                 usesExtendedHitboxes,
-                HitboxCallback(slot, hitboxTouchAiPointer),
+                hitboxTouchAi,
                 contactDamageIndex));
             return true;
         }
@@ -254,7 +254,7 @@ internal sealed class EnemyCollision
                     CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame)))
                     continue;
                 if (usesExtendedHitboxes &&
-                    IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
+                    IsCanonicalMultiboxNoOpAi(ShotAi(enemy)))
                 {
                     // `EprojCollHandler_Multibox` compares the header callback before
                     // reading the extended map. Canonical RTS/RTL means no overlap, no
@@ -264,7 +264,7 @@ internal sealed class EnemyCollision
                 }
 
                 bool overlapsProjectile;
-                ushort hitboxShotAiPointer = enemy.Definition.ShotAiPointer;
+                EnemyInteractionCallback? hitboxShotAi = ShotAi(enemy);
                 if (usesExtendedHitboxes)
                 {
                     overlapsProjectile = TryFindExtendedHitboxCallback(
@@ -272,7 +272,7 @@ internal sealed class EnemyCollision
                         projectile.Position.Whole,
                         projectile.Radius,
                         selectShotCallback: true,
-                        out hitboxShotAiPointer);
+                        out hitboxShotAi);
                 }
                 else
                 {
@@ -286,9 +286,7 @@ internal sealed class EnemyCollision
                 if (!overlapsProjectile)
                     continue;
 
-                bool selectedLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
-                    enemy.Definition.Bank,
-                    hitboxShotAiPointer);
+                bool selectedLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, hitboxShotAi);
                 var shot = new EnemyShotContext(
                     enemy,
                     projectile,
@@ -299,7 +297,7 @@ internal sealed class EnemyCollision
                     new SamusProjectileDirectionWord(projectileDirection),
                     family,
                     usesExtendedHitboxes,
-                    HitboxCallback(enemy, hitboxShotAiPointer));
+                    hitboxShotAi);
 
                 if (RunShotStage(reaction.BeforeSuperMissileQuake, shot))
                 {
@@ -472,16 +470,12 @@ internal sealed class EnemyCollision
             ushort nativeIndex = onlyNativeEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
             bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
-            bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
-                enemy.Definition.Bank,
-                enemy.Definition.ShotAiPointer);
-            bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(
-                enemy,
-                enemy.Definition.ShotAiPointer);
+            bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition.Bank, ShotAi(enemy));
+            bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
-                IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer);
+                IsCanonicalMultiboxNoOpAi(ShotAi(enemy));
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
                 admission.AdmitsNormalBombs(usesExtendedHitboxes);
             if ((!usesCommonShotAi && !usesLiteralNoOpShotAi &&
@@ -515,20 +509,19 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                ushort selectedShotAiPointer = enemy.Definition.ShotAiPointer;
+                EnemyInteractionCallback? selectedShotAi = ShotAi(enemy);
                 bool overlaps = usesExtendedHitboxes
                     ? TryFindExtendedHitboxCallback(
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
                         selectShotCallback: true,
-                        out selectedShotAiPointer)
+                        out selectedShotAi)
                     : RadiusBoxesOverlap(
                         enemy.Position.Whole,
                         enemy.Radius,
                         bomb.Position.Whole,
                         bomb.Radius);
-                EnemyInteractionCallback? selectedShotAi = HitboxCallback(enemy, selectedShotAiPointer);
                 if (!overlaps)
                 {
                     continue;
@@ -537,12 +530,8 @@ internal sealed class EnemyCollision
                 // Multibox actors dispatch the callback stored in the selected hitbox,
                 // not necessarily the definition header. Do not turn a protected/private
                 // component into common damage merely because the header uses `$802D`.
-                bool selectedLiteralNoOp = IsLiteralNoOpEnemyAi(
-                    enemy.Definition.Bank,
-                    selectedShotAiPointer);
-                bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(
-                    enemy,
-                    selectedShotAiPointer);
+                bool selectedLiteralNoOp = IsLiteralNoOpShotAi(enemy.Definition.Bank, selectedShotAi);
+                bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(enemy, selectedShotAi);
                 if (selectedShotAi != EnemyInteractionCallback.NormalEnemyShot &&
                     !selectedLiteralNoOp &&
                     !selectedTranslatedPrivate)
@@ -594,8 +583,9 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>Checks whether a bank-local enemy callback is a compiled literal no-op.</summary>
-    internal static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
-        EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
+    internal static bool IsLiteralNoOpShotAi(byte bank, EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.CeresDoorNoOpShot or EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.ChozoNoOpShot ||
+        callback == EnemyInteractionCallback.NoOp && EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, EnemyAiCodePointers.BankA0.NoOp);
 
     /// <summary>
     /// Tests the two engine-owned no-op callback addresses checked directly by
@@ -604,8 +594,8 @@ internal sealed class EnemyCollision
     /// same RTS/RTL opcode is deliberately not equivalent: Kraid's `$A7:94B5` proves that
     /// such a header still scans components and may select `$A7:94B6` from an arm hitbox.
     /// </summary>
-    internal static bool IsCanonicalMultiboxNoOpAi(ushort pointer) =>
-        Enum.IsDefined((EnemyNoOpRoutine)pointer);
+    internal static bool IsCanonicalMultiboxNoOpAi(EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn;
 
     /// <summary>
     /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
@@ -615,9 +605,9 @@ internal sealed class EnemyCollision
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
-        ushort callbackPointer) =>
+        EnemyInteractionCallback? callback) =>
         enemy.Entity is IEnemyPrivateShotCallback owner &&
-        owner.OwnsPrivateShotCallback(HitboxCallback(enemy, callbackPointer));
+        owner.OwnsPrivateShotCallback(callback);
 
     /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
@@ -885,9 +875,9 @@ internal sealed class EnemyCollision
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
         bool selectShotCallback,
-        out ushort callback)
+        out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
 
         // Native multibox collision only accepts negative 16-bit spritemap pointers.
         // The common visually empty map `$804F` still owns a point hitbox, so it
@@ -913,7 +903,7 @@ internal sealed class EnemyCollision
             // selecting its common touch/shot callback.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
-            callback = CommonEnemyEmptyExtendedFrameDefinitions.Callback(selectShotCallback);
+            callback = selectShotCallback ? EnemyInteractionCallback.NormalEnemyShot : EnemyInteractionCallback.NormalEnemyTouch;
             return true;
         }
 

@@ -28,9 +28,9 @@ internal static class BossDisplayBindingsFixtureVerification
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
         private readonly HitboxQuery hitbox;
-        /// <summary>Queries an extended hitbox and returns its callback pointer when touched.</summary>
+        /// <summary>Queries an extended hitbox and returns its callback when touched.</summary>
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
-            Extent16<RoomPixels> radius, bool shot, out ushort callback);
+            Extent16<RoomPixels> radius, bool shot, out EnemyInteractionCallback? callback);
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
@@ -73,7 +73,10 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
-        { bool hit = hitbox(Actor, probe, new(2, 2), shot, out ushort callback); return (hit, callback); }
+        {
+            bool hit = hitbox(Actor, probe, new(2, 2), shot, out EnemyInteractionCallback? callback);
+            return (hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
+        }
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(

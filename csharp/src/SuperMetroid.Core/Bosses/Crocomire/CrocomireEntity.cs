@@ -36,9 +36,9 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback)
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         return CrocomireBehavior.FindCrocomireBodyHitboxCallback(Slot, probe, out callback) ??
             CrocomireBehavior.FindCrocomireTongueHitboxCallback(Slot, probe, out callback);
     }

@@ -2377,9 +2377,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
             CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
@@ -2400,7 +2400,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallback(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }
@@ -2409,9 +2409,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
             enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
             (CrocomireTongueCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||

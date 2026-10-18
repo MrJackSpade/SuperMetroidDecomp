@@ -3024,8 +3024,8 @@ internal static class LookupStream4Verification
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 2))), box.Top, "Oum selected top bound");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 4))), box.Right, "Oum selected right bound");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 6))), box.Bottom, "Oum selected bottom bound");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 8)), box.TouchAi, "Oum selected touch callback");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 10)), box.ShotAi, "Oum selected shot callback");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 8)), EnemyInteractionCallbackAccess.Word(box.TouchAi), "Oum selected touch callback");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 10)), EnemyInteractionCallbackAccess.Word(box.ShotAi), "Oum selected shot callback");
                 rectangles++;
             }
         }

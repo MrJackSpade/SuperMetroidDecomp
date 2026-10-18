@@ -1396,17 +1396,16 @@ internal sealed class CeresRidleyBehavior
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
                 selectShotCallback: false,
-                out ushort touchAiPointer))
+                out EnemyInteractionCallback? touchAi))
         {
             return false;
         }
-        EnemyInteractionCallback? touchAi = EnemyCollision.HitboxCallback(slot, touchAiPointer);
 
         if (touchAi != EnemyInteractionCallback.RidleyExtendedTouch)
         {
             throw new InvalidDataException(
-                $"Ridley extended body selected touch AI $A6:{touchAiPointer:X4}, expected " +
-                $"$A6:{EnemyAiCodePointers.BankA6.RidleyExtendedTouch:X4} from map $A6:{slot.Frame}.");
+                $"Ridley extended body selected touch AI {touchAi?.ToString() ?? "(unnamed)"}, expected " +
+                $"{EnemyInteractionCallback.RidleyExtendedTouch} from map {slot.Frame}.");
         }
 
         // $A6:DF59 enters the common no-death-check handler. That distinction matters for

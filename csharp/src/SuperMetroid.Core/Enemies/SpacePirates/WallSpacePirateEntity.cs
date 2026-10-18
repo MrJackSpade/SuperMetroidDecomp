@@ -17,7 +17,7 @@ internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, Roo
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceWallSpacePirateTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => SpacePirateHitboxes.Find(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => SpacePirateHitboxes.Find(Slot, probe, out callback);
 
     /// <summary>Pirate contact and shots both enter the extended-spritemap walker over the Pirate's engine-owned hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

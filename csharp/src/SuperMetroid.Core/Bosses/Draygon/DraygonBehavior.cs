@@ -2179,9 +2179,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             (slot, frame) => ApplyDraygonHurt(slot, RequireCompleteDraygonState(slot), frame.Samus));
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(DraygonBehavior.IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank))
             return null;
@@ -2202,8 +2202,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? DraygonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : DraygonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? DraygonHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : DraygonHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

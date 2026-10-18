@@ -1440,7 +1440,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MochtroidBehavior.RegisterMochtroidShotReactions(table);
         // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
         // bank. Radius collision still dispatches those callbacks after its projectile prelude.
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpEnemyAi(enemy.Definition.Bank, enemy.Definition.ShotAiPointer)));
+        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy))));
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot));
 }
 

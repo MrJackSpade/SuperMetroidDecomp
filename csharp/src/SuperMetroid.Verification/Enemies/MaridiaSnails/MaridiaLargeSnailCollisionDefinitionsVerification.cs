@@ -76,8 +76,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "Oum top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "Oum right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "Oum bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "Oum touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "Oum shot callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), EnemyInteractionCallbackAccess.Word(box.TouchAi), "Oum touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), EnemyInteractionCallbackAccess.Word(box.ShotAi), "Oum shot callback");
                 boxesChecked++;
             }
 

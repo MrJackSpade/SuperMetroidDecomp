@@ -33,7 +33,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvancePhantoonTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => PhantoonBehavior.FindPhantoonHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonBehavior.FindPhantoonHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)

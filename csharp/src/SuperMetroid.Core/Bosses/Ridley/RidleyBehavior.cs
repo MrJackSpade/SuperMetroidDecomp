@@ -1689,9 +1689,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.Camera));
 
     /// <summary>The callback of the first Ridley hitbox the probe overlaps, or null outside its compiled frames.</summary>
-    internal static bool? FindRidleyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindRidleyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
             enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
             (RidleyCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(enemy.Frame)) ||
@@ -1715,7 +1715,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = RidleyHitboxCallbackCodec.ToCallbackWord(probe.SelectShotCallback);
+                callback = RidleyHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
                 return true;
             }
         }

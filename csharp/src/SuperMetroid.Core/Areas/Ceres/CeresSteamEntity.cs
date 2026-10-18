@@ -19,7 +19,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceCeresSteamTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => CeresSteamBehavior.FindHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => CeresSteamBehavior.FindHitboxCallback(Slot, probe, out callback);
 
     /// <summary>The steam's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

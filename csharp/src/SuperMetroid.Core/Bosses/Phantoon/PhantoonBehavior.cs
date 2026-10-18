@@ -851,11 +851,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     projectile.Position.Whole,
                     projectile.Radius,
                     selectShotCallback: true,
-                    out ushort hitboxShotAiPointer))
+                    out EnemyInteractionCallback? hitboxShotAi))
             {
                 continue;
             }
-            EnemyInteractionCallback? hitboxShotAi = EnemyCollision.HitboxCallback(body, hitboxShotAiPointer);
 
             // `$A0:9B7F` applies this before calling the selected component function. A
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
@@ -878,7 +877,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (hitboxShotAi != EnemyInteractionCallback.PhantoonShot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon hitbox shot AI $A7:{hitboxShotAiPointer:X4} is not translated.");
+                    $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
             }
 
             // The native extended-hitbox walker marks the projectile before $A7:DD9B.
@@ -2333,9 +2332,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindPhantoonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindPhantoonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(PhantoonBehavior.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer)))
             return null;
 
@@ -2356,8 +2355,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? PhantoonHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : PhantoonHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

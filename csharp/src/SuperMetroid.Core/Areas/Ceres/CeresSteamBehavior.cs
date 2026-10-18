@@ -209,9 +209,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
-    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
             (CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) ||
              probe.ArtworkInstalled)))
@@ -233,7 +233,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = CeresSteamHitboxCallbackCodec.ToCallbackWord(probe.SelectShotCallback);
+                callback = CeresSteamHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
                 return true;
             }
         }

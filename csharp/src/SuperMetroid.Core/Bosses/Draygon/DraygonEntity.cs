@@ -32,9 +32,9 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceDraygonTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback)
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         return DraygonBehavior.FindDraygonHitboxCallback(Slot, probe, out callback);
     }
 

@@ -2280,9 +2280,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             (slot, _) => ApplyBombTorizoHurt(slot));
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
             enemy.Definition.Bank == TorizoCollisionDefinitions.Bank))
             return null;
@@ -2304,8 +2304,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? TorizoHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : TorizoHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? TorizoHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : TorizoHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

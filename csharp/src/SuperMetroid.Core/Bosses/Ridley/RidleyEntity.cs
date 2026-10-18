@@ -45,7 +45,7 @@ internal sealed class RidleyEntity(
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) =>
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) =>
         RidleyBehavior.FindRidleyHitboxCallback(Slot, probe, out callback);
 
     /// <summary>

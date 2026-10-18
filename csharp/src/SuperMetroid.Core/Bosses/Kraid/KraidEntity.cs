@@ -43,9 +43,9 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback)
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         return KraidBehavior.FindKraidFootHitboxCallback(Slot, probe, out callback) ??
             KraidBehavior.FindKraidArmHitboxCallback(Slot, probe, out callback);
     }

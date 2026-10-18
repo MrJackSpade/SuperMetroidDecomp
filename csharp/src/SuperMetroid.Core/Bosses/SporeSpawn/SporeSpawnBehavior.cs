@@ -859,9 +859,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
             SporeSpawnCollisionDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame))))
@@ -886,8 +886,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? SporeSpawnHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : SporeSpawnHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? SporeSpawnHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : SporeSpawnHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

@@ -536,7 +536,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
         // select the arm's private callback.
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
-                                                     EnemyCollision.IsLiteralNoOpEnemyAi(enemy.Definition.Bank, enemy.Definition.ShotAiPointer))
+                                                     EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy)))
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -2630,9 +2630,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidFootHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindKraidFootHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
             enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
             KraidFootCollisionDefinitions.TryGetComponents(
@@ -2653,8 +2653,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? KraidHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : KraidHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : KraidHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }
@@ -2663,9 +2663,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidArmHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindKraidArmHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
             enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
             KraidArmCollisionDefinitions.TryGetComponents(
@@ -2690,8 +2690,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     continue;
 
                 callback = probe.SelectShotCallback
-                    ? KraidHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : KraidHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : KraidHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

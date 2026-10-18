@@ -1,28 +1,28 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// Converts the ordinary Pirates' typed hitbox reactions into the callback words the shared extended-hitbox walker
+/// Converts the ordinary Pirates' typed hitbox reactions into the callbacks the shared extended-hitbox walker
 /// (<see cref="IEnemyExtendedHitboxes.FindHitboxCallback"/>) still returns. The rectangles hold
 /// <see cref="SpacePirateHitboxTouch"/> and <see cref="SpacePirateHitboxShot"/>; this is the one place they become
-/// words, and it goes when that shared contract returns a typed reaction instead of a callback word.
+/// words, and it goes when that shared contract returns a typed reaction instead of a callbacks.
 /// </summary>
 internal static class SpacePirateHitboxCallbackCodec
 {
-    /// <summary>The callback word the shared walker returns for a touch reaction.</summary>
-    internal static ushort ToCallbackWord(SpacePirateHitboxTouch touch) => touch switch
+    /// <summary>The callbacks the shared walker returns for a touch reaction.</summary>
+    internal static EnemyInteractionCallback ToCallback(SpacePirateHitboxTouch touch) => touch switch
     {
-        SpacePirateHitboxTouch.Ordinary => EnemyAiCodePointers.BankA0.NormalEnemyTouch,
-        SpacePirateHitboxTouch.Pirate => EnemyAiCodePointers.BankB2.Touch,
+        SpacePirateHitboxTouch.Ordinary => EnemyInteractionCallback.NormalEnemyTouch,
+        SpacePirateHitboxTouch.Pirate => EnemyInteractionCallback.SpacePirateTouch,
         _ => throw new InvalidOperationException($"Undefined {nameof(SpacePirateHitboxTouch)} {touch}."),
     };
 
-    /// <summary>The callback word the shared walker returns for a shot reaction.</summary>
-    internal static ushort ToCallbackWord(SpacePirateHitboxShot shot) => shot switch
+    /// <summary>The callbacks the shared walker returns for a shot reaction.</summary>
+    internal static EnemyInteractionCallback ToCallback(SpacePirateHitboxShot shot) => shot switch
     {
-        SpacePirateHitboxShot.Ordinary => EnemyAiCodePointers.BankA0.NormalEnemyShot,
-        SpacePirateHitboxShot.Pirate => EnemyAiCodePointers.BankB2.Shot,
-        SpacePirateHitboxShot.GoldNinjaVulnerable => EnemyAiCodePointers.BankB2.GoldNinjaVulnerableHitboxShot,
-        SpacePirateHitboxShot.GoldNinjaInvincible => EnemyAiCodePointers.BankB2.GoldNinjaInvincibleHitboxShot,
+        SpacePirateHitboxShot.Ordinary => EnemyInteractionCallback.NormalEnemyShot,
+        SpacePirateHitboxShot.Pirate => EnemyInteractionCallback.SpacePirateShot,
+        SpacePirateHitboxShot.GoldNinjaVulnerable => EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot,
+        SpacePirateHitboxShot.GoldNinjaInvincible => EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot,
         _ => throw new InvalidOperationException($"Undefined {nameof(SpacePirateHitboxShot)} {shot}."),
     };
 }

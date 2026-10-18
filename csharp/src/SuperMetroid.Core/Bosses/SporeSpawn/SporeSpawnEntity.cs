@@ -19,9 +19,9 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceSporeSpawnTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback)
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         return SporeSpawnBehavior.FindSporeSpawnHitboxCallback(Slot, probe, out callback);
     }
 

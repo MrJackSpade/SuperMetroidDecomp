@@ -4532,9 +4532,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
-        callback = 0;
+        callback = null;
         if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
             enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank))
             return null;
@@ -4555,8 +4555,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback
-                    ? MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
-                    : MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
+                    ? MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Shot)
+                    : MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;
             }
         }

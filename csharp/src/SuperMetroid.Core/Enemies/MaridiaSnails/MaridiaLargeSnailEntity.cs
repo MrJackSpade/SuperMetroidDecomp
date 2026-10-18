@@ -17,7 +17,7 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceMaridiaLargeSnailTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => MaridiaLargeSnailBehavior.FindHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MaridiaLargeSnailBehavior.FindHitboxCallback(Slot, probe, out callback);
 
     /// <summary>The large snail's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

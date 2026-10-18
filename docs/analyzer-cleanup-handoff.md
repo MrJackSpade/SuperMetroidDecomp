@@ -513,8 +513,25 @@ Commit and push that update too.
     - Step 3g (`910bd329f`, 98 -> 97): room states hold a named `XrayRoomOverlayDefinition`; the installed overlay
       catalog is keyed by overlay; reveals.json keeps its pointer key, resolved by AssetExtraction's
       `XrayRoomOverlaySources`.
-    - Step 3h (this commit, 97 -> 94): room states are named by the disassembly's `RoomState_` labels; selection
+    - Step 3h (`5550c868a`, 97 -> 94): room states are named by the disassembly's `RoomState_` labels; selection
       returns states; the frontend, hosts, error reports and the debugger header (schema 8) name the state;
       AssetExtraction's `RoomStateSources` owns the pointers.
-    - Q7 is complete. Next: the standalone rows (sprite-part Y bytes, projectile requests, graphics-set words and
-      similar), then Q9, Q6, Q8, Q2 and Q5.
+    - Q7 is complete.
+  - Standalone rows and Q6 (94 -> 81):
+    - `fcea6913e`: sprite-part Y is the typed `SnesSpritemapYByte` from compiled parts through the OAM buffer.
+    - `838e9a085`: demo input objects are named `DemoInputObjectDefinitions`; graphics-set headers hold a palette row
+      and staging block; eye-door and noob-tube request words are range-checked ints.
+    - `fa8fb1a48`: Samus's horizontal speed table is the liquid medium plus a resolved row, not a table base address.
+    - `d8a9488c8` (owner question 6): cinematic sprites hold a named `CinematicSpritePreInstruction`; test support's
+      `CinematicSpritePreInstructionAccess` maps them to native addresses.
+    - `ee522d4e2`: game-over text streams are named by element; AssetExtraction's `GameOverTextSources` owns the
+      pointers.
+    - `399561a9d`: library-background destinations are range-checked ints.
+    - `2d4e7d60b` and `b7922adca` repaired the retail intro render test's music queues and the ending DMA check.
+  - Q8 (this commit, 81 -> 75): room sprite objects run typed `RoomSpriteObjectAnimations` programs (23 programs, 276
+    frames, generated from the disassembly's `InstList_SpriteObject_` lists) instead of interpreting bank-$B4
+    instruction words. A slot holds a program cursor, a `NativeCountdown`, the frame shown, typed OBJ attributes and an
+    updates-disabled flag; kinds select programs by name. Test support's `RoomSpriteObjectProgramAddresses` and
+    `RoomSpriteObjectSlotAccess` give the oracles native record addresses, and `--room-sprite-object-definitions` runs
+    every spawned kind beside an independent reading of the cartridge's list.
+  - Next: Q9 (palette FX), then Q5 with the enemy AI pointers, Q2, PLM words, the enemy projectile slot and Q13.

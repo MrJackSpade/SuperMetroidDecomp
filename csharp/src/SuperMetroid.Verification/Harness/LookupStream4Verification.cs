@@ -1670,10 +1670,10 @@ internal static class LookupStream4Verification
     {
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spriteSpawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
-        for (ushort objectNumber = 0; objectNumber < 62; objectNumber++)
+        int kinds = 0;
+        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
         {
-            var kind = (RoomSpriteObjectKind)objectNumber;
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * objectNumber));
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * (ushort)kind));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -1686,12 +1686,13 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
             AssertEqual((ushort)0x0600, spawned.GraphicsIndex, "room sprite graphics argument preserved");
+            kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => RoomSpriteObjectDefinitions.InstructionPointer((RoomSpriteObjectKind)invalid),
+                () => RoomSpriteObjectDefinitions.Program((RoomSpriteObjectKind)invalid),
                 "room sprite native kind domain rejects invalid selector");
-        Console.WriteLine("Room sprite dispatch: 62 native entries and actual spawns, initial timing/visuals, source-read guards and invalid selectors pass.");
+        Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
 
     /// <summary>Checks which Ridley frame pointers are presentation data and which are control words.</summary>

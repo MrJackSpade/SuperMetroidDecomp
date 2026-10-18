@@ -23,6 +23,8 @@ public enum RoomSpriteObjectKind : ushort
     BotwoonSmallExplosion = 0x0009,
     /// <summary>Selector $1D, <c>$B4:BF74 InstList_SpriteObject_1D_BigExplosion</c>: large finite explosion used by Botwoon's death sequence.</summary>
     BotwoonLargeExplosion = 0x001d,
+    /// <summary>Selector $12, <c>$B4:C014 InstList_SpriteObject_12_ShortBigDustCloud</c>: finite cloud among the escape's explosions.</summary>
+    ShortBigDustCloud = 0x0012,
     /// <summary>Selector $15, <c>$B4:C05E InstList_SpriteObject_15_BigDustCloud</c>: finite cloud shared by impacts, burial smoke, and acid effects.</summary>
     DustCloud = 0x0015,
     /// <summary>Alias of selector $15's big-dust-cloud program, used for Crocomire's acid smoke rather than a distinct native instruction list.</summary>

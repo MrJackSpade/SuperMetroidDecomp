@@ -239,8 +239,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FlashTimer = NativeCountdown.Start(2);
         }
 
-        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenInstructionList);
-        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenInstructionList);
+        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenProgram);
+        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
     }
 
     /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
@@ -249,19 +249,15 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state = RequireMetroidState(slot);
         if ((slot.FlashTimer.RawValue & 2) != 0)
         {
-            state.OuterBodyA.GraphicsIndex =
-                new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
-            state.OuterBodyB.GraphicsIndex =
-                new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
+            state.OuterBodyA.Attributes = state.OuterBodyA.Attributes
+                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
+            state.OuterBodyB.Attributes = state.OuterBodyB.Attributes
+                .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
             return;
         }
 
-        state.OuterBodyA.GraphicsIndex =
-            new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex).WithPaletteIndex(0);
-        state.OuterBodyB.GraphicsIndex =
-            new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex).WithPaletteIndex(0);
+        state.OuterBodyA.Attributes = state.OuterBodyA.Attributes.WithPaletteIndex(0);
+        state.OuterBodyB.Attributes = state.OuterBodyB.Attributes.WithPaletteIndex(0);
     }
 
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>
@@ -389,8 +385,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = RequireMetroidState(slot);
         state.Velocity = state.Velocity.WithWholeX(0);
-        state.OuterBodyA.InstructionPointer = 0;
-        state.OuterBodyB.InstructionPointer = 0;
+        state.OuterBodyA.Cursor = null;
+        state.OuterBodyB.Cursor = null;
         if (samus is not null)
             samus.SpecialSuperPaletteFlags = 0;
     }
@@ -439,22 +435,20 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort graphicsIndex)
     {
         outerBody.Position = outerBody.Position.WithWhole(metroid.Position.Whole);
-        outerBody.GraphicsIndex = graphicsIndex;
-        outerBody.DisableFlags = 0;
+        outerBody.Attributes = new SnesObjAttributeWord(graphicsIndex);
+        outerBody.UpdatesDisabled = false;
     }
 
     /// <summary>Switches an outer-body sprite to frozen art without resetting its retained instruction timer.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
-        ushort frozenInstructionList)
+        RoomSpriteObjectProgram frozenProgram)
     {
-        outerBody.GraphicsIndex = MetroidOuterBodyDefinitions.FrozenSpritePalette;
-        outerBody.DisableFlags = 1;
-        outerBody.InstructionPointer = frozenInstructionList;
+        outerBody.Attributes = new SnesObjAttributeWord(MetroidOuterBodyDefinitions.FrozenSpritePalette);
+        outerBody.UpdatesDisabled = true;
         // Native drawing reads the selected record even while animation is disabled.
-        // Refresh the cached visual without resetting the retained instruction timer.
-        outerBody.SpritemapPointer = RoomSpriteObjectVisualDefinitions.FrameAt(
-            unchecked((ushort)(frozenInstructionList + 2)));
+        // Show the frozen program's first frame without resetting the retained timer.
+        RoomSpriteObjectPool.ShowFirstFrameKeepingTimer(outerBody, frozenProgram);
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>

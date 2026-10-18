@@ -10,6 +10,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Draygon intro latency and movement definitions against ROM and the full Evir trajectory.</summary>
 internal static class DraygonIntroDanceDefinitionsVerification
@@ -116,7 +117,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         {
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[slotIndex];
             sprite.Kind = RoomSpriteObjectKind.DraygonIntroEvir;
-            sprite.InstructionPointer = 1;
+            sprite.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectProgram.EvirFacingLeft);
             expectedX[slotIndex - 28] = 0x0100;
             sprite.Position = sprite.Position.WithWholeX(0x0100);
             expectedY[slotIndex - 28] = 0x0180;
@@ -194,7 +195,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         };
         RoomSpriteObjectSlot malformedSprite = malformedEnemies.RoomSpriteObjects[31];
         malformedSprite.Kind = RoomSpriteObjectKind.DraygonIntroEvir;
-        malformedSprite.InstructionPointer = 1;
+        malformedSprite.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectProgram.EvirFacingLeft);
         AssertThrows<InvalidDataException>(
             () => malformedRun(malformedState, null, 1),
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");

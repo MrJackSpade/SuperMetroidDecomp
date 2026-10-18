@@ -365,23 +365,12 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        for (int index = 0;
-             index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = RoomSpriteObjectInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xb4, operand);
-            AssertEqual(native, RoomSpriteObjectVisualDefinitions.FrameAt(operand),
-                $"room sprite-object visual selector $B4:{operand:X4}");
-            AssertTrue(installedSpritePointers.Contains(native),
-                $"room sprite-object visual target $B4:{native:X4} has installed art");
-        }
-        AssertThrows<InvalidDataException>(
-            () => RoomSpriteObjectVisualDefinitions.FrameAt(
-                RoomSpriteObjectDefinitions.InstructionPointer(
-                    RoomSpriteObjectKind.DraygonIntroEvir)),
-            "room sprite-object mechanics are not presentation selectors");
+        AssertTrue(Enum.GetValues<RoomSpriteObjectFrame>().Select(RoomSpriteObjectVisualDefinitions.Spritemap).ToHashSet()
+                .SetEquals(SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom)),
+            "the room sprite-object frames are exactly the spritemaps the native lists show");
+        foreach (RoomSpriteObjectFrame frame in Enum.GetValues<RoomSpriteObjectFrame>())
+            AssertTrue(installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitions.Spritemap(frame)),
+                $"room sprite-object frame {frame} has installed art");
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),

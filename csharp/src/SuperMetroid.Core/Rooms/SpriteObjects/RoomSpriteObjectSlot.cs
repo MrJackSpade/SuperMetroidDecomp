@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Programs;
+
 namespace SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>
@@ -12,12 +14,13 @@ public sealed class RoomSpriteObjectSlot
 
     /// <summary>Zero-based physical pool slot, zero through 31; allocation and update/draw traversal search from the highest slot downward.</summary>
     public int SlotIndex { get; }
-    /// <summary>Native word-array byte offset, twice <see cref="SlotIndex"/>, ranging from $00 through $3E.</summary>
-    public ushort NativeIndex => unchecked((ushort)(SlotIndex * 2));
+
     /// <summary>Selector retained from allocation for owner/debugger identity; clearing assigns <see cref="RoomSpriteObjectKind.None"/>.</summary>
     public RoomSpriteObjectKind Kind { get; internal set; } = RoomSpriteObjectKind.None;
-    /// <summary>Whether the native instruction-list pointer is nonzero; this alone determines occupancy, even for hidden or update-disabled objects.</summary>
-    public bool IsActive => InstructionPointer != 0;
+
+    /// <summary>Whether the slot runs a program; this alone determines occupancy, even for hidden or update-disabled objects.</summary>
+    public bool IsActive => Cursor is not null;
+
     /// <summary>
     /// Native $7E:F0F8/$7E:F1F8 whole words and their fractional words (Y fraction at $7E:F278)
     /// plus the slot offset: the 16.16 room position, converted to screen coordinates by
@@ -26,23 +29,31 @@ public sealed class RoomSpriteObjectSlot
     /// table, so discarding these words visibly changes their fan-in.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Native $7E:F078 plus the slot offset: packed OBJ attribute base; drawing extracts palette bits $0E00 and base tile number $01FF.</summary>
-    public ushort GraphicsIndex { get; internal set; }
-    /// <summary>Native $7E:EF78 plus the slot offset: bank-$B4 program cursor; timed records occupy four bytes, and zero marks a free slot.</summary>
-    public ushort InstructionPointer { get; internal set; }
-    /// <summary>Native $7E:EFF8 plus the slot offset: frame-duration countdown or high-bit-set opcode address; repeat-last installs $7FFF while preserving the visible frame.</summary>
-    public ushort InstructionTimer { get; internal set; }
-    /// <summary>Bank-$B4 visual-frame pointer resolved from the current timed record's second word; drawing combines its tile offsets with <see cref="GraphicsIndex"/>.</summary>
-    public ushort SpritemapPointer { get; internal set; }
-    /// <summary>Native $7E:F2F8 plus the slot offset: bit zero suppresses instruction updates but leaves active-object drawing and slot occupancy intact.</summary>
-    public ushort DisableFlags { get; internal set; }
 
-    /// <summary>Releases occupancy and resets every retained native word before the slot can be reused.</summary>
+    /// <summary>Native $7E:F078 plus the slot offset: the OBJ attribute base whose palette bits and tile number drawing applies.</summary>
+    public SnesObjAttributeWord Attributes { get; internal set; }
+
+    /// <summary>Where the object's program resumes, or null for a free slot.</summary>
+    internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; set; }
+
+    /// <summary>Native $7E:EFF8 plus the slot offset: updates left showing <see cref="Frame"/>; a held frame reloads $7FFF.</summary>
+    public NativeCountdown Timer { get; internal set; }
+
+    /// <summary>The frame the object shows.</summary>
+    internal RoomSpriteObjectFrame Frame { get; set; }
+
+    /// <summary>Native $7E:F2F8 bit zero plus the slot offset: suppresses program updates but leaves drawing and occupancy intact.</summary>
+    public bool UpdatesDisabled { get; internal set; }
+
+    /// <summary>Releases occupancy and resets every retained field before the slot can be reused.</summary>
     internal void Clear()
     {
         Kind = RoomSpriteObjectKind.None;
         Position = FixedPosition<RoomPixels>.Zero;
-        GraphicsIndex = 0;
-        InstructionPointer = InstructionTimer = SpritemapPointer = DisableFlags = 0;
+        Attributes = default;
+        Cursor = null;
+        Timer = default;
+        Frame = default;
+        UpdatesDisabled = false;
     }
 }

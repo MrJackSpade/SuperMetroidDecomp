@@ -33,7 +33,7 @@ internal static class EscapeRoomEffectsVerification
             for (int frame = 0; frame < 80; frame++)
             {
                 runtime.StepFrame(0);
-                if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive && s.SpritemapPointer != 0)) explosionFrames++;
+                if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive)) explosionFrames++;
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
                 offsets.Add((shake.Bg1.X, shake.Bg1.Y));
                 if (frame % 10 == 9)

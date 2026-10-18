@@ -18,6 +18,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks that enemy OAM and projectile sprite owners use installed artwork after cartridge readers are removed.</summary>
 internal static class EnemySpriteArtworkBoundaryVerification
@@ -49,10 +51,10 @@ internal static class EnemySpriteArtworkBoundaryVerification
 
             if (frame.Bank != EnemySpritemapDefinitions.RoomSpriteObjectBank || clip) continue;
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[31];
-            sprite.InstructionPointer = 1;
-            sprite.SpritemapPointer = frame.Pointer;
+            sprite.Cursor = AnimationProgramCursor<RoomSpriteObjectProgram>.Start(RoomSpriteObjectProgram.SmallExplosion);
+            sprite.Frame = RoomSpriteObjectVisualDefinitions.FrameOf(frame.Pointer);
             sprite.Position = sprite.Position.WithWhole(new(x, y));
-            sprite.GraphicsIndex = 0x0a04;
+            sprite.Attributes = new SnesObjAttributeWord(0x0a04);
             actual = new OamBuffer(); expected = new OamBuffer();
             enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
             DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });

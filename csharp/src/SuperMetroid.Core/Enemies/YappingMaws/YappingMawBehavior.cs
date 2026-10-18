@@ -484,9 +484,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.RootSpriteObject is not null)
         {
-            state.RootSpriteObject.GraphicsIndex =
-                new SnesObjAttributeWord(state.RootSpriteObject.GraphicsIndex)
-                    .WithPaletteBits(paletteBits);
+            state.RootSpriteObject.Attributes =
+                state.RootSpriteObject.Attributes.WithPaletteBits(paletteBits);
         }
     }
 

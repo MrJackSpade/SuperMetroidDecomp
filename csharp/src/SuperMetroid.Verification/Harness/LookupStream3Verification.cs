@@ -619,10 +619,8 @@ internal static class LookupStream3Verification
             AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
         var additionalPointers = new SortedSet<ushort>();
         var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
-        for (int index = 0; index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount; index++)
+        foreach (ushort pointer in SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom))
         {
-            int address = 0xb40000 | RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
         }
         var expectedAdditional = additionalPointers.Select(pointer =>

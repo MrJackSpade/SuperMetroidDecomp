@@ -463,3 +463,27 @@ Commit and push that update too.
     instruction pointers, and the RNG word (10).
   - Architecture audit: 46 flagged types (20 large, 14 back-reference, 12 context-bag) and the cycle among the eleven
     Simulation modules; `9a5a48ca4` opened them for the cleanup.
+- 2026-10-18, same session continued (`74dad1d0e` through the typed hardware words):
+  - `74dad1d0e`: at the owner's direction, AGENTS.md and manifesto section 8 no longer pause work on large changes.
+  - Word-ranged ints: Samus's speed, gravity, animation-frame and counter words (`d58f05be3`, SME6347 164 -> 152)
+    and the PLM loop timer, room-main scratch word, intro-sprite timer, door Samus distance, getaway zoom and PLM
+    VRAM write size (`a7566f3b3`, 152 -> 145). Helpers that took those words take range-checked ints
+    (`SnesSixteenSixteen.Compose`, `NativeWordCounter.Decrement`, `NativeCountdown.FromRaw`,
+    `SnesSignedSixteenSixteen.FromParts`).
+  - `562598b60`: the six SMV replays are `FullRunSuites` entries, so the no-argument run is the whole suite (about
+    nine minutes here); `tools/verify-all.ps1` no longer launches them separately. Its first run failed lowc, 13%
+    and 100%: regressions from this cleanup that no focused check covered.
+  - `0c85cba85` fixed both, reproduced against the native captures:
+    - Samus's counts are the signed word range; Crystal Flash and firing decrement ammunition unchecked
+      (`SamusQuantity.DecrementWord`), since the cartridge drains and fires below zero. #1323 stage 4 had bounded
+      them to [0, 32767].
+    - The Zebetites' shared palette counter is slot zero's record word C whoever holds the slot
+      (`ZebetiteBehavior.SharedPaletteCycle`); in room $E321 that is Mother Brain's body. `6089ea0f4` had tied it to
+      a Zebetite in slot zero.
+    - All six replays now pass in full.
+  - Open: `VerifySamusBodyArtwork`'s installation repair fails with access denied on `Directory.Move` only under
+    the 24-worker no-argument run (it passes alone). A handle into the freshly written content directory is still
+    open; the fix (retry, a different publish step, or an antivirus exclusion for `csharp/test-temp`) is the owner's
+    decision.
+  - Typed hardware words for the message tilemap cell, the trail OBJ attributes and the Samus part X word, with
+    numeric JSON converters (SME6347 145 -> 142).

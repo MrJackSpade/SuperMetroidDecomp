@@ -61,6 +61,7 @@ internal static class DmaArtworkBoundaryVerification
             var actual = new SnesVram(); expected = new SnesVram();
             enemies.Presentation._vram = actual;
             var state = new KraidEnemyState(); var writes = new VramWriteQueue();
+            enemies.KraidBehavior.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
             {
@@ -79,7 +80,7 @@ internal static class DmaArtworkBoundaryVerification
                 AssertTrue(actual.ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference, queued={queued}");
                 AssertEqual(quarter + 1, state.DeathBg3TransferCount, "Kraid retains the four-frame restoration cadence");
-                AssertEqual((ushort)KraidAiFunction.DeathFadeInBackground, body.VariableA,
+                AssertEqual(KraidAiFunction.DeathFadeInBackground, state.Parts[0].Function,
                     "artwork transfer preserves the death coroutine successor");
             }
         }

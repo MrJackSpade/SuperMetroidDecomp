@@ -35,6 +35,7 @@ internal static class KraidCeilingRockPositionsVerification
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1)));
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
+        enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 63);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.RunKraidGrowthFunction;
@@ -48,14 +49,14 @@ internal static class KraidCeilingRockPositionsVerification
             requests.Clear();
             state.CeilingRockSpawnCount = 0;
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
-            body.VariableF = (ushort)(index * 2);
-            body.VariableA = (ushort)KraidAiFunction.GrowBreakCeilingPlatforms;
+            state.Parts[0].CeilingRockOffset = (ushort)(index * 2);
+            state.Parts[0].Function = KraidAiFunction.GrowBreakCeilingPlatforms;
             step(body, state);
             ushort y = unchecked((ushort)(raw - 1));
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
-            AssertEqual((ushort)(index * 2 + (spawn ? 2 : 0)), body.VariableF, "Ceiling byte selector advances only on emission");
+            AssertEqual((ushort)(index * 2 + (spawn ? 2 : 0)), state.Parts[0].CeilingRockOffset, "Ceiling byte selector advances only on emission");
             if (!spawn) continue;
             var rock = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");

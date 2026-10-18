@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNailContourMappingsVerification;
@@ -19,6 +20,8 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();
+        var state = new KraidEnemyState();
+        enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.KraidBodyContourReflectsNail;
         var body = enemies.SlotTable.Slots[0];
@@ -47,7 +50,7 @@ internal static class KraidNailContourVerification
             for (int delta = -1; delta <= 1; delta++)
             {
                 nail.Position = nail.Position.WithWholeX(unchecked((ushort)(edge - nail.Radius.X + delta)));
-                nail.VariableC = velocity;
+                state.Parts[nail.SlotIndex].NailVelocity = state.Parts[nail.SlotIndex].NailVelocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)velocity), state.Parts[nail.SlotIndex].NailVelocity.X.Fraction));
                 bool expected = unchecked((short)(nail.Position.X.Whole + nail.Radius.X - edge)) >= 0 && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }

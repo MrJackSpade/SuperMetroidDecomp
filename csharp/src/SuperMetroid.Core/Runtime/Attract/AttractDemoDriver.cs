@@ -186,7 +186,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                     throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                _enemies.SlotTable.Slots[0].VariableF = AttractDemoRomData.SetupValues.KraidFunctionTimer;
+                _enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoRomData.SetupValues.KraidFunctionTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);

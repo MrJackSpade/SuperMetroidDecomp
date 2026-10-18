@@ -78,6 +78,12 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot)
     {
         int index = slot.SlotIndex;
+        if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
+        {
+            kraidPartRecord.Function = (KraidAiFunction)slot.VariableA;
+            kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(slot.VariableC, slot.VariableB, slot.VariableE, slot.VariableD);
+            kraidPartRecord.FunctionTimer = slot.VariableF;
+        }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
             gunshipRecord.FunctionTimer = slot.VariableA;

@@ -509,6 +509,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     [field: NonSerialized]
     internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
 
+    /// <summary>The enemy setup the attract demo's room setups perform.</summary>
+    [field: NonSerialized]
+    internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
+
     /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
     [field: NonSerialized]
     internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,

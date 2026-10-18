@@ -1227,22 +1227,22 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.AlignKraidPart;
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(200, 300));
-        for (int slot = 2; slot <= 4; slot++) enemies.SlotTable.Slots[slot].VariableB = 17;
+        for (int slot = 2; slot <= 4; slot++) state.Parts[slot].LintTravel = 17;
         finish(body, state);
         for (int slot = 2; slot <= 4; slot++)
         {
             var lint = enemies.SlotTable.Slots[slot];
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
             AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
-            AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
-            AssertEqual((ushort)0, lint.VariableB, "Actual lint growth resets extension");
+            AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer, "Actual post-growth timer write");
+            AssertEqual((ushort)0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, state.Parts[slot]);
-                AssertEqual((ushort)remaining, lint.VariableF, "Actual per-part countdown");
-                AssertEqual((ushort)(remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
-                    lint.VariableA, "Actual lint transition occurs on its own final tick");
+                AssertEqual((ushort)remaining, state.Parts[lint.SlotIndex].FunctionTimer, "Actual per-part countdown");
+                AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
+                    state.Parts[lint.SlotIndex].Function, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }

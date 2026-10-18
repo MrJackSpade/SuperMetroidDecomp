@@ -45,14 +45,14 @@ internal static class KraidGrowthCommandCursorVerification
         execute(body, state);
         AssertEqual(native.CursorAt(0x96ea), state.HeadProgram, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
-        foot.VariableA = (ushort)KraidAiFunction.FootPrepareFirstPhaseLunge;
+        state.Parts[5].Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
-        AssertEqual((ushort)64, body.VariableC, "native quick-kill growth delay is preserved");
+        AssertEqual((ushort)64, state.Parts[0].HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
-        AssertEqual((ushort)180, body.VariableF, "growth function timer");
-        AssertEqual((ushort)KraidAiFunction.NoOperation, foot.VariableA, "growth stops the foot lunge");
+        AssertEqual((ushort)180, state.Parts[0].FunctionTimer, "growth function timer");
+        AssertEqual(KraidAiFunction.NoOperation, state.Parts[5].Function, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
         // Confirm the growth resume for every cursor form, including cries and list ends adjacent to the next list:

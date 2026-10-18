@@ -86,6 +86,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         Kraid = new KraidEnemyState();
         KraidEnemyState state = Kraid;
+        RegisterKraidPart(body, state);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer
@@ -101,7 +102,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
             // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical
             // records take their own dead initializer and remain deleted as on cartridge.
-            body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearTopTilemap;
             return;
         }
 
@@ -119,9 +120,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         body.Position = body.Position.WithWhole(new(176, 592));
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        body.VariableA = (ushort)KraidAiFunction.RestrictSamusToFirstScreen;
-        body.VariableF = 300;
-        body.VariableC = 64;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.RestrictSamusToFirstScreen;
+        state.Parts[body.SlotIndex].FunctionTimer = 300;
+        state.Parts[body.SlotIndex].HeadTimer = 64;
         state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
         // Background palette three's target colors are written at CGRAM palette eleven in
@@ -149,30 +150,31 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         EnsureKraidSlot(arm, 1, "arm");
+        RegisterKraidPart(arm, state);
         arm.PaletteIndex = _slotTable._slots[0].PaletteIndex;
-        arm.VariableA = (ushort)KraidAiFunction.NoOperation;
+        state.Parts[arm.SlotIndex].Function = KraidAiFunction.NoOperation;
         SetKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
         arm.InstructionTimer = NativeCountdown.Start(1);
-        arm.VariableB = 0;
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
     }
 
     /// <summary>Initializes one lint part and verifies its expected physical slot.</summary>
     private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
     {
-        _ = RequireKraidState(lint);
+        KraidEnemyState state = RequireKraidState(lint);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
             MarkKraidPartDead(lint);
             return;
         }
         EnsureKraidSlot(lint, expectedSlot, "lint");
+        RegisterKraidPart(lint, state);
         lint.PaletteIndex = _slotTable._slots[0].PaletteIndex;
         lint.InstructionTimer = NativeCountdown.Start(KraidStillPartTimer);
         SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.SpritemapPointer = KraidLintVisualDefinitions.InitialFrame;
-        lint.VariableA = (ushort)KraidAiFunction.LintInactive;
-        lint.VariableC = expectedSlot == 2 ? (ushort)0 : unchecked((ushort)-16);
+        state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
+        state.Parts[lint.SlotIndex].LintXOffset = expectedSlot == 2 ? (ushort)0 : unchecked((ushort)-16);
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
@@ -185,10 +187,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         EnsureKraidSlot(foot, 5, "foot");
+        RegisterKraidPart(foot, state);
         foot.PaletteIndex = _slotTable._slots[0].PaletteIndex;
         SetKraidPartProgram(foot, KraidPartProgram.FootInitial);
         foot.InstructionTimer = NativeCountdown.Start(1);
-        foot.VariableA = (ushort)KraidAiFunction.NoOperation;
+        state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         state.Parts[foot.SlotIndex].NextFunction = 0;
     }
 
@@ -201,15 +204,17 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         KraidEnemyState state = RequireKraidState(nail);
         EnsureKraidSlot(nail, expectedSlot, "fingernail");
+        RegisterKraidPart(nail, state);
         nail.PaletteIndex = _slotTable._slots[0].PaletteIndex;
-        nail.VariableB = 40;
+        KraidPartState nailPart = state.Parts[nail.SlotIndex];
+        nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.InstructionTimer = NativeCountdown.Start(KraidStillPartTimer);
         SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.SpritemapPointer = KraidVisualDefinitions.InitialNailFrame;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
-        nail.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
-        nail.VariableF = 64;
+        state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
+        state.Parts[nail.SlotIndex].FunctionTimer = 64;
     }
 
     /// <summary>Rejects a body part loaded outside its cartridge-defined slot index.</summary>
@@ -265,7 +270,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Bg2Scroll = new Position16<Bg2Pixels>(
             unchecked((ushort)(camera.X - body.Position.X.Whole + body.Radius.X)),
             unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152)));
-        KraidAiFunction function = (KraidAiFunction)body.VariableA;
+        KraidAiFunction function = state.Parts[body.SlotIndex].Function;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and
             <= KraidAiFunction.RaiseBody)
         {
@@ -566,7 +571,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // fractional words exactly as they were before contact.
                 _ = RequireKraidState(context.Slot);
                 context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
-                _slotTable._slots[4].VariableA = (ushort)KraidAiFunction.LintFire;
+                Part(_slotTable._slots[4]).Function = KraidAiFunction.LintFire;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
             });
     }
@@ -771,8 +776,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Both passes return immediately once Kraid has begun sinking ($A7:AFAD/$B182).
     /// </summary>
-    private static bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
-        (KraidAiFunction)body.VariableA >= KraidAiFunction.DeathSink;
+    private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
+        Part(body).Function >= KraidAiFunction.DeathSink;
 
     /// <summary>
     /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c> ($A7:AFAA). Projectile
@@ -849,7 +854,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != 0)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
-                (KraidAiFunction)body.VariableA < KraidAiFunction.DeathInitialize)
+                state.Parts[body.SlotIndex].Function < KraidAiFunction.DeathInitialize)
                 BeginKraidDeath(body, state);
         }
 
@@ -887,9 +892,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        if (bodyHits != 0 && body.VariableA == (ushort)KraidAiFunction.MainloopThinking)
+        if (bodyHits != 0 && state.Parts[body.SlotIndex].Function == KraidAiFunction.MainloopThinking)
         {
-            body.VariableA = (ushort)KraidAiFunction.InitializeEyeGlow;
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.InitializeEyeGlow;
             if ((state.MouthFlags & KraidMouthFlags.Hit) != 0)
             {
                 state.MouthFlags |= KraidMouthFlags.ReopenArmed;
@@ -965,7 +970,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches the body from combat to its scripted death function.</summary>
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
-        body.VariableA = (ushort)KraidAiFunction.DeathInitialize;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathInitialize;
         state.ClearMouthReactions();
         for (int slot = 0; slot < 6; slot++)
         {
@@ -1000,14 +1005,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         VramWriteQueue? vramWriteQueue,
         ushort cameraX)
     {
-        switch ((KraidAiFunction)body.VariableA)
+        switch (state.Parts[body.SlotIndex].Function)
         {
             case KraidAiFunction.MainloopThinking:
                 if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
                 {
-                    body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.MainAttackWithMouthOpen;
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-                    body.VariableC = KraidHeadAnimations.RoarEntryDuration;
+                    state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 
@@ -1032,12 +1037,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.HandleFunctionTimer:
-                TickKraidFunctionTimer(body, state.Parts[0]);
+                TickKraidFunctionTimer(state.Parts[0]);
                 return;
 
             case KraidAiFunction.ProcessHeadInstructionAndTimer:
                 _ = ProcessKraidHeadInstruction(body, state);
-                TickKraidFunctionTimer(body, state.Parts[0]);
+                TickKraidFunctionTimer(state.Parts[0]);
                 return;
 
             case KraidAiFunction.GrowReleaseCamera:
@@ -1072,14 +1077,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function $A7:{body.VariableA:X4} is not translated.");
+                    $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
         }
     }
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     private void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
-        body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
         _slotTable._slots[2].Position = _slotTable._slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
         _slotTable._slots[3].Position = _slotTable._slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
         _slotTable._slots[4].Position = _slotTable._slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
@@ -1089,7 +1094,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
-        body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.SecondPhaseThinking;
         _slotTable._slots[2].Position = _slotTable._slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
         _slotTable._slots[3].Position = _slotTable._slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
         _slotTable._slots[4].Position = _slotTable._slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
@@ -1101,9 +1106,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
         {
-            body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-            body.VariableC = KraidHeadAnimations.RoarEntryDuration;
+            state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
     }
 
@@ -1114,7 +1119,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (result == ushort.MaxValue)
         {
             SetupKraidFirstPhaseThinking(body, state);
-            body.VariableC = 90;
+            state.Parts[body.SlotIndex].HeadTimer = 90;
 
             // Bits 2 and 8-15 are populated by body/mouth projectile handling. Preserve
             // the cartridge arithmetic now so adding collision cannot change sequencing.
@@ -1123,8 +1128,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
                 {
-                    body.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
-                    body.VariableF = 64;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
+                    state.Parts[body.SlotIndex].FunctionTimer = 64;
                     state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
                     state.Unknown2 = 2;
                     return;
@@ -1137,7 +1142,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after `$AF3D` reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
-            body.VariableC % 16 == 0)
+            state.Parts[body.SlotIndex].HeadTimer % 16 == 0)
         {
             state.SpitRockRequestCount++;
             if (SpawnKraidSpitRock(body))
@@ -1153,11 +1158,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal ushort ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
-        NativeCountdown headTimer = NativeCountdown.FromRaw(body.VariableC);
+        NativeCountdown headTimer = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].HeadTimer));
         if (headTimer.IsZero)
             return 0;
         NativeWordCounterStep step = headTimer.Decrement();
-        body.VariableC = step.Remaining.RawValue;
+        state.Parts[body.SlotIndex].HeadTimer = step.Remaining.RawValue;
         return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : headTimer.RawValue;
     }
 
@@ -1184,7 +1189,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return ushort.MaxValue;
 
             case AnimationProgramAdvanceKind.Show:
-                body.VariableC = checked((ushort)advance.Duration);
+                state.Parts[body.SlotIndex].HeadTimer = checked((ushort)advance.Duration);
                 state.DisplayedHeadFrame = advance.Frame;
                 TransferKraidHeadTilemap(state, KraidHeadFrameDefinitions.PresentationKey(advance.Frame));
                 return 1;
@@ -1222,15 +1227,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (ProcessKraidHeadInstruction(body, state) != ushort.MaxValue)
             return;
-        body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
-        body.VariableC = 90;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
+        state.Parts[body.SlotIndex].HeadTimer = 90;
         if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != 0)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
-                body.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
-                body.VariableF = 64;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
+                state.Parts[body.SlotIndex].FunctionTimer = 64;
                 state.Parts[0].NextFunction = KraidAiFunction.InitializeEyeGlow;
                 state.Unknown2 = 2;
                 return;
@@ -1242,9 +1247,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Seeds eye-glow palette state after a body hit.</summary>
     internal void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
-        body.VariableA = (ushort)KraidAiFunction.GlowEye;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.GlowEye;
         state.HeadProgram = KraidHeadAnimations.EyeGlowAfterEntryFrame;
-        body.VariableC = KraidHeadAnimations.EyeGlowEntryDuration;
+        state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.EyeGlowEntryDuration;
         GlowKraidEye(body, state);
     }
 
@@ -1280,7 +1285,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             eyeColors.Write(colorIndex, new Bgr555(red, green, color.Blue));
         }
         if (completedChannels >= 6)
-            body.VariableA = (ushort)KraidAiFunction.UnglowEye;
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.UnglowEye;
     }
 
     /// <summary>Restores the eye palette after the reaction completes.</summary>
@@ -1318,9 +1323,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (changedChannels == 0)
         {
-            body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
+            state.Parts[body.SlotIndex].Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-            body.VariableC = KraidHeadAnimations.RoarEntryDuration;
+            state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
     }
     // These collision checks belong to actor AI rather than generic interactive hitboxes.
@@ -1329,7 +1334,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     private void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if ((KraidAiFunction)body.VariableA >= KraidAiFunction.DeathInitialize)
+        if (state.Parts[body.SlotIndex].Function >= KraidAiFunction.DeathInitialize)
             return;
         short relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
         if (unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
@@ -1373,7 +1378,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         VramWriteQueue? vramWriteQueue,
         ushort cameraX)
     {
-        switch ((KraidAiFunction)body.VariableA)
+        switch (state.Parts[body.SlotIndex].Function)
         {
             case KraidAiFunction.DeathInitialize:
                 InitializeKraidDeath(body, state);
@@ -1383,7 +1388,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _ = ProcessKraidHeadInstruction(body, state);
                 if (AdvanceKraidRoomBackgroundFade(fadeToBlack: true))
                 {
-                    body.VariableA = (ushort)KraidAiFunction.DeathUpdateTopTilemap;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateTopTilemap;
                     state.HurtFrameTimer = NativeCountdown.Start(1);
                     state.HurtFrame = 1;
                     TransferKraidTopTilemap(state);
@@ -1392,18 +1397,18 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.DeathUpdateTopTilemap:
                 _ = ProcessKraidHeadInstruction(body, state);
-                body.VariableA = (ushort)KraidAiFunction.DeathUpdateBottomTilemap;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateBottomTilemap;
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
-                    _slotTable._slots[lintSlot].VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
-                    _slotTable._slots[lintSlot].VariableF = KraidStillPartTimer;
+                    state.Parts[_slotTable._slots[lintSlot].SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
+                    state.Parts[_slotTable._slots[lintSlot].SlotIndex].FunctionTimer = KraidStillPartTimer;
                 }
                 TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.DeathUpdateBottomTilemap:
                 _ = ProcessKraidHeadInstruction(body, state);
-                body.VariableA = (ushort)KraidAiFunction.DeathSink;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = NativeCountdown.Start(43);
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
@@ -1412,7 +1417,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _slotTable._slots[1].InstructionTimer = NativeCountdown.Start(1);
                 SetKraidPartProgram(_slotTable._slots[5], KraidPartProgram.FootInitial);
                 _slotTable._slots[5].InstructionTimer = NativeCountdown.Start(1);
-                _slotTable._slots[5].VariableA = (ushort)KraidAiFunction.NoOperation;
+                state.Parts[_slotTable._slots[5].SlotIndex].Function = KraidAiFunction.NoOperation;
                 TransferKraidBottomTilemap(state);
                 return;
 
@@ -1421,11 +1426,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.DeathClearTopTilemap:
-                body.VariableA = (ushort)KraidAiFunction.DeathClearBottomTilemap;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearBottomTilemap;
                 ClearKraidTopTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathClearBottomTilemap:
-                body.VariableA = (ushort)KraidAiFunction.DeathLoadBg3Quarter1;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathLoadBg3Quarter1;
                 ClearKraidBottomTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter1:
@@ -1466,13 +1471,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.MusicRequest = MusicCommand.SelectTrack(3);
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
                 {
-                    body.VariableA = (ushort)KraidAiFunction.DeathFinishedWasDead;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasDead;
                 }
                 else
                 {
                     _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
                     state.BossDefeatPersisted = true;
-                    body.VariableA = (ushort)KraidAiFunction.DeathFinishedWasAlive;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasAlive;
                 }
                 state.DeathSequenceComplete = true;
                 return;
@@ -1485,7 +1490,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _frameResults.KraidLayer1XBlockReset = true;
                 return;
             default:
-                throw new InvalidOperationException($"Kraid body function $A7:{body.VariableA:X4} is not a death function.");
+                throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a death function.");
         }
     }
 
@@ -1511,9 +1516,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 ReadKraidColor(KraidPaletteSource.DeathArm, color));
         SetKraidPartProgram(_slotTable._slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
         _slotTable._slots[1].InstructionTimer = NativeCountdown.Start(1);
-        body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
-        body.VariableC = KraidHeadAnimations.DeathEntryDuration;
+        state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.DeathEntryDuration;
         // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
         // nails, then the three lints. A still holds each slot's native index, which
         // EnemyDeath treats as explosion type zero; every part leaves a death explosion.
@@ -1552,7 +1557,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         for (int slot = 2; slot <= 5; slot++)
             _slotTable._slots[slot].Properties = otherProperties;
-        body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathClearTopTilemap;
         // $A7:C594 returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 
@@ -1620,7 +1625,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 destinationWord * sizeof(ushort));
 
         state.DeathBg3TransferCount++;
-        body.VariableA = (ushort)next;
+        state.Parts[body.SlotIndex].Function = next;
     }
     /// <summary>Starts growth only after the small-form transition requirements are met.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
@@ -1628,20 +1633,20 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health >= state.HealthEighthThreshold(6))
             return false;
 
-        body.VariableA = (ushort)KraidAiFunction.ProcessHeadInstructionAndTimer;
-        body.VariableF = 180;
+        state.Parts[body.SlotIndex].Function = KraidAiFunction.ProcessHeadInstructionAndTimer;
+        state.Parts[body.SlotIndex].FunctionTimer = 180;
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
         state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
-        body.VariableC = checked((ushort)KraidHeadAnimations.GrowthResumeDelay(resume));
+        state.Parts[body.SlotIndex].HeadTimer = checked((ushort)KraidHeadAnimations.GrowthResumeDelay(resume));
         _earthquake.EarthquakeType = 4;
         _earthquake.EarthquakeTimer = NativeCountdown.Start(340);
 
         RoomEnemySlot foot = _slotTable._slots[5];
         SetKraidPartProgram(foot, KraidPartProgram.FootInitial);
         foot.InstructionTimer = NativeCountdown.Start(1);
-        foot.VariableA = (ushort)KraidAiFunction.NoOperation;
+        state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         RoomEnemySlot arm = _slotTable._slots[1];
         SetKraidPartProgram(arm, KraidPartProgram.ArmNormal);
         arm.InstructionTimer = NativeCountdown.Start(1);
@@ -1654,11 +1659,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches rise, scroll, tilemap, and palette stages of growth.</summary>
     internal void RunKraidGrowthFunction(RoomEnemySlot body, KraidEnemyState state)
     {
-        switch ((KraidAiFunction)body.VariableA)
+        switch (state.Parts[body.SlotIndex].Function)
         {
             case KraidAiFunction.GrowReleaseCamera:
                 ApplyKraidScrolls(grown: true);
-                body.VariableA = (ushort)KraidAiFunction.GrowBreakCeilingPlatforms;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowBreakCeilingPlatforms;
                 state.CameraReleasedForSecondPhase = true;
                 state.EjectionLimit = new Position16<RoomPixels>(0, 164);
                 return;
@@ -1669,29 +1674,29 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? 1 : -1))));
                 body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
-                if ((body.Position.Y.Whole & 3) == 0 && body.VariableF < 18)
+                if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRockOffset < 18)
                 {
-                    int ceilingIndex = body.VariableF / 2;
-                    ushort rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(body.VariableF);
+                    int ceilingIndex = state.Parts[body.SlotIndex].CeilingRockOffset / 2;
+                    ushort rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(checked((ushort)state.Parts[body.SlotIndex].CeilingRockOffset));
                     if (SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
                     _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
-                    body.VariableF = unchecked((ushort)(body.VariableF + 2));
+                    state.Parts[body.SlotIndex].CeilingRockOffset = unchecked((ushort)(state.Parts[body.SlotIndex].CeilingRockOffset + 2));
                 }
                 if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
-                    body.VariableA = (ushort)KraidAiFunction.GrowSetBg2Priority;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowSetBg2Priority;
                 return;
 
             case KraidAiFunction.GrowSetBg2Priority:
                 SetKraidBg2Priority(state);
                 _slotTable._slots[1].Properties = _slotTable._slots[1].Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
-                body.VariableA = (ushort)KraidAiFunction.GrowFinishBg2Update;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFinishBg2Update;
                 TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.GrowFinishBg2Update:
-                body.VariableA = (ushort)KraidAiFunction.GrowDrawRoomBackground;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _slotTable._slots[5];
                 SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
                 foot.InstructionTimer = NativeCountdown.Start(1);
@@ -1704,9 +1709,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.GrowDrawRoomBackground:
-                body.VariableA = (ushort)KraidAiFunction.GrowFadeInRoomBackground;
-                body.VariableE = 0;
-                body.VariableF = 0;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
+                state.Parts[body.SlotIndex].CeilingRockOffset = 0;
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it
@@ -1722,7 +1726,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 FinishKraidGrowth(body, state);
                 return;
             default:
-                throw new InvalidOperationException($"Kraid body function $A7:{body.VariableA:X4} is not a growth function.");
+                throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a growth function.");
         }
     }
 
@@ -1774,23 +1778,22 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int slot = (int)part;
             RoomEnemySlot lint = _slotTable._slots[slot];
-            lint.VariableF = KraidLintInitializationDefinitions.InitialDelay(part);
-            lint.VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
+            state.Parts[lint.SlotIndex].FunctionTimer = KraidLintInitializationDefinitions.InitialDelay(part);
+            state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
             state.Parts[slot].NextFunction = KraidAiFunction.LintProduce;
-            lint.VariableB = 0;
+            state.Parts[lint.SlotIndex].LintTravel = 0;
         }
         for (int nailIndex = 0; nailIndex < 2; nailIndex++)
         {
             RoomEnemySlot nail = _slotTable._slots[6 + nailIndex];
             state.Parts[6 + nailIndex].NextFunction = KraidAiFunction.FingernailInitialize;
-            nail.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
-            nail.VariableF = unchecked((ushort)(64 + nailIndex * 64));
+            state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
+            state.Parts[nail.SlotIndex].FunctionTimer = unchecked((ushort)(64 + nailIndex * 64));
         }
-        _slotTable._slots[1].VariableC = 1;
         state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _slotTable._slots[5];
-        foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkToStart;
+        state.Parts[foot.SlotIndex].Function = KraidAiFunction.FootSecondPhaseWalkToStart;
         SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
         foot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -1820,10 +1823,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         KraidPartState part = state.Parts[nail.SlotIndex];
-        switch ((KraidAiFunction)nail.VariableA)
+        switch (state.Parts[nail.SlotIndex].Function)
         {
             case KraidAiFunction.HandleFunctionTimer:
-                TickKraidFunctionTimer(nail, part);
+                TickKraidFunctionTimer(part);
                 return;
 
             case KraidAiFunction.FingernailInitialize:
@@ -1833,7 +1836,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.FingernailWaitForLint:
                 if (unchecked((short)(_slotTable._slots[2].Position.X.Whole - 256)) >= 0)
                 {
-                    nail.VariableA = (ushort)part.NextFunction;
+                    state.Parts[nail.SlotIndex].Function = part.NextFunction;
                     nail.Properties = nail.Properties.Without(
                         EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 }
@@ -1850,7 +1853,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kraid fingernail function $A7:{nail.VariableA:X4} is not translated.");
+                    $"Kraid fingernail function {state.Parts[nail.SlotIndex].Function} is not translated.");
         }
     }
 
@@ -1863,14 +1866,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot sibling = _slotTable._slots[siblingIndex];
         KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
         ushort random = _room.Random.Read();
-        (nail.VariableB, nail.VariableC, nail.VariableD, nail.VariableE) =
-            KraidNailLaunchDefinitions.FromSiblingVelocity(sibling.VariableE);
+        (ushort xFraction, ushort xWhole, ushort yFraction, ushort yWhole) =
+            KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
+        part.NailVelocity = FixedVector<RoomPixels>.FromWords(xWhole, xFraction, yWhole, yFraction);
         nail.Parameter1 = 1;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         nail.InstructionTimer = NativeCountdown.Start(1);
         SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
-        nail.VariableA = (ushort)KraidAiFunction.FingernailFire;
+        part.Function = KraidAiFunction.FingernailFire;
 
         if ((random & 1) == 0 || siblingPart.AlternateSpawn)
         {
@@ -1883,11 +1887,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(new(50, 240));
-        nail.VariableB = 0;
-        nail.VariableC = 1;
-        nail.VariableD = 0;
-        nail.VariableE = 0;
-        nail.VariableA = (ushort)KraidAiFunction.FingernailWaitForLint;
+        part.NailVelocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
+        part.Function = KraidAiFunction.FingernailWaitForLint;
         part.NextFunction = KraidAiFunction.FingernailFire;
         nail.Properties = nail.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -1896,24 +1897,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
     internal void TickKraidNailFlight(RoomEnemySlot nail, RoomLevelData level)
     {
-        int horizontal = CombineKraidVelocity(nail.VariableB, nail.VariableC);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, horizontal))
-        {
-            (nail.VariableB, nail.VariableC) =
-                ReflectKraidNailHorizontalVelocity(nail.VariableB, nail.VariableC);
-        }
+        KraidPartState part = Part(nail);
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X.RawValue))
+            part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
         else if (KraidBodyContourReflectsNail(nail))
-        {
-            (nail.VariableB, nail.VariableC) =
-                ReflectKraidNailHorizontalVelocity(nail.VariableB, nail.VariableC);
-        }
+            part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
 
-        int vertical = CombineKraidVelocity(nail.VariableD, nail.VariableE);
-        if (_terrain.MoveEnemyVertically(level, nail, vertical))
-        {
-            (nail.VariableD, nail.VariableE) =
-                NegateKraidVelocity(nail.VariableD, nail.VariableE);
-        }
+        if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y.RawValue))
+            part.NailVelocity = part.NailVelocity.WithY(SnesSignedSixteenSixteen.FromRaw(unchecked(-part.NailVelocity.Y.RawValue)));
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
@@ -1924,29 +1915,16 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Position.X.Whole + KraidNailContourDefinitions.LeftOffset(
                 unchecked((ushort)(nail.Position.Y.Whole - body.Position.Y.Whole)))));
         return unchecked((short)(nail.Position.X.Whole + nail.Radius.X - contourX)) >= 0 &&
-            unchecked((short)nail.VariableC) >= 0;
+            Part(nail).NailVelocity.X.WholePixels >= 0;
     }
-
-    /// <summary>Combines the native low and high velocity words as signed fixed-point motion.</summary>
-    private static int CombineKraidVelocity(ushort low, ushort high) =>
-        unchecked((int)(SnesSixteenSixteen.Compose(high, low)));
 
     /// <summary>
     /// Native horizontal wall/contour reflections at $A7:BE9E and BEE2 negate
     /// each word independently. Do not propagate fractional borrow as a normal
     /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
     /// </summary>
-    private static (ushort Low, ushort High) ReflectKraidNailHorizontalVelocity(ushort low, ushort high) =>
-        (unchecked((ushort)-low), unchecked((ushort)-high));
-
-    /// <summary>Negates a two-word native velocity while preserving wraparound.</summary>
-    private static (ushort Low, ushort High) NegateKraidVelocity(ushort low, ushort high)
-    {
-        int negated = unchecked(-CombineKraidVelocity(low, high));
-        return (
-            unchecked((ushort)negated),
-            SnesFixedPosition.WholeOf(unchecked((int)((uint)negated))));
-    }
+    private static SnesSignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SnesSignedSixteenSixteen velocity) =>
+        SnesSignedSixteenSixteen.FromParts(unchecked((short)-velocity.WholeWord), unchecked((ushort)-velocity.Fraction));
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
     private void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
@@ -1977,7 +1955,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ResolveKraidLintContact(lint, samus);
         lint.InstructionTimer = NativeCountdown.Start(KraidStillPartTimer);
         KraidPartState part = state.Parts[lint.SlotIndex];
-        switch ((KraidAiFunction)lint.VariableA)
+        switch (state.Parts[lint.SlotIndex].Function)
         {
             case KraidAiFunction.LintInactive:
                 return;
@@ -1995,7 +1973,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kraid lint slot {lint.SlotIndex} function $A7:{lint.VariableA:X4} " +
+                    $"Kraid lint slot {lint.SlotIndex} function {state.Parts[lint.SlotIndex].Function} " +
                     "is not translated.");
         }
     }
@@ -2004,7 +1982,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
         partSlot.Position = partSlot.Position.WithWholeX(unchecked((ushort)(_slotTable._slots[0].Position.X.Whole - partSlot.Radius.X)));
-        TickKraidFunctionTimer(partSlot, part);
+        TickKraidFunctionTimer(part);
     }
 
     /// <summary>Starts a lint projectile from the attached part.</summary>
@@ -2013,26 +1991,26 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         lint.Properties = lint.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
-            lint.VariableC + _slotTable._slots[0].Position.X.Whole - lint.VariableB)));
-        lint.VariableB = unchecked((ushort)(lint.VariableB + 1));
-        if (unchecked((short)(lint.VariableB - 32)) >= 0)
+            Part(lint).LintXOffset + _slotTable._slots[0].Position.X.Whole - Part(lint).LintTravel)));
+        Part(lint).LintTravel = unchecked((ushort)(Part(lint).LintTravel + 1));
+        if (unchecked((short)(Part(lint).LintTravel - 32)) >= 0)
         {
-            lint.VariableA = (ushort)KraidAiFunction.LintCharge;
-            lint.VariableF = 30;
+            Part(lint).Function = KraidAiFunction.LintCharge;
+            Part(lint).FunctionTimer = 30;
         }
     }
 
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.PaletteIndex = (lint.VariableF & 1) != 0 ? (ushort)3584 : (ushort)0;
+        lint.PaletteIndex = (Part(lint).FunctionTimer & 1) != 0 ? (ushort)3584 : (ushort)0;
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
-            lint.VariableC + _slotTable._slots[0].Position.X.Whole - lint.VariableB)));
-        NativeWordCounterStep charge = NativeCountdown.FromRaw(lint.VariableF).Decrement();
-        lint.VariableF = charge.Remaining.RawValue;
+            Part(lint).LintXOffset + _slotTable._slots[0].Position.X.Whole - Part(lint).LintTravel)));
+        NativeWordCounterStep charge = NativeCountdown.FromRaw(checked((ushort)Part(lint).FunctionTimer)).Decrement();
+        Part(lint).FunctionTimer = charge.Remaining.RawValue;
         if (charge.IsZero)
         {
-            lint.VariableA = (ushort)KraidAiFunction.LintFire;
+            Part(lint).Function = KraidAiFunction.LintFire;
             LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.LintFire);
         }
     }
@@ -2046,10 +2024,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(lint.Position.X.Whole - 32)) < 0)
         {
             lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
-            lint.VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
-            lint.VariableF = 300;
+            part.Function = KraidAiFunction.AlignPartToKraid;
+            part.FunctionTimer = 300;
             part.NextFunction = KraidAiFunction.LintProduce;
-            lint.VariableB = 0;
+            part.LintTravel = 0;
         }
 
         // Native checks support after moving and even on the frame that hides the lint.
@@ -2079,14 +2057,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : foot.Properties.With(EnemyProperties.Invisible);
 
         KraidPartState part = state.Parts[5];
-        switch ((KraidAiFunction)foot.VariableA)
+        switch (state.Parts[foot.SlotIndex].Function)
         {
             case KraidAiFunction.NoOperation:
                 return;
             case KraidAiFunction.FootFirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
                     return;
-                TickKraidFunctionTimer(foot, part);
+                TickKraidFunctionTimer(part);
                 return;
             case KraidAiFunction.FootPrepareFirstPhaseLunge:
                 PrepareKraidFirstPhaseLunge(body, foot);
@@ -2098,7 +2076,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 TickKraidFootTransitionTimer(foot, part);
                 return;
             case KraidAiFunction.HandleFunctionTimer:
-                TickKraidFunctionTimer(foot, part);
+                TickKraidFunctionTimer(part);
                 return;
             case KraidAiFunction.FootFirstPhaseRetreat:
                 RunKraidFirstPhaseRetreat(body, foot, part);
@@ -2120,7 +2098,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kraid foot function $A7:{foot.VariableA:X4} is not translated.");
+                    $"Kraid foot function {state.Parts[foot.SlotIndex].Function} is not translated.");
         }
     }
 
@@ -2136,8 +2114,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         arm.InstructionTimer = NativeCountdown.Start(1);
         SetKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
         foot.InstructionTimer = NativeCountdown.Start(1);
-        foot.VariableA = (ushort)KraidAiFunction.FootFirstPhaseLunge;
-        foot.VariableF = 0;
+        Part(foot).Function = KraidAiFunction.FootFirstPhaseLunge;
+        Part(foot).FunctionTimer = 0;
     }
 
     /// <summary>Moves the small-form foot and body through the forward lunge.</summary>
@@ -2155,8 +2133,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Position.X.Whole == 92)
         {
             part.NextFunction = KraidAiFunction.FootFirstPhaseRetreat;
-            foot.VariableA = (ushort)KraidAiFunction.DecrementFunctionTimerAndStartWalk;
-            foot.VariableF = 1;
+            Part(foot).Function = KraidAiFunction.DecrementFunctionTimerAndStartWalk;
+            Part(foot).FunctionTimer = 1;
             SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
         }
         else
@@ -2169,14 +2147,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down a foot phase and installs its next function at zero.</summary>
     private void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidPartState part)
     {
-        NativeCountdown phaseTimer = NativeCountdown.FromRaw(foot.VariableF);
+        NativeCountdown phaseTimer = NativeCountdown.FromRaw(checked((ushort)Part(foot).FunctionTimer));
         if (phaseTimer.IsZero)
             return;
         NativeWordCounterStep step = phaseTimer.Decrement();
-        foot.VariableF = step.Remaining.RawValue;
+        Part(foot).FunctionTimer = step.Remaining.RawValue;
         if (step.IsZero)
         {
-            foot.VariableA = (ushort)part.NextFunction;
+            Part(foot).Function = part.NextFunction;
             SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
             foot.InstructionTimer = NativeCountdown.Start(1);
         }
@@ -2201,8 +2179,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             arm.InstructionTimer = NativeCountdown.Start(1);
             SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             foot.InstructionTimer = NativeCountdown.Start(1);
-            foot.VariableA = (ushort)KraidAiFunction.FootFirstPhaseThinking;
-            foot.VariableF = 300;
+            Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;
+            Part(foot).FunctionTimer = 300;
             part.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
         }
         else
@@ -2227,8 +2205,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (KraidPartResidentProgram(foot) < KraidPartProgram.FootWalkingBackwardLoop)
             return;
-        foot.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
-        foot.VariableF = 180;
+        Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
+        Part(foot).FunctionTimer = 180;
         part.NextFunction = KraidAiFunction.FootSecondPhaseInitialize;
         SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
         foot.InstructionTimer = NativeCountdown.Start(1);
@@ -2260,7 +2238,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
-        foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingRight;
+        Part(foot).Function = KraidAiFunction.FootSecondPhaseWalkingRight;
         SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
         foot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -2274,7 +2252,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
-        foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingLeft;
+        Part(foot).Function = KraidAiFunction.FootSecondPhaseWalkingLeft;
         SetKraidPartProgram(foot, KraidPartProgram.FootWalkingForward);
         foot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -2291,7 +2269,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (KraidPartResidentProgram(foot) >= KraidPartProgram.FootWalkingBackwardLoop)
         {
-            foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseThinking;
+            Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
             SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             foot.InstructionTimer = NativeCountdown.Start(1);
         }
@@ -2313,7 +2291,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWholeX(target.X);
         if (KraidPartResidentProgram(foot) == KraidPartProgram.FootWalkingForwardFinished)
         {
-            foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseThinking;
+            Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
             SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             foot.InstructionTimer = NativeCountdown.Start(1);
         }
@@ -2434,24 +2412,24 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         KraidEnemyState state,
         SamusState? samus)
     {
-        KraidAiFunction function = (KraidAiFunction)body.VariableA;
+        KraidAiFunction function = state.Parts[body.SlotIndex].Function;
         switch (function)
         {
             case KraidAiFunction.RestrictSamusToFirstScreen:
                 RestrictSamusToKraidFirstScreen(samus);
-                TickKraidFunctionTimer(body, state.Parts[0]);
+                TickKraidFunctionTimer(state.Parts[0]);
                 return;
 
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
-                body.VariableA = (ushort)KraidAiFunction.RaiseLoadBottomTilemap;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseLoadBottomTilemap;
                 TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.RaiseLoadBottomTilemap:
                 RestrictSamusToKraidFirstScreen(samus);
-                body.VariableA = (ushort)KraidAiFunction.RaiseRocksEvery16Frames;
-                body.VariableF = 120;
+                state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery16Frames;
+                state.Parts[body.SlotIndex].RisingRockTimer = 120;
                 _earthquake.EarthquakeTimer = NativeCountdown.Start(496);
                 state.MusicRequest = MusicCommand.SelectTrack(5);
                 TransferKraidBottomTilemap(state);
@@ -2459,14 +2437,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.RaiseRocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                NativeWordCounterStep slowRockStep = NativeCountdown.FromRaw(body.VariableF).Decrement();
-                body.VariableF = slowRockStep.Remaining.RawValue;
+                NativeWordCounterStep slowRockStep = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
+                state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining.RawValue;
                 if (slowRockStep.IsZero)
                 {
-                    body.VariableA = (ushort)KraidAiFunction.RaiseRocksEvery8Frames;
-                    body.VariableF = 96;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery8Frames;
+                    state.Parts[body.SlotIndex].RisingRockTimer = 96;
                 }
-                else if ((body.VariableF & 15) == 0)
+                else if ((state.Parts[body.SlotIndex].RisingRockTimer & 15) == 0)
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -2474,14 +2452,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.RaiseRocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                NativeWordCounterStep fastRockStep = NativeCountdown.FromRaw(body.VariableF).Decrement();
-                body.VariableF = fastRockStep.Remaining.RawValue;
+                NativeWordCounterStep fastRockStep = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
+                state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining.RawValue;
                 if (fastRockStep.IsZero)
                 {
-                    body.VariableA = (ushort)KraidAiFunction.RaiseBody;
-                    body.VariableF = 288;
+                    state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseBody;
+                    state.Parts[body.SlotIndex].FunctionTimer = 288;
                 }
-                else if ((body.VariableF & 7) == 0)
+                else if ((state.Parts[body.SlotIndex].RisingRockTimer & 7) == 0)
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -2506,8 +2484,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     // The foot owns first-phase lunges independently of the body thinker.
                     // Its 300-frame delay starts on the exact rise-completion frame.
                     RoomEnemySlot foot = _slotTable._slots[5];
-                    foot.VariableA = (ushort)KraidAiFunction.FootFirstPhaseThinking;
-                    foot.VariableF = 300;
+                    state.Parts[foot.SlotIndex].Function = KraidAiFunction.FootFirstPhaseThinking;
+                    state.Parts[foot.SlotIndex].FunctionTimer = 300;
                     state.Parts[5].NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
                     SetKraidPartProgram(_slotTable._slots[1], KraidPartProgram.ArmNormal);
                     _slotTable._slots[1].InstructionTimer = NativeCountdown.Start(1);
@@ -2516,7 +2494,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function $A7:{body.VariableA:X4} is not translated.");
+                    $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
         }
     }
 
@@ -2535,17 +2513,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Counts a Kraid function timer down and installs its next state at zero.</summary>
-    private static void TickKraidFunctionTimer(
-        RoomEnemySlot slot,
-        KraidPartState part)
+    private static void TickKraidFunctionTimer(KraidPartState part)
     {
-        NativeCountdown functionTimer = NativeCountdown.FromRaw(slot.VariableF);
+        NativeCountdown functionTimer = NativeCountdown.FromRaw(checked((ushort)part.FunctionTimer));
         if (functionTimer.IsZero)
             return;
         NativeWordCounterStep step = functionTimer.Decrement();
-        slot.VariableF = step.Remaining.RawValue;
+        part.FunctionTimer = step.Remaining.RawValue;
         if (step.IsZero)
-            slot.VariableA = (ushort)part.NextFunction;
+            part.Function = part.NextFunction;
     }
 
     /// <summary>Adds native signed vertical motion to the body position with fixed-point wraparound.</summary>
@@ -2719,5 +2695,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return false;
     
+    }
+
+    /// <summary>The state of the Kraid part in <paramref name="slot"/>.</summary>
+    private KraidPartState Part(RoomEnemySlot slot) => RequireKraidState(slot).Parts[slot.SlotIndex];
+
+    /// <summary>Installs a part's state with its slot, so a kill empties its record words.</summary>
+    private static void RegisterKraidPart(RoomEnemySlot slot, KraidEnemyState state)
+    {
+        KraidPartState part = state.Parts[slot.SlotIndex];
+        slot.SetSpeciesState(part, part.ClearWithRecord);
     }
 }

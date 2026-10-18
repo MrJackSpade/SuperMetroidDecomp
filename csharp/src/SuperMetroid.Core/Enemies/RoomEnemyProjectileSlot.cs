@@ -137,12 +137,8 @@ public sealed class RoomEnemyProjectileSlot
     /// bank-$B4 drop table.
     /// </summary>
     public EnemyDefinitionId EnemyHeaderPointer { get; internal set; }
-    /// <summary>
-    /// Direct bank-$B4 drop-table pointer used by the few boss/projectile instructions
-    /// which already resolved a special drop table before allocating pickup $F337. Zero
-    /// means that <see cref="EnemyHeaderPointer"/> remains authoritative.
-    /// </summary>
-    public ushort ItemDropChancesPointerOverride { get; internal set; }
+    /// <summary>The chance table a boss-selected drop rolls against instead of its enemy header's, or null.</summary>
+    internal EnemyDropChances? DropChancesOverride { get; set; }
 
     /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any native list.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
@@ -182,7 +178,7 @@ public sealed class RoomEnemyProjectileSlot
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
         EnemyHeaderPointer = EnemyDefinitionId.None;
-        ItemDropChancesPointerOverride = 0;
+        DropChancesOverride = null;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }
 }

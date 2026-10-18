@@ -240,7 +240,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.ItemDropChancesPointerOverride = itemDropChancesPointer;
+        pickup.DropChancesOverride = itemDropChancesPointer == 0 ? null : EnemyDropChanceDefinitions.At(itemDropChancesPointer);
         pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -313,12 +313,11 @@ internal sealed class EnemyDeathsAndDrops
     {
         SamusState samus = _samusForEnemyDrops ?? throw new InvalidOperationException(
             "Enemy drop selection requires the active Samus state.");
-        ushort chancesPointer = ResolveEnemyDropChancesPointer(projectile);
-        if (chancesPointer == 0)
+        if (ResolveEnemyDropChances(projectile) is not { } table)
             return EnemyPickupKind.NoDrop;
 
-        Span<byte> chances = stackalloc byte[6];
-        EnemyDropChanceDefinitions.Copy(chancesPointer, chances);
+        Span<byte> chances = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
+        table.CopyTo(chances);
 
         byte random;
         do
@@ -416,14 +415,18 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPickupKind.NoDrop;
     }
 
-    /// <summary>Uses an explicit boss chance table, a saved enemy header, or the cleared-header overread table.</summary>
-    private ushort ResolveEnemyDropChancesPointer(RoomEnemyProjectileSlot projectile)
+    /// <summary>
+    /// Uses an explicit boss chance table, a saved enemy header's, or none: the cleared-header overread pointer and a
+    /// zero header pointer both mean no drop.
+    /// </summary>
+    private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.ItemDropChancesPointerOverride != 0)
-            return projectile.ItemDropChancesPointerOverride;
-        if (projectile.EnemyHeaderPointer == 0)
-            return EnemyDropChanceDefinitions.ClearedHeaderPointer;
-        return _room.LoadedDefinitions.ReadEnemyDefinition(projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        if (projectile.DropChancesOverride is { } table)
+            return table;
+        ushort pointer = projectile.EnemyHeaderPointer == 0
+            ? EnemyDropChanceDefinitions.ClearedHeaderPointer
+            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        return pointer == 0 ? null : EnemyDropChanceDefinitions.At(pointer);
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>

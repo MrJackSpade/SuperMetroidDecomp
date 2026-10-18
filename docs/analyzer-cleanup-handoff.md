@@ -620,9 +620,8 @@ Commit and push that update too.
     it; tests, the resource audit and the generator (which now writes to Tooling) do.
   - Enemy collision callbacks: the touch/shot/bomb contexts and `IEnemyPrivateShotCallback` carry only
     `EnemyInteractionCallback?`; Crocomire's private address enum is gone; the dead Tourian corpse profiles name
-    their rot-trigger callbacks. Extended-hitbox owners answer with typed callbacks (species codecs map kinds to
-    members); the collision walker holds no callback words. The enum still carries address values and Core still
-    decodes header words through `EnemyAiCodePointers`; neither is an open census finding.
+    their rot-trigger callbacks. Next: extended-hitbox owners answer with typed callbacks (species codecs map kinds
+    to members), then the enum loses its address values and `EnemyAiCodePointers` leaves Core.
   - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
     run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
     other production projects still reach into test-support), so it was discarded; those findings need a

@@ -1581,7 +1581,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " collision option", projectile.CollisionOption, NativeSnapshotMemory.EnemyProjectileCollisionOption + index);
                 if (projectile.Kind is RoomEnemyProjectileKind.EnemyDeathExplosion or RoomEnemyProjectileKind.EnemyDeathPickup)
                 {
-                    AssertTrue(projectile.ItemDropChancesPointerOverride == 0,
+                    AssertTrue(projectile.DropChancesOverride is null,
                         "Movie drop uses a direct chance-table override; map its native source before comparing");
                     // Death explosions consume their per-slot header on their later
                     // drop instruction. Direct F337 pickups consume it immediately via

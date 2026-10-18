@@ -71,4 +71,12 @@ internal static class EnemyDropChanceDefinitions
 
         PackedChances.AsSpan(byteOffset, RecordSize).CopyTo(destination);
     }
+
+    /// <summary>The chance table at <paramref name="pointer"/>; the pointer is validated as <see cref="Copy"/> does.</summary>
+    internal static EnemyDropChances At(ushort pointer)
+    {
+        Span<byte> columns = stackalloc byte[RecordSize];
+        Copy(pointer, columns);
+        return new EnemyDropChances(columns);
+    }
 }

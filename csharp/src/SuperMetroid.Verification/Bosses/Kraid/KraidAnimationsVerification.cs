@@ -67,7 +67,7 @@ internal static class KraidAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
                     AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
-                    AssertEqual(operand, steps[index].Frame.Spritemap, $"{at}: spritemap");
+                    AssertEqual(operand, KraidPartFrameDefinitions.Spritemap(steps[index].Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;
@@ -134,7 +134,7 @@ internal static class KraidAnimationsVerification
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "below half health the pause starts the slow swing");
-        AssertEqual(new KraidPartFrame(KraidPartFrameKind.Arm, 0).Spritemap, arm.SpritemapPointer, "the slow swing's first frame shows at once");
+        AssertEqual(KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.InstructionTimer.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.Parts[1].Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);

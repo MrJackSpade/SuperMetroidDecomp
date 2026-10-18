@@ -44,7 +44,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         nativeSlot.Position = nativeSlot.Position.WithWholeY(0x1000);
 
         var frames = CrocomireBodyVisualDefinitions.Frames;
-        AssertEqual(50, frames.Length,
+        AssertEqual(50, frames.Count,
             "all fifty selected Crocomire fight-body roots have collision");
         // The cartridge names each component's hitbox list by address; only this oracle knows those addresses.
         // Each compiled component must hold the list the ROM names: the same rectangles and callbacks, and the same
@@ -105,7 +105,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             "unknown Crocomire body frame fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire body collision never reads ROM bytes");
-        Console.WriteLine($"Crocomire body collision: {frames.Length} frames, " +
+        Console.WriteLine($"Crocomire body collision: {frames.Count} frames, " +
             $"{seenLists.Count} hitbox lists, {probes} native-equivalent probes; " +
             "installed path reads no ROM.");
     }

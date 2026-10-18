@@ -191,10 +191,10 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             var frame = new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, index);
             CrocomireBodyProgram expected = CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | frame.Spritemap));
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFrameSpritemaps.Spritemap(frame)));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (frame.Spritemap + 6 + i * 8)));
+                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFrameSpritemaps.Spritemap(frame) + 6 + i * 8)));
                 if (sprite == 0xd600) { expected = CrocomireBodyProgram.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen; break; }
             }

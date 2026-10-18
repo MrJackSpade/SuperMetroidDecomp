@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -331,7 +332,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.SpritemapPointer = BabyMetroidVisualDefinitions.Spritemap(advance.Frame.Index);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

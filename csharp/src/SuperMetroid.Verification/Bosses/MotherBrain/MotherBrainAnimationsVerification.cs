@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against
@@ -83,7 +84,7 @@ internal static class MotherBrainAnimationsVerification
             int first = steps.Select((step, index) => (step, index)).First(item => item.step.Kind == AnimationProgramStepKind.Show).index;
             int duration = steps[first].Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((ushort?)steps[first].Frame.Spritemap, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
+                AssertEqual((ushort?)MotherBrainVisualDefinitions.Frame(steps[first].Frame.Index).Pointer, enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);

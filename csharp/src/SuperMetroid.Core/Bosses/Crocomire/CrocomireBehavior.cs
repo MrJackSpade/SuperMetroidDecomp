@@ -1429,7 +1429,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         state.BodyFrame = advance.Frame;
-        body.SpritemapPointer = advance.Frame.Spritemap;
+        body.SpritemapPointer = CrocomireBodyFrameSpritemaps.Spritemap(advance.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// The native lists Mother Brain's ROM oracle (#1285) walks: every typed program's entry point, the bank-$A9 opcodes
@@ -261,28 +262,28 @@ internal static class MotherBrainNativeListAddresses
 
     /// <summary>Compares every typed body program with its native list; returns each native record's typed cursor.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> CompareBody(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Body, BodyEntries, frame => frame.Spritemap, BodyNativeOps);
+        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Body, BodyEntries, frame => MotherBrainBodyVisualDefinitions.Frame(frame.Index).Pointer, BodyNativeOps);
 
     /// <summary>Compares every typed brain program with its native list; returns each native record's typed cursor.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainHeadProgram>> CompareHead(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Head, HeadEntries, frame => frame.Spritemap, HeadNativeOps);
+        Walk(cartridge, MotherBrainBank, MotherBrainAnimations.Head, HeadEntries, frame => MotherBrainVisualDefinitions.Frame(frame.Index).Pointer, HeadNativeOps);
 
     /// <summary>Compares the cutscene Baby's typed programs with their native lists.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainBabyProgram>> CompareBaby(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Programs, BabyEntries, frame => frame.Spritemap, BabyNativeOps);
+        Walk(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Programs, BabyEntries, frame => BabyMetroidVisualDefinitions.Spritemap(frame.Index), BabyNativeOps);
 
     /// <summary>Compares the Shitroid's typed programs with their native lists.</summary>
     internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, ShitroidAnimations.Programs, ShitroidEntries, frame => frame.Spritemap, ShitroidNativeOps);
+        Walk(cartridge, MotherBrainBank, ShitroidAnimations.Programs, ShitroidEntries, frame => BabyMetroidVisualDefinitions.Spritemap(frame.Index), ShitroidNativeOps);
 
     /// <summary>Compares the Zebetites' typed health programs with their native lists.</summary>
     internal static void CompareZebetites(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, ZebetiteBank, ZebetiteAnimations.Programs, ZebetiteEntries, frame => frame.Spritemap,
+        Walk(cartridge, ZebetiteBank, ZebetiteAnimations.Programs, ZebetiteEntries, frame => ZebetiteVisualDefinitions.Spritemap(frame.Index),
             new Dictionary<ushort, NativeOp<ZebetiteProgram, ZebetiteFrame, NoAnimationCue>>());
 
     /// <summary>Compares the falling tubes' typed programs with their native lists; returns each native record's typed cursor.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Programs, TubeEntries, frame => frame.Spritemap,
+        Walk(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Programs, TubeEntries, frame => MotherBrainVisualDefinitions.TubeFrame(frame.Index).Pointer,
             new Dictionary<ushort, NativeOp<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>>());
 
     /// <summary>Each glass program's native list in bank $86.</summary>

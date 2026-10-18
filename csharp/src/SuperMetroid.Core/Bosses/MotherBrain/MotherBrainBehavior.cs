@@ -125,7 +125,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 tube.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                tube.SpritemapPointer = advance.Frame.Spritemap;
+                tube.SpritemapPointer = MotherBrainVisualDefinitions.TubeFrame(advance.Frame.Index).Pointer;
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:
@@ -606,7 +606,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
         if (_frameContext._enemyFrameTimeIsFrozen)
         {
-            return step.Kind == AnimationProgramStepKind.Show ? step.Frame.Spritemap : throw new InvalidOperationException(
+            return step.Kind == AnimationProgramStepKind.Show ? MotherBrainVisualDefinitions.Frame(step.Frame.Index).Pointer : throw new InvalidOperationException(
                 $"Mother Brain's frozen brain rests on {step.Kind} step {cursor.Position} of {cursor.Program}, not a frame.");
         }
 
@@ -615,7 +615,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.BrainFrameTimer <= step.Duration)
             {
                 state.BrainFrameTimer++;
-                return step.Frame.Spritemap;
+                return MotherBrainVisualDefinitions.Frame(step.Frame.Index).Pointer;
             }
             cursor = cursor with { Position = cursor.Position + 1 };
         }
@@ -628,7 +628,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native pointer rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
-        return advance.Frame.Spritemap;
+        return MotherBrainVisualDefinitions.Frame(advance.Frame.Index).Pointer;
     }
 
     /// <summary>Advances MotherBrainTubes's typed animation.</summary>
@@ -676,7 +676,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.SpritemapPointer = MotherBrainBodyVisualDefinitions.Frame(advance.Frame.Index).Pointer;
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

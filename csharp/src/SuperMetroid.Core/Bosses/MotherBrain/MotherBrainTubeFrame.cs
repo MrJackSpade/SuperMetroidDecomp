@@ -6,6 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Index">The piece whose pose this is.</param>
 public readonly record struct MotherBrainTubeFrame(int Index)
 {
-    /// <summary>The installed spritemap the pose shows.</summary>
-    internal ushort Spritemap => MotherBrainVisualDefinitions.TubeFrame(Index).Pointer;
 }

@@ -6,6 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Index">The frame's position in the Mother Brain composition catalog.</param>
 public readonly record struct MotherBrainHeadFrame(int Index)
 {
-    /// <summary>The installed spritemap the frame shows.</summary>
-    internal ushort Spritemap => MotherBrainVisualDefinitions.Frame(Index).Pointer;
 }

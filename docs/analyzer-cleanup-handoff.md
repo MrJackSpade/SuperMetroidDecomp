@@ -538,12 +538,16 @@ Commit and push that update too.
     - Q9a (`c2b5eb0fc`, 75 -> 73): palette-FX objects are a value-free `PaletteFxObject` named by the disassembly's
       `PaletteFXObjects_` labels; slots, spawns, area bits and every owner name the object. Test support's
       `PaletteFxObjectAccess` owns the object-to-address map.
-    - Q9b (this commit, 73 -> 71): colours are keyed by `PaletteFxColorKey` (record, written-colour ordinal). Each
+    - Q9b (`577cbbf72`, 73 -> 71): colours are keyed by `PaletteFxColorKey` (record, written-colour ordinal). Each
       colour family exposes `PaletteFxColorRows` (its first record, rows and colours; a probe confirmed every family
       is consecutive records with ordinal equal to colour), and the heat, loading, gunship, glare, Maridia, lightning,
       PLANET ZEBES, statue and title derivations work in rows and colours. The record table keeps layouts only;
       AssetExtraction's `PaletteFxRecordSources` maps record addresses to frames for extraction, and test support's
       `PaletteFxColorLayoutAccess`/`PaletteFxColorAddressAccess`/`PaletteFxProgramLayoutAccess` keep the ROM oracles
       comparing words.
+  - Boss frames (this commit, 71 -> 61): Draygon, Kraid, Mother Brain body/head/tube, Baby Metroid, Zebetite, Phantoon
+    and Crocomire frame records hold identity only; their spritemaps are looked up at the presentation boundary
+    (`*FrameDefinitions`/`*VisualDefinitions`, `PhantoonPartFrameSpritemaps`, `CrocomireBodyFrameSpritemaps`), and
+    Crocomire's body frames are a computed list instead of a pointer enumerator.
   - Next: Q5 with the enemy AI pointers, Q2, PLM words, the enemy projectile slot and Q13. The palette-FX setup and
     pre-instruction enums still carry bank-$8D values.

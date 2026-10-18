@@ -175,23 +175,23 @@ internal static class EnemyVisualTypedProgramAudit
             rows.Add(new(frames.Length));
         }
 
-        RequireTypedFrames(CrocomireBodyAnimations.Programs, frame => frame.Spritemap, CrocomireBodyVisualDefinitions.Bank,
+        RequireTypedFrames(CrocomireBodyAnimations.Programs, frame => CrocomireBodyFrameSpritemaps.Spritemap(frame), CrocomireBodyVisualDefinitions.Bank,
             nameof(CrocomireBodyAnimations), "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimations.cs");
-        RequireTypedFrames(DraygonAnimations.Programs, frame => frame.Spritemap, DraygonBg2FrameDefinitions.Bank,
+        RequireTypedFrames(DraygonAnimations.Programs, frame => DraygonFrameDefinitions.Spritemap(frame), DraygonBg2FrameDefinitions.Bank,
             nameof(DraygonAnimations), "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonAnimations.cs");
-        RequireTypedFrames(KraidAnimations.Programs, frame => frame.Spritemap, KraidLintVisualDefinitions.Bank,
+        RequireTypedFrames(KraidAnimations.Programs, frame => KraidPartFrameDefinitions.Spritemap(frame), KraidLintVisualDefinitions.Bank,
             nameof(KraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimations.cs");
-        RequireTypedFrames(MotherBrainAnimations.Body, frame => frame.Spritemap, MotherBrainBodyVisualDefinitions.Bank,
+        RequireTypedFrames(MotherBrainAnimations.Body, frame => MotherBrainBodyVisualDefinitions.Frame(frame.Index).Pointer, MotherBrainBodyVisualDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
-        RequireTypedFrames(MotherBrainAnimations.Head, frame => frame.Spritemap, MotherBrainVisualDefinitions.Bank,
+        RequireTypedFrames(MotherBrainAnimations.Head, frame => MotherBrainVisualDefinitions.Frame(frame.Index).Pointer, MotherBrainVisualDefinitions.Bank,
             nameof(MotherBrainAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
-        RequireTypedFrames(MotherBrainBabyAnimations.Programs, frame => frame.Spritemap, MotherBrainVisualDefinitions.Bank,
+        RequireTypedFrames(MotherBrainBabyAnimations.Programs, frame => BabyMetroidVisualDefinitions.Spritemap(frame.Index), MotherBrainVisualDefinitions.Bank,
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
-        RequireTypedFrames(MotherBrainTubeAnimations.Programs, frame => frame.Spritemap, MotherBrainVisualDefinitions.Bank,
+        RequireTypedFrames(MotherBrainTubeAnimations.Programs, frame => MotherBrainVisualDefinitions.TubeFrame(frame.Index).Pointer, MotherBrainVisualDefinitions.Bank,
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
-        RequireTypedFrames(ShitroidAnimations.Programs, frame => frame.Spritemap, ShitroidVisualDefinitions.Bank,
+        RequireTypedFrames(ShitroidAnimations.Programs, frame => BabyMetroidVisualDefinitions.Spritemap(frame.Index), ShitroidVisualDefinitions.Bank,
             nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
-        RequireTypedFrames(ZebetiteAnimations.Programs, frame => frame.Spritemap, ZebetiteVisualDefinitions.Bank,
+        RequireTypedFrames(ZebetiteAnimations.Programs, frame => ZebetiteVisualDefinitions.Spritemap(frame.Index), ZebetiteVisualDefinitions.Bank,
             nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");
 
         RequireTypedFrames(RipperAnimations.Programs, RipperFrameDefinitions.Spritemap, RipperFrameToolingDefinitions.Bank,

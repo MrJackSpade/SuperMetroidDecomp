@@ -10,6 +10,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -361,7 +362,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AnimationProgramAdvanceKind.Show:
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.SpritemapPointer = ZebetiteVisualDefinitions.Spritemap(advance.Frame.Index);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvanceKind.Hold:

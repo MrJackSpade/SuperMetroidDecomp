@@ -1785,7 +1785,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<PhantoonPartProgram> cursor = state.PartProgram(part);
         // Writing the cursor back after the cues lets the program's own sleep overwrite a cue's install on this
         // part, as the native Sleep does. Phantoon's part lists load no loop counter.
-        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, frame => frame.Spritemap,
+        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, frame => PhantoonPartFrameSpritemaps.Spritemap(frame),
             (cue, continuation) =>
             {
                 ApplyPhantoonPartCue(part, cue);

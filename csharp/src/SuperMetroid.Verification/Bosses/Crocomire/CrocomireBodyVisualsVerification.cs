@@ -29,7 +29,7 @@ internal static class CrocomireBodyVisualsVerification
     {
         var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
         AssertEqual(50, original.Count, "native body frame selection count");
-        AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Length, "calculated body frame count");
+        AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Count, "calculated body frame count");
         ushort[] expected = original.ToArray();
         for (int index = 0; index < expected.Length; index++)
         {

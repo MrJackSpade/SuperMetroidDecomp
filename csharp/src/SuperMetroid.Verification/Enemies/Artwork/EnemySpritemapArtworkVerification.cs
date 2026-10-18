@@ -1590,7 +1590,7 @@ internal static class EnemySpritemapArtworkVerification
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
                      (EnemyDefinitionId.MiniKraid, FakeKraidAnimationsConstants.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
-                     (EnemyDefinitionId.KraidNail, new KraidPartFrame(KraidPartFrameKind.Nail, 0).Spritemap,
+                     (EnemyDefinitionId.KraidNail, KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Nail, 0)),
                          "Kraid fingernail"),
                  })
         {

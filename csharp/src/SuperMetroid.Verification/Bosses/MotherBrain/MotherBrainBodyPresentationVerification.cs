@@ -39,7 +39,7 @@ internal static class MotherBrainBodyPresentationVerification
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
             .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => step.Frame.Spritemap).ToHashSet();
+            .Select(step => MotherBrainBodyVisualDefinitions.Frame(step.Frame.Index).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         // Remap the whole mixed pose, not only its limbs. The native selector must not change.

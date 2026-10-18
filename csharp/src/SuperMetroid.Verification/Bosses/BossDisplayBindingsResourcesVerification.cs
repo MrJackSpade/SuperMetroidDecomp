@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
@@ -87,7 +88,7 @@ internal static class BossDisplayBindingsResourcesVerification
             baseline.Step(); changed.Step(); baseline.Draw(); changed.Draw();
             AssertBossDisplayMechanics(baseline, changed, "boss instruction frame " + frame);
             int index = frame / duration % poseCount;
-            AssertEqual(steps[index].Frame.Spritemap, changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
+            AssertEqual(PhantoonPartFrameSpritemaps.Spritemap(steps[index].Frame), changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
             AssertEqual((ushort)(duration - frame % duration), changed.Actor.InstructionTimer.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
             AssertEqual(fresh, changed.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");

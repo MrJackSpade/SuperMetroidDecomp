@@ -7,11 +7,4 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="Index">The frame's position in that catalog.</param>
 public readonly record struct CrocomireBodyFrame(CrocomireBodyFrameSet Set, int Index)
 {
-    /// <summary>The installed extended spritemap the frame shows.</summary>
-    internal ushort Spritemap => Set switch
-    {
-        CrocomireBodyFrameSet.Body => CrocomireBodyVisualDefinitions.FramePointer(Index),
-        CrocomireBodyFrameSet.Skeleton => CrocomireSkeletonVisualDefinitions.FramePointer(Index),
-        _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyFrameSet)} {Set}."),
-    };
 }

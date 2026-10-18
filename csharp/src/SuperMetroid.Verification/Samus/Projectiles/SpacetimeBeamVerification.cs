@@ -42,10 +42,10 @@ internal static class SpacetimeBeamVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         VerifySpacetimeCopySourceAgainstRetailRom(bus);
-        AssertThrows<ArgumentOutOfRangeException>(() => RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(-1),
+        AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(-1),
             "adjacent instruction before bounded source is not admitted");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
+            () => InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(SamusOverreadDefinitions.SpacetimeCopySourceByteCount),
             "word carry must return to the mutable-memory owner");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
@@ -105,7 +105,7 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        projectiles.Overreads = RepositoryInstallation.SamusOverreads;
+        projectiles.Overreads = InstalledFixtures.SamusOverreads;
         var mirror = new SaveMirrorImage();
         system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
@@ -180,7 +180,7 @@ internal static class SpacetimeBeamVerification
             SamusOverreadDefinitions.SpacetimeCopySourceByteCount, "bounded native copy source size");
         for (int offset = 0; offset < SamusOverreadDefinitions.SpacetimeCopySourceByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
-                RepositoryInstallation.SamusOverreads.SpacetimeCopySourceByte(offset),
+                InstalledFixtures.SamusOverreads.SpacetimeCopySourceByte(offset),
                 "installed SpaceTime copy source agrees with supported cartridge");
     }
 

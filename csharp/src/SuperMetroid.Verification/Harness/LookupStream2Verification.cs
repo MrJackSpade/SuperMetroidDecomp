@@ -1396,7 +1396,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem { Overreads = RepositoryInstallation.SamusOverreads }; var authoredSystem = new SamusProjectileSystem { Overreads = RepositoryInstallation.SamusOverreads };
+            var nativeSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
                 var pair = system.TrailSlots[0];
@@ -1478,13 +1478,13 @@ internal static class LookupStream2Verification
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
         int end = SamusProjectileRomData.Trails.RightInstructionPointers + 64 * sizeof(ushort);
         for (int address = start; address < end; address += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address, RepositoryInstallation.SamusOverreads), "Trail selectors retain every reachable aligned native word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2, RepositoryInstallation.SamusOverreads), "Trail selector rejects the preceding word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1, RepositoryInstallation.SamusOverreads), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end, RepositoryInstallation.SamusOverreads), "Trail selector rejects the following word");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address, InstalledFixtures.SamusOverreads), "Trail selectors retain every reachable aligned native word");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2, InstalledFixtures.SamusOverreads), "Trail selector rejects the preceding word");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1, InstalledFixtures.SamusOverreads), "Trail selector rejects unaligned reads");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end, InstalledFixtures.SamusOverreads), "Trail selector rejects the following word");
         for (int selection = 0; selection < 64; selection++)
         {
-            var projectiles = new SamusProjectileSystem { Overreads = RepositoryInstallation.SamusOverreads };
+            var projectiles = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = (ushort)selection,

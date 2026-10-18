@@ -54,12 +54,6 @@ internal static class RepositoryInstallation
     /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;
 
-    /// <summary>The installation's cartridge bytes Samus's glitch paths read, loaded once.</summary>
-    private static readonly Lazy<SamusOverreadCatalog> samusOverreads = new(() => Installation.LoadSamusOverreads());
-
-    /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
-    internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
-
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,

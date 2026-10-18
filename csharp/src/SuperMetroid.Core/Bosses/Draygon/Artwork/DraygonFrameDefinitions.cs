@@ -12,14 +12,6 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 internal static class DraygonFrameDefinitions
 {
 
-    /// <summary>The roots of one facing.</summary>
-    /// <param name="OneComponent">The first of the 27 ten-byte one-component roots.</param>
-    /// <param name="Tail">The first of the 8 eighteen-byte two-component tail roots.</param>
-    /// <param name="WhipFour">The first of the 2 four-component whip roots.</param>
-    /// <param name="WhipSix">The first of the 2 six-component whip roots.</param>
-    /// <param name="WhipEight">The first of the 2 eight-component whip roots.</param>
-    internal readonly record struct FacingRoots(ushort OneComponent, ushort Tail, ushort WhipFour, ushort WhipSix, ushort WhipEight);
-
     /// <summary>The installed frame each <see cref="DraygonFrame"/> shows.</summary>
     internal static EnemyFrameTable<DraygonFrame> ShownFrames { get; } = new()
     {

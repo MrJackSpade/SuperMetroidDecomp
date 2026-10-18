@@ -23,6 +23,12 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
+    /// <summary>The installation's cartridge bytes Samus's glitch paths read, loaded once.</summary>
+    private static readonly Lazy<SamusOverreadCatalog> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
+
+    /// <summary>The installation's cartridge bytes Samus's glitch paths read.</summary>
+    internal static SamusOverreadCatalog SamusOverreads => samusOverreads.Value;
+
     /// <summary>Lazy stock character, palette, metatile, and visual-layout catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),

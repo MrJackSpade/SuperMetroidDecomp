@@ -240,7 +240,7 @@ internal static class RenderFrameSnapshotWriter
         WriteScrolls(writer, layer.Bg2LineScrolls.Horizontal);
         WriteScrolls(writer, layer.Bg2LineScrolls.Vertical);
         SnesWindowRegisters w = r.Windows;
-        writer.Write(w.Window12Selection.ToNativeByte()); writer.Write(w.Window34Selection.ToNativeByte()); writer.Write(w.ObjectColorSelection.ToNativeByte());
+        writer.Write(SelectionByte(w.Window12Selection)); writer.Write(SelectionByte(w.Window34Selection)); writer.Write(SelectionByte(w.ObjectColorSelection));
         writer.Write(checked((byte)w.FirstLeft)); writer.Write(checked((byte)w.FirstRight)); writer.Write(checked((byte)w.SecondLeft)); writer.Write(checked((byte)w.SecondRight));
         writer.Write(checked((byte)w.BackgroundLogic)); writer.Write(checked((byte)w.ObjectColorLogic));
         writer.Write((byte)r.MainScreenWindowMask);
@@ -396,4 +396,7 @@ internal static class RenderFrameSnapshotWriter
         /// <summary>Whether memory images are followed by their sprite draws.</summary>
         public bool SpriteDraws { get; } = spriteDraws;
     }
+
+    /// <summary>A window-selection pair as the W12SEL/W34SEL/WOBJSEL register byte the packet stores.</summary>
+    private static byte SelectionByte(SnesWindowSelectionPair pair) => (byte)pair; // cartridge-encoding: allow(Codec) - the register byte is the packet field
 }

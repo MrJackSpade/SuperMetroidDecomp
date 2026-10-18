@@ -20,7 +20,4 @@ public static class SnesWindowSelectionPairCodec
     public static SnesWindowSelection Layer(this SnesWindowSelectionPair pair, bool upper) =>
         (SnesWindowSelection)(((byte)pair >> (upper ? LayerBits : 0)) & LayerMask);
 
-    /// <summary>The pair as the selection register byte that stores it.</summary>
-    /// <param name="pair">The two layers' selections.</param>
-    public static byte ToNativeByte(this SnesWindowSelectionPair pair) => (byte)pair;
 }

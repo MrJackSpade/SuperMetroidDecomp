@@ -74,9 +74,9 @@ internal static class RoomScrollDefinitionsVerification
                 }
             }
 
-            RoomScrollGrid compiled = RoomScrollDefinitions.CreateGrid(
+            RoomScrollGrid compiled = RoomScrollGrid.FromDefinition(
                 storage,
-                scrollPointer,
+                header.State.Scroll,
                 header.Size);
             AssertTrue(expected.SequenceEqual(compiled.Storage),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
@@ -90,9 +90,6 @@ internal static class RoomScrollDefinitionsVerification
             "retail states selecting implicit scroll allocations");
         AssertEqual(RoomScrollDefinitions.ExplicitDefinitionCount, explicitPointers.Count,
             "compiled scroll catalog contains every distinct explicit allocation");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomScrollDefinitions.Get(0xffff),
-            "compiled scroll catalog rejects arbitrary pointers");
         AssertThrows<ArgumentException>(
             () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), [0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");

@@ -23,9 +23,9 @@ internal static class ImplicitScrollResidueVerification
         CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.CathedralEntrance);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
-        RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(storage, previous.State.ScrollPointer, previous.Size);
+        RoomScrollGrid before = RoomScrollGrid.FromDefinition(storage, previous.State.Scroll, previous.Size);
         byte[] previousTail = before.Storage.ToArray();
-        RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(storage, room.State.ScrollPointer, room.Size);
+        RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
         // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero.

@@ -213,9 +213,9 @@ public sealed class CartridgeRoomAssets
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
     private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, CartridgeRoomHeader header)
-        => RoomScrollDefinitions.CreateGrid(
+        => RoomScrollGrid.FromDefinition(
             scrollStorage,
-            header.State.ScrollPointer,
+            header.State.Scroll,
             header.Size);
 
     /// <summary>Decodes little-endian level words from a byte-aligned room stream span.</summary>

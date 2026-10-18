@@ -11,7 +11,7 @@ public sealed record CartridgeRoomState(
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     Enemies.RoomEnemyGraphicsSetDefinition EnemyGraphicsSet,
     SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,
-    ushort ScrollPointer,
+    Scrolling.RoomScrollDefinition Scroll,
     ushort XrayPointer,
     RoomMainCallback MainCallback,
     ushort PlmPointer,

@@ -44,6 +44,15 @@ public sealed class RoomScrollGrid
         return grid;
     }
 
+    /// <summary>Creates the scroll allocation <paramref name="scroll"/> selects over <paramref name="storage"/>.</summary>
+    public static RoomScrollGrid FromDefinition(RoomScrollStorage storage, RoomScrollDefinition scroll, Extent16<RoomScreens> size)
+    {
+        Ensure.NotNull(scroll);
+        return scroll.ImplicitBottomRow is { } bottomRow
+            ? CreateImplicit(storage, size, bottomRow)
+            : LoadCompiled(storage, scroll.Storage.Span, size);
+    }
+
     /// <summary>
     /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.
     /// </summary>

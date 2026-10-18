@@ -116,9 +116,9 @@ internal static class VramDmaDomains
                 ? ScrollingSkyChunkTable.Ocean
                 : ScrollingSkyChunkTable.Land;
             int logicalCount = room.Size.Area;
-            bool blueBottom = unchecked((short)state.ScrollPointer) >= 0
-                ? (byte)(state.ScrollPointer + 1) == (byte)RoomScrollState.Blue
-                : RoomScrollDefinitions.Get(state.ScrollPointer).Storage.Span
+            bool blueBottom = state.Scroll.ImplicitBottomRow is { } bottomRow
+                ? bottomRow == RoomScrollState.Blue
+                : state.Scroll.Storage.Span
                     .Slice(logicalCount - room.Size.X, room.Size.X)
                     .All(cell => cell == (byte)RoomScrollState.Blue);
             int maximum = ((room.Size.Y - 1) << VramDmaDomainGeometry.ScreenPixelShift) +

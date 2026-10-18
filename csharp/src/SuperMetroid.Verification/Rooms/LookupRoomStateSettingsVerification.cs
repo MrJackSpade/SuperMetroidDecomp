@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Verification.Rooms;
 

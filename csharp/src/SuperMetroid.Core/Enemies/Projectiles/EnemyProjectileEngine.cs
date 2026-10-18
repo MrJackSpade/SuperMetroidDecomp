@@ -992,12 +992,6 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
-        if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TourianStatueProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         throw new InvalidDataException(
             $"Enemy projectile {projectile.Kind} reached uncompiled bank-$86 mechanics " +
             $"pointer ${address:X4}.");

@@ -119,6 +119,11 @@ internal static class NativeEnemyProjectileProgramOracle
                 AssertEqual(following, fall.Target, $"{at}: fall-through target");
                 break;
             }
+            if (rules.EndsAt?.Invoke(cursor) == true)
+            {
+                AssertEqual(AnimationProgramStepKind.Hold, Next("end where routine code follows").Kind, $"{at}: the program ends where its list does");
+                break;
+            }
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);

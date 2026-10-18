@@ -13,8 +13,6 @@ public static class TourianStatueRomData
     public const int GreyColors = 0x87839c;
     /// <summary>$86:B91E eye glow colors, four words per statue.</summary>
     public const int EyeColors = 0x86b91e;
-    /// <summary>$86:B79F delete projectile instruction list.</summary>
-    public const ushort DeleteProjectile = 0xb79f;
     /// <summary>$88:DC23/DC69 earthquake type 13 with timer bits $20.</summary>
     public const ushort DescentEarthquakeType = 13, DescentEarthquakeTimer = 0x20;
     /// <summary>$86:B7F5 release earthquake: type 1, with timer bit $20 so the shake lasts at least 32 frames.</summary>

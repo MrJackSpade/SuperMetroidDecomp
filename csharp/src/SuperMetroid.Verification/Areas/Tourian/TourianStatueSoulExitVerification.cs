@@ -33,7 +33,7 @@ internal static class TourianStatueSoulExitVerification
             int reached = (start - RisePixels + 65536) % 65536;
             bool oddScreenRow = reached / 256 % 2 == 1;
             AssertEqual(reached, (int)soul.Position.Y.Whole, $"soul rises four pixels from Y {start}");
-            AssertEqual(oddScreenRow, soul.InstructionPointer == TourianStatueRomData.DeleteProjectile,
+            AssertEqual(oddScreenRow, soul.Animation is TourianStatueProjectileAnimation { Cursor.Program: TourianStatueProjectileProgram.Delete },
                 $"soul from Y {start} is deleted only on reaching an odd screen row");
         }
         Console.WriteLine("Tourian statue soul exit: deletion follows the screen row reached, including the top-edge wrap.");

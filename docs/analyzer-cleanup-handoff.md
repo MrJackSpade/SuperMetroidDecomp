@@ -589,8 +589,13 @@ Commit and push that update too.
     mechanics words. Native lists still run for the Tourian statue projectiles and Mother Brain's top tubes; when
     those are typed, the engine's native interpreter, the A050/8161 decodes and the pre-instruction values can go.
   - Mother Brain's four ceiling tubes start `MotherBrainTopTubeAnimation` programs (one pose, then hold) through
-    `EnemyProjectileTypedStarts`; the instruction layout moved to the Tooling partner. Only the Tourian statue
-    projectiles still run native lists.
+    `EnemyProjectileTypedStarts`; the instruction layout moved to the Tooling partner.
+  - The Tourian statue projectiles (splash, eye glow, particle, tail, soul, base decoration, Ridley and Phantoon statues
+    and the private delete list) start `TourianStatueProjectileAnimation` programs through `EnemyProjectileTypedStarts`;
+    their family commands are `TourianStatueProjectileCue`s handled by the unlock behaviour, and the native instruction
+    interceptor is gone. The particle's counted loop never runs out (its counter wraps from zero and the particle
+    leaves the screen first), so its program ends in an unreachable hold where the native list runs into routine
+    code; the oracle's `EndsAt` rule names that address. No enemy projectile kind starts a native list now.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

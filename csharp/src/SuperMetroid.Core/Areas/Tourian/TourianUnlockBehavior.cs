@@ -107,8 +107,7 @@ internal sealed class TourianUnlockBehavior
                 int soulScreenRow = SnesLittleEndian.HighByte(projectile.Position.Y.Whole);
                 if (soulScreenRow % 2 != 0)
                 {
-                    projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
+                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
                 return true;
@@ -122,8 +121,7 @@ internal sealed class TourianUnlockBehavior
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
                 if (SnesLittleEndian.HighByte(projectile.Position.Y.Whole) == 1)
                 {
-                    projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
+                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
                 else projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + (16)))));
                 return true;
@@ -133,53 +131,41 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
-    /// <summary>Handles statue-specific sound, child spawns, earthquake, and vertical-offset instructions.</summary>
-    internal bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
-    {
-        // The engine hands each list word to its interceptors; decode it once and dispatch on the typed command.
-        if ((EnemyProjectileInstruction)code == EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6 &&
-            projectile.Kind == RoomEnemyProjectileKind.TourianStatueEyeGlow)
-        {
-            _audio.QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
-            // This command has a one-byte sound operand, unlike the word operands below.
-            cursor += 3;
-            return true;
-        }
-        if (!Enum.IsDefined((TourianStatueInstruction)code))
-            return false;
-        switch ((TourianStatueInstruction)code)
-        {
-            case TourianStatueInstruction.ResetDustPosition:
-                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
-                break;
-            case TourianStatueInstruction.SpawnParticle:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
-                break;
-            case TourianStatueInstruction.SpawnTail:
-                SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
-                break;
-            case TourianStatueInstruction.Earthquake:
-                _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;
-                _earthquake.AddTimerBits(TourianStatueRomData.ReleaseEarthquakeTimer);
-                break;
-            case TourianStatueInstruction.AddY:
-                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + (EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(
-                    projectile,
-                    unchecked((ushort)(cursor + 2)))))));
-                cursor += 2;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TourianStatueInstruction)} {code:X4}.");
-        }
-        cursor += 2;
-        return true;
-    }
-
     /// <summary>Registers statue-specific pre-instruction and instruction interceptors.</summary>
     internal void RegisterTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.
         table.InterceptPreInstructions(TryStepTourianUnlockEffect);
-        table.InterceptInstructions(TryExecuteTourianUnlockInstruction);
+        table.RegisterCue<TourianStatueProjectileCue>((context, cue) =>
+        {
+            RoomEnemyProjectileSlot projectile = context.Projectile;
+            switch (cue.Kind)
+            {
+                case TourianStatueProjectileCueKind.Delete:
+                    projectile.Clear();
+                    break;
+                case TourianStatueProjectileCueKind.PlayReleaseSound:
+                    _audio.QueueEnemySound(SoundEffectLibrary2Sounds.TourianStatueRelease, maximumQueued: 6);
+                    break;
+                case TourianStatueProjectileCueKind.Earthquake:
+                    _earthquake.EarthquakeType = TourianStatueRomData.ReleaseEarthquakeType;
+                    _earthquake.AddTimerBits(TourianStatueRomData.ReleaseEarthquakeTimer);
+                    break;
+                case TourianStatueProjectileCueKind.SpawnParticle:
+                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
+                    break;
+                case TourianStatueProjectileCueKind.SpawnTail:
+                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
+                    break;
+                case TourianStatueProjectileCueKind.MoveDown:
+                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + cue.Pixels)));
+                    break;
+                case TourianStatueProjectileCueKind.StartMoving:
+                    projectile.PreInstruction = cue.Movement;
+                    break;
+                default:
+                    throw new InvalidOperationException($"The Tourian statue projectiles have no {cue.Kind} cue.");
+            }
+        });
     }
 }

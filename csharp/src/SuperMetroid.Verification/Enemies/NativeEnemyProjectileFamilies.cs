@@ -7,6 +7,7 @@ internal static class NativeEnemyProjectileFamilies
     internal static IReadOnlyList<NativeEnemyProjectileFamily> All { get; } =
     [
         global::SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Areas.Tourian.TourianStatueProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityAnimationsVerification.Family,
         global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectAnimationsVerification.Family,
         global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeAnimationsVerification.Family,

@@ -57,6 +57,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -218,8 +219,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             index => SporeSpawnProjectileVisualDefinitions.PresentationKey(SporeSpawnProjectileVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "stoke", StokeProjectileFrameDefinitions.PoseCount,
             index => StokeProjectileFrameDefinitions.PresentationKey(new(index)));
-        Add(frames, "tourian_statue", TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
-            TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "tourian_statue", TourianStatueProjectileFrameDefinitions.PoseCount,
+            index => TourianStatueProjectileFrameDefinitions.PresentationKeys[new(index)]);
         Add(frames, "yapping_maw", YappingMawBodyProjectileFrameDefinitions.PoseCount,
             index => YappingMawBodyProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "alcoon_fireball", AlcoonFireballFrameDefinitions.PoseCount,

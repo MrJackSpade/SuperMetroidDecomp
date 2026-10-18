@@ -72,6 +72,7 @@ internal static class ShotBlockPlmProgramsVerification
         Suite(nameof(VerifyShotBlockProgramSoundMapping), () => VerifyShotBlockProgramSoundMapping(rom));
         Suite(nameof(VerifyRespawningShotSizeSelection), () => VerifyRespawningShotSizeSelection(rom));
         Suite(nameof(VerifyPermanentShotSizeSelection), () => VerifyPermanentShotSizeSelection(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyBlockReactionPrograms), () => RoomPlmProgramsVerification.VerifyBlockReactionPrograms(rom));
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
@@ -206,11 +207,11 @@ internal static class ShotBlockPlmProgramsVerification
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot native shape selection");
+                RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.RespawningShot(size)), "respawning shot native shape selection");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot rejects other BTS values without masking");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot rejects other BTS values without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.RespawningShot(size), "respawning shot size domain");
     }
 
     /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
@@ -219,11 +220,11 @@ internal static class ShotBlockPlmProgramsVerification
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot native shape selection after caller subtracts four");
+                RoomPlmNativeListAddresses.BlockReactionEntry(BlockReactionPlmPrograms.PermanentShot(size)), "permanent shot native shape selection after caller subtracts four");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot rejects out-of-range size without masking");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
+            AssertThrows<IndexOutOfRangeException>(() => BlockReactionPlmPrograms.PermanentShot(size), "permanent shot size domain");
     }
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>

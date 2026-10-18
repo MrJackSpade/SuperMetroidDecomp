@@ -400,7 +400,7 @@ internal static class RoomPlmSystemAccess
                     // `$x052` word is both PLM_Vars and the source of the temporary collision
                     // word, exactly like the retail setup's two consecutive stores.
                     slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
-                    slot.InstructionPointer = RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
                     level.SetForegroundEntry(
                         blockIndex,
                         unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
@@ -412,7 +412,7 @@ internal static class RoomPlmSystemAccess
                     // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
                     // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                     // solid until the same-frame list draws its first breaking frame.
-                    slot.InstructionPointer = RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
                     level.SetForegroundEntry(
                         blockIndex,
                         unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
@@ -423,7 +423,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF2E sees projectile family `$0500` and replaces the entry's normal
                     // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedPowerBombBlockUnused));
                     return true;
                 }
 
@@ -431,7 +431,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF67 performs the analogous redirect to visible super-missile word
                     // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
+                    slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedSuperMissileBlockUnused));
                     return true;
                 }
 

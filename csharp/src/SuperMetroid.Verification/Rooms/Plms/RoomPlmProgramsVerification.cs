@@ -56,6 +56,44 @@ internal static class RoomPlmProgramsVerification
         Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
     }
 
+    /// <summary>The block-reaction programs equal their native lists; the restore instruction draws the saved block.</summary>
+    internal static void VerifyBlockReactionPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BlockReactionPlmProgramDefinitions.Programs, BlockReactionEntries,
+            frame => BlockReactionPlmDrawDefinitions.DrawLists[frame], BlockReactionCueAt, "block reaction", BlockReactionRestoreAt);
+        Console.WriteLine($"  Block-reaction programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The block reactions' sound queues and grapple BTS write.</summary>
+    private static bool BlockReactionCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmCue cue, out int length)
+    {
+        (cue, length) = (default, 0);
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum1, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum3, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+                (cue, length) = (new(BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6, ReadOperandByte(cartridge, cursor + 2)), 3);
+                return true;
+            case RoomPlmInstruction.SetPlmBtsToOne:
+                (cue, length) = (new(BlockReactionPlmCueKind.SetBtsToOne, 0), 2);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>The restore instruction, which draws the saved block for one update.</summary>
+    private static bool BlockReactionRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionPlmFrame frame, out int duration, out int length)
+    {
+        (frame, duration, length) = (BlockReactionPlmFrame.RestoredBlock, 1, 2);
+        return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.DrawPlmBlock;
+    }
+
     /// <summary>The Speed Booster blocks' programs equal their native lists; both restore instructions draw the saved block.</summary>
     internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
     {

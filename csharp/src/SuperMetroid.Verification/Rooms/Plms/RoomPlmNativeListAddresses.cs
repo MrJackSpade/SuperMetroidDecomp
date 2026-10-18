@@ -44,6 +44,67 @@ internal static class RoomPlmNativeListAddresses
     ];
 
     /// <summary>The Speed Booster blocks' lists ($84:C928 and $84:C951..C9F8).</summary>
+    /// <summary>The native entry of block-reaction program <paramref name="program"/>.</summary>
+    internal static ushort BlockReactionEntry(BlockReactionPlmProgram program) =>
+        BlockReactionEntries.Single(entry => entry.Program == program).Entry;
+
+    /// <summary>Every block-reaction program's native entry.</summary>
+    internal static IReadOnlyList<(BlockReactionPlmProgram Program, ushort Entry)> BlockReactionEntries { get; } =
+    [
+        (BlockReactionPlmProgram.CrumbleReveal1x1, 0xc8ec),
+        (BlockReactionPlmProgram.CrumbleReveal2x1, 0xc8f2),
+        (BlockReactionPlmProgram.CrumbleReveal1x2, 0xc8f8),
+        (BlockReactionPlmProgram.CrumbleReveal2x2, 0xc8fe),
+        (BlockReactionPlmProgram.BombedPowerBombBlockUnused, 0xc91c),
+        (BlockReactionPlmProgram.BombedSuperMissileBlockUnused, 0xc922),
+        (BlockReactionPlmProgram.ContactCrumble1x1Respawning, 0xc9f9),
+        (BlockReactionPlmProgram.ContactCrumble2x1Respawning, 0xca1c),
+        (BlockReactionPlmProgram.ContactCrumble1x2Respawning, 0xca41),
+        (BlockReactionPlmProgram.ContactCrumble2x2Respawning, 0xca66),
+        (BlockReactionPlmProgram.ContactCrumble1x1Permanent, 0xca8b),
+        (BlockReactionPlmProgram.ContactCrumble2x1Permanent, 0xcaa0),
+        (BlockReactionPlmProgram.ContactCrumble1x2Permanent, 0xcab5),
+        (BlockReactionPlmProgram.ContactCrumble2x2Permanent, 0xcaca),
+        (BlockReactionPlmProgram.RespawningShotBlock1x1, 0xcadf),
+        (BlockReactionPlmProgram.RespawningShotBlock2x1, 0xcb02),
+        (BlockReactionPlmProgram.RespawningShotBlock1x2, 0xcb27),
+        (BlockReactionPlmProgram.RespawningShotBlock2x2, 0xcb4c),
+        (BlockReactionPlmProgram.RespawningSuperMissileBlock, 0xcb71),
+        (BlockReactionPlmProgram.RespawningPowerBombBlock, 0xcb94),
+        (BlockReactionPlmProgram.PermanentShotBlock1x1, 0xcbb7),
+        (BlockReactionPlmProgram.PermanentShotBlock2x1, 0xcbcc),
+        (BlockReactionPlmProgram.PermanentShotBlock1x2, 0xcbe1),
+        (BlockReactionPlmProgram.PermanentShotBlock2x2, 0xcbf6),
+        (BlockReactionPlmProgram.PermanentSuperMissileBlock, 0xcc0b),
+        (BlockReactionPlmProgram.PermanentPowerBombBlock, 0xcc20),
+        (BlockReactionPlmProgram.CollisionBombBlock1x1Respawning, 0xcc35),
+        (BlockReactionPlmProgram.ReactionBombBlock1x1Respawning, 0xcc3c),
+        (BlockReactionPlmProgram.BombBlock1x1RespawningBreak, 0xcc3f),
+        (BlockReactionPlmProgram.CollisionBombBlock2x1Respawning, 0xcc5f),
+        (BlockReactionPlmProgram.ReactionBombBlock2x1Respawning, 0xcc66),
+        (BlockReactionPlmProgram.BombBlock2x1RespawningBreak, 0xcc69),
+        (BlockReactionPlmProgram.CollisionBombBlock1x2Respawning, 0xcc8b),
+        (BlockReactionPlmProgram.ReactionBombBlock1x2Respawning, 0xcc92),
+        (BlockReactionPlmProgram.BombBlock1x2RespawningBreak, 0xcc95),
+        (BlockReactionPlmProgram.CollisionBombBlock2x2Respawning, 0xccb7),
+        (BlockReactionPlmProgram.ReactionBombBlock2x2Respawning, 0xccbe),
+        (BlockReactionPlmProgram.BombBlock2x2RespawningBreak, 0xccc1),
+        (BlockReactionPlmProgram.CollisionBombBlock1x1Permanent, 0xcce3),
+        (BlockReactionPlmProgram.ReactionBombBlock1x1Permanent, 0xccea),
+        (BlockReactionPlmProgram.BombBlock1x1PermanentBreak, 0xcced),
+        (BlockReactionPlmProgram.CollisionBombBlock2x1Permanent, 0xccff),
+        (BlockReactionPlmProgram.ReactionBombBlock2x1Permanent, 0xcd06),
+        (BlockReactionPlmProgram.BombBlock2x1PermanentBreak, 0xcd09),
+        (BlockReactionPlmProgram.CollisionBombBlock1x2Permanent, 0xcd1b),
+        (BlockReactionPlmProgram.ReactionBombBlock1x2Permanent, 0xcd22),
+        (BlockReactionPlmProgram.BombBlock1x2PermanentBreak, 0xcd25),
+        (BlockReactionPlmProgram.CollisionBombBlock2x2Permanent, 0xcd37),
+        (BlockReactionPlmProgram.ReactionBombBlock2x2Permanent, 0xcd3e),
+        (BlockReactionPlmProgram.BombBlock2x2PermanentBreak, 0xcd41),
+        (BlockReactionPlmProgram.RespawningBreakableGrappleBlock, 0xcd6a),
+        (BlockReactionPlmProgram.PermanentBreakableGrappleBlock, 0xcda9),
+    ];
+
     internal static IReadOnlyList<(SpeedBoosterBlockProgram Program, ushort Entry)> SpeedBoosterBlockEntries { get; } =
     [
         (SpeedBoosterBlockProgram.BrinstarSlowRespawning, 0xc951),

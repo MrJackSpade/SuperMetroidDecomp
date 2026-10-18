@@ -17,7 +17,7 @@ public static class BombSpecialBlockReactions
         if ((uint)index >= Count)
             throw new IndexOutOfRangeException();
         if (index < 8)
-            return PlmProgramStart.Native(RoomPlmInstructionLists.CrumbleRevealBySize(index & 3));
+            return PlmProgramStart.Typed(BlockReactionPlmPrograms.CrumbleReveal(index & 3));
         return index is 14 or 15 or >= 26 and <= 29
             ? PlmProgramStart.Typed(SpeedBoosterBlockProgram.BombReveal)
             : PlmProgramStart.Delete;

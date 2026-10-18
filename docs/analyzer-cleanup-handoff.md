@@ -624,6 +624,13 @@ Commit and push that update too.
     members); the collision walker holds no callback words. The enum still carries address values and Core still
     decodes header words through `EnemyAiCodePointers`; neither is an open census finding.
   - A boss-selected drop keeps its `EnemyDropChances` table on the projectile slot instead of the bank-$B4 word.
+  - PLM campaign (the 17 PLM findings): the q9 probe's `plm-lists` mode decodes every bank-$84 list the generic
+    interpreter can still enter. Block reactions (44 lists plus 8 bomb-block tails) run as the typed
+    `BlockReactionPlmProgram` family, oracle-checked. Remaining native lists: elevator platform, Shaktool, Maridia
+    elevatube, old Tourian wall (wake past sleep), escape animals, Crateria passage, Mother Brain escape gate (two
+    lists), breakable terrain. Scroll and treadmill slots store uncompiled list words as markers their family steps
+    read. When those are typed, the interpreter, `RoomPlmProgramDefinitions` with its compiled word catalogs,
+    `RoomPlmInstructionLists`, `PlmSlot.InstructionPointer` and `PlmProgramStart.NativeList` go.
   - Reachability gate: about 280 other Core findings predate this work. The `--prune-keeping-verification-used`
     run over all of `SuperMetroid.Core/` produced 3455 compile errors (it moved members AssetExtraction and
     other production projects still reach into test-support), so it was discarded; those findings need a

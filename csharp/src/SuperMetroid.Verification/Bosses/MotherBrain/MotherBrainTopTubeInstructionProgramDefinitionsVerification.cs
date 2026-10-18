@@ -42,6 +42,8 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
+        Func<EnemyProjectileAnimation, ushort?> nativePointers =
+            MotherBrainTopTubeAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
 
         foreach ((RoomEnemyProjectileKind Kind, ushort Program, ushort X, ushort Y) item in
                  new[]
@@ -64,15 +66,15 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             enemies.MotherBrainBehavior.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
             RoomEnemyProjectileSlot tube = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
-            AssertEqual(item.Program, tube.InstructionPointer,
+            AssertEqual(item.Program, NativePointer(tube),
                 $"real {item.Kind} producer selects its named pose");
             AssertEqual(item.X, tube.Position.X.Whole, $"real {item.Kind} producer X position");
             AssertEqual(item.Y, tube.Position.Y.Whole, $"real {item.Kind} producer Y position");
             RunForcedTick(enemies, tube);
-            AssertEqual(unchecked((ushort)(item.Program + 4)), tube.InstructionPointer,
+            AssertEqual(unchecked((ushort)(item.Program + 4)), NativePointer(tube),
                 $"{item.Kind} displays its pose before terminal sleep");
             RunForcedTick(enemies, tube);
-            AssertEqual(unchecked((ushort)(item.Program + 4)), tube.InstructionPointer,
+            AssertEqual(unchecked((ushort)(item.Program + 4)), NativePointer(tube),
                 $"{item.Kind} terminal sleep retains its own opcode");
         }
 
@@ -87,28 +89,20 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
 
         AssertEqual(0, guard.ObservedWords.Count,
             "Projectile presentation performs zero live cartridge reads");
-        AssertEqual(MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared ceiling-tube mechanics bytes");
-        AssertThrows<InvalidDataException>(
-            () => MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(0xcc45),
-            "ceiling-tube spritemap operand is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(0xcc5b),
-            "ceiling-tube definition data is rejected as mechanics");
 
-        _ = ProbeMotherBrainTopTubeInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeMotherBrainTopTubeInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "ceiling-tube allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed ceiling-tube mechanics lookups allocate no storage");
 
         Console.WriteLine(
             "Mother Brain ceiling-tube instruction mechanics: eight compiled words, all " +
             "four real producers, terminal sleeps, shared deletion, and four native " +
             "sprite compositions pass with zero live operand reads.");
+
+        ushort NativePointer(RoomEnemyProjectileSlot projectile) =>
+            nativePointers(projectile.Animation ?? throw new InvalidOperationException("A ceiling tube runs a typed animation."))
+                ?? throw new InvalidOperationException("The ceiling tube runs another family's animation.");
 
         RoomEnemySystem NewSystem()
         {
@@ -121,22 +115,10 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
-            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+            // The shown frame's operand sits just before the instruction the native pointer stands on.
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
+                projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);
         }
-    }
-
-    /// <summary>Alternates two compiled tube words to expose allocation in warmed lookups.</summary>
-    private static int ProbeMotherBrainTopTubeInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? MotherBrainTopTubeInstructionProgramDefinitions.TopRight
-                    : MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight);
-        }
-        return checksum;
     }
 
     /// <summary>Blocks private and shared control bytes and observes visual operand reads.</summary>
@@ -145,7 +127,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
             .Forbid(MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Mother Brain ceiling-tube mechanics byte " +
                     $"${address:X6}.")
-            .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordCount, MotherBrainTopTubeInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
     /// <summary>Runs the Mother Brain ceiling-tube instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-top-tube-instruction-mechanics")]

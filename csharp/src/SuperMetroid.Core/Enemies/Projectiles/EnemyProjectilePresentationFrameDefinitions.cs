@@ -293,8 +293,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "mother_brain_hand_beam", MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
                 index => MotherBrainHandBeamVisualDefinitions.PresentationKey(MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]));
             Add(frames, "mother_brain_top_tube",
-                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);
+                MotherBrainTopTubeFrameDefinitions.PresentationKeys.Count,
+                index => MotherBrainTopTubeFrameDefinitions.PresentationKeys[(MotherBrainTopTubeProgram)index]);
             Add(frames, "mother_brain_turret",
                 MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
                 index => MotherBrainTurretVisualDefinitions.PresentationKey(MotherBrainTurretVisualDefinitions.ProjectileFrames[index]));

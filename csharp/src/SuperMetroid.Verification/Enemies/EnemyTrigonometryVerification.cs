@@ -384,6 +384,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations), () => NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations(LoadRepositoryRom())),
         new(nameof(NoobTubeProjectileBehaviorVerification.VerifyNoobTubeProjectileBehavior), () => NoobTubeProjectileBehaviorVerification.VerifyNoobTubeProjectileBehavior(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeAnimationsVerification.VerifyMotherBrainTopTubeAnimations), () => SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeAnimationsVerification.VerifyMotherBrainTopTubeAnimations(LoadRepositoryRom())),
         new(nameof(VerifyGunshipDustAnimations), () => VerifyGunshipDustAnimations(LoadRepositoryRom())),
         new(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(LoadRepositoryRom())),
         new(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior()),

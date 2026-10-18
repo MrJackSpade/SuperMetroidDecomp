@@ -588,6 +588,9 @@ Commit and push that update too.
     keeps only the list entries, its Tooling partner owns the mechanics layout, and the engine no longer reads Pirate
     mechanics words. Native lists still run for the Tourian statue projectiles and Mother Brain's top tubes; when
     those are typed, the engine's native interpreter, the A050/8161 decodes and the pre-instruction values can go.
+  - Mother Brain's four ceiling tubes start `MotherBrainTopTubeAnimation` programs (one pose, then hold) through
+    `EnemyProjectileTypedStarts`; the instruction layout moved to the Tooling partner. Only the Tourian statue
+    projectiles still run native lists.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

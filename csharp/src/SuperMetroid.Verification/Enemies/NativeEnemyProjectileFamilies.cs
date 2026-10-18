@@ -9,6 +9,7 @@ internal static class NativeEnemyProjectileFamilies
         global::SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatAnimationsVerification.Family,
         global::SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityAnimationsVerification.Family,
         global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectAnimationsVerification.Family,
+        global::SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Cacatac.CacatacProjectileAnimationsVerification.Family,
         global::SuperMetroid.Verification.Enemies.Chozo.ChozoTourianDustAnimationsVerification.Family,

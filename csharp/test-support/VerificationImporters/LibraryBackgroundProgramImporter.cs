@@ -85,7 +85,7 @@ internal static class LibraryBackgroundProgramImporter
                     var bytes = new byte[instruction.ByteCount];
                     SnesAddress start = SnesAddress.FromBusAddress(instruction.SourceAddress);
                     for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
-                    vram.ExecuteQueuedAssetWrite(bytes, instruction.Destination);
+                    vram.ExecuteQueuedAssetWrite(bytes, checked((ushort)instruction.Destination));
                     if (instruction.Command == LibraryBackgroundCommand.TransferToVramForKraid)
                         selectsKraidHudCharacters = true;
                     break;

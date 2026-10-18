@@ -73,8 +73,9 @@ public static class LibraryBackgroundLoader
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
         // memory or installed-art transfers. Its destination is a VRAM word, not a byte offset.
         SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress));
+        ushort destination = checked((ushort)transfer.Destination);
         if (sourceKind is SnesDmaSourceKind.WorkRam)
-            staging.LoadNativeTransfer(vram, transfer.SourceAddress, transfer.ByteCount, transfer.Destination);
+            staging.LoadNativeTransfer(vram, transfer.SourceAddress, transfer.ByteCount, destination);
         else if (characterArt is not null &&
             transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
         {
@@ -85,15 +86,15 @@ public static class LibraryBackgroundLoader
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, " +
                     $"not {RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount}.");
             vram.ExecuteQueuedAssetWrite(characterArt.Get(transfer.SourceAddress).Transfer.Span,
-                transfer.Destination);
+                destination);
         }
         else if (hudArt is not null && transfer.SourceAddress == HudTileAtlasFormat.SourceAddress &&
             transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
             vram.ExecuteQueuedAssetWrite(
-                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], transfer.Destination);
+                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], destination);
         else if (skyArt is not null && skyArt.TryResolve(transfer.SourceAddress, transfer.ByteCount,
                 out ReadOnlyMemory<byte> selected))
-            vram.ExecuteQueuedAssetWrite(selected.Span, transfer.Destination);
+            vram.ExecuteQueuedAssetWrite(selected.Span, destination);
         else if (transfer.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
             skyArt is not null && hudArt is not null && characterArt is not null)
         {
@@ -111,7 +112,7 @@ public static class LibraryBackgroundLoader
 
     /// <summary>Copies an installed decompressed tilemap into the command's WRAM staging destination.</summary>
     private static void DecompressToWorkRam(LibraryBackgroundStaging staging, int sourceAddress,
-        ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
+        int destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
         byte[] decompressed = (tilemapArt ?? throw new InvalidOperationException(
             "Library-background decompression requires installed tilemaps."))

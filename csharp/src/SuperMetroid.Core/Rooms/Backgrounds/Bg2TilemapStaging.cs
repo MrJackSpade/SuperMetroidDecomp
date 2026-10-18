@@ -17,7 +17,7 @@ public sealed class Bg2TilemapStaging : IWorkRamStagingSource
     public StagingWordView TilemapWords => _buffer.WordView(0, _buffer.Length / sizeof(ushort));
 
     /// <summary>Writes a decompressed tilemap at bank-$7E <paramref name="destination"/>, in address order.</summary>
-    internal void WriteDecompressed(ushort destination, ReadOnlySpan<byte> bytes, int sourceAddress)
+    internal void WriteDecompressed(int destination, ReadOnlySpan<byte> bytes, int sourceAddress)
     {
         int first = StagingOffset(destination, bytes.Length, sourceAddress);
         StagingByteView staging = LibraryTilemap;
@@ -26,7 +26,7 @@ public sealed class Bg2TilemapStaging : IWorkRamStagingSource
     }
 
     /// <summary>Fills <paramref name="byteCount"/> bytes at bank-$7E <paramref name="destination"/> with <paramref name="value"/> words.</summary>
-    internal void FillWords(ushort destination, int byteCount, ushort value)
+    internal void FillWords(int destination, int byteCount, ushort value)
     {
         if ((byteCount & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(byteCount));
@@ -45,7 +45,7 @@ public sealed class Bg2TilemapStaging : IWorkRamStagingSource
     }
 
     /// <summary>Validates a requested decompression or fill span against the 4 KiB tilemap buffer before any write.</summary>
-    private static int StagingOffset(ushort destination, int byteCount, int? sourceAddress)
+    private static int StagingOffset(int destination, int byteCount, int? sourceAddress)
     {
         int first = destination - SnesAddress.FromBusAddress(LibraryBackgroundStagingDefinitions.NativeAddress).Offset;
         if (first < 0 || first + byteCount > LibraryBackgroundStagingDefinitions.ByteCount)

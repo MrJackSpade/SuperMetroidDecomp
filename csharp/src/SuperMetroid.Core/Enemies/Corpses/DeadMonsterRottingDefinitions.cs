@@ -62,10 +62,6 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
-    /// <summary>Decodes one bank-$A9 corpse row-offset table before calculating its tile-row stride.</summary>
-    internal static ushort RotationOffset(ushort table, ushort yOffset) =>
-        RotationOffset(ClosedNativeWords.Decode<CorpseRotationTable>(table, "compiled corpse rotation table"), yOffset);
-
     /// <summary>Converts an eight-pixel corpse row offset into its species-specific staged tile byte offset.</summary>
     internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
     {

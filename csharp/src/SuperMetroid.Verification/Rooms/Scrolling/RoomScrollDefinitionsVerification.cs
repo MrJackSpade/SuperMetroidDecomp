@@ -88,7 +88,7 @@ internal static class RoomScrollDefinitionsVerification
             "retail states selecting explicit scroll allocations");
         AssertEqual(123, implicitStateCount,
             "retail states selecting implicit scroll allocations");
-        AssertEqual(RoomScrollDefinitions.ExplicitDefinitionCount, explicitPointers.Count,
+        AssertEqual(RoomScrollDefinitionsConstants.ExplicitDefinitionCount, explicitPointers.Count,
             "compiled scroll catalog contains every distinct explicit allocation");
         AssertThrows<ArgumentException>(
             () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), [0], new Extent16<RoomScreens>(1, 1)),

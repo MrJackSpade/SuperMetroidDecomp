@@ -12,12 +12,12 @@ internal static class SpacePirateProjectileNativeListAddresses
     internal static readonly (SpacePirateProjectileProgram Program, ushort Entry)[] Entries =
     [
         (SpacePirateProjectileProgram.LaserLeft, SpacePirateProjectileInstructionProgramDefinitions.LaserLeft),
-        (SpacePirateProjectileProgram.LaserLeftLoop, SpacePirateProjectileInstructionProgramDefinitions.LaserLeftLoop),
-        (SpacePirateProjectileProgram.LaserRight, SpacePirateProjectileInstructionProgramDefinitions.LaserRight),
-        (SpacePirateProjectileProgram.LaserRightLoop, SpacePirateProjectileInstructionProgramDefinitions.LaserRightLoop),
-        (SpacePirateProjectileProgram.ClawLeft, SpacePirateProjectileInstructionProgramDefinitions.ClawLeft),
-        (SpacePirateProjectileProgram.ClawLeftLoop, SpacePirateProjectileInstructionProgramDefinitions.ClawLeftLoop),
-        (SpacePirateProjectileProgram.ClawRight, SpacePirateProjectileInstructionProgramDefinitions.ClawRight),
-        (SpacePirateProjectileProgram.ClawRightLoop, SpacePirateProjectileInstructionProgramDefinitions.ClawRightLoop),
+        (SpacePirateProjectileProgram.LaserLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop),
+        (SpacePirateProjectileProgram.LaserRight, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight),
+        (SpacePirateProjectileProgram.LaserRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop),
+        (SpacePirateProjectileProgram.ClawLeft, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft),
+        (SpacePirateProjectileProgram.ClawLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop),
+        (SpacePirateProjectileProgram.ClawRight, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight),
+        (SpacePirateProjectileProgram.ClawRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop),
     ];
 }

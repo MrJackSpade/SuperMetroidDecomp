@@ -13,5 +13,5 @@ internal static class DeadTourianAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params DeadTourianProgram[] programs) =>
         programs.SelectMany(program => DeadTourianAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => DeadTourianFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => DeadTourianFrameToolingDefinitions.Spritemap(step.Frame));
 }

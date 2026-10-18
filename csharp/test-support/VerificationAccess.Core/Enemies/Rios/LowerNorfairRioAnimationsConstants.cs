@@ -13,5 +13,5 @@ internal static class LowerNorfairRioAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params LowerNorfairRioProgram[] programs) =>
         programs.SelectMany(program => LowerNorfairRioAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => LowerNorfairRioFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => LowerNorfairRioFrameToolingDefinitions.Spritemap(step.Frame));
 }

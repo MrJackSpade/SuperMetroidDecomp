@@ -743,7 +743,7 @@ static void SeedGrappleReleaseSpeedRecords(TestAddressSpace bus, ushort[] grappl
     for (int medium = 0; medium < grappleReleaseRecords.Length; medium++)
     {
         int address = grappleReleaseRecords[medium];
-        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+        for (int byteOffset = 0; byteOffset < SpeedTableEntryConstants.ByteCount; byteOffset += 2)
             WriteTestWord(bus, address + byteOffset, 0);
         WriteTestWord(bus, address + 10, grappleReleaseDeceleration[medium]);
     }
@@ -1456,7 +1456,7 @@ static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
     WriteTestWord(bus, 0x909ebf, 0xe000);
     WriteTestWord(bus, 0x909ea1, 0x2800);
     WriteTestWord(bus, 0x909ea7, 0);
-    for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+    for (int byteOffset = 0; byteOffset < SpeedTableEntryConstants.ByteCount; byteOffset += 2)
         WriteTestWord(bus, 0x909f79 + byteOffset, 0);
     return bus;
 }
@@ -1497,8 +1497,8 @@ static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
         WriteTestByte(bus, 0x91c000 + frame, 4);
     foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
     {
-        int spinEntry = tableBase + 3 * SpeedTableEntry.ByteCount;
-        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+        int spinEntry = tableBase + 3 * SpeedTableEntryConstants.ByteCount;
+        for (int byteOffset = 0; byteOffset < SpeedTableEntryConstants.ByteCount; byteOffset += 2)
             WriteTestWord(bus, spinEntry + byteOffset, 0);
     }
 }

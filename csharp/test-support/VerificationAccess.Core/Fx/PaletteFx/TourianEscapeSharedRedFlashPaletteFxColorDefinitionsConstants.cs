@@ -13,4 +13,6 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConsta
         /// <inheritdoc cref="TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.CycleFrames"/>
         internal static int CycleFrames => TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.CycleFrames;
     }
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
 }

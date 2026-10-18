@@ -13,5 +13,5 @@ internal static class FakeKraidAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params FakeKraidProgram[] programs) =>
         programs.SelectMany(program => FakeKraidAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FakeKraidFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => FakeKraidFrameToolingDefinitions.Spritemap(step.Frame));
 }

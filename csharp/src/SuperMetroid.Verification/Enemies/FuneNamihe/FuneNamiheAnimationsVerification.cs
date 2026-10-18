@@ -14,7 +14,7 @@ internal static class FuneNamiheAnimationsVerification
     internal static void VerifyFuneNamiheAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FuneNamiheAnimations.Programs,
-            FuneNamiheFrameDefinitions.Spritemap,
+            FuneNamiheFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

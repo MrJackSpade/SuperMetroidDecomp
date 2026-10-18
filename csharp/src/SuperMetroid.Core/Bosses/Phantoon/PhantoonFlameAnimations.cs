@@ -14,8 +14,6 @@ internal static class PhantoonFlameAnimations
     internal const int RestingPoseCount = 6;
     /// <summary>Poses a flame shows while dying.</summary>
     internal const int DyingPoseCount = 4;
-    /// <summary>Phases of a casual flame's fall.</summary>
-    internal const int FallingPhaseCount = 3;
     /// <summary>Poses in each falling phase.</summary>
     internal const int FallingPoseCount = 2;
     /// <summary>Poses a shot flame shows while bursting.</summary>

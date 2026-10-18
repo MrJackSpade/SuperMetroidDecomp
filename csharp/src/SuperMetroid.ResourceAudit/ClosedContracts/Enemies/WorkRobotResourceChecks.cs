@@ -23,7 +23,7 @@ internal static class WorkRobotResourceChecks
         for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
         {
             ushort operand = EnemyProjectileFrames.ProgramFrameKey(WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)]);
-            Require(EnemyProjectilePresentationFrameSets.Contains(operand),
+            Require(EnemyProjectilePresentationFrameSetsTooling.Contains(operand),
                 $"Work Robot laser operand {operand:X4} must be included in the production extraction catalog");
             string name = EnemyProjectilePresentationFrameSets.All
                 .Single(frame => frame.OperandAddress == operand).Name;

@@ -57,9 +57,6 @@ public static class RoomAssetRomData
         /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
         public const int RomSourceAddressFloor = 0x800000;
 
-        /// <summary>Maximum commands accepted before a malformed unterminated list fails.</summary>
-        public const int MaximumCommandsPerList = 128;
-
         /// <summary>Unused native clear-FX command's fill and transfer definition.</summary>
         public static readonly TilemapTransfer ClearFx =
             new(0x7e4000, 0x4000, 0x0f00, 0x184e, 0x5880);

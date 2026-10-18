@@ -17,18 +17,18 @@ internal static class KraidMouthMappingsVerification
             ushort pointer = (ushort)(0x9788 + 8 * entry);
             int address = 0xa70000 | pointer;
             var expected = (Word(address), Word(address + 2), Word(address + 4), Word(address + 6));
-            AssertTrue(KraidMouthHitboxDefinitions.IsDefined(pointer), "Native mouth shape is defined");
-            AssertEqual(expected, KraidMouthHitboxDefinitions.Resolve(pointer), "Native mouth shape case");
+            AssertTrue(KraidMouthHitboxDefinitionsConstants.IsDefined(pointer), "Native mouth shape is defined");
+            AssertEqual(expected, KraidMouthHitboxDefinitionsConstants.Resolve(pointer), "Native mouth shape case");
             AssertEqual((expected.Item1, expected.Item2, expected.Item4),
-                KraidMouthHitboxDefinitions.ResolveCollision(pointer), "Collision uses left/top/bottom only");
+                KraidMouthHitboxDefinitionsConstants.ResolveCollision(pointer), "Collision uses left/top/bottom only");
         }
         for (int raw = 0x9787; raw <= 0x97c8; raw++)
         {
             ushort pointer = (ushort)raw;
             bool expected = raw >= 0x9788 && raw <= 0x97c0 && (raw - 0x9788) % 8 == 0;
-            AssertEqual(expected, KraidMouthHitboxDefinitions.IsDefined(pointer), "Native shape alignment");
+            AssertEqual(expected, KraidMouthHitboxDefinitionsConstants.IsDefined(pointer), "Native shape alignment");
             if (!expected)
-                AssertThrows<InvalidDataException>(() => KraidMouthHitboxDefinitions.Resolve(pointer), "Non-shape address rejects");
+                AssertThrows<InvalidDataException>(() => KraidMouthHitboxDefinitionsConstants.Resolve(pointer), "Non-shape address rejects");
         }
     }
 

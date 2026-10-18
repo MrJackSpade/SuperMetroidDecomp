@@ -36,7 +36,7 @@ internal static class SkulteraBehaviorVerification
             enemies.SkulteraBehavior.InitializeSkultera(slot);
             SkulteraEnemyState state = enemies.SkulteraStates[0] ?? throw new InvalidOperationException("Skultera has no state.");
             AssertEqual(AnimationProgramCursor<SkulteraProgram>.Start(swim), state.Program, $"Skultera starts {swim}");
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Programs, loop, SkulteraFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Programs, loop, SkulteraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Programs, loop)), $"Skultera {swim} loop");
             AssertEqual(layer, slot.Layer, $"Skultera {swim} draws on layer {layer}");
 

@@ -27,12 +27,6 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
     /// <summary>Each record writes one live BGR555 color.</summary>
     public const int ColorsPerFrame = 1;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 6;
-
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorRows Rows { get; } = new(154, FrameCount, ColorsPerFrame);
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

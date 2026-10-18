@@ -13,5 +13,5 @@ internal static class WorkRobotAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params WorkRobotProgram[] programs) =>
         programs.SelectMany(program => WorkRobotAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => WorkRobotFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => WorkRobotFrameToolingDefinitions.Spritemap(step.Frame));
 }

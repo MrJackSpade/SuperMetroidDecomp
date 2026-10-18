@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public static class DoorDefinitions
 {
     /// <summary>Retail doors in the cartridge's record order.</summary>
-    private static readonly CartridgeDoorHeader[] Definitions =
+    internal static readonly CartridgeDoorHeader[] Definitions =
     [
         Door(nameof(LandingSiteLandingCutscene), RoomHeaderDefinitions.LandingSite, 0x03, new(0x00, 0x00), new(0x04, 0x00), 0x8000, 0x0000),
         Door(nameof(DemoSet3024), RoomHeaderDefinitions.LandingSite, 0x03, new(0x00, 0x00), new(0x04, 0x02), 0x8000, 0x0000),
@@ -528,8 +528,8 @@ public static class DoorDefinitions
         Door(nameof(Colosseum0), RoomHeaderDefinitions.HalfieClimb, 0x01, new(0x00, 0x00), new(0x00, 0x00), 0x8000, 0x0000),
         Door(nameof(Colosseum1), RoomHeaderDefinitions.DraygonSave, 0x04, new(0x01, 0x06), new(0x00, 0x00), 0x8000, 0x0000),
         Door(nameof(Colosseum2), RoomHeaderDefinitions.ThePrecious, 0x04, new(0x01, 0x06), new(0x00, 0x00), 0x8000, 0x0000),
-        Door(nameof(UnusedRoom83A804), RoomHeaderDefinitions.HalfieClimb, 0x01, new(0x00, 0x00), new(0x00, 0x02), 0x8000, 0x0000),
-        Door(nameof(UnusedRoom83A810), RoomHeaderDefinitions.MaridiaMissileRefill, 0x04, new(0x01, 0x06), new(0x00, 0x00), 0x8000, 0x0000),
+        Door("UnusedRoom83A804", RoomHeaderDefinitions.HalfieClimb, 0x01, new(0x00, 0x00), new(0x00, 0x02), 0x8000, 0x0000),
+        Door("UnusedRoom83A810", RoomHeaderDefinitions.MaridiaMissileRefill, 0x04, new(0x01, 0x06), new(0x00, 0x00), 0x8000, 0x0000),
         Door(nameof(ThePreciousMaridiaLoad11), RoomHeaderDefinitions.ThePrecious, 0x04, new(0x01, 0x06), new(0x00, 0x00), 0x8000, 0x0000),
         Door(nameof(AqueductSave0), RoomHeaderDefinitions.Aqueduct, 0x04, new(0x01, 0x26), new(0x00, 0x02), 0x8000, 0x0000),
         Door(nameof(ThePrecious0), RoomHeaderDefinitions.Colosseum, 0x05, new(0x6E, 0x16), new(0x06, 0x01), 0x8000, 0x0000),
@@ -610,11 +610,8 @@ public static class DoorDefinitions
         Door(nameof(CeresRidley), RoomHeaderDefinitions.Room58Escape, 0x01, new(0x00, 0x00), new(0x01, 0x00), 0x8000, 0x0000),
     ];
 
-    /// <summary>Every retail door, in the cartridge's record order.</summary>
-    public static IReadOnlyList<CartridgeDoorHeader> All => Definitions;
-
     /// <summary>The compiled door named <paramref name="name"/>.</summary>
-    private static CartridgeDoorHeader Find(string name) => Definitions.Single(door => door.Name == name);
+    internal static CartridgeDoorHeader Find(string name) => Definitions.Single(door => door.Name == name);
 
     /// <summary>Decodes a catalog entry's orientation and setup routine into a physical door header.</summary>
     private static CartridgeDoorHeader Door(string name, RoomHeaderDefinition destination, byte orientation,
@@ -1657,10 +1654,6 @@ public static class DoorDefinitions
     public static CartridgeDoorHeader Colosseum1 { get; } = Find(nameof(Colosseum1));
     /// <summary>The <c>Door_Colosseum_2</c> door.</summary>
     public static CartridgeDoorHeader Colosseum2 { get; } = Find(nameof(Colosseum2));
-    /// <summary>The <c>UNUSED_Door_83A804</c> door.</summary>
-    public static CartridgeDoorHeader UnusedRoom83A804 { get; } = Find(nameof(UnusedRoom83A804));
-    /// <summary>The <c>UNUSED_Door_83A810</c> door.</summary>
-    public static CartridgeDoorHeader UnusedRoom83A810 { get; } = Find(nameof(UnusedRoom83A810));
     /// <summary>The <c>Door_ThePrecious_MaridiaLoad11</c> door.</summary>
     public static CartridgeDoorHeader ThePreciousMaridiaLoad11 { get; } = Find(nameof(ThePreciousMaridiaLoad11));
     /// <summary>The <c>Door_AqueductSave_0</c> door.</summary>

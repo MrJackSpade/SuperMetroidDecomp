@@ -12,7 +12,7 @@ public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWor
     Bg4BppRenderLayer? MainCoverage = null, bool FourBpp = false, bool IncludeObjects = false,
     bool MainObjects = false, int VerticalScroll = 0) : RenderLayer
 {
-    /// <summary>Subscreen BG tilemap base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Subscreen BG tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
         get => tilemapWord;
@@ -22,7 +22,7 @@ public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWor
     /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
     private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
 
-    /// <summary>Subscreen character-data base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Subscreen character-data base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
         get => characterWord;

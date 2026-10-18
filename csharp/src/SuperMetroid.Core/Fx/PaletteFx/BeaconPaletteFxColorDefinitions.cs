@@ -24,15 +24,6 @@ public static class BeaconPaletteFxColorDefinitions
     /// <summary>Four live BGR555 colors are written by each timed record.</summary>
     public const int ColorsPerFrame = 4;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 14;
-
-    /// <summary>Frames before the mid-cycle sound command.</summary>
-    public const int PreSoundFrameCount = 6;
-
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorRows Rows { get; } = new(424, FrameCount, ColorsPerFrame);
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

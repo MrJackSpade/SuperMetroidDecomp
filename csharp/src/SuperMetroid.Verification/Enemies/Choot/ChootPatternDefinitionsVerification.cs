@@ -132,7 +132,7 @@ internal static class ChootPatternDefinitionsVerification
             () => ChootPatternDefinitions.ForIndex(ushort.MaxValue),
             "restored Choot pattern index does not wrap into the catalog");
         AssertThrows<InvalidDataException>(
-            () => ChootFallingPathDefinitions.At(0xffff, 0),
+            () => ChootFallingPathDefinitionsConstants.At(0xffff, 0),
             "restored Choot falling pointer does not read arbitrary bank-A2 data");
         Console.WriteLine(
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");

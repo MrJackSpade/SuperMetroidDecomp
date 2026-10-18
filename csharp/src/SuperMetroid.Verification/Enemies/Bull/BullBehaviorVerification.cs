@@ -27,7 +27,7 @@ internal static class BullBehaviorVerification
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initializer animation");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Programs, BullProgram.Normal, BullFrameDefinitions.Spritemap),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Programs, BullProgram.Normal, BullFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
             "Bull normal loop");
 

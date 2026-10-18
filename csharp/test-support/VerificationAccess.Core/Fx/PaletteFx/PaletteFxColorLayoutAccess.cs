@@ -210,7 +210,7 @@ internal static class TitleLogoFadePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(TitleLogoFadePaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TitleLogoFadePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TitleLogoFadePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -227,7 +227,7 @@ internal static class NintendoLogoFadePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(NintendoLogoFadePaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(NintendoLogoFadePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(NintendoLogoFadePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -244,7 +244,7 @@ internal static class ExplodingZebesFadePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(ExplodingZebesFadePaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ExplodingZebesFadePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ExplodingZebesFadePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -261,7 +261,7 @@ internal static class ZebesExplosionForegroundPaletteFxColorDefinitionsLayoutAcc
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(ZebesExplosionForegroundPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionForegroundPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -278,7 +278,7 @@ internal static class ZebesExplosionFinalePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(ZebesExplosionFinalePaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionFinalePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionFinalePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -295,7 +295,7 @@ internal static class ZebesExplosionWhiteoutPaletteFxColorDefinitionsLayoutAcces
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(ZebesExplosionWhiteoutPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionWhiteoutPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -329,7 +329,7 @@ internal static class UnusedCinematicFadePaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(UnusedCinematicFadePaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(UnusedCinematicFadePaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(UnusedCinematicFadePaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -380,7 +380,7 @@ internal static class WreckedShipGreenLightPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(WreckedShipGreenLightPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(WreckedShipGreenLightPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(WreckedShipGreenLightPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -397,7 +397,7 @@ internal static class RedBrinstarGlowPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(RedBrinstarGlowPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(RedBrinstarGlowPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(RedBrinstarGlowPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -414,7 +414,7 @@ internal static class BeaconPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(BeaconPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(BeaconPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(BeaconPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -431,7 +431,7 @@ internal static class TourianGlowPaletteFxColorDefinitionsLayoutAccess
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(TourianGlowPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianGlowPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianGlowPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -448,7 +448,7 @@ internal static class TourianEscapeSharedRedFlashPaletteFxColorDefinitionsLayout
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -465,7 +465,7 @@ internal static class OldTourianEscapeRedFlashPaletteFxColorDefinitionsLayoutAcc
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(OldTourianEscapeRedFlashPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(OldTourianEscapeRedFlashPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }
 
@@ -482,6 +482,6 @@ internal static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsLayout
         internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows.Frame(frame));
 
         /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Color(frame, color));
+        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.Color(frame, color));
     }
 }

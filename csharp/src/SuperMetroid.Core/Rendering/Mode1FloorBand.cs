@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct Mode1FloorBand(int FirstScanline, int TilemapWord, int CharacterWord,
     Position16<Bg2Pixels> Scroll, Extent16<TilemapCells> MapSize)
 {
-    /// <summary>BG2 tilemap base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>BG2 tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
         get => tilemapWord;
@@ -19,7 +19,7 @@ public readonly record struct Mode1FloorBand(int FirstScanline, int TilemapWord,
     /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
     private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
 
-    /// <summary>BG2 4-bpp character base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>BG2 4-bpp character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
         get => characterWord;

@@ -26,9 +26,6 @@ public static class PostCreditsIconGlarePaletteFxColorDefinitions
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
-
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorRows Rows { get; } = new(265, FrameCount, ColorsPerFrame);
 

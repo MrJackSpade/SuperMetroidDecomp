@@ -109,7 +109,7 @@ internal static class RoomFxRecordDefinitionsVerification
         foreach (ushort pointer in RoomFxDefinitions.RecordPointers)
         {
             int length = RoomFxDefinitions.RecordAt(pointer).Terminates
-                ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
+                ? sizeof(ushort) : RoomFxToolingRomData.Record.ByteCount;
             for (int offset = 0; offset < length; offset++)
                 result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (pointer + offset));
         }

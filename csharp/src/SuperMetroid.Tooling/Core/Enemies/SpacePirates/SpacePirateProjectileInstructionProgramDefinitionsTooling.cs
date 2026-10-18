@@ -31,8 +31,8 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
         {
             bool right = index >= 17;
             int word = index % 17;
-            ushort start = right ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
-            ushort loop = right ? SpacePirateProjectileInstructionProgramDefinitions.LaserRightLoop : SpacePirateProjectileInstructionProgramDefinitions.LaserLeftLoop;
+            ushort start = right ? SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
+            ushort loop = right ? SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop : SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop;
             if (word < 3) return new((ushort)(start + word * 4), LaserStartupFrames);
             if (word < 5)
                 return new((ushort)(start + 12 + (word - 3) * 2),
@@ -48,8 +48,8 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
         {
             bool right = index >= 46;
             int word = (index - 34) % 12;
-            ushort start = right ? SpacePirateProjectileInstructionProgramDefinitions.ClawRight : SpacePirateProjectileInstructionProgramDefinitions.ClawLeft;
-            ushort loop = right ? SpacePirateProjectileInstructionProgramDefinitions.ClawRightLoop : SpacePirateProjectileInstructionProgramDefinitions.ClawLeftLoop;
+            ushort start = right ? SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight : SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft;
+            ushort loop = right ? SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop : SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop;
             if (word < 2)
                 return new((ushort)(start + word * 2),
                     word == 0 ? (ushort)EnemyProjectileInstruction.PreInstructionInY

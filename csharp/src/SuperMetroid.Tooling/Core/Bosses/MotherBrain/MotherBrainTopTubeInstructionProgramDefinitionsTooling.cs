@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal abstract class MotherBrainTopTubeInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
     /// <summary>Four one-frame top-tube poses, each followed by a sleep command.</summary>
-    private static readonly InstructionProgramLayout Layout = new(MotherBrainTopTubeInstructionProgramDefinitions.Bank,
+    private static readonly InstructionProgramLayout Layout = new(MotherBrainTopTubeInstructionProgramToolingDefinitions.Bank,
         Origin(MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
         Entry(MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
         Frame(1),
@@ -30,7 +30,7 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitionsTooling :
     /// <summary>Returns the cartridge address of an indexed top-tube presentation word.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
     /// <summary>Identifies the bank containing the top-tube instruction program.</summary>
-    static int IDeclaredProgramBank.Bank => MotherBrainTopTubeInstructionProgramDefinitions.Bank;
+    static int IDeclaredProgramBank.Bank => MotherBrainTopTubeInstructionProgramToolingDefinitions.Bank;
     /// <summary>Counts top-tube instruction words compiled as mechanics.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
     /// <summary>Pairs a compiled top-tube mechanics word with its original bank address.</summary>

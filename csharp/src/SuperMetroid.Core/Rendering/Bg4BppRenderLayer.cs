@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record Bg4BppRenderLayer(int TilemapWord, int CharacterWord,
     Position16<BgPlanePixels> Scroll, Extent16<TilemapCells> MapSize, bool? Priority) : RenderLayer
 {
-    /// <summary>Tilemap base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
         get => tilemapWord;
@@ -19,7 +19,7 @@ public sealed record Bg4BppRenderLayer(int TilemapWord, int CharacterWord,
     /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
     private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
 
-    /// <summary>4-bpp character base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>4-bpp character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
         get => characterWord;

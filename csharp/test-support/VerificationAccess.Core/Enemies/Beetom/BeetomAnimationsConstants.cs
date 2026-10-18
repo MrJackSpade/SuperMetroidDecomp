@@ -13,5 +13,5 @@ internal static class BeetomAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params BeetomProgram[] programs) =>
         programs.SelectMany(program => BeetomAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => BeetomFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => BeetomFrameToolingDefinitions.Spritemap(step.Frame));
 }

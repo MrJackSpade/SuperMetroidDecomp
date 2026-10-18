@@ -88,7 +88,7 @@ internal static class RoomBackgroundLibraryParityVerification
             }
         }
 
-        AssertTrue(cases > LibraryBackgroundProgramDefinitions.RetailProgramCount,
+        AssertTrue(cases > LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
             "library background parity included door-selected variants");
         Suite(nameof(VerifyInstalledBackgroundTransferFailures), () => VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters));
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +

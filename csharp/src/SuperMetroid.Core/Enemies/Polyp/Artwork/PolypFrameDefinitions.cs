@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Enemies.Polyp.Artwork;
 internal static class PolypFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(PolypFrame frame) => frame.Pose switch
-    {
-        0 => 0xb5fb,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Polyp pose."),
-    };
-
     /// <summary>The installed frame each <see cref="PolypFrame"/> shows.</summary>
     internal static EnemyFrameTable<PolypFrame> ShownFrames { get; } = new()
     {

@@ -1647,8 +1647,8 @@ internal static class LookupStream5Verification
         }
         AssertTrue(expected.SequenceEqual(DeadMonsterRottingDefinitionsAccess.AllTransfers), "audit DMA order matches all native lists");
         AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.ForTransferTable(0xe0e1), "unaligned DMA list rejected");
-        AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.RotationOffset(0xe226, 104), "corpse row past end rejected");
+        AssertThrows<InvalidDataException>(() => DeadMonsterRottingDefinitionsConstants.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitionsConstants.RotationOffset(0xe226, 104), "corpse row past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandSource(16), "sand source past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandDestination(16), "sand destination past end rejected");
     }

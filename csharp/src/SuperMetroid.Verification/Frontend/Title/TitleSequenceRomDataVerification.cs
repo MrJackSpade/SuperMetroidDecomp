@@ -163,7 +163,7 @@ internal static class TitleSequenceRomDataVerification
         WriteRomWord(
             rom,
             TitleSequenceRomData.Sprites.LogoPointerAddress,
-            TitleSequenceRomData.Sprites.SuperMetroidLogo);
+            TitleSequenceRomDataSpritesConstants.SuperMetroidLogo);
         return rom;
     }
 

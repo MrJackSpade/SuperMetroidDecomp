@@ -28,7 +28,7 @@ internal static class SkreeMetareeBehaviorVerification
             SkreeMetareeProgram idle = program(SkreeMetareeAnimationPhase.Idling);
             (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationProgramCursor<SkreeMetareeProgram>> current, Action<SkreeMetareeProgram> start, Func<bool> attackReady) = Create(metaree);
             AssertEqual(AnimationProgramCursor<SkreeMetareeProgram>.Start(idle), current(), $"{species} starts idling");
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, idle, SkreeMetareeFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, idle, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Programs, idle)), $"{species} idle loop");
 
             (enemies, slot, current, start, attackReady) = Create(metaree);
@@ -45,7 +45,7 @@ internal static class SkreeMetareeBehaviorVerification
             SkreeMetareeProgram dive = program(SkreeMetareeAnimationPhase.Diving);
             SkreeMetareeProgram diveLoop = SkreeMetareeAnimations.Programs.Steps(dive).Single(step => step.Kind == AnimationProgramStepKind.FallInto).Target;
             start(dive);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, diveLoop, SkreeMetareeFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Programs, diveLoop)), $"{species} dive loop");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{species} dive processes off screen");
 

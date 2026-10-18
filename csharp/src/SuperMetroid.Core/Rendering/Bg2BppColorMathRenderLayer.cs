@@ -11,9 +11,9 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
     /// before tilemap wrapping.
     /// </summary>
     public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;
-    /// <summary>VRAM word address of the 32-column background tilemap, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>VRAM word address of the 32-column background tilemap, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord { get; }
-    /// <summary>VRAM word address of the 2-bpp character data, 0 through <see cref="VramWordRange.MaximumWord"/>; each 8-by-8 character occupies eight words.</summary>
+    /// <summary>VRAM word address of the 2-bpp character data, 0 through <c>VramWordRange.MaximumWord</c>; each 8-by-8 character occupies eight words.</summary>
     public int CharacterWord { get; }
     /// <summary>Tilemap height of 32 or 64 eight-pixel rows, determining vertical wrapping; the plane has a fixed width of 32 tiles.</summary>
     public int MapHeightTiles { get; }

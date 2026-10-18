@@ -25,7 +25,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
         {
             Start(slot, state, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
         }
         foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,

@@ -27,12 +27,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     public ushort ColorByteIndex { get; }
     /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
     public bool PublishesHeatPhase { get; }
-    /// <summary>Bytes from one record's first mechanic through its wait command.</summary>
-    public int FrameByteCount => PublishesHeatPhase ? 19 : 16;
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

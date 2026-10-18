@@ -55,7 +55,7 @@ internal static class AlcoonFireballBehaviorVerification
             AlcoonFireballFrame frame = new(pose);
             ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, key, out ushort selected), $"pose {pose} has a calculated selector");
-            AssertEqual(AlcoonFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            AssertEqual(AlcoonFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Alcoon fireball behavior: six fireballs loop as their native list does and every calculated selector matches.");

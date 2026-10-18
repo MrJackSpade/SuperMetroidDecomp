@@ -39,7 +39,7 @@ internal static class PipeBugBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
             PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Programs, program, PipeBugFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Programs, program, PipeBugFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Programs, program)),
                 $"Pipe Bug {program} loop");
         }

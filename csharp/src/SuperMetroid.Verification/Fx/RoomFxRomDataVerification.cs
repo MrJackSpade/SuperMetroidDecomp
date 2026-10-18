@@ -27,7 +27,7 @@ internal static class RoomFxRomDataVerification
     /// </summary>
     internal static void VerifyRoomFxRomData()
     {
-        AssertEqual(16, RoomFxRomData.Record.ByteCount, "room FX record width");
+        AssertEqual(16, RoomFxToolingRomData.Record.ByteCount, "room FX record width");
         AssertEqual(9, RoomFxRomDataRecordTooling.TypeOffset, "room FX type field");
         AssertEqual(11, RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             "room FX layer-three blend field");
@@ -224,7 +224,7 @@ internal static class RoomFxRomDataVerification
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.LiquidOptionsOffset,
                 type == RoomFxType.Water
                     ? (byte)3
-                    : (byte)RoomFxRomData.LavaAcid.VerticalBg2WaveOption);
+                    : (byte)RoomFxRomDataLavaAcidConstants.VerticalBg2WaveOption);
             SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));

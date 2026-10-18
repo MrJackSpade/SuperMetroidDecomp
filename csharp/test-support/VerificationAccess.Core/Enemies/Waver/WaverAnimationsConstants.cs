@@ -13,5 +13,5 @@ internal static class WaverAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params WaverProgram[] programs) =>
         programs.SelectMany(program => WaverAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => WaverFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => WaverFrameToolingDefinitions.Spritemap(step.Frame));
 }

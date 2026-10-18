@@ -12,7 +12,7 @@ public sealed record Bg2BppViewportRenderLayer(int TilemapWord, int CharacterWor
     /// <summary>The largest scroll register value.</summary>
     public const int MaximumScroll = ushort.MaxValue;
 
-    /// <summary>Tilemap base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
         get => tilemapWord;
@@ -22,7 +22,7 @@ public sealed record Bg2BppViewportRenderLayer(int TilemapWord, int CharacterWor
     /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
     private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
 
-    /// <summary>2-bpp character base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>2-bpp character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
         get => characterWord;

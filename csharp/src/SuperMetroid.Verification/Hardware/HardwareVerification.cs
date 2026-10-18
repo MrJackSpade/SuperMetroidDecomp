@@ -173,7 +173,7 @@ internal static void VerifyBossBitfield()
         () => state.SetBossBits(0, (BossBits)0x80),
         "unnamed boss bit rejected by typed API");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => BossBitMasks.FromCartridge(0x80, "constructed selector"),
+        () => BossBitMasksConstants.FromCartridge(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");
     Console.WriteLine("  Boss state: all eight area bytes preserve independent masks.");
 }

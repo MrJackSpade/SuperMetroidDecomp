@@ -14,7 +14,7 @@ internal static class HopperAnimationsVerification
     internal static void VerifyHopperAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, HopperAnimations.Programs,
-            HopperFrameDefinitions.Spritemap,
+            HopperFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

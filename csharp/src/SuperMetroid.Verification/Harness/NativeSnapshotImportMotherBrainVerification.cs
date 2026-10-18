@@ -83,7 +83,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.DroolProjectileParameter = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
-        state.WalkCounter = MotherBrainWalkCredit.FromNativeWord(W(MotherBrainMemory.WalkCounter));
+        state.WalkCounter = MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = (MotherBrainAttackPhase)W(MotherBrainMemory.AttackPhase);
         state.AttackCooldown = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyAttackCooldown));
         state.BombCounter = W(MotherBrainMemory.BombCounter);
@@ -166,5 +166,5 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// is not running, which starts from the first page; any other pointer must name one of the twelve records.
     /// </summary>
     internal static int DecodeLegTilePage(ushort word) =>
-        word == 0 ? 0 : MotherBrainLegTileTransferDefinitions.IndexOf(word);
+        word == 0 ? 0 : MotherBrainLegTileTransferDefinitionsConstants.IndexOf(word);
 }

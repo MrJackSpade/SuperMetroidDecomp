@@ -35,17 +35,4 @@ internal static class WorkRobotPaletteTimingDefinitions
         int record = byteOffset / RecordByteCount;
         return (ushort)(record % 3 == 0 ? 64 : 16);
     }
-
-    /// <summary>
-    /// Resolves the native terminator offset back to record zero and rejects every other
-    /// non-record offset instead of interpreting adjacent bank-$A8 code as palette data.
-    /// </summary>
-    public static ushort NormalizeByteOffset(ushort byteOffset)
-    {
-        if (byteOffset == RecordCount * RecordByteCount)
-            return 0;
-
-        _ = DurationForByteOffset(byteOffset);
-        return byteOffset;
-    }
 }

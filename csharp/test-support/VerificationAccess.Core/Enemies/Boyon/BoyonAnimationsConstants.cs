@@ -13,5 +13,5 @@ internal static class BoyonAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params BoyonProgram[] programs) =>
         programs.SelectMany(program => BoyonAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => BoyonFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => BoyonFrameToolingDefinitions.Spritemap(step.Frame));
 }

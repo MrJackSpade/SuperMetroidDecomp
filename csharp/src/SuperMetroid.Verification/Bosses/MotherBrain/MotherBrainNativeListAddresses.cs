@@ -283,7 +283,7 @@ internal static class MotherBrainNativeListAddresses
 
     /// <summary>Compares the falling tubes' typed programs with their native lists; returns each native record's typed cursor.</summary>
     internal static Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> CompareTubes(IImportCartridgeSource cartridge) =>
-        Walk(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Programs, TubeEntries, frame => MotherBrainVisualDefinitions.TubeFrame(frame.Index).Pointer,
+        Walk(cartridge, MotherBrainBank, MotherBrainTubeAnimations.Programs, TubeEntries, frame => MotherBrainVisualToolingDefinitions.TubeFrame(frame.Index).Pointer,
             new Dictionary<ushort, NativeOp<MotherBrainTubePiece, MotherBrainTubeFrame, NoAnimationCue>>());
 
     /// <summary>Each glass program's native list in bank $86.</summary>

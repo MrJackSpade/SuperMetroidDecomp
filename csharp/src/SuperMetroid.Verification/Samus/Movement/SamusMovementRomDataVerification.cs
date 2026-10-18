@@ -67,7 +67,7 @@ internal static class SamusMovementRomDataVerification
             TouchRange(
                 bus,
                 SamusMovementRomData.Banks.Movement | table,
-                movementTypeCount * SpeedTableEntry.ByteCount,
+                movementTypeCount * SpeedTableEntryConstants.ByteCount,
                 $"horizontal speed table ${table:X4}");
         }
 
@@ -95,7 +95,7 @@ internal static class SamusMovementRomDataVerification
 
         foreach (int speedRecord in Enum.GetValues<SamusStandaloneSpeedRecord>().Select(SamusHorizontalMotionDefinitions.StandaloneAddressOf))
         {
-            TouchRange(bus, speedRecord, SpeedTableEntry.ByteCount,
+            TouchRange(bus, speedRecord, SpeedTableEntryConstants.ByteCount,
                 $"standalone speed record ${speedRecord:X6}");
         }
 

@@ -1639,10 +1639,10 @@ internal static class EnemySpritemapArtworkVerification
                 $"{name} visual override leaves X unchanged");
         }
         OamBuffer stockFrozen = DrawEnemy(stock, NewFrameReadGuard(rom),
-            RipperFrameDefinitions.FrozenFacingLeftSpritemap,
+            RipperFrameDefinitionsConstants.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
         OamBuffer editedFrozen = DrawEnemy(edited, NewFrameReadGuard(rom),
-            RipperFrameDefinitions.FrozenFacingLeftSpritemap,
+            RipperFrameDefinitionsConstants.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");

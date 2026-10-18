@@ -42,7 +42,7 @@ internal static class CoreAccess
     /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
     internal static bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
     {
-        KraidBehavior.KraidCollisionScratch scratch = KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer);
+        KraidBehavior.KraidCollisionScratch scratch = KraidBehaviorConstants.LoadKraidCollisionScratch(body, hitboxPointer);
         return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.PackedType.Raw, shot.Damage));
     }
 

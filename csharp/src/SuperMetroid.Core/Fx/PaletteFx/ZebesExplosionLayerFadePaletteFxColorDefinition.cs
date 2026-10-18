@@ -33,7 +33,4 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

@@ -14,7 +14,7 @@ internal static class SkulteraAnimationsVerification
     internal static void VerifySkulteraAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SkulteraAnimations.Programs,
-            SkulteraFrameDefinitions.Spritemap,
+            SkulteraFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

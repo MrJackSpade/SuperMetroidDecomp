@@ -16,11 +16,6 @@ internal static class TripperKamerVisualDefinitions
     internal const ushort FrozenMovingLeft = 0xa009;
     /// <summary><c>Spritemap_Tripper_Frozen_MovingRight</c> at $A3:A015.</summary>
     internal const ushort FrozenMovingRight = 0xa015;
-
-    /// <summary>$A3:9F14-9F25 tests the complete X-movement word for zero.
-    /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
-    internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
-        direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
     /// <summary>Enumerates the moving, stationary, and frozen Tripper maps followed by
     /// the four Kamer platform poses for artwork extraction.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>

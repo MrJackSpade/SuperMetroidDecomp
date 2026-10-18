@@ -48,9 +48,6 @@ public static class TorizoBellyPaletteFxColorDefinitions
     /// <summary>Six timed records form one complete belly-color cycle.</summary>
     public const int FrameCount = 6;
 
-    /// <summary>Bytes from one duration word through its terminal wait command.</summary>
-    public const int FrameByteCount = 10;
-
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } = new ProgramDefinitions();
 }

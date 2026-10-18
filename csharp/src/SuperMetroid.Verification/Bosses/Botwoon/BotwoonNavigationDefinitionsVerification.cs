@@ -26,7 +26,7 @@ internal static class BotwoonNavigationDefinitionsVerification
 
     /// <summary>The compiled sample index of a cartridge movement-sample pointer.</summary>
     private static int SampleIndexOf(int pointer) =>
-        (pointer - BotwoonNavigationDefinitions.MovementDataStart) / SampleBytes;
+        (pointer - BotwoonNavigationDefinitionsConstants.MovementDataStart) / SampleBytes;
 
     /// <summary>Checks each hole's exclusive right edge through the production detection routine and rejects invalid hole indices.</summary>
     internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
@@ -192,8 +192,8 @@ internal static class BotwoonNavigationDefinitionsVerification
         movementEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         int movementSampleCount = 0;
-        for (int pointer = BotwoonNavigationDefinitions.MovementDataStart;
-             pointer < BotwoonNavigationDefinitions.MovementDataEndExclusive;
+        for (int pointer = BotwoonNavigationDefinitionsConstants.MovementDataStart;
+             pointer < BotwoonNavigationDefinitionsConstants.MovementDataEndExclusive;
              pointer += SampleBytes)
         {
             int sampleIndex = SampleIndexOf(pointer);

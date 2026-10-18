@@ -15,9 +15,6 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
     /// <summary>Each record writes three live BGR555 colors.</summary>
     public const int ColorsPerFrame = 3;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 10;
-
     /// <summary>$8D:FBC1 selects $00D2: palette-six/color-nine railings.</summary>
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
     /// <summary>$8D:FC5F selects $00AA: palette-five/color-five panels.</summary>

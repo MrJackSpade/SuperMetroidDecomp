@@ -173,7 +173,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
         {
             int record = MotherBrainLegTileTransferDefinitions.NativeListAddress +
-                page * MotherBrainLegTileTransferDefinitions.RecordByteCount;
+                page * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount;
             MotherBrainSpriteTileTransferRequest compiled =
                 MotherBrainLegTileTransferDefinitions.Get(page);
             AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
@@ -199,7 +199,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         }
         int terminator = MotherBrainLegTileTransferDefinitions.NativeListAddress +
             MotherBrainLegTileTransferDefinitions.PageCount *
-            MotherBrainLegTileTransferDefinitions.RecordByteCount;
+            MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount;
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
             "Mother Brain leg transfer page eleven is followed by native zero terminator");
 
@@ -208,7 +208,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "Mother Brain has no leg-artwork page past the twelfth");
         AssertThrows<InvalidDataException>(
             () => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(unchecked((ushort)(
-                MotherBrainLegTileTransferDefinitions.NativeListPointer + 1))),
+                MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer + 1))),
             "a misaligned snapshot leg-transfer pointer is rejected at the import");
     }
 

@@ -13,5 +13,5 @@ internal static class ChootAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params ChootProgram[] programs) =>
         programs.SelectMany(program => ChootAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ChootFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => ChootFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -26,9 +26,6 @@ public static class TourianStatueGreyPaletteFxColorDefinitions
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 8;
 
-    /// <summary>Bytes from one duration word through its terminal wait command.</summary>
-    public const int FrameByteCount = 20;
-
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorRows Rows { get; } = new(279, FrameCount, ColorsPerFrame);
 

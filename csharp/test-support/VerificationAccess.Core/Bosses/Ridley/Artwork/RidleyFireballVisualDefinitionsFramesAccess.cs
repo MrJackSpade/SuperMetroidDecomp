@@ -12,7 +12,7 @@ internal static class RidleyFireballVisualDefinitionsFramesAccess
         /// <summary>Every frame in installed order.</summary>
         internal static IReadOnlyList<RidleyFireballFrame> ProjectileFrames =>
         [
-            .. RidleyFireballVisualDefinitions.Run(K.Launch, RidleyFireballAnimations.LaunchPoseCount),
+            .. RidleyFireballVisualDefinitions.Run(K.Launch, RidleyFireballAnimationsConstants.LaunchPoseCount),
             .. RidleyFireballVisualDefinitions.Run(K.Flight, RidleyFireballAnimations.FlightPoseCount),
             .. RidleyFireballVisualDefinitions.Run(K.AfterburnFinal, RidleyFireballAnimations.AfterburnPoseCount),
             .. RidleyFireballVisualDefinitions.Run(K.HorizontalCenter, RidleyFireballAnimations.AfterburnPoseCount),

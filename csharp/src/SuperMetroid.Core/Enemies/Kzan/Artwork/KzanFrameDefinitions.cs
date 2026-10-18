@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Enemies.Kzan.Artwork;
 internal static class KzanFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(KzanFrame frame) => frame.Pose switch
-    {
-        0 => 0x8ce5,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Kzan pose."),
-    };
-
     /// <summary>The installed frame each <see cref="KzanFrame"/> shows.</summary>
     internal static EnemyFrameTable<KzanFrame> ShownFrames { get; } = new()
     {

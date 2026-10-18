@@ -25,9 +25,6 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
     /// <summary>$8D:C914..C918: three text colors per record.</summary>
     public const int ColorsPerFrame = 3;
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = sizeof(ushort) * (ColorsPerFrame + 2);
-
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxColorDefinition> All { get; } = new DefinitionSequence();
 

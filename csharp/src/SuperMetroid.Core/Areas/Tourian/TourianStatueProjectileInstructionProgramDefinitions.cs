@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 internal abstract class TourianStatueProjectileInstructionProgramDefinitions
 {
-    /// <summary>Private Tourian projectile deletion program at $86:B79F.</summary>
-    internal const ushort Delete = 0xb79f;
     /// <summary>Unlocking-particle water splash program at $86:B7A1.</summary>
     internal const ushort Splash = 0xb7a1;
     /// <summary>Boss-statue eye-glow program at $86:B7B3.</summary>

@@ -247,7 +247,7 @@ internal static class CeresEscapeHandoffVerification
             bus,
             SamusMovementRomData.Banks.Movement |
                 (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
-                0x0a * SpeedTableEntry.ByteCount),
+                0x0a * SpeedTableEntryConstants.ByteCount),
             1, 0, 1, 0, 0, 0);
     }
 

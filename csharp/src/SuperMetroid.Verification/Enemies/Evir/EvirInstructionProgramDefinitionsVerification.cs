@@ -34,7 +34,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
                 $"Evir {loop} loop");
         }

@@ -10,6 +10,8 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionAccess
         public ushort LoopInstructionPointer => unchecked((ushort)(
             self.FirstFramePointer +
             OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount *
-            OldTourianEscapeAccentPaletteFxColorDefinitions.FrameByteCount));
+            OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameByteCount));
+        /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+        public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);
     }
 }

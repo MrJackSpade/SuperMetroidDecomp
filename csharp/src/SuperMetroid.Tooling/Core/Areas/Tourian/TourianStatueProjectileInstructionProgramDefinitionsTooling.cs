@@ -42,7 +42,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitionsTool
     /// </summary>
     private static InstructionMechanicsWord Select(int index, bool visual)
     {
-        var layout = new Layout(index, visual, D.Delete);
+        var layout = new Layout(index, visual, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete);
         layout.Delete();
         for (int pose = 0; pose < 4; pose++) layout.Pose(SplashHold);
         layout.Delete();

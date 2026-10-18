@@ -44,7 +44,7 @@ internal static class MotherBrainEncodingDomainsVerification
     {
         foreach ((int start, int earned) in new[] { (65530, 32), (65535, 6), (250, 6), (224, 32), (40000, 6) })
         {
-            MotherBrainWalkCredit credit = MotherBrainWalkCredit.FromNativeWord(checked((ushort)start)).AddCredit(earned);
+            MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start)).AddCredit(earned);
             int expected = NativeAdd(start, earned);
             AssertEqual(expected, credit.Word, $"walk credit {start} plus {earned} wraps like the native add");
             AssertEqual(expected < MotherBrainWalkCredit.StepCredit, credit.BelowStep,
@@ -58,7 +58,7 @@ internal static class MotherBrainEncodingDomainsVerification
     {
         foreach (int start in new[] { 0, 100, 255, 256, 300, 4096, 32767, 32768, 33000, 40000, 65535 })
         {
-            MotherBrainWalkCredit credit = MotherBrainWalkCredit.FromNativeWord(checked((ushort)start));
+            MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start));
             foreach (int cost in new[] { MotherBrainWalkCredit.StepCredit, MotherBrainWalkCredit.HyperBeamShotCost })
             {
                 int expected = NativeSignedSpend(start, cost);
@@ -73,7 +73,7 @@ internal static class MotherBrainEncodingDomainsVerification
         }
 
         // 40,000 lies above the sign bit: a shot empties it while a bomb leaves 39,744.
-        MotherBrainWalkCredit high = MotherBrainWalkCredit.FromNativeWord(40000);
+        MotherBrainWalkCredit high = MotherBrainWalkCreditConstants.FromNativeWord(40000);
         AssertEqual(MotherBrainWalkCredit.Empty, high.SpendForShot(MotherBrainWalkCredit.StepCredit),
             "a shot reads a credit above the sign bit as overdrawn");
         AssertEqual(MotherBrainWalkCredit.Of(39744), high.SpendStepForBomb(),
@@ -85,7 +85,7 @@ internal static class MotherBrainEncodingDomainsVerification
     {
         foreach (int start in new[] { 0, 200, 265, 266, 300, 4096, 40000 })
         {
-            MotherBrainWalkCredit credit = MotherBrainWalkCredit.FromNativeWord(checked((ushort)start));
+            MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start));
 
             MotherBrainShotReactionResult hyper = MotherBrainShotReaction.Resolve(
                 MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Beam, credit);
@@ -188,14 +188,14 @@ internal static class MotherBrainEncodingDomainsVerification
             "a leg-transfer list that is not running starts from the first page");
         for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
         {
-            ushort pointer = checked((ushort)(MotherBrainLegTileTransferDefinitions.NativeListPointer +
-                page * MotherBrainLegTileTransferDefinitions.RecordByteCount));
+            ushort pointer = checked((ushort)(MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer +
+                page * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount));
             AssertEqual(page, NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(pointer),
                 $"leg-transfer record {page} decodes to its page");
         }
         AssertThrows<InvalidDataException>(() => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(
-                checked((ushort)(MotherBrainLegTileTransferDefinitions.NativeListPointer +
-                    MotherBrainLegTileTransferDefinitions.PageCount * MotherBrainLegTileTransferDefinitions.RecordByteCount))),
+                checked((ushort)(MotherBrainLegTileTransferDefinitionsConstants.NativeListPointer +
+                    MotherBrainLegTileTransferDefinitions.PageCount * MotherBrainLegTileTransferDefinitionsConstants.RecordByteCount))),
             "the leg-transfer terminator is not a page");
 
         AssertEqual(SnesObjPalettes.Index7, SnesObjAttributeWord.FromPaletteBits(SnesObjPalettes.Index7.PaletteBits),

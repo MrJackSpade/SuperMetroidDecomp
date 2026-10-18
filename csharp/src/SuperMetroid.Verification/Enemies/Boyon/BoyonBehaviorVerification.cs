@@ -24,7 +24,7 @@ internal static class BoyonBehaviorVerification
         (RoomEnemySystem idleSystem, RoomEnemySlot idle, BoyonEnemyState idleState) = Create();
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Idle), idleState.Program, "Boyon initializer starts idling");
         idle.Properties = idle.Properties.With(EnemyProperties.ProcessOffScreen);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.IdleLoop, BoyonFrameDefinitions.Spritemap),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.IdleLoop, BoyonFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.IdleLoop)), "Boyon idle loop");
         AssertTrue(!idle.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon idle stops off-screen processing");
 
@@ -33,7 +33,7 @@ internal static class BoyonBehaviorVerification
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Bouncing), bounceState.Program, "Samus nearby starts the bounce");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.BouncingLoop, BoyonFrameDefinitions.Spritemap),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.BouncingLoop, BoyonFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
         AssertTrue(bounce.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, BoyonNativeValues.BounceSound),

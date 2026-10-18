@@ -13,5 +13,5 @@ internal static class RioAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params RioProgram[] programs) =>
         programs.SelectMany(program => RioAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => RioFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => RioFrameToolingDefinitions.Spritemap(step.Frame));
 }

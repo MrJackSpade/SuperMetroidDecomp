@@ -14,7 +14,7 @@ internal static class TourianStatueProjectileAnimationsVerification
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly (TourianStatueProjectileProgram Program, ushort Entry)[] Entries =
     [
-        (TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramDefinitions.Delete),
+        (TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
         (TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitions.Splash),
         (TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitions.EyeGlow),
         (TourianStatueProjectileProgram.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),

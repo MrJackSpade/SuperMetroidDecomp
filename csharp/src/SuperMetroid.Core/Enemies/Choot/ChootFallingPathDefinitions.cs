@@ -84,10 +84,6 @@ internal static class ChootFallingPathDefinitions
         End,
     ];
 
-    /// <summary>Returns the exact physical sample selected by a native path pointer and frame.</summary>
-    internal static ChootFallingPathPoint At(ushort pointer, int frameIndex) =>
-        At(ClosedNativeWords.Decode<ChootFallingPath>(pointer, "Choot falling-pattern stream"), frameIndex);
-
     /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
     internal static ChootFallingPathPoint At(ChootFallingPath pointer, int frameIndex)
     {

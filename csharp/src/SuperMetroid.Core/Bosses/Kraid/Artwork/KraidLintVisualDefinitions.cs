@@ -7,8 +7,6 @@ internal static class KraidLintVisualDefinitions
 {
     /// <summary>Native Kraid instruction and artwork bank $A7.</summary>
     internal const byte Bank = KraidFootVisualDefinitions.Bank;
-    /// <summary>Initial <c>Spritemap_KraidLint_Initial</c> at $A7:A5DF, selected by $A7:8B00.</summary>
-    internal const ushort InitialFrame = 0xa5df;
     /// <summary>Initial and post-growth ordinary OAM frames at $A7:A5DF and $A7:8C6C.</summary>
     internal const int FrameCount = 2;
 

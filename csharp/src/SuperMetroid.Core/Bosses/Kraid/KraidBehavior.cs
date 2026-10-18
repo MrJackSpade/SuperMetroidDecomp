@@ -910,12 +910,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, KraidMouthHitbox shape) =>
         LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(shape));
 
-    /// <summary>Converts a recorded native mouth-shape address into wrapped world-space collision bounds.</summary>
-    internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer) =>
-        LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(pointer));
-
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
-    private static KraidCollisionScratch LoadKraidCollisionScratch(
+    internal static KraidCollisionScratch LoadKraidCollisionScratch(
         RoomEnemySlot body, (short Left, short Top, short Bottom) shape)
     {
         (short left, short top, short bottom) = shape;

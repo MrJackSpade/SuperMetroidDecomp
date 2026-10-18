@@ -14,7 +14,7 @@ internal static class ZebesExplosionForegroundPaletteFxColorDefinitionsConstants
         internal static ushort DefinitionPointer => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
     /// <summary>The terminal <c>delete</c> command at <c>$8D:CD60</c>.</summary>
-    internal static ushort DeleteInstructionPointer => checked((ushort)(ZebesExplosionForegroundPaletteFxColorDefinitions.FirstFramePointer + ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount * ZebesExplosionForegroundPaletteFxColorDefinitions.FrameByteCount));
+    internal static ushort DeleteInstructionPointer => checked((ushort)(ZebesExplosionForegroundPaletteFxColorDefinitions.FirstFramePointer + ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount * ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.FrameByteCount));
     /// <summary>The foreground explosion writes CGRAM from byte index <c>$0002</c>.</summary>
     public const ushort ColorByteIndex = 0x0002;
     /// <summary>The complete one-shot foreground explosion lasts 144 frames, the ending's $8B:EB71 right-star exposure.</summary>
@@ -34,4 +34,8 @@ internal static class ZebesExplosionForegroundPaletteFxColorDefinitionsConstants
         if ((uint)frame >= ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return frame < InitialRevealRecords ? RevealTicks : frame == InitialRevealRecords ? CrestTicks : ExpansionTicks;
     }
+    /// <summary>Bytes from one duration through its terminal wait command.</summary>
+    public const int FrameByteCount = (ZebesExplosionForegroundPaletteFxColorDefinitions.ColorsPerFrame + 2) * sizeof(ushort);
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionForegroundPaletteFxColorDefinitions.Rows.Color(frame, color);
 }

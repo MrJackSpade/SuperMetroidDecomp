@@ -12,5 +12,5 @@ internal static class MochtroidAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params MochtroidProgram[] programs) =>
         programs.SelectMany(program => MochtroidAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MochtroidFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => MochtroidFrameToolingDefinitions.Spritemap(step.Frame));
 }

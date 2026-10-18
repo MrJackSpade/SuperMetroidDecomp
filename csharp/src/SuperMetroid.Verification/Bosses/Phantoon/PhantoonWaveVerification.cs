@@ -70,7 +70,7 @@ internal static class PhantoonWaveVerification
              mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
              mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
         {
-            AssertEqual(BackgroundMosaicSampling.ForBg2((byte)mosaic).Size, PhantoonBehavior.MosaicBlockSizeOf((byte)mosaic),
+            AssertEqual(BackgroundMosaicSamplingConstants.ForBg2((byte)mosaic).Size, PhantoonBehavior.MosaicBlockSizeOf((byte)mosaic),
                 $"death mosaic step {steps} block size");
             steps++;
         }

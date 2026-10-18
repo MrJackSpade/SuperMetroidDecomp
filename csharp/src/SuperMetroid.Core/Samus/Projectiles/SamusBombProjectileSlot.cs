@@ -45,20 +45,8 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The spread bomb's horizontal travel; a wall reverses its direction.</summary>
     public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
 
-    /// <summary>
-    /// The spread bomb's horizontal travel in its launch definition's packed form, 0 through 65535, for traces that
-    /// print it.
-    /// </summary>
-    public int BombSpreadDirectionMagnitude => BombSpreadHorizontal.LaunchWord;
-
     /// <summary>The spread bomb's signed 16.16 vertical velocity; Samus's gravity accelerates it every frame.</summary>
     public SnesSignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
-
-    /// <summary>The whole word of <see cref="BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
-    public int BombSpreadYVelocity => BombSpreadVerticalVelocity.WholeWord;
-
-    /// <summary>The fraction word of <see cref="BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
-    public int BombSpreadYSubvelocity => BombSpreadVerticalVelocity.Fraction;
 
     /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
     public SnesSignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }

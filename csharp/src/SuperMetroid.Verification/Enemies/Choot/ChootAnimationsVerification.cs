@@ -14,7 +14,7 @@ internal static class ChootAnimationsVerification
     internal static void VerifyChootAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ChootAnimations.Programs,
-            ChootFrameDefinitions.Spritemap,
+            ChootFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

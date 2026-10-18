@@ -9,19 +9,6 @@ namespace SuperMetroid.Core.Enemies.Boyon.Artwork;
 internal static class BoyonFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(BoyonFrame frame) => frame.Pose switch
-    {
-        0 => 0x88da,
-        1 => 0x88e1,
-        2 => 0x88e8,
-        3 => 0x88ef,
-        4 => 0x88f6,
-        5 => 0x88fd,
-        6 => 0x8904,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Boyon pose."),
-    };
-
     /// <summary>The installed frame each <see cref="BoyonFrame"/> shows.</summary>
     internal static EnemyFrameTable<BoyonFrame> ShownFrames { get; } = new()
     {

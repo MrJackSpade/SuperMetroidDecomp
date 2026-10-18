@@ -32,9 +32,6 @@ public static class RoomEnemyPopulationDefinitions
             throw new InvalidDataException("Compiled enemy populations repeat a name.");
     }
 
-    /// <summary>Every retail population, in the cartridge's list order.</summary>
-    public static IReadOnlyList<RoomEnemyPopulationDefinition> All => Definitions;
-
     /// <summary>The compiled population named <paramref name="name"/>.</summary>
     private static RoomEnemyPopulationDefinition Find(string name) =>
         Definitions.Single(list => list.Name == name);

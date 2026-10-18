@@ -210,7 +210,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
         for (int direction = 0; direction <= ushort.MaxValue; direction++)
             AssertEqual(direction == 0 ? left : right,
-                TripperKamerVisualDefinitions.FrozenFrame((PlatformHorizontalMovement)direction),
+                TripperKamerVisualDefinitionsConstants.FrozenFrame((PlatformHorizontalMovement)direction),
                 "Tripper frozen selection preserves complete native zero/nonzero domain");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");

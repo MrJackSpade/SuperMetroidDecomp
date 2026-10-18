@@ -72,7 +72,7 @@ internal static class SporeSpawnAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                     AssertEqual((int)word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, SporeSpawnFrameDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                    AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:
@@ -144,7 +144,7 @@ internal static class SporeSpawnAnimationsVerification
     internal static HashSet<ushort> BodySpritemaps() =>
         [.. BodyEntries.SelectMany(item => SporeSpawnAnimations.Programs.Steps(item.Program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SporeSpawnFrameDefinitions.Spritemap(step.Frame))];
+            .Select(step => SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame))];
 
     /// <summary>The frames Spore Spawn's body programs show, counting each native frame record once.</summary>
     internal static int BodyFrameRecordCount =>

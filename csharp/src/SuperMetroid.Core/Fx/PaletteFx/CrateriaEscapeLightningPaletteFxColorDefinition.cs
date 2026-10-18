@@ -26,12 +26,7 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     public ushort ColorByteIndex { get; }
     /// <summary>The number of live BGR555 colors in every record.</summary>
     public int ColorsPerFrame { get; }
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public int FrameByteCount => sizeof(ushort) * (ColorsPerFrame + 2);
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

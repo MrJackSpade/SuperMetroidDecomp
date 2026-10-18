@@ -13,7 +13,7 @@ internal static class SporeSpawnProjectileVisualDefinitionsFramesAccess
         internal static IReadOnlyList<SporeSpawnProjectileFrame> ProjectileFrames =>
         [
             .. new[] { P.SpawnerClosed, P.SpawnerRelease, P.Spore, P.Stalk, P.SporeShot }.SelectMany(program =>
-                Enumerable.Range(0, SporeSpawnProjectileAnimations.PoseCount(program)).Select(phase => new SporeSpawnProjectileFrame(program, phase))),
+                Enumerable.Range(0, SporeSpawnProjectileAnimationsConstants.PoseCount(program)).Select(phase => new SporeSpawnProjectileFrame(program, phase))),
         ];
 
         /// <summary>The installed projectile frames.</summary>

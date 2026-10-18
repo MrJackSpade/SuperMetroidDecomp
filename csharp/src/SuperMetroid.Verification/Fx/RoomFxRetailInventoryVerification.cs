@@ -172,8 +172,8 @@ internal static class RoomFxRetailInventoryVerification
                             bus,
                             selectedRecord,
                             RoomFxRomDataRecordTooling.LiquidOptionsOffset) &
-                            (RoomFxRomData.LiquidTide.SmallTideOption |
-                             RoomFxRomData.LiquidTide.LargeTideOption)) != 0)
+                            (RoomFxRomDataLiquidTideConstants.SmallTideOption |
+                             RoomFxRomDataLiquidTideConstants.LargeTideOption)) != 0)
                     {
                         VerifyRetailLiquidTide(bus, room, doorPointer);
                         tidalEntryPaths++;
@@ -511,7 +511,7 @@ internal static class RoomFxRetailInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for one byte field of a retail room-FX record")]
     private static byte ReadRetailFxRecordByte(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
-        if ((uint)fieldOffset >= RoomFxRomData.Record.ByteCount)
+        if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return CartridgeImportSource.Require(bus).ReadCartridgeByte(
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
@@ -521,7 +521,7 @@ internal static class RoomFxRetailInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for one word field of a retail room-FX record")]
     private static ushort ReadRetailFxRecordWord(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
     {
-        if ((uint)fieldOffset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
+        if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
         return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
@@ -550,7 +550,7 @@ internal static class RoomFxRetailInventoryVerification
                 return 0;
             if (candidateDoor == 0 || candidateDoor == doorPointer)
                 return cursor;
-            cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
+            cursor = unchecked((ushort)(cursor + RoomFxToolingRomData.Record.ByteCount));
         }
 
         throw new InvalidDataException(
@@ -575,7 +575,7 @@ internal static class RoomFxRetailInventoryVerification
             if (doorPointer is 0 or RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 yield break;
             yield return doorPointer;
-            cursor = unchecked((ushort)(cursor + RoomFxRomData.Record.ByteCount));
+            cursor = unchecked((ushort)(cursor + RoomFxToolingRomData.Record.ByteCount));
         }
 
         throw new InvalidDataException(

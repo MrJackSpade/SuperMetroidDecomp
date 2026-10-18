@@ -18,7 +18,7 @@ internal sealed class PipeBugNativeInstructionPointers
     /// <summary>Walks every typed Pipe Bug program beside its native list, failing on any mismatch.</summary>
     internal PipeBugNativeInstructionPointers(IImportCartridgeSource cartridge) =>
         steps = NativeEnemyProgramOracle.StepAddresses(cartridge, PipeBugNativeListAddresses.Bank, PipeBugNativeListAddresses.Entries,
-            PipeBugAnimations.Programs, PipeBugFrameDefinitions.Spritemap, _ => null,
+            PipeBugAnimations.Programs, PipeBugFrameToolingDefinitions.Spritemap, _ => null,
             (word, _, _, at) => throw new InvalidDataException($"{at}: the Pipe Bug lists use no owner instruction ${word:X4}."));
 
     /// <summary>The native instruction pointer <paramref name="cursor"/> stands for.</summary>

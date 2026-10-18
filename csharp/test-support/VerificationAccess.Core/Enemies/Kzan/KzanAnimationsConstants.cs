@@ -12,5 +12,5 @@ internal static class KzanAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params KzanProgram[] programs) =>
         programs.SelectMany(program => KzanAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => KzanFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => KzanFrameToolingDefinitions.Spritemap(step.Frame));
 }

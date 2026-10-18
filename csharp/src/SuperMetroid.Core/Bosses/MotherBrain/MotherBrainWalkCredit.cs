@@ -17,8 +17,8 @@ public readonly record struct MotherBrainWalkCredit
     /// <summary>The cost of one Hyper Beam hit in the final phase, which recoils her when it overdraws the credit.</summary>
     public const int HyperBeamShotCost = 266;
 
-    /// <summary>Stores the exact credit word; callers use <see cref="Of"/> or <see cref="FromNativeWord"/>.</summary>
-    private MotherBrainWalkCredit(ushort word) => Word = word;
+    /// <summary>Stores the exact credit word; callers use <see cref="Of"/> or <c>FromNativeWord</c>.</summary>
+    internal MotherBrainWalkCredit(ushort word) => Word = word;
 
     /// <summary>The exact credit word, for the snapshot codec and word-level parity checks.</summary>
     public ushort Word { get; }
@@ -34,9 +34,6 @@ public readonly record struct MotherBrainWalkCredit
 
     /// <summary>A stated credit of 0 through 65,535, as the encounter assigns after a step or a retreat.</summary>
     public static MotherBrainWalkCredit Of(int credit) => new(checked((ushort)credit));
-
-    /// <summary>Preserves a snapshot's credit word exactly; every word is a valid credit.</summary>
-    public static MotherBrainWalkCredit FromNativeWord(ushort word) => new(word);
 
     /// <summary>Earns <paramref name="credit"/> on a standing turn; the sum wraps rather than saturating.</summary>
     public MotherBrainWalkCredit AddCredit(int credit) => new(unchecked((ushort)(Word + credit)));

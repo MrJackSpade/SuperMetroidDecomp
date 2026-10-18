@@ -12,5 +12,5 @@ internal static class FirefleaAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params FirefleaProgram[] programs) =>
         programs.SelectMany(program => FirefleaAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FirefleaFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => FirefleaFrameToolingDefinitions.Spritemap(step.Frame));
 }

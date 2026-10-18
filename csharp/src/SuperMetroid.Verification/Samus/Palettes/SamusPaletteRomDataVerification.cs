@@ -72,10 +72,10 @@ internal static class SamusPaletteRomDataVerification
             SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount * sizeof(ushort),
             "full-body Hyper Beam palette pointers");
 
-        TouchRange(bus, SamusPaletteRomData.HyperBeamFx.ObjectDefinition,
+        TouchRange(bus, SamusPaletteRomDataHyperBeamFxConstants.ObjectDefinition,
             2 * sizeof(ushort), "Hyper Beam palette-FX object definition");
         TouchRange(bus,
-            SamusPaletteRomData.Banks.PaletteFx |
+            SamusPaletteRomDataBanksConstants.PaletteFx |
                 SamusPaletteRomData.HyperBeamFx.InitialList,
             2 * sizeof(ushort) +
                 SamusPaletteRomData.HyperBeamFx.FrameCount *

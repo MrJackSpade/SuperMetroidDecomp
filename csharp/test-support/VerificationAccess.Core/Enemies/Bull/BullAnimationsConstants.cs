@@ -12,5 +12,5 @@ internal static class BullAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params BullProgram[] programs) =>
         programs.SelectMany(program => BullAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => BullFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => BullFrameToolingDefinitions.Spritemap(step.Frame));
 }

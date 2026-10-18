@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 public static partial class LibraryBackgroundProgramDefinitions
 {
-    /// <summary>Distinct high-bank command lists selected by the 323 retail states.</summary>
-    public const int RetailProgramCount = 68;
 
     /// <summary>All pinned program definitions, in the cartridge's list order.</summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All => programs;

@@ -37,7 +37,7 @@ internal static class RoomFxRecordDefinitionAccess
         /// <summary>Combines two adjacent native FX-record bytes in little-endian order.</summary>
         internal ushort ReadWord(int offset)
         {
-            if ((uint)offset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
+            if ((uint)offset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
                 throw new ArgumentOutOfRangeException(nameof(offset));
             return SnesLittleEndian.Word(self.ReadByte(offset), self.ReadByte(offset + 1));
         }

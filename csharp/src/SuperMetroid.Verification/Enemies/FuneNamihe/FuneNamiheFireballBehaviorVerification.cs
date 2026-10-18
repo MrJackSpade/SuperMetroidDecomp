@@ -44,12 +44,12 @@ internal static class FuneNamiheFireballBehaviorVerification
                 AssertTrue(!deleted, $"{program} loops");
             }
         }
-        for (int pose = 0; pose < FuneNamiheFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
                 $"pose {pose} has a calculated selector");
-            AssertEqual(FuneNamiheFireballFrameDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            AssertEqual(FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Fune/Namihe fireball behavior: both kinds and directions loop as their native lists do and every selector matches.");

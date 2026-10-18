@@ -24,7 +24,7 @@ internal static class RoomFxDefinitionsAccess
         {
             RoomFxDefinition fx = RoomFxSources.Fx(header);
             for (int index = 0; index < fx.Records.Count; index++)
-                result.TryAdd(checked((ushort)(header + index * RoomFxRomData.Record.ByteCount)), (fx, index));
+                result.TryAdd(checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount)), (fx, index));
         }
         return result;
     }
@@ -37,7 +37,7 @@ internal static class RoomFxDefinitionsAccess
         {
             RoomFxDefinition fx = RoomFxSources.Fx(header);
             for (int index = 0; index < fx.Records.Count; index++)
-                result.Add(fx.Records[index], checked((ushort)(header + index * RoomFxRomData.Record.ByteCount)));
+                result.Add(fx.Records[index], checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount)));
         }
         return result;
     }

@@ -12,12 +12,12 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     /// <summary>The six pose operands, in list order.</summary>
     private static readonly ushort[] FrameOperands =
     [
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FirstFrameOperand,
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.SecondFrameOperand,
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ThirdFrameOperand,
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FourthFrameOperand,
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FifthFrameOperand,
-        OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.SixthFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.FirstFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.SecondFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.ThirdFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.FourthFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.FifthFrameOperand,
+        OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.SixthFrameOperand,
     ];
 
     /// <summary>
@@ -29,14 +29,14 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb443, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
         new(0xb447, checked((ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
-        new(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
+        new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
         new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.X, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
         new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.Y, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),
         new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
         .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
             (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FrameDurations[frame])),
         new(0xb46a, (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
-        new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop),
+        new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop),
         new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),
     ];
 

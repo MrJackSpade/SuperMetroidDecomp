@@ -12,14 +12,14 @@ public readonly record struct BgVramAddresses
     /// <summary>Validated character base word.</summary>
     private readonly int characterBaseWord;
 
-    /// <summary>Tilemap base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public required int TilemapBaseWord
     {
         get => tilemapBaseWord;
         init => tilemapBaseWord = VramWordRange.Require(value);
     }
 
-    /// <summary>Character base VRAM word address, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public required int CharacterBaseWord
     {
         get => characterBaseWord;

@@ -42,15 +42,15 @@ internal static partial class CompiledEnemyVisualSelectors
         Enum.IsDefined((EnemyInstructionBank)SnesAddressMath.BankNumber(address)) &&
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
-        EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _) || FuneNamiheFireballFrameDefinitions.TryFrame((ushort)address, out _),
+        EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _) || FuneNamiheFireballFrameToolingDefinitions.TryFrame((ushort)address, out _),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
-        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockFrameDefinitions.TryFrame(operandAddress, out PolypRockFrame rock))
+        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockFrameToolingDefinitions.TryFrame(operandAddress, out PolypRockFrame rock))
         {
-            pointer = PolypRockFrameDefinitions.Spritemap(rock);
+            pointer = PolypRockFrameToolingDefinitions.Spritemap(rock);
             return true;
         }
         int key = ((int)new SnesAddress(bank, operandAddress));
@@ -59,9 +59,9 @@ internal static partial class CompiledEnemyVisualSelectors
             pointer = (EnemyInstructionBank)bank switch
             {
                 EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame(operandAddress, out AlcoonFireballFrame fireball)
-                    ? AlcoonFireballFrameDefinitions.Spritemap(fireball)
-                    : FuneNamiheFireballFrameDefinitions.TryFrame(operandAddress, out FuneNamiheFireballFrame fune)
-                        ? FuneNamiheFireballFrameDefinitions.Spritemap(fune)
+                    ? AlcoonFireballFrameToolingDefinitions.Spritemap(fireball)
+                    : FuneNamiheFireballFrameToolingDefinitions.TryFrame(operandAddress, out FuneNamiheFireballFrame fune)
+                        ? FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune)
                         : throw new InvalidDataException($"Calculated selector $86:{operandAddress:X4} names no fireball frame."),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };

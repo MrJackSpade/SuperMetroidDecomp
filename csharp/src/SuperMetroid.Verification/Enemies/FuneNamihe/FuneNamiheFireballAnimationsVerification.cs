@@ -18,13 +18,13 @@ internal static class FuneNamiheFireballAnimationsVerification
     internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < FuneNamiheFireballFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);
             ushort key = EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameDefinitions.Spritemap(frame),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame),
                 $"Fune/Namihe fireball pose {pose} spritemap");
-            AssertTrue(FuneNamiheFireballFrameDefinitions.TryFrame(key, out FuneNamiheFireballFrame found) && found == frame, $"Fune/Namihe fireball pose {pose} is found by its key");
+            AssertTrue(FuneNamiheFireballFrameToolingDefinitions.TryFrame(key, out FuneNamiheFireballFrame found) && found == frame, $"Fune/Namihe fireball pose {pose} is found by its key");
         }
         Console.WriteLine($"  Fune/Namihe fireball programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

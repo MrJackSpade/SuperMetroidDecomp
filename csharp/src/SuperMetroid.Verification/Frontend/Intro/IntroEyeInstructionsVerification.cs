@@ -30,11 +30,11 @@ internal static class IntroEyeInstructionsVerification
         var objects = new IntroCinematicObjectSystem(vram, new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount],
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration, eyeArtwork: artwork);
 
-        var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitions.StartPointer);
+        var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
         Compare(objects, vram, artwork, native, BlinkingUpdates, "blinking");
 
         objects.StartEnglishPageSix();
-        native = new NativeEyeReader(rom, IntroEyeAnimationDefinitions.FinalPagePointer);
+        native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.FinalPagePointer);
         Compare(objects, vram, artwork, native, FinalPageUpdates, "final page");
     }
 
@@ -69,7 +69,7 @@ internal static class IntroEyeInstructionsVerification
         var document = new IntroEyeTilemapDocument
         {
             Version = IntroEyeTilemapFormat.Version,
-            Frames = Enumerable.Range(0, IntroEyeAnimationDefinitions.FrameCount).Select(frame => new IntroEyeTilemapFrame
+            Frames = Enumerable.Range(0, IntroEyeAnimationDefinitionsConstants.FrameCount).Select(frame => new IntroEyeTilemapFrame
             {
                 Id = IntroEyeTilemapFormat.FrameId(frame),
                 Cells = Enumerable.Range(1 + frame * cells, cells).Select(character => new RoomBackgroundTilemapCell
@@ -122,7 +122,7 @@ internal static class IntroEyeInstructionsVerification
                     AssertTrue(record >= 0 && record % IntroEyeAnimationDefinitions.FrameStride == 0,
                         "native eye record names a portrait-eye draw record");
                     Frame = record / IntroEyeAnimationDefinitions.FrameStride;
-                    AssertTrue(Frame < IntroEyeAnimationDefinitions.FrameCount,
+                    AssertTrue(Frame < IntroEyeAnimationDefinitionsConstants.FrameCount,
                         "native eye record names one of the four portrait-eye draw records");
                     Timer = word;
                     pointer += 6;

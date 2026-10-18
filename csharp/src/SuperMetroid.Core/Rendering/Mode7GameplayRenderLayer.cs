@@ -6,9 +6,9 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
 {
     /// <summary>Gets the native integer Mode 7 transform and overflow policy; sampling uses physical screen coordinates even below the HUD band.</summary>
     public Mode7RenderRegisters Registers { get; }
-    /// <summary>Gets the VRAM word base of the unscrolled 32-column BG3 HUD tilemap, 0 through <see cref="VramWordRange.MaximumWord"/>, whose color-zero pixels remain opaque.</summary>
+    /// <summary>Gets the VRAM word base of the unscrolled 32-column BG3 HUD tilemap, 0 through <c>VramWordRange.MaximumWord</c>, whose color-zero pixels remain opaque.</summary>
     public int HudTilemapWord { get; }
-    /// <summary>Gets the VRAM word base of the HUD's 2-bpp eight-pixel characters, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    /// <summary>Gets the VRAM word base of the HUD's 2-bpp eight-pixel characters, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int HudCharacterWord { get; }
     /// <summary>Gets the number of top-of-screen scanlines occupied by the opaque HUD, 0..224 in multiples of eight; zero disables the HUD band.</summary>
     public int HudScanlines { get; }

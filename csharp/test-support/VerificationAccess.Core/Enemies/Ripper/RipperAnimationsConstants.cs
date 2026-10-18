@@ -12,5 +12,5 @@ internal static class RipperAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params RipperProgram[] programs) =>
         programs.SelectMany(program => RipperAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => RipperFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => RipperFrameToolingDefinitions.Spritemap(step.Frame));
 }

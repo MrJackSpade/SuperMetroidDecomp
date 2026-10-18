@@ -12,9 +12,6 @@ public static class RoomScrollDefinitions
     /// </summary>
     internal const byte ExploredMapOverreadByte = 0;
 
-    /// <summary>Number of distinct explicit allocations referenced by retail room states.</summary>
-    public const int ExplicitDefinitionCount = 159;
-
     /// <summary>Retail explicit allocations in the cartridge's order, including native trailing storage beyond logical screen cells.</summary>
     private static readonly RoomScrollDefinition[] Definitions =
     [

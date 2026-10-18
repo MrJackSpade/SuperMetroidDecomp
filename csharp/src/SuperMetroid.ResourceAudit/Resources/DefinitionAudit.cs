@@ -96,8 +96,8 @@ internal static class DefinitionAudit
         string relative = calculated
             ? bank == 0x86
                 ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
-                    ? "csharp/src/SuperMetroid.Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameDefinitions.cs"
-                    : "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameDefinitions.cs"
+                    ? "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameToolingDefinitions.cs"
+                    : "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameToolingDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
             : $"csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;

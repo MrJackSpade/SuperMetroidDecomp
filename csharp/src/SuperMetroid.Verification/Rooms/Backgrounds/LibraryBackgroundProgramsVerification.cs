@@ -72,7 +72,7 @@ internal static class LibraryBackgroundProgramsVerification
                 $"library BG $8F:{program.Pointer:X4} native byte span");
         }
 
-        AssertEqual(LibraryBackgroundProgramDefinitions.RetailProgramCount,
+        AssertEqual(LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
             LibraryBackgroundProgramDefinitions.All.Count,
             "compiled library BG program count");
         AssertEqual(193, instructionCount, "compiled library BG instruction count");

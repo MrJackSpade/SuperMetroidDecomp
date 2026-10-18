@@ -23,7 +23,7 @@ internal static class LibraryBackgroundSourceInventory
         {
             ushort cursor = listPointer;
             bool terminated = false;
-            for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList;
+            for (int guard = 0; guard < RoomAssetRomDataLibraryBackgroundConstants.MaximumCommandsPerList;
                 guard++)
             {
                 ushort commandPointer = cursor;

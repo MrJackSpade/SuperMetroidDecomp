@@ -74,15 +74,6 @@ internal static class RidleySupplementalVisualDefinitions
             ? (ushort)(FirstTailTipFrame + ((LeftTailTipDirection - index) & (TailTipPointerCount - 1)) * TailTipFrameBytes)
             : throw new InvalidDataException($"Ridley tail-tip direction {index} is outside the native table.");
 
-    /// <summary>Selects large, medium, or small tail-link art for six articulated segments.</summary>
-    internal static ushort SegmentFrameAt(int index) => index switch
-    {
-        0 or 1 => LargeSegment,
-        2 or 3 => MediumSegment,
-        4 or 5 => SmallSegment,
-        _ => throw new InvalidDataException($"Ridley tail segment {index} is outside six drawn links."),
-    };
-
     /// <summary>The installed frame each wing-cycle index shows, ten phases facing left then ten facing right.</summary>
     internal static EnemyFrameTable<int> WingFrames { get; } = new()
     {

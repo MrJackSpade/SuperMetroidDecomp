@@ -1041,7 +1041,7 @@ internal static class IntroCinematicArtworkVerification
             return $"Cinematic reread Mother Brain collision source ${address:X6}.";
         }
         int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-            IntroEyeAnimationDefinitions.StartPointer);
+            IntroEyeAnimationDefinitionsConstants.StartPointer);
         if (CinematicSpriteNativeListAddresses.InListRegion(address))
             return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
         int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
@@ -1131,10 +1131,10 @@ internal static class IntroCinematicArtworkVerification
             return $"Cinematic reread intro scientist sprite ${address:X6}.";
         }
         if ((address >= eyeScriptStart &&
-                address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -
-                    IntroEyeAnimationDefinitions.StartPointer) ||
+                address < eyeScriptStart + IntroEyeAnimationDefinitionsConstants.EndPointer -
+                    IntroEyeAnimationDefinitionsConstants.StartPointer) ||
             (address >= eyeFrameStart &&
-                address < eyeFrameStart + IntroEyeAnimationDefinitions.FrameCount *
+                address < eyeFrameStart + IntroEyeAnimationDefinitionsConstants.FrameCount *
                     IntroEyeAnimationDefinitions.FrameStride))
         {
             return $"Cinematic reread opening eye source ${address:X6}.";

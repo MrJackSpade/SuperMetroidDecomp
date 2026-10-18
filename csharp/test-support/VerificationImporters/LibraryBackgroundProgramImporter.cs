@@ -21,7 +21,7 @@ internal static class LibraryBackgroundProgramImporter
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
         ushort cursor = pointer;
         var instructions = new List<LibraryBackgroundInstruction>();
-        for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList; guard++)
+        for (int guard = 0; guard < RoomAssetRomDataLibraryBackgroundConstants.MaximumCommandsPerList; guard++)
         {
             ushort commandPointer = cursor;
             LibraryBackgroundCommand command = (LibraryBackgroundCommand)Word(cursor);

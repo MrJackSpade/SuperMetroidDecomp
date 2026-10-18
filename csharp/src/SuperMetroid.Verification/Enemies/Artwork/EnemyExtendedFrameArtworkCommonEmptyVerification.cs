@@ -55,10 +55,10 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             for (int offset = 2; offset < 10; offset += 2)
                 AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + offset)),
                     $"bank ${bank:X2} shared point bound {offset}");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(false),
+            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)),
                 $"bank ${bank:X2} shared touch callback");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(true),
+            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 12)),
                 $"bank ${bank:X2} shared shot callback");
 
@@ -72,10 +72,10 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             AssertTrue(native.ImageEquals(installed) &&
                 native.NextByteOffset == installed.NextByteOffset,
                 $"bank ${bank:X2} shared empty frame draws without ROM art reads");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(false),
+            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false),
                 FindSharedEmptyCallback(bank, selectShot: false),
                 $"bank ${bank:X2} shared point selects compiled touch callback");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(true),
+            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true),
                 FindSharedEmptyCallback(bank, selectShot: true),
                 $"bank ${bank:X2} shared point selects compiled shot callback");
         }

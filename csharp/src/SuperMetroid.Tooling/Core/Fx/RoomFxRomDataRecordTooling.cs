@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Fx;
 
-/// <summary>Development-tool members of <see cref="RoomFxRomData.Record"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="RoomFxToolingRomData.Record"/>; never linked by player hosts.</summary>
 internal static class RoomFxRomDataRecordTooling
 {
         /// <summary>Byte offset of the two-byte door selector that begins a native room-FX record.</summary>

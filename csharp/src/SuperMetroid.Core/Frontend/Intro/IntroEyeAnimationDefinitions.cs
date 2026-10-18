@@ -7,16 +7,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroEyeAnimationDefinitions
 {
-    /// <summary>$8C:D5DF, the cartridge's blinking-eye list that <see cref="IntroEyeProgram.Blinking"/> replaces.</summary>
-    internal const ushort StartPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
-    /// <summary>$8C:D613, the cartridge's final-page eye list that <see cref="IntroEyeProgram.FinalPageClosing"/> replaces.</summary>
-    internal const ushort FinalPagePointer = CinematicCodePointers.BackgroundLists.SamusBlinkingPage6;
-    /// <summary>$8C:D629, exclusive end after the final-page eye loop.</summary>
-    internal const ushort EndPointer = 0xd629;
     /// <summary>$8C:D781, first of four 16-byte portrait-eye draw records, in <see cref="IntroEyeFrame"/> order.</summary>
     internal const ushort FrameStartPointer = 0xd781;
-    /// <summary>Four frames referenced by the normal and final-page scripts.</summary>
-    internal const int FrameCount = 4;
     /// <summary>Each native record holds a draw function, dimensions and six words.</summary>
     internal const int FrameStride = 0x10;
     /// <summary>Native portrait-eye rectangle size in BG tiles: three columns by two rows.</summary>

@@ -16,9 +16,6 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
 
     /// <summary>Sand pits rotate two groups; sand falls and waterfalls each rotate one group.</summary>
     public int ColorsPerFrame => FrameCount * (Owner == MaridiaEnvironmentalPaletteOwner.SandPits ? MaridiaEnvironmentalPaletteFxColorDefinitions.SandPitBandCount : 1);
-    /// <summary>Bytes from a duration word through its terminal wait command.</summary>
-    public int FrameByteCount =>
-        sizeof(ushort) + ColorsPerFrame * sizeof(ushort) + sizeof(ushort);
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows => Owner switch

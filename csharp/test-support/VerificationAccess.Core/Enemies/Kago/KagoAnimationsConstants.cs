@@ -12,5 +12,5 @@ internal static class KagoAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params KagoProgram[] programs) =>
         programs.SelectMany(program => KagoAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => KagoFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => KagoFrameToolingDefinitions.Spritemap(step.Frame));
 }

@@ -154,7 +154,7 @@ internal static class EnemyDefinitionBoundaryVerification
             { (0xe226, 13), (0xe240, 6), (0xe24c, 3), (0xe252, 3), (0xe258, 5) })
             for (int i = 0; i < count; i++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
-                    DeadMonsterRottingDefinitions.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
+                    DeadMonsterRottingDefinitionsConstants.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
         foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
             var records = DeadMonsterRottingDefinitions.ForTransferTable(pointer);
@@ -191,10 +191,10 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             var frame = new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, index);
             CrocomireBodyProgram expected = CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFrameSpritemaps.Spritemap(frame)));
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | CrocomireBodyFrameSpritemapsTooling.Spritemap(frame)));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFrameSpritemaps.Spritemap(frame) + 6 + i * 8)));
+                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (CrocomireBodyFrameSpritemapsTooling.Spritemap(frame) + 6 + i * 8)));
                 if (sprite == 0xd600) { expected = CrocomireBodyProgram.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen; break; }
             }

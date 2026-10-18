@@ -43,9 +43,9 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         var draygonBg2Pointers = new HashSet<ushort>();
         // The Draygon oracle matches each typed frame to the operand of its native list frame.
-        for (int index = 0; index < DraygonFrameDefinitions.FrameCount; index++)
+        for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
         {
-            ushort pointer = DraygonFrameDefinitions.Spritemap(new DraygonFrame(index));
+            ushort pointer = DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(index));
             if (draygonOamPointers.Contains(pointer))
                 continue;
             draygonBg2Pointers.Add(pointer);

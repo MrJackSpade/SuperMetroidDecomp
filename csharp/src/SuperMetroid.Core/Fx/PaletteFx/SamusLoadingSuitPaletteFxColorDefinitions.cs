@@ -31,9 +31,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
-
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 36;
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
         new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, 238);

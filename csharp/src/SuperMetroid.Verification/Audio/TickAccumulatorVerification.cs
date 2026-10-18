@@ -21,20 +21,20 @@ internal static class TickAccumulatorVerification
     /// </summary>
     internal static void VerifyTickAccumulator()
     {
-        (TickAccumulator exact, bool exactOverflow) = TickAccumulator.FromPhase(224).Advance(32);
+        (TickAccumulator exact, bool exactOverflow) = TickAccumulatorConstants.FromPhase(224).Advance(32);
         AssertTrue(exactOverflow, "a sum reaching the period overflows");
         AssertEqual(0, exact.Phase, "a sum of exactly one period leaves no remainder");
 
-        (TickAccumulator carried, bool carriedOverflow) = TickAccumulator.FromPhase(250).Advance(16);
+        (TickAccumulator carried, bool carriedOverflow) = TickAccumulatorConstants.FromPhase(250).Advance(16);
         AssertTrue(carriedOverflow, "a sum past the period overflows");
         AssertEqual(10, carried.Phase, "the remainder past the period carries into the next tick");
 
-        (TickAccumulator under, bool underOverflow) = TickAccumulator.FromPhase(0).Advance(TickAccumulator.Period - 1);
+        (TickAccumulator under, bool underOverflow) = TickAccumulatorConstants.FromPhase(0).Advance(TickAccumulator.Period - 1);
         AssertTrue(!underOverflow, "a sum one short of the period does not overflow");
         AssertEqual(TickAccumulator.Period - 1, under.Phase, "a sum under the period is kept whole");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulator.FromPhase(TickAccumulator.Period), "a phase must lie inside one period");
-        AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulator.FromPhase(0).Advance(-1), "a step cannot be negative");
+        AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulatorConstants.FromPhase(TickAccumulator.Period), "a phase must lie inside one period");
+        AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulatorConstants.FromPhase(0).Advance(-1), "a step cannot be negative");
 
         var ports = new SpcCommandPorts();
         Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];

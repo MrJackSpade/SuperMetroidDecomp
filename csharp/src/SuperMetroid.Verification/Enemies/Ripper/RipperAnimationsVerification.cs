@@ -14,7 +14,7 @@ internal static class RipperAnimationsVerification
     internal static void VerifyRipperAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RipperAnimations.Programs,
-            RipperFrameDefinitions.Spritemap,
+            RipperFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Ripper programs: {Entries.Length} programs ({steps} steps) match bank $A2.");

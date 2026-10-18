@@ -19,4 +19,6 @@ internal static class ZebesExplosionFinalePaletteFxColorDefinitionsConstants
     }
     /// <summary>The finale writes CGRAM from byte index <c>$0002</c>.</summary>
     public const ushort ColorByteIndex = 0x0002;
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public static PaletteFxColorKey Color(int frame, int color) => ZebesExplosionFinalePaletteFxColorDefinitions.Rows.Color(frame, color);
 }

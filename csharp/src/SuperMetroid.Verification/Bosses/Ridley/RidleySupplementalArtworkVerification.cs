@@ -53,7 +53,7 @@ internal static class RidleySupplementalArtworkVerification
             var expected = new OamBuffer();
             DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             for (int segment = 5; segment >= 0; segment--)
-                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitions.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley tail direction {direction} retains tip-first reverse-segment OAM");
         }

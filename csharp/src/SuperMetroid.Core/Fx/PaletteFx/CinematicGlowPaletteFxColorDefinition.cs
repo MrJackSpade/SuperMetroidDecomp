@@ -38,12 +38,6 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     /// <summary>The cartridge-authored duration of each timed record.</summary>
     public ushort FrameDuration { get; }
 
-    /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public int FrameByteCount => (ColorsPerFrame + 2) * sizeof(ushort);
-
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows { get; }
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

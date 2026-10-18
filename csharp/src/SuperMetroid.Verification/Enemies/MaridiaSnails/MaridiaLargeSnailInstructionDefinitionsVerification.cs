@@ -70,7 +70,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             EnemyInstructionRunner.ShownFrames(slot, 7);
             AssertTrue(!state.AttackAllowsRotation, $"Oum {roll} closes the attack-rotation window one pose later");
             Start(slot, state, roll);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MaridiaLargeSnailAnimations.Programs, roll, MaridiaLargeSnailFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MaridiaLargeSnailAnimations.Programs, roll, MaridiaLargeSnailFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MaridiaLargeSnailAnimations.Programs, roll)), $"Oum {roll} loop");
         }
         Console.WriteLine("Maridia Large Snail: eight native selectors, installs, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");

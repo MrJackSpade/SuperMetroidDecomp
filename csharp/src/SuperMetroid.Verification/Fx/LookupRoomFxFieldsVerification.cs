@@ -166,7 +166,7 @@ internal static class LookupRoomFxFieldsVerification
                 firstByDoor.TryAdd(door, (ushort)cursor);
                 cursor = SnesAddressMath.OffsetInBank(cursor + 16);
             }
-            foreach (CartridgeDoorHeader? door in DoorDefinitions.All.Append(null))
+            foreach (CartridgeDoorHeader? door in DoorDefinitionsConstants.All.Append(null))
             {
                 ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
                 ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
@@ -176,7 +176,7 @@ internal static class LookupRoomFxFieldsVerification
                         $"FX selector root {root:X4}, door {word:X4}: native {expected:X4}, actual {actual:X4}.");
             }
         }
-        foreach (CartridgeDoorHeader? door in DoorDefinitions.All.Append(null))
+        foreach (CartridgeDoorHeader? door in DoorDefinitionsConstants.All.Append(null))
             AssertEqual((ushort)0, RoomFxDefinitions.SelectedRecordPointer(null, door), "Null FX root for every door");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

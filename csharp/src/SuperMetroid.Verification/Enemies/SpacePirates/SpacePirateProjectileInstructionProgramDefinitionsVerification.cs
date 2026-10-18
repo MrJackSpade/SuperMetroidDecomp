@@ -52,12 +52,12 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                  {
                      (false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
-                         SpacePirateProjectileInstructionProgramDefinitions.LaserLeftLoop,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop,
                          EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
                          (ushort)124),
                      (true,
-                         SpacePirateProjectileInstructionProgramDefinitions.LaserRight,
-                         SpacePirateProjectileInstructionProgramDefinitions.LaserRightLoop,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop,
                          EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
                          (ushort)132),
                  })
@@ -87,12 +87,12 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         foreach ((ushort direction, ushort program, ushort loop, EnemyProjectilePreInstruction movement) in new[]
                  {
                      ((ushort)0,
-                         SpacePirateProjectileInstructionProgramDefinitions.ClawLeft,
-                         SpacePirateProjectileInstructionProgramDefinitions.ClawLeftLoop,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop,
                          EnemyProjectilePreInstruction.PirateClaw_Left),
                      ((ushort)1,
-                         SpacePirateProjectileInstructionProgramDefinitions.ClawRight,
-                         SpacePirateProjectileInstructionProgramDefinitions.ClawRightLoop,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight,
+                         SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop,
                          EnemyProjectilePreInstruction.PirateClaw_Right),
                  })
         {

@@ -39,22 +39,22 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(byteOffset),
                 $"Work Robot palette duration {record}");
             AssertEqual(byteOffset,
-                WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(byteOffset),
+                WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(byteOffset),
                 $"Work Robot palette offset {record} remains selected");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
             "Work Robot palette native terminator");
         AssertEqual((ushort)0,
-            WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
+            WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(
                 WorkRobotPaletteTimingDefinitions.RecordCount *
                     WorkRobotPaletteTimingDefinitions.RecordByteCount),
             "Work Robot palette terminator wraps to record zero");
         AssertThrows<InvalidDataException>(
-            () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(1),
+            () => WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(1),
             "Work Robot palette rejects unaligned restored offsets");
         AssertThrows<InvalidDataException>(
-            () => WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(70),
+            () => WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(70),
             "Work Robot palette rejects offsets beyond the native terminator");
         foreach (ushort invalid in new ushort[] { 1, 9, 51, 59, 60, 70, ushort.MaxValue })
         {

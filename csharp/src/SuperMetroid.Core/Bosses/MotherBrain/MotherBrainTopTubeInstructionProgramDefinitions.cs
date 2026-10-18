@@ -19,7 +19,4 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
     /// <summary>Top-middle-right ceiling tube instruction list at $86:CC55.</summary>
     internal const ushort TopMiddleRight = 0xcc55;
 
-    /// <summary>Native program bank $86.</summary>
-    internal const byte Bank = 0x86;
-
 }

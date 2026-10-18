@@ -17,15 +17,6 @@ internal static class CeresBabyFrameDefinitions
     /// <summary>The vertical-squish Baby OAM frame at $A6:C033.</summary>
     internal const ushort VerticalFrame = 0xc033;
 
-    /// <summary>The spritemap <paramref name="pose"/> shows.</summary>
-    internal static ushort Spritemap(CeresBabyPose pose) => pose switch
-    {
-        CeresBabyPose.Horizontal => HorizontalFrame,
-        CeresBabyPose.Round => RoundFrame,
-        CeresBabyPose.Vertical => VerticalFrame,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres Baby pose."),
-    };
-
     /// <summary>The installed frame each <see cref="CeresBabyPose"/> shows.</summary>
     internal static EnemyFrameTable<CeresBabyPose> ShownFrames { get; } = new()
     {

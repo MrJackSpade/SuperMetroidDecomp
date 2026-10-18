@@ -14,7 +14,7 @@ internal static class PolypAnimationsVerification
     internal static void VerifyPolypAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PolypAnimations.Programs,
-            PolypFrameDefinitions.Spritemap,
+            PolypFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Polyp programs: {Entries.Length} programs ({steps} steps) match bank $A2.");

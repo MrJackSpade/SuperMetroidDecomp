@@ -28,7 +28,7 @@ internal static class StokeBehaviorVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
             state.Program = AnimationProgramCursor<StokeProgram>.Start(walk);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Programs, loop, StokeFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Programs, loop, StokeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Programs, loop)), $"Stoke {walk} loop");
             AssertEqual(direction, state.Direction, $"Stoke {walk} cue sets the direction");
             AssertEqual(function, state.Function, $"Stoke {walk} cue sets the walking function");

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => AlcoonFireballFrameDefinitions.PoseCount + FuneNamiheFireballFrameDefinitions.PoseCount;
+    internal static int CalculatedCount => AlcoonFireballFrameDefinitions.PoseCount + FuneNamiheFireballFrameToolingDefinitions.PoseCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -51,13 +51,13 @@ internal static class CompiledEnemyVisualSelectorsTooling
         if (index < AlcoonFireballFrameDefinitions.PoseCount)
         {
             AlcoonFireballFrame fireball = new(index);
-            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameDefinitions.Spritemap(fireball));
+            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
         }
         index -= AlcoonFireballFrameDefinitions.PoseCount;
-        if (index < FuneNamiheFireballFrameDefinitions.PoseCount)
+        if (index < FuneNamiheFireballFrameToolingDefinitions.PoseCount)
         {
             FuneNamiheFireballFrame fune = new(index);
-            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameDefinitions.Spritemap(fune));
+            return new(0x860000 | EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
         }
         throw new IndexOutOfRangeException();
     }

@@ -77,10 +77,6 @@ internal sealed class EnemyCollision
     internal static EnemyInteractionCallback? PowerBombReaction(RoomEnemySlot slot) =>
         EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, slot.Definition.PowerBombReactionPointer);
 
-    /// <summary>A raw callback word selected from <paramref name="slot"/>'s bank-local hitbox data, or null.</summary>
-    internal static EnemyInteractionCallback? HitboxCallback(RoomEnemySlot slot, ushort pointer) =>
-        EnemyInteractionCallbacks.TryDecode(slot.Definition.Bank, pointer);
-
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
     /// <param name="samus">Live player state receiving the native touch callback.</param>
     /// <param name="controllerInput">Current held input used by touch handlers.</param>

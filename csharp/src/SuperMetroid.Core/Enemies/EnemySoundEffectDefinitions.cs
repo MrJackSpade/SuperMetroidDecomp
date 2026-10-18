@@ -147,9 +147,6 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Library-two sound queued as a Metaree or Skree hits the floor and burrows.</summary>
     internal static readonly SoundEffectId BurrowSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005c);
 
-    /// <summary>Library-two sound queued with every eighth finished Dead Torizo rot row.</summary>
-    internal const ushort DeadTorizoRotSound = 0x0010;
-
     /// <summary>Library-two sound queued when an airborne Yard bounces off a wall or the floor.</summary>
     internal const ushort YardBounceSound = 0x0070;
 

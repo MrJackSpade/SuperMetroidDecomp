@@ -151,7 +151,7 @@ internal static class RenderPacketCodecTestsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words and window register values")]
     private static void VerifyRenderPacketFieldWidths(PpuMemorySnapshot memory)
     {
-        const int lastWord = VramWordRange.MaximumWord;
+        const int lastWord = VramWordRangeConstants.MaximumWord;
         const int lastColumn = XrayWindowLine.MaximumColumn;
         var windows = new SnesWindowRegisters(SnesWindowSelectionPair.LowerEnableFirst | SnesWindowSelectionPair.UpperInvertSecond,
             SnesWindowSelectionPair.UpperEnableSecond, SnesWindowSelectionPair.LowerInvertFirst,

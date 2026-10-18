@@ -47,7 +47,7 @@ internal static class KraidFootCollisionDefinitionsVerification
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
         KraidFootHitboxSequence hitboxes =
-            KraidFootCollisionDefinitions.HitboxesAt(KraidFootCollisionDefinitions.HitboxList);
+            KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
         KraidFootCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
@@ -87,7 +87,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         AssertTrue(!KraidFootCollisionDefinitions.TryGetComponents(0x8000, out _),
             "uncompiled Kraid foot frame is rejected");
         AssertThrows<InvalidDataException>(
-            () => KraidFootCollisionDefinitions.HitboxesAt(0x8000).ToArray(),
+            () => KraidFootCollisionDefinitionsConstants.HitboxesAt(0x8000).ToArray(),
             "uncompiled Kraid foot hitbox list fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "all installed Kraid foot collision probes read no cartridge data");

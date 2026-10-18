@@ -17,4 +17,16 @@ internal static class WorkRobotPaletteTimingDefinitionsConstants
         /// <inheritdoc cref="WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress"/>
         internal static int NativeTerminatorAddress => WorkRobotPaletteTimingDefinitionsConstants.NativeTerminatorAddress;
     }
+    /// <summary>
+    /// Resolves the native terminator offset back to record zero and rejects every other
+    /// non-record offset instead of interpreting adjacent bank-$A8 code as palette data.
+    /// </summary>
+    public static ushort NormalizeByteOffset(ushort byteOffset)
+    {
+        if (byteOffset == WorkRobotPaletteTimingDefinitions.RecordCount * WorkRobotPaletteTimingDefinitions.RecordByteCount)
+            return 0;
+
+        _ = WorkRobotPaletteTimingDefinitions.DurationForByteOffset(byteOffset);
+        return byteOffset;
+    }
 }

@@ -9,6 +9,4 @@ public readonly record struct SpeedTableEntry(
     SnesSignedSixteenSixteen MaximumSpeed,
     SnesSignedSixteenSixteen Deceleration)
 {
-    /// <summary>Size of one record in the cartridge's speed tables: three whole/fraction word pairs.</summary>
-    public const int ByteCount = 12;
 }

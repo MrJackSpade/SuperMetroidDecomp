@@ -12,5 +12,5 @@ internal static class AtomicAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params AtomicProgram[] programs) =>
         programs.SelectMany(program => AtomicAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => AtomicFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => AtomicFrameToolingDefinitions.Spritemap(step.Frame));
 }

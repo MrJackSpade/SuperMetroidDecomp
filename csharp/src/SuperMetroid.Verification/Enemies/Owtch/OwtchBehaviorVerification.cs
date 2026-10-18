@@ -37,7 +37,7 @@ internal static class OwtchBehaviorVerification
             AssertEqual(AnimationProgramCursor<OwtchProgram>.Start(started), state.Program, $"Owtch state {initial} starts {started}");
 
             state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Programs, loop, OwtchFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Programs, loop, OwtchFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Programs, loop)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }

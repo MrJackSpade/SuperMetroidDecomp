@@ -47,16 +47,16 @@ internal static class RoomFxRecordCatalogSource
                 {
                     // Mother Brain selects these records by FX index after room load; the ordinary
                     // door walk stops at the default record that precedes them.
-                    for (ushort next = unchecked((ushort)(pointer + RoomFxRomData.Record.ByteCount));
+                    for (ushort next = unchecked((ushort)(pointer + RoomFxToolingRomData.Record.ByteCount));
                          MotherBrainFxRecordPointers.DirectRecords.Contains(next);
-                         next = unchecked((ushort)(next + RoomFxRomData.Record.ByteCount)))
+                         next = unchecked((ushort)(next + RoomFxToolingRomData.Record.ByteCount)))
                     {
                         Capture(bus, records, next);
                         list.Add(next);
                     }
                     break;
                 }
-                pointer = unchecked((ushort)(pointer + RoomFxRomData.Record.ByteCount));
+                pointer = unchecked((ushort)(pointer + RoomFxToolingRomData.Record.ByteCount));
             }
             lists.Add(header, list.ToArray());
         }
@@ -74,7 +74,7 @@ internal static class RoomFxRecordCatalogSource
         else
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
-                RoomFxRomData.Record.ByteCount);
+                RoomFxToolingRomData.Record.ByteCount);
             static ushort Word(byte[] bytes, int offset) =>
                 (ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
             record = new(door == 0 ? null : DoorHeaderSources.Door(door), false,

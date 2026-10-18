@@ -62,7 +62,7 @@ internal static class RioInstructionProgramDefinitionsVerification
 
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.SwoopingPart2);
         rio.InstructionTimer = NativeCountdown.Start(1);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Programs, RioProgram.SwoopingPart2, RioFrameDefinitions.Spritemap),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Programs, RioProgram.SwoopingPart2, RioFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Programs, RioProgram.SwoopingPart2)),
             "second swoop phase loops");
 

@@ -49,7 +49,7 @@ internal static class MorphBallEyeBehaviorVerification
 
         (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(parameter1: 0, parameter2: 0);
         tracking.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(MorphBallEyeProgram.Active);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameDefinitions.Spritemap),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
             "eye tracking loop");
         ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.Active)];

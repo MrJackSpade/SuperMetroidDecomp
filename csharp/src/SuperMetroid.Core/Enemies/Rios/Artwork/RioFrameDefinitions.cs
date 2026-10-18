@@ -9,20 +9,6 @@ namespace SuperMetroid.Core.Enemies.Rios.Artwork;
 internal static class RioFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(RioFrame frame) => frame.Pose switch
-    {
-        0 => 0xbd6c,
-        1 => 0xbd82,
-        2 => 0xbd98,
-        3 => 0xbdae,
-        4 => 0xbdc4,
-        5 => 0xbdda,
-        6 => 0xbdf0,
-        7 => 0xbe06,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Rio pose."),
-    };
-
     /// <summary>The installed frame each <see cref="RioFrame"/> shows.</summary>
     internal static EnemyFrameTable<RioFrame> ShownFrames { get; } = new()
     {

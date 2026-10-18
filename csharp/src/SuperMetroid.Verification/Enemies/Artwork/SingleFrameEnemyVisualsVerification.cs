@@ -92,7 +92,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var rockParts = projectileMerged.GetProgramFrame(EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]));
         var rockActual = new OamBuffer();
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
-        ushort rockPointer = PolypRockFrameDefinitions.Spritemap(new(0));
+        ushort rockPointer = PolypRockFrameToolingDefinitions.Spritemap(new(0));
         var rockExpected = new OamBuffer();
         ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = rockPointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
         CompareOam(rockExpected, rockActual, "Polyp rock");

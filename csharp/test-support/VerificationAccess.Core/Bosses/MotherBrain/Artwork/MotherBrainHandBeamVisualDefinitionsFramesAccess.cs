@@ -12,10 +12,10 @@ internal static class MotherBrainHandBeamVisualDefinitionsFramesAccess
         internal static IReadOnlyList<MotherBrainHandBeamFrame> ProjectileFrames =>
         [
             .. Enumerable.Range(0, MotherBrainHandBeamAnimations.StageCount).SelectMany(stage =>
-                Enumerable.Range(0, MotherBrainHandBeamAnimations.FramesPerStage).Select(phase => new MotherBrainHandBeamFrame(stage, phase))),
+                Enumerable.Range(0, MotherBrainHandBeamAnimationsConstants.FramesPerStage).Select(phase => new MotherBrainHandBeamFrame(stage, phase))),
         ];
 
         /// <summary>Distinct frames: seven in each of three stages.</summary>
-        internal static int ProjectileFrameCount => MotherBrainHandBeamAnimations.StageCount * MotherBrainHandBeamAnimations.FramesPerStage;
+        internal static int ProjectileFrameCount => MotherBrainHandBeamAnimations.StageCount * MotherBrainHandBeamAnimationsConstants.FramesPerStage;
     }
 }

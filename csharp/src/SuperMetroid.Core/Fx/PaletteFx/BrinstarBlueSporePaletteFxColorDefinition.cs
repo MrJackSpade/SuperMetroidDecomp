@@ -19,7 +19,4 @@ public sealed class BrinstarBlueSporePaletteFxColorDefinition
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows => new(DeletesWithAreaMiniBoss ? 396 : 382, BrinstarBlueSporePaletteFxColorDefinitions.FrameCount, BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame);
-
-    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-    public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);
 }

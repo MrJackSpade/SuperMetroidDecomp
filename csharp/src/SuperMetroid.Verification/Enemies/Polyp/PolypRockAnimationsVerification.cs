@@ -18,13 +18,13 @@ internal static class PolypRockAnimationsVerification
     internal static void VerifyPolypRockAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < PolypRockFrameDefinitions.PoseCount; pose++)
+        for (int pose = 0; pose < PolypRockFrameToolingDefinitions.PoseCount; pose++)
         {
             PolypRockFrame frame = new(pose);
             ushort key = EnemyProjectileFrames.ProgramFrameKey(PolypRockFrameDefinitions.ShownProjectileFrames[frame]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameDefinitions.Spritemap(frame),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameToolingDefinitions.Spritemap(frame),
                 $"Polyp lava rock pose {pose} spritemap");
-            AssertTrue(PolypRockFrameDefinitions.TryFrame(key, out PolypRockFrame found) && found == frame, $"Polyp lava rock pose {pose} is found by its key");
+            AssertTrue(PolypRockFrameToolingDefinitions.TryFrame(key, out PolypRockFrame found) && found == frame, $"Polyp lava rock pose {pose} is found by its key");
         }
         Console.WriteLine($"  Polyp lava rock programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

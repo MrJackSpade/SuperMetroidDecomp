@@ -30,7 +30,7 @@ internal static class CacatacBehaviorVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(upsideUp);
             AssertEqual(AnimationProgramCursor<CacatacProgram>.Start(idle), state.Program, $"Cacatac {orientation} starts idling");
             state.Function = CacatacEnemyFunction.Stopped;
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Programs, loop, CacatacFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Programs, loop, CacatacFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Programs, loop)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} idle restores patrol");
 

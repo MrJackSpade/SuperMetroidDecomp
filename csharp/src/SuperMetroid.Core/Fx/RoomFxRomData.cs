@@ -25,13 +25,6 @@ public static class RoomFxRomData
         public const int PaletteFx = 0x8d0000;
     }
 
-    /// <summary>Layout of one bank-$83 <c>FxDef</c> entry.</summary>
-    public static class Record
-    {
-        /// <summary>Size in bytes of one bank-$83 room-FX definition.</summary>
-        public const int ByteCount = 16;
-    }
-
     /// <summary>Fixed pointer tables shared by room loading and effect interpreters.</summary>
     public static class Tables
     {
@@ -190,11 +183,6 @@ public static class RoomFxRomData
     /// <summary>Bank-$88 lava/acid BG2 distortion data at <c>$88:B4D5-$B628</c>.</summary>
     public static class LavaAcid
     {
-        /// <summary>Liquid-options bit selecting the vertical BG2 wave used by heat rooms.</summary>
-        public const ushort VerticalBg2WaveOption = 0x0002;
-
-        /// <summary>Liquid-options bit selecting the alternate horizontal BG2 wave.</summary>
-        public const ushort HorizontalBg2WaveOption = 0x0004;
 
         /// <summary>Frames between vertical-wave rotations in <c>$88:B5A9</c>.</summary>
         public const ushort VerticalWavePhaseDuration = 4;
@@ -252,11 +240,6 @@ public static class RoomFxRomData
     /// <summary>Shared water/lava/acid tide encoding consumed by <c>FxHandleTide</c>.</summary>
     public static class LiquidTide
     {
-        /// <summary>Liquid-options bit seven selects the ±8-pixel tide.</summary>
-        public const ushort SmallTideOption = 0x0080;
-
-        /// <summary>Liquid-options bit six selects the ±32-pixel tide.</summary>
-        public const ushort LargeTideOption = 0x0040;
 
         /// <summary>Small-tide sine scale before the native byte-shifted fixed add.</summary>
         public const int SmallTideScale = 8;

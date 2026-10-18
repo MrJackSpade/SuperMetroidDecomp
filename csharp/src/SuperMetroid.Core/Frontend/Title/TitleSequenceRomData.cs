@@ -99,8 +99,6 @@ public static class TitleSequenceRomData
         public const byte Bank = 0x8c;
         /// <summary>Zero spritemap-pointer sentinel that suppresses the active title-card or logo composition.</summary>
         public const ushort Blank = 0x0000;
-        /// <summary>$8C:879D, TitleSequenceSpritemaps_SuperMetroidTitleLogo: bank-relative pointer to the static logo composition.</summary>
-        public const ushort SuperMetroidLogo = 0x879d;
         /// <summary>$8C:8103, TitleSequenceSpritemaps_NintendoCopyright: bank-relative pointer to the 1994 Nintendo copyright composition.</summary>
         public const ushort NintendoCopyright = 0x8103;
         /// <summary>$8B:A0C7 spritemap operand in the title-logo instruction list; stores the bank-$8C logo pointer rather than the spritemap itself.</summary>

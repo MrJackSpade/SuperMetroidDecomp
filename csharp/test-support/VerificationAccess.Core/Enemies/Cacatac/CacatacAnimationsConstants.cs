@@ -13,5 +13,5 @@ internal static class CacatacAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params CacatacProgram[] programs) =>
         programs.SelectMany(program => CacatacAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => CacatacFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => CacatacFrameToolingDefinitions.Spritemap(step.Frame));
 }

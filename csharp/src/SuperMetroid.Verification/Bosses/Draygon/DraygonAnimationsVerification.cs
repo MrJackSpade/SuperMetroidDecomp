@@ -38,9 +38,9 @@ internal static class DraygonAnimationsVerification
         int stepCount = 0;
         foreach ((DraygonProgram program, ushort entry) in Entries)
             stepCount += CompareProgram(cartridge, program, entry, drawn);
-        AssertEqual(DraygonFrameDefinitions.FrameCount, drawn.Count, "the Draygon programs draw every catalog frame");
-        for (int index = 0; index < DraygonFrameDefinitions.FrameCount; index++)
-            AssertTrue(drawn.Contains(DraygonFrameDefinitions.Spritemap(new DraygonFrame(index))), $"Draygon catalog frame {index} is drawn by a native list");
+        AssertEqual(DraygonFrameToolingDefinitions.FrameCount, drawn.Count, "the Draygon programs draw every catalog frame");
+        for (int index = 0; index < DraygonFrameToolingDefinitions.FrameCount; index++)
+            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(index))), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
         VerifyDying(cartridge);
@@ -72,7 +72,7 @@ internal static class DraygonAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                     AssertEqual((int)word, step.Duration, $"{at}: duration");
-                    AssertEqual(operand, DraygonFrameDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
                     drawn.Add(operand);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -168,7 +168,7 @@ internal static class DraygonAnimationsVerification
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.InstructionTimer.RawValue, "the reset's started parts run on their next update");
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
-        AssertEqual(DraygonFrameDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
+        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
         AssertEqual(RoomLoadingInterruptCommand.BeginHudDraw, state.RoomLoadingIrqCommand, "the reset selects the HUD-draw interrupt");
     }

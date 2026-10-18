@@ -55,7 +55,7 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction), state.NegativeSpeed, $"Atomic negative speed {selector}");
 
             slot.InstructionTimer = NativeCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
                 $"Atomic spinning loop {selector}");
         }

@@ -19,10 +19,10 @@ internal static class SamusHorizontalSpeedStateAccess
     };
 
     /// <summary>The bank-$90 word of row zero, the first ordinary-air movement-type record after the standalone entry.</summary>
-    private static ushort FirstRowWord => NormalSpeedTableWord + SpeedTableEntry.ByteCount;
+    private static ushort FirstRowWord => NormalSpeedTableWord + SpeedTableEntryConstants.ByteCount;
 
     /// <summary>The bank-$90 word of <paramref name="row"/>.</summary>
-    private static ushort RowWord(int row) => unchecked((ushort)(FirstRowWord + SpeedTableEntry.ByteCount * row));
+    private static ushort RowWord(int row) => unchecked((ushort)(FirstRowWord + SpeedTableEntryConstants.ByteCount * row));
 
     /// <summary>The medium whose table starts at <paramref name="word"/>.</summary>
     private static SamusLiquidMedium MediumAt(ushort word)
@@ -59,12 +59,12 @@ internal static class SamusHorizontalSpeedStateAccess
         internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
         {
             int offset = address - (SamusMovementRomData.Banks.Movement | FirstRowWord);
-            if (offset < 0 || offset % SpeedTableEntry.ByteCount != 0)
+            if (offset < 0 || offset % SpeedTableEntryConstants.ByteCount != 0)
             {
                 entry = default;
                 return false;
             }
-            return SamusHorizontalMotionDefinitions.TryResolveRow(offset / SpeedTableEntry.ByteCount, out entry);
+            return SamusHorizontalMotionDefinitions.TryResolveRow(offset / SpeedTableEntryConstants.ByteCount, out entry);
         }
 
         /// <summary>Resolves a standalone record by its bank-$90 address.</summary>

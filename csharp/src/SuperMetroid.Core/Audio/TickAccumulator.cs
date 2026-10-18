@@ -14,15 +14,10 @@ public readonly record struct TickAccumulator
     public const int Period = 256;
 
     /// <summary>Stores a phase already inside [0, <see cref="Period"/>).</summary>
-    private TickAccumulator(int phase) => Phase = phase;
+    internal TickAccumulator(int phase) => Phase = phase;
 
     /// <summary>Counts accumulated since the last overflow, zero through <see cref="Period"/> - 1.</summary>
     public int Phase { get; }
-
-    /// <summary>An accumulator holding <paramref name="phase"/>, which must lie in [0, <see cref="Period"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside one period.</exception>
-    public static TickAccumulator FromPhase(int phase) =>
-        new(Ensure.BetweenInclusive(0, Period - 1, phase));
 
     /// <summary>
     /// Adds one tick's <paramref name="step"/>. <c>Overflowed</c> is whether the sum reached a full

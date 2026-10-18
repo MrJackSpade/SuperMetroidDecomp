@@ -9,16 +9,6 @@ namespace SuperMetroid.Core.Enemies.Metroids.Artwork;
 internal static class MetroidFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(MetroidFrame frame) => frame.Pose switch
-    {
-        0 => 0xf10d,
-        1 => 0xf137,
-        2 => 0xf157,
-        3 => 0xf181,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Metroid pose."),
-    };
-
     /// <summary>The installed frame each <see cref="MetroidFrame"/> shows.</summary>
     internal static EnemyFrameTable<MetroidFrame> ShownFrames { get; } = new()
     {

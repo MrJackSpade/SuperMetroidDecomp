@@ -137,7 +137,7 @@ internal static class RidleyAnimationsVerification
             AssertEqual(2, steps.Count, $"{at}: one frame and a hold");
             AssertEqual(AnimationProgramStepKind.Show, steps[0].Kind, $"{at}: frame");
             AssertEqual((int)cartridge.ReadCartridgeWord(address), steps[0].Duration, $"{at}: duration");
-            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitions.Spritemap(steps[0].Frame), $"{at}: spritemap");
+            AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(steps[0].Frame), $"{at}: spritemap");
             AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
             AssertEqual(AnimationProgramStepKind.Hold, steps[1].Kind, $"{at}: hold");
         }

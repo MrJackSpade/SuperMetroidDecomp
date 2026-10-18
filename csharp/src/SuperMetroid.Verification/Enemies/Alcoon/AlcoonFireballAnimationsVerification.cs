@@ -22,7 +22,7 @@ internal static class AlcoonFireballAnimationsVerification
         {
             AlcoonFireballFrame frame = new(pose);
             ushort key = EnemyProjectileFrames.ProgramFrameKey(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), AlcoonFireballFrameDefinitions.Spritemap(frame),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), AlcoonFireballFrameToolingDefinitions.Spritemap(frame),
                 $"Alcoon fireball pose {pose} spritemap");
             AssertTrue(AlcoonFireballFrameDefinitions.TryFrame(key, out AlcoonFireballFrame found) && found == frame, $"Alcoon fireball pose {pose} is found by its key");
         }

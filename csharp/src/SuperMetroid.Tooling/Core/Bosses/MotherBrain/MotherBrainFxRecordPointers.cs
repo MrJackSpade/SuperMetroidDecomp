@@ -21,7 +21,7 @@ public static class MotherBrainFxRecordPointers
     {
         get
         {
-            for (int pointer = Initial; pointer <= FakeDeath; pointer += RoomFxRomData.Record.ByteCount)
+            for (int pointer = Initial; pointer <= FakeDeath; pointer += RoomFxToolingRomData.Record.ByteCount)
                 yield return (ushort)pointer;
         }
     }

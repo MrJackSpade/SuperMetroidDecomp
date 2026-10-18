@@ -17,7 +17,7 @@ internal static class PhantoonFlameVisualDefinitionsFramesAccess
             .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.CasualResting, PhantoonFlameAnimations.RestingPoseCount),
             .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.Dying, PhantoonFlameAnimations.DyingPoseCount),
             .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.RainImpact, 1),
-            .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.CasualFalling, PhantoonFlameAnimations.FallingPhaseCount * PhantoonFlameAnimations.FallingPoseCount),
+            .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.CasualFalling, PhantoonFlameAnimationsConstants.FallingPhaseCount * PhantoonFlameAnimations.FallingPoseCount),
             .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.StartingFlame, PhantoonFlameAnimations.LoopPoseCount),
             .. PhantoonFlameVisualDefinitions.Frames(PhantoonFlameFrameKind.DestroyableShot, PhantoonFlameAnimations.ShotPoseCount),
         ];

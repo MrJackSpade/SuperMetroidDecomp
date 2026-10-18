@@ -11,9 +11,6 @@ internal static class TorizoFrameDefinitions
     /// <summary>The bank holding the body's extended spritemaps.</summary>
     internal const byte Bank = 0xaa;
 
-    /// <summary>The extended spritemap $AA:87D0 both statues start on, before their program shows a pose.</summary>
-    internal const ushort InitialSpritemap = 0x87d0;
-
     /// <summary>The extended spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(TorizoFrame frame) => frame.Pose switch
     {

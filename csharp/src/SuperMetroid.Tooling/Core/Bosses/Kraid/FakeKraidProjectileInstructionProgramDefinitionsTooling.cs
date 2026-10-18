@@ -15,9 +15,9 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
     /// <summary>The spit, left spike and right spike visual operands, in list order.</summary>
     private static readonly ushort[] PresentationWords =
     [
-        FakeKraidProjectileInstructionProgramDefinitions.SpitOperand,
-        FakeKraidProjectileInstructionProgramDefinitions.SpikeLeftOperand,
-        FakeKraidProjectileInstructionProgramDefinitions.SpikeRightOperand,
+        FakeKraidProjectileInstructionProgramToolingDefinitions.SpitOperand,
+        FakeKraidProjectileInstructionProgramToolingDefinitions.SpikeLeftOperand,
+        FakeKraidProjectileInstructionProgramToolingDefinitions.SpikeRightOperand,
     ];
 
     /// <summary>Each of Fake Kraid's spit and two spike poses has a live spritemap operand.</summary>

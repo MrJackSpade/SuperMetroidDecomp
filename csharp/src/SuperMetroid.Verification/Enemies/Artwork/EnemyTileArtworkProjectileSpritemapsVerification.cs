@@ -294,7 +294,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
-                FuneNamiheFireballFrameDefinitions.PoseCount,
+                FuneNamiheFireballFrameToolingDefinitions.PoseCount,
                 index => EnemyProjectileFrames.ProgramFrameKey(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
             ("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
                 DragonFireballFrameDefinitions.PoseCount,
@@ -1078,8 +1078,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ushort low = unchecked((ushort)address);
                 return (SnesAddressMath.BankBase(address)) == 0x8d0000 ||
                     (SnesAddressMath.BankBase(address)) == 0x860000 &&
-                    (EnemyProjectilePresentationFrameSets.Contains(low) ||
-                     EnemyProjectilePresentationFrameSets.Contains(
+                    (EnemyProjectilePresentationFrameSetsTooling.Contains(low) ||
+                     EnemyProjectilePresentationFrameSetsTooling.Contains(
                          unchecked((ushort)(low - 1))) ||
                      low is (ushort)SkreeMetareeParticleOperand.Skree or
                         (ushort)SkreeMetareeParticleOperand.Metaree ||

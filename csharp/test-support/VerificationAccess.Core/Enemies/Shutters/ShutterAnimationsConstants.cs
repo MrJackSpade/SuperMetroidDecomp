@@ -12,5 +12,5 @@ internal static class ShutterAnimationsConstants
     internal static IEnumerable<ushort> Spritemaps(params ShutterProgram[] programs) =>
         programs.SelectMany(program => ShutterAnimations.Programs.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ShutterFrameDefinitions.Spritemap(step.Frame));
+            .Select(step => ShutterFrameToolingDefinitions.Spritemap(step.Frame));
 }

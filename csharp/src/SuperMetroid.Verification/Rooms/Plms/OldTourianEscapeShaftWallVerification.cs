@@ -82,7 +82,7 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(OldTourianWallExplosionProgram.Burst, start[2].Target, "the setup's next program");
 
         var burst = programs.Steps(OldTourianWallExplosionProgram.Burst);
-        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
         AssertEqual((ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
         AssertEqual(OldTourianWallExplosionCue.Scatter, burst[0].PublishedCue, "the burst scatters");
         EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter;
@@ -104,7 +104,7 @@ internal static class OldTourianEscapeShaftWallVerification
 
         AssertEqual((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
         AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, burst[8].Kind, "the burst repeats while counting");
-        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
+        AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
         AssertEqual(OldTourianWallExplosionProgram.Burst, burst[8].Target, "the repeat returns to the burst");
         AssertEqual((ushort)EnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
         AssertEqual(OldTourianWallExplosionCue.Delete, burst[9].PublishedCue, "the burst deletes the explosion");

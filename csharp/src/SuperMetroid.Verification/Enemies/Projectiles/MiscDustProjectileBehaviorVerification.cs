@@ -107,7 +107,7 @@ internal static class MiscDustProjectileBehaviorVerification
         if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;
-        AssertTrue(EnemyProjectilePresentationFrameSets.Contains(operand), "the shown frame is an installed-art identity");
+        AssertTrue(EnemyProjectilePresentationFrameSetsTooling.Contains(operand), "the shown frame is an installed-art identity");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
             "the shown frame leaves spritemap resolution to installed content");
         AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.InstructionTimer.RawValue,

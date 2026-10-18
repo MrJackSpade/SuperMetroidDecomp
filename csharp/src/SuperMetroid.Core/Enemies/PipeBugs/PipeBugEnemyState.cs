@@ -37,12 +37,6 @@ public sealed class PipeBugEnemyState
     /// <summary>The current bank-$B3 AI function; none once a kill has emptied the record.</summary>
     public PipeBugEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Gets whether the initialized owner is either Brinstar Pipe Bug variant.</summary>
-    public bool IsBrinstar =>
-        DefinitionAtInitialization is
-            EnemyDefinitionId.Zeb or
-            EnemyDefinitionId.Zebbo;
-
     /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
     /// <summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct BombSpreadHorizontalVelocity
 {
     /// <summary>The direction bit's weight in the launch word's high byte.</summary>
-    private const int LeftwardBit = 128;
+    internal const int LeftwardBit = 128;
 
     /// <summary>Stores already range-checked parts.</summary>
     private BombSpreadHorizontalVelocity(bool movingLeft, int wholePixels, int fractionSteps)
@@ -39,10 +39,6 @@ public readonly record struct BombSpreadHorizontalVelocity
 
     /// <summary>The same speed in the opposite direction, as a wall collision leaves it.</summary>
     public BombSpreadHorizontalVelocity Reversed() => new(!MovingLeft, WholePixels, FractionSteps);
-
-    /// <summary>The velocity in the launch definition's packed form, 0 through 65535, for traces that print it.</summary>
-    public int LaunchWord =>
-        SnesLittleEndian.Word(checked((byte)FractionSteps), checked((byte)(WholePixels + (MovingLeft ? LeftwardBit : 0))));
 
     /// <summary>The per-frame displacement as a signed 16.16 value: leftward travel is negative.</summary>
     public SnesSignedSixteenSixteen Displacement

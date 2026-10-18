@@ -118,8 +118,9 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - A new or tightened rule ships at full severity. If it fires on existing code, those
   sites are fixed or individually justified as part of the same work; the rule does not
   ship with exemptions for them.
-- If addressing every finding is genuinely too large for the current change, stop and
-  ask the user. Never resolve that tension by excusing the findings.
+- The size of the work is never a reason to stop, ask, or excuse findings. A fix that
+  touches a whole subsystem, every family or hundreds of sites is done, in committed
+  batches, like any other fix.
 
 ## Recorded-movie acceptance scope
 

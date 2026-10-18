@@ -345,8 +345,8 @@ that needs the owner's decision. "Resolved N findings" without the breakdown is 
 
 **Ask when the right fix is a design decision the ticket does not settle.** Whether a width is load-bearing is
 investigated, not asked. Whether a capability deserves a new interface or an existing one is a pattern question:
-find the existing pattern and follow it. Whether a whole subsystem's representation should change is the owner's
-decision and is asked once, with the existing pattern and a recommendation.
+find the existing pattern and follow it. A change to a whole subsystem's representation that the analyzers or the
+destination require is made, not asked about: the size of a change is never a reason to pause.
 
 ## 9. On documentation
 

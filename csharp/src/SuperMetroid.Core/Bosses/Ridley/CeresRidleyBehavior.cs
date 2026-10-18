@@ -1633,8 +1633,8 @@ internal sealed class CeresRidleyBehavior
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
         {
             queue.QueueVramTilemapTransfer(
-                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, transfer.SourceOffset),
-                (ushort)transfer.TileNumbers.Count, transfer.DestinationWord);
+                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, checked((ushort)transfer.SourceOffset)),
+                (ushort)transfer.TileNumbers.Count, checked((ushort)transfer.DestinationWord));
         }
     }
 

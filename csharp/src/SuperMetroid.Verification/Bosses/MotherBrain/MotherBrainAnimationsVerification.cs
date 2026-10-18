@@ -205,7 +205,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual((ushort)0, projectile.GraphicsIndex, $"{at}: palette zero");
             if (native.PreInstructionCleared)
-                AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
+                AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }
         return update;
     }

@@ -35,8 +35,8 @@ internal sealed class EnemyDeathsAndDrops
         _dispatch = dispatch;
     }
     /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
-    private const ushort EnemyPickupPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.Pickup;
+    private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
+        EnemyProjectilePreInstruction.Pickup;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const ushort EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
@@ -296,7 +296,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86EFDF;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;

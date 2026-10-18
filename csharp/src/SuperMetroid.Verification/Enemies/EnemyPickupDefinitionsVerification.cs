@@ -35,7 +35,7 @@ internal static class EnemyPickupDefinitionsVerification
                 Variable1 = 0xffff,
                 InstructionPointer = 0xffff,
                 InstructionTimer = NativeCountdown.Start(0xffff),
-                PreInstruction = 0xffff,
+                PreInstruction = EnemyProjectilePreInstruction.None,
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
@@ -48,7 +48,7 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.Variable1,
                 $"production pickup lifetime {kind}");
-            AssertEqual((ushort)EnemyProjectilePreInstruction.Pickup,
+            AssertEqual(EnemyProjectilePreInstruction.Pickup,
                 projectile.PreInstruction,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,

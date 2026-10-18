@@ -402,7 +402,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = checked((ushort)source.Parameter1);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -416,15 +416,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         return projectile;
     }
 
-    /// <summary>The two bank-$86 Space Pirate/Mother Brain laser movement callbacks.</summary>
-    private enum PirateLaserPreInstruction : ushort
-    {
-        /// <summary>$86:A05C: move left, then camera cull.</summary>
-        Left = (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
-        /// <summary>$86:A07A: move right, then camera cull.</summary>
-        Right = (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
-    }
-
     /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
     internal static void RunPirateMotherBrainLaserPreInstruction(
         RoomEnemyProjectileSlot projectile,
@@ -434,13 +425,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == 0)
             ? WalkingPirateFastLaserPixelsPerFrame
             : WalkingPirateSlowLaserPixelsPerFrame;
-        PirateLaserPreInstruction direction = ClosedNativeWords.Decode<PirateLaserPreInstruction>(
-            projectile.PreInstruction, $"{projectile.Kind} laser pre-instruction");
-        projectile.Position = projectile.Position.WithWholeX(direction switch
+        projectile.Position = projectile.Position.WithWholeX(projectile.PreInstruction switch
         {
-            PirateLaserPreInstruction.Left => unchecked((ushort)(projectile.Position.X.Whole - pixels)),
-            PirateLaserPreInstruction.Right => unchecked((ushort)(projectile.Position.X.Whole + pixels)),
-            _ => throw new InvalidOperationException($"Undefined laser pre-instruction {direction}."),
+            EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left => unchecked((ushort)(projectile.Position.X.Whole - pixels)),
+            EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right => unchecked((ushort)(projectile.Position.X.Whole + pixels)),
+            _ => throw new InvalidOperationException($"{projectile.Kind} has no laser pre-instruction {projectile.PreInstruction}."),
         });
 
         ushort right = unchecked((ushort)(camera.X + 256));
@@ -472,9 +461,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         table.RegisterInstruction(EnemyProjectileInstruction.PreInstructionInY_ExecuteY, null,
             (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
             {
-                projectile.PreInstruction = EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(
-                    projectile,
-                    unchecked((ushort)(cursor + 2)));
+                projectile.PreInstruction = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(projectile, unchecked((ushort)(cursor + 2))), "enemy-projectile pre-instruction");
 
                 // A050 returns the argument cursor unchanged. The common interpreter
                 // consequently sees A05C/A07A as the next instruction, dispatches that

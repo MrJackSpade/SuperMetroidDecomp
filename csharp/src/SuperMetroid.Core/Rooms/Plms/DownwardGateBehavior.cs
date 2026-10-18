@@ -138,10 +138,10 @@ internal sealed class DownwardGateBehavior
                 projectile.Velocity = projectile.Velocity.WithY(cue.YVelocity);
                 break;
             case DownwardGateProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case DownwardGateProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case DownwardGateProjectileCueKind.Delete:
                 projectile.Clear();

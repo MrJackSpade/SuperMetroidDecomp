@@ -40,7 +40,7 @@ internal static class EyeDoorSweatBehaviorVerification
 
         EyeDoorBehavior.RunEyeDoorSweatPreInstruction(sweat, level);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { Cursor.Program: EyeDoorSweatProgram.HitFloor }, "the floor collision starts the splash");
-        AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction, sweat.PreInstruction,
+        AssertEqual(EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction, sweat.PreInstruction,
             "the splash stops the drop with the native inert pre-instruction");
         AssertEqual((ushort)76, sweat.Position.Y.Whole, "the splash applies the native four-pixel floor correction");
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,

@@ -748,10 +748,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case TorizoProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 return null;
             case TorizoProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 return null;
             case TorizoProjectileCueKind.SetProperties:
                 EnemyProjectileEngine.SetPropertyFlags(projectile, cue.Properties);
@@ -1993,7 +1993,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
         {
             projectile.PreInstruction =
-                (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
+                EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0));
             return;
         }
@@ -2169,7 +2169,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
+            EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
     }
 
     /// <inheritdoc/>

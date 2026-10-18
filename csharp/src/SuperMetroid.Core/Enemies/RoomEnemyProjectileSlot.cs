@@ -54,7 +54,7 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public ushort PresentationOperandAddress { get; internal set; }
     /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
-    public ushort PreInstruction { get; internal set; }
+    internal EnemyProjectilePreInstruction PreInstruction { get; set; }
     /// <summary>Gets the native combined sprite tile-base and palette word used when composing projectile OAM.</summary>
     public int GraphicsIndex
     {

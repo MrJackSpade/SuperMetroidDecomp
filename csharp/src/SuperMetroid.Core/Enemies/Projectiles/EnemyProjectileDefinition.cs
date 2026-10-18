@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Properties">Damage and collision/draw property bits.</param>
 /// <param name="TouchInstructionList">Optional list installed when the actor touches Samus.</param>
 internal readonly record struct EnemyProjectileDefinition(
-    ushort PreInstruction,
+    EnemyProjectilePreInstruction PreInstruction,
     ushort InitialInstructionList,
     ushort RadiusWord,
     ushort Properties,

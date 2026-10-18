@@ -1089,7 +1089,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     projectile.Clear();
                     return;
                 case DraygonProjectileCue.Fire:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired;
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
@@ -1912,7 +1912,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
         // bloom reaches instruction $8CF6 and explicitly enables flight.
-        turret.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868D54;
+        turret.PreInstruction = EnemyProjectilePreInstruction.RTS_868D54;
         state.WallTurretsSpawned++;
     }
 
@@ -2024,7 +2024,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         goop.Variable1 = nextDivisor;
         goop.Variable0 = 256;
         goop.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
+            EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;

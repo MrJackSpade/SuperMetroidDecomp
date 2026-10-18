@@ -935,8 +935,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
     /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
-    private const ushort KiHunterAcidMovingPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Moving;
+    private const EnemyProjectilePreInstruction KiHunterAcidMovingPreInstruction =
+        EnemyProjectilePreInstruction.KiHunterAcid_Moving;
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
     private const ushort KiHunterAcidHorizontalSpeed = 768;
     /// <summary>8.8 downward speed added to each active acid frame.</summary>

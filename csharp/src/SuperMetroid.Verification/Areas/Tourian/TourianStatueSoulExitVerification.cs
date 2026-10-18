@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
@@ -22,7 +23,7 @@ internal static class TourianStatueSoulExitVerification
         {
             var enemies = new RoomEnemySystem();
             RoomEnemyProjectileSlot soul = enemies.Projectiles.EnemyProjectiles[0];
-            soul.PreInstruction = (ushort)TourianStatuePreInstruction.SoulMotion;
+            soul.PreInstruction = EnemyProjectilePreInstruction.TourianStatueSoulMotion;
             soul.InstructionPointer = 0;
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));
             soul.Velocity = soul.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(-RisePixels * 256))));

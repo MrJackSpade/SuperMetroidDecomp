@@ -576,6 +576,12 @@ Commit and push that update too.
     nullable frame); steam components hold their hitbox list directly and the steam and Oum lists are plain arrays.
     `CollisionRecordRun`/`CollisionRecordRuns` (run starts and record strides) moved to test support, where the
     `*CollisionDefinitionsAccess` views answer the ROM oracles by native address.
+  - Projectile pre-instructions: the enemy-projectile slot and `EnemyProjectileDefinition` hold
+    `EnemyProjectilePreInstruction` instead of a bank-$86 word; the catalog names each kind's pre-instruction, and the
+    Tourian statue, n00b-tube and Pirate-laser identities joined the enum. The enum still carries its routine
+    addresses because the Pirates' A050 and the shared Y-operand install decode list words at the native
+    interpreter; the values go when those lists are typed. Test support's `EnemyProjectilePreInstructionAccess` owns
+    the word view (`Word`, `FromWord`, slot `PreInstructionWord`).
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

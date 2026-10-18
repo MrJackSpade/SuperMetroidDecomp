@@ -46,17 +46,17 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
 
         foreach ((bool movingRight, ushort program, ushort loop,
-                  ushort movement, ushort expectedX) in new[]
+                  EnemyProjectilePreInstruction movement, ushort expectedX) in new[]
                  {
                      (false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeftLoop,
-                         (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
+                         EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
                          (ushort)124),
                      (true,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserRightLoop,
-                         (ushort)EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
+                         EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
                          (ushort)132),
                  })
         {
@@ -67,7 +67,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyProjectileSlot laser = (RoomEnemyProjectileSlot)(enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R...."));
             AssertEqual(program, (laser ?? throw new InvalidOperationException("Verification requires laser.")).InstructionPointer,
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
+            AssertEqual(EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
@@ -82,16 +82,16 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 "laser completes its authored frames and loops");
         }
 
-        foreach ((ushort direction, ushort program, ushort loop, ushort movement) in new[]
+        foreach ((ushort direction, ushort program, ushort loop, EnemyProjectilePreInstruction movement) in new[]
                  {
                      ((ushort)0,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawLeftLoop,
-                         (ushort)EnemyProjectilePreInstruction.PirateClaw_Left),
+                         EnemyProjectilePreInstruction.PirateClaw_Left),
                      ((ushort)1,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramDefinitions.ClawRightLoop,
-                         (ushort)EnemyProjectilePreInstruction.PirateClaw_Right),
+                         EnemyProjectilePreInstruction.PirateClaw_Right),
                  })
         {
             RoomEnemySystem enemies = NewSystem();

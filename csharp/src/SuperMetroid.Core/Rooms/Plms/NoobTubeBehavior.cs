@@ -128,12 +128,10 @@ internal sealed class NoobTubeBehavior
         RoomEnemyProjectileSlot projectile,
         ushort cameraY)
     {
-        NoobTubeProjectilePreInstruction preInstruction =
-            ClosedNativeWords.Decode<NoobTubeProjectilePreInstruction>(
-                projectile.PreInstruction, "n00b-tube projectile pre-instruction");
+        EnemyProjectilePreInstruction preInstruction = projectile.PreInstruction;
         switch (preInstruction)
         {
-            case NoobTubeProjectilePreInstruction.CrackFlickering:
+            case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
                 if (projectile.Position.X.Whole != NoobTubeProjectileRomData.HiddenXPosition)
                     projectile.Variable0 = projectile.Position.X.Whole;
                 projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
@@ -141,11 +139,11 @@ internal sealed class NoobTubeBehavior
                     : checked((ushort)projectile.Variable0));
                 return;
 
-            case NoobTubeProjectilePreInstruction.CrackFalling:
+            case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
                 projectile.Position = projectile.Position.AdvanceY(new SnesSignedEightEight(NoobTubeProjectileRomData.CrackFallVelocity).ToSixteenSixteenDelta());
                 return;
 
-            case NoobTubeProjectilePreInstruction.ShardFlying:
+            case EnemyProjectilePreInstruction.NoobTubeShardFlying:
                 (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
                     checked((ushort)projectile.Variable1),
                     checked((ushort)projectile.Variable0),
@@ -154,20 +152,20 @@ internal sealed class NoobTubeBehavior
                 EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
-            case NoobTubeProjectilePreInstruction.ShardFalling:
+            case EnemyProjectilePreInstruction.NoobTubeShardFalling:
                 MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
-            case NoobTubeProjectilePreInstruction.BubbleFalling:
+            case EnemyProjectilePreInstruction.NoobTubeBubbleFalling:
                 // `$86:D89F` performs only the curved horizontal update before falling
                 // through to `$D8DF`, which applies the bubble's vertical velocity once.
                 MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 4);
                 MoveNoobTubeBubbleVertically(projectile);
                 return;
 
-            case NoobTubeProjectilePreInstruction.BubbleFlying:
+            case EnemyProjectilePreInstruction.NoobTubeBubbleFlying:
                 MoveNoobTubeBubbleVertically(projectile);
                 return;
 
@@ -234,7 +232,7 @@ internal sealed class NoobTubeBehavior
                 projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));
                 break;
             case NoobTubeProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case NoobTubeProjectileCueKind.Delete:
                 projectile.Clear();

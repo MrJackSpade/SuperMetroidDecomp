@@ -1883,11 +1883,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ? stateSlot
             : _slotTable._slots[0]);
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>
-    private const ushort PhantoonStartingFlameWaitingPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames;
+    private const EnemyProjectilePreInstruction PhantoonStartingFlameWaitingPreInstruction =
+        EnemyProjectilePreInstruction.PhantoonStartingFlames;
     /// <summary>Activated flame callback that advances its orbit around the body.</summary>
-    private const ushort PhantoonStartingFlameOrbitPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
+    private const EnemyProjectilePreInstruction PhantoonStartingFlameOrbitPreInstruction =
+        EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
 
     /// <summary>Allocates one intro flame with its chosen orbit direction.</summary>
     internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, byte directionIndex)
@@ -1933,7 +1933,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
                 flame.PreInstruction =
-                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling;
+                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling;
 
                 // $86:985F changes the spawn definition's $8028 properties to $2028.
                 // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -1948,7 +1948,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.RageAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =
-                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
+                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
                 break;
 
             case PhantoonFlameSpawnType.Rain:
@@ -1961,7 +1961,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawnDefinitions.RainX(column));
                 flame.Position = flame.Position.WithWholeY(40);
                 flame.PreInstruction =
-                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
+                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
                 break;
 
             case PhantoonFlameSpawnType.Spiral:
@@ -1971,7 +1971,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 flame.Variable0 = PhantoonFlameSpawnDefinitions.SpiralAngle(index);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =
-                    (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
+                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
                 break;
 
             default:
@@ -2036,7 +2036,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         flame.CanDamageSamus = true;
         flame.BlocksSamusProjectiles = true;
         flame.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
+            EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualHitGround));
         flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Variable0 = 8;
@@ -2054,7 +2054,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         flame.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
+            EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualBouncing));
         flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
@@ -2091,7 +2091,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualResting));
         flame.InstructionTimer = NativeCountdown.Start(1);
-        flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
+        flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
     }
 
     /// <summary>Advances a rage-phase flame through its authored movement.</summary>
@@ -2134,7 +2134,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));
         flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
-        flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
+        flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
         _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
 

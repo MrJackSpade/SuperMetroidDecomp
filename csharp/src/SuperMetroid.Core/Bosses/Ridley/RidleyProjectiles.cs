@@ -224,10 +224,10 @@ internal sealed class RidleyProjectiles
             switch (cue)
             {
                 case RidleyFireballCue.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                     return;
                 case RidleyFireballCue.BeginFlight:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RidleyFireball;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RidleyFireball;
                     return;
                 case RidleyFireballCue.SpawnHorizontalAfterburns:
                     SpawnAfterburnPair(projectile, horizontal: true);

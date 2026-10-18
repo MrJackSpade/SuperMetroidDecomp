@@ -910,10 +910,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     .SmallPurpleBreathActive = false;
                 break;
             case MotherBrainEffectCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case MotherBrainEffectCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case MotherBrainEffectCueKind.Delete:
                 projectile.Clear();
@@ -936,7 +936,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     projectile.GraphicsIndex = 0;
                     return;
                 case MotherBrainTurretCue.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                     return;
                 case MotherBrainTurretCue.Delete:
                     projectile.Clear();

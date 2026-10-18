@@ -74,7 +74,7 @@ internal static class EyeDoorPlmsVerification
             "direction opcode seeds zero Y velocity for a level target");
         system.SetOpenedDoorBit(5);
         enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170,
+        AssertEqual(EnemyProjectilePreInstruction.RTS_868170,
             attack.PreInstruction,
             "opened door impact executes its native clear-pre-instruction command");
 

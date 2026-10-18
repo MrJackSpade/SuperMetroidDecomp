@@ -186,7 +186,7 @@ internal static class RidleyAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case EnemyProjectileInstruction.PreInstructionInY:
-                    AssertEqual((ushort)EnemyProjectilePreInstruction.RidleyFireball, operand, $"{at}: the fireball's moving pre-instruction");
+                    AssertEqual(EnemyProjectilePreInstructionAccess.Word(EnemyProjectilePreInstruction.RidleyFireball), operand, $"{at}: the fireball's moving pre-instruction");
                     AssertEqual(RidleyFireballCue.BeginFlight, step.Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

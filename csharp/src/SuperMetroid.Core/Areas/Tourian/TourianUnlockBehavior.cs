@@ -92,14 +92,15 @@ internal sealed class TourianUnlockBehavior
     /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>
     internal bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
     {
-        if (!Enum.IsDefined((TourianStatuePreInstruction)projectile.PreInstruction))
+        if (projectile.PreInstruction is not (EnemyProjectilePreInstruction.TourianStatueSplashMotion or
+            EnemyProjectilePreInstruction.TourianStatueParticleMotion or EnemyProjectilePreInstruction.TourianStatueSoulMotion))
             return false;
-        switch ((TourianStatuePreInstruction)projectile.PreInstruction)
+        switch (projectile.PreInstruction)
         {
-            case TourianStatuePreInstruction.SplashMotion:
+            case EnemyProjectilePreInstruction.TourianStatueSplashMotion:
                 projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
                 return true;
-            case TourianStatuePreInstruction.SoulMotion:
+            case EnemyProjectilePreInstruction.TourianStatueSoulMotion:
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
                 // top screen row, that first happens when it wraps above the room's top edge.
@@ -111,7 +112,7 @@ internal sealed class TourianUnlockBehavior
                 }
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
                 return true;
-            case TourianStatuePreInstruction.ParticleMotion:
+            case EnemyProjectilePreInstruction.TourianStatueParticleMotion:
                 // A splash marks the update the particle crosses the surface in either direction: the wrapped
                 // signed distance from the particle down to the surface changes sign.
                 bool submergedBefore = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
@@ -128,7 +129,7 @@ internal sealed class TourianUnlockBehavior
                 return true;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(TourianStatuePreInstruction)} {projectile.PreInstruction:X4}.");
+                    $"Undefined Tourian statue pre-instruction {projectile.PreInstruction}.");
         }
     }
 

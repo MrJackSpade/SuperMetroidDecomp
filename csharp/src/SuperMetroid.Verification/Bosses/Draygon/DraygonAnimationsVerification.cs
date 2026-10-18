@@ -234,7 +234,7 @@ internal static class DraygonAnimationsVerification
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         var samus = new SamusState();
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
-        AssertEqual((ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
+        AssertEqual(EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
         AssertEqual(DraygonProjectileVisualDefinitions.PresentationKey(new(DraygonProjectileFrameKind.Goop, 0)), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.InstructionTimer.RawValue, "the goop's first frame lasts ten updates");

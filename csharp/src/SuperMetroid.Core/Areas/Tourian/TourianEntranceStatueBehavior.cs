@@ -120,9 +120,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
-        if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
-                projectile.PreInstruction, "enemy-projectile pre-instruction") ==
-                EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
+        if (projectile.PreInstruction == EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
             TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
         {
             TourianEntranceStatueFinished = true;

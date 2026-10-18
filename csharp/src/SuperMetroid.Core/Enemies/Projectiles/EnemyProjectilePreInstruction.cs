@@ -344,4 +344,13 @@ internal enum EnemyProjectilePreInstruction : ushort
 
     /// <summary><c>PreInstruction_EnemyProjectile_PirateClaw_Right</c> at $86:A124. Ninja Space Pirate claw: thrown right, then returns left.</summary>
         PirateClaw_Right = 0xa124,
+
+    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueUnlockingSplash</c> at $86:B977: the splash holds at the water surface.</summary>
+        TourianStatueSplashMotion = 0xb977,
+
+    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueUnlockingParticle</c> at $86:B982: a particle falls and splashes.</summary>
+        TourianStatueParticleMotion = 0xb982,
+
+    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueSoul</c> at $86:B9FD: a soul rises out of the room.</summary>
+        TourianStatueSoulMotion = 0xb9fd,
 }

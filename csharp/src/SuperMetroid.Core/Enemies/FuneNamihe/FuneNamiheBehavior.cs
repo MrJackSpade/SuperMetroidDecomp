@@ -227,8 +227,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
-    private const ushort NamiFuneFireballPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;
+    private const EnemyProjectilePreInstruction NamiFuneFireballPreInstruction =
+        EnemyProjectilePreInstruction.NamiFuneFireball;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low

@@ -558,7 +558,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             ? SpacePirateProjectileInstructionProgramDefinitions.ClawRight
             : SpacePirateProjectileInstructionProgramDefinitions.ClawLeft;
         projectile.InstructionTimer = NativeCountdown.Start(1);
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = 2048;
         projectile.Variable1 = 1;
         state.SpawnedClawCount++;
@@ -571,9 +571,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         int pixels = SnesLittleEndian.HighByte(projectile.Variable0);
         bool outbound = projectile.Variable1 != 0;
-        bool thrownRight = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
-            projectile.PreInstruction, "enemy-projectile pre-instruction") ==
-            EnemyProjectilePreInstruction.PirateClaw_Right;
+        bool thrownRight = projectile.PreInstruction == EnemyProjectilePreInstruction.PirateClaw_Right;
         int direction = thrownRight ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound

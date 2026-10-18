@@ -103,10 +103,10 @@ internal sealed class EnemyProjectileEngine
                 projectile.Clear();
                 break;
             case EnemyProjectileCommonCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case EnemyProjectileCommonCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case EnemyProjectileCommonCueKind.Scatter:
                 Scatter(projectile, cue.Scatter);
@@ -232,7 +232,7 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
                         : EnemyProjectileDeleteAnimation.Instance);
-                    enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
+                    enemyProjectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -490,11 +490,11 @@ internal sealed class EnemyProjectileEngine
         SamusBombProjectileSystem? samusBombs)
     {
         if (Handlers.TryInterceptPreInstruction(projectile)) return;
-        EnemyProjectilePreInstruction id = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction");
+        EnemyProjectilePreInstruction id = projectile.PreInstruction;
         if (!Handlers.TryGetPreInstruction(id, out EnemyProjectilePreInstructionHandler? handler))
         {
             throw new InvalidDataException(
-                $"Enemy projectile pre-instruction $86:{projectile.PreInstruction:X4} is not translated.");
+                $"Enemy projectile pre-instruction {projectile.PreInstruction} is not translated.");
         }
         handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, nmiFrameCounter8, samusBombs));
     }
@@ -904,13 +904,11 @@ internal sealed class EnemyProjectileEngine
                     projectile.InstructionTimer = NativeCountdown.Start(0);
                     return;
                 case EnemyProjectileInstruction.PreInstructionInY:
-                    projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)));
+                    projectile.PreInstruction = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(ReadEnemyProjectileInstructionMechanicsWord(projectile, unchecked((ushort)(cursor + 2))), "enemy-projectile pre-instruction");
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.ClearPreInstruction:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.GotoY:

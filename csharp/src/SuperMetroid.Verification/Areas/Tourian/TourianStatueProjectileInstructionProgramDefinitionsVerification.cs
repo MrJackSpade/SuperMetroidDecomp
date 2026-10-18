@@ -106,7 +106,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
         AssertEqual(
-            (ushort)EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess,
+            EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess,
             baseDecoration.PreInstruction,
             "base decoration installs its delayed position callback");
         AssertEqual((ushort)0xb866, baseDecoration.InstructionPointer,

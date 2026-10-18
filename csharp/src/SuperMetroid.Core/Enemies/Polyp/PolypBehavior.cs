@@ -162,8 +162,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
-    private const ushort PolypRockPreInstruction =
-        (ushort)EnemyProjectilePreInstruction.PolypRock;
+    private const EnemyProjectilePreInstruction PolypRockPreInstruction =
+        EnemyProjectilePreInstruction.PolypRock;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const ushort PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>

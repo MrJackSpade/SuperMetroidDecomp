@@ -43,7 +43,7 @@ internal static class DraygonGoopTouchOrderVerification
             var enemies = runtime.Enemies;
             var goop = enemies.Projectiles.EnemyProjectiles[^1];
             goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-            goop.PreInstruction = (ushort)EnemyProjectilePreInstruction.DraygonGoop;
+            goop.PreInstruction = EnemyProjectilePreInstruction.DraygonGoop;
             goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
             goop.Position = FixedPosition<RoomPixels>.FromWhole(new(goopX, 391));
             var powerBomb = runtime.BombProjectiles.PowerBombExplosion;

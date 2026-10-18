@@ -2146,7 +2146,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(angle);
         projectile.PreInstruction =
-            (ushort)EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
+            EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>

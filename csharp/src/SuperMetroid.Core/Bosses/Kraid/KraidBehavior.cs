@@ -455,7 +455,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             switch (cue)
             {
                 case KraidRockCue.UsePaletteZero:
-                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0;
                     return;
                 case KraidRockCue.Delete:
                     projectile.Clear();

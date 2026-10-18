@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part
@@ -180,7 +181,7 @@ internal static class KraidAnimationsVerification
                 AssertEqual(native.Timer, rock.InstructionTimer.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.PreInstruction is { } preInstruction)
-                    AssertEqual(preInstruction, rock.PreInstruction, $"{at}: pre-instruction");
+                    AssertEqual(preInstruction, rock.PreInstructionWord, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockProgram.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }

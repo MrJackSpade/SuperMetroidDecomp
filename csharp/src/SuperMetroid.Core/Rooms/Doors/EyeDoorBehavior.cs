@@ -181,7 +181,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
             // The floor splash stops the drop's movement, as the native list switch does.
-            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
@@ -199,7 +199,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
     }
 
@@ -212,10 +212,10 @@ internal sealed class EyeDoorBehavior
                 AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
                 break;
             case EyeDoorProjectileCueKind.SetPreInstruction:
-                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                projectile.PreInstruction = cue.PreInstruction;
                 break;
             case EyeDoorProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
                 break;
             case EyeDoorProjectileCueKind.Delete:
                 projectile.Clear();

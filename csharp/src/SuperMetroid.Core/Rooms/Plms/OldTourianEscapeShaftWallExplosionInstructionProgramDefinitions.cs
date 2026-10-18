@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions
 {
     /// <summary>$86:B4B0, the header's bare-RTS pre-instruction.</summary>
-    internal const ushort PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86B4B0;
+    internal const EnemyProjectilePreInstruction PreInstruction = EnemyProjectilePreInstruction.RTS_86B4B0;
 
     /// <summary>$86:B443, <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion_0</c>.</summary>
     internal const ushort InitialInstructionList = 0xb443;

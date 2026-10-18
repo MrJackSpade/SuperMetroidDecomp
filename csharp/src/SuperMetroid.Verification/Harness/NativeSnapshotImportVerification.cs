@@ -360,7 +360,7 @@ internal static class NativeSnapshotImportVerification
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
-            projectile.PreInstruction = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
+            projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
             // A typed family resumes at the step the recorded native pointer stands for.
             if (projectile.Animation is { } typed)

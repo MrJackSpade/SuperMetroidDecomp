@@ -56,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles[^1];
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.PreInstruction = (ushort)EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
+        goop.PreInstruction = EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
         goop.Variable1 = 1;
         goop.Variable0 = lifetime;
         return goop;

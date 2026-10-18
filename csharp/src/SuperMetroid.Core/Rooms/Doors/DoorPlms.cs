@@ -162,7 +162,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
         if (slot.LoopTimer == 0)
             return;
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         bool accepted = preInstruction switch
         {
             ColoredDoorPreInstruction.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,

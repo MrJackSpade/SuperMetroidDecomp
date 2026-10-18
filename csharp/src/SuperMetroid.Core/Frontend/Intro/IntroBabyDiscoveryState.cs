@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Programs;
@@ -337,7 +338,7 @@ internal sealed class IntroBabyDiscoveryState
 
         if (confusedBaby.GeneralTimer < 128)
         {
-            confusedBaby.GeneralTimer++;
+            confusedBaby.GeneralTimer = NativeWordCounter.IncrementWord(confusedBaby.GeneralTimer);
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(

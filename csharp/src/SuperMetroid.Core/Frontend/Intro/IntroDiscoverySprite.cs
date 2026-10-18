@@ -57,7 +57,11 @@ internal sealed class IntroDiscoverySprite
     internal CinematicSpriteProgram CurrentProgram => CinematicSpriteAnimations.Programs.ResidentProgram(Program);
 
     /// <summary>The actor scratch word used by timer and motion opcodes.</summary>
-    public ushort GeneralTimer { get; set; }
+    public int GeneralTimer
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// <see cref="GeneralTimer"/> read as the loop countdown of the set-timer and decrement-timer-and-goto
@@ -135,7 +139,7 @@ internal sealed class IntroDiscoverySprite
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
         // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
-        ushort timerBefore = GeneralTimer;
+        ushort timerBefore = checked((ushort)GeneralTimer);
         NativeCountdown counter = InstructionLoopCountdown;
         AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) =>

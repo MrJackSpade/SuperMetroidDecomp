@@ -85,7 +85,7 @@ internal static class CeresRidleyMode7ColorsVerification
             CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
             int row = SnesLittleEndian.HighByte(frame.Zoom);
             visited.Add(row);
-            select(frame.Zoom);
+            select(checked((ushort)frame.Zoom));
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyMode7Colors.Resolve(row, color),
                     cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],

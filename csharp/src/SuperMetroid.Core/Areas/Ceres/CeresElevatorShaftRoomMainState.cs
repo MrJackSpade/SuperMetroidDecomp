@@ -114,7 +114,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
-        ushort rotationIndex = scratch.Var1;
+        ushort rotationIndex = checked((ushort)scratch.Var1);
         var record = CeresShaftRotationDefinitions.Read(rotationIndex);
         RotationTimer = NativeCountdown.FromRaw(record.Timer);
         ushort sine = record.Sine;

@@ -41,7 +41,11 @@ internal sealed class PlmSlot
     /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
     public ushort RoomArgument { get; set; }
     /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
-    public ushort LoopTimer { get; set; }
+    public int LoopTimer
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// The semantic state of the family this slot belongs to, or null while the slot runs only its native words under the
     /// shared pre-instruction, timer and instruction interpreter.

@@ -787,7 +787,7 @@ internal sealed class CeresDestructionCinematicState
                 // cross -$80, so indexes necessarily shift during this loop.
                 ushort acceleration = definition.SlideAcceleration;
                 actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
-                SubtractEightEightY(actor, actor.GeneralTimer);
+                SubtractEightEightY(actor, checked((ushort)actor.GeneralTimer));
                 if (unchecked((short)actor.WholePosition.Y) < -128)
                 {
                     // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit

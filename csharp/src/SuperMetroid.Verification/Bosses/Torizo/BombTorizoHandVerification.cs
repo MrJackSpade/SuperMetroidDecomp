@@ -116,7 +116,7 @@ internal static class BombTorizoHandVerification
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
-            runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,
+            runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
                 VramDmaDestination.FromNative(request.EncodedVramDestination));
             runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,

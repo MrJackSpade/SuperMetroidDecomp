@@ -110,7 +110,7 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         slot.LoopTimer = 0;

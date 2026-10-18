@@ -443,7 +443,7 @@ internal sealed class IntroCeresFlightState
         }
         stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
             CeresFlightActorDefinitions.FrontStarAcceleration));
-        var velocity = new SnesSignedEightEight(stars.GeneralTimer);
+        var velocity = new SnesSignedEightEight(checked((ushort)stars.GeneralTimer));
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));

@@ -80,7 +80,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         if (!state.HasPendingHit)
             return;
 
-        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         if (family == SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = DraygonCannonRomData.SuperMissileHitCounterSeed;
         else if (family != SamusProjectileFamily.Missile)

@@ -125,7 +125,7 @@ internal sealed class PlmFramePhase
         foreach (PlmVramWriteRequest request in _plms.BombTorizoHand.VramWriteRequests)
         {
             _vramWrites.Enqueue(
-                request.SizeInBytes,
+                checked((ushort)request.SizeInBytes),
                 request.SourceAddress,
                 request.Destination);
         }

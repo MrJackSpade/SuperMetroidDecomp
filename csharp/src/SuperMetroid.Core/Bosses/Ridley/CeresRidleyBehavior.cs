@@ -1530,7 +1530,7 @@ internal sealed class CeresRidleyBehavior
             samus.CeresRidleyEjection.Request(samus);
 
         var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
-        ushort zoom = frame.Zoom;
+        ushort zoom = checked((ushort)frame.Zoom);
         if (zoom == CeresRidleyGetawayDefinitions.Finished)
         {
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.

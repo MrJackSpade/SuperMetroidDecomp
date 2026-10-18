@@ -516,7 +516,7 @@ internal sealed class PlmBlockDrawing
         if (!IsInsideNativeDrawWindow(level.Size.CellAtRowMajorIndex(blockIndex), view.Layer1Position))
             return;
 
-        _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, view.Bg1XOffset));
+        _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, checked((ushort)view.Bg1XOffset)));
     }
 
     /// <summary>Accepts the 16 visible rows and 17 horizontally intersecting blocks used by the native PLM upload path.</summary>

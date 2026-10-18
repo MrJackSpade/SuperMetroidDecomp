@@ -7,5 +7,9 @@ public readonly record struct PlmView
     public required Position16<RoomPixels> Layer1Position { get; init; }
 
     /// <summary>Bg1 x offset.</summary>
-    public required ushort Bg1XOffset { get; init; }
+    public required int Bg1XOffset
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 }

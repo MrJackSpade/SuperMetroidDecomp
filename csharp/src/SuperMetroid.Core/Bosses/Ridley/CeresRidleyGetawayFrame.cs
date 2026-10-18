@@ -5,4 +5,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// of the $A6:B00F X table (subtracted from the horizontal offset, so the image moves right) and
 /// the $A6:AF2F Y table (added to the vertical offset).
 /// </summary>
-public readonly record struct CeresRidleyGetawayFrame(ushort Zoom, Offset16<Mode7Pixels> Velocity);
+public readonly record struct CeresRidleyGetawayFrame(int Zoom, Offset16<Mode7Pixels> Velocity)
+{
+    /// <summary>The frame's Mode 7 zoom word, 0 through 65535.</summary>
+    public int Zoom { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Zoom);
+}

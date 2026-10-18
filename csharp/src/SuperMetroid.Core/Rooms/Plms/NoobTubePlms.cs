@@ -42,7 +42,7 @@ internal sealed class NoobTubePlms
         {
             case NoobTubePlmPreInstruction.WakeOnPowerBomb:
                 SamusProjectileFamily projectileFamily =
-                    new SamusProjectileTypeWord(slot.LoopTimer).Family;
+                    new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
                 if (projectileFamily == SamusProjectileFamily.PowerBomb)
                 {
                     slot.WakeAtLink();

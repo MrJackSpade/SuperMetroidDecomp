@@ -6,14 +6,14 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     /// <summary>Binds a glow owner to its native definition, program, CGRAM destination, record width, and cadence.</summary>
     internal CinematicGlowPaletteFxColorDefinition(
         CinematicGlowPaletteFxProgramOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex,
         int colorsPerFrame,
         ushort frameDuration)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         ColorsPerFrame = colorsPerFrame;
@@ -23,11 +23,11 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     /// <summary>The mutually exclusive glow owner.</summary>
     public CinematicGlowPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
+    /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks>
     /// <c>$8D:E1BC</c> owns the old Mother Brain lights and <c>$8D:E1C0</c> the gunship.
     /// </remarks>
-    public ushort DefinitionPointer { get; }
+    public PaletteFxObject Object { get; }
 
     /// <summary>The native instruction-list entry.</summary>
     /// <remarks>

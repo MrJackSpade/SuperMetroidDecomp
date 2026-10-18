@@ -36,13 +36,13 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
     public const int FrameByteCount = 36;
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, 0xe1f4, 0xdb62);
+        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, 0xdb62);
     /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, 0xe1f8, 0xdcc8);
+        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, PaletteFxObject.SamusLoadingVariaSuit, 0xdcc8);
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, 0xe1fc, 0xde2e);
+        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, PaletteFxObject.SamusLoadingGravitySuit, 0xde2e);
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
     /// <remarks>Named program identities replace the former indexed descriptor array.

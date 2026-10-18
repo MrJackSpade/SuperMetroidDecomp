@@ -116,6 +116,6 @@ public sealed class HyperBeamPaletteFxState
 
     /// <summary>The palette-FX object definition the Hyper Beam spawns.</summary>
     private static RoomPaletteFxDefinition HyperBeamDefinition() =>
-        RoomPaletteFxDefinitions.Get(unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
+        RoomPaletteFxDefinitions.Get(PaletteFxObject.HyperBeam);
 
 }

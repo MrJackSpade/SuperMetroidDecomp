@@ -1322,7 +1322,7 @@ internal static class LookupStream3Verification
         var handoff = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(4, handoff.EscapePaletteFxRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), handoff.EscapePaletteFxRequests[effect],
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), PaletteFxObjectAccess.NativeAddress(handoff.EscapePaletteFxRequests[effect]),
                 "stream 3 native escape palette registration order");
         var text = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");

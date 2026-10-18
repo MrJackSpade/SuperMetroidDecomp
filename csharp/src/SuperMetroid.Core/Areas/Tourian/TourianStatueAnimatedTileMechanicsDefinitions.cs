@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -33,7 +34,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedColorIndex = 172,
             UnlockEffectParameter = 0,
-            PaletteFxDefinition = 0xf755,
+            PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
             GreyColorIndex = 160,
         },
         AnimatedTileObject.TourianStatueRidley => new()
@@ -48,7 +49,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedColorIndex = 153,
             UnlockEffectParameter = 2,
-            PaletteFxDefinition = 0xf751,
+            PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
             GreyColorIndex = 144,
         },
         AnimatedTileObject.TourianStatueKraid => new()
@@ -63,7 +64,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedColorIndex = 124,
             UnlockEffectParameter = 6,
-            PaletteFxDefinition = 0xf74d,
+            PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
             GreyColorIndex = 112,
         },
         AnimatedTileObject.TourianStatueDraygon => new()
@@ -78,7 +79,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedColorIndex = 105,
             UnlockEffectParameter = 4,
-            PaletteFxDefinition = 0xf749,
+            PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
             GreyColorIndex = 96,
         },
         AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or

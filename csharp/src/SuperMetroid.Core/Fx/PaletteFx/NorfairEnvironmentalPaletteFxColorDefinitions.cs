@@ -23,8 +23,14 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
-    /// <summary>$8D:F785: first of four adjacent native environmental definitions, each init/list pair occupying four bytes.</summary>
-    private const ushort FirstDefinition = 0xf785;
+    /// <summary>The palette-FX object of each program, by owner.</summary>
+    private static readonly PaletteFxObject[] Objects =
+    [
+        PaletteFxObject.NorfairForegroundAndHeatPhase,
+        PaletteFxObject.NorfairForegroundPalette4,
+        PaletteFxObject.NorfairForegroundPalette5,
+        PaletteFxObject.NorfairForegroundPalette6,
+    ];
     /// <summary>$8D:F08E: foreground palette-three loop also publishes the current heat phase.</summary>
     private const ushort HeatPhaseProgram = 0xf08e;
     /// <summary>$8D:F1D1: foreground palette-four loop; palette-five/six programs follow with the same record geometry.</summary>
@@ -67,7 +73,7 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
                 int first = start + SetupBytes;
                 int palette = heat ? HeatPalette : RegularFirstPalette + regular;
                 int color = heat ? HeatFirstColor : RegularFirstColor;
-                return new(owner, (ushort)(FirstDefinition + index * 4), (ushort)start, (ushort)first,
+                return new(owner, Objects[index], (ushort)start, (ushort)first,
                     (ushort)(first + FrameCount * (RegularFrameBytes + (heat ? HeatPublicationBytes : 0))),
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }

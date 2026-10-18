@@ -1163,7 +1163,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             new List<MotherBrainSpriteTileTransferRequest>(capacity: 2);
         bool explodedDoorPaletteRequested = false;
         bool escapeMusicTrackQueued = false;
-        var escapePaletteFxRequests = new List<ushort>(capacity: 4);
+        var escapePaletteFxRequests = new List<PaletteFxObject>(capacity: 4);
         bool escapeTypewriterSetupRequested = false;
         bool timeBombSetSubtitleSpawnRequested = false;
         MotherBrainEscapeDoorExplosionRequest? escapeDoorExplosion = null;
@@ -2097,10 +2097,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 escapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
                 EarthquakeType = 5;
                 EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
-                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxColorDefinitions.ShutterDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxColorDefinitions.BackgroundDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.GeneralLevelDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ArkanoidDefinitionPointer);
+                escapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
+                escapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
+                escapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
+                escapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
                 FunctionTimer = NativeCountdown.Start(32);

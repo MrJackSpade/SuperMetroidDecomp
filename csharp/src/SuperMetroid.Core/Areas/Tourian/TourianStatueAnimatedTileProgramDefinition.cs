@@ -2,6 +2,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -53,8 +54,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The even statue selector passed to the eye-glow and soul spawners.</summary>
     public required ushort UnlockEffectParameter { get; init; }
 
-    /// <summary>The bank-$8D palette-FX definition spawned during release.</summary>
-    public required ushort PaletteFxDefinition { get; init; }
+    /// <summary>The palette-FX object spawned during release.</summary>
+    public required PaletteFxObject PaletteFx { get; init; }
 
     /// <summary>The CGRAM colour index that receives the eight common grey colours.</summary>
     public required int GreyColorIndex { get; init; }

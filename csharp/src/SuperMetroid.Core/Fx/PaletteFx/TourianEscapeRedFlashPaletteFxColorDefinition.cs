@@ -6,14 +6,14 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     /// <summary>Binds one escape palette owner to its native setup pointer and uniform timed-record geometry.</summary>
     internal TourianEscapeRedFlashPaletteFxColorDefinition(
         TourianEscapeRedFlashPaletteOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex,
         ushort duration,
         int colorsPerFrame)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         Duration = duration;
@@ -23,8 +23,8 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     /// <summary>The mutually exclusive escape-palette owner.</summary>
     public TourianEscapeRedFlashPaletteOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>The palette-FX object that installs this program.</summary>
+    public PaletteFxObject Object { get; }
 
     /// <summary>The color-index setup entry.</summary>
     public ushort ProgramStart { get; }

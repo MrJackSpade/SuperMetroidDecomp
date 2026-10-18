@@ -6,13 +6,13 @@ public sealed class TorizoBellyPaletteFxColorDefinition
     /// <summary>Stores the native definition and derived instruction offsets for one Torizo palette loop.</summary>
     internal TorizoBellyPaletteFxColorDefinition(
         TorizoBellyPaletteOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort firstFramePointer,
         ushort loopInstructionPointer)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         FirstFramePointer = firstFramePointer;
         LoopInstructionPointer = loopInstructionPointer;
@@ -21,8 +21,8 @@ public sealed class TorizoBellyPaletteFxColorDefinition
     /// <summary>The Torizo variant represented by this program.</summary>
     public TorizoBellyPaletteOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>The palette-FX object that installs this program.</summary>
+    public PaletteFxObject Object { get; }
 
     /// <summary>The setup entry for this program.</summary>
     public ushort ProgramStart { get; }

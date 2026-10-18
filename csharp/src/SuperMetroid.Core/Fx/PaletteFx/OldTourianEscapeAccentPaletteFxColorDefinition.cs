@@ -6,12 +6,12 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>Records one accent destination and its independent bank 8D setup list.</summary>
     internal OldTourianEscapeAccentPaletteFxColorDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
     }
@@ -19,8 +19,8 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>The mutually exclusive escape-accent owner.</summary>
     public OldTourianEscapeAccentPaletteOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>The palette-FX object that installs this program.</summary>
+    public PaletteFxObject Object { get; }
 
     /// <summary>The color-index setup entry.</summary>
     public ushort ProgramStart { get; }

@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class CrateriaEscapeLightningPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxDef_Crateria4</c> at <c>$8D:FFE9</c>.</summary>
-    public const ushort YellowLightningDefinitionPointer = 0xffe9;
     /// <summary><c>PalFxInstList_Crateria4</c> at <c>$8D:FE01</c>.</summary>
     /// <remarks>
     /// Its 11 live BGR555 colors per frame occupy $8D:FE07 + 26 * frame
@@ -20,8 +18,6 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     /// remains required under #1165; this catalog converts its control program only.
     /// </remarks>
     public const ushort YellowLightningProgramStart = 0xfe01;
-    /// <summary><c>PalFxDef_Crateria40</c> at <c>$8D:FFED</c>.</summary>
-    public const ushort CreBlockPixelDefinitionPointer = 0xffed;
     /// <summary><c>PalFxInstList_Crateria40</c> at <c>$8D:FF27</c>.</summary>
     /// <remarks>
     /// For frame 0..10 and color 0..4, the live BGR555 word at
@@ -38,11 +34,11 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
 
     /// <summary>$8D:FFE9 yellow-lightning program targets eleven colors from CGRAM byte $A2.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition YellowLightning = new(
-        CrateriaEscapeLightningPaletteOwner.YellowLightning, YellowLightningDefinitionPointer,
+        CrateriaEscapeLightningPaletteOwner.YellowLightning, PaletteFxObject.CrateriaEscapeYellowLightning,
         YellowLightningProgramStart, 0x00a2, 11);
     /// <summary>$8D:FFED CRE pixel program targets the shared five-color tail from CGRAM byte $AE.</summary>
     private static readonly CrateriaEscapeLightningPaletteFxColorDefinition CreBlockPixel = new(
-        CrateriaEscapeLightningPaletteOwner.CreBlockPixel, CreBlockPixelDefinitionPointer,
+        CrateriaEscapeLightningPaletteOwner.CreBlockPixel, PaletteFxObject.CrateriaEscapeCreBlockPixel,
         CreBlockPixelProgramStart, 0x00ae, 5);
     /// <summary>Fixed, indexable yellow-lightning and CRE-pixel program view.</summary>
     private static readonly ProgramList Programs = new();

@@ -6,13 +6,13 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     /// <summary>Stores a program's native setup, destination, and color-row dimensions.</summary>
     internal CrateriaEscapeLightningPaletteFxColorDefinition(
         CrateriaEscapeLightningPaletteOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex,
         int colorsPerFrame)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         ColorsPerFrame = colorsPerFrame;
@@ -20,8 +20,8 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
 
     /// <summary>The mutually exclusive palette owner.</summary>
     public CrateriaEscapeLightningPaletteOwner Owner { get; }
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>The palette-FX object that installs this program.</summary>
+    public PaletteFxObject Object { get; }
     /// <summary>The color-index setup entry.</summary>
     public ushort ProgramStart { get; }
     /// <summary>The first destination byte in CGRAM.</summary>

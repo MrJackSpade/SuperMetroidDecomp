@@ -8,12 +8,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxDef_Tourian20</c> at <c>$8D:FFD1</c>.</summary>
-    public const ushort GeneralLevelDefinitionPointer = 0xffd1;
-
-    /// <summary><c>PalFxDef_Tourian40</c> at <c>$8D:FFD5</c>.</summary>
-    public const ushort ArkanoidDefinitionPointer = 0xffd5;
-
     /// <summary>The shared timed-record loop at <c>$8D:F94D</c>.</summary>
     public const ushort FirstFramePointer = 0xf94d;
 

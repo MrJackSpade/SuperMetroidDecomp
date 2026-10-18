@@ -8,14 +8,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxDef_Tourian8</c> at <c>$8D:FFC9</c>.</summary>
-    public const ushort ShutterDefinitionPointer = 0xffc9;
-
     /// <summary><c>PalFxInstList_Tourian8</c> at <c>$8D:F7A9</c>.</summary>
     public const ushort ShutterProgramStart = 0xf7a9;
-
-    /// <summary><c>PalFxDef_Tourian10</c> at <c>$8D:FFCD</c>.</summary>
-    public const ushort BackgroundDefinitionPointer = 0xffcd;
 
     /// <summary><c>PalFxInstList_Tourian10</c> at <c>$8D:F891</c>.</summary>
     public const ushort BackgroundProgramStart = 0xf891;
@@ -27,9 +21,9 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
     private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
     [
         new(TourianEscapeRedFlashPaletteOwner.Shutter,
-            ShutterDefinitionPointer, ShutterProgramStart, 0x0132, 2, 6),
+            PaletteFxObject.TourianShutterRedFlashing, ShutterProgramStart, 0x0132, 2, 6),
         new(TourianEscapeRedFlashPaletteOwner.Background,
-            BackgroundDefinitionPointer, BackgroundProgramStart, 0x0070, 4, 4),
+            PaletteFxObject.TourianBackgroundRedFlashing, BackgroundProgramStart, 0x0070, 4, 4),
     ];
 
     /// <summary>The shutter and background red-flash programs in definition order.</summary>

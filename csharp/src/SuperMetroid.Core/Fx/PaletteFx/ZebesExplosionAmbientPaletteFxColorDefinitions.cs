@@ -29,7 +29,7 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
     [
         new(
             ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
-            definitionPointer: 0xe1d4,
+            paletteFxObject: PaletteFxObject.ZebesExplosionPlanetAfterglow,
             programStart: 0xd3ca,
             colorByteIndex: 0x01c2,
             frameCount: 6,
@@ -37,7 +37,7 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
             cycleFrames: 96),
         new(
             ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
-            definitionPointer: 0xe1d8,
+            paletteFxObject: PaletteFxObject.ExplodingZebesLava,
             programStart: 0xd44a,
             colorByteIndex: 0x0080,
             frameCount: 10,

@@ -9,20 +9,20 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
     /// <summary>Pairs one suit's palette-FX header with its bank-$8D instruction-list entry.</summary>
     internal SamusLoadingSuitPaletteFxColorDefinition(
         SamusLoadingSuitPaletteFxProgramOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
     }
 
     /// <summary>The mutually exclusive suit palette.</summary>
     public SamusLoadingSuitPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
+    /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks><c>$8D:E1F4</c>, <c>$8D:E1F8</c>, or <c>$8D:E1FC</c>.</remarks>
-    public ushort DefinitionPointer { get; }
+    public PaletteFxObject Object { get; }
 
     /// <summary>The native instruction-list entry.</summary>
     /// <remarks><c>$8D:DB62</c>, <c>$8D:DCC8</c>, or <c>$8D:DE2E</c>.</remarks>

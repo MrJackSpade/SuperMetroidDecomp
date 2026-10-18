@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Frontend.Title;
 
@@ -9,10 +10,10 @@ public static class TitleSequenceRomData
     public static class ConsolePaletteFx
     {
         /// <summary>$8D:E1A0, kPalfx_E1A0: ten-frame console colors at CGRAM 42–45.</summary>
-        public const ushort SlowLights = 0xe1a0;
+        public const PaletteFxObject SlowLights = PaletteFxObject.TitleScreenBabyMetroidTubeLight;
 
         /// <summary>$8D:E1A4, kPalfx_E1A4: alternating console colors at CGRAM 46–47.</summary>
-        public const ushort FastLights = 0xe1a4;
+        public const PaletteFxObject FastLights = PaletteFxObject.TitleScreenFlickeringDisplays;
     }
 
     /// <summary>Compressed graphics and the complete title CGRAM image.</summary>

@@ -26,6 +26,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -271,14 +272,15 @@ internal sealed class RoomLoader
         _player.IntroducedSamus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.IntroducedSamus.Presentation.PrimeGraphics();
-        _player._samusLoadAppearancePaletteFxDefinition =
+        PaletteFxObject loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? RoomLoadingRomData.GravitySuitLoadPaletteFx
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
+        _player._samusLoadAppearancePaletteFxObject = loadAppearance;
         _roomPaletteFx.SpawnDefinition(
-            _player._samusLoadAppearancePaletteFxDefinition,
+            loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         _player._samusLoadAppearanceFramesRemaining = NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount);

@@ -8,14 +8,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxDef_Crateria10</c> at <c>$8D:FFDD</c>.</summary>
-    public const ushort OrangeRailingsDefinitionPointer = 0xffdd;
-
     /// <summary><c>PalFxInstList_Crateria10</c> at <c>$8D:FBC1</c>.</summary>
     public const ushort OrangeRailingsProgramStart = 0xfbc1;
-
-    /// <summary><c>PalFxDef_Crateria20</c> at <c>$8D:FFE1</c>.</summary>
-    public const ushort YellowPanelsDefinitionPointer = OrangeRailingsDefinitionPointer + 4;
 
     /// <summary><c>PalFxInstList_Crateria20</c> at <c>$8D:FC5F</c>.</summary>
     public const ushort YellowPanelsProgramStart = OrangeRailingsProgramStart + 4 + FrameCount * FrameByteCount + 4;
@@ -44,9 +38,9 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
         public OldTourianEscapeAccentPaletteFxColorDefinition this[int index] => index switch
         {
             (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-                OrangeRailingsDefinitionPointer, OrangeRailingsProgramStart, RailingsColorByteIndex),
+                PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, OrangeRailingsProgramStart, RailingsColorByteIndex),
             (int)OldTourianEscapeAccentPaletteOwner.YellowPanels => new(OldTourianEscapeAccentPaletteOwner.YellowPanels,
-                YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
+                PaletteFxObject.OldTourianBackgroundPanelsFlashYellow, YellowPanelsProgramStart, PanelsColorByteIndex),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         /// <summary>Visits both accent programs in the same order as the owner enum.</summary>

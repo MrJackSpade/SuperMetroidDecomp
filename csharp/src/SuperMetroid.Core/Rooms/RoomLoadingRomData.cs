@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -14,13 +15,13 @@ internal static class RoomLoadingRomData
         GameplayBasePaletteFormat.EnemyProjectileInitialColor;
 
     /// <summary>Power Suit load-appearance palette-FX definition at $8D:E1F4.</summary>
-    public const ushort PowerSuitLoadPaletteFx = 0xe1f4;
+    public const PaletteFxObject PowerSuitLoadPaletteFx = PaletteFxObject.SamusLoadingPowerSuit;
 
     /// <summary>Varia Suit load-appearance palette-FX definition at $8D:E1F8.</summary>
-    public const ushort VariaSuitLoadPaletteFx = 0xe1f8;
+    public const PaletteFxObject VariaSuitLoadPaletteFx = PaletteFxObject.SamusLoadingVariaSuit;
 
     /// <summary>Gravity Suit load-appearance palette-FX definition at $8D:E1FC.</summary>
-    public const ushort GravitySuitLoadPaletteFx = 0xe1fc;
+    public const PaletteFxObject GravitySuitLoadPaletteFx = PaletteFxObject.SamusLoadingGravitySuit;
 
     /// <summary>Native duration of Samus's saved-game appearance handler.</summary>
     public const ushort SavedGameAppearanceFrameCount = 0x0168;

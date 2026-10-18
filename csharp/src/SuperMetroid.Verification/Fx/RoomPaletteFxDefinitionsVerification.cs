@@ -94,7 +94,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.LoadDefinition(definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
-                RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
+                PaletteFxObjectAccess.NativeAddress(RoomPaletteFxDefinitions.GetAreaDefinition(area, bit)),
                 ActivePaletteFxSlot(system).Id,
                 $"area {area} bit {bit} production room load");
         }
@@ -108,7 +108,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 
         AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxDefinitions.Get(0),
+            () => PaletteFxObjectAccess.FromNative(0),
             "zero palette-FX definition is outside the authored domain");
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxDefinitions.Get(

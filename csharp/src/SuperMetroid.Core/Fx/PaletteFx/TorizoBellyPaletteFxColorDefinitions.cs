@@ -14,10 +14,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class TorizoBellyPaletteFxColorDefinitions
 {
-    /// <summary>Bomb Torizo palette-FX identity at $8D:F759.</summary>
-    private const ushort BombDefinition = 0xf759;
-    /// <summary>Golden Torizo palette-FX identity at $8D:F75D.</summary>
-    private const ushort GoldenDefinition = 0xf75d;
     /// <summary>Bomb Torizo belly setup program at $8D:E2E9.</summary>
     private const ushort BombProgram = 0xe2e9;
     /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
@@ -31,14 +27,14 @@ public static class TorizoBellyPaletteFxColorDefinitions
         /// <summary>Builds the requested variant's entry, first color record, and loop-command pointers.</summary>
         public TorizoBellyPaletteFxColorDefinition this[int index] => index switch
         {
-            (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, BombDefinition, BombProgram),
-            (int)TorizoBellyPaletteOwner.GoldenTorizo => Create(TorizoBellyPaletteOwner.GoldenTorizo, GoldenDefinition, GoldenProgram),
+            (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, PaletteFxObject.BombTorizoBelly, BombProgram),
+            (int)TorizoBellyPaletteOwner.GoldenTorizo => Create(TorizoBellyPaletteOwner.GoldenTorizo, PaletteFxObject.GoldenTorizoBelly, GoldenProgram),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
         /// <summary>Derives record and loop offsets from the native setup length and six fixed-size frames.</summary>
         private static TorizoBellyPaletteFxColorDefinition Create(
-            TorizoBellyPaletteOwner owner, ushort definition, ushort start) =>
+            TorizoBellyPaletteOwner owner, PaletteFxObject definition, ushort start) =>
             new(owner, definition, start, (ushort)(start + 8),
                 (ushort)(start + 8 + FrameCount * FrameByteCount));
 

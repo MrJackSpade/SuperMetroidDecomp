@@ -15,7 +15,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     /// <summary>Captures the compiled pointer geometry and destination for one environmental loop.</summary>
     internal NorfairEnvironmentalPaletteFxColorDefinition(
         NorfairEnvironmentalPaletteOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort firstFramePointer,
         ushort loopInstructionPointer,
@@ -23,7 +23,7 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
         bool publishesHeatPhase)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         FirstFramePointer = firstFramePointer;
         LoopInstructionPointer = loopInstructionPointer;
@@ -33,8 +33,8 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
 
     /// <summary>The mutually exclusive environmental palette owner.</summary>
     public NorfairEnvironmentalPaletteOwner Owner { get; }
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>The palette-FX object that installs this program.</summary>
+    public PaletteFxObject Object { get; }
     /// <summary>The color-index setup entry.</summary>
     public ushort ProgramStart { get; }
     /// <summary>The first mixed-width timed record.</summary>

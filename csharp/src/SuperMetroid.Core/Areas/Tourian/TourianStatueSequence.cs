@@ -216,7 +216,7 @@ public sealed class TourianStatueSequence
                     statue.SpawnUnlockEffect(definition.UnlockEffectParameter, soul: true);
                     return null;
                 case TourianStatueTileCueKind.SpawnGreyPaletteFx:
-                    _roomPaletteFx.SpawnDefinition(definition.PaletteFxDefinition, _player.IntroducedSamus.EquippedItems);
+                    _roomPaletteFx.SpawnDefinition(definition.PaletteFx, _player.IntroducedSamus.EquippedItems);
                     return null;
                 case TourianStatueTileCueKind.SetGreyEvent:
                     _system.SetEvent(definition.GreyEvent);

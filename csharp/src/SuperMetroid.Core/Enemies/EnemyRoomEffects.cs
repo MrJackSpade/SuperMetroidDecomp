@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -186,7 +187,7 @@ internal sealed class EnemyRoomEffects
     {
         if (requests.MotherBrainDeathStep is { } death)
         {
-            foreach (ushort definition in death.EscapePaletteFxRequests)
+            foreach (PaletteFxObject definition in death.EscapePaletteFxRequests)
                 _roomPaletteFx.SpawnDefinition(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();

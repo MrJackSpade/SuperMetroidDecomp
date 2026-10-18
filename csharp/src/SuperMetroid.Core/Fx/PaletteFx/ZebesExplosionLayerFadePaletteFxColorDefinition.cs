@@ -6,13 +6,13 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     /// <summary>Binds one layer's native setup pointer, CGRAM destination, and uniform hold duration.</summary>
     internal ZebesExplosionLayerFadePaletteFxColorDefinition(
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex,
         ushort frameDuration)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         FrameDuration = frameDuration;
@@ -21,9 +21,9 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     /// <summary>The mutually exclusive faded layer.</summary>
     public ZebesExplosionLayerFadePaletteFxProgramOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
+    /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks><c>$8D:E1DC</c> is crust and <c>$8D:E1E0</c> is grey clouds.</remarks>
-    public ushort DefinitionPointer { get; }
+    public PaletteFxObject Object { get; }
 
     /// <summary>The native instruction-list entry.</summary>
     /// <remarks><c>$8D:D48E</c> is crust and <c>$8D:D5A4</c> is grey clouds.</remarks>

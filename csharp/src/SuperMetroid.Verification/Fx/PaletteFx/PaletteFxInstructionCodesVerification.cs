@@ -113,14 +113,14 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
-            PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition,
+            PaletteFxObject.Nothing,
             equippedItems: 0);
         AssertTrue(paletteFx.IsDefinitionActive(
-                PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition),
+                PaletteFxObject.Nothing),
             "empty room palette-FX definition occupies a slot before its first handler pass");
         paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!paletteFx.IsDefinitionActive(
-                PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition),
+                PaletteFxObject.Nothing),
             "empty room palette-FX definition deletes itself on its first handler pass");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "empty room palette-FX deletion performs no mechanics ROM reads");

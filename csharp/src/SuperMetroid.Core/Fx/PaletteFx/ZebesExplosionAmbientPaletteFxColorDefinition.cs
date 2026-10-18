@@ -6,7 +6,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>Captures one palette loop's owner, native addresses, color width, and cycle length.</summary>
     internal ZebesExplosionAmbientPaletteFxColorDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
-        ushort definitionPointer,
+        PaletteFxObject paletteFxObject,
         ushort programStart,
         ushort colorByteIndex,
         int frameCount,
@@ -14,7 +14,7 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
         int cycleFrames)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
+        Object = paletteFxObject;
         ProgramStart = programStart;
         ColorByteIndex = colorByteIndex;
         FrameCount = frameCount;
@@ -25,9 +25,9 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>The mutually exclusive ambient owner.</summary>
     public ZebesExplosionAmbientPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
+    /// <summary>The palette-FX object that installs this program.</summary>
     /// <remarks><c>$8D:E1D4</c> is afterglow and <c>$8D:E1D8</c> is lava.</remarks>
-    public ushort DefinitionPointer { get; }
+    public PaletteFxObject Object { get; }
 
     /// <summary>The native instruction-list entry.</summary>
     /// <remarks><c>$8D:D3CA</c> is afterglow and <c>$8D:D44A</c> is lava.</remarks>

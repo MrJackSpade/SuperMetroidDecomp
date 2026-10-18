@@ -7,6 +7,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx.PaletteFx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<
     SuperMetroid.Core.Areas.Tourian.TourianStatueTileProgram,
     SuperMetroid.Core.Areas.Tourian.TourianStatueTilePicture,

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
@@ -23,7 +25,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     IReadOnlyList<MotherBrainSpriteTileTransferRequest> EscapeSequenceTileTransfers,
     bool ExplodedDoorPaletteRequested,
     bool EscapeMusicTrackQueued,
-    IReadOnlyList<ushort> EscapePaletteFxRequests,
+    IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,
     bool EscapeTypewriterSetupRequested,
     bool TimeBombSetSubtitleSpawnRequested,
     MotherBrainEscapeDoorExplosionRequest? EscapeDoorExplosion,

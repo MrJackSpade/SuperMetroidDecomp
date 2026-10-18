@@ -33,8 +33,6 @@ internal static class PaletteDefinitionAudit
                 type.Name.EndsWith("ProgramMechanicsDefinitions", StringComparison.Ordinal))
             .OrderBy(type => type.FullName, StringComparer.Ordinal))
         {
-            // Its single compiled instruction is Delete: no presentation words.
-            if (catalog == typeof(PaletteFxDeleteDefinitions)) continue;
             string source = FindSource(root, catalog.Name);
             var audit = new PaletteCatalogAudit(catalog, source, exports, report);
             bool covered = false;

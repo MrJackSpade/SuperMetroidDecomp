@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Verified cartridge assets and fixed layout for Ceres destruction and Zebes approach.</summary>
@@ -11,7 +13,7 @@ public static class CeresDestructionRomData
     {
         /// <summary>$8D:E1A8, PaletteFXObjects_CutsceneGunshipEngineFlicker;
         /// spawned by $8B:C784 during Zebes approach setup.</summary>
-        public const ushort EngineFlicker = 0xe1a8;
+        public const PaletteFxObject EngineFlicker = PaletteFxObject.CutsceneGunshipEngineFlicker;
     }
 
     /// <summary>Cartridge addresses of compressed Ceres and Zebes artwork.</summary>

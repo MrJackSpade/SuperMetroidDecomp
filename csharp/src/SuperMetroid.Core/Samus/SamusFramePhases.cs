@@ -1343,10 +1343,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         _player._samusLoadAppearanceFramesRemaining = _player._samusLoadAppearanceFramesRemaining.Decrement().Remaining;
         if (!_player._samusLoadAppearanceFramesRemaining.IsZero)
             return;
-        if (_roomPaletteFx.IsDefinitionActive(_player._samusLoadAppearancePaletteFxDefinition))
+        if (_player._samusLoadAppearancePaletteFxObject is { } loadAppearance && _roomPaletteFx.IsDefinitionActive(loadAppearance))
         {
             throw new InvalidDataException(
-                $"Samus load palette FX $8D:{_player._samusLoadAppearancePaletteFxDefinition:X4} " +
+                $"Samus load palette FX {loadAppearance} " +
                 "outlived the cartridge's 360-frame appearance handler.");
         }
 
@@ -1355,6 +1355,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         samus.CommitPoseHistory();
         samus.InputLocked = false;
         _player.GroundedSamusMovementEnabled = true;
-        _player._samusLoadAppearancePaletteFxDefinition = 0;
+        _player._samusLoadAppearancePaletteFxObject = null;
     }
 }

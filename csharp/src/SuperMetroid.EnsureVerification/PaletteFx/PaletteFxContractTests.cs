@@ -13,8 +13,6 @@ namespace SuperMetroid.EnsureVerification.PaletteFx;
 /// <summary>Checks that palette FX execution requires a supplied color source at compile and runtime.</summary>
 internal static class PaletteFxContractTests
 {
-    /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
-    private const ushort GunshipEngineDefinitionPointer = 0xe1a8;
     /// <summary>The gunship engine writes CGRAM word index <c>$00BE</c>.</summary>
     private const ushort GunshipEngineColorIndex = 0x00be;
 
@@ -50,7 +48,7 @@ internal static class PaletteFxContractTests
         // compiler rejects a null caller; the first step paints with the supplied colors.
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
-        fx.SpawnDefinition(GunshipEngineDefinitionPointer, 0);
+        fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)

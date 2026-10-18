@@ -68,6 +68,9 @@ internal static class OwtchPatrolStateVerification
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, OwtchEnemyState State) NewOwtch(OwtchBehaviorState behavior)
     {
         var enemies = new RoomEnemySystem();
+        // A walk rolls the sink chance each update; a high roll keeps the Owtch walking.
+        enemies.VerificationServices().NextRandom = () => 0x80;
+        enemies.VerificationServices().ReadRandom = () => 0x80;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);

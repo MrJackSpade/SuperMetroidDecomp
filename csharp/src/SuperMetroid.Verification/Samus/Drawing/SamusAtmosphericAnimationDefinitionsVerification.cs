@@ -53,7 +53,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
 
         var guarded = NewSamusAtmosphericAnimationReadGuard(rom);
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence());
-        Suite(nameof(VerifyNullAtmosphericPointerReadsMirroredWorkRam), () => VerifyNullAtmosphericPointerReadsMirroredWorkRam(rom));
+        Suite(nameof(VerifyNullAtmosphericPointerDrawsNothing), () => VerifyNullAtmosphericPointerDrawsNothing());
         Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(RoomFxType.Lava,
             SamusLiquidDamageDefinitions.Lava));
         Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(RoomFxType.Acid,
@@ -120,36 +120,20 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>Checks that a null bank 90 atmospheric pointer obtains OAM attributes from mirrored low WRAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: a null bank-$90 atmospheric pointer reads low WRAM through the $90:0000 system-bank mirror")]
-    private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
-        SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// Checks that the type-two footstep splash, whose cartridge list pointer is null, draws nothing: its native read
+    /// lands on direct-page scratch the port does not model (owner decision, #1318 row 6).
+    /// </summary>
+    private static void VerifyNullAtmosphericPointerDrawsNothing()
     {
-        byte originalLow = rom.ReadWorkRamByte(0x900000);
-        byte originalHigh = rom.ReadWorkRamByte(0x900001);
-        try
-        {
-            rom.WriteByte(0x900000, 0x5a);
-            rom.WriteByte(0x900001, 0x34);
-            var effects = new SamusAtmosphericEffectsState();
-            effects.SetSlot(0, 2, 0, animationTimer: 2,
-                anchor: new(100, 100));
-            var oamFrame = new SpriteFrameBuffer();
-            oamFrame.BeginFrame();
-            OamBuffer oam;
-            effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100, standardObjects: SpriteFrameTestArtwork.StandardObjects);
-            oam = oamFrame.FinalizeAsOam();
-            AssertEqual((byte)0x5a, oam.LowTable[2],
-                "null atmospheric pointer reads low OBJ attribute from mirrored WRAM");
-            AssertEqual((byte)0x34, oam.LowTable[3],
-                "null atmospheric pointer reads high OBJ attribute from mirrored WRAM");
-        }
-        finally
-        {
-            rom.WriteByte(0x900000, originalLow);
-            rom.WriteByte(0x900001, originalHigh);
-        }
+        var effects = new SamusAtmosphericEffectsState();
+        effects.SetSlot(0, 2, 0, animationTimer: 2,
+            anchor: new(100, 100));
+        var oamFrame = new SpriteFrameBuffer();
+        oamFrame.BeginFrame();
+        effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+        OamBuffer oam = oamFrame.FinalizeAsOam();
+        AssertEqual(0, oam.AppendedSpriteCount, "the null-pointer footstep splash draws nothing");
     }
 
     /// <summary>Checks the periodic whole and fractional damage installed for submerged Samus in lava or acid.</summary>

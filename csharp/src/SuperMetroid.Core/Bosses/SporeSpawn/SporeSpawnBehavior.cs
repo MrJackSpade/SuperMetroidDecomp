@@ -275,7 +275,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
         if (_frameContext._enemyFrameNmiFrameCounter % 16 == 0)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
                 new(unchecked((ushort)(random % 64 + 96)), unchecked((ushort)(SnesLittleEndian.HighByte(random) % 16 + 480))),
                 RoomSpriteObjectKind.DustCloud,
@@ -676,7 +676,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses one RNG word to place a hardening dust burst and request its sound.</summary>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 128 - 64))),
             MiscDustAnimation.BigDustCloud);
@@ -686,7 +686,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses one RNG word to place a dying explosion sprite and request its sound.</summary>
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 64 - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
@@ -699,7 +699,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int drop = 0; drop < 16; drop++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             ushort x = unchecked((ushort)(random % 128 + 64));
             ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(random) % 64 + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());

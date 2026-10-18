@@ -83,7 +83,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         SamusState? samus,
         RoomLevelData? level)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
 
         switch (state.Function)
         {

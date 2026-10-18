@@ -562,7 +562,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (torizo.Health is 0 or >= BombTorizoHeadExplosionHealth)
             return;
-        if (_room.Random.Read() is ushort random &&
+        if (_room.Random.Read() is int random &&
             (random & TorizoRandomDefinitions.LowHealthDroolMask) == 0)
         {
             SpawnBombTorizoInitialDrool(torizo);
@@ -1533,7 +1533,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolNoDelay));
 
-        ushort random;
+        int random;
         if (kind == RoomEnemyProjectileKind.BombTorizoLowHealthDrool)
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(SelectLowHealthDroolProgram(_room.Random.Generate())));
@@ -1591,7 +1591,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Applies the native <c>LSR / AND #$000E</c> index into the eight-entry <c>$86:A64D</c> low-health-drool list table,
     /// whose entries repeat the no-delay, two-frame and four-frame lists.
     /// </summary>
-    internal static TorizoProjectileProgram SelectLowHealthDroolProgram(ushort random) =>
+    internal static TorizoProjectileProgram SelectLowHealthDroolProgram(int random) =>
         (((random >> 2) & 7) % 3) switch
         {
             0 => TorizoProjectileProgram.DroolNoDelay,

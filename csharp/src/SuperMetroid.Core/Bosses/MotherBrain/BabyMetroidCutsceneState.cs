@@ -218,7 +218,7 @@ public sealed class BabyMetroidCutsceneState
         Position16<RoomPixels> head,
         Position16<RoomPixels> layer1 = default,
         int enemyFrameCounter = 0,
-        ushort randomNumber = 0)
+        int randomNumber = 0)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(motherBrain);

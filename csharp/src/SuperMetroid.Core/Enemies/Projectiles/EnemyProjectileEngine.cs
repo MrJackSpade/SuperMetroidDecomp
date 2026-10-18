@@ -1028,7 +1028,7 @@ internal sealed class EnemyProjectileEngine
         int mask,
         int center)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         ushort x = unchecked((ushort)(
             projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
@@ -1066,7 +1066,7 @@ internal sealed class EnemyProjectileEngine
         byte xCenter = checked((byte)scatter.Center.X);
         byte yMask = checked((byte)scatter.Range.Y);
         byte yCenter = checked((byte)scatter.Center.Y);
-        ushort signSample = _room.Random.Generate();
+        int signSample = _room.Random.Generate();
 
         int xOffset;
         do

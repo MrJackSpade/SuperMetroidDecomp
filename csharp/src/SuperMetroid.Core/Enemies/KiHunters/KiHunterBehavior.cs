@@ -392,7 +392,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         state.Function = KiHunterEnemyFunction.NoOp;
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         bool jumpLeft = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
             jumpLeft ? (short)-2 : (short)2,

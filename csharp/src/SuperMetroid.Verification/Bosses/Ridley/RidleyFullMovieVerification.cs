@@ -149,7 +149,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
         AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
         AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyBehavior.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
-        ushort random = runtime.System.RandomNumber;
+        int random = runtime.System.RandomNumber;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
         AssertEqual(ushort.MaxValue, state.FunctionTimer.RawValue, "terminal return retains expired countdown");
@@ -946,7 +946,7 @@ internal static class RidleyFullMovieVerification
         int loadingIntervals = 0;
         ushort[] CaptureLoadedOwners()
         {
-            var words = new List<ushort> { runtime.System.RandomNumber };
+            var words = new List<ushort> { checked((ushort)runtime.System.RandomNumber) };
             // The final scrolling IRQ publishes the visor before the deferred
             // loading owners reach their shared completion boundary. Check it there.
             for (int color = 0; color < SnesCgram.ColorCount; color++)

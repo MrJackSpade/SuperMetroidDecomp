@@ -139,7 +139,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
-                    ushort random = _room.Random.Read();
+                    int random = _room.Random.Read();
                     state.Behavior = (random & OwtchMovementDefinitions.BehaviorRandomBit) == 0
                         ? OwtchBehaviorState.MovingLeft
                         : OwtchBehaviorState.MovingRight;
@@ -186,7 +186,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Owtch's six-in-256 per-frame burial gate at $A2:A553.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         byte decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;

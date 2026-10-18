@@ -757,7 +757,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // a real $F337 actor from the head definition's item chances.
         for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
                 unchecked((ushort)((random & 127) + 64)),
                 unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128)));

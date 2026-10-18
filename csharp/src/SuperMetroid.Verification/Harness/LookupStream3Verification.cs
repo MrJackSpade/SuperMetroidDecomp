@@ -1297,7 +1297,7 @@ internal static class LookupStream3Verification
             {
                 scatter.DeathExplosionIntervalTimer = NativeCountdown.Start(0);
                 int calls = 0;
-                Func<ushort> random = () => { calls++; return ushort.MaxValue; };
+                Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
                 scatter.GenerateDeathExplosions(mixed, random, requests);
                 int group = 6 - burst % 7;

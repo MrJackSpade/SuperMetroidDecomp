@@ -368,7 +368,7 @@ internal sealed class RidleyTail
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if (SnesLittleEndian.HighByte(random) != byte.MaxValue)
             return;
         state.IdealInterSegmentTailAngle = random % 16 + 7 + 1;

@@ -369,7 +369,7 @@ internal static class FullMovieReplayVerification
     private static List<string> CompareMovieDesyncState(SuperMetroidGame game, NativeCheckpointMemory memory)
     {
         var mismatches = new List<string>();
-        void Check(string name, ushort actual, int address)
+        void Check(string name, int actual, int address)
         {
             ushort expected = Word(memory, address);
             if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");

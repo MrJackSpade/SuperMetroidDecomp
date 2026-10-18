@@ -672,7 +672,7 @@ public sealed class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(
             2, type: 5, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
-        ushort random = system.NextRandom();
+        int random = system.NextRandom();
         QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 15 : 17)), maximumQueued: 6);
     }
 

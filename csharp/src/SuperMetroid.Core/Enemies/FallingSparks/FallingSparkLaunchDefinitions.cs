@@ -8,7 +8,7 @@ public static class FallingSparkLaunchDefinitions
     /// The eighth RNG outcome reads F3F0/F3F2 instruction words DBBD/301A; retain
     /// that cartridge overread rather than inventing a symmetric positive speed.
     /// </summary>
-    public static (ushort Whole, ushort Fraction) FromRandom(ushort random) => ((random & 0x1c) >> 2) switch
+    public static (ushort Whole, ushort Fraction) FromRandom(int random) => ((random & 0x1c) >> 2) switch
     {
         0 => (0xffff, 0xb800),
         1 => (0xffff, 0xc000),

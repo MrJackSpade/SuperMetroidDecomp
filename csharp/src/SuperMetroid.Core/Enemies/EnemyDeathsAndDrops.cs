@@ -174,7 +174,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
             ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
@@ -189,7 +189,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             ushort x = unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16));
             ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);

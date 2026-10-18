@@ -130,9 +130,9 @@ public sealed class Bank80SystemState
     /// Creates state with a chosen RNG seed. The overload exists primarily so all 65,536
     /// input states can be checked against the original algorithm.
     /// </summary>
-    public Bank80SystemState(ushort randomNumberSeed)
+    public Bank80SystemState(int randomNumberSeed)
     {
-        RandomNumber = randomNumberSeed;
+        RandomState = new SharedRandomState(randomNumberSeed);
     }
 
     /// <summary>
@@ -194,10 +194,11 @@ public sealed class Bank80SystemState
         SavedLoadingGameState = mirror.LoadingGameState;
     }
 
-    /// <summary>
-    /// Current 16-bit RNG state, corresponding to WRAM <c>$05E5</c>.
-    /// </summary>
-    public ushort RandomNumber { get; private set; }
+    /// <summary>The shared RNG state, corresponding to WRAM <c>$05E5</c>.</summary>
+    public SharedRandomState RandomState { get; private set; }
+
+    /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
+    public int RandomNumber => RandomState.Value;
 
     /// <summary>
     /// Performs a direct write to the shared RNG word at WRAM <c>$05E5</c>. Most callers
@@ -209,7 +210,10 @@ public sealed class Bank80SystemState
     /// $A3:A325 both execute <c>STA $05E5</c> with <c>$000B</c>, so later unrelated random
     /// consumers must observe the replacement seed as well.
     /// </remarks>
-    public void SetRandomNumber(ushort value) => RandomNumber = value;
+    public void SetRandomNumber(int value) => RandomState = new SharedRandomState(value);
+
+    /// <summary>Stores the shared RNG state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
+    internal void SwapRandomBytes() => RandomState = RandomState.WithBytesSwapped();
 
     /// <summary>
     /// Most recently calculated held input, corresponding to WRAM <c>$05D9</c>.
@@ -259,34 +263,12 @@ public sealed class Bank80SystemState
     /// does, preserving the two byte-multiply results, high-byte addition carry,
     /// and final 16-bit wrapping addition. Every caller observes the updated seed.
     /// </summary>
-    /// <returns>The new 16-bit RNG state, also stored in <see cref="RandomNumber"/>.</returns>
-    public ushort NextRandom()
+    /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="RandomState"/>.</returns>
+    public int NextRandom()
     {
         RandomCallObserver?.Invoke();
-        // The ROM performs two separate 8x8 multiplies through the SNES hardware
-        // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
-        int lowByteProduct = (SnesLittleEndian.LowByte(RandomNumber)) * 5;
-
-        // The second hardware multiplication is read through an 8-bit accumulator, so
-        // only its low result byte participates directly in the next addition.
-        int highByteProductLow = unchecked((byte)(SnesLittleEndian.HighByte(RandomNumber) * 5));
-
-        // SEC makes the addition start with carry=1. It modifies the high byte of the
-        // first product. The ninth bit is retained separately as the processor carry.
-        int highByteSum = SnesLittleEndian.HighByte(unchecked((ushort)lowByteProduct)) + highByteProductLow + 1;
-
-        // STA $02,S replaces the saved product's high byte but, naturally, stores only
-        // eight bits. Reconstruct that post-STA stack word explicitly.
-        int savedProduct = SnesLittleEndian.Word(unchecked((byte)lowByteProduct), unchecked((byte)highByteSum));
-
-        // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
-        // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 17 + (SnesCarry.OutOfByte(highByteSum));
-
-        // A 65C816 accumulator wraps at 16 bits. The explicit unchecked cast documents
-        // that overflow is required behavior rather than an accidental omission.
-        RandomNumber = unchecked((ushort)result);
-        return RandomNumber;
+        RandomState = RandomState.Next();
+        return RandomState.Value;
     }
 
     /// <summary>

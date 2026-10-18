@@ -43,7 +43,7 @@ internal sealed class FallingSparksBehavior
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-        Func<ushort> nextRandom = _room.Random.Generate;
+        Func<int> nextRandom = _room.Random.Generate;
         (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
 
     }

@@ -1487,7 +1487,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         fragment.Timer = NativeCountdown.Start(0);
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
         var fragmentState = new RidleyExplosionFragmentState
         {

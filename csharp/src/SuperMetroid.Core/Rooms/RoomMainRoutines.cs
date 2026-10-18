@@ -143,7 +143,7 @@ internal sealed class RoomMainRoutines
             return;
 
         _room.RoomMainScratch.Countdown = NativeCountdown.Start(8);
-        ushort random = _system.RandomNumber;
+        int random = _system.RandomNumber;
         _enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark: unchecked((short)random) < 0);

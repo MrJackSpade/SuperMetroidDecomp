@@ -248,7 +248,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseEnemyState state)
     {
         state.FinishedEntryCount++;
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);

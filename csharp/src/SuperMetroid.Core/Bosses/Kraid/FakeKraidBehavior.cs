@@ -102,7 +102,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // The routine reads the already-published global random word; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older
         // isolated callers that did not expose that native seam.
-        ushort random = ReadFakeKraidRandomNumber();
+        int random = ReadFakeKraidRandomNumber();
         ushort seedDelay = unchecked((ushort)((random & 3) + 2));
         state.WalkStepTimer = NativeCountdown.FromRaw(seedDelay);
         state.SpitDecisionTimer = NativeCountdown.FromRaw(seedDelay);
@@ -323,7 +323,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Samples the room random word without advancing it for the native action choice.</summary>
-    private ushort ReadFakeKraidRandomNumber() =>
+    private int ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
 
     /// <summary>Tests the actor origin against the inclusive native 256-pixel camera rectangle for its cry.</summary>

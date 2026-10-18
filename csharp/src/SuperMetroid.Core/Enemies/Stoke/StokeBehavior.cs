@@ -140,7 +140,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // GenerateRandomNumber advances the global seed before the comparison. Only low
         // byte sums zero and one attack; byte wrapping is intentional and observable.
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         byte attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
         if (attackRoll >= 2)
             return;

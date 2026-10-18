@@ -17,6 +17,6 @@ internal static class NorfairLavaJumpDefinitions
     ];
 
     /// <summary>Selects the exact launch velocity from the current native RNG word.</summary>
-    internal static ushort InitialVerticalVelocity(ushort random) =>
+    internal static ushort InitialVerticalVelocity(int random) =>
         InitialVerticalVelocities[(random >> 9) & 3].RawValue;
 }

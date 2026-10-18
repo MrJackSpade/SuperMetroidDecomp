@@ -20,7 +20,7 @@ internal static class MetroidBehaviorDefinitions
     }
 
     /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c> at $A3:EAD6 preserves the native2/3/3 choice distribution and order.</summary>
-    internal static SoundEffectId RandomCrySoundEffect(ushort random) => (random & 7) switch
+    internal static SoundEffectId RandomCrySoundEffect(int random) => (random & 7) switch
     {
         0 or 3 => FirstCry,
         1 or 4 or 6 => SecondCry,

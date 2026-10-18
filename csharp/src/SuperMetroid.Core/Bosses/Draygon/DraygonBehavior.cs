@@ -502,7 +502,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SwoopOffset == state.SwoopEndOffset)
         {
             state.SwoopOffset = 0;
-            ushort random = _room.Random.Read();
+            int random = _room.Random.Read();
             state.Function = (random & 1) != 0
                 ? DraygonAiFunction.SwoopLeftSetup
                 : DraygonAiFunction.GoopLeftSetup;
@@ -603,7 +603,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopOffset = state.SwoopOffset + 4;
         if (state.SwoopOffset == state.SwoopEndOffset)
         {
-            ushort random = _room.Random.Read();
+            int random = _room.Random.Read();
             body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
             if ((random & 1) != 0)
             {
@@ -709,7 +709,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if ((random & 15) == 0)
         {
             state.GoopCounter = state.GoopCounter.Decrement().Remaining;
@@ -973,7 +973,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $A5:87AA tests NMI_FrameCounter ($05B6), then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         state.TurretCadenceChecks++;
         if (samus is not null)
             SpawnDraygonWallTurret(state, samus, random);
@@ -1379,7 +1379,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((frameCounterLow & 7) != 0)
             return;
 
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         ushort x = unchecked((ushort)((random & 127) + 192));
         ushort y = unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 400));
         if (_spriteObjects.SpawnRoomSpriteObject(new(x, y), RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
@@ -1391,7 +1391,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         DraygonEnemyState state,
         RoomSpriteObjectKind kind)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         short xOffset = unchecked((short)((random & 127) - 64));
         short yOffset = unchecked((short)((SnesLittleEndian.HighByte(random) & 127) - 64));
         if (_spriteObjects.SpawnRoomSpriteObject(
@@ -1883,7 +1883,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnDraygonWallTurret(
         DraygonEnemyState state,
         SamusState samus,
-        ushort random)
+        int random)
     {
         DraygonCannonTarget target = DraygonCannonData.FiringTarget(
             ClosedNativeWords.Decode<DraygonFiringCannon>((byte)(random & 3), "Draygon firing cannon"));
@@ -1941,7 +1941,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         byte angle = unchecked((byte)((random & 63) + (movingRight ? 192 : 128)));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;

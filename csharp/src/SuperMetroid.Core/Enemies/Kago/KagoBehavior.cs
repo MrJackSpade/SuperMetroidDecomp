@@ -398,7 +398,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Samples the shared random word without consuming a new value, matching the bug routines' seed reuse.</summary>
-    private ushort ReadKagoRandomNumber() =>
+    private int ReadKagoRandomNumber() =>
         _room.Random.Read();
 
     /// <inheritdoc/>

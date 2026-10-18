@@ -38,7 +38,7 @@ internal static class SuperMetroidGameAccess
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
-        internal ushort DispatcherRandomNumber => self.Session.FrontendRandomOwner.RandomNumber;
+        internal int DispatcherRandomNumber => self.Session.FrontendRandomOwner.RandomNumber;
 
         /// <summary>
         /// Initialize the ordinary gameplay runtime for a friend verifier that

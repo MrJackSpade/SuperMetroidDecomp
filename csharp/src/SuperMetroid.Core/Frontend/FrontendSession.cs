@@ -331,7 +331,7 @@ internal sealed class FrontendSession
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
     internal void CreateGameplayRuntime(bool forAttractDemo = false)
     {
-        ushort incomingRandom = FrontendRandomOwner.RandomNumber;
+        int incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
             menuLayer1.RetainFrom(runtime);
         runtime = new SuperMetroidRuntime(ConfiguredOptions.RuntimeOverrides(forAttractDemo), Artwork.GameplayBasePalettes, frameClock, mode7QueueResidue);

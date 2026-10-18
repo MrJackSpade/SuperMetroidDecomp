@@ -675,7 +675,7 @@ internal static class RoomFxRetailInventoryVerification
             // total from the old global RNG sequence. The bank-$88 HDMA prologue
             // samples the shared RNG before swapping it and before the main loop
             // advances it.
-            ushort sampledRandom = runtime.System.RandomNumber;
+            int sampledRandom = runtime.System.RandomNumber;
             int expectedRequests = 0;
             if (frame >= 1 && frame <= RetailRoomFxDefinitions.Room28TargetFrame && --referenceSoundTimer < 0)
             {

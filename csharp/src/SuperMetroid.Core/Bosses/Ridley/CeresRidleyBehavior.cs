@@ -604,7 +604,7 @@ internal sealed class CeresRidleyBehavior
     private void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         ushort jitter = (ushort)(random & 7);
         if (unchecked((short)random) < 0)
             jitter = unchecked((ushort)-jitter);

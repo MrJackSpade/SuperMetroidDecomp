@@ -101,7 +101,7 @@ internal sealed class EscapeRoomEffects
         }
         if (!_freeze.TimeIsFrozen && (_clock.Counter & (nonblank ? 1 : 3)) == 0)
         {
-            ushort random = _system.NextRandom();
+            int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
                 unchecked((ushort)(_room.Camera.PixelPosition.X + (byte)random)),
                 unchecked((ushort)(_room.Camera.PixelPosition.Y + (SnesLittleEndian.HighByte(random)))));

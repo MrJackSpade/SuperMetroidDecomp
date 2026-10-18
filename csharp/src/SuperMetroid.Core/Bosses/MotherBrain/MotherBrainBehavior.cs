@@ -2033,7 +2033,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // `$A9:8904` samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
-        ushort sampledRandom = _room.Random.Read();
+        int sampledRandom = _room.Random.Read();
         MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animation);
         state.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion;
@@ -2642,10 +2642,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
         state.HandBeamNextPosition = beam.Position;
 
-        ushort angleRandom = _room.Random.Generate();
+        int angleRandom = _room.Random.Generate();
         byte scatterAngle = unchecked((byte)(
             state.HandBeamNextAngle + unchecked((byte)angleRandom)));
-        ushort speedRandom = _room.Random.Generate();
+        int speedRandom = _room.Random.Generate();
         // Bits 8 to 10 of the random word: a whole speed of zero to seven.
         ushort scatterSpeed = SnesLittleEndian.Word(0, (byte)(SnesLittleEndian.HighByte(speedRandom) & 7));
         beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(scatterSpeed, scatterAngle)));
@@ -3001,7 +3001,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodySubFunctionTimer = NativeCountdown.Start(7);
 
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue];
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         MiscDustAnimation animation = (SnesLittleEndian.HighByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, 212), animation);
         state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust;
@@ -3101,7 +3101,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if (state.Head.Health >= 4500)
         {
             if (random < 4096)
@@ -3264,7 +3264,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>$A9:B781-B7AB</c>, including its immediate posture decision.</summary>
     private void DecideMotherBrainBombWalking(MotherBrainEnemyState state)
     {
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         if (random < 65408)
         {
             ushort targetX = random >= 24576 ? (ushort)64 : (ushort)96;

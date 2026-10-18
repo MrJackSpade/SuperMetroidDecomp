@@ -403,7 +403,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
-            ushort random = _room.Random.Generate();
+            int random = _room.Random.Generate();
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & EnemyDropMasks.ScatterBits) - 16)),

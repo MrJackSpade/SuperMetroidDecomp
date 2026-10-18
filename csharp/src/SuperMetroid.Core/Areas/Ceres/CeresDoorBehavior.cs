@@ -252,7 +252,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || !_earthquake.EarthquakeTimer.IsZero)
             return;
 
-        Func<ushort> readRandomNumber = _room.Random.Read;
+        Func<int> readRandomNumber = _room.Random.Read;
         // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
         ushort lowTwelveBits = unchecked((ushort)(readRandomNumber() % 4096));
         if (lowTwelveBits < 128)
@@ -300,7 +300,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
-        ushort randomNumber = _room.Random.Generate();
+        int randomNumber = _room.Random.Generate();
         MiscDustAnimation animation = randomNumber < 16384
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;

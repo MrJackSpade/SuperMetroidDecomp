@@ -1091,7 +1091,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         death.AcidSmokeTimer = NativeCountdown.Start(6);
 
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         ushort xOffset = unchecked((ushort)(random & 63));
         if ((random & 2) == 0)
             xOffset = unchecked((ushort)~xOffset);
@@ -1500,7 +1500,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.FightFunction = CrocomireFightFunction.BackingOffSpikeWall;
                     return CrocomireBodyProgram.BackOffFromSpikeWall;
                 }
-                ushort random = ReadCrocomireRandom();
+                int random = ReadCrocomireRandom();
                 int baseOffset = unchecked((short)(random - 2048)) >= 0 ? -32 : 32;
                 SpawnCrocomireDust(state, baseOffset + (random & 15));
                 return null;
@@ -1785,12 +1785,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(pixels));
 
     /// <summary>Consumes the room's next RNG word for Crocomire effects and choices.</summary>
-    private ushort ReadCrocomireRandom() => _room.Random.Read();
+    private int ReadCrocomireRandom() => _room.Random.Read();
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
     {
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         int offset = random & 31;
         if (unchecked((short)(random - 4096)) >= 0)
             offset = -offset;
@@ -1800,7 +1800,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places a foot dust puff at the body offset with an additional three-bit RNG jitter.</summary>
     private void SpawnCrocomireDust(CrocomireEnemyState state, int xOffset)
     {
-        ushort random = ReadCrocomireRandom();
+        int random = ReadCrocomireRandom();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset + (random & 7))), unchecked((ushort)(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16))),
             MiscDustAnimation.BigDustCloud);

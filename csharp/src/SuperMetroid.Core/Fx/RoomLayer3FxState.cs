@@ -166,7 +166,7 @@ public sealed class RoomLayer3FxState
         SnesCgram cgram,
         ushort fxPointer,
         ushort doorPointer,
-        ushort randomNumber,
+        int randomNumber,
         ushort roomHeaderPointer = 0) =>
         LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
 
@@ -292,10 +292,10 @@ public sealed class RoomLayer3FxState
             AdvanceLiquidMotion(system.RandomNumber, system.MainGameLoopCarry);
             return;
         }
-        ushort random = system.RandomNumber;
+        int random = system.RandomNumber;
         AdvanceLiquidMotion(random, system.MainGameLoopCarry);
         QueueLavaAmbientSound(random);
-        system.SetRandomNumber(SnesLittleEndian.SwapBytes(random));
+        system.SwapRandomBytes();
     }
 
     /// <summary>
@@ -303,7 +303,7 @@ public sealed class RoomLayer3FxState
     /// counts down and, on reaching zero, reloads and queues a random ambient sound.
     /// Acid shares the pre-instruction but not this sound.
     /// </summary>
-    private void QueueLavaAmbientSound(ushort random)
+    private void QueueLavaAmbientSound(int random)
     {
         if (Type != RoomFxType.Lava || unchecked((short)Surface.Y) < 0)
             return;

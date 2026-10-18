@@ -38,7 +38,7 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
     {
         var state = new Bank80SystemState((ushort)seed);
         ushort expected = ReferenceNextRandom((ushort)seed);
-        ushort actual = state.NextRandom();
+        int actual = state.NextRandom();
         AssertEqual(expected, actual, $"RNG seed ${seed:X4}");
         AssertEqual(actual, state.RandomNumber, $"RNG stored state for seed ${seed:X4}");
     }
@@ -53,13 +53,13 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
 /// </summary>
 internal static void VerifyKnownRandomSequence()
 {
-    ushort[] expected = [
+    int[] expected = [
         0x02f6, 0x0fdf, 0x506c, 0x932d,
         0xe0f2, 0x65cb, 0xfe08, 0xf739,
     ];
 
     var state = new Bank80SystemState();
-    ushort[] actual = Enumerable.Range(0, expected.Length)
+    int[] actual = Enumerable.Range(0, expected.Length)
         .Select(_ => state.NextRandom())
         .ToArray();
     AssertSequenceEqual(expected, actual, "known RNG sequence");

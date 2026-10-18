@@ -47,6 +47,6 @@ internal sealed class EnemyPlmSpawns(
         bombTorizo.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <inheritdoc/>
-    public void SpawnEscapeExplosion(Position16<RoomPixels> position, ushort random, ushort inheritedX) =>
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, ushort inheritedX) =>
         escapeExplosions.SpawnEscapeExplosion(position, random, inheritedX);
 }

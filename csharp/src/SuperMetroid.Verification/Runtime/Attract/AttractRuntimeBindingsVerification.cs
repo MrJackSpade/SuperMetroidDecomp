@@ -40,7 +40,7 @@ internal static class AttractRuntimeBindingsVerification
             StandardObjectArt = objects,
         });
         var create = new Action<bool>(game.Session.CreateGameplayRuntime);
-        ushort incomingRandom = game.DispatcherRandomNumber;
+        int incomingRandom = game.DispatcherRandomNumber;
         create(true);
         var demo = game.Session.GameplayRuntime;
         AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");

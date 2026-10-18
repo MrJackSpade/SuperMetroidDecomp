@@ -919,7 +919,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     internal void GenerateDeathExplosions(
         bool mixed,
-        Func<ushort>? nextRandomNumber,
+        Func<int>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
         // `$B03E` decrements before testing BPL. A cleared timer therefore wraps and emits
@@ -947,7 +947,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     "Mother Brain death explosions require the global next-random-number producer.");
             }
 
-            ushort random = nextRandomNumber();
+            int random = nextRandomNumber();
             int parameter = mixed
                 ? random < 16384 ? 0 : random < 57344 ? 1 : 2
                 : 1;
@@ -964,7 +964,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Returns no request on frames before the shared interval timer expires.
     /// </summary>
     private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
-        Func<ushort>? nextRandomNumber)
+        Func<int>? nextRandomNumber)
     {
         // `$B346` shares the old death-explosion interval word but replaces its cadence with
         // four. A cleared word underflows on the first call, so a new explosion is immediate.
@@ -999,7 +999,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // Native `$B377` advances the one shared RNG exactly once per emitted projectile.
         // Values below a quarter of the range select the smoke animation ($0C); all remaining
         // values retain the preloaded small explosion ($03).
-        ushort random = nextRandomNumber();
+        int random = nextRandomNumber();
         MiscDustAnimation animation = random < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         return new MotherBrainEscapeDoorExplosionRequest(
             Position: position,

@@ -82,7 +82,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
 
         switch (state.Function)
         {

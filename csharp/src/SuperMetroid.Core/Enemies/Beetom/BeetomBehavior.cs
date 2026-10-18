@@ -90,7 +90,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
         // a room. This is observable cartridge behavior, not a per-actor random stream.
-        Action<ushort> setRandomNumber = _room.Random.Seed;
+        Action<int> setRandomNumber = _room.Random.Seed;
         setRandomNumber(23);
 
         state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 4);
@@ -230,7 +230,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses the shared native RNG's low three bits to choose an idle or hop branch.</summary>
     internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
-        ushort random = _room.Random.Generate();
+        int random = _room.Random.Generate();
         state.Function = (random & 7) switch
         {
             0 or 1 => BeetomEnemyFunction.StartIdling,

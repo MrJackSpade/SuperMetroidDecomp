@@ -351,7 +351,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        Func<ushort> readRandomNumber = _room.Random.Read;
+        Func<int> readRandomNumber = _room.Random.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = NativeCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0

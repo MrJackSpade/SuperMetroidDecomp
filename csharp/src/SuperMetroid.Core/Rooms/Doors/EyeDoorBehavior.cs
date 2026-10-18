@@ -134,7 +134,7 @@ internal sealed class EyeDoorBehavior
         MiscDustPlacementDefinition placement =
             MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
 
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 

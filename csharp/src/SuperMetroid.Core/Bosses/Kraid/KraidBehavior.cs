@@ -1865,7 +1865,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
         RoomEnemySlot sibling = _slotTable._slots[siblingIndex];
         KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         (ushort xFraction, ushort xWhole, ushort yFraction, ushort yWhole) =
             KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailVelocity = FixedVector<RoomPixels>.FromWords(xWhole, xFraction, yWhole, yFraction);
@@ -2318,7 +2318,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.KraidSpitRock,
             graphicsIndex: EnemyPaletteBits.Palette3);
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
-        ushort random = ReadKraidRandomNumber();
+        int random = ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + 16)), unchecked((ushort)(body.Position.Y.Whole - 96))));
         rock.Velocity = rock.Velocity.WithX(new SnesSignedEightEight(KraidRockLaunchDefinitions.FromRandom(random)));
         rock.Velocity = rock.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-1024));
@@ -2330,7 +2330,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RequestKraidRisingRock(RoomEnemySlot body, KraidEnemyState state)
     {
         state.RiseRockSpawnRequestCount++;
-        ushort random = ReadKraidRandomNumber();
+        int random = ReadKraidRandomNumber();
         RoomEnemyProjectileKind kind = (random & 16) != 0
             ? RoomEnemyProjectileKind.KraidRisingRockRight
             : RoomEnemyProjectileKind.KraidRisingRockLeft;
@@ -2404,7 +2404,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>
-    private ushort ReadKraidRandomNumber() =>
+    private int ReadKraidRandomNumber() =>
         _room.Random.Read();
     /// <summary>Dispatches the authored vertical rise and pause functions.</summary>
     internal void RunKraidRiseFunction(
@@ -2537,7 +2537,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Derives a nonzero multiple-of-64 thinking delay from the room RNG.</summary>
     private ushort ReadKraidThinkingTimer()
     {
-        ushort random = _room.Random.Read();
+        int random = _room.Random.Read();
         int value = random & 7;
         if (value == 0)
             value = 2;

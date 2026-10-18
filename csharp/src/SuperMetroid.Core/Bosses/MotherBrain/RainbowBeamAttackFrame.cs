@@ -16,7 +16,7 @@ public sealed record RainbowBeamAttackFrame
     public MotherBrainRandomSample RandomNumberSeed { get; init; } = MotherBrainRandomSample.FromGenerator(0);
 
     /// <summary>Next random number.</summary>
-    public Func<ushort>? NextRandomNumber { get; init; } = null;
+    public Func<int>? NextRandomNumber { get; init; } = null;
 
     /// <summary>Alternate escape text.</summary>
     public bool AlternateEscapeText { get; init; } = false;

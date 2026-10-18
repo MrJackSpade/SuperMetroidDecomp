@@ -24,7 +24,7 @@ public readonly record struct MotherBrainRandomSample
     private int Value { get; }
 
     /// <summary>Samples the generator's current value exactly.</summary>
-    public static MotherBrainRandomSample FromGenerator(ushort value) => new(value);
+    public static MotherBrainRandomSample FromGenerator(int value) => new(Ensure.BetweenInclusive(0, ValueCount - 1, value));
 
     /// <summary>Whether the number's top bit is set, so it reads as negative when treated as signed.</summary>
     public bool IsNegative => Value >= NegativeThreshold;

@@ -38,7 +38,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
     {
-        Action<ushort> setRandomNumber = _room.Random.Seed;
+        Action<int> setRandomNumber = _room.Random.Seed;
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);

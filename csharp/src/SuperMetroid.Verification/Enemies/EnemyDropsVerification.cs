@@ -401,7 +401,7 @@ internal static class EnemyDropsVerification
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
         Queue<ushort> random = new(randomValues);
-        ushort NextRandom() => random.Count == 0 ? (ushort)1 : random.Dequeue();
+        int NextRandom() => random.Count == 0 ? 1 : random.Dequeue();
 
         RoomLevelData level = CreateRoom(new(1, 1),
             new ushort[1],

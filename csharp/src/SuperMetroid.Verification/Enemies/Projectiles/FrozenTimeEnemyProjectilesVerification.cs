@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces enemy death-explosion animation during a reserve-refill
 /// gameplay freeze, when projectile instructions still advance.</summary>
@@ -23,7 +24,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         runtime.Player.IntroducedSamus.InputLocked = true;
         RoomEnemySlot victim = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, (ushort)2);

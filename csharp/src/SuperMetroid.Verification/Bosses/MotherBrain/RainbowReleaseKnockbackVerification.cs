@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Samus's movement on the frame Mother Brain releases the rainbow beam lock.</summary>
 internal static class RainbowReleaseKnockbackVerification
@@ -21,7 +22,7 @@ internal static class RainbowReleaseKnockbackVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x00eb, 0x007d));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);

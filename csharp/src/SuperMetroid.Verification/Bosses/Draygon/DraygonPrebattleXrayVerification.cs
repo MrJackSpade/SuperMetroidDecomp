@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification
@@ -29,7 +30,7 @@ internal static class DraygonPrebattleXrayVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;

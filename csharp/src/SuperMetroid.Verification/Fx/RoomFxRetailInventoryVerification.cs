@@ -91,7 +91,7 @@ internal static class RoomFxRetailInventoryVerification
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
         ILookup<ushort, CartridgeDoorHeader> incomingDoors = doors
-            .ToLookup(door => door.DestinationRoomPointer);
+            .ToLookup(door => RoomHeaderDefinitions.PointerOf(door.DestinationRoom));
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
         var knownExamples = new Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>>();
@@ -123,7 +123,7 @@ internal static class RoomFxRetailInventoryVerification
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out CartridgeDoorHeader? fxDoor),
                     $"room {room.Identity} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
-                AssertEqual(room.Pointer, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoomPointer,
+                AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
                     $"FX-specific door $83:{recordDoor:X4} enters room {room.Identity}");
             }
 
@@ -596,7 +596,7 @@ internal static class RoomFxRetailInventoryVerification
         };
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == definition.EntryDoor);
-        AssertEqual(room.Pointer, door.DestinationRoomPointer,
+        AssertEqual(room.Definition, door.DestinationRoom,
             $"rising-lava door $83:{door.Pointer:X4} destination");
 
         var vram = new SnesVram();
@@ -609,7 +609,7 @@ internal static class RoomFxRetailInventoryVerification
             room.State.FxPointer,
             door.Pointer,
             randomNumber: 0,
-            roomHeaderPointer: room.Pointer);
+            room: room.Definition);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
         AssertEqual(definition.InitialY, fx.BaseY.Whole,
             $"room {definition.Room} initial lava Y");

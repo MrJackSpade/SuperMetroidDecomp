@@ -100,7 +100,7 @@ internal sealed class DebuggerSaveStateStore
             DateTimeOffset.UtcNow,
             checked((ushort)game.FrameNumber),
             game.GameState,
-            game.GameplayActiveRoomPointer,
+            game.GameplayActiveRoom?.Name,
             game.GameplayActiveRoomStatePointer,
             destination);
 
@@ -124,7 +124,7 @@ internal sealed class DebuggerSaveStateStore
                 writer.Write(metadata.SavedUtc.UtcTicks);
                 writer.Write(metadata.FrameNumber);
                 writer.Write((ushort)metadata.GameState);
-                WriteNullableWord(writer, metadata.RoomPointer);
+                WriteNullableString(writer, metadata.Room);
                 WriteNullableWord(writer, metadata.RoomStatePointer);
                 writer.Flush();
 
@@ -192,7 +192,7 @@ internal sealed class DebuggerSaveStateStore
         DateTimeOffset savedUtc = new(reader.ReadInt64(), TimeSpan.Zero);
         ushort frame = reader.ReadUInt16();
         SuperMetroidGameState gameState = (SuperMetroidGameState)reader.ReadUInt16();
-        ushort? room = ReadNullableWord(reader);
+        string? room = ReadNullableString(reader);
         ushort? roomState = ReadNullableWord(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
         DebuggerSaveStateRoot root;
@@ -210,7 +210,7 @@ internal sealed class DebuggerSaveStateStore
         }
         EnsureRomMatches(root.AddressSpace);
         if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
-            root.Game.GameplayActiveRoomPointer != room ||
+            root.Game.GameplayActiveRoom?.Name != room ||
             root.Game.GameplayActiveRoomStatePointer != roomState)
         {
             throw new InvalidDataException(
@@ -319,7 +319,19 @@ internal sealed class DebuggerSaveStateStore
         return bytes;
     }
 
-    /// <summary>Writes a room or room-state pointer as a presence byte followed by its native word.</summary>
+    /// <summary>Writes a room name as a presence byte followed by the string.</summary>
+    private static void WriteNullableString(BinaryWriter writer, string? value)
+    {
+        writer.Write(value is not null);
+        if (value is not null)
+            writer.Write(value);
+    }
+
+    /// <summary>Restores an optional room name using the state format's presence byte.</summary>
+    private static string? ReadNullableString(BinaryReader reader) =>
+        reader.ReadBoolean() ? reader.ReadString() : null;
+
+    /// <summary>Writes a room-state pointer as a presence byte followed by its native word.</summary>
     private static void WriteNullableWord(BinaryWriter writer, ushort? value)
     {
         writer.Write(value.HasValue);
@@ -327,7 +339,7 @@ internal sealed class DebuggerSaveStateStore
             writer.Write(value.Value);
     }
 
-    /// <summary>Restores an optional room pointer using the state format's presence byte.</summary>
+    /// <summary>Restores an optional room-state pointer using the state format's presence byte.</summary>
     private static ushort? ReadNullableWord(BinaryReader reader) =>
         reader.ReadBoolean() ? reader.ReadUInt16() : null;
 

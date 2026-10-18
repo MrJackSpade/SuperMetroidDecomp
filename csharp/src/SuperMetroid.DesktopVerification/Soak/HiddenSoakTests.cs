@@ -15,6 +15,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Measures paced hidden-window gameplay and pause rendering with real audio output.</summary>
 internal static class HiddenSoakTests
@@ -39,7 +40,7 @@ internal static class HiddenSoakTests
                 Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
-            ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
+            RoomHeaderDefinition room = paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             Step(0);
@@ -84,7 +85,7 @@ internal static class HiddenSoakTests
                 Array.Sort(producerMs); Array.Sort(latenessMs);
                 results.Add(new
                 {
-                    Room = $"8F:{room:X4}", Paused = paused, Adapter = adapter, Seconds = clock.Elapsed.TotalSeconds, Frames = frames,
+                    Room = room.Name, Paused = paused, Adapter = adapter, Seconds = clock.Elapsed.TotalSeconds, Frames = frames,
                     ProducerP50Ms = producerMs[(int)Math.Ceiling(frames * .5) - 1],
                     ProducerP95Ms = producerMs[(int)Math.Ceiling(frames * .95) - 1],
                     ProducerP99Ms = producerMs[(int)Math.Ceiling(frames * .99) - 1],

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Mother Brain's persistent head collision frame separately from her drawn brain animation.</summary>
 internal static class MotherBrainHeadHitboxVerification
@@ -27,7 +28,7 @@ internal static class MotherBrainHeadHitboxVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head;

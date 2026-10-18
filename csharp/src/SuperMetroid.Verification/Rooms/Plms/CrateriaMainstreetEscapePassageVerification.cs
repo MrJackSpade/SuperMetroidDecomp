@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the escape passage PLM spawned by Crateria mainstreet setup.</summary>
 internal static class CrateriaMainstreetEscapePassageVerification
@@ -24,7 +25,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
             if (crittersEscaped)
                 runtime.System.SetEvent(EventNumber.CrittersEscaped);
-            runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.CrateriaMainstreet);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
             runtime.StepFrame(0);
             runtime.StepFrame(0);
             return runtime.Room.LoadedLevelData;

@@ -155,7 +155,7 @@ public static class RoomVisualLayoutFiles
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
             int width = header.Size.ToRoomBlocks().X;
-            foreach (ushort pointer in RoomStateSelectionDefinitions.GetStatePointers(header.Pointer))
+            foreach (ushort pointer in RoomStateSelectionDefinitions.GetStatePointers(header))
             {
                 int source = RoomStateDefinitions.Get(pointer).CompressedLevelDataAddress;
                 if (sources.TryGetValue(source, out int existing) && existing != width)

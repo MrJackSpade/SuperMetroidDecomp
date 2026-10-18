@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {
@@ -32,7 +33,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-        runtime.LoadCartridgeRoomForDebug(0x91f8);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);

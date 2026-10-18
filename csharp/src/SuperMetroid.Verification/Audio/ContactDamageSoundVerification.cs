@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the Sciser contact-damage sound that delayed a door transition in the 13% recording.</summary>
 internal static class ContactDamageSoundVerification
@@ -25,7 +26,7 @@ internal static class ContactDamageSoundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         RoomEnemySlot sciser = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);

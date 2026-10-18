@@ -27,7 +27,7 @@ internal static class GateBeamCollisionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(140, 360)),
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.Room.LoadedLevelData;

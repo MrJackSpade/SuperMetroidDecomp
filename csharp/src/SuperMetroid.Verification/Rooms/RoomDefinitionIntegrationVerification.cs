@@ -129,7 +129,7 @@ internal static class RoomDefinitionIntegrationVerification
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
             if (door.SetupCodePointer != DoorSetupCode.None)
             {
-                forbidden.Add(RoomHeaderRomData.BankAddress |
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress |
                     (ushort)door.SetupCodePointer);
             }
         }
@@ -156,7 +156,7 @@ internal static class RoomDefinitionIntegrationVerification
             RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
             DoorListDefinition doors = DoorDefinitionsTooling.GetList(header.DoorListPointer);
             AddAddressRange(forbidden,
-                RoomHeaderRomData.BankAddress | header.DoorListPointer,
+                RoomHeaderRomDataConstants.BankAddress | header.DoorListPointer,
                 doors.DoorPointers.Length * sizeof(ushort));
         }
 
@@ -175,13 +175,13 @@ internal static class RoomDefinitionIntegrationVerification
         {
             ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
             if (pointer != 0)
-                forbidden.Add(RoomHeaderRomData.BankAddress | pointer);
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }
         foreach (RoomSetupCallback callback in Enum.GetValues<RoomSetupCallback>())
         {
             ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
             if (pointer != 0)
-                forbidden.Add(RoomHeaderRomData.BankAddress | pointer);
+                forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, statePointers.Count,

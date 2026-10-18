@@ -580,10 +580,6 @@ internal static class NativeSnapshotMemory
     public const int PlmHeaders = 0x1c37;
     /// <summary>$0998: game_state, imported from the original movie.</summary>
     public const int GameState = 0x998;
-    /// <summary>$8F:B37A: room containing the movie's initial snapshot.</summary>
-    public const ushort SourceRoom = 0xb37a;
-    /// <summary>$8F:B32E: Ridley's room, entered in the supplied movie.</summary>
-    public const ushort RidleyRoom = 0xb32e;
     /// <summary>$80:9459: ReadControllerInput, accepted-NMI input checkpoint.</summary>
     public const int ReadControllerInput = 0x809459;
     /// <summary>$B3:8A25: strong pipe-bug visual cursor in native update 157.</summary>

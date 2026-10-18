@@ -38,7 +38,7 @@ internal static class RoomScrollDefinitionsVerification
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
             CartridgeRoomHeader header = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                roomPointer, context);
+                RoomHeaderDefinitions.Get(roomPointer), context);
             if (!auditedStates.Add(header.State.Pointer))
                 continue;
 
@@ -97,9 +97,8 @@ internal static class RoomScrollDefinitionsVerification
             () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), [0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
-        ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
         CartridgeRoomHeader ceres = CartridgeRoomHeader.LoadUsingCompiledSelection(
-            ceresPointer);
+            LoadStationDefinitions.Get(AreaId.Ceres, 0).Room ?? throw new InvalidDataException("Ceres station has no room."));
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll allocation starts zeroed, so Ceres's tail past its cells reads zero.
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];

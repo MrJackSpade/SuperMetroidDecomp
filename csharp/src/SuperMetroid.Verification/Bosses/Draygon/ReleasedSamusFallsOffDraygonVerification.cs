@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Samus's same-frame fall after a dead Draygon releases her during enemy AI.</summary>
 internal static class ReleasedSamusFallsOffDraygonVerification
@@ -27,7 +28,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         DraygonEnemyState draygon = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.

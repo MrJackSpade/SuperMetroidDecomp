@@ -27,7 +27,7 @@ internal static class RetailSaveCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaSave, new Position16<RoomPixels>(0, 0));
         var station = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;

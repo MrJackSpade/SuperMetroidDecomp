@@ -9,7 +9,8 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
-using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
@@ -35,7 +36,7 @@ public static class GitHubErrorReporterSmokeTest
                 GameState: "$08 MainGameplay",
                 Phase: "Gameplay",
                 ControllerInput: SnesButton.A,
-                RoomPointer: 0x96BA,
+                Room: "Climb",
                 DoorPointer: 0x8BB6,
                 InputRecordingPath: "fixture.smrec",
                 FrameDiagnostics: frameDiagnostics);
@@ -52,7 +53,7 @@ public static class GitHubErrorReporterSmokeTest
                 "grapple/type-C/bts-45", "block 99 (4,5)", true);
             var otherDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
                 "grapple/type-C/bts-4F", "block 12 (2,3)", true);
-            var otherRoom = context with { RoomPointer = 0xda60, InputRecordingPath = "new-run.smrec" };
+            var otherRoom = context with { Room = "Draygon", InputRecordingPath = "new-run.smrec" };
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),
                 "Room-independent dispatch split by block/room location.");
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) != GitHubErrorReporter.CreateFingerprint(otherDispatch, context),
@@ -80,7 +81,7 @@ public static class GitHubErrorReporterSmokeTest
         Require(created.Body.Contains($"supermetroid-error-id:{repeatedFingerprint}",
                 StringComparison.Ordinal),
             "Created issue body omitted its machine-readable fingerprint marker.");
-        Require(created.Body.Contains("$8F:96BA", StringComparison.Ordinal) &&
+        Require(created.Body.Contains("- Room: Climb", StringComparison.Ordinal) &&
                 created.Body.Contains("$83:8BB6", StringComparison.Ordinal) &&
                 created.Body.Contains(repeated.ToString(), StringComparison.Ordinal),
             "Created issue omitted frame context or the complete exception.");

@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks migrated Tourian statue eye positions and animated-tile control against the cartridge.</summary>
 internal static class TourianStatueUnlockDefinitionsVerification
@@ -131,7 +132,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
         runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);

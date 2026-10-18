@@ -296,9 +296,9 @@ public static class GameplayDisplayCapture
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         GameplayNmiDisplayLatch latched = frame.Latched;
         GameplayLatchedSceneRegisters scene = latched.Scene;
-        ushort roomPointer = scene.RoomPointer ?? throw new InvalidOperationException("X-ray has no room.");
+        RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var ppu = latched.Ppu;
-        var mode = XrayRoomDisplayRules.Select(roomPointer, scene.FxType, scene.BossId);
+        var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
         byte[] bytes = basis.Memory.Vram.ToArray();
         var registers = ordinary.Registers;
@@ -322,7 +322,7 @@ public static class GameplayDisplayCapture
         }
         registers = registers with
         {
-            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(roomPointer) && mode == XrayRoomBlendMode.PreserveBackgrounds
+            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(xrayRoom) && mode == XrayRoomBlendMode.PreserveBackgrounds
                 ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                 : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
         };

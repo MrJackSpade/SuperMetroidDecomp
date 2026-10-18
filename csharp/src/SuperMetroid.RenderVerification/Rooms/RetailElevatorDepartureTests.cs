@@ -31,7 +31,7 @@ internal static class RetailElevatorDepartureTests
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Presentation.InitializeAnimation();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarElevatorRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ElevToBlueBrinstar);
         var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
@@ -64,7 +64,7 @@ internal static class RetailElevatorDepartureTests
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance); Compare(transition.Phase.ToString());
         }
-        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.MorphBallRoom)
+        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.MorphBall)
             throw new InvalidOperationException("Downward elevator did not complete the authored transition.");
         while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && returning < 1200)
         {

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that both Nuclear Waffles visibly move after normal entry into Pillar Room.</summary>
 internal static class PillarFirstEntryVerification
@@ -18,7 +19,7 @@ internal static class PillarFirstEntryVerification
     /// <summary>Stages the neighboring doorway and lets the normal coroutine load population, FX, graphics, and PLMs.</summary>
     internal static void VerifyPillarFirstEntry()
     {
-        const ushort source = 0xb3a5, destination = 0xb457;
+        RoomHeaderDefinition source = RoomHeaderDefinitions.FastPillarsSetup, destination = RoomHeaderDefinitions.Pillar;
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
@@ -35,7 +36,7 @@ internal static class PillarFirstEntryVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
-            if (door.Door?.DestinationRoomPointer != destination) continue;
+            if (door.Door?.DestinationRoom != destination) continue;
             doorX = x; doorY = y; behavior = block.Bts.Value;
             break;
         }
@@ -59,7 +60,7 @@ internal static class PillarFirstEntryVerification
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
         AssertTrue(!transition.IsActive, "Pillar Room transition completes");
-        AssertEqual(destination, runtime.Room.LoadedRoom.Pointer, "Pillar Room entered through retail door");
+        AssertEqual(destination, runtime.Room.LoadedRoom.Definition, "Pillar Room entered through retail door");
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),
             "both Puromi actors survive normal destination initialization");
 

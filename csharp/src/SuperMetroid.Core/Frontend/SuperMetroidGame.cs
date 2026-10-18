@@ -398,8 +398,8 @@ public sealed class SuperMetroidGame
         private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Current bank-$8F room header pointer, exposed for door-transition watches.</summary>
-    public ushort? GameplayActiveRoomPointer => Session.runtime?.Room.ActiveRoom?.Pointer;
+    /// <summary>The active room, exposed for door-transition watches, or null before gameplay.</summary>
+    public RoomHeaderDefinition? GameplayActiveRoom => Session.runtime?.Room.ActiveRoom?.Definition;
 
     /// <summary>Selected bank-$8F room-state pointer, exposed beside the room identity.</summary>
     public ushort? GameplayActiveRoomStatePointer => Session.runtime?.Room.ActiveRoom?.State.Pointer;
@@ -746,7 +746,7 @@ public sealed class SuperMetroidGame
     public string CaptureGameplayFailureContext()
     {
         string location = $"frame=${FrameNumber:X4}; state=${(ushort)Session.GameState:X2} {Session.GameState}; " +
-            $"room=$8F:{GameplayActiveRoomPointer:X4}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door=$83:{GameplayActiveDoorPointer:X4}";
+            $"room={GameplayActiveRoom?.Name}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door=$83:{GameplayActiveDoorPointer:X4}";
         if (Session.runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
         return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +

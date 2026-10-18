@@ -8,6 +8,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Areas;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks D3D11 capture of Norfair's animated foreground glow against production rendering.</summary>
 internal static class NorfairGlowCaptureTests
@@ -19,7 +20,7 @@ internal static class NorfairGlowCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.InputLocked = true;
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Hardware.Rgba32[]? initialPixels = null;

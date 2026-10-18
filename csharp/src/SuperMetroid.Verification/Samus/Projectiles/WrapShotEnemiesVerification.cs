@@ -28,7 +28,7 @@ internal static class WrapShotEnemiesVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedTower);
             var enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper);
             foreach (var other in runtime.Enemies.SlotTable.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);

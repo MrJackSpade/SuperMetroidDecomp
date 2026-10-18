@@ -11,7 +11,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Fx;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks installed waterfall room color math and combined BG2 subscreen capture.</summary>
 internal static class WaterfallRoomsVerification
 {
@@ -29,7 +30,7 @@ internal static class WaterfallRoomsVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {
-            runtime.LoadCartridgeRoomForDebug(room);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             runtime.GameplayWindows.PrepareGameplayWindowRegisters();

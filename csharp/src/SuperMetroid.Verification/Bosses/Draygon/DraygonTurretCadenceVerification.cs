@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon turret timing, goop speed and bomb behavior, and dead-body reactions.</summary>
 internal static class DraygonTurretCadenceVerification
@@ -24,7 +25,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var boss = runtime.Enemies.DraygonBehavior.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 

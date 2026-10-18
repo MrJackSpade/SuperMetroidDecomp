@@ -31,7 +31,7 @@ internal static class ChozoGrabAnimationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xc98e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BowlingAlley);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;

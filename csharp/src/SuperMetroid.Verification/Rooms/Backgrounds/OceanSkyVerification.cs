@@ -25,7 +25,7 @@ internal static class OceanSkyVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new Position16<RoomPixels>(128, 768));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.

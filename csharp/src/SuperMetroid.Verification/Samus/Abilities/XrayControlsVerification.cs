@@ -25,7 +25,7 @@ internal static class XrayControlsVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             runtime.Options.ControllerBindings = remapped
                 ? ControllerBindings.Default.AssignAndSwap(0, ControllerBindings.Default.Dash)
                 : ControllerBindings.Default;

@@ -142,7 +142,7 @@ public sealed class CartridgeRoomAssets
         if ((declaredLayerBytes & 1) != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
+                $"Room {header.Definition.Name} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
         }
 
         // The room header constrains camera screens; the stream's leading word constrains
@@ -154,7 +154,7 @@ public sealed class CartridgeRoomAssets
         if (blockCount < visibleBlockCount || blockCount % widthInBlocks != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} declares ${declaredLayerBytes:X} BG1 bytes " +
+                $"Room {header.Definition.Name} declares ${declaredLayerBytes:X} BG1 bytes " +
                 $"({blockCount} blocks), which cannot contain its {header.Size.X}x" +
                 $"{header.Size.Y} visible screens in complete {widthInBlocks}-block rows.");
         }
@@ -167,7 +167,7 @@ public sealed class CartridgeRoomAssets
         if (levelStream.Length < backgroundOffset)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} level stream is missing its complete BG1/BTS allocation.");
+                $"Room {header.Definition.Name} level stream is missing its complete BG1/BTS allocation.");
         }
 
         // `$82:E7D3` clears the complete $6400-byte level_data allocation before the
@@ -194,7 +194,7 @@ public sealed class CartridgeRoomAssets
         if ((availableBackgroundBytes & 1) != 0)
         {
             throw new InvalidDataException(
-                $"Room $8F:{header.Pointer:X4} ends midway through a BG2 level word.");
+                $"Room {header.Definition.Name} ends midway through a BG2 level word.");
         }
         ushort[] authoredBackground = ReadWords(
             levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));

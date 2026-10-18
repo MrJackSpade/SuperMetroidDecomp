@@ -66,9 +66,9 @@ internal static class SamusAtmosphericEffectDefinitions
         return animationFrame % 5 == 2;
     }
     /// <summary>$90:EDC9 and $91:F0F3: room-specific landing/rain and wet-floor policies.</summary>
-    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(byte roomIndex)
+    internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(int roomIndex)
     {
-        if (roomIndex >= 16)
+        if ((uint)roomIndex >= 16)
             throw new InvalidDataException($"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
         if (!Enum.IsDefined((AtmosphericRoom)roomIndex))
             return CrateriaAtmosphericEffectFlags.None;

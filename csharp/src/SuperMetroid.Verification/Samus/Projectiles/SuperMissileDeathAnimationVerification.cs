@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the explosion program selected when a Super Missile kills enemies with different death headers.</summary>
 internal static class SuperMissileDeathAnimationVerification
@@ -37,7 +38,7 @@ internal static class SuperMissileDeathAnimationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xafa3);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RisingTide);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);

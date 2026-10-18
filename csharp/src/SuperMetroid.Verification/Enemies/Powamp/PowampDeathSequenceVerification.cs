@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces the 13% movie's final Powamp death-countdown frame.</summary>
 internal static class PowampDeathSequenceVerification
@@ -24,7 +25,7 @@ internal static class PowampDeathSequenceVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd0b9);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
             !((PowampEnemyState)PowampBehavior.RequirePowampState(slot)).IsBalloon);
         var state = (PowampEnemyState)PowampBehavior.RequirePowampState(body);

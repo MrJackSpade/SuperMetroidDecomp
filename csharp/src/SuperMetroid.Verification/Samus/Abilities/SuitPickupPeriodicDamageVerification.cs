@@ -31,7 +31,7 @@ internal static class SuitPickupPeriodicDamageVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
 
         SamusState samus = runtime.Player.IntroducedSamus;

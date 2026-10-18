@@ -31,7 +31,7 @@ internal static class PauseDoorShinesparkVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesAwake);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var words = new ushort[32 * 16];
             var bts = new byte[words.Length];

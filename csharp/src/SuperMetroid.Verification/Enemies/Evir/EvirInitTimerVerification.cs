@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Evir;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Evir's initial bobbing timer against its absolute enemy-RAM alias read.</summary>
 internal static class EvirInitTimerVerification
@@ -17,7 +18,7 @@ internal static class EvirInitTimerVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xd4c2);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastSandHall);
 
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)

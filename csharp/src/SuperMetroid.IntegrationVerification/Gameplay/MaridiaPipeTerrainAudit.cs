@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
@@ -13,7 +14,7 @@ internal static class MaridiaPipeTerrainAudit
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
-        if (runtime.Room.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
+        if (runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.Toilet || snapshot.Layers is not { } layers) return;
         var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();
         var r = gameplay.Registers;
         var scroll = runtime.BackgroundScroll;

@@ -34,7 +34,7 @@ internal static class DraygonGoopTouchOrderVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 385));
             samus.InvincibilityTimer = NativeCountdown.Start(96);

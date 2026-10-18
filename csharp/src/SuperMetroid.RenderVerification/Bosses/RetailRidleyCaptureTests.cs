@@ -24,7 +24,7 @@ internal static class RetailRidleyCaptureTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();

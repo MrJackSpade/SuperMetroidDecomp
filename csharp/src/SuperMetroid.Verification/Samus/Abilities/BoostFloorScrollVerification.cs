@@ -23,7 +23,7 @@ internal static class BoostFloorScrollVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, camera: new Position16<RoomPixels>(1024, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Dachora, camera: new Position16<RoomPixels>(1024, 0));
         var level = runtime.Room.LevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;

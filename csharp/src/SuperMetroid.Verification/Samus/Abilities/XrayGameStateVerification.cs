@@ -32,7 +32,7 @@ internal static class XrayGameStateVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;

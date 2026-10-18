@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -241,7 +242,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 runtime.System.SetBossBits(area, BossBits.AreaBoss);
             for (int greyEvent = 6; greyEvent <= 9; greyEvent++)
                 runtime.System.SetEventRaw(greyEvent);
-            runtime.LoadCartridgeRoomForDebug(0xa66a);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
             AssertTrue(runtime.TourianStatues.Enabled,
                 "retail Tourian statue room enables grey animation programs");
             return runtime;

@@ -17,7 +17,7 @@ internal static class DoorTransitionAutosave
         try
         {
             var saved = store.Save(DebuggerStateFormat.AutomaticSlot, bus, game);
-            Console.WriteLine($"Door autosave: {saved.Path} | frame {saved.FrameNumber} | room {saved.RoomPointer:X4}");
+            Console.WriteLine($"Door autosave: {saved.Path} | frame {saved.FrameNumber} | room {saved.Room}");
             return saved;
         }
         catch (Exception exception)

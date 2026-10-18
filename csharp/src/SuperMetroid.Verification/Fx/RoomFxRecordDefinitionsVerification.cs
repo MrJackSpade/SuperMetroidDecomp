@@ -38,7 +38,7 @@ internal static class RoomFxRecordDefinitionsVerification
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
-        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var guarded = NewRoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
@@ -51,9 +51,9 @@ internal static class RoomFxRecordDefinitionsVerification
         var nativeFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         var compiledFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         nativeFx.Load(nativeVram, nativeCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Pointer);
+            station.DoorPointer, randomNumber: 0, room.Definition);
         compiledFx.Load(compiledVram, compiledCgram, room.State.FxPointer,
-            station.DoorPointer, randomNumber: 0, room.Pointer);
+            station.DoorPointer, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Samus's stationary lock during Mother Brain's fake-death descent.</summary>
 internal static class MotherBrainFakeDeathLockVerification
@@ -25,7 +26,7 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
@@ -55,7 +56,7 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
         state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;

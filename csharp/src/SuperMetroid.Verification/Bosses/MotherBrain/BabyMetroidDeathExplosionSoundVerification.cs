@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Baby Metroid death sounds and Mother Brain escape effects use their native sound libraries.</summary>
 internal static class BabyMetroidDeathExplosionSoundVerification
@@ -25,7 +26,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         var step = new BabyMetroidCutsceneStepResult(
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,

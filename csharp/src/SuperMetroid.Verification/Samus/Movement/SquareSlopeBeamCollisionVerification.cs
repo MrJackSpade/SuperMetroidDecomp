@@ -42,7 +42,7 @@ internal static class SquareSlopeBeamCollisionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SlopeColumn = 40, BeamRow = 30, WallColumn = 44;
         for (int y = 16; y < 36; y++)

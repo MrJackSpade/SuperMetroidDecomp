@@ -25,7 +25,7 @@ internal static class ElevatubeScrollingVerification
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
             // incoming tube callback; no Ceres carrier belongs in this room.
-            runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
+            runtime.LoadCartridgeRoomForDebug(door.DestinationRoom);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Player.IntroducedSamus;

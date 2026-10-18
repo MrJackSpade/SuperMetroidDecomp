@@ -28,9 +28,9 @@ internal static class RetailDoorCaptureTests
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-            ushort destination = left ? RoomHeaderPointers.CeresDeadScientistRoom : RoomHeaderPointers.CeresFinalHallway;
+            RoomHeaderDefinition destination = left ? RoomHeaderDefinitions.DeadScientist : RoomHeaderDefinitions.Room58Escape;
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;
-            runtime.LoadCartridgeRoomForDebug(left ? RoomHeaderPointers.CeresFinalHallway : RoomHeaderPointers.CeresDeadScientistRoom,
+            runtime.LoadCartridgeRoomForDebug(left ? RoomHeaderDefinitions.Room58Escape : RoomHeaderDefinitions.DeadScientist,
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
@@ -57,7 +57,7 @@ internal static class RetailDoorCaptureTests
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: door {doorCase.Door:X4}, {context}, frame={frames}, phase={transition.Phase}");
             }
-            if (transition.IsActive || scrollFrames < 60 || runtime.Room.ActiveDoor?.DestinationRoomPointer != doorCase.Destination)
+            if (transition.IsActive || scrollFrames < 60 || runtime.Room.ActiveDoor?.DestinationRoom != doorCase.Destination)
                 throw new InvalidOperationException($"Door fixture missed complete scrolling/destination: {context}, scroll={scrollFrames}.");
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }

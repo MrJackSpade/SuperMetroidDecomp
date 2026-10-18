@@ -120,7 +120,7 @@ internal sealed class AndroidSessionData : IDisposable
             return "The auto slot is written at completed door transitions. Select 0-9 for a manual save.";
         DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game);
         FlushRecording();
-        return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
+        return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.Room}.";
     }
 
     /// <summary>Replaces the game, RAM, and audio graph with a validated slot and starts a seeded recording.</summary>

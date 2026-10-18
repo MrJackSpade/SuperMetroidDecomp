@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks contact-damage activation of the Three Musketeers' shootable shutter.</summary>
 internal static class ShutterScrewContactVerification
@@ -26,7 +27,7 @@ internal static class ShutterScrewContactVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.ThreeMusketeers);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ThreeMusketeers);
             var samus = runtime.Player.IntroducedSamus;
             RoomEnemySlot shutter = runtime.Enemies.SlotTable.Slots[10];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[10] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));

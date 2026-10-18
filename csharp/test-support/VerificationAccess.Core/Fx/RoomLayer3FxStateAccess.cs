@@ -18,7 +18,7 @@ internal static class RoomLayer3FxStateAccess
                 FxPointer = definition.Pointer,
                 DoorPointer = definition.DoorPointer,
                 RandomNumber = randomNumber,
-                RoomHeaderPointer = 0,
+                Room = null,
                 SuppliedDefinition = definition,
             });
         }

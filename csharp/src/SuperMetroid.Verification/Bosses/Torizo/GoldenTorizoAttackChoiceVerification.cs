@@ -24,7 +24,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GoldenTorizo);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot torizo = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);

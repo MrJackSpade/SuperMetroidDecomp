@@ -30,10 +30,10 @@ internal static class RoomArtworkRenderParityVerification
     internal static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
     {
-        foreach ((string name, ushort roomPointer, bool useRealLandingDoor) in new[]
+        foreach ((string name, RoomHeaderDefinition expectedRoom, bool useRealLandingDoor) in new[]
         {
-            ("Ceres elevator overlap", RoomHeaderPointers.CeresElevatorShaft, false),
-            ("Landing Site sky", RoomHeaderPointers.LandingSite, true),
+            ("Ceres elevator overlap", RoomHeaderDefinitions.CeresElev, false),
+            ("Landing Site sky", RoomHeaderDefinitions.LandingSite, true),
         })
         {
             SuperMetroidRuntime native = LoadRoom(installedArt: false);
@@ -158,7 +158,7 @@ internal static class RoomArtworkRenderParityVerification
                     ? LandingSiteRomData.LandingCutsceneDoorPointer
                     : DoorPointers.ToCeresElevatorShaft;
                 CartridgeDoorHeader door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, doorPointer);
-                AssertEqual(roomPointer, door.DestinationRoomPointer,
+                AssertEqual(expectedRoom, door.DestinationRoom,
                     $"{name} parity uses its real entry door");
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);

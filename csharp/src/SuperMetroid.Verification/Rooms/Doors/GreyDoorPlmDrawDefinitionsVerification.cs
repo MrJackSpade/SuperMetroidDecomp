@@ -122,7 +122,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             {
                 var enteringDoor = new CartridgeDoorHeader(
                     Pointer: 0,
-                    DestinationRoomPointer: 0,
+                    DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                     PlmBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
@@ -205,7 +205,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     {
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0,
-            DestinationRoomPointer: 0,
+            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             PlmBlock: new(4, 4),
             DestinationScreen: new(0, 0),

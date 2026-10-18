@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the reported Yapping Maw release timing through production grapple and enemy updates.</summary>
 internal static class YappingMawGrappleReleaseVerification
@@ -26,7 +27,7 @@ internal static class YappingMawGrappleReleaseVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xa293, camera: new Position16<RoomPixels>(768, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedBrinstarFirefleas, camera: new Position16<RoomPixels>(768, 0));
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));

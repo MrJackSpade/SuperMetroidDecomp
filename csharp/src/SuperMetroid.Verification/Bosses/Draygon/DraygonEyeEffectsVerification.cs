@@ -20,7 +20,7 @@ internal static class DraygonEyeEffectsVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             var eye = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon.")).Eye;
             eye.Position = eye.Position.WithWhole(new(128, 128));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };

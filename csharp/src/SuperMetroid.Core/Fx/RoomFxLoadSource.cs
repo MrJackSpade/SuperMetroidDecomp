@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Where a room's layer-3 FX comes from: its FX and door pointers, RNG, room header, and an optional supplied definition (#633).</summary>
@@ -15,8 +17,8 @@ internal sealed record RoomFxLoadSource
     /// </summary>
     public required int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Room header pointer.</summary>
-    public required ushort RoomHeaderPointer { get; init; }
+    /// <summary>The room being entered, or null for a load outside a room.</summary>
+    public required RoomHeaderDefinition? Room { get; init; }
 
     /// <summary>Supplied definition.</summary>
     public required RoomFxRecordDefinition? SuppliedDefinition { get; init; }

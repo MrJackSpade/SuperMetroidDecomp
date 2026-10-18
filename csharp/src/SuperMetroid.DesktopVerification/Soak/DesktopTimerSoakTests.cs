@@ -16,6 +16,7 @@ using SuperMetroid.Rendering.Direct3D11.Telemetry;
 namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Measures bounded desktop timer and GPU telemetry in gameplay and paused scenes.</summary>
 internal static class DesktopTimerSoakTests
@@ -138,7 +139,7 @@ internal static class DesktopTimerSoakTests
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
-        game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         Step(0);
         if (paused) Step(SnesButton.Start);

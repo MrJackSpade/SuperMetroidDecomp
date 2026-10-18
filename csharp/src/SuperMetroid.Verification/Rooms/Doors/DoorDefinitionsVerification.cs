@@ -30,7 +30,7 @@ internal static class DoorDefinitionsVerification
     internal static void VerifyCompiledDoorListCollision()
     {
         DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
-            RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite).DoorListPointer);
+            RoomHeaderDefinitions.LandingSite.DoorListPointer);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0], [0], [0]), [], doorListPointer: landingDoors.Pointer);
         CartridgeDoorHeader resolved = (level.ResolveDoorCollision(
             behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));

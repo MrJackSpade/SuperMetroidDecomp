@@ -6,7 +6,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Enemies.Spike;
 
 /// <summary>Checks Samus's spike knockback release, residual speed, and landing transitions.</summary>
@@ -21,7 +22,7 @@ internal static class SpikeDamageBoostVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)

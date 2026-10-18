@@ -30,7 +30,7 @@ internal static class XrayInputVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -131,10 +131,9 @@ internal static class XrayInputVerification
             "a queued X-ray frame remains immutable after gameplay resumes");
         AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured))),
             "a queued X-ray packet retains its reveal memory after gameplay resumes");
-        foreach (XrayExcludedRoom excludedRoom in Enum.GetValues<XrayExcludedRoom>())
+        foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
         {
-            ushort roomPointer = (ushort)excludedRoom;
-            runtime.LoadCartridgeRoomForDebug(roomPointer);
+            runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
@@ -150,7 +149,7 @@ internal static class XrayInputVerification
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");
             AssertTrue((excluded.ColorMath & SnesColorMathControl.Obj) == 0, "excluded-room CGADSUB leaves Samus color unchanged");
-            AssertEqual(excludedRoom != XrayExcludedRoom.HiddenBg2Room,
+            AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.Registers.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }

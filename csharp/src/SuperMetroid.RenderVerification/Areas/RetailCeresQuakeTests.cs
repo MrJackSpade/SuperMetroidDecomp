@@ -17,7 +17,7 @@ internal static class RetailCeresQuakeTests
     /// <summary>Advances two retail rooms through 240 frames each, requiring changing quake displacement.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        foreach (ushort room in new[] { RoomHeaderPointers.CeresDeadScientistRoom, RoomHeaderPointers.CeresFinalHallway })
+        foreach (RoomHeaderDefinition room in new[] { RoomHeaderDefinitions.DeadScientist, RoomHeaderDefinitions.Room58Escape })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
@@ -40,11 +40,11 @@ internal static class RetailCeresQuakeTests
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Ceres quake room={room:X4}, tick={tick}, shake={shake}");
+                    $"{device.Kind}: Ceres quake room={room.Name}, tick={tick}, shake={shake}");
             }
             if (shaking == 0 || offsets.Count < 2)
-                throw new InvalidOperationException($"Ceres quake fixture {room:X4} did not exercise changing displacement.");
-            Console.WriteLine($"{device.Kind}: Ceres room {room:X4}, 240 exact frames, {shaking} shaking frames and {offsets.Count} displacement states.");
+                throw new InvalidOperationException($"Ceres quake fixture {room.Name} did not exercise changing displacement.");
+            Console.WriteLine($"{device.Kind}: Ceres room {room.Name}, 240 exact frames, {shaking} shaking frames and {offsets.Count} displacement states.");
         }
     }
 }

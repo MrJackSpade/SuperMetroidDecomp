@@ -487,3 +487,18 @@ Commit and push that update too.
     decision.
   - Typed hardware words for the message tilemap cell, the trail OBJ attributes and the Samus part X word, with
     numeric JSON converters (SME6347 145 -> 142).
+  - Typed level words for the collision block and the PLM restore word (`4df9d8727`, 142 -> 139); the shared RNG as a
+    typed state with int samples, owner question 10 (`2703356ea`, 139 -> 138); `VramDmaDestination` for the PLM VRAM
+    write and Samus death tiles (`9b46e0e8a`, 138 -> 136); word-ranged enemy palette, tile base and Ceres arrival
+    words (`94e091d03`, 136 -> 133).
+  - Q7, room identity, in steps. Names come from the pinned disassembly's labels, through the symbolic fields of
+    bank $8F's room states (`%enemyPop`, `%enemySet`, `%FX`, ...) and the room headers' labels. Each step moves a
+    pointer's address-to-identity map into the import side (AssetExtraction or test support):
+    - Step 1 (`d4c0fbf15`, 133 -> 131): room states' main and setup callbacks are typed identities.
+    - Step 2 (`3d1033bdf`, 131 -> 123): room states hold their enemy population and graphics set as named definitions.
+    - Step 3a (this commit, 123 -> 114): rooms are named `RoomHeaderDefinitions`; AssetExtraction's
+      `RoomHeaderSourceDefinitions`/`RoomHeaderSources` own the header pointers. Hosts report rooms by name, and
+      debugger save states are schema 7.
+    - Next, step 3b: doors. Door FX records, library-background door transfers, door lists and the elevator
+      pseudo-doors are all keyed by bank-$83 pointers, and FX selection needs the door identity before FX can move.
+      Then FX, scroll, PLM, X-ray and background-data pointers, then room-state identity.

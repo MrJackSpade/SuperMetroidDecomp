@@ -94,7 +94,7 @@ public sealed class GitHubErrorReporter : IDisposable
             $"RECOVERABLE ERROR [{fingerprint}] at {context.Boundary}; " +
             "the host will attempt the next frame.");
         Console.Error.WriteLine(exception);
-        Console.Error.WriteLine($"Room $8F:{context.RoomPointer:X4}, state $8F:{context.RoomStatePointer:X4}, " +
+        Console.Error.WriteLine($"Room {context.Room}, state $8F:{context.RoomStatePointer:X4}, " +
             $"door $83:{context.DoorPointer:X4}, recording {context.InputRecordingPath}");
         Console.Error.WriteLine(
             "The failed frame may have partially mutated emulated state. " +
@@ -128,7 +128,7 @@ public sealed class GitHubErrorReporter : IDisposable
         // Unknown failures are conservatively room-scoped. Only an explicit cartridge
         // dispatch identity may declare that room/block location does not change the bug.
         if (exception is not CartridgeDispatchException { IsRoomIndependent: true } && context is not null)
-            identity.Append($"\nroom:{context.RoomPointer:X4}/state:{context.RoomStatePointer:X4}");
+            identity.Append($"\nroom:{context.Room}/state:{context.RoomStatePointer:X4}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
     }
@@ -254,7 +254,8 @@ public sealed class GitHubErrorReporter : IDisposable
             body.Append("- Phase: ").AppendLine(context.Phase);
         // The report shows the controller word as the journal records it.
         AppendHexContext(body, "Controller input", (ushort?)context.ControllerInput);
-        AppendBankContext(body, "Room", ReportedPointerBank.RoomHeaders, context.RoomPointer);
+        if (context.Room is not null)
+            body.Append("- Room: ").AppendLine(context.Room);
         AppendBankContext(body, "Room state", ReportedPointerBank.RoomHeaders, context.RoomStatePointer);
         AppendBankContext(body, "Door", ReportedPointerBank.DoorHeaders, context.DoorPointer);
         if (context.InputRecordingPath is not null)

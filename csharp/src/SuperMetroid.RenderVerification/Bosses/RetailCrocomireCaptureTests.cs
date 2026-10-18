@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks GPU capture through Crocomire's ordinary fight and full death sequence.</summary>
 internal static class RetailCrocomireCaptureTests
@@ -22,7 +23,7 @@ internal static class RetailCrocomireCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;

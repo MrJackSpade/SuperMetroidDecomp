@@ -47,7 +47,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         VerifyCeresModeTiming(runtime);
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         VerifyRepaintAndImmutability(runtime);
@@ -224,7 +224,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(shaft.Scene.CeresElevatorMode7 && shaft.SamusMode7Transform is not null,
             "door setup $8F:E4E0 publishes BGMODE with its Mode 7 matrix");
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         GameplayNmiDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
         AssertTrue(!arena.Scene.CeresElevatorMode7 && arena.SamusMode7Transform is null,
             "door setup $8F:E513 clears BGMODE with its Mode 7 matrix");

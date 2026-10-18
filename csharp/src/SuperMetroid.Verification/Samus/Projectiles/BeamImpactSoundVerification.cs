@@ -26,7 +26,7 @@ internal static class BeamImpactSoundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // A floored corridor ending in a solid column at block 44, inside the settled view.
         for (int y = 16; y < 36; y++)

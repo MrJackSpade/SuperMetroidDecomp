@@ -81,7 +81,7 @@ internal static class AndroidBundleReplay
                 videoHash.AppendData(MemoryMarshal.AsBytes(pixels.AsSpan()));
                 audioHash.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
             }
-            Console.WriteLine($"Android bundle replay: {recordingName}; seed={seed ?? "reset SRAM"}; frames={recording.ControllerInputs.Length}; final={game.GameState}; room={game.GameplayActiveRoomPointer:X4}");
+            Console.WriteLine($"Android bundle replay: {recordingName}; seed={seed ?? "reset SRAM"}; frames={recording.ControllerInputs.Length}; final={game.GameState}; room={game.GameplayActiveRoom?.Name}");
             Console.WriteLine($"Video SHA256: {Convert.ToHexString(videoHash.GetHashAndReset())}");
             Console.WriteLine($"Audio SHA256: {Convert.ToHexString(audioHash.GetHashAndReset())}");
             return 0;

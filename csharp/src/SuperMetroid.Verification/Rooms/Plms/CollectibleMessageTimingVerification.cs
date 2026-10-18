@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the pickup grant and delayed visual update around the synchronous item message.</summary>
 internal static class CollectibleMessageTimingVerification
@@ -23,7 +24,7 @@ internal static class CollectibleMessageTimingVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x965b, camera: new Position16<RoomPixels>(1280, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GauntletETank, camera: new Position16<RoomPixels>(1280, 0));
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;

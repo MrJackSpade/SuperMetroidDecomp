@@ -26,14 +26,13 @@ internal static class LandingSiteEntryStateAccess
             // The destination is a bank-$8F room pointer. Rejecting any other room
             // is important: the library-background list below is specific to Landing Site and
             // silently applying it to an arbitrary door would manufacture a plausible image.
-            if (door.DestinationRoomPointer != RoomHeaderPointers.LandingSite)
+            if (door.DestinationRoom != RoomHeaderDefinitions.LandingSite)
             {
                 throw new InvalidDataException(
-                    $"Door $83:{doorPointer:X4} targets room ${door.DestinationRoomPointer:X4}, " +
-                    "not Landing Site $91F8.");
+                    $"Door $83:{doorPointer:X4} targets room {door.DestinationRoom.Name}, not Landing Site.");
             }
 
-            RoomHeaderDefinition room = RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite);
+            RoomHeaderDefinition room = RoomHeaderDefinitions.LandingSite;
             RoomIdentity roomIdentity = new(room.AreaIndex, room.RoomIndex);
             if (roomIdentity != RoomIdentities.LandingSite)
             {
@@ -43,7 +42,7 @@ internal static class LandingSiteEntryStateAccess
             }
 
             ushort statePointer = RoomStateSelectionDefinitions.Select(
-                RoomHeaderPointers.LandingSite, default);
+                RoomHeaderDefinitions.LandingSite, default);
             CartridgeRoomState state = RoomStateDefinitions.Get(statePointer);
             LibraryBackgroundInstruction transfer =
                 LibraryBackgroundProgramDefinitions.GetDoorTransfer(

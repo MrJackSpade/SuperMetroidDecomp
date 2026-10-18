@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification
@@ -21,7 +22,7 @@ internal static class RidleyAcidVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseY.Whole, "acid starts below the arena");

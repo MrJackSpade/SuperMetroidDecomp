@@ -5,7 +5,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
@@ -91,8 +90,8 @@ public sealed class PlayableGameControl : UserControl
     private DebuggerSaveStateStore stateStore;
     /// <summary>Next controller word to read from an active replay.</summary>
     private int replayFrameIndex;
-    /// <summary>Room pointer last shown in the status label.</summary>
-    private ushort? displayedRoomPointer;
+    /// <summary>Room last shown in the window caption.</summary>
+    private RoomHeaderDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
     private FrameTimingSnapshot? latestFrameTiming;
     /// <summary>Latest error text retained while simulation recovers.</summary>
@@ -324,7 +323,7 @@ public sealed class PlayableGameControl : UserControl
             slot, addressSpace, game);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
-            FormatStateRoom(metadata.RoomPointer, metadata.RoomStatePointer);
+            FormatStateRoom(metadata.Room, metadata.RoomStatePointer);
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
@@ -379,7 +378,7 @@ public sealed class PlayableGameControl : UserControl
             "Restored desktop session has no installed audio."));
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
-        displayedRoomPointer = null;
+        displayedRoom = null;
         pendingPlaybackFrames = 0;
 
         if (gameOptions.AudioEnabled)
@@ -400,14 +399,14 @@ public sealed class PlayableGameControl : UserControl
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
             $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
-            FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
+            FormatStateRoom(loaded.Metadata.Room, loaded.Metadata.RoomStatePointer);
         SetPlaying(resumePlayback);
     }
 
     /// <summary>Formats a room/state identity or a frontend-only state for toolbar text.</summary>
-    private static string FormatStateRoom(ushort? room, ushort? state) =>
-        room is ushort roomPointer && state is ushort statePointer
-            ? $"room $8F:{roomPointer:X4}/state $8F:{statePointer:X4}"
+    private static string FormatStateRoom(string? room, ushort? state) =>
+        room is not null && state is ushort statePointer
+            ? $"room {room}/state $8F:{statePointer:X4}"
             : "frontend/no active room";
 
     /// <summary>
@@ -559,7 +558,7 @@ public sealed class PlayableGameControl : UserControl
                         GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
                         Phase: game.CurrentFrame.Phase,
                         ControllerInput: input,
-                        RoomPointer: game.GameplayActiveRoomPointer,
+                        Room: game.GameplayActiveRoom?.Name,
                         RoomStatePointer: game.GameplayActiveRoomStatePointer,
                         DoorPointer: game.GameplayActiveDoorPointer,
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
@@ -629,7 +628,7 @@ public sealed class PlayableGameControl : UserControl
                     GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
                     Phase: game.CurrentFrame.Phase,
                     ControllerInput: input,
-                    RoomPointer: game.GameplayActiveRoomPointer,
+                    Room: game.GameplayActiveRoom?.Name,
                     RoomStatePointer: game.GameplayActiveRoomStatePointer,
                     DoorPointer: game.GameplayActiveDoorPointer,
                     InputRecordingPath: inputRecorder?.Path,
@@ -728,67 +727,29 @@ public sealed class PlayableGameControl : UserControl
         frameTimings.Reset(Stopwatch.GetTimestamp());
     }
 
-    /// <summary>
-    /// Publishes both a human label and the cartridge's exact room/state addresses in the
-    /// window caption. The pointer is the durable identifier: labels are debugger sugar and
-    /// deliberately fall back to "Room" instead of pretending every bank-$8F record has
-    /// already been named by the translation.
-    /// </summary>
+    /// <summary>Publishes the active room's name, logical identity and selected state in the window caption.</summary>
     private void RefreshRoomIdentity()
     {
-        ushort? roomPointer = game.GameplayActiveRoomPointer;
-        if (roomPointer == displayedRoomPointer)
+        RoomHeaderDefinition? room = game.GameplayActiveRoom;
+        if (room == displayedRoom)
             return;
-        displayedRoomPointer = roomPointer;
+        displayedRoom = room;
 
         Form? host = FindForm();
         if (host is null)
             return;
-        if (roomPointer is not ushort pointer)
+        if (room is null)
         {
             host.Text = "Super Metroid C#";
             return;
         }
 
-        string name = GetKnownRoomName(pointer);
         ushort state = game.GameplayActiveRoomStatePointer
-            ?? throw new InvalidOperationException(
-                $"Room $8F:{pointer:X4} has no selected room-state pointer.");
+            ?? throw new InvalidOperationException($"Room {room.Name} has no selected room-state pointer.");
         RoomIdentity identity = game.GameplayActiveRoomIdentity
-            ?? throw new InvalidOperationException(
-                $"Room $8F:{pointer:X4} has no logical room identity.");
-        host.Text =
-            $"Super Metroid C# — RoomId: {identity} — {name} " +
-            $"[$8F:{pointer:X4}, state $8F:{state:X4}]";
+            ?? throw new InvalidOperationException($"Room {room.Name} has no logical room identity.");
+        host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state $8F:{state:X4}]";
     }
-
-    /// <summary>
-    /// Caption names for the practical Ceres-to-Bombs playthrough slice. This is a partial
-    /// label table over all 262 room headers: unnamed rooms remain fully reportable by
-    /// address in the caption, so extending the table never gates gameplay.
-    /// </summary>
-    private static readonly FrozenDictionary<ushort, string> KnownRoomNames = new Dictionary<ushort, string>
-    {
-        [RoomHeaderPointers.LandingSite] = "Landing Site",
-        [RoomHeaderPointers.ParlorAndAlcatraz] = "Parlor and Alcatraz",
-        [RoomHeaderPointers.Climb] = "Climb",
-        [RoomHeaderPointers.PitRoom] = "Pit Room",
-        [RoomHeaderPointers.BombTorizoRoom] = "Bomb Torizo Room",
-        [RoomHeaderPointers.Flyway] = "Flyway",
-        [RoomHeaderPointers.MorphBallRoom] = "Morph Ball Room",
-        [RoomHeaderPointers.ConstructionZone] = "Construction Zone",
-        [RoomHeaderPointers.BlueBrinstarEnergyTankRoom] = "Blue Brinstar Energy Tank Room",
-        [RoomHeaderPointers.CeresElevatorShaft] = "Ceres Elevator Shaft",
-        [RoomHeaderPointers.CeresFallingTileRoom] = "Ceres Falling Tile Room",
-        [RoomHeaderPointers.CeresMagnetStairs] = "Ceres Magnet Stairs",
-        [RoomHeaderPointers.CeresDeadScientistRoom] = "Ceres Dead Scientist Room",
-        [RoomHeaderPointers.CeresFinalHallway] = "Ceres Final Hallway",
-        [RoomHeaderPointers.CeresRidleyRoom] = "Ceres Ridley Room",
-    }.ToFrozenDictionary();
-
-    /// <summary>Uses a known playthrough label when available and a generic room label otherwise.</summary>
-    private static string GetKnownRoomName(ushort roomPointer) =>
-        KnownRoomNames.TryGetValue(roomPointer, out string? name) ? name : "Room";
 
     /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>
     private SnesButton BuildControllerWord()

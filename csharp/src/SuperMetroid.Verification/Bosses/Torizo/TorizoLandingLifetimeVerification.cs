@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>Checks the Bomb Torizo landing earthquake through the full frontend.</summary>
 internal static class TorizoLandingLifetimeVerification
@@ -29,7 +30,7 @@ internal static class TorizoLandingLifetimeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0x9804);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BombTorizo);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
         var state=(TorizoEnemyState)(runtime.Enemies.BombTorizoBehavior._torizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState."));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);

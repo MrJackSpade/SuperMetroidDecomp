@@ -36,7 +36,7 @@ internal static class RoomPerformanceStateFixture
         }
         else
         {
-            ushort room = surface ? RoomHeaderPointers.LandingSite : RoomHeaderPointersTooling.CrateriaSaveStation;
+            RoomHeaderDefinition room = surface ? RoomHeaderDefinitions.LandingSite : RoomHeaderDefinitions.CrateriaSave;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
         runtime.Player.IntroducedSamus.InputLocked = true;

@@ -80,13 +80,13 @@ internal static class BossResetOnLoadVerification
                 { (0x9804, 0x981b, 0x9835), (0x9dc7, 0x9dd9, 0x9df3),
                   (0xb283, 0xb295, 0xb2af), (0xd8c5, 0xd8d7, 0xd8f1) })
             {
-                var header = runtime.RoomLoader.LoadCartridgeRoomHeader(room);
+                var header = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Get(room));
                 AssertEqual(enabled ? alive : defeated, header.State.Pointer,
                     $"loaded progression selects encounter state for room {room:X4}");
             }
             // Prove this is not a continuously enforced immortality/respawn mode.
             runtime.System.SetBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss);
-            _ = runtime.RoomLoader.LoadCartridgeRoomHeader((ushort)0x9dc7);
+            _ = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.SporeSpawn);
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }

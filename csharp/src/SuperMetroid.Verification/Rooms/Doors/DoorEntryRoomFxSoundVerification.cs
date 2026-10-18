@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks room-FX sound ordering on the Rising Tide door entry frame.</summary>
 internal static class DoorEntryRoomFxSoundVerification
@@ -29,7 +30,7 @@ internal static class DoorEntryRoomFxSoundVerification
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .Where(door => door.DestinationRoomPointer == FixtureRoomHeaders.RisingTide)
+            .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
             .First(door =>
             {
                 var candidate = LoadRisingTide(door);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </remarks>
 public sealed record CartridgeDoorHeader(
     ushort Pointer,
-    ushort DestinationRoomPointer,
+    RoomHeaderDefinition DestinationRoom,
     CartridgeDoorOrientation Orientation,
     Position16<RoomBlocks> PlmBlock,
     Position16<RoomScreens> DestinationScreen,

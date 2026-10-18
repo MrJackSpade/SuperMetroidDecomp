@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the Gold Ninja Pirate death projectile order observed in the Metal Pirates fight.</summary>
 internal static class GoldNinjaDeathDropsVerification
@@ -23,7 +24,7 @@ internal static class GoldNinjaDeathDropsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MetalPirates);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MetalPirates);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja);

@@ -85,7 +85,7 @@ internal static class MetroidBombPlacementVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(room.Pointer, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(room.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y < level.Size.Y; y++)
         for (int x = 0; x < level.Size.X; x++)

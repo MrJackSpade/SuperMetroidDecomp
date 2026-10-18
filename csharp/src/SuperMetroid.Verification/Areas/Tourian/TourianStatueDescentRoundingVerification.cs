@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks signed 16.16 statue descent and the exact Tourian unlock threshold.</summary>
 internal static class TourianStatueDescentRoundingVerification
@@ -22,7 +23,7 @@ internal static class TourianStatueDescentRoundingVerification
         foreach (EventNumber grey in new[] { EventNumber.PhantoonStatueGrey, EventNumber.RidleyStatueGrey,
                      EventNumber.DraygonStatueGrey, EventNumber.KraidStatueGrey })
             runtime.System.SetEvent(grey);
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         runtime.Player.IntroducedSamus.InputLocked = true;
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),

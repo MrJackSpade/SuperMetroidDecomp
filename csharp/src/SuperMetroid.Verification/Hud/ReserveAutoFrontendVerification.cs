@@ -15,6 +15,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks automatic reserve recovery through the game frontend, including freeze timing, HUD updates, and health-warning audio.</summary>
 internal static class ReserveAutoFrontendVerification
@@ -44,7 +45,7 @@ internal static class ReserveAutoFrontendVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii();

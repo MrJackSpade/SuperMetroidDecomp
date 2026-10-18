@@ -40,7 +40,7 @@ internal static class XraySetupVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
         var samus = runtime.Player.IntroducedSamus;
         var support = runtime.Enemies.SlotTable.Slots[1];
         samus.InputLocked = false;

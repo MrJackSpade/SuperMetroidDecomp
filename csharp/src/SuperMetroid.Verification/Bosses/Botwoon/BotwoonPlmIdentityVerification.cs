@@ -17,7 +17,7 @@ internal static class BotwoonPlmIdentityVerification
     internal static void VerifyBotwoonPlmIdentity()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderPointers.Botwoon);
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Botwoon.Pointer);
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());

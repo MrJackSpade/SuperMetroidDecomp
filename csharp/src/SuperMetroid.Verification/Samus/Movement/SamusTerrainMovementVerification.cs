@@ -203,7 +203,7 @@ internal static void VerifySamusBlockCollision()
         "normal type-$9 door accepts full horizontal displacement");
     AssertEqual(normalDoorPointer, (doorLevel.PendingDoorTransition ?? throw new InvalidOperationException("Verification requires doorLevel.PendingDoorTransition.")).Pointer,
         "normal type-$9 door publishes exact bank-$83 pointer");
-    AssertEqual(0x95a8, doorLevel.PendingDoorTransition.DestinationRoomPointer,
+    AssertEqual(RoomHeaderDefinitions.ForgottenHighwayElbow, doorLevel.PendingDoorTransition.DestinationRoom,
         "normal type-$9 door preserves destination room header");
     AssertEqual(normalDoorPointer, (doorLevel.ConsumePendingDoorTransition() ?? throw new InvalidOperationException("Verification requires doorLevel.ConsumePendingDoorTransition().")).Pointer,
         "door transition publication is consumed exactly once");

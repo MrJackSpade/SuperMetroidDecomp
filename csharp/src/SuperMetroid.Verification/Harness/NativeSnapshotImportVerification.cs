@@ -29,6 +29,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Constructs a replay's initial production state from native WRAM and SRAM while
@@ -58,7 +59,7 @@ internal static class NativeSnapshotImportVerification
         runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, Bank80SystemState.AreaCount));
         runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
         runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
-        runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.

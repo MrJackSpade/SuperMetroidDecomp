@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Metroid death explosion and special-drop ordering for fresh and already-marked missiles.</summary>
 internal static class MetroidDeathDropsVerification
@@ -28,7 +29,7 @@ internal static class MetroidDeathDropsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.TourianMetroids1);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Metroids1);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot metroid = runtime.Enemies.SlotTable.Slots.First(slot =>

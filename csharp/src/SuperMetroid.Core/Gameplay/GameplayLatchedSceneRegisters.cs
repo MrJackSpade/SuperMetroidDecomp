@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="FxType">Room FX type whose layer-blending handler wrote the blend shadows.</param>
 /// <param name="LayerBlendConfiguration">Layer-blending configuration resolved into the blend shadows.</param>
 /// <param name="ScrollingSky">Scrolling-sky BG2 map and vertical-scroll shadows, when the room has a sky.</param>
-/// <param name="RoomPointer">Loaded room whose X-ray blending branch wrote the X-ray blend shadows, or null before a room exists.</param>
+/// <param name="Room">Loaded room whose X-ray blending branch wrote the X-ray blend shadows, or null before a room exists.</param>
 /// <param name="BossId">Area boss identifier read by the X-ray blending branch, 0 through 65535; only compared for equality.</param>
 public readonly record struct GameplayLatchedSceneRegisters(
     bool CeresElevatorMode7,
@@ -24,7 +24,7 @@ public readonly record struct GameplayLatchedSceneRegisters(
     RoomFxType FxType,
     LayerBlendingConfiguration LayerBlendConfiguration,
     ScrollingSkyRegisterSnapshot? ScrollingSky,
-    ushort? RoomPointer,
+    RoomHeaderDefinition? Room,
     int BossId)
 {
     /// <summary>BG3 character base VRAM word address selected by BG34NBA; a value outside VRAM is rejected.</summary>

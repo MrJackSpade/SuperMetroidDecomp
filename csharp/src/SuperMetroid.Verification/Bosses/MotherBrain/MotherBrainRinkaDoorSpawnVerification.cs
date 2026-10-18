@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces special Rinka placement during the door scroll into Mother Brain's room.</summary>
 internal static class MotherBrainRinkaDoorSpawnVerification
@@ -28,7 +29,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RinkaShaft);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RinkaShaft);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
@@ -48,7 +49,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
                 level.ResolveDoorCollision(block.Bts.Value, samus.Pose, publishDoorSideEffects: false)
-                    .Door?.DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)
+                    .Door?.DestinationRoom != RoomHeaderDefinitions.MotherBrain)
                 continue;
             level.ResolveDoorCollision(block.Bts.Value, samus.Pose, publishDoorSideEffects: true);
             selected = true;
@@ -58,7 +59,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
-        AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.Room.LoadedRoom.Pointer, "Samus is in Mother Brain's room");
+        AssertEqual(RoomHeaderDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
             .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && slot.Parameter1 != 0)

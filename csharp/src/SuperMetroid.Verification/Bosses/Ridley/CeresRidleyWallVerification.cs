@@ -18,7 +18,7 @@ internal static class CeresRidleyWallVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var body = runtime.Enemies.SlotTable.Slots[0];
         // Continue an in-flight lunge just before its left-boundary collision. The real

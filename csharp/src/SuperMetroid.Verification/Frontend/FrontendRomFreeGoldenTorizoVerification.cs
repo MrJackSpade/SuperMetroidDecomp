@@ -42,7 +42,7 @@ internal static class FrontendRomFreeGoldenTorizoVerification
             PrepareRomFreeBindings(installation)(installed, false);
             native.InitializeDirectRoomVerification();
             installed.InitializeDirectRoomVerification();
-            VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"focused Golden Torizo dodge and fall, input ${heldInput:X}" }, frameCount: frameCount, setup: (nativeRoom, installedRoom) =>
+            VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = $"focused Golden Torizo dodge and fall, input ${heldInput:X}" }, frameCount: frameCount, setup: (nativeRoom, installedRoom) =>
                 {
                     // Long neutral probes otherwise end at the frontend death
                     // screen, obscuring later enemy-list boundaries. Both

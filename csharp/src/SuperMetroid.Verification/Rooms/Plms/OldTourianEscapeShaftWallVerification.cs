@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the old Tourian escape shaft wall PLM's trigger, explosion, and cleared blocks.</summary>
 internal static class OldTourianEscapeShaftWallVerification
@@ -27,7 +28,7 @@ internal static class OldTourianEscapeShaftWallVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.Climb);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Climb);
         AssertTrue(runtime.Plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.OldTourianEscapeShaftFakeWall),
             "the escape state's setup spawns the fake-wall PLM");
 

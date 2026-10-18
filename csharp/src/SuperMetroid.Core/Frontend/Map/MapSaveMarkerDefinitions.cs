@@ -29,7 +29,7 @@ public static class MapSaveMarkerDefinitions
         IEnumerable<int> Enumerate()
         {
             for (int index = 0; index < SlotsPerArea; index++)
-                if (LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0)
+                if (LoadStationDefinitions.Get(area, (byte)index).Room is not null)
                     yield return index;
         }
     }
@@ -37,13 +37,13 @@ public static class MapSaveMarkerDefinitions
     /// <summary>Whether a bounded station identity has an active placement and map marker.</summary>
     /// <param name="area">One of the six Zebes area identities.</param>
     /// <param name="index">Native zero-based station slot, 0..15, not the ordinal within the usable-slot sequence.</param>
-    /// <returns>True for a nonzero compiled load-room pointer, independently of the player's used-station bits.</returns>
+    /// <returns>True for a slot with a compiled load room, independently of the player's used-station bits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     public static bool IsUsable(AreaId area, int index)
     {
         ValidateArea(area);
         if ((uint)index >= SlotsPerArea) throw new ArgumentOutOfRangeException(nameof(index));
-        return LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0;
+        return LoadStationDefinitions.Get(area, (byte)index).Room is not null;
     }
 
     /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker tables.</summary>

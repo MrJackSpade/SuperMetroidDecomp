@@ -11,6 +11,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
 /// per-line scroll independently of later live-memory changes.</summary>
@@ -75,7 +76,7 @@ internal static class GameplaySnapshotTestsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         Rgba32[] retail = RenderForComparison(captured);

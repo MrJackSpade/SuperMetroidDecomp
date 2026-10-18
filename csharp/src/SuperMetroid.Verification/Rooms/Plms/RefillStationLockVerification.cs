@@ -16,7 +16,7 @@ internal static class RefillStationLockVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         for (int frame = 0; frame < 8; frame++)

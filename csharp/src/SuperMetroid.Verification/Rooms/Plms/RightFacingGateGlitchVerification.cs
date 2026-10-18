@@ -55,7 +55,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.PinkBrinstarHopper);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PinkBrinstarHoppers);
 
         RoomLevelData original = runtime.Room.LoadedLevelData;
         var residentGate = runtime.Plms.PopulationSlots.Single(
@@ -169,7 +169,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.EastTunnel);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastTunnel);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         var gate = runtime.Plms.PopulationSlots.Single(

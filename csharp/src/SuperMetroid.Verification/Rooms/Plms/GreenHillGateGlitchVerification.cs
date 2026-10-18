@@ -72,7 +72,7 @@ internal static class GreenHillGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenHillZone);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GreenHillZone);
         RoomPlmSlotSnapshot gate = runtime.Plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(0x1be4, gate.BlockIndex, "authored Green Hill gate block");

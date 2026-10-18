@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces a Ridley hit crossing the 9000-health threshold while
 /// his shot reaction leaves acceleration stage changes for the later AI phase.</summary>
@@ -29,7 +30,7 @@ internal static class RidleyShotHealthStageVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];

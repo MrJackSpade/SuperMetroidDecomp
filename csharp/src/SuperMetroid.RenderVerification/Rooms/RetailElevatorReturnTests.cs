@@ -37,7 +37,7 @@ internal static class RetailElevatorReturnTests
         samus.CollectedItems |= SamusEquipmentFlags.MorphBall;
         samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MorphBall);
         // This persistent native word is carried from the preceding downward ride.
         // Stage only that source state; the door coroutine and destination actor run normally.
         runtime.Enemies.ElevatorBehavior.SetElevatorStatusForDebugging((ushort)ElevatorActorStatus.Departing);
@@ -65,7 +65,7 @@ internal static class RetailElevatorReturnTests
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||
-            runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.BlueBrinstarElevatorRoom)
+            runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.ElevToBlueBrinstar)
             throw new InvalidOperationException("Elevator fixture missed its vertical door transition.");
         while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && arrivalFrames < 1200)
         {

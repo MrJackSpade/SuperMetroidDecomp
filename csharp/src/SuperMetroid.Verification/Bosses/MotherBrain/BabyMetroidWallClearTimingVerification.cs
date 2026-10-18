@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the frame ordering between Baby Metroid's wall-clear spawn and Samus's movement in the escape room.</summary>
 internal static class BabyMetroidWallClearTimingVerification
@@ -28,7 +29,7 @@ internal static class BabyMetroidWallClearTimingVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.

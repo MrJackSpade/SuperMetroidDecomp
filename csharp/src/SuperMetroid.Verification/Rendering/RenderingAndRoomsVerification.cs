@@ -972,33 +972,33 @@ internal static void VerifyCartridgeRoomStateSelection()
     // All five state headers may remain zero-filled: State.Pointer alone proves which
     // branch won, and TestAddressSpace returns zero for every unwritten payload byte.
     AssertEqual(defaultStatePointer,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "room selector default inline state");
 
     var eventBytes = new byte[Bank80SystemState.EventByteCount];
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)),
         "room selector preserves cartridge priority");
 
     // The Tourian-specific routine owns its boss-bit operand in executable code rather
@@ -1007,12 +1007,12 @@ internal static void VerifyCartridgeRoomStateSelection()
     SeedRoomStateSelectorWords(bus, roomPointer,
         (ushort)RoomStateSelectorCode.MainAreaBossIsDead, 0x9180, (ushort)RoomStateSelectorCode.Finish);
     AssertEqual((ushort)0x9180,
-        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
                 RoomStateSelectorOperands.MainAreaBoss,
                 false,
-                false)).State.Pointer,
+                false)),
         "room selector main-area boss implicit operand");
 
     // Known unused callbacks remain deliberately unsupported, while an arbitrary word is
@@ -1020,11 +1020,11 @@ internal static void VerifyCartridgeRoomStateSelection()
     // through to a fabricated default state.
     SeedRoomStateSelectorWords(bus, roomPointer, (ushort)RoomStateSelectorCode.UnusedDoor);
     AssertThrows<NotSupportedException>(
-        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "known unused room selector fails loudly");
     SeedRoomStateSelectorWords(bus, roomPointer, 0xdead);
     AssertThrows<InvalidDataException>(
-        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "unknown room selector fails loudly");
 
     Console.WriteLine(

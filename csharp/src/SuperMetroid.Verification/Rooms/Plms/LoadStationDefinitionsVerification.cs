@@ -67,7 +67,7 @@ internal static class LoadStationDefinitionsVerification
     }
 
     /// <summary>Checks every destination room header pointer against its native station record.</summary>
-    private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.RoomPointer, "RoomPointer");
+    private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.Room is { } room ? RoomHeaderDefinitions.PointerOf(room) : 0, "RoomPointer");
     /// <summary>Checks every destination door pointer against its native station record.</summary>
     private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
     /// <summary>Checks camera X placement for all 134 retail station slots.</summary>

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Enemies.Spike;
 
 /// <summary>Checks the spike-induced Shinespark suit timing window and Reserve freeze behavior.</summary>
@@ -157,7 +158,7 @@ internal static class SpikeShinesparkSuitVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         RoomLevelData level = runtime.Room.LoadedLevelData;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon goop's two-frame burst and critical-energy pickup handoff.</summary>
 internal static class DraygonGoopDropsVerification
@@ -19,7 +20,7 @@ internal static class DraygonGoopDropsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         runtime.Player.IntroducedSamus.Health = 10;
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.EnemyProjectiles[^1];

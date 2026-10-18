@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks enemy-projectile drawing under room earthquake displacement.</summary>
 internal static class ProjectileQuakeVerification
@@ -24,7 +25,7 @@ internal static class ProjectileQuakeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         var enemies = runtime.Enemies;
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);

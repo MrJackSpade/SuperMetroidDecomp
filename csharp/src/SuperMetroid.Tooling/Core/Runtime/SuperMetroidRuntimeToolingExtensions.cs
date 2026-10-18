@@ -32,19 +32,19 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// in a late room without duplicating several minutes of controller input.
         /// </summary>
         internal InitialViewportResult LoadCartridgeRoomForDebug(
-            ushort roomPointer,
+            RoomHeaderDefinition definition,
             Position16<RoomPixels> camera = default)
         {
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(roomPointer);
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(definition);
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
             var door = new CartridgeDoorHeader(
                 Pointer: 0,
-                DestinationRoomPointer: roomPointer,
+                DestinationRoom: definition,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
@@ -76,7 +76,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             if (self.Player.Samus is null)
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoom);
             return self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,

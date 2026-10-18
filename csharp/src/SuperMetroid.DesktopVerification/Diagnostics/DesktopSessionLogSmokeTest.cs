@@ -2,7 +2,8 @@ using System.Diagnostics;
 using System.IO.Compression;
 using SuperMetroid.Desktop.Diagnostics;
 namespace SuperMetroid.DesktopVerification.Diagnostics;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Confirms only the requested automatic console-to-ZIP lifecycle, without gameplay.</summary>
 internal static class DesktopSessionLogSmokeTest
@@ -72,7 +73,7 @@ internal static class DesktopSessionLogSmokeTest
             // No network is used. Exercise the real reporter's asynchronous worker output.
             using (var reporter = new GitHubErrorReporter("fixture/diagnostics", new LocalIssueClient()))
             {
-                reporter.Report(nested, new GitHubErrorContext("fixture frame boundary", RoomPointer: 0x1234,
+                reporter.Report(nested, new GitHubErrorContext("fixture frame boundary", Room: "FixtureRoom",
                     RoomStatePointer: 0x5678, InputRecordingPath: "fixture.smrec"));
             }
             Console.WriteLine("after checkpoint and reporter shutdown");
@@ -82,7 +83,7 @@ internal static class DesktopSessionLogSmokeTest
         Require(text.Contains("Game version:") && text.Contains("Session started (UTC):") &&
             text.Contains("Session ended (UTC):"), "Session metadata was omitted.");
         Require(text.Contains("ordinary output: 日本語") && text.Contains("stderr-only marker") &&
-            text.Contains("RECOVERABLE ERROR [SMERR-") && text.Contains("Room $8F:1234") &&
+            text.Contains("RECOVERABLE ERROR [SMERR-") && text.Contains("Room FixtureRoom") &&
             text.Contains("Created GitHub error [SMERR-") && text.Contains("after checkpoint and reporter shutdown"),
             "Final ZIP omitted console, failure context, or shutdown output.");
         string[] lines = text.Split(Environment.NewLine);

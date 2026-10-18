@@ -16,6 +16,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Compares captured render packets with legacy frames during Ceres startup and a room pause cycle.</summary>
 internal static class GameplayCaptureIntegrationTestsVerification
@@ -30,7 +31,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
@@ -99,7 +100,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // following slice only exercises one room and its pause/fade dispatch states.
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;

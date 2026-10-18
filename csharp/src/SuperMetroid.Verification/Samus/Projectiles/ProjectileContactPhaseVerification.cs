@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks enemy-projectile contact ordering, damage, and delayed hurt movement.</summary>
 internal static class ProjectileContactPhaseVerification
@@ -22,7 +23,7 @@ internal static class ProjectileContactPhaseVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)

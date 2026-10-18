@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces two issue #1269 Shitroid arithmetic details from the recorded encounter.</summary>
 internal static class ShitroidGradualAccelerationVerification
@@ -21,7 +22,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
 
@@ -51,7 +52,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Player.IntroducedSamus;

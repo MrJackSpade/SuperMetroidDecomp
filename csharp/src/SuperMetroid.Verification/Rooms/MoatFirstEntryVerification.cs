@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
@@ -34,7 +35,7 @@ internal static class MoatFirstEntryVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(source);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source));
             var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
             int behavior = 0;
@@ -44,12 +45,12 @@ internal static class MoatFirstEntryVerification
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
                 var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
-                if (door.Door?.DestinationRoomPointer != 0x95ff) continue;
+                if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Moat) continue;
                 doorX = x; doorY = y; behavior = block.Bts.Value;
                 break;
             }
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
-            runtime.LoadCartridgeRoomForDebug(source,
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
@@ -97,7 +98,7 @@ internal static class MoatFirstEntryVerification
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
-            AssertEqual((ushort)0x95ff, runtime.Room.LoadedRoom.Pointer, "first entry reached reported room");
+            AssertEqual(RoomHeaderDefinitions.Moat, runtime.Room.LoadedRoom.Definition, "first entry reached reported room");
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);

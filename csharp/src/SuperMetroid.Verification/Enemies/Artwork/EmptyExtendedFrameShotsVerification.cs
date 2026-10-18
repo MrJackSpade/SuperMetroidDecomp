@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Confirms an enemy's empty extended frame cannot receive a beam hit before its next solid frame.</summary>
 internal static class EmptyExtendedFrameShotsVerification
@@ -27,7 +28,7 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xa521);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MiniKraid);
         RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGreenWalking);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;

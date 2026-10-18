@@ -313,7 +313,7 @@ internal static class FileSelectRoomMapVerification
         if (savedArea < 6)
         {
             var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
-            var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+            var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(SnesLittleEndian.HighByte(station.SamusPosition.X))), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
@@ -370,8 +370,8 @@ internal static class FileSelectRoomMapVerification
         Until(() => frame.Phase == "Room", 80);
         frame = game.Step(SnesButton.Start);
         Until(() => game.RuntimeForVerification is not null, 100);
-        AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
-            game.GameplayRuntimeForVerification.Room.LoadedRoom.Pointer, "second map confirmation loads selected SRAM station");
+        AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).Room,
+            game.GameplayRuntimeForVerification.Room.LoadedRoom.Definition, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
             for (int tick = 0; tick < limit && !predicate(); tick++)

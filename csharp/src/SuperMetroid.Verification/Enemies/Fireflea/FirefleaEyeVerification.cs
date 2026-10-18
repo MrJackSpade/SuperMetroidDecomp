@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Lower Norfair Fireflea darkness around a retail Fune eye sprite.</summary>
 internal static class FirefleaEyeVerification
@@ -21,7 +22,7 @@ internal static class FirefleaEyeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb6ee);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");

@@ -19,6 +19,7 @@ using SuperMetroid.Rendering.Direct3D11.Presentation;
 namespace SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Hidden-window checks for D3D11 swapchain presentation, worker recovery and bounded frame publication.</summary>
 internal static partial class SwapchainTests
@@ -192,7 +193,7 @@ internal static partial class SwapchainTests
 
     /// <summary>Checks that a blocked GPU consumer does not let a queued gameplay door transition corrupt frame identity or progress.</summary>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ushort door, ushort destination, string context)
+        SuperMetroidRuntime runtime, ushort door, RoomHeaderDefinition destination, string context)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden door backlog verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -287,13 +288,13 @@ internal static partial class SwapchainTests
     /// <summary>Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices.</summary>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
-        foreach (ushort room in new[] { SlowConsumerFixture.AlphaPowerBombRoom, SlowConsumerFixture.MaridiaTubeRoom })
+        foreach (RoomHeaderDefinition room in new[] { RoomHeaderDefinitions.AlphaPowerBomb, RoomHeaderDefinitions.GlassTunnel })
             foreach (bool blockConsumer in new[] { false, true })
                 RunSlowConsumerAudioRoom(selection, room, blockConsumer);
     }
 
     /// <summary>Runs one room-local controller and pause slice through legacy, captured and headless audio paths.</summary>
-    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, ushort room, bool blockConsumer)
+    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomHeaderDefinition room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
@@ -405,7 +406,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             if (blockConsumer && worker.MailboxMetrics.Replaced < 223) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
             CompareRuntimeGraphs("after GPU resumes");
-            Console.WriteLine($"{selection.Kind}: room {room:X4}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
+            Console.WriteLine($"{selection.Kind}: room {room.Name}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
         }
         finally
         {

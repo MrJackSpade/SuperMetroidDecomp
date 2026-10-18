@@ -28,7 +28,7 @@ internal static class RedTowerHeroVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedTower);
             var level = runtime.Room.LoadedLevelData;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;

@@ -19,6 +19,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks close-range Super Missile damage and native projectile slot traversal in Kraid's mouth.</summary>
 internal static class KraidSuperMissileDamageVerification
 {
@@ -35,7 +36,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0xa59f);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         var body=runtime.Enemies.SlotTable.Slots[0];
         var state=(KraidEnemyState)(runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid."));
         state.Parts[0].Function=KraidAiFunction.MainAttackWithMouthOpen;

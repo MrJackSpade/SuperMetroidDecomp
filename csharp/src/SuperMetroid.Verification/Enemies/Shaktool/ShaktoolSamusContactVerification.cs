@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces Shaktool segment contact during the recorded 100% route.</summary>
 internal static class ShaktoolSamusContactVerification
@@ -23,7 +24,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.Shaktool);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Shaktool);
         RoomEnemySlot segment = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.EnemyDefinitionPointer, "slot zero is a Shaktool segment");
         AssertEqual(EnemyInteractionCallback.ShaktoolTouch, EnemyCollision.TouchAi(segment), "Shaktool's header touch callback");

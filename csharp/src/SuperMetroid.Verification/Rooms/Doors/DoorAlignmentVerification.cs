@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 /// <summary>Checks native door-camera alignment steps and the complete retail transition handoff.</summary>
@@ -58,7 +60,7 @@ internal static class DoorAlignmentVerification
         {
             var door = new CartridgeDoorHeader(
                 Pointer: 0x8000,
-                DestinationRoomPointer: 0x9000,
+                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
                 Orientation: new((DoorDirection)direction, DoorClosingBehavior.None),
                 PlmBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
@@ -91,8 +93,8 @@ internal static class DoorAlignmentVerification
     /// <summary>Drives a retail door transition to verify alignment calls, input continuity, game time, and running momentum.</summary>
     private static void VerifyCompleteDoorAlignmentHandoff()
     {
-        const ushort sourceRoom = 0xb236;
-        const ushort destinationRoom = 0xb1e5;
+        RoomHeaderDefinition sourceRoom = RoomHeaderDefinitions.MainHall;
+        RoomHeaderDefinition destinationRoom = RoomHeaderDefinitions.AcidStatue;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -114,7 +116,7 @@ internal static class DoorAlignmentVerification
                 block.Bts.Value,
                 SamusPoseId.MovingRightNormalPose,
                 publishDoorSideEffects: false).Door;
-            if (candidate?.DestinationRoomPointer != destinationRoom)
+            if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
@@ -169,7 +171,7 @@ internal static class DoorAlignmentVerification
             "two-pixel offset takes two movement calls and one completion call");
         AssertTrue(observedDestinationBuild,
             "door transition exercised the destination OAM handoff");
-        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer,
+        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Definition,
             "offset retail transition reaches its destination");
         AssertEqual(58, runtime.GameTime.Frames, "door transition excludes game-time frames");
         AssertEqual(56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");

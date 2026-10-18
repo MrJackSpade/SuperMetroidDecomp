@@ -39,7 +39,7 @@ internal static class CrystalFlashCleanupVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, camera: new Position16<RoomPixels>(384, 384));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, camera: new Position16<RoomPixels>(384, 384));
         for (ushort y = 1; y <= 2; y++)
         for (ushort x = 1; x <= 2; x++)
             runtime.Room.LoadedCamera.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);

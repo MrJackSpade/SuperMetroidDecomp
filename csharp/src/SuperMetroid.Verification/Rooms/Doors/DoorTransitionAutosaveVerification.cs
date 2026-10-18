@@ -20,6 +20,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks automatic door recovery snapshots, restored continuation, and protection of manual save slots.</summary>
 internal static class DoorTransitionAutosaveVerification
@@ -64,10 +65,10 @@ internal static class DoorTransitionAutosaveVerification
             AssertThrows<FileNotFoundException>(() => store.Load(DebuggerStateFormat.AutomaticSlot), "missing auto load error");
             AssertThrows<ArgumentOutOfRangeException>(() => store.GetSlotPath(11), "no other implicit slots");
 
-            PrepareDoor(0x92fd, 0x91f8);
+            PrepareDoor(RoomHeaderDefinitions.Parlor, RoomHeaderDefinitions.LandingSite);
             int writes = FinishDoor(enabled: true);
             AssertEqual(1, writes, "one autosave only at completed transition");
-            AssertEqual((ushort)0x91f8, (game.GameplayActiveRoomPointer ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoomPointer.")), "autosave destination is Landing Site");
+            AssertEqual(RoomHeaderDefinitions.LandingSite, (game.GameplayActiveRoom ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoom.")), "autosave destination is Landing Site");
             byte[] first = File.ReadAllBytes(autoPath);
             string bundle = Path.Combine(directory, "auto-diagnostics.zip");
             SuperMetroid.Diagnostics.Android.AndroidDiagnosticBundle.Create(directory, bundle, DebuggerStateFormat.AutomaticSlot);
@@ -110,13 +111,13 @@ internal static class DoorTransitionAutosaveVerification
             AssertTrue(first.SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
             AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.LoadingNextRoomB,
                 store, bus, game) is null, "replay does not overwrite recovery");
-            PrepareDoor(0x91f8, 0x92fd);
+            PrepareDoor(RoomHeaderDefinitions.LandingSite, RoomHeaderDefinitions.Parlor);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
-            AssertEqual((ushort)0x92fd, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer.")),
+            AssertEqual(RoomHeaderDefinitions.Parlor.Name, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room.")),
                 "second auto points at new destination");
             byte[] second = File.ReadAllBytes(autoPath);
             AssertTrue(!first.SequenceEqual(second), "second transition replaces auto");
-            PrepareDoor(0x92fd, 0x91f8);
+            PrepareDoor(RoomHeaderDefinitions.Parlor, RoomHeaderDefinitions.LandingSite);
             AssertEqual(0, FinishDoor(enabled: false), "disabled transition makes no autosave");
             AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "disabled policy preserves prior auto");
             // Keep the destination open without delete sharing: replacement must fail
@@ -151,7 +152,7 @@ internal static class DoorTransitionAutosaveVerification
                 }
                 throw new InvalidDataException("Autosave fixture door did not complete.");
             }
-            void PrepareDoor(ushort source, ushort destination)
+            void PrepareDoor(RoomHeaderDefinition source, RoomHeaderDefinition destination)
             {
                 runtime.LoadCartridgeRoomForDebug(source);
                 var level = runtime.Room.LoadedLevelData;
@@ -161,7 +162,7 @@ internal static class DoorTransitionAutosaveVerification
                     var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                     if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
                     var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
-                    if (door.Door?.DestinationRoomPointer != destination) continue;
+                    if (door.Door?.DestinationRoom != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
                     var samus = runtime.Player.IntroducedSamus;
                     samus.InputLocked = false;

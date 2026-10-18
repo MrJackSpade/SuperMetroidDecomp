@@ -124,7 +124,7 @@ internal static class EscapeGateVisualsVerification
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
-            DestinationRoomPointer: 0xde4d,
+            DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),

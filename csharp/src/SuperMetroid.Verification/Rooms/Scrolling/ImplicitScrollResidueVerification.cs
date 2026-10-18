@@ -19,8 +19,8 @@ internal static class ImplicitScrollResidueVerification
     internal static void VerifyImplicitScrollResidue()
     {
         var storage = new RoomScrollStorage();
-        CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7de);
-        CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7b3);
+        CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.BusinessCenter);
+        CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(RoomHeaderDefinitions.CathedralEntrance);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
         RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(storage, previous.State.ScrollPointer, previous.Size);

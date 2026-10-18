@@ -20,6 +20,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that one Ki-Hunter spit requests one sound and cannot prolong a door sound wait.</summary>
 internal static class KiHunterSpitAudioVerification
@@ -37,7 +38,7 @@ internal static class KiHunterSpitAudioVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x948c);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaKihunter);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));

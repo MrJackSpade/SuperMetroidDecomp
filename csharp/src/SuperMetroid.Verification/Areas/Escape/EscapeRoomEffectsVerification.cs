@@ -7,7 +7,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>
@@ -24,7 +25,7 @@ internal static class EscapeRoomEffectsVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-            runtime.LoadCartridgeRoomForDebug(room);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
             runtime.Player.IntroducedSamus.InputLocked = true;
             int explosionFrames = 0;
             bool visibleExplosion = false, visibleShake = false;

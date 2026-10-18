@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the second enemy death triggered by a killing Fireflea touch.</summary>
 internal static class FirefleaDoubleDeathVerification
@@ -20,7 +21,7 @@ internal static class FirefleaDoubleDeathVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.LowerNorfairFireflea);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot fireflea = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);

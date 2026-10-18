@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks the four-statues room's special water FX in live physics and displayed BG3 composition.</summary>
 internal static class TourianStatueWaterVerification
 {
@@ -29,7 +30,7 @@ internal static class TourianStatueWaterVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomLayer3Fx.Type, "Actual four-statues room owns special FX 26");
         AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseY.Whole, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");

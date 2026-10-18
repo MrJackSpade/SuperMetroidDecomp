@@ -25,7 +25,7 @@ internal static class ShutterRepeatedBombsVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slotIndex];
             samus.InputLocked = false;

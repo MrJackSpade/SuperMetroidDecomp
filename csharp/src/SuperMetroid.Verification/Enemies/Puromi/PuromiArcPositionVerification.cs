@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Enemies.Puromi;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Puromi's negative-sine body arc in the Lower Norfair Pillar room.</summary>
 internal static class PuromiArcPositionVerification
@@ -17,7 +18,7 @@ internal static class PuromiArcPositionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.LowerNorfairPillar);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Pillar);
 
         RoomEnemyProjectileSlot[] bodies = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)

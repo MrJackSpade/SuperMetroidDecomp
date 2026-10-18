@@ -19,19 +19,19 @@ internal static class RetailRoomPublicationTests
     /// <summary>Compares serialized frame packets with legacy pixels, including water and heat FX publication.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        (ushort Room, PublishedFx Fx)[] rooms =
+        (RoomHeaderDefinition Room, PublishedFx Fx)[] rooms =
         [
-            (RoomHeaderPointers.LandingSite, PublishedFx.Unchecked),
-            (RoomHeaderPointers.ParlorAndAlcatraz, PublishedFx.Unchecked),
-            (RoomHeaderPointers.BlueBrinstarElevatorRoom, PublishedFx.Unchecked),
-            (RoomHeaderPointers.GreenBrinstarMainShaft, PublishedFx.Unchecked),
-            (RoomHeaderPointers.MorphBallRoom, PublishedFx.Unchecked),
-            (RoomHeaderPointers.CeresDeadScientistRoom, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.LandingSite, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.Parlor, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.MorphBall, PublishedFx.Unchecked),
+            (RoomHeaderDefinitions.DeadScientist, PublishedFx.Unchecked),
             (RoomPublicationFixtureDefinitions.BrinstarWater, PublishedFx.Water),
             (RoomPublicationFixtureDefinitions.NorfairBusinessCenter, PublishedFx.Heat),
         ];
         long sequence = 0;
-        foreach ((ushort room, PublishedFx fx) in rooms)
+        foreach ((RoomHeaderDefinition room, PublishedFx fx) in rooms)
         {
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -68,10 +68,10 @@ internal static class RetailRoomPublicationTests
                     heat.Bg2LineScrolls.Vertical.CountDistinct() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: room {room:X4} publication {tick}");
+                    $"{device.Kind}: room {room.Name} publication {tick}");
                 runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false } });
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: room {room:X4} retained publication {tick}");
+                    $"{device.Kind}: room {room.Name} retained publication {tick}");
             }
         }
         Console.WriteLine($"{device.Kind}: {sequence} room publications plus retained checks across {rooms.Length} room-local fixtures match exactly.");

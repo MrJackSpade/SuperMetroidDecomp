@@ -1,16 +1,17 @@
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>
 public static class XrayRoomDisplayRules
 {
-    /// <summary>True for the two room headers $91:D143 excludes; every other room is unaffected.</summary>
-    public static bool IsExcludedRoom(ushort roomPointer) => Enum.IsDefined((XrayExcludedRoom)roomPointer);
+    /// <summary>True for the two rooms $91:D143 excludes; every other room is unaffected.</summary>
+    public static bool IsExcludedRoom(RoomHeaderDefinition room) =>
+        room == RoomHeaderDefinitions.Statues || room == RoomHeaderDefinitions.GlassTunnel;
 
     /// <summary>True only for the excluded room whose preserved display also drops BG2 ($88:81A4).</summary>
-    public static bool RemovesBg2(ushort roomPointer) =>
-        IsExcludedRoom(roomPointer) && (XrayExcludedRoom)roomPointer == XrayExcludedRoom.HiddenBg2Room;
+    public static bool RemovesBg2(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
     /// <summary>
     /// Native CheckIfXrayShouldShowAnyBlocks ($91:D158-D172): five equality
     /// branches on the active enemy-header boss identity preserve the room background.
@@ -32,10 +33,10 @@ public static class XrayRoomDisplayRules
     }
 
     /// <summary>Preserves the native Fireflea precedence over the ordinary room/boss exclusions.</summary>
-    public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, int bossId)
+    public static XrayRoomBlendMode Select(RoomHeaderDefinition room, RoomFxType fx, int bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
-        if (IsExcludedRoom(roomPointer) || PreservesBossBackground(bossId))
+        if (IsExcludedRoom(room) || PreservesBossBackground(bossId))
             return XrayRoomBlendMode.PreserveBackgrounds;
         return XrayRoomBlendMode.RevealBlocks;
     }

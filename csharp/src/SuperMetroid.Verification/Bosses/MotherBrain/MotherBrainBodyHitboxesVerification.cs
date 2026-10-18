@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks projectile collision with Mother Brain's extended body rectangles.</summary>
 internal static class MotherBrainBodyHitboxesVerification
@@ -23,7 +24,7 @@ internal static class MotherBrainBodyHitboxesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot body = state.Body;

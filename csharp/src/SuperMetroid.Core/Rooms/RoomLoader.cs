@@ -177,14 +177,14 @@ internal sealed class RoomLoader
             areaIndex: AreaId.Ceres,
             stationIndex: 0);
         CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
-        if (door.DestinationRoomPointer != station.RoomPointer)
+        if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Ceres station room $8F:{station.RoomPointer:X4} disagrees with door " +
-                $"$83:{door.Pointer:X4}'s destination $8F:{door.DestinationRoomPointer:X4}.");
+                $"Ceres station room {station.Room?.Name} disagrees with door " +
+                $"$83:{door.Pointer:X4}'s destination {door.DestinationRoom.Name}.");
         }
 
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
         if (room.AreaIndex != AreaId.Ceres)
         {
             throw new InvalidDataException(
@@ -229,12 +229,12 @@ internal sealed class RoomLoader
             requestedArea,
             stationIndex);
         CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
-        if (door.DestinationRoomPointer != station.RoomPointer)
+        if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Load station {requestedArea}:{stationIndex} room $8F:{station.RoomPointer:X4} " +
+                $"Load station {requestedArea}:{stationIndex} room {station.Room?.Name} " +
                 $"disagrees with door $83:{door.Pointer:X4}'s destination " +
-                $"$8F:{door.DestinationRoomPointer:X4}.");
+                $"{door.DestinationRoom.Name}.");
         }
 
         // Apply progression before room construction. Enemy and PLM initialization query
@@ -244,7 +244,7 @@ internal sealed class RoomLoader
         RestoreSavedPlayerState(slot, resetBossesOnLoad);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.SamusPosition.X);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.SamusPosition.Y);
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
         if (room.AreaIndex != requestedArea)
         {
             throw new InvalidDataException(
@@ -345,14 +345,14 @@ internal sealed class RoomLoader
             areaIndex: AreaId.Crateria,
             stationIndex: 18);
         CartridgeDoorHeader door = DoorDefinitions.Get(station.DoorPointer);
-        if (door.DestinationRoomPointer != station.RoomPointer)
+        if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Post-Ceres station room $8F:{station.RoomPointer:X4} disagrees with " +
-                $"door $83:{door.Pointer:X4}'s destination $8F:{door.DestinationRoomPointer:X4}.");
+                $"Post-Ceres station room {station.Room?.Name} disagrees with " +
+                $"door $83:{door.Pointer:X4}'s destination {door.DestinationRoom.Name}.");
         }
 
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
         if (room.AreaIndex != AreaId.Crateria)
         {
             throw new InvalidDataException(
@@ -454,7 +454,7 @@ internal sealed class RoomLoader
 
     /// <summary>Whether the pending door's destination room header selects the isolated door transition.</summary>
     public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
-        ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).UsesIsolatedDoorTransition
+        ? LoadCartridgeRoomHeader(door.DestinationRoom).UsesIsolatedDoorTransition
         : throw new InvalidOperationException("No pending door destination exists.");
 
     /// <summary>
@@ -762,14 +762,8 @@ internal sealed class RoomLoader
         RoomLevelData sourceLevel = _room.LevelData;
         CartridgeDoorHeader door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
-        if (door.DestinationRoomPointer < SnesBusLayout.RomWindowStart)
-        {
-            throw new InvalidOperationException(
-                $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
-        }
-
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
-        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+        CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoom);
 
         // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
         // but it does not restore the four subsystem enable words. Destination room setup
@@ -952,7 +946,7 @@ internal sealed class RoomLoader
             room.State.FxPointer,
             door.Pointer,
             _system.RandomNumber,
-            room.Pointer);
+            room.Definition);
         _roomLayer3Fx.PrimeViewport(_room.Camera.PixelPosition);
         _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
@@ -1146,9 +1140,9 @@ internal sealed class RoomLoader
     /// no production path executes bank-$8F selector bytes. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
-    internal CartridgeRoomHeader LoadCartridgeRoomHeader(ushort roomPointer)
+    internal CartridgeRoomHeader LoadCartridgeRoomHeader(RoomHeaderDefinition room)
     {
-        AreaId areaIndex = CartridgeRoomHeader.ReadAreaIndex(roomPointer);
+        AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
 
         // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
         // cheaper and safer than exposing Bank80SystemState's writable SRAM-mirror arrays.
@@ -1165,7 +1159,7 @@ internal sealed class RoomLoader
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&
                 samus.MaxMissiles != 0,
             HasPowerBombs: samus?.MaxPowerBombs != 0);
-        return CartridgeRoomHeader.LoadUsingCompiledSelection(roomPointer, selection);
+        return CartridgeRoomHeader.LoadUsingCompiledSelection(room, selection);
     }
 
     /// <summary>

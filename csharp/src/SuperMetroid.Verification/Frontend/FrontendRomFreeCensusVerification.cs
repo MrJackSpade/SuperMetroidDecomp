@@ -49,7 +49,7 @@ internal static class FrontendRomFreeCensusVerification
                 // Restored snapshots carry no asset bindings; both games load rooms from the installation.
                 bindInstalled(nativeRoom, false);
                 bindInstalled(installedRoom, false);
-                VerifyFrontendRomFreeRoom(nativeRoom, installedRoom, new RomFreeRoom { RoomPointer = room.Pointer, RoomName = $"room ${room.Pointer:X4}" }, frameCount);
+                VerifyFrontendRomFreeRoom(nativeRoom, installedRoom, new RomFreeRoom { Room = room, RoomName = $"room {room.Name}" }, frameCount);
             }
             catch (Exception error)
             {

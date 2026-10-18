@@ -27,7 +27,7 @@ internal static class RespawnedEnemyContactVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Hellway);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Hellway);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
 

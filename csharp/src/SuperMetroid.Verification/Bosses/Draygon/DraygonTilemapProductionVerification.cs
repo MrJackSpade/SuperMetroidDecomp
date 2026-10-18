@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Draygon's full BG2 staging and DMA output from a fresh room.</summary>
 internal static class DraygonTilemapProductionVerification
@@ -28,7 +29,7 @@ internal static class DraygonTilemapProductionVerification
     internal static void VerifyDraygonTilemapProduction()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());

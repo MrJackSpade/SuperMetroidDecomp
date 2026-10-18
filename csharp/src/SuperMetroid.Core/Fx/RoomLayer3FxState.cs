@@ -4,7 +4,8 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -167,8 +168,8 @@ public sealed class RoomLayer3FxState
         ushort fxPointer,
         ushort doorPointer,
         int randomNumber,
-        ushort roomHeaderPointer = 0) =>
-        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
+        RoomHeaderDefinition? room = null) =>
+        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>
     /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
@@ -191,7 +192,7 @@ public sealed class RoomLayer3FxState
         Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
         layer3Area.Write(clearedTilemap);
 
-        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(source.RoomHeaderPointer))
+        if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
             earthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
         if (source.FxPointer == 0)
             return;

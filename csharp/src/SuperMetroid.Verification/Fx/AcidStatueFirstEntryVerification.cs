@@ -13,6 +13,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the first Acid Statue room transition after the Lower Norfair acid-drain event.</summary>
 internal static class AcidStatueFirstEntryVerification
@@ -20,8 +21,8 @@ internal static class AcidStatueFirstEntryVerification
     /// <summary>Follows the retail door and checks drained acid height and pixels during destination fade.</summary>
     internal static void VerifyAcidStatueFirstEntry()
     {
-        const ushort sourceRoom = 0xb236;
-        const ushort destinationRoom = 0xb1e5;
+        RoomHeaderDefinition sourceRoom = RoomHeaderDefinitions.MainHall;
+        RoomHeaderDefinition destinationRoom = RoomHeaderDefinitions.AcidStatue;
         const ushort drainedAcidY = 0x02d2;
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -43,7 +44,7 @@ internal static class AcidStatueFirstEntryVerification
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false).Door;
-            if (candidate?.DestinationRoomPointer != destinationRoom)
+            if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
@@ -77,7 +78,7 @@ internal static class AcidStatueFirstEntryVerification
         {
             DoorTransitionPhase phase = transition.Phase;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
-            ushort activeRoom = runtime.Room.LoadedRoom.Pointer;
+            RoomHeaderDefinition activeRoom = runtime.Room.LoadedRoom.Definition;
             RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)
                 continue;
@@ -100,7 +101,7 @@ internal static class AcidStatueFirstEntryVerification
         }
 
         AssertTrue(!transition.IsActive, "Acid Statue room transition completes");
-        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer, "transition reaches the reported room");
+        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Definition, "transition reaches the reported room");
         AssertTrue(sawDestinationFade, "transition captures the presented destination fade");
         // High acid ($00C8) would cover this whole screen. Just above the drained surface
         // the room's dark background must show; just below it the drained acid is drawn.

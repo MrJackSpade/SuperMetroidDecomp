@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Fireflea fixed-color flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification
@@ -148,7 +149,7 @@ internal static class FirefleaFxVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x9C5E); // Green Brinstar Firefleas, retail room/FX population.
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GreenBrinstarFirefleas); // Green Brinstar Firefleas, retail room/FX population.
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "retail fixture selects Fireflea FX");
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;

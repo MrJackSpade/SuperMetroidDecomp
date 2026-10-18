@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 /// <summary>Checks Mother Brain's tank background staging and phase-two BG2 uploads.</summary>
 internal static class MotherBrainTankBackgroundVerification
 {
@@ -31,7 +32,7 @@ internal static class MotherBrainTankBackgroundVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
         LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), expectedVram, 0xe48a, 0, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
-        runtime.LoadCartridgeRoomForDebug(0xdd58);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         const int bg2ByteAddress = 0x9000;
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(

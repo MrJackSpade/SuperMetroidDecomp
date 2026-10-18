@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that a directionless jump skips horizontal movement and its slope alignment.</summary>
 internal static class JumpNoXMovementVerification
@@ -22,7 +23,7 @@ internal static class JumpNoXMovementVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedFish);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));

@@ -27,7 +27,7 @@ internal static class ItemCancelClearsChargeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedBeams = SamusBeamFlags.Charge;

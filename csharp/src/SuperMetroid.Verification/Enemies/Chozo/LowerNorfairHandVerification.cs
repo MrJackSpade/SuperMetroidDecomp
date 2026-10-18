@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Lower Norfair Chozo hand admission, acid draining, and completed-room re-entry.</summary>
 internal static class LowerNorfairHandVerification
@@ -37,7 +38,7 @@ internal static class LowerNorfairHandVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb1e5);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
@@ -111,7 +112,7 @@ internal static class LowerNorfairHandVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).Surface.Y,
             "final drained height reaches display without a room transition");
-        runtime.LoadCartridgeRoomForDebug(0xb1e5);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
         runtime.StepFrame(0);
         AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseY.Whole, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);

@@ -16,6 +16,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Reproduces enemy sound ordering on the first door-entry update.</summary>
 internal static class DoorEntryEnemySoundVerification
@@ -32,7 +33,7 @@ internal static class DoorEntryEnemySoundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x948c);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaKihunter);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));

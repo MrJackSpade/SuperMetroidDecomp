@@ -11,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests
@@ -56,7 +57,7 @@ internal static class RetailDeathCaptureTests
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Death fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 0;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;

@@ -90,10 +90,8 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomHeaderDefinition header in RoomHeaderDefinitions.All)
         {
-            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(
-                header.Pointer);
-            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(
-                header.Pointer))
+            CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(header);
+            foreach (ushort statePointer in RoomStateSelectionDefinitions.GetStatePointers(header))
             {
                 room = room with { State = RoomStateDefinitions.Get(statePointer) };
                 int source = room.State.CompressedLevelDataAddress;

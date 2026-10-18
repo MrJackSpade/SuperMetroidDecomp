@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Fire input consumed during the spin-to-grapple pose handoff.</summary>
 internal static class GrappleSpinVerification
@@ -24,7 +25,7 @@ internal static class GrappleSpinVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(0x93fe);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Position = samus.Position.WithWhole(new(512, 256));

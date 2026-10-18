@@ -6,7 +6,8 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Samus.Abilities;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks X-Ray reveal admission, Fireflea precedence, and room color math.</summary>
 internal static class XrayRoomDisplayVerification
@@ -15,20 +16,20 @@ internal static class XrayRoomDisplayVerification
     internal static void VerifyXrayRoomDisplayRules()
     {
         // Keep the literal native comparisons independent of the production catalog.
-        // Check every room pointer and every boss word, not only named examples.
-        for (int room = 0; room <= ushort.MaxValue; room++)
+        // Check every room and every boss word, not only named examples.
+        foreach (RoomHeaderDefinition room in RoomHeaderDefinitions.All)
         {
-            bool excluded = room is 0xA66A or 0xCEFB;
+            bool excluded = RoomHeaderDefinitions.PointerOf(room) is 0xA66A or 0xCEFB;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
-                XrayRoomDisplayRules.Select((ushort)room, (RoomFxType)0, 0), "native room reveal admission");
+                XrayRoomDisplayRules.Select(room, (RoomFxType)0, 0), "native room reveal admission");
         }
         for (int boss = 0; boss <= ushort.MaxValue; boss++)
         {
             bool excluded = boss is 3 or 6 or 7 or 8 or 10;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
-                XrayRoomDisplayRules.Select(0, (RoomFxType)0, (ushort)boss), "native boss reveal admission");
+                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.LandingSite, (RoomFxType)0, (ushort)boss), "native boss reveal admission");
             AssertEqual(XrayRoomBlendMode.Fireflea,
-                XrayRoomDisplayRules.Select(0xCEFB, (RoomFxType)0x24, (ushort)boss), "Fireflea mode takes precedence over exclusions");
+                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, (RoomFxType)0x24, (ushort)boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual((ushort)3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
         AssertEqual((byte)0x73, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, false), "reveal CGADSUB");

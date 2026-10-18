@@ -6,6 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks that X-ray suspends Tourian statue animation timers until the scope closes.</summary>
 internal static class TourianStatueXrayFreezeVerification
@@ -23,7 +24,7 @@ internal static class TourianStatueXrayFreezeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xa66a);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
         runtime.Player.IntroducedSamus.InputLocked = true;
 

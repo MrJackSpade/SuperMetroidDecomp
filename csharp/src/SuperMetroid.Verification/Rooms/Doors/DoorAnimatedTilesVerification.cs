@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks Tourian statue tile animation during a real door transition.</summary>
 internal static class DoorAnimatedTilesVerification
@@ -28,7 +29,7 @@ internal static class DoorAnimatedTilesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(0xa5ed);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.StatuesHallway);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
 
@@ -41,7 +42,7 @@ internal static class DoorAnimatedTilesVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, false).Door;
-            if (door?.DestinationRoomPointer == 0xa66a)
+            if (door?.DestinationRoom == RoomHeaderDefinitions.Statues)
                 entry = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true).Door;
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
@@ -59,7 +60,7 @@ internal static class DoorAnimatedTilesVerification
             game.Step(0);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door completes");
-        AssertEqual((ushort)0xa66a, runtime.Room.LoadedRoom.Pointer, "the door enters the statue room");
+        AssertEqual(RoomHeaderDefinitions.Statues, runtime.Room.LoadedRoom.Definition, "the door enters the statue room");
 
         // A directly loaded statue room stepped by the same number of handler calls.
         var reference = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

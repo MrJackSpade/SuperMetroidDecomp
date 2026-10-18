@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification
@@ -50,7 +51,7 @@ internal static class RidleyPlayerOpeningVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         var enemies = runtime.Enemies;
         var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);

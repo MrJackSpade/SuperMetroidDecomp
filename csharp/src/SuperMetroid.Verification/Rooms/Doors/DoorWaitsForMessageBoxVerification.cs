@@ -30,11 +30,11 @@ internal static class DoorWaitsForMessageBoxVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Player.IntroducedSamus.InputLocked = false;
         CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .First(candidate => (candidate.DestinationRoomPointer & 0x8000) != 0);
+            .First();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;

@@ -24,7 +24,7 @@ internal static class ShutterRidingVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, camera: new Position16<RoomPixels>(0x100, 0));
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope, camera: new Position16<RoomPixels>(0x100, 0));
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot];

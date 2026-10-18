@@ -22,7 +22,7 @@ internal static class RetailEyeCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom,
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MorphBall,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
         var body = runtime.Enemies.SlotTable.Slots[1];
         var samus = runtime.Player.IntroducedSamus;

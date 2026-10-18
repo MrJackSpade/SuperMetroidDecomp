@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -42,7 +43,7 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Matches each door's two-byte destination room pointer at record offset zero.</summary>
-    private static void VerifyDoorHeaderDestinationRoomPointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 0, 2, header => header.DestinationRoomPointer);
+    private static void VerifyDoorHeaderDestinationRoomPointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 0, 2, header => RoomHeaderDefinitions.PointerOf(header.DestinationRoom));
     /// <summary>Matches the encoded orientation byte at door-header offset three.</summary>
     private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 3, 1, header => header.Orientation.Encode());
     /// <summary>Matches the door PLM's horizontal block coordinate at offset four.</summary>

@@ -191,7 +191,7 @@ internal sealed class AcceptedFrameBoundary
             _roomLayer3Fx.Type,
             _roomLayer3Fx.LayerBlendConfiguration,
             ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
-            room?.Pointer,
+            room?.Definition,
             _enemies.RoomStatus.BossId);
     }
 

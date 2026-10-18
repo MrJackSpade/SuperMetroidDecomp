@@ -20,7 +20,7 @@ internal static class BoostFloorAuditVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.NorfairRoom1E);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.DoubleChamber);
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;

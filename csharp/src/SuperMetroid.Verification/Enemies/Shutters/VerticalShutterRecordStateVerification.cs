@@ -14,7 +14,7 @@ internal static class VerticalShutterRecordStateVerification
     /// </summary>
     internal static void VerifyVerticalShutterRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new VerticalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

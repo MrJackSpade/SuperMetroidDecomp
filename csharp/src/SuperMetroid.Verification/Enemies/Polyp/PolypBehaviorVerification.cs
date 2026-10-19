@@ -15,7 +15,7 @@ internal static class PolypBehaviorVerification
     /// <summary>The real initializer starts the stationary program, which shows its one frame and then holds it.</summary>
     internal static void VerifyPolypBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

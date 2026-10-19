@@ -28,7 +28,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>Creates the four linked Phantoon parts and a deterministic random source.</summary>
     internal static RoomEnemySystem CreatePhantoonSystem()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -267,7 +267,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>The pre-Phantoon room projectile's blank hold and deletion match $86:A3AA update by update.</summary>
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var scroll = new BackgroundScrollState();
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);

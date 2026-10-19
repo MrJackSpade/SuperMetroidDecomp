@@ -29,7 +29,7 @@ internal static class PuyoOwnedStateVerification
         hop.StepAirborneIndex(0x0100);
         AssertEqual((0x7f00, true), (hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);

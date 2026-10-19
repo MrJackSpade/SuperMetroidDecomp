@@ -59,7 +59,7 @@ internal static class ShutterBehaviorVerification
 
         RoomEnemySystem NewSystem()
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
@@ -246,7 +246,7 @@ internal static class ShutterBehaviorVerification
 
         static void Confirm(byte primaryDirection, ushort spawnY, ushort expectedUpperY, ushort expectedLowerY)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));

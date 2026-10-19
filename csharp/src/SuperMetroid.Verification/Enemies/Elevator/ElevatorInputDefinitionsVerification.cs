@@ -32,7 +32,7 @@ internal static class ElevatorInputDefinitionsVerification
             ushort tableByteOffset = (ushort)(direction * 2);
             SnesButton native = (SnesButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;

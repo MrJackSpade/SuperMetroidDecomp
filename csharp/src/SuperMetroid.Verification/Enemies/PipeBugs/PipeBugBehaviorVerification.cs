@@ -34,7 +34,7 @@ internal static class PipeBugBehaviorVerification
                 var name when name.StartsWith("Gamet", StringComparison.Ordinal) => (EnemyDefinitionId.Gamet, (ushort)0),
                 _ => (EnemyDefinitionId.Geega, (ushort)0),
             };
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
@@ -58,7 +58,7 @@ internal static class PipeBugBehaviorVerification
     {
         foreach ((int before, int after, bool departs) in new[] { (70, 71, false), (71, 0, true), (65535, 0, false), (32839, 32840, false) })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
@@ -73,7 +73,7 @@ internal static class PipeBugBehaviorVerification
         }
 
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
@@ -90,7 +90,7 @@ internal static class PipeBugBehaviorVerification
 
         {
             const int onePixel = 65536;
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
@@ -126,7 +126,7 @@ internal static class PipeBugBehaviorVerification
     /// <summary>A freshly initialized Pipe Bug's state.</summary>
     private static PipeBugEnemyState Initialized(EnemyDefinitionId definition, ushort parameter)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return Initialize(enemies, enemies.SlotTable.Slots[0], definition, parameter);
     }

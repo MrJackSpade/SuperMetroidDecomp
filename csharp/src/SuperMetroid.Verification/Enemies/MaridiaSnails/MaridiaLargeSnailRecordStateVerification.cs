@@ -14,7 +14,7 @@ internal static class MaridiaLargeSnailRecordStateVerification
     /// </summary>
     internal static void VerifyMaridiaLargeSnailRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MaridiaLargeSnailEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

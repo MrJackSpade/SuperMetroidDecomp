@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
                         ShitroidColorRomData.TargetColorCount * sizeof(ushort)),
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);

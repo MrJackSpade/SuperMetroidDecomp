@@ -19,7 +19,7 @@ internal static class CrawlerSpeedsVerification
         var reset = new Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
             CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
         var setYard = new Action<YardEnemyState, int>(YardEnemyBehavior.SetYardCrawlingVelocities);
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var yard = new YardEnemyState();
         int speedParameter = 0;
         for (ushort parameter = 0; parameter < 32; parameter++)

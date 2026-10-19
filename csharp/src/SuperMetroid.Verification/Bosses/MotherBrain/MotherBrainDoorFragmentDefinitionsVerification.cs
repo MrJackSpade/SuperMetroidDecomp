@@ -31,7 +31,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         var guarded = NewMotherBrainDoorFragmentReadGuard(rom);
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.MotherBrainBehavior.SpawnMotherBrainDoorFragment(parameter);
 

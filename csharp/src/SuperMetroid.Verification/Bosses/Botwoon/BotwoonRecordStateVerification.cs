@@ -14,7 +14,7 @@ internal static class BotwoonRecordStateVerification
     /// </summary>
     internal static void VerifyBotwoonRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -37,7 +37,7 @@ internal static class DmaArtworkBoundaryVerification
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var background = new SnesVram();
         enemies.Presentation.BindVram(background);

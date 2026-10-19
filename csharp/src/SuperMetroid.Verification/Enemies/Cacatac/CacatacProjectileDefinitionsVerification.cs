@@ -17,7 +17,7 @@ internal static class CacatacProjectileDefinitionsVerification
     {
         const int instructionTable = 0x86d96a;
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
         RoomEnemySlot source = enemies.SlotTable.Slots[0];

@@ -125,7 +125,7 @@ internal static class DraygonAnimationsVerification
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
     private static (RoomEnemySystem Enemies, DraygonEnemyState State) NewDraygon()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));

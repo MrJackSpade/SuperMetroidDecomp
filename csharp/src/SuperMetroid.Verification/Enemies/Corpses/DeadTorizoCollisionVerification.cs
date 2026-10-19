@@ -20,7 +20,7 @@ internal static class DeadTorizoCollisionVerification
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
-            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             var slot = enemies.SlotTable.Slots[0];

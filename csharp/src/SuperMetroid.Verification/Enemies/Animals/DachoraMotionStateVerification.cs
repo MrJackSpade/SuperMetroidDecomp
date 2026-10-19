@@ -90,7 +90,7 @@ internal static class DachoraMotionStateVerification
     /// <summary>An initialized Dachora with spawn parameter <paramref name="parameter"/> in the first slot of a fresh room.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DachoraEnemyState State) NewDachora(ushort parameter)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);

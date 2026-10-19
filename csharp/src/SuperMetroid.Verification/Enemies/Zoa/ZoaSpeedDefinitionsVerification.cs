@@ -26,7 +26,7 @@ internal static class ZoaSpeedDefinitionsVerification
             Console.WriteLine("Zoa speed cases: all 17 original byte windows and invalid bounds pass.");
             return;
         }
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();

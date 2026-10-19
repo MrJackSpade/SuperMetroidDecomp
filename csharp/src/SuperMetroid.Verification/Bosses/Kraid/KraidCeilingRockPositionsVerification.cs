@@ -33,7 +33,7 @@ internal static class KraidCeilingRockPositionsVerification
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1)));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

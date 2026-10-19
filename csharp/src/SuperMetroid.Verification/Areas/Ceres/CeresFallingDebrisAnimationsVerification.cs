@@ -26,7 +26,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             AssertEqual(entry, program == CeresFallingDebrisProgram.Light
                 ? CeresFallingDebrisVisualDefinitionsConstants.LightDefinitionList
                 : CeresFallingDebrisVisualDefinitionsConstants.DarkDefinitionList, $"the {program} tile definition names its native list");
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");

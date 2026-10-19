@@ -79,7 +79,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     /// <summary>An Oum after its real initializer.</summary>
     private static (RoomEnemySystem, RoomEnemySlot, MaridiaLargeSnailEnemyState) Create()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Oum, slot.Definition);

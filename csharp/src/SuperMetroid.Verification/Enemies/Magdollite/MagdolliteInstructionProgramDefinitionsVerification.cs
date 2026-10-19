@@ -131,7 +131,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, MagdolliteEnemyState State) CreateSystem(
             MagdollitePart selectedPart)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             for (int index = 0; index < 3; index++)

@@ -19,7 +19,7 @@ internal static class MochtroidBehaviorVerification
     /// </summary>
     internal static void VerifyMochtroidBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);

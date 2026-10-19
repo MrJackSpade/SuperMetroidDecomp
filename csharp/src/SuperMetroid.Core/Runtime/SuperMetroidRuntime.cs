@@ -150,7 +150,7 @@ internal sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         Mode7QueueResidue = Ensure.NotNull(mode7QueueResidue);
-        Enemies.Room.Mode7QueueResidue = Mode7QueueResidue;
+        EnemySession.Mode7QueueResidue = Mode7QueueResidue;
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
@@ -341,7 +341,10 @@ internal sealed class SuperMetroidRuntime
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
     /// <summary>Active room's fixed 32-slot bank-$A0 enemy system.</summary>
-    public RoomEnemySystem Enemies { get; } = new();
+    public RoomEnemySystem Enemies { get; } = new(new EnemySession());
+
+    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
+    internal EnemySession EnemySession => Enemies.Room.Session;
 
     /// <summary>The last enemy pass's results, for readers after the frame.</summary>
     internal IEnemyFrameResults EnemyFrameResults => Enemies;

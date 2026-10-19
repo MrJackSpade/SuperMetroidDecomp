@@ -25,7 +25,7 @@ internal static class GunshipMotionDefinitionsVerification
         {
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
@@ -55,7 +55,7 @@ internal static class GunshipMotionDefinitionsVerification
             byte expectedTimer = GunshipMotionDefinitionsRomByte(rom, address);
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];

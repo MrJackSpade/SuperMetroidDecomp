@@ -47,7 +47,7 @@ internal static class MetroidBehaviorDefinitionsVerification
     {
         var guarded = NewMetroidBehaviorReadGuard(rom);
         // One system serves every timer: the escape step is static and keeps no per-call state.
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
@@ -91,7 +91,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort random = 0; random < 8; random++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));

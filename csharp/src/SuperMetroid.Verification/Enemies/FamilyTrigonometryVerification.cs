@@ -92,7 +92,7 @@ internal static class FamilyTrigonometryVerification
 
         // A real linked-slot placement with no loaded bus verifies the production
         // caller, low angular byte, preceding segment subpixels and signed carry/wrap.
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var previous = enemies.SlotTable.Slots[0];
         var segment = enemies.SlotTable.Slots[1];
         previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);

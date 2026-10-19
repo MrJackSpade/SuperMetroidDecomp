@@ -80,7 +80,7 @@ internal static class EnemyQuadraticSpeedsVerification
                 "KiHunter high-byte index and odd-word angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
-        var maw = new YappingMawEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
+        var maw = new YappingMawEnemyState(new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0]);
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int record = 0; record < EnemyQuadraticSpeedDefinitions.RecordCount; record++)

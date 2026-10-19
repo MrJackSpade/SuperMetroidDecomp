@@ -105,7 +105,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         (RoomEnemySystem Enemies, RoomEnemySlot Slot,
             WalkingSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);

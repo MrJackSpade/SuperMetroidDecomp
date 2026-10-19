@@ -14,7 +14,7 @@ internal static class FlyOwnedStateVerification
     /// </summary>
     internal static void VerifyFlyOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mellow, slot.Definition);

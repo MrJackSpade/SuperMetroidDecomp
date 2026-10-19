@@ -173,7 +173,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>
     private static (RoomEnemySystem Enemies, DraygonEnemyState State) NewDraygon()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));

@@ -15,7 +15,7 @@ internal static class MetroidRecordStateVerification
     /// </summary>
     internal static void VerifyMetroidRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1));
         slot.SetSpeciesState(state, state.ClearWithRecord);

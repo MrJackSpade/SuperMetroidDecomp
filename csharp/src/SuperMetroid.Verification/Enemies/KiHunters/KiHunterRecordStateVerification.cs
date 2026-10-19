@@ -14,7 +14,7 @@ internal static class KiHunterRecordStateVerification
     /// </summary>
     internal static void VerifyKiHunterRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);

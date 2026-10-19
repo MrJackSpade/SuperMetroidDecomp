@@ -38,7 +38,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)

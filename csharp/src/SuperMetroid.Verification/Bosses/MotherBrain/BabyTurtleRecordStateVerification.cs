@@ -14,7 +14,7 @@ internal static class BabyTurtleRecordStateVerification
     /// </summary>
     internal static void VerifyBabyTurtleRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BabyTurtleEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -137,7 +137,7 @@ internal static void VerifyRoomEnemyLoading()
         stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
             EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
-    var enemies = new RoomEnemySystem
+    var enemies = new RoomEnemySystem(new EnemySession())
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -207,7 +207,7 @@ internal static void VerifyRoomEnemyLoading()
     // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native
     // high-bit staging branch, so a single hard-coded destination cannot pass.
-    var installedEnemies = new RoomEnemySystem
+    var installedEnemies = new RoomEnemySystem(new EnemySession())
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
@@ -345,7 +345,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var bus = new TestAddressSpace();
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
-    var enemies = new RoomEnemySystem();
+    var enemies = new RoomEnemySystem(new EnemySession());
     enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
 
     RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
@@ -477,7 +477,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     {
         [definitionPointer] = RoomCharacterAtlas.Load(tilePng, 32),
     };
-    var enemies = new RoomEnemySystem
+    var enemies = new RoomEnemySystem(new EnemySession())
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }),
     };
@@ -729,7 +729,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
     SeedCeresElevatorPlatformTransfers(bus, light, dark);
 
-    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
+    var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram, new StandaloneRoomEnemyServices(() => 0)));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
@@ -780,7 +780,7 @@ internal static void VerifyCeresDoorBossBranch()
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
-    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
+    var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram, new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
@@ -876,7 +876,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     };
     using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
         fixtureSprites, CamelCaseJson));
-    var enemies = new RoomEnemySystem
+    var enemies = new RoomEnemySystem(new EnemySession())
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -932,7 +932,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
     enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-    enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+    enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {

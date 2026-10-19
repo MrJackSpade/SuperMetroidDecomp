@@ -408,7 +408,7 @@ internal static class EnemyDropsVerification
         RoomLevelData level = CreateRoom(new(1, 1),
             new ushort[1],
             new byte[1]);
-        var system = new RoomEnemySystem();
+        var system = new RoomEnemySystem(new EnemySession());
         system.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(NextRandom)) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }

@@ -25,7 +25,7 @@ internal static class KraidGrowthCommandCursorVerification
         var referenceArt = new EnemyIdentityFixture().Build().KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapAtlas.Encode(
             new byte[KraidBackgroundRomData.HeadTilemapWords * 2])));
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles) }),

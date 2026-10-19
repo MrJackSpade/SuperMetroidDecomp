@@ -19,7 +19,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();
-        var installed = new RoomEnemySystem();
+        var installed = new RoomEnemySystem(new EnemySession());
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];

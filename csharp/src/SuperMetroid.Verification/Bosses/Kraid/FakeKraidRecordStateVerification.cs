@@ -14,7 +14,7 @@ internal static class FakeKraidRecordStateVerification
     /// </summary>
     internal static void VerifyFakeKraidRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new FakeKraidEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -94,7 +94,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     SporeSpawnColorRomData.FrameByteCount),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);

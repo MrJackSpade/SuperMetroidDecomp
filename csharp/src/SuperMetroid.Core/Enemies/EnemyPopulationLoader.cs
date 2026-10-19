@@ -36,7 +36,11 @@ internal sealed class EnemyPopulationLoader
     internal void ResetForRoomLoad() => GraphicsSet.Clear();
 
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
-    public int DeathQuota { get; private set; }
+    public int DeathQuota
+    {
+        get => _room.Session.DeathQuota;
+        private set => _room.Session.DeathQuota = value;
+    }
 
     /// <summary>
     /// Appends enemy tile DMAs after the standard OBJ transfer queued by room setup.

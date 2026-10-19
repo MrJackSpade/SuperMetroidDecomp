@@ -14,7 +14,7 @@ internal static class MochtroidRecordStateVerification
     /// </summary>
     internal static void VerifyMochtroidRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MochtroidEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

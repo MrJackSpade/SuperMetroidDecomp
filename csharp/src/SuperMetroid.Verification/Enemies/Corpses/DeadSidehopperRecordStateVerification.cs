@@ -14,7 +14,7 @@ internal static class DeadSidehopperRecordStateVerification
     /// </summary>
     internal static void VerifyDeadSidehopperRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         slot.SetSpeciesState(state, state.ClearWithRecord);

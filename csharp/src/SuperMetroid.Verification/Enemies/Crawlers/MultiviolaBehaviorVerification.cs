@@ -16,7 +16,7 @@ internal static class MultiviolaBehaviorVerification
     /// <summary>Confirms a kill empties the Multiviola's velocity, as the cleared common record does.</summary>
     internal static void VerifyMultiviolaOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
@@ -41,7 +41,7 @@ internal static class MultiviolaBehaviorVerification
     /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
     internal static void VerifyMultiviolaBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);

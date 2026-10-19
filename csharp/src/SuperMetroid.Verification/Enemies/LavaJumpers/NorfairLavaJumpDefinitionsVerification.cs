@@ -27,7 +27,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
 
         ushort nextRandom = 0;
         int advances = 0;
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
             {

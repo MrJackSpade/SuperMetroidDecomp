@@ -18,7 +18,7 @@ internal static class CacatacProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, CacatacProjectileNativeListAddresses.Extent, "Cacatac spike");
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) };
             enemies.CacatacBehavior.SpawnCacatacSpike(source, direction);

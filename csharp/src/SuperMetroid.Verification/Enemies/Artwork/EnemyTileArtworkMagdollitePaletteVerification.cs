@@ -73,7 +73,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
 
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
         var cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);

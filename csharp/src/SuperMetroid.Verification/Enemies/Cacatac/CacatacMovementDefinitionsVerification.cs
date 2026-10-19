@@ -17,7 +17,7 @@ internal static class CacatacMovementDefinitionsVerification
     {
         const int distanceTable = 0xa29f36;
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = CacatacBehavior.InitializeCacatac;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

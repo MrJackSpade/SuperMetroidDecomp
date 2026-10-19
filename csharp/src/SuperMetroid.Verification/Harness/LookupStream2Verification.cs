@@ -158,7 +158,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -1018,7 +1018,7 @@ internal static class LookupStream2Verification
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
         corpseTiles.Fill(0);
@@ -1076,7 +1076,7 @@ internal static class LookupStream2Verification
     {
         Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
         Action<YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var yard = new YardEnemyState();
         int speedParameter = 0;
         for (ushort parameter = 0; parameter < 32; parameter++)
@@ -1222,7 +1222,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Kraid = state;
@@ -1307,7 +1307,7 @@ internal static class LookupStream2Verification
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             for (int member = 0; member < 5; member++)
             {
                 var slot = enemies.SlotTable.Slots[member];
@@ -1610,7 +1610,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks Dead Torizo VRAM descriptors, terminators, and fourteen queued live-WRAM transfers.</summary>
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         Action<DeadTorizoEnemyState> build = enemies.DeadTorizoBehavior.BuildDeadTorizoVramTransfers;
         for (ushort phase = 0; phase < 2; phase++)
@@ -1652,7 +1652,7 @@ internal static class LookupStream2Verification
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
@@ -1804,7 +1804,7 @@ internal static class LookupStream2Verification
     {
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState();
         for (int index = 0; index < 9; index++)
         {

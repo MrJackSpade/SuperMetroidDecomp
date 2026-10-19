@@ -14,7 +14,7 @@ internal static class CacatacRecordStateVerification
     /// </summary>
     internal static void VerifyCacatacRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new CacatacEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

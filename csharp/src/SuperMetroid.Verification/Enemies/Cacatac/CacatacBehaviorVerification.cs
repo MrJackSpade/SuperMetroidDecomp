@@ -64,7 +64,7 @@ internal static class CacatacBehaviorVerification
         const int onePixel = 65536;
         const int halfPixel = onePixel / 2;
         var oneAndAHalfPixels = SnesSignedSixteenSixteen.FromRaw(onePixel + halfPixel);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 100);
@@ -107,7 +107,7 @@ internal static class CacatacBehaviorVerification
     /// <summary>A Cacatac initialized upright or inverted.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, CacatacEnemyState State) Create(bool upsideUp)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);

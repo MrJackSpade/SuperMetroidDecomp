@@ -12,7 +12,7 @@ internal static class EnemyRoomCountersVerification
     /// <summary>Checks the darkness, slot-table and kill-count ranges.</summary>
     internal static void VerifyEnemyRoomCounters()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
 
         enemies.RoomStatus.FirefleaDarknessLevel = EnemyRoomStatus.MaximumFirefleaDarknessLevel;
         AssertEqual(12, enemies.RoomStatus.FirefleaDarknessLevel, "darkness reaches its deepest accepted level");

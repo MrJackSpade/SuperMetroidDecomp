@@ -14,7 +14,7 @@ internal static class RinkaRecordStateVerification
     /// </summary>
     internal static void VerifyRinkaRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new RinkaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

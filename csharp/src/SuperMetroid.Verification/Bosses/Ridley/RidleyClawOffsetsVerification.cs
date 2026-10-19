@@ -39,7 +39,7 @@ internal static class RidleyClawOffsetsVerification
         }
         Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = RidleyBehavior.UpdateNorfairRidleyGrabbedSamus;
         Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = RidleyBehavior.RidleyClawOverlapsSamus;
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         var samus = new SamusState();
         static int Decay(short offset) => offset < 0 ? Math.Min(0, offset + 4) : Math.Max(0, offset - 4);

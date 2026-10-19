@@ -57,7 +57,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         RinkaProgram program,
         bool special)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

@@ -197,7 +197,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
 
         // Invoke the production overlap walker with all cartridge reads
         // denied. This checks the actual dispatch, not just a matching table.
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
@@ -231,7 +231,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
         ushort pointer, bool newInstructionFrame)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);

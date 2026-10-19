@@ -58,7 +58,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         CeresEscapeOverlayTilemapCatalog overlay =
             CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
-        var system = new RoomEnemySystem
+        var system = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },

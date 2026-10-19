@@ -46,7 +46,7 @@ internal static class CeresEscapeTileArtworkVerification
             writable: false);
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(timerPng);
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem
+        var installed = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = stock,
             Presentation = { EscapeTimerArtwork = timer },
@@ -123,7 +123,7 @@ internal static class CeresEscapeTileArtworkVerification
             "Ceres warning PNG edit changes the first tile-plane byte");
         AssertTrue(stockChunk.Span[1..].SequenceEqual(editedChunk.Span[1..]),
             "Ceres warning PNG edit leaves other transfer bytes unchanged");
-        var editedEnemies = new RoomEnemySystem
+        var editedEnemies = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = edited,
             Presentation = { EscapeTimerArtwork = timer },
@@ -162,7 +162,7 @@ internal static class CeresEscapeTileArtworkVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "invalid Ceres warning PNG fails loudly");
 
-        var missing = new RoomEnemySystem
+        var missing = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
             Presentation = { EscapeTimerArtwork = timer },

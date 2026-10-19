@@ -19,7 +19,7 @@ internal static class BabyMetroidDeathCryVerification
     internal static int VerifyBabyMetroidDeathCry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var installation = RepositoryInstallation.Installation;
         enemies.Presentation.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();

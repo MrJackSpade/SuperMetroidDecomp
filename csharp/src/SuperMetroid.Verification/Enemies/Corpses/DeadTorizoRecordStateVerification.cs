@@ -11,7 +11,7 @@ internal static class DeadTorizoRecordStateVerification
     /// <summary>Installs a Dead Torizo state with its record-clearing operation, sets every record value and confirms a kill empties each.</summary>
     internal static void VerifyDeadTorizoRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadTorizoEnemyState(slot, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         slot.SetSpeciesState(state, state.ClearWithRecord);

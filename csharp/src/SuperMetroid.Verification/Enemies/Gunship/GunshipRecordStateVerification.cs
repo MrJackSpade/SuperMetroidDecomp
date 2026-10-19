@@ -13,7 +13,7 @@ internal static class GunshipRecordStateVerification
     /// </summary>
     internal static void VerifyGunshipRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);

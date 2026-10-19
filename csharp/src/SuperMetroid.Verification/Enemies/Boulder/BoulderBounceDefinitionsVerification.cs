@@ -13,7 +13,7 @@ internal static class BoulderBounceDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boulder bounces")]
     internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);

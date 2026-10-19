@@ -14,7 +14,7 @@ internal static class SkreeRecordStateVerification
     /// </summary>
     internal static void VerifySkreeRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SkreeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

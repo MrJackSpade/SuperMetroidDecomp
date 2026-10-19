@@ -15,7 +15,7 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);

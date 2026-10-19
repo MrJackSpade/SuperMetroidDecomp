@@ -24,7 +24,7 @@ internal static class MotherBrainGlassSuperMissileVerification
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         int glassHits = 0;
         enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = (Action)(() => glassHits++);

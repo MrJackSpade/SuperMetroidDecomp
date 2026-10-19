@@ -73,7 +73,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
         MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
     {
-        var enemies = new RoomEnemySystem { Presentation = { MotherBrainRainbowColors = colors } };
+        var enemies = new RoomEnemySystem(new EnemySession()) { Presentation = { MotherBrainRainbowColors = colors } };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindCgram(cgram);
         return enemies;

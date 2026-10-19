@@ -268,7 +268,7 @@ internal static class LookupStream1Verification
     /// <summary>A room enemy system holding one initialized escape Dachora in slot zero.</summary>
     private static RoomEnemySystem CreateEscapeDachoraProgramSystem()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
@@ -289,7 +289,7 @@ internal static class LookupStream1Verification
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
             var balloon = enemies.SlotTable.Slots[0];
@@ -363,7 +363,7 @@ internal static class LookupStream1Verification
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

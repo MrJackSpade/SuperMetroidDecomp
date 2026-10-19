@@ -29,7 +29,7 @@ internal static class GrappleGatesVerification
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
-            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Load(new RoomEnemyLoadRequest(bus, bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(plms.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);

@@ -14,7 +14,7 @@ internal static class BullRecordStateVerification
     /// </summary>
     internal static void VerifyBullRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BullEnemyState(new BullExtensionWords());
         slot.SetSpeciesState(state, state.ClearWithRecord);

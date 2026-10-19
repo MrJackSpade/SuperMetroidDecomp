@@ -37,8 +37,8 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
-        var actual = new RoomEnemySystem();
-        var reference = new RoomEnemySystem();
+        var actual = new RoomEnemySystem(new EnemySession());
+        var reference = new RoomEnemySystem(new EnemySession());
         actual.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         reference.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;

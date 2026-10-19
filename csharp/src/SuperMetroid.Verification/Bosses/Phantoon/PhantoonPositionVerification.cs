@@ -19,7 +19,7 @@ internal static class PhantoonPositionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
-        var capEnemies = new RoomEnemySystem();
+        var capEnemies = new RoomEnemySystem(new EnemySession());
         var capBody = capEnemies.SlotTable.Slots[0];
         var capTentacles = capEnemies.SlotTable.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };

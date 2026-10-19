@@ -88,7 +88,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         int variantIndex,
         DeadTourianCorpseDefinition expected)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

@@ -13,7 +13,7 @@ internal static class PipeBugRecordStateVerification
     /// </summary>
     internal static void VerifyPipeBugRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new PipeBugEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);

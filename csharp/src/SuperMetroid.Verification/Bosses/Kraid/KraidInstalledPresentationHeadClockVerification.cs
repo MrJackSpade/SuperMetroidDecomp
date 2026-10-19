@@ -157,7 +157,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
-            Enemies = new RoomEnemySystem { TileArtwork = art };
+            Enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
             State = BuildKraidWorkingMap(art);
             Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Enemies.Presentation.BindVram(Vram);

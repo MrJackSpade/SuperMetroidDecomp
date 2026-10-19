@@ -48,7 +48,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = DraygonColorCatalog.Load(colors) }),
         };

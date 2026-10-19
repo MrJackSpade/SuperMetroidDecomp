@@ -21,7 +21,7 @@ internal static class DeadTourianBehaviorVerification
     /// </summary>
     internal static void VerifyDeadSidehopperBehavior()
     {
-        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);

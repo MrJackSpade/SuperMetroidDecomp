@@ -11,7 +11,7 @@ internal static class CeresDoorRecordStateVerification
     /// <summary>Installs a Ceres door state with its record-clearing operation, sets every record value and confirms a kill empties each.</summary>
     internal static void VerifyCeresDoorRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new CeresDoorEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -141,7 +141,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
 )
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < 7; index++)

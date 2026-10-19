@@ -29,7 +29,7 @@ internal static class YardTrajectoriesVerification
         Suite(nameof(VerifyYardAirborneTrajectories), () => VerifyYardAirborneTrajectories(room));
         for (int focus = 0; focus < 5; focus++)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
             var random = new Bank80SystemState();
             enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
             var actor = enemies.SlotTable.Slots[focus];
@@ -65,7 +65,7 @@ internal static class YardTrajectoriesVerification
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))
         foreach (ushort facing in new ushort[] { 0, 1 })
         {
-            var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];

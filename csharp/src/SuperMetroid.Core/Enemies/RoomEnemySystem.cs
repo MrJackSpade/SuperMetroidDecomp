@@ -150,7 +150,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public ObjCharacterUploads ObjCharacters
     {
         get => Presentation.ObjCharacters;
-        internal set => Presentation.ObjCharacters = value;
     }
 
     /// <summary>The <see cref="EnemySlotTable"/> owner of this RoomEnemySystem.</summary>
@@ -449,7 +448,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     internal EnemySpeciesRegistry Species { get; }
 
     /// <summary>The loaded room's address space, services and artwork, shared with the composed owners.</summary>
-    internal EnemyRoomBinding Room { get; } = new();
+    internal EnemyRoomBinding Room { get; }
 
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
     public EscapeTypewriterPresentation? EscapeTypewriterPresentation
@@ -544,17 +543,19 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public EnemyFrameResult LastEnemyFrame => FrameResults.Build();
 
     /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
-    public RoomEnemySystem()
+    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    public RoomEnemySystem(EnemySession session)
     {
+        Room = new EnemyRoomBinding(session);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();
-        RoomStatus = new EnemyRoomStatus();
-        FrameContext = new EnemyFrameContext();
+        RoomStatus = new EnemyRoomStatus(session);
+        FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(Room);
         SlotTable = new EnemySlotTable();
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, this);
-        RidleyEncounter = new RidleyEncounter(SlotTable);
+        RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
         SpriteObjects = new RoomSpriteObjectPool(Room);
         Audio = new EnemyAudioQueue();
@@ -761,8 +762,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// </summary>
     public EnemyTileArtworkCatalog? TileArtwork
     {
-        get => Room.Artwork;
-        set => Room.Artwork = value;
+        get => Room.Session.TileArtwork;
+        set => Room.Session.TileArtwork = value;
     }
     /// <summary>Whether an address-space dependency has been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
     public bool IsLoaded => Room.IsLoaded;

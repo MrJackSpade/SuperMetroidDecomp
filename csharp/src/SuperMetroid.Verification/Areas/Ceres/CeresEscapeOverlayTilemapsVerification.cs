@@ -44,7 +44,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
 
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem { TileArtwork = stock };
+        var installed = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
@@ -101,7 +101,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "edited Ceres title changes exactly its first tile word");
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
-        var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
+        var editedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
         editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedQueue = new VramWriteQueue();
         editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
@@ -124,7 +124,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
             "corrupt Ceres overlay JSON fails loudly");
-        var missing = new RoomEnemySystem
+        var missing = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };

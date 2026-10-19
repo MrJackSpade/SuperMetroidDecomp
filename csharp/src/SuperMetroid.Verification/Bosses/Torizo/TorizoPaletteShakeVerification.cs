@@ -20,7 +20,7 @@ internal static class TorizoPaletteShakeVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static int VerifyTorizoPaletteShake()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var cgram = new SnesCgram();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

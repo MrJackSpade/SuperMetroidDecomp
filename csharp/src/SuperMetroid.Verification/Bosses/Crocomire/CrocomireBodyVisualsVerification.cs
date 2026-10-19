@@ -208,7 +208,7 @@ internal static class CrocomireBodyVisualsVerification
         static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
             var vram = new SnesVram();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindVram(vram);

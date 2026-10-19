@@ -73,7 +73,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyLiveDragonAnimationHandoffs(
         bool facingLeft)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];

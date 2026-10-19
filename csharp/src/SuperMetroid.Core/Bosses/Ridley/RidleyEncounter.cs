@@ -12,10 +12,16 @@ internal sealed class RidleyEncounter
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Binds both Ridley encounters to their shared enemy slot table.</summary>
-    internal RidleyEncounter(EnemySlotTable slotTable)
+    /// <param name="slotTable">The enemy slots, whose slot zero distinguishes Ceres Ridley.</param>
+    /// <param name="session">The session that holds Ceres's escape progress across rooms.</param>
+    internal RidleyEncounter(EnemySlotTable slotTable, EnemySession session)
     {
         _slotTable = slotTable;
+        _session = Ensure.NotNull(session);
     }
+
+    /// <summary>The session that holds Ceres's escape progress across rooms.</summary>
+    private readonly EnemySession _session;
 
     /// <summary>
     /// Ridley's bank-$A6 state extension while either encounter owns slot zero. The native actor
@@ -38,7 +44,11 @@ internal sealed class RidleyEncounter
     /// begins before Ridley escapes; Ceres Ridley publishes his escape and the self-destruct, and the elevator door's
     /// destruction publishes the last stage.
     /// </summary>
-    public CeresEscapeStatus CeresStatus { get; set; }
+    public CeresEscapeStatus CeresStatus
+    {
+        get => _session.CeresStatus;
+        set => _session.CeresStatus = value;
+    }
 
     /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)

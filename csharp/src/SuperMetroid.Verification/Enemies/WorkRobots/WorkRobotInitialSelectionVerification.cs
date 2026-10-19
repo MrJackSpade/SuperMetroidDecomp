@@ -24,7 +24,7 @@ internal static class WorkRobotInitialSelectionVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
-            var system = new RoomEnemySystem();
+            var system = new RoomEnemySystem(new EnemySession());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(parameter);
             var state = new WorkRobotEnemyState();
@@ -35,7 +35,7 @@ internal static class WorkRobotInitialSelectionVerification
         AssertThrows<InvalidDataException>(() => WorkRobotInitializationDefinitions.InitialProgram(3),
             "Work Robot selector three overruns the table into code");
         {
-            var system = new RoomEnemySystem();
+            var system = new RoomEnemySystem(new EnemySession());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(3);
             AssertThrows<InvalidDataException>(() => system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, new WorkRobotEnemyState()),

@@ -19,7 +19,7 @@ internal static class MotherBrainLaterContactVerification
     internal static int VerifyMotherBrainLaterContact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)(_ => { });
         var body = enemies.SlotTable.Slots[0];

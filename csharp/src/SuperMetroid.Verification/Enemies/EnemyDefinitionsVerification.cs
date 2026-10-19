@@ -99,7 +99,7 @@ internal static class EnemyDefinitionsVerification
     {
         MotherBrainTubePiece[] pieces = Enum.GetValues<MotherBrainTubePiece>();
         AssertEqual(5, pieces.Length, "all five Mother Brain falling-tube placements are compiled");
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (int index = 0; index < pieces.Length; index++)
@@ -141,7 +141,7 @@ internal static class EnemyDefinitionsVerification
         authoredRecord[2] = 0x34;
         authoredRecord[3] = 0x12;
         fixture.WriteBytes(fixtureAddress, authoredRecord);
-        var fixtureEnemies = new RoomEnemySystem();
+        var fixtureEnemies = new RoomEnemySystem(new EnemySession());
         fixtureEnemies.BindFixtureDefinitions(fixture);
         fixtureEnemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomLeft);
         AssertEqual(0x1234, fixtureEnemies.SlotTable.Slots[0].Position.X.Whole,

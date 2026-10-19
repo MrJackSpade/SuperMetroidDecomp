@@ -30,7 +30,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             for (ushort animationIndex = 0; animationIndex < 16; animationIndex++)
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
-                var enemies = new RoomEnemySystem();
+                var enemies = new RoomEnemySystem(new EnemySession());
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => random.Dequeue()));
                 enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(

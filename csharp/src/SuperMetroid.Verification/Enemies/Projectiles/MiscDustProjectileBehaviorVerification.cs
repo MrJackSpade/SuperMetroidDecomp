@@ -79,7 +79,7 @@ internal static class MiscDustProjectileBehaviorVerification
     /// <summary>A room enemy system whose random reads and draws return zero.</summary>
     internal static RoomEnemySystem CreateRoomEnemySystem()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);

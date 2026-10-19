@@ -127,7 +127,7 @@ internal static class CrocomireSkeletonArtworkVerification
         static (SnesVram Vram, CrocomireDeathState State,
             CartridgeReadGuard Guard) RunInstalled(EnemyTileArtworkCatalog art)
         {
-            var system = new RoomEnemySystem { TileArtwork = art };
+            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();

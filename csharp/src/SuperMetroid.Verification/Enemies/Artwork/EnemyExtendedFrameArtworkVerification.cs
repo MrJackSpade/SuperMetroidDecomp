@@ -1332,7 +1332,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -1359,7 +1359,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     private static ushort GetTouchCallback(EnemyTileArtworkCatalog art,
         ushort pointer)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);

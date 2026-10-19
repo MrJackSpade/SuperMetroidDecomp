@@ -206,7 +206,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             out SamusState samus,
             out FakeKraidEnemyState state)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;

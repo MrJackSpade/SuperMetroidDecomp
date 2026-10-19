@@ -14,7 +14,7 @@ internal static class ZoaRecordStateVerification
     /// </summary>
     internal static void VerifyZoaRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

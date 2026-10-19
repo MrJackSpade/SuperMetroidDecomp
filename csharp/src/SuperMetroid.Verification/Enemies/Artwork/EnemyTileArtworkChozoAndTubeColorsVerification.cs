@@ -106,7 +106,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem { TileArtwork = edited };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindCgram(cgram);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];

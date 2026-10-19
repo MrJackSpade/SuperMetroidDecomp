@@ -19,7 +19,7 @@ internal static class FrozenMetroidShellVerification
     internal static int VerifyFrozenMetroidShell()
     {
         var installation = RepositoryInstallation.Installation;
-        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);

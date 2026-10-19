@@ -14,7 +14,7 @@ internal static class WorkRobotRecordStateVerification
     /// </summary>
     internal static void VerifyWorkRobotRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new WorkRobotEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

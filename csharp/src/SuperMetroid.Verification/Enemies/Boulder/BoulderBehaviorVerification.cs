@@ -18,7 +18,7 @@ internal static class BoulderBehaviorVerification
     /// <summary>The real initializer starts the Left program, which the runtime then plays through once and back.</summary>
     internal static void VerifyBoulderBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
@@ -54,7 +54,7 @@ internal static class BoulderBehaviorVerification
                      (8192, 7936, BoulderAiFunction.Rebound),
                  })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(256, 512));

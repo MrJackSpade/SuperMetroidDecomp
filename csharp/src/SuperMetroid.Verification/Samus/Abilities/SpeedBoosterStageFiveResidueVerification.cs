@@ -39,14 +39,14 @@ internal static class SpeedBoosterStageFiveResidueVerification
                 "stage five reads boot-cleared queue bytes before any Ceres getaway");
         }
 
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             Presentation = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };
         enemies.Presentation.BindVram(new SnesVram());
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Room.Mode7QueueResidue = residue;
+        enemies.Room.Session.Mode7QueueResidue = residue;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.

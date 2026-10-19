@@ -47,7 +47,7 @@ internal static class GunshipLandingVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
             InputLocked = true,
         };
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         samus.Presentation.TileTransfers.BindArtwork(
             InstalledFixtures.SamusBody);
         enemies.Load(new RoomEnemyLoadRequest(new GunshipMotionFixtureGuard(bus), bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram, new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>

@@ -14,7 +14,7 @@ internal static class ChozoStatueRecordStateVerification
     /// </summary>
     internal static void VerifyChozoStatueRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new ChozoStatueState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

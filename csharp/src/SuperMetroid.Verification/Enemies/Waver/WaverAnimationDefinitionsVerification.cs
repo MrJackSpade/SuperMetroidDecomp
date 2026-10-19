@@ -54,7 +54,7 @@ internal static class WaverAnimationDefinitionsVerification
         var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);

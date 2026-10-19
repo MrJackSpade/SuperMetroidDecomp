@@ -45,7 +45,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// <summary>A Puyo after its real initializer.</summary>
     private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(EnemyTileArtworkCatalog? artwork)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);

@@ -28,7 +28,7 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
-        internal RoomEnemySystem Enemies { get; } = new();
+        internal RoomEnemySystem Enemies { get; } = new(new EnemySession());
         /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }
         /// <summary>Seeded melt phase with recognizable graphics and BG2 state.</summary>

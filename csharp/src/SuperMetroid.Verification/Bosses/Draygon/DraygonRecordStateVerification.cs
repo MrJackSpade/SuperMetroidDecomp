@@ -14,7 +14,7 @@ internal static class DraygonRecordStateVerification
     /// </summary>
     internal static void VerifyDraygonRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         var state = new DraygonEnemyState(body) { Eye = eye };

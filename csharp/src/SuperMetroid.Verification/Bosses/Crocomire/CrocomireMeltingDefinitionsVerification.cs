@@ -185,7 +185,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var artwork = InstalledFixtures.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
@@ -247,7 +247,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     internal static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var death = new CrocomireDeathState
         {
             MeltingTableOffset = CrocomireMeltingTransferDefinitions.Passes[0].TransferStartOffset,
@@ -299,7 +299,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static byte[] VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
@@ -338,7 +338,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = (int)source;
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
         var vram = new SnesVram();

@@ -124,7 +124,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static (RoomEnemySystem Enemies, SnesCgram Cgram) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindCgram(cgram);

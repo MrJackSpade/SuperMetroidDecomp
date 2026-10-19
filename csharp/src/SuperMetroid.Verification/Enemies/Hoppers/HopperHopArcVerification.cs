@@ -30,7 +30,7 @@ internal static class HopperHopArcVerification
                      (true, 62, 4, 64, true),
                  })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(64, 48));

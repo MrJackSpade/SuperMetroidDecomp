@@ -18,7 +18,7 @@ internal static class RidleyMissedLungeVerification
     /// <summary>Checks native height and pass thresholds, room-boundary handoff, tenth death miss, and Power Bomb dodge.</summary>
     internal static void VerifyRidleyMissedLunge()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
         Action<RoomEnemySlot, RidleyEnemyState, bool> move = enemies.CeresRidleyBehavior.IntegrateRidleyMovement;

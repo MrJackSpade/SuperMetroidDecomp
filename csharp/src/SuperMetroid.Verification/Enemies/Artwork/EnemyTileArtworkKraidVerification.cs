@@ -272,7 +272,7 @@ internal static class EnemyTileArtworkKraidVerification
         bool useQueue)
     {
         var bus = SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = enemyArtwork,
             Presentation = { HudTileArtwork = hud },
@@ -359,7 +359,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Captures the live room-background VRAM upload using a cartridge-free Kraid owner.</summary>
     private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
@@ -372,7 +372,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
         EnemyTileArtworkCatalog artwork, ushort pointer)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindVram(vram);
@@ -385,7 +385,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
     internal static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<KraidEnemyState> initialize = enemies.KraidBehavior.InitializeKraidBackground;
         var state = new KraidEnemyState();
@@ -396,7 +396,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Uploads both BG2 working-map pages and records their native transfer counts.</summary>
     private static SnesVram TransferKraidVisiblePages(KraidEnemyState state)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var vram = new SnesVram();
         enemies.Presentation.BindVram(vram);
         enemies.KraidBehavior.TransferKraidTopTilemap(state);

@@ -42,11 +42,6 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
     private const ushort EnemyPickupGrappleDelay = 16;
 
-    /// <summary>
-    /// WRAM $7E:0E1E biases drops in the 30..49 energy grace band; room transitions
-    /// retain it, and false is the cartridge's cleared initial value.
-    /// </summary>
-    private bool _criticalEnergyDropBias;
     /// <summary>Live Samus owner needed when a dying grappled enemy drops the beam.</summary>
     internal SamusState? SamusForEnemyDrops { get; private set; }
 
@@ -348,15 +343,15 @@ internal sealed class EnemyDeathsAndDrops
         ushort combinedEnergy = unchecked((ushort)(
             samus.Health + samus.ReserveEnergy));
         if (combinedEnergy < 30)
-            _criticalEnergyDropBias = true;
+            _room.Session.CriticalEnergyDropBias = true;
         else if (combinedEnergy >= 50)
-            _criticalEnergyDropBias = false;
+            _room.Session.CriticalEnergyDropBias = false;
         // Values 30..49 deliberately retain the previous flag: this is the cartridge's
         // hysteresis/grace period, not an omitted assignment.
 
         byte pooledMinorWeight;
         byte enabledMask;
-        if (_criticalEnergyDropBias)
+        if (_room.Session.CriticalEnergyDropBias)
         {
             pooledMinorWeight = unchecked((byte)(chances[0] + chances[1]));
             enabledMask = EnemyDropMasks.Energy;

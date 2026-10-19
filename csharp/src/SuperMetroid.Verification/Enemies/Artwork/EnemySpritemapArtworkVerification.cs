@@ -120,7 +120,7 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledBullInstructionFrames(
         EnemyTileArtworkCatalog stock)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = stock };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
@@ -2923,7 +2923,7 @@ internal static class EnemySpritemapArtworkVerification
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -3073,7 +3073,7 @@ internal static class EnemySpritemapArtworkVerification
         EnemyTileArtworkCatalog art, ushort pointer,
         Position16<RoomPixels> world)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
         enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
@@ -3086,7 +3086,7 @@ internal static class EnemySpritemapArtworkVerification
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         RoomSpriteObjectKind kind)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);

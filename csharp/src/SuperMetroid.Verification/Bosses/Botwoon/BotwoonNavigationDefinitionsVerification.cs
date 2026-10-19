@@ -36,7 +36,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             ushort native = ReadRomWord(rom, 0xb3949d + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleAt(offset / RecordBytes).BottomRight.X, "Botwoon native right boundary");
-            var head = new RoomEnemySystem().SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeY(ReadRomWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
             {
@@ -59,7 +59,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             ushort native = ReadRomWord(rom, 0xb394a1 + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleAt(offset / RecordBytes).BottomRight.Y, "Botwoon native bottom boundary");
-            var head = new RoomEnemySystem().SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeX(ReadRomWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
             {
@@ -80,7 +80,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Action<RoomEnemySlot, BotwoonEnemyState> run = BotwoonBehavior.RunBotwoonMovement;
         for (int offset = 0; offset < 256; offset += 8)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
@@ -165,7 +165,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
                 $"Botwoon path {choice} alignment word");
 
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState()
@@ -188,7 +188,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon production path {choice} handoff");
         }
 
-        var movementEnemies = new RoomEnemySystem();
+        var movementEnemies = new RoomEnemySystem(new EnemySession());
         movementEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         int movementSampleCount = 0;
@@ -251,7 +251,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
-            var head = new RoomEnemySystem().SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
@@ -276,7 +276,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
@@ -315,7 +315,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             () => BotwoonNavigationDefinitions.MovementSample(BotwoonMovementSampleData.Count),
             "Botwoon movement sample after corpus");
 
-        var invalidEnemies = new RoomEnemySystem();
+        var invalidEnemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot invalidHead = invalidEnemies.SlotTable.Slots[0];
         var invalidState = new BotwoonEnemyState()
         {

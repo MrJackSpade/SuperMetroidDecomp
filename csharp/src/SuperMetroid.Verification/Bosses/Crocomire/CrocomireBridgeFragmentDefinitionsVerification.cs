@@ -31,7 +31,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             () => CrocomireBridgeFragmentDefinitions.XPosition(CrocomireBridgeFragmentDefinitions.FragmentCount),
             "Crocomire bridge fragment past the last");
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var death = new CrocomireDeathState();
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

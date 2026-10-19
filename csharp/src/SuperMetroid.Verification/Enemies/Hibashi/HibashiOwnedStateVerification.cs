@@ -14,7 +14,7 @@ internal static class HibashiOwnedStateVerification
     /// </summary>
     internal static void VerifyHibashiOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);

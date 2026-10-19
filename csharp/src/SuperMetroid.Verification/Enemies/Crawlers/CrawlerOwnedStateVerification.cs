@@ -16,7 +16,7 @@ internal static class CrawlerOwnedStateVerification
     /// </summary>
     internal static void VerifyCrawlerOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Zoomer, slot.Definition);

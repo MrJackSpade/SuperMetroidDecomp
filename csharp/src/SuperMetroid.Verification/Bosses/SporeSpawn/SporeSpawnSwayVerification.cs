@@ -23,7 +23,7 @@ internal static class SporeSpawnSwayVerification
                      (128, 2, 130),
                  })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
             body.Position = body.Position.WithWhole(new(128, 624));

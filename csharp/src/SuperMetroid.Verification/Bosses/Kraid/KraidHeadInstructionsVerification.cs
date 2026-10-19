@@ -23,7 +23,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
-        var unstarted = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        var unstarted = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         unstarted.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySlot, KraidEnemyState, ushort> run = unstarted.KraidBehavior.ExecuteKraidHeadInstruction;
         AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
@@ -40,7 +40,7 @@ internal static class KraidHeadInstructionsVerification
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
-            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation.BindVram(new SnesVram());
             Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
@@ -84,7 +84,7 @@ internal static class KraidHeadInstructionsVerification
     /// <summary>Checks roar, glow, death, and all 16-bit growth-resume timer inputs against native selection.</summary>
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);

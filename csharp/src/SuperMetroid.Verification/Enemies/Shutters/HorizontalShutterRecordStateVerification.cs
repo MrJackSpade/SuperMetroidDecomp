@@ -14,7 +14,7 @@ internal static class HorizontalShutterRecordStateVerification
     /// </summary>
     internal static void VerifyHorizontalShutterRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

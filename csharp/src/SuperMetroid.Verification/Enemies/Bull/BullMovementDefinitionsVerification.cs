@@ -14,7 +14,7 @@ internal static class BullMovementDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);

@@ -14,7 +14,7 @@ internal static class WreckedShipGhostOwnedStateVerification
     /// </summary>
     internal static void VerifyWreckedShipGhostOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
         var state = new WreckedShipGhostEnemyState

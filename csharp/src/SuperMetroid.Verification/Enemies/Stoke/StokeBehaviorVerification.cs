@@ -51,7 +51,7 @@ internal static class StokeBehaviorVerification
     /// <summary>A Stoke initialized facing <paramref name="direction"/>.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, StokeEnemyState State) Create(StokeDirection direction)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);

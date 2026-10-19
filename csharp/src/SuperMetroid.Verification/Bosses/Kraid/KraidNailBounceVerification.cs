@@ -16,7 +16,7 @@ internal static class KraidNailBounceVerification
     {
         var words = new ushort[32 * 32];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

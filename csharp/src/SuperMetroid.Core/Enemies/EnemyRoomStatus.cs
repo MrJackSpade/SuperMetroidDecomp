@@ -6,6 +6,13 @@
 /// </summary>
 internal sealed class EnemyRoomStatus
 {
+    /// <summary>Binds the room's status to the session that holds the language flag.</summary>
+    /// <param name="session">The enemy words that outlive each room.</param>
+    internal EnemyRoomStatus(EnemySession session) => _session = Ensure.NotNull(session);
+
+    /// <summary>The enemy words that outlive each room.</summary>
+    private readonly EnemySession _session;
+
     /// <summary>
     /// WRAM $0797, door_transition_flag_enemies. Ridley's shared A35B wait
     /// remains active while destination enemy visuals run during the room fade.
@@ -40,5 +47,9 @@ internal sealed class EnemyRoomStatus
     internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
-    public bool JapaneseText { get; set; }
+    public bool JapaneseText
+    {
+        get => _session.JapaneseText;
+        set => _session.JapaneseText = value;
+    }
 }

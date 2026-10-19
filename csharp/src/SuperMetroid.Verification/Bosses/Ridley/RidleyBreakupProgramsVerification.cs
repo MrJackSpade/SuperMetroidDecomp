@@ -31,7 +31,7 @@ internal static class RidleyBreakupProgramsVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyRidleyBreakupPrograms()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.TickNorfairRidleyDeathExplosions;

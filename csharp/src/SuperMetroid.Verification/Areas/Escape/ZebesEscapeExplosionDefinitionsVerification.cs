@@ -29,7 +29,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (ushort choice = 0; choice < 16; choice++)
         for (ushort inherited = 0; inherited < 8; inherited++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), choice, inherited);
 

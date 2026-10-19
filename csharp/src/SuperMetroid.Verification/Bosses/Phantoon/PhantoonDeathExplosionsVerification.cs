@@ -28,7 +28,7 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool full in new[] { false, true })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];

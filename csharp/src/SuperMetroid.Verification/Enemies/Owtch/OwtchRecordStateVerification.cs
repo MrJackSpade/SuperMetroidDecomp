@@ -14,7 +14,7 @@ internal static class OwtchRecordStateVerification
     /// </summary>
     internal static void VerifyOwtchRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

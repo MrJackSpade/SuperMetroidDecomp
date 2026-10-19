@@ -17,7 +17,7 @@ internal static class RidleyInertiaVerification
     {
         Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyBehavior.AccelerateRidleyToward;
         Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, ushort> norfair = RidleyBehavior.MoveNorfairRidleyToward;
-        var slot = new RoomEnemySystem().SlotTable.Slots[0];
+        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         for (int index = 0; index < 16; index++)
         {

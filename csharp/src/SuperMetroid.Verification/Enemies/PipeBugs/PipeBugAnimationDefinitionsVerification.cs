@@ -22,7 +22,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
         foreach (bool strong in new[] { false, true })
         {
-            var initializedEnemies = new RoomEnemySystem();
+            var initializedEnemies = new RoomEnemySystem(new EnemySession());
             initializedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.Bind(strong
@@ -45,7 +45,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugDefinitions.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var enemies = new RoomEnemySystem();
+                var enemies = new RoomEnemySystem(new EnemySession());
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {

@@ -16,8 +16,11 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyPresentation
 {
     /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
-    [field: NonSerialized]
-    internal EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
+    internal EscapeTypewriterPresentation? EscapeTypewriterPresentation
+    {
+        get => _room.Session.EscapeTypewriterPresentation;
+        set => _room.Session.EscapeTypewriterPresentation = value;
+    }
 
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -29,16 +32,25 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>Host-owned authored damage colors, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    public MotherBrainHealthPalettePresentation? MotherBrainHealthColors { get; set; }
+    public MotherBrainHealthPalettePresentation? MotherBrainHealthColors
+    {
+        get => _room.Session.MotherBrainHealthColors;
+        set => _room.Session.MotherBrainHealthColors = value;
+    }
 
     /// <summary>Host-owned rainbow, drain and revival colors, rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }
+    public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors
+    {
+        get => _room.Session.MotherBrainRainbowColors;
+        set => _room.Session.MotherBrainRainbowColors = value;
+    }
 
     /// <summary>Host-owned fake-death room flash and phase-two setup colors.</summary>
-    [field: NonSerialized]
-    public MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
+    public MotherBrainRoomColorPresentation? MotherBrainRoomColors
+    {
+        get => _room.Session.MotherBrainRoomColors;
+        set => _room.Session.MotherBrainRoomColors = value;
+    }
     /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
     internal EnemyPalettes BossPalettes => new(Cgram);
 
@@ -64,32 +76,44 @@ internal sealed class EnemyPresentation
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
     internal void BindCgram(SnesCgram cgram) => Cgram = Ensure.NotNull(cgram);
     /// <summary>
-    /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI
-    /// queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here; the runtime shares its table.
+    /// The session's gameplay OBJ character table bindings, which enemy-format sprites draw from. Uploads that bypass
+    /// the NMI queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here.
     /// </summary>
-    internal ObjCharacterUploads ObjCharacters { get; set; } = new();
+    internal ObjCharacterUploads ObjCharacters => _room.Session.ObjCharacters;
 
     /// <summary>
-    /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
+    /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
     /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
     /// </summary>
-    public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
+    public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
 
     /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
-    [field: NonSerialized]
-    public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
+    public EscapeTimerTileAtlas? EscapeTimerArtwork
+    {
+        get => _room.Session.EscapeTimerArtwork;
+        set => _room.Session.EscapeTimerArtwork = value;
+    }
 
     /// <summary>Host-bound Ceres Ridley fade and retreat colors; rebound after state restore.</summary>
-    [field: NonSerialized]
-    public CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
+    public CeresRidleyColorCatalog? CeresRidleyColors
+    {
+        get => _room.Session.CeresRidleyColors;
+        set => _room.Session.CeresRidleyColors = value;
+    }
 
     /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
-    [field: NonSerialized]
-    public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
+    public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors
+    {
+        get => _room.Session.CeresRidleyMode7Colors;
+        set => _room.Session.CeresRidleyMode7Colors = value;
+    }
 
     /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
-    [field: NonSerialized]
-    public HudTileAtlas? HudTileArtwork { get; set; }
+    public HudTileAtlas? HudTileArtwork
+    {
+        get => _room.Session.HudTileArtwork;
+        set => _room.Session.HudTileArtwork = value;
+    }
 
     /// <summary>Publishes an installed enemy composition over the OBJ page, or accepts the compiled common empty frame.</summary>
     /// <remarks>A nonempty frame without installed display art is an asset error rather than a cartridge fallback.</remarks>

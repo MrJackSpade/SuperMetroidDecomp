@@ -14,7 +14,7 @@ internal static class BoulderRecordStateVerification
     /// </summary>
     internal static void VerifyBoulderRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BoulderEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -27,7 +27,7 @@ internal static class GunshipDustAnimationsVerification
         int updates = 0;
         for (ushort parameter = 0; parameter <= 10; parameter += 2)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");

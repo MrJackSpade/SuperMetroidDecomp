@@ -151,7 +151,7 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
     internal static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         void Pass(RoomEnemyProjectileSlot projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
@@ -208,7 +208,7 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Creates a head slot with Botwoon's state attached to its owning enemy system.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoonHead()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         var state = new BotwoonEnemyState();

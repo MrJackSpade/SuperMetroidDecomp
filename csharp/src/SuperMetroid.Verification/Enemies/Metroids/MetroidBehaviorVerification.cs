@@ -19,7 +19,7 @@ internal static class MetroidBehaviorVerification
     /// </summary>
     internal static void VerifyMetroidBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);

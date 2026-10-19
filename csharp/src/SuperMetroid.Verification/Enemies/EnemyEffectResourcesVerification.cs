@@ -53,7 +53,7 @@ internal static class EnemyEffectResourcesVerification
         foreach (bool emptyCatalog in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var expected = new RoomEnemySystem(); var actual = new RoomEnemySystem();
+            var expected = new RoomEnemySystem(new EnemySession()); var actual = new RoomEnemySystem(new EnemySession());
             var boundEnemyDefinitionPointer = definition;
             expected.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, expected.SlotTable.Slots[0].Definition);
             actual.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, actual.SlotTable.Slots[0].Definition);

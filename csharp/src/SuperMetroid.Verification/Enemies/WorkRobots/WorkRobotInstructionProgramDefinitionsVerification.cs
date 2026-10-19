@@ -52,7 +52,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
         out RoomEnemySlot robot)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
 

@@ -74,7 +74,7 @@ internal static class BoyonBehaviorVerification
     {
         foreach ((int heightSelector, int expected) in new (int, int)[] { (5, 144), (6, 1) })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
             slot.SetSpawnParameter1(checked((ushort)(heightSelector * 256)));
@@ -94,7 +94,7 @@ internal static class BoyonBehaviorVerification
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
     private static (RoomEnemySystem, RoomEnemySlot, BoyonEnemyState) Create()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);

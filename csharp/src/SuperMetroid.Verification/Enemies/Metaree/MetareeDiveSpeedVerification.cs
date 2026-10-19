@@ -17,7 +17,7 @@ internal static class MetareeDiveSpeedVerification
     {
         foreach ((int samusOffset, int expected) in new[] { (96, 8), (-1, 2734) })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metaree, slot.Definition);

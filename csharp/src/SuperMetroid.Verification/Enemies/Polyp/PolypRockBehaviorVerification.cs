@@ -23,7 +23,7 @@ internal static class PolypRockBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {

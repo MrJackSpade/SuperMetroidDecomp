@@ -235,7 +235,7 @@ internal static class DeadTorizoArtworkVerification
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);

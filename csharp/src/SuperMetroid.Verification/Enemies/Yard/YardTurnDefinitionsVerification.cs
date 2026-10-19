@@ -104,7 +104,7 @@ internal static class YardTurnDefinitionsVerification
             YardProgram expectedProgram,
             string context)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

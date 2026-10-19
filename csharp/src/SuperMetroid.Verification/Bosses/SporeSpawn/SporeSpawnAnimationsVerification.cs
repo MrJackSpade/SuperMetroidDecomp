@@ -194,7 +194,7 @@ internal static class SporeSpawnAnimationsVerification
     /// <summary>A projectile system whose spore drops have a Samus to read.</summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops.BindSamus(new SamusState());
@@ -208,7 +208,7 @@ internal static class SporeSpawnAnimationsVerification
         EnemyTileArtworkCatalog? artwork = null,
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);

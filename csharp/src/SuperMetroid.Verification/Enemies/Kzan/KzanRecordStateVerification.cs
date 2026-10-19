@@ -14,7 +14,7 @@ internal static class KzanRecordStateVerification
     /// </summary>
     internal static void VerifyKzanRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new KzanEnemyState(new KzanExtensionWords());
         slot.SetSpeciesState(state, state.ClearWithRecord);

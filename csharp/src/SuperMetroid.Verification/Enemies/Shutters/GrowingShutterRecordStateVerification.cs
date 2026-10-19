@@ -13,7 +13,7 @@ internal static class GrowingShutterRecordStateVerification
     /// </summary>
     internal static void VerifyGrowingShutterRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
         var state = new GrowingShutterEnemyState(slot);

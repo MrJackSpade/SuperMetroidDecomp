@@ -998,7 +998,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
@@ -1038,7 +1038,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
@@ -1055,7 +1055,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;

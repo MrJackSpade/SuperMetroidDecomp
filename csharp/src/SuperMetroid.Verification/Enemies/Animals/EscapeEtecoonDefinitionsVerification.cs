@@ -57,7 +57,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         var guarded = NewEscapeEtecoonDefinitionGuard(rom);
         for (ushort parameter = 0; parameter < 6; parameter++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -149,7 +149,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
 )
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];

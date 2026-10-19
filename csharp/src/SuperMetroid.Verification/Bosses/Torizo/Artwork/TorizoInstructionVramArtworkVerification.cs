@@ -29,7 +29,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
         AssertTrue(stock.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
+        var installedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = stock };
         installedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedVram = new SnesVram();
         installedEnemies.Presentation.BindVram(installedVram);
@@ -126,7 +126,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "Golden Torizo PNG edit changes the first native tile-plane byte");
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
-        var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
+        var editedEnemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = edited };
         editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedVram = new SnesVram();
         editedEnemies.Presentation.BindVram(editedVram);

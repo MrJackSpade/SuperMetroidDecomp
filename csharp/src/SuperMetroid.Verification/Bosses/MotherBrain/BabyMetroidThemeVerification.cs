@@ -15,7 +15,7 @@ internal static class BabyMetroidThemeVerification
     internal static int VerifyBabyMetroidTheme()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = state;
         enemies.Presentation.BindCgram(new SnesCgram());

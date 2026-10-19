@@ -20,7 +20,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
         {
             ushort entry = RoomSpriteObjectNativeLists.Entry(rom, (ushort)kind);
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), $"room sprite object {kind} entry");
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot slot = enemies.SpriteObjects.SpawnRoomSpriteObject(new(0x1000, 0x2000), kind, 0x0600)
                 ?? throw new InvalidOperationException($"Room sprite object {kind} was not allocated.");

@@ -67,7 +67,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     internal static RoomEnemySystem CreateYardInstructionSystem(
         out RoomEnemySlot yard)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 

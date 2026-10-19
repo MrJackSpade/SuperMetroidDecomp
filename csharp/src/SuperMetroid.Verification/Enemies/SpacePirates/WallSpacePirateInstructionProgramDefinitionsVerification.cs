@@ -169,7 +169,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         (RoomEnemySystem Enemies, RoomEnemySlot Slot,
             WallSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

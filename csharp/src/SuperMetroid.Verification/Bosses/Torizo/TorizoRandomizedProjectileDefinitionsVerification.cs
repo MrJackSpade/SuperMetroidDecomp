@@ -43,7 +43,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.SignedRawValue,
                 $"{name} base Y velocity");
 
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             int randomCall = 0;
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff);
@@ -105,7 +105,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         TorizoRandomizedProjectileDefinition expected,
         bool velocityIsReplaced)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];

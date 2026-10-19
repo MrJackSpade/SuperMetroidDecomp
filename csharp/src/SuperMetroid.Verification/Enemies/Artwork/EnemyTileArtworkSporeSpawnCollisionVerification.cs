@@ -22,7 +22,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
         var selected = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
-        var installed = new RoomEnemySystem();
+        var installed = new RoomEnemySystem(new EnemySession());
 
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];

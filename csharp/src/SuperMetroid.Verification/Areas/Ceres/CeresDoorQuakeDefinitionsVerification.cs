@@ -48,7 +48,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         }
 
         var guarded = NewCeresDoorQuakeReadGuard(rom);
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = InstalledFixtures.EnemyTiles,

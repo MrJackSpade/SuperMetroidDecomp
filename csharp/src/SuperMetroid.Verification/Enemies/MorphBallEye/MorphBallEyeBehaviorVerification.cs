@@ -70,7 +70,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBeamWideningAndFade()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
         beam.Phase = MorphBallEyeBeamPhase.Widening;
         int[] widths = [0, 0, 1, 2, 3, 4];
@@ -106,7 +106,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// <summary>An eye body or mount after its real initializer.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, MorphBallEyeEnemyState State) Create(ushort parameter1, ushort parameter2)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);

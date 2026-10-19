@@ -35,7 +35,7 @@ internal static class EnemyFormatDrawEntriesVerification
     internal static void VerifyEnemyFormatDrawEntries()
     {
         EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var resolver = new EnemyTileTransfers(artwork);
         EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");

@@ -25,7 +25,7 @@ internal static class OwtchBehaviorVerification
                      (OwtchBehaviorState.MovingLeft, OwtchProgram.MovingRight, OwtchProgram.MovingRightLoop, OwtchBehaviorState.MovingRight),
                  })
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);

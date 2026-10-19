@@ -10,6 +10,13 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyRoomBinding
 {
+    /// <summary>Binds the room to the session whose enemy words outlive it.</summary>
+    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    internal EnemyRoomBinding(EnemySession session) => Session = Ensure.NotNull(session);
+
+    /// <summary>The enemy words and installed artwork that outlive each room.</summary>
+    internal EnemySession Session { get; }
+
     /// <summary>The enemy definition source <see cref="RoomEnemySystem.Load"/> bound; null until a population loads.</summary>
     internal IRoomEnemyDefinitionSource? Definitions { get; set; }
 
@@ -33,12 +40,8 @@ internal sealed class EnemyRoomBinding
     /// <summary>The cartridge random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;
 
-    /// <summary>
-    /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
-    /// does not enable a cartridge-backed fallback. The host reinstalls it after a debugger restore.
-    /// </summary>
-    [field: NonSerialized]
-    internal EnemyTileArtworkCatalog? Artwork { get; set; }
+    /// <summary>The session's installed enemy presentation; drawing and named artwork transfers require it.</summary>
+    internal EnemyTileArtworkCatalog? Artwork => Session.TileArtwork;
 
     /// <summary>The installed enemy presentation; drawing and named artwork transfers require it.</summary>
     internal EnemyTileArtworkCatalog InstalledArtwork => Artwork ??
@@ -50,10 +53,10 @@ internal sealed class EnemyRoomBinding
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
-    internal EnemyStagingSurfaces Staging { get; } = new();
+    internal EnemyStagingSurfaces Staging => Session.Staging;
 
-    /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
-    internal SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; set; }
+    /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes.</summary>
+    internal SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue => Session.Mode7QueueResidue;
 
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>

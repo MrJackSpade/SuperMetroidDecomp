@@ -205,7 +205,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            var enemy = new RoomEnemySystem { TileArtwork = artwork };
+            var enemy = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));

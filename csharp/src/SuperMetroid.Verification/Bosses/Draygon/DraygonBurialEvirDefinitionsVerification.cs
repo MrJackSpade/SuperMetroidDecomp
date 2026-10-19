@@ -48,7 +48,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             "Draygon burial Evir entry past table");
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (int entry = 5; entry >= 0; entry--)

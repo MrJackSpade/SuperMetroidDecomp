@@ -16,7 +16,7 @@ internal static class FirefleaMovementDefinitionsVerification
     {
         const ushort radiusTable = 0x8d1d;
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.FirefleaBehavior.InitializeFireflea;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

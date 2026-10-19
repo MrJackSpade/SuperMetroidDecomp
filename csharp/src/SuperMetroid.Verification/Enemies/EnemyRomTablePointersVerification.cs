@@ -119,7 +119,7 @@ internal static class EnemyRomTablePointersVerification
         Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation.BindCgram(new SnesCgram());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
@@ -134,7 +134,7 @@ internal static class EnemyRomTablePointersVerification
 
         foreach (bool facingRight in new[] { false, true })
         {
-            var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {

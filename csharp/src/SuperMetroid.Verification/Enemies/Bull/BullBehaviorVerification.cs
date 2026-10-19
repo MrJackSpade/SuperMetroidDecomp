@@ -19,7 +19,7 @@ internal static class BullBehaviorVerification
     /// </summary>
     internal static void VerifyBullBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
@@ -48,7 +48,7 @@ internal static class BullBehaviorVerification
     /// </summary>
     internal static void VerifyBullDecelerationOvershoot()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         enemies.BullBehavior.InitializeBull(slot);

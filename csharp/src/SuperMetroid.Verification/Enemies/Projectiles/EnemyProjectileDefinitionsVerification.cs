@@ -43,7 +43,7 @@ internal static class EnemyProjectileDefinitionsVerification
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.Load(new RoomEnemyLoadRequest(setupBus, setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];

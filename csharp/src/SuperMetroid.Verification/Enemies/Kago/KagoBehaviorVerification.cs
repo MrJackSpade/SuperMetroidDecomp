@@ -19,7 +19,7 @@ internal static class KagoBehaviorVerification
     /// </summary>
     internal static void VerifyKagoBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

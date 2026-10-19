@@ -14,7 +14,7 @@ internal static class AlcoonOwnedStateVerification
     /// </summary>
     internal static void VerifyAlcoonOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Alcoon, slot.Definition);
         var state = new AlcoonEnemyState

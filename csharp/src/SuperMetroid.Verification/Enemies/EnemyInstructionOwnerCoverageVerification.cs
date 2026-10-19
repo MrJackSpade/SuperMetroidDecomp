@@ -57,7 +57,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             bool definitionHasOwner = false;
             foreach (RoomEnemyPopulationRecord population in records)
             {
-                var enemies = new RoomEnemySystem();
+                var enemies = new RoomEnemySystem(new EnemySession());
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 enemies.Presentation.BindVram(new SnesVram());
                 enemies.Presentation.BindCgram(new SnesCgram());
@@ -147,7 +147,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "every translated instruction-processing enemy runs a typed animation; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
-        var unknownEnemies = new RoomEnemySystem();
+        var unknownEnemies = new RoomEnemySystem(new EnemySession());
         unknownEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
         unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);

@@ -14,7 +14,7 @@ internal static class BoyonSpeedDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);

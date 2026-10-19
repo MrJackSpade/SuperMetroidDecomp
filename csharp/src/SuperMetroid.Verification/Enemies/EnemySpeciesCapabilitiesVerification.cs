@@ -165,7 +165,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             EnemyInteractionCallback.CrocomireHeaderTouch,
         ];
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         int bound = 0;
         int answers = 0;

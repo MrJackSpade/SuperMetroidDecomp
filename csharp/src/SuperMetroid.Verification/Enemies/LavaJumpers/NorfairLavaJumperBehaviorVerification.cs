@@ -20,7 +20,7 @@ internal static class NorfairLavaJumperBehaviorVerification
     /// </summary>
     internal static void VerifyNorfairLavaJumperBehavior()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];

@@ -29,7 +29,7 @@ internal static class PhantoonPatternsVerification
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
@@ -69,7 +69,7 @@ internal static class PhantoonPatternsVerification
                 PhantoonNativeListAddresses.PartEntry(PhantoonPatternDefinitions.EyeProgram(direction)),
                 $"native Phantoon eye direction {direction}");
         }
-        var eyeEnemies = new RoomEnemySystem();
+        var eyeEnemies = new RoomEnemySystem(new EnemySession());
         eyeEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
@@ -89,7 +89,7 @@ internal static class PhantoonPatternsVerification
         AssertThrows<InvalidDataException>(
             () => PhantoonPatternDefinitions.EyeProgram(9),
             "Phantoon eye direction beyond authored table");
-        var shotEnemies = new RoomEnemySystem();
+        var shotEnemies = new RoomEnemySystem(new EnemySession());
         var shotBody = shotEnemies.SlotTable.Slots[0];
         var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.SlotTable.Slots[1], Tentacles = shotEnemies.SlotTable.Slots[2], Mouth = shotEnemies.SlotTable.Slots[3] };
         Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = shotEnemies.PhantoonBehavior.ResolvePhantoonShotReaction;

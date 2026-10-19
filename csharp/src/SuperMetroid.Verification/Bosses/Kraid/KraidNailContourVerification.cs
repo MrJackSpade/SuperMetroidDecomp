@@ -19,7 +19,7 @@ internal static class KraidNailContourVerification
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1)));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

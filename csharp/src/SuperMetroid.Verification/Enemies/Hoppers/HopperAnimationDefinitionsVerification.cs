@@ -46,7 +46,7 @@ internal static class HopperAnimationDefinitionsVerification
         {
             bool upsideDown = orientation != 0;
             string context = $"{variant}/{orientation}";
-            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
@@ -105,7 +105,7 @@ internal static class HopperAnimationDefinitionsVerification
     private static void VerifyTourianSidehopperInstructionAlias(
         EnemyTileArtworkCatalog? artwork)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = artwork };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);

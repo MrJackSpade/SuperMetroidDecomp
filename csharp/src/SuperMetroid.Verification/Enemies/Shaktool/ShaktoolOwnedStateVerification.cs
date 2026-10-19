@@ -59,7 +59,7 @@ internal static class ShaktoolOwnedStateVerification
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>
     private static RoomEnemySystem CreateShaktoolGroup()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
         {

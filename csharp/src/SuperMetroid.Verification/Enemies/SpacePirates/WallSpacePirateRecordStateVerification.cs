@@ -14,7 +14,7 @@ internal static class WallSpacePirateRecordStateVerification
     /// </summary>
     internal static void VerifyWallSpacePirateRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

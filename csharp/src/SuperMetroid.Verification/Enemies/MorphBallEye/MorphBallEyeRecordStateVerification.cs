@@ -14,7 +14,7 @@ internal static class MorphBallEyeRecordStateVerification
     /// </summary>
     internal static void VerifyMorphBallEyeRecordState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new MorphBallEyeEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

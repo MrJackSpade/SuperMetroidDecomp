@@ -89,7 +89,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem
+        var enemies = new RoomEnemySystem(new EnemySession())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };

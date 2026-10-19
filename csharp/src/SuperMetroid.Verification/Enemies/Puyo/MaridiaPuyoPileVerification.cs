@@ -17,7 +17,7 @@ internal static class MaridiaPuyoPileVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
         var assets = LoadFixtureRoomAssets(room);
-        var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
         enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
         // These are the six literal retail population records, not a constructed pile.

@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static VramWriteQueue QueueAllTakeoffFrames(EnemyTileArtworkCatalog art)
         {
-            var enemies = new RoomEnemySystem { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);

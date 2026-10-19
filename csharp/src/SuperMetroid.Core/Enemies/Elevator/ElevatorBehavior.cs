@@ -41,13 +41,25 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     private const int ElevatorSpeedFixed = 98304;
 
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
-    public ElevatorJourneyFlag ElevatorFlags { get; internal set; }
+    public ElevatorJourneyFlag ElevatorFlags
+    {
+        get => _room.Session.Elevator.Flags;
+        internal set => _room.Session.Elevator.Flags = value;
+    }
 
     /// <summary>WRAM $0E18, shared across the departure and destination room actors.</summary>
-    public ElevatorActorStatus ElevatorStatus { get; internal set; }
+    public ElevatorActorStatus ElevatorStatus
+    {
+        get => _room.Session.Elevator.Status;
+        internal set => _room.Session.Elevator.Status = value;
+    }
 
     /// <summary>Whether the active elevator is travelling upward; otherwise it travels downward.</summary>
-    public bool ElevatorTravelsUpward { get; private set; }
+    public bool ElevatorTravelsUpward
+    {
+        get => _room.Session.Elevator.TravelsUpward;
+        private set => _room.Session.Elevator.TravelsUpward = value;
+    }
 
     /// <summary>
     /// Command seven installs the moving Samus beta handler on departure. At $82:E6A2,

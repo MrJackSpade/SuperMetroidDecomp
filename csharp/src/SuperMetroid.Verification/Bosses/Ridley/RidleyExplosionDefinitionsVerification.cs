@@ -139,7 +139,7 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem(new EnemySession());
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnSmallExplosionNearNorfairRidley;
 
@@ -175,7 +175,7 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyExplosionProductionInitializer(
         SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
         Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyExplosion;

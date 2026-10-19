@@ -14,7 +14,7 @@ internal static class WaverOwnedStateVerification
     /// </summary>
     internal static void VerifyWaverOwnedState()
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem(new EnemySession());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Waver, slot.Definition);

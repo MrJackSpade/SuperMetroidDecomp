@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 public sealed class SporeSpawnEnemyState
 {
     /// <summary>Staged CGRAM colors published by Spore Spawn's palette update.</summary>
-    internal readonly Bgr555[] _targetPalette = new Bgr555[256];
+    internal readonly Bgr555[] TargetPalette = new Bgr555[256];
     /// <summary>Marks staged palette slots so unrelated colors remain untouched.</summary>
     private readonly bool[] _targetPaletteWritten = new bool[256];
 
@@ -76,17 +76,17 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Stages one palette color for the next frame effect publication.</summary>
     internal void WriteTargetColor(int index, Bgr555 value)
     {
-        _targetPalette[index] = value;
+        TargetPalette[index] = value;
         _targetPaletteWritten[index] = true;
     }
 
     /// <summary>Publishes only staged colors and clears their pending markers afterward.</summary>
     internal void ConsumeTargetColors(Action<int, Bgr555> write)
     {
-        for (int index = 0; index < _targetPalette.Length; index++)
+        for (int index = 0; index < TargetPalette.Length; index++)
         {
             if (!_targetPaletteWritten[index]) continue;
-            write(index, _targetPalette[index]);
+            write(index, TargetPalette[index]);
             _targetPaletteWritten[index] = false;
         }
     }

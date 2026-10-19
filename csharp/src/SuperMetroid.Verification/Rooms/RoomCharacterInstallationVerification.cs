@@ -181,8 +181,8 @@ internal static class RoomCharacterInstallationVerification
                     editedBlocks.LevelData.BlockDefinitions.Span) &&
                 native.LevelData.ForegroundEntries.Span.SequenceEqual(
                     editedBlocks.LevelData.ForegroundEntries.Span) &&
-                native.LevelData.BehaviorBytes.Span.SequenceEqual(
-                    editedBlocks.LevelData.BehaviorBytes.Span),
+                native.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
+                    editedBlocks.LevelData.BehaviorBytes.AsSpan()),
                 "installed visual-block override changes room art without changing collision/BTS");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomBackgroundTilemapDirectory,

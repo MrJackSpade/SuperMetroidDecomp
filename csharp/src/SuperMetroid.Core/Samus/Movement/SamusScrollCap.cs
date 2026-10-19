@@ -11,7 +11,11 @@ internal sealed class SamusScrollCap
     /// words ($0B10/$0B14) are this point plus the frame's writes so far. Null when no camera
     /// owns them, as in standalone enemy fixtures.
     /// </summary>
-    internal FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
+    private FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
+
+    /// <summary>Enemy frame start: the camera's checkpoint of Samus's previous position, or none.</summary>
+    internal void BeginFrame(FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint) =>
+        _samusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint;
 
     /// <summary>
     /// <c>CapScrollingSpeed</c> ($A0:B7A1), called by Draygon and Yapping Maw after they place

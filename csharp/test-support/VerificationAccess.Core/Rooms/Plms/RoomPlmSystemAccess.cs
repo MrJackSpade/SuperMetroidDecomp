@@ -125,12 +125,12 @@ internal static class RoomPlmSystemAccess
 
 
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-        internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass._motherBrainGlassWasLoaded;
+        internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
         internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
             ? slot.RoomArgument
-            : self.MotherBrainGlass._motherBrainGlassLastRoomArgument;
+            : self.MotherBrainGlass.MotherBrainGlassLastRoomArgument;
 
         /// <summary>The glass's typed program, or null after deletion.</summary>
         internal PlmAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
@@ -157,7 +157,7 @@ internal static class RoomPlmSystemAccess
         /// </summary>
         internal void StartSoleProgramForVerification(PlmProgramStart start)
         {
-            PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
+            PlmSlot[] active = [.. self.SlotTable.Slots.Where(slot => slot.Active)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
             start.StartOn(active[0]);
@@ -177,7 +177,7 @@ internal static class RoomPlmSystemAccess
             int blockIndex,
             SamusProjectileTypeWord projectileType)
         {
-            foreach (var slot in self.SlotTable._slots)
+            foreach (var slot in self.SlotTable.Slots)
             {
                 if (!slot.Active || slot.BlockIndex != blockIndex ||
                     slot.Family is not EyeDoorPlms.EyeDoorPlmState door ||
@@ -197,7 +197,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].HeaderPointer == PlmHeaderId.ElevatorPlatform)
+            .Where(snapshot => self.SlotTable.Slots[snapshot.NativeSlotIndex].HeaderPointer == PlmHeaderId.ElevatorPlatform)
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -207,8 +207,8 @@ internal static class RoomPlmSystemAccess
             {
                 var snapshots = new RoomPlmSlotSnapshot[self.SlotTable.ActiveCount];
                 int next = 0;
-                for (int index = self.SlotTable._slots.Length - 1; index >= 0; index--)
-                    if (self.SlotTable._slots[index].Active) snapshots[next++] = self.Snapshot(index);
+                for (int index = self.SlotTable.Slots.Count - 1; index >= 0; index--)
+                    if (self.SlotTable.Slots[index].Active) snapshots[next++] = self.Snapshot(index);
                 return snapshots;
             }
         }
@@ -216,7 +216,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>Reads one physical PLM slot's header, block, argument, and active state.</summary>
         internal RoomPlmSlotSnapshot Snapshot(int index)
         {
-            PlmSlot slot = self.SlotTable._slots[index];
+            PlmSlot slot = self.SlotTable.Slots[index];
             return new RoomPlmSlotSnapshot(
                 NativeSlotIndex: index,
                 HeaderPointer: slot.HeaderPointer,
@@ -229,7 +229,7 @@ internal static class RoomPlmSystemAccess
         }
 
         /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>
-        internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => self.Drawing._tilemapUpdates;
+        internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => self.Drawing.TilemapUpdates;
 
         /// <summary>
         /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
@@ -361,9 +361,9 @@ internal static class RoomPlmSystemAccess
 
             // Spawn_PLM's descending free-slot search happens before any setup routine. A full
             // pool must therefore leave both level data and BTS completely untouched.
-            for (int slotIndex = self.SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+            for (int slotIndex = self.SlotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
             {
-                PlmSlot slot = self.SlotTable._slots[slotIndex];
+                PlmSlot slot = self.SlotTable.Slots[slotIndex];
                 if (slot.Active)
                     continue;
 
@@ -509,7 +509,7 @@ internal static class RoomPlmSystemAccess
 
     /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>
     private static IEnumerable<PlmSlot> ActiveSlots(RoomPlmSystem plms) =>
-        plms.SlotTable._slots.Where(slot => slot.Active);
+        plms.SlotTable.Slots.Where(slot => slot.Active);
 
     /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
     private static PlmSlot? MotherBrainGlassSlot(RoomPlmSystem plms) =>

@@ -35,7 +35,7 @@ internal static class SporeSpawnSwayVerification
                 AngleDelta = delta,
                 Angle = SnesAngle.FromTableIndex(start),
             };
-            enemies.SporeSpawnBehavior._sporeSpawn = state;
+            enemies.SporeSpawnBehavior.SporeSpawn = state;
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
                 new FrameCounters(0));

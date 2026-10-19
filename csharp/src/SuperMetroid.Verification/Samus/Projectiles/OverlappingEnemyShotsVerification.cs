@@ -23,7 +23,7 @@ internal static class OverlappingEnemyShotsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        var interactive = (List<int>)enemies.ProcessingWindow._interactiveEnemyIndexes;
+        var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
         Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)

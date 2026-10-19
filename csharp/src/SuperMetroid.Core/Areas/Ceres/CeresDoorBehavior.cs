@@ -53,17 +53,17 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Each door slot's typed program cursor in the loaded room.</summary>
-    internal readonly Dictionary<int, AnimationProgramCursor<CeresDoorProgram>> _doorPrograms = [];
+    internal readonly Dictionary<int, AnimationProgramCursor<CeresDoorProgram>> DoorPrograms = [];
 
     /// <summary>Runs a door's typed program where the enemy instruction interpreter would.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<CeresDoorProgram> cursor = _doorPrograms[slot.SlotIndex];
+        AnimationProgramCursor<CeresDoorProgram> cursor = DoorPrograms[slot.SlotIndex];
         EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
-        _doorPrograms[slot.SlotIndex] = cursor;
+        DoorPrograms[slot.SlotIndex] = cursor;
     }
 
     /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
@@ -164,7 +164,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        _doorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
+        DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
         // CeresDoor_Func_1 performs this extra direct transfer only for variant two. The
         // source/destination are the literal reconstructed DMA record at $A6:F739.
@@ -320,7 +320,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
         // at the same accepted-frame cadence in this runtime, so slot zero is the shared
         // timebase for the room-owned palette cycle.
-        int frame = _slotTable._slots[0].FrameCounter;
+        int frame = _slotTable.Slots[0].FrameCounter;
 
         // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
@@ -356,7 +356,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastCeresDoorSoundEffect = null;
-        _doorPrograms.Clear();
+        DoorPrograms.Clear();
     }
 
     /// <inheritdoc/>

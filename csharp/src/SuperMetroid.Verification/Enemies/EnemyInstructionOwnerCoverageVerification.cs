@@ -59,8 +59,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
             {
                 var enemies = new RoomEnemySystem();
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                enemies.Presentation._vram = new SnesVram();
-                enemies.Presentation._cgram = new SnesCgram();
+                enemies.Presentation.BindVram(new SnesVram());
+                enemies.Presentation.BindCgram(new SnesCgram());
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
                 enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 

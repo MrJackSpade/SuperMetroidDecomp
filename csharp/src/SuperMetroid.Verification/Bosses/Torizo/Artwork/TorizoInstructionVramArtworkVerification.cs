@@ -32,7 +32,7 @@ internal static class TorizoInstructionVramArtworkVerification
         var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
         installedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedVram = new SnesVram();
-        installedEnemies.Presentation._vram = installedVram;
+        installedEnemies.Presentation.BindVram(installedVram);
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -129,7 +129,7 @@ internal static class TorizoInstructionVramArtworkVerification
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
         editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedVram = new SnesVram();
-        editedEnemies.Presentation._vram = editedVram;
+        editedEnemies.Presentation.BindVram(editedVram);
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
         editedSlot.Bind(editedSlot.EnemyDefinitionPointer, installedSlot.Definition);

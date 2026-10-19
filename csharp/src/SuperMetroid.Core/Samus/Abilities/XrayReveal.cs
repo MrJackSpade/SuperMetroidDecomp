@@ -30,7 +30,7 @@ internal sealed class XrayReveal
     /// The two BG1 tilemap screens captured during setup (cartridge <c>$7E:6000-$6FFF</c>): the first screen is read by
     /// <c>$91:CB57</c>, the second by <c>$91:CB1C</c>.
     /// </summary>
-    internal readonly ushort[] _savedBg1 = new ushort[XrayTilemapLayout.BufferWords];
+    internal readonly ushort[] SavedBg1 = new ushort[XrayTilemapLayout.BufferWords];
 
     /// <summary>The frozen reveal map; it is never rebuilt from later room or VRAM changes.</summary>
     internal StagingWordView RevealTilemap => _tilemapStaging.TilemapWords;
@@ -62,7 +62,7 @@ internal sealed class XrayReveal
         // The builder reads only BG1 tilemap words. Feed the two captured pages,
         // not current VRAM: each page was read on a different setup call.
         var captured = new SnesVram();
-        new GameplayVram(captured).Bg1Tilemap.Write(_savedBg1);
+        new GameplayVram(captured).Bg1Tilemap.Write(SavedBg1);
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
@@ -91,7 +91,7 @@ internal sealed class XrayReveal
             _ => throw new InvalidOperationException($"Undefined X-ray setup stage {xray.SetupStage}."),
         };
         if (read is not (int sourceScreen, int savedScreen)) return;
-        ushort[] saved = _savedBg1;
+        ushort[] saved = SavedBg1;
         VramRegion bg1 = new GameplayVram(_vram).Bg1Tilemap;
         int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
         int sourceWord = sourceScreen * XrayTilemapLayout.ScreenWords;

@@ -24,7 +24,7 @@ internal static class BabyMetroidDeathCryVerification
         enemies.Presentation.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord((ushort)(index + 1)));
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;

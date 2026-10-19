@@ -27,9 +27,9 @@ public sealed class HudState
     public static ushort VramDestination => GameplayVramLayout.HudTilemapWord + WidthInTiles;
 
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
-    internal readonly ushort[] _tiles = new ushort[MutableTileCount];
+    internal readonly ushort[] Tiles = new ushort[MutableTileCount];
     /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
-    internal HudItem _previousSelectedItem;
+    internal HudItem PreviousSelectedItem;
     /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 
@@ -44,7 +44,7 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            _tiles[presentation?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
+            Tiles[presentation?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)] = (ushort)MapTileWords.HudBlank;
         }
     }
 
@@ -94,14 +94,14 @@ public sealed class HudState
         for (int x = 0; x < 5; x++)
         {
             var cell = new Position16<TilemapCells>((ushort)x, (ushort)y);
-            minimap[y * 5 + x] = _tiles[previous?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)];
+            minimap[y * 5 + x] = Tiles[previous?.MinimapCellIndex(cell) ?? NativeMinimapCellIndex(cell)];
         }
 
-        value.ApplyTemplate(_tiles);
+        value.ApplyTemplate(Tiles);
         ApplyCurrentPresentationState(samus);
         for (int y = 0; y < 3; y++)
         for (int x = 0; x < 5; x++)
-            _tiles[value.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y)))] = minimap[y * 5 + x];
+            Tiles[value.MinimapCellIndex(new(unchecked((ushort)x), unchecked((ushort)y)))] = minimap[y * 5 + x];
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ public sealed class HudState
     {
 
         (presentation ?? throw new InvalidOperationException(
-            "HUD initialization requires installed presentation assets.")).ApplyTemplate(_tiles);
+            "HUD initialization requires installed presentation assets.")).ApplyTemplate(Tiles);
 
         if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             AddTwoByTwoIcon(itemIndex: 4);
@@ -140,7 +140,7 @@ public sealed class HudState
             presentation?.SelectedPalette ?? GameplayHudDefinitions.SelectedPalette);
         // `$80:9AC9` initializes samus_prev_hud_item_index to zero. HandleHudTilemap
         // performs the first live comparison on the next gameplay pass.
-        _previousSelectedItem = HudItem.Beam;
+        PreviousSelectedItem = HudItem.Beam;
         SelectionSoundRequestedThisFrame = false;
         IsInitialized = true;
     }
@@ -193,13 +193,13 @@ public sealed class HudState
         // old icon to palette five, then publishes sound $39. This belongs in the live HUD
         // update rather than the input handler: native suppresses the sound (but not the
         // visual change) while spinning, wall-jumping, grappling, or time is frozen.
-        if (samus.SelectedHudItem != _previousSelectedItem)
+        if (samus.SelectedHudItem != PreviousSelectedItem)
         {
             ToggleItemHighlight(samus.SelectedHudItem,
                 presentation?.SelectedPalette ?? GameplayHudDefinitions.SelectedPalette);
-            ToggleItemHighlight(_previousSelectedItem,
+            ToggleItemHighlight(PreviousSelectedItem,
                 presentation?.DeselectedPalette ?? GameplayHudDefinitions.DeselectedPalette);
-            _previousSelectedItem = samus.SelectedHudItem;
+            PreviousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
             SelectionSoundRequestedThisFrame =
@@ -258,7 +258,7 @@ public sealed class HudState
                 int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
-                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
+                    Tiles[destination] = (ushort)MapTileWords.HudBlank;
                     continue;
                 }
 
@@ -276,11 +276,11 @@ public sealed class HudState
                         frame.PresentationMap.IsDiscoverable(cell),
                         frame.MapRevealMode))
                 {
-                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
+                    Tiles[destination] = (ushort)MapTileWords.HudBlank;
                     continue;
                 }
 
-                _tiles[destination] = (ushort)mapTile.ForHud(explored);
+                Tiles[destination] = (ushort)mapTile.ForHud(explored);
                 // The center slope also explores the corner above it. The native top
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
@@ -297,7 +297,7 @@ public sealed class HudState
         {
             var centerCell = new Position16<TilemapCells>(2, 1);
             int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);
-            _tiles[center] = (ushort)new MapTileWord(_tiles[center]).WithLocationBlink();
+            Tiles[center] = (ushort)new MapTileWord(Tiles[center]).WithLocationBlink();
         }
     }
 
@@ -310,21 +310,21 @@ public sealed class HudState
         Ensure.NotNull(queue);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
-        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, _tiles, RoomFxVram.HudMutableRowsDma);
+        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, Tiles, RoomFxVram.HudMutableRowsDma);
     }
 
     /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>
     private void DrawHealth(int health, int maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
+            "HUD energy requires installed presentation assets.")).ApplyEnergy(Tiles, health, maxHealth);
     }
 
     /// <summary>Draws the AUTO reserve indicator when its selected tank contains energy.</summary>
     private void DrawAutoReserve(bool containsEnergy)
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD reserve indicator requires installed presentation assets.")).ApplyAutoReserve(_tiles, containsEnergy);
+            "HUD reserve indicator requires installed presentation assets.")).ApplyAutoReserve(Tiles, containsEnergy);
     }
 
     /// <summary>Ports $82:AF33 without reinitializing icons, counters or the minimap.</summary>
@@ -332,35 +332,35 @@ public sealed class HudState
     {
         if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
         (presentation ?? throw new InvalidOperationException(
-            "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
+            "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(Tiles);
     }
 
     /// <summary>Installs the missile icon if the current HUD template has not drawn it yet.</summary>
     private void AddMissileIcon()
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
+            "HUD icons require installed presentation assets.")).TryApplyIcon(Tiles, itemIndex: 0);
     }
 
     /// <summary>Installs a two-by-two item icon using the selected presentation slot.</summary>
     private void AddTwoByTwoIcon(int itemIndex)
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
+            "HUD icons require installed presentation assets.")).TryApplyIcon(Tiles, itemIndex);
     }
 
     /// <summary>Changes the selected item's palette without rebuilding its tile words.</summary>
     private void ToggleItemHighlight(HudItem selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
+            "HUD selection requires installed presentation assets.")).ToggleItemHighlight(Tiles, selectedItem, paletteIndex);
     }
 
     /// <summary>Writes the ammunition digits for one enabled HUD item.</summary>
     private void DrawAmmo(int itemIndex, int value)
     {
         (presentation ?? throw new InvalidOperationException(
-            "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);
+            "HUD ammunition requires installed presentation assets.")).ApplyAmmo(Tiles, itemIndex, value);
     }
 
     /// <summary>Restores visible icons, counters, reserve mode, and selection after artwork rebind.</summary>
@@ -368,18 +368,18 @@ public sealed class HudState
     {
         if (presentation is null) return;
         if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != 0)
-            presentation.TryApplyIcon(_tiles, 4);
+            presentation.TryApplyIcon(Tiles, 4);
         if ((samus.EquippedItems & SamusEquipmentFlags.GrappleBeam) != 0)
-            presentation.TryApplyIcon(_tiles, 3);
-        if (samus.MaxMissiles != 0) presentation.TryApplyIcon(_tiles, 0);
-        if (samus.MaxSuperMissiles != 0) presentation.TryApplyIcon(_tiles, 1);
-        if (samus.MaxPowerBombs != 0) presentation.TryApplyIcon(_tiles, 2);
-        presentation.ApplyEnergy(_tiles, samus.Health, samus.MaxHealth);
-        if (samus.MaxMissiles != 0) presentation.ApplyAmmo(_tiles, 0, samus.Missiles);
-        if (samus.MaxSuperMissiles != 0) presentation.ApplyAmmo(_tiles, 1, samus.SuperMissiles);
-        if (samus.MaxPowerBombs != 0) presentation.ApplyAmmo(_tiles, 2, samus.PowerBombs);
-        if (samus.ReserveTankMode == ReserveTankMode.Auto) presentation.ApplyAutoReserve(_tiles, samus.ReserveEnergy != 0);
-        presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
+            presentation.TryApplyIcon(Tiles, 3);
+        if (samus.MaxMissiles != 0) presentation.TryApplyIcon(Tiles, 0);
+        if (samus.MaxSuperMissiles != 0) presentation.TryApplyIcon(Tiles, 1);
+        if (samus.MaxPowerBombs != 0) presentation.TryApplyIcon(Tiles, 2);
+        presentation.ApplyEnergy(Tiles, samus.Health, samus.MaxHealth);
+        if (samus.MaxMissiles != 0) presentation.ApplyAmmo(Tiles, 0, samus.Missiles);
+        if (samus.MaxSuperMissiles != 0) presentation.ApplyAmmo(Tiles, 1, samus.SuperMissiles);
+        if (samus.MaxPowerBombs != 0) presentation.ApplyAmmo(Tiles, 2, samus.PowerBombs);
+        if (samus.ReserveTankMode == ReserveTankMode.Auto) presentation.ApplyAutoReserve(Tiles, samus.ReserveEnergy != 0);
+        presentation.ToggleItemHighlight(Tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
     /// <summary>Maps a cell in the five-by-three minimap to the native HUD tile buffer.</summary>

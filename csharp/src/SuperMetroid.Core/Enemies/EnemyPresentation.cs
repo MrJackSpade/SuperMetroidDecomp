@@ -46,21 +46,28 @@ internal sealed class EnemyPresentation
     internal CgramPalettes CgramRows => new(Cgram);
 
     /// <summary>The room's bound VRAM; enemy artwork transfers require the room's video memory to be bound.</summary>
-    internal SnesVram Vram => _vram ??
-        throw new InvalidOperationException("Enemy presentation has no bound VRAM; the room's video memory must be bound first.");
+    internal SnesVram Vram
+    {
+        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound VRAM; the room's video memory must be bound first.");
+        private set;
+    }
 
     /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
-    internal SnesCgram Cgram => _cgram ??
-        throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
-    /// <summary>VRAM shared with room and enemy artwork transfers.</summary>
-    internal SnesVram? _vram;
+    internal SnesCgram Cgram
+    {
+        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
+        private set;
+    }
+    /// <summary>Room load: binds the VRAM the room's enemy artwork transfers write.</summary>
+    internal void BindVram(SnesVram vram) => Vram = Ensure.NotNull(vram);
+
+    /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
+    internal void BindCgram(SnesCgram cgram) => Cgram = Ensure.NotNull(cgram);
     /// <summary>
     /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI
     /// queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here; the runtime shares its table.
     /// </summary>
     internal ObjCharacterUploads ObjCharacters { get; set; } = new();
-    /// <summary>CGRAM backing boss and enemy palette views.</summary>
-    internal SnesCgram? _cgram;
 
     /// <summary>
     /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death

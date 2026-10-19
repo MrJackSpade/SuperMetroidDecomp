@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal readonly struct ProjectileInheritanceInspection(ProjectileInheritanceRecords inheritance)
 {
     /// <summary>The block's bytes in native address order.</summary>
-    private byte[] Records => inheritance._bytes;
+    private byte[] Records => inheritance.Bytes;
 
     /// <summary>Bytes in the block: the camera Y subspeed word, then four signed 16.16 distances.</summary>
     internal int ByteCount => Records.Length;

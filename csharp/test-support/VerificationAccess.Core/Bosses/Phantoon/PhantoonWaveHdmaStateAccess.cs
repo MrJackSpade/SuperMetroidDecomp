@@ -8,6 +8,6 @@ internal static class PhantoonWaveHdmaStateAccess
     extension(PhantoonWaveHdmaState self)
     {
         /// <summary>Only the initialized prefix of the room's wave-scroll cycle.</summary>
-        internal ReadOnlySpan<ushort> ScrollCycle => self._cycle.AsSpan(0, self._cycleLength);
+        internal ReadOnlySpan<ushort> ScrollCycle => self.Cycle.AsSpan(0, self.CycleLength);
     }
 }

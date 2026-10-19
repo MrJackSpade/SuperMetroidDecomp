@@ -12,8 +12,8 @@ internal static class HealthWarningVerification
     {
         var warning = new SamusHealthWarningState();
         var audio = new CartridgeAudioState();
-        byte[] positions = audio._soundWritePositions;
-        byte[,] queues = audio._soundQueues;
+        byte[] positions = audio.SoundWritePositions;
+        byte[,] queues = audio.SoundQueues;
         foreach (var sample in new[] { (99, 0), (30, 2), (0, 0), (30, 0), (31, 1), (32, 0), (30, 2), (31, 1) })
         {
             audio.Reset();

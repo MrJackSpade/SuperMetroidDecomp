@@ -86,7 +86,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleTableOffset = 4,
         };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the

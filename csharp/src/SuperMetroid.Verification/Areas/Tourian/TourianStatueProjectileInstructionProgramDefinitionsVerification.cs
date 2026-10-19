@@ -47,7 +47,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
 
         enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, soul: false);

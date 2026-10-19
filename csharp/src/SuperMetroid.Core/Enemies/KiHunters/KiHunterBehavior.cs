@@ -97,7 +97,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards per-slot typed state and prior sound publication on room load.</summary>
     internal void ResetKiHunterRoomState()
     {
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<KiHunterEnemyState>(null);
         LastKiHunterSoundEffect = null;
     }
@@ -768,7 +768,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Enemy slot {body.SlotIndex} is not a Ki-Hunter body with a following slot.");
         }
 
-        RoomEnemySlot wings = _slotTable._slots[body.SlotIndex + 1];
+        RoomEnemySlot wings = _slotTable.Slots[body.SlotIndex + 1];
         if (body.EnemyDefinitionPointer == 0 && initializedBody)
             return wings;
 
@@ -799,7 +799,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!IsKiHunterWingDefinition(wings.EnemyDefinitionPointer) || wings.SlotIndex == 0)
             throw new InvalidDataException($"Enemy slot {wings.SlotIndex} is not a linked Ki-Hunter wing.");
-        RoomEnemySlot body = _slotTable._slots[wings.SlotIndex - 1];
+        RoomEnemySlot body = _slotTable.Slots[wings.SlotIndex - 1];
         _ = GetKiHunterWings(body); // Performs the exact body/variant adjacency validation.
         return body;
     }

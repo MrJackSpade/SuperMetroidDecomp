@@ -17,7 +17,7 @@ public sealed class SnesCgram
     public const int ColorCount = SnesPpuLayout.CgramColorCount;
 
     /// <summary>Native 15-bit palette words retained until rendering or inspection converts them.</summary>
-    internal readonly Bgr555[] _colors = new Bgr555[ColorCount];
+    private readonly Bgr555[] _colors = new Bgr555[ColorCount];
 
     /// <summary>Read-only palette colors for watches and verification.</summary>
     public ReadOnlySpan<Bgr555> Colors => _colors;

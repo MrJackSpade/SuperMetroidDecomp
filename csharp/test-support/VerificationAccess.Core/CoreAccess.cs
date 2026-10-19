@@ -159,12 +159,6 @@ internal static class CoreAccess
         internal ReadOnlySpan<Bgr555> Initial => palettes.initial;
     }
 
-    /// <summary>Observes staged HUD tile words before their VRAM transfer.</summary>
-    extension(HudState hud)
-    {
-        /// <summary>Live mutable HUD tilemap words before their next transfer.</summary>
-        internal ReadOnlySpan<ushort> Tiles => hud._tiles;
-    }
 
     /// <summary>Extracts the high-bit flip flags from a rendered map tile word.</summary>
     extension(MapTileWord tile)
@@ -181,8 +175,8 @@ internal static class CoreAccess
         internal byte[] CreateUploadPayload()
         {
             var payload = new byte[OamBuffer.UploadByteCount];
-            oam._lowTable.CopyTo(payload, 0);
-            oam._highTable.CopyTo(payload, OamBuffer.LowTableByteCount);
+            oam.LowTable.CopyTo(payload);
+            oam.HighTable.CopyTo(payload.AsSpan(OamBuffer.LowTableByteCount));
             return payload;
         }
     }
@@ -200,13 +194,6 @@ internal static class CoreAccess
         }
     }
 
-    /// <summary>Reads the room's background tilemap entries independently of collision blocks.</summary>
-    extension(RoomLevelData level)
-    {
-        /// <summary>Private background-entry array used when assembling room layers.</summary>
-        internal ReadOnlyMemory<ushort> BackgroundEntries => level._backgroundEntries;
-    }
-
     /// <summary>Counts occupied room palette-FX slots in the private effect pool.</summary>
     extension(RoomPaletteFxSystem fx)
     {
@@ -214,19 +201,7 @@ internal static class CoreAccess
         internal int ActiveCount => fx.slots.Count(slot => slot.Id != 0);
     }
 
-    /// <summary>Exposes emulated WRAM and SRAM bytes for exact state assertions.</summary>
-    extension(SuperMetroidAddressSpace bus)
-    {
-        /// <summary>Mutable emulated WRAM for focused verifier setup.</summary>
-        internal Span<byte> WorkRam => bus._workRam;
-    }
 
-    /// <summary>Reads queued VRAM writes before the display upload consumes them.</summary>
-    extension(VramWriteQueue queue)
-    {
-        /// <summary>Pending VRAM transfer entries in queue order.</summary>
-        internal IReadOnlyList<VramWriteEntry> Entries => queue._entries;
-    }
 
     /// <summary>Invokes the internal accepted-grapple connection path with its anchor-owner arguments.</summary>
     extension(SamusGrappleMovement)
@@ -242,7 +217,7 @@ internal static class CoreAccess
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
-        internal IReadOnlyList<List<int>> QueuesForVerification => drawing._drawQueues;
+        internal IReadOnlyList<List<int>> QueuesForVerification => drawing.DrawQueues;
     }
 
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
@@ -257,7 +232,7 @@ internal static class CoreAccess
 
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
-            enemies.ChozoStatueBehavior._chozoStatuePlmRequests;
+            enemies.ChozoStatueBehavior.ChozoStatuePlmRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             [.. enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>())];
@@ -283,7 +258,7 @@ internal static class CoreAccess
     extension(SuperMetroidRuntime runtime)
     {
         /// <summary>Remaining frames of Samus's room-load appearance state.</summary>
-        internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player._samusLoadAppearanceFramesRemaining.RawValue;
+        internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player.LoadAppearanceFramesRemaining.RawValue;
         /// <summary>Whether the room-load appearance timer still owns Samus.</summary>
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
@@ -310,7 +285,7 @@ internal static class CoreAccess
         {
             get
             {
-                bool lockedOut = plms.Stations._saveStationLockedOut;
+                bool lockedOut = plms.Stations.SaveStationLockedOut;
                 return PlmSlots(plms)
                     .Select((slot, index) => (slot, index))
                     .Where(entry => entry.slot.Active)
@@ -325,7 +300,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Exposes physical PLM slots to the station snapshot reader.</summary>
-    private static PlmSlot[] PlmSlots(RoomPlmSystem plms) => plms.SlotTable._slots;
+    private static PlmSlot[] PlmSlots(RoomPlmSystem plms) => [.. plms.SlotTable.Slots];
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
     internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
@@ -424,7 +399,7 @@ internal static class CoreAccess
         /// </summary>
         internal bool ScrollPlmTriggered(int blockIndex)
         {
-            ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable._slots
+            ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable.Slots
                 .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
                 .Select(slot => slot.Family as ScrollPlms.ScrollPlmState)
                 .OfType<ScrollPlms.ScrollPlmState>()];
@@ -454,15 +429,15 @@ internal static class CoreAccess
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
         internal SnesAngle FirstReleasedCrashEchoAngle =>
-            self._firstReleasedCrashEcho.Angle;
+            self.FirstReleasedCrashEchoSlot.Angle;
 
         /// <summary>Angular-travel word of departing crash-echo projectile slot four.</summary>
         internal SnesAngle SecondReleasedCrashEchoAngle =>
-            self._secondReleasedCrashEcho.Angle;
+            self.SecondReleasedCrashEchoSlot.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>
         internal int FirstReleasedCrashEchoRadius =>
-            self._firstReleasedCrashEcho.Radius;
+            self.FirstReleasedCrashEchoSlot.Radius;
     }
 
     /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
@@ -522,7 +497,7 @@ internal static class CoreAccess
 
     /// <summary>Visits active physical PLM slots in native slot order.</summary>
     private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>
-        plms.SlotTable._slots.Where(slot => slot.Active);
+        plms.SlotTable.Slots.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>

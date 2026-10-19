@@ -70,7 +70,7 @@ internal static class RoomScrollDefinitionsVerification
                         ? (byte)(index / header.Size.X == header.Size.Y - 1
                             ? lastRow
                             : RoomScrollState.Green)
-                        : storage._bytes[index];
+                        : storage[index];
                 }
             }
 
@@ -78,7 +78,7 @@ internal static class RoomScrollDefinitionsVerification
                 storage,
                 header.State.Scroll,
                 header.Size);
-            AssertTrue(expected.SequenceEqual(compiled.Storage),
+            AssertTrue(expected.SequenceEqual(compiled.StorageBytes.ToArray()),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }
 
@@ -113,7 +113,7 @@ internal static class RoomScrollDefinitionsVerification
                     : RoomScrollState.Green)
                 : ceresResidue[index];
         }
-        AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.Storage),
+        AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.StorageBytes.ToArray()),
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(

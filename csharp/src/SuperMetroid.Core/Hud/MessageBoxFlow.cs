@@ -63,11 +63,26 @@ internal sealed class MessageBoxFlow
         _vramWrites = dependencies.VramWrites;
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
-    internal SamusSuitPickupKind? _pendingSuitPickup;
+    private SamusSuitPickupKind? _pendingSuitPickup;
     /// <summary>Station prompt waiting for a yes/no result from message box $17.</summary>
-    internal StationActivationEvent? _pendingSaveStation;
+    private StationActivationEvent? _pendingSaveStation;
     /// <summary>Station animation to finish after its confirmation message closes.</summary>
-    internal StationActivationEvent? _pendingSaveStationCompletion;
+    private StationActivationEvent? _pendingSaveStationCompletion;
+
+    /// <summary>Whether a suit transformation waits for its item message to close.</summary>
+    internal bool HasPendingSuitPickup => _pendingSuitPickup is not null;
+
+    /// <summary>Whether a save station waits for its confirmation or completion message.</summary>
+    internal bool HasPendingSaveStationWork => _pendingSaveStation is not null || _pendingSaveStationCompletion is not null;
+
+    /// <summary>Holds a suit transformation until its item message returns to the PLM.</summary>
+    internal void AwaitSuitPickup(SamusSuitPickupKind suit) => _pendingSuitPickup = suit;
+
+    /// <summary>Holds a save station until message $17's yes/no answer.</summary>
+    internal void AwaitSaveConfirmation(StationActivationEvent station) => _pendingSaveStation = station;
+
+    /// <summary>Holds a save station's animation until its completion message closes.</summary>
+    internal void AwaitSaveCompletion(StationActivationEvent station) => _pendingSaveStationCompletion = station;
     /// <summary>Confirmed area and station identity awaiting frontend SRAM persistence.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 

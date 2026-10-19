@@ -231,7 +231,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._cgram = new SnesCgram();
+            enemies.Presentation.BindCgram(new SnesCgram());
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);

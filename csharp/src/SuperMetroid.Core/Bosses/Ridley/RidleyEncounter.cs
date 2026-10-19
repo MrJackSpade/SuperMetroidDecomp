@@ -31,7 +31,7 @@ internal sealed class RidleyEncounter
     /// encounter assumptions to the real boss fight.
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
-        _slotTable._slots[0].EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ? Ridley : null;
+        _slotTable.Slots[0].EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ? Ridley : null;
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load

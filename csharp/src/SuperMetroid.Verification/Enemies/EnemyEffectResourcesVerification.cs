@@ -71,7 +71,7 @@ internal static class EnemyEffectResourcesVerification
     }
 
     /// <summary>Both enemy staging buffers' bytes, group A then group B.</summary>
-    private static byte[] StagingBytes(EnemyStagingSurfaces staging) => [.. staging._bg2.Bytes, .. staging._rottingHeap.Bytes];
+    private static byte[] StagingBytes(EnemyStagingSurfaces staging) => [.. staging.Bg2.Bytes, .. staging.RottingHeap.Bytes];
 
     /// <summary>Checks that one Crocomire resource error leaves effect mechanics, tilemap, graphics, and VRAM intact.</summary>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,

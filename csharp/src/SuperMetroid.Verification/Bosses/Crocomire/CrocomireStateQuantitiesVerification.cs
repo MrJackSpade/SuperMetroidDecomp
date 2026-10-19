@@ -333,7 +333,7 @@ internal static class CrocomireStateQuantitiesVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
-        enemies.Presentation._vram = new SnesVram();
+        enemies.Presentation.BindVram(new SnesVram());
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Crocomire = state;
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();

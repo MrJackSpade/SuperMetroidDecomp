@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class Bg2TilemapStaging : IWorkRamStagingSource
 {
     /// <summary>The buffer's bytes in native address order.</summary>
-    internal readonly VramStagingBuffer _buffer = new(LibraryBackgroundStagingDefinitions.ByteCount);
+    private readonly VramStagingBuffer _buffer = new(LibraryBackgroundStagingDefinitions.ByteCount);
 
     /// <summary>The library-background tilemap bytes.</summary>
     public StagingByteView LibraryTilemap => _buffer.ByteView(0, _buffer.Length);

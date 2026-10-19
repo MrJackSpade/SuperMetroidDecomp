@@ -256,7 +256,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 "Dragon combat callback cannot alias beyond the final physical enemy slot.");
         }
-        RoomEnemySlot following = _slotTable._slots[actor.SlotIndex + 1];
+        RoomEnemySlot following = _slotTable.Slots[actor.SlotIndex + 1];
         if (actor.Health == 0)
         {
             following.Properties = following.Properties.With(EnemyProperties.Deleted);
@@ -290,7 +290,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
-        RoomEnemySlot wing = _slotTable._slots[body.SlotIndex + 1];
+        RoomEnemySlot wing = _slotTable.Slots[body.SlotIndex + 1];
         if (body.Spawn.Population.Parameter1 != 0 || wing.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
             wing.Spawn.Population.Parameter1 == 0)
         {

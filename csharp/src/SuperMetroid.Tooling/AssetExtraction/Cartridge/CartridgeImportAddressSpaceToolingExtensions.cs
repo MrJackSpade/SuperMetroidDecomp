@@ -7,6 +7,6 @@ internal static class CartridgeImportAddressSpaceToolingExtensions
     extension(CartridgeImportAddressSpace self)
     {
         /// <summary>Exposes the normalized image bytes to extraction tools without copying them.</summary>
-        public ReadOnlySpan<byte> Rom => self._rom;
+        public ReadOnlySpan<byte> Rom => self.RomImage;
     }
 }

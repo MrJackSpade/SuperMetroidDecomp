@@ -103,7 +103,7 @@ internal static class CrocomireCutsceneVerification
         enemies.CrocomireBehavior.Crocomire = state;
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;

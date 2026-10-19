@@ -76,7 +76,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int MetroidSpecialDropCount = 5;
 
     /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
-    internal readonly List<MetroidDropRequest> _metroidDropRequests = new();
+    internal readonly List<MetroidDropRequest> MetroidDropRequests = new();
 
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
     public SoundEffectId? LastMetroidSoundEffectLibrary2 { get; private set; }
@@ -285,7 +285,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
-            if ((_frameContext._randomEnemyCounter & 7) == 7 && samus.Health >= 30)
+            if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
             DrainSamusWithMetroid(state, samus);
         }
@@ -405,7 +405,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & EnemyDropMasks.ScatterBits) - 16)),
                 unchecked((short)(((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16)));
-            _metroidDropRequests.Add(new MetroidDropRequest());
+            MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }
     }
@@ -527,7 +527,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMetroidSoundEffectLibrary2 = null;
-        _metroidDropRequests.Clear();
+        MetroidDropRequests.Clear();
     }
 
     /// <inheritdoc/>

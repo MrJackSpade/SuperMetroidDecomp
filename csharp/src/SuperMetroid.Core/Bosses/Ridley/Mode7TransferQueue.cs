@@ -38,11 +38,10 @@ internal struct Mode7TransferQueue(Mode7TransferQueueResidue residue)
     {
         if (_stack == 0)
             return;
-        residue._bytes[0] = 0;
-        residue._bytes[1] = 0;
+        residue.ClearControlWord();
         _stack = 0;
     }
 
     /// <summary>Writes one byte at <paramref name="offset"/> past the current descriptor.</summary>
-    private readonly void Write(int offset, byte value) => residue._bytes[_stack + offset] = value;
+    private readonly void Write(int offset, byte value) => residue.Write(_stack + offset, value);
 }

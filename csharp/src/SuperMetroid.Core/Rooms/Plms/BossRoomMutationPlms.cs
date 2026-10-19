@@ -47,9 +47,9 @@ internal sealed class BossRoomMutationPlms
         // Validate through RoomLevelData rather than allowing a malformed fixture to install
         // a PLM whose later vertical draws would address unrelated host memory.
         int blockIndex = level.GetBlockIndex(new(15, 4));
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -97,9 +97,9 @@ internal sealed class BossRoomMutationPlms
         }
 
         int blockIndex = level.GetBlockIndex(new(7, 30));
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -148,9 +148,9 @@ internal sealed class BossRoomMutationPlms
         };
 
         int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -200,9 +200,9 @@ internal sealed class BossRoomMutationPlms
         };
 
         int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -243,9 +243,9 @@ internal sealed class BossRoomMutationPlms
                 "Shitroid wall header must be $B763 or $B767.");
         }
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -321,9 +321,9 @@ internal sealed class BossRoomMutationPlms
 
         // SpawnHardcodedPLM probes native slots $4E,$4C,...,$00. Do not reserve a boss
         // slot or coalesce adjacent row requests: their allocation order is observable.
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 

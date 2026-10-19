@@ -66,7 +66,7 @@ internal static class ChargeFlareProductionVerification
         foreach (ushort outOfTableFrame in new ushort[] { 54, 0xffff })
         {
             var invalidSelector = Create();
-            Array.Fill(invalidSelector.Charge._flareFrames, outOfTableFrame);
+            Array.Fill(invalidSelector.Charge.FlareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.TileTransfers.BindArtwork(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement, stock);
@@ -86,7 +86,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
-        Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
+        Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         byte[] baseline = Draw(runtime);
@@ -142,9 +142,9 @@ internal static class ChargeFlareProductionVerification
         {
             var system = new SamusProjectileSystem();
             system.Charge.FlareCounter = (ushort)30;
-            var frames = system.Charge._flareFrames;
+            var frames = system.Charge.FlareFrames;
             Array.Fill(frames, (ushort)3);
-            Array.Fill(system.Charge._flareTimers, NativeCountdown.Start(3));
+            Array.Fill(system.Charge.FlareTimers, NativeCountdown.Start(3));
             return system;
         }
     }

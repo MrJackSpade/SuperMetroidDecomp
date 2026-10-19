@@ -10,8 +10,8 @@ internal static class SamusShinesparkStateAccess
     {
         /// <summary>Number of enabled departing echo drawings, independent of slot ownership.</summary>
         internal int ReleasedCrashEchoCount =>
-            (self._firstReleasedCrashEcho.Active ? 1 : 0) +
-            (self._secondReleasedCrashEcho.Active ? 1 : 0);
+            (self.FirstReleasedCrashEchoSlot.Active ? 1 : 0) +
+            (self.SecondReleasedCrashEchoSlot.Active ? 1 : 0);
 
         /// <summary>
         /// Runs <c>ProjPreInstr_SpeedEcho</c> at <c>$90:D4D2</c> for the two fixed crash-echo
@@ -24,8 +24,8 @@ internal static class SamusShinesparkStateAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self._firstReleasedCrashEcho);
-            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self._secondReleasedCrashEcho);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self.FirstReleasedCrashEchoSlot);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self.SecondReleasedCrashEchoSlot);
         }
     }
 }

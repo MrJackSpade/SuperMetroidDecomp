@@ -11,12 +11,19 @@ internal sealed class ProjectileSlotTable
     // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
 
     /// <summary>Five indexed slots for live Samus shots; their occupancy does not replace the cartridge projectile counter.</summary>
-    internal readonly SamusProjectileSlot[] _slots =
+    private readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
     /// <summary>Eighteen independently indexed slots for the trails emitted by ordinary projectiles.</summary>
-    internal readonly SamusProjectileTrailSlot[] _trailSlots =
+    private readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
+    /// <summary>The five shot slots in native index order.</summary>
+    internal IReadOnlyList<SamusProjectileSlot> Slots => _slots;
+    /// <summary>The lowest shot slot with no damage, which the firing routines take as free, or -1 when all are live.</summary>
+    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.Damage == 0);
+
+    /// <summary>The eighteen trail slots in native index order.</summary>
+    internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => _trailSlots;
     /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
     public int ProjectileCounter
     {

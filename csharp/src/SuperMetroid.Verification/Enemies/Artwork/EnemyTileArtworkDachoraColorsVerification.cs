@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));

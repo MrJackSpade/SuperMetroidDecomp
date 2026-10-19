@@ -199,7 +199,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();

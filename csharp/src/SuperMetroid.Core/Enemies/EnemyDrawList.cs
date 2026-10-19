@@ -46,18 +46,18 @@ internal sealed class EnemyDrawList
         _slotTable = dependencies.SlotTable;
     }
     /// <summary>Native enemy indices grouped into the eight ordered drawing layers.</summary>
-    internal readonly List<int>[] _drawQueues =
+    internal readonly List<int>[] DrawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<int>()).ToArray();
 
     /// <summary>Empties every layer queue before the enemy pass rebuilds them.</summary>
     internal void Clear()
     {
-        foreach (List<int> queue in _drawQueues)
+        foreach (List<int> queue in DrawQueues)
             queue.Clear();
     }
 
     /// <summary>Queues an enemy, by native index, for its draw layer.</summary>
-    internal void Enqueue(int layer, int nativeIndex) => _drawQueues[layer].Add(nativeIndex);
+    internal void Enqueue(int layer, int nativeIndex) => DrawQueues[layer].Add(nativeIndex);
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
     [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
@@ -82,7 +82,7 @@ internal sealed class EnemyDrawList
         var prepared = new List<PreparedEnemyDraw>();
         foreach (int layer in Enumerable.Range(firstLayer, lastLayer - firstLayer + 1))
         {
-            foreach (int nativeIndex in _drawQueues[layer])
+            foreach (int nativeIndex in DrawQueues[layer])
             {
                 RoomEnemySlot slot = _slotTable.SlotFromNativeIndex(nativeIndex);
                 // Power-bomb damage runs after queue construction and can clear a
@@ -249,7 +249,7 @@ internal sealed class EnemyDrawList
         if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
             return owned;
 
-        if (!slot.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0)
+        if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
             return 0;
 
         if (!slot.FrozenTimer.IsZero &&

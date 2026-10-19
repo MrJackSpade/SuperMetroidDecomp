@@ -199,7 +199,7 @@ internal static class LookupStream5Verification
             int randomCalls = 0;
             system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern));
             // The fade writes Phantoon's palette rows toward its installed fade colors.
-            system.Presentation._cgram = new SnesCgram();
+            system.Presentation.BindCgram(new SnesCgram());
             system.TileArtwork = InstalledFixtures.EnemyTiles;
             Action<RoomEnemySlot, PhantoonEnemyState> fade = system.PhantoonBehavior.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonHiddenFlameRain;
@@ -261,7 +261,7 @@ internal static class LookupStream5Verification
             Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
-            system.FrameContext._enemyFrameNmiFrameCounter = (ushort)(bucket << 1);
+            system.FrameContext.SeedNmiFrameCounter((ushort)(bucket << 1));
             body.Position = body.Position.WithWhole(new(128, 96)); state.Parts[body.SlotIndex].FunctionTimer = 1; state.Parts[body.SlotIndex].FlameRainRequested = true;
             begin(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
@@ -356,9 +356,9 @@ internal static class LookupStream5Verification
             int destination = CeresDoorVisualRomData.Mode7DestinationWord;
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
-            system.Presentation._vram = vram;
-            system.Presentation._cgram = new SnesCgram();
-            var slots = (RoomEnemySlot[])system.SlotTable._slots;
+            system.Presentation.BindVram(vram);
+            system.Presentation.BindCgram(new SnesCgram());
+            var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
             {
                 slots[0].FrameCounter = tick;
@@ -1991,7 +1991,7 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
-                system.Presentation._cgram = cgram;
+                system.Presentation.BindCgram(cgram);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = variant == 3 ? CeresDoorVisualRomData.NormalTargetColor : CeresDoorVisualRomData.ActiveTargetColor;
@@ -2057,7 +2057,7 @@ internal static class LookupStream5Verification
             {
                 var system = new RoomEnemySystem { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
-                system.Presentation._cgram = cgram;
+                system.Presentation.BindCgram(cgram);
                 var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = CeresDoorVisualRomData.ActiveTargetColor;
@@ -2124,8 +2124,8 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
             var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
             var cgram = new SnesCgram();
-            system.Presentation._cgram = cgram;
-            system.Presentation._vram = new SnesVram();
+            system.Presentation.BindCgram(cgram);
+            system.Presentation.BindVram(new SnesVram());
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })
             {

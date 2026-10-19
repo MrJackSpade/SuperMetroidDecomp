@@ -31,7 +31,7 @@ public sealed class VramWriteQueue
     private const int TerminatorByteCount = 2;
 
     /// <summary>Typed records in native insertion order, drained with append-during-drain behavior.</summary>
-    internal readonly List<VramWriteEntry> _entries = [];
+    internal readonly List<VramWriteEntry> Entries = [];
 
     /// <summary>
     /// Byte offset at which the ROM would write the next record, corresponding to WRAM
@@ -105,7 +105,7 @@ public sealed class VramWriteQueue
                 $"leaving no two-byte terminator inside the ${StorageByteCount:X3}-byte table.");
         }
 
-        _entries.Add(entry);
+        Entries.Add(entry);
         TailInBytes = newTail;
     }
 
@@ -114,9 +114,9 @@ public sealed class VramWriteQueue
     public void RebindBusSource(int sourceAddress, ushort sizeInBytes, VramAssetId asset)
     {
         if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
-        for (int i = 0; i < _entries.Count; i++)
-            if (_entries[i].AssetId == VramAssetId.None && _entries[i].SourceAddress == sourceAddress && _entries[i].SizeInBytes == sizeInBytes)
-                _entries[i] = _entries[i] with { SourceAddress = 0, AssetId = asset };
+        for (int i = 0; i < Entries.Count; i++)
+            if (Entries[i].AssetId == VramAssetId.None && Entries[i].SourceAddress == sourceAddress && Entries[i].SizeInBytes == sizeInBytes)
+                Entries[i] = Entries[i] with { SourceAddress = 0, AssetId = asset };
     }
 
     /// <summary>
@@ -133,9 +133,9 @@ public sealed class VramWriteQueue
 
         // Use an index rather than foreach to make append-during-drain behavior explicit:
         // this object is single-threaded like the original main-loop/NMI handshake.
-        for (int index = 0; index < _entries.Count; index++)
+        for (int index = 0; index < Entries.Count; index++)
         {
-            VramWriteEntry entry = _entries[index];
+            VramWriteEntry entry = Entries[index];
             if (entry.Staging is { } staging)
                 vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.Destination.Encoded);
             else if (entry.StagingWords is { } words)
@@ -165,7 +165,7 @@ public sealed class VramWriteQueue
 
         // The assembly always zeroes the tail, even when the queue was empty. Clearing the
         // typed records at the same point prevents stale transfers on the next frame.
-        _entries.Clear();
+        Entries.Clear();
         TailInBytes = 0;
     }
 

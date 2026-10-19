@@ -748,8 +748,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ];
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
-        for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
-            SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
+        SlotTable.InstallSlots(Species);
     }
 
     /// <summary>Collision words read from the current slots after their AI has run.</summary>
@@ -777,24 +776,22 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Ensure.NotNull(request);
         IRoomEnemyDefinitionSource definitions = request.Definitions;
         Room.Definitions = definitions;
-        GunshipBehavior._gunshipLoadScenario = request.GunshipScenario;
-        FrameContext._deferLoaderTimeCameraReads = request.DeferLoaderTimeCameraReads;
-        GunshipBehavior._samusAtEnemyInitialization = request.Samus;
-        FrameContext._samusProjectilesForEnemyFrame = null;
-        DeathsAndDrops._samusForEnemyDrops = request.Samus;
+        GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
+        FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
+        DeathsAndDrops.BindSamus(request.Samus);
         // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
         // post-volley bytecode, merely sample the existing WRAM seed: IEnemyRandomNumbers keeps
         // Generate and Read distinct so a sample never silently advances the cartridge RNG.
         Room.Services = request.Services;
-        Presentation._vram = request.Vram;
-        Presentation._cgram = request.Cgram;
+        Presentation.BindVram(request.Vram);
+        Presentation.BindCgram(request.Cgram);
         SlotTable.EnemyCount = 0;
         RoomStatus.EnemiesKilled = 0;
         RoomStatus.BossId = 0;
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();
         // Each species resets its own room state, in the original order; the slots drop the species states they hold.
-        foreach (RoomEnemySlot slot in SlotTable._slots)
+        foreach (RoomEnemySlot slot in SlotTable.Slots)
             slot.ClearSpeciesStates();
         foreach (IEnemySpecies species in _species)
             species.ResetForRoomLoad(request);
@@ -807,19 +804,18 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Earthquake.EarthquakeType = 0;
         Earthquake.LastRoomShake = default;
         RidleyEncounter.Ridley = null;
-        FrameContext._processAllEnemies = false;
+        FrameContext.EndFullSweep();
         SpriteObjects.ResetForRoom();
         // Enemy projectiles live in a separate native bank-$86 pool, but room loading
         // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
         // this reset, leaving Ridley's room could carry a fireball (and its stale room
         // collision coordinates) into the destination room.
         Projectiles.ResetForRoom();
-        ProcessingWindow._activeEnemyIndexes.Clear();
-        ProcessingWindow._interactiveEnemyIndexes.Clear();
+        ProcessingWindow.ResetForRoomLoad();
         _interactiveCollisionBodies.Clear();
-        PopulationLoader._graphicsSet.Clear();
+        PopulationLoader.ResetForRoomLoad();
         Drawing.Clear();
-        foreach (RoomEnemySlot slot in SlotTable._slots)
+        foreach (RoomEnemySlot slot in SlotTable.Slots)
             slot.Clear();
 
         // $A0:8A6D does not even inspect the room's enemy set when the first population
@@ -846,17 +842,15 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         using var terrainScope = new EnemyTerrain.EnemyTerrainScope(Terrain, frame.CollisionPlms);
         Room.EnsureLoaded();
-        DeathsAndDrops._samusForEnemyDrops = frame.Samus;
-        ScrollCap._samusPreviousPositionCheckpoint = frame.SamusPreviousPositionCheckpoint;
-        FrameContext._enemyFrameTimeIsFrozen = frame.TimeIsFrozen;
-        FrameContext._samusProjectilesForEnemyFrame = frame.SamusProjectiles;
-        Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
+        DeathsAndDrops.BindSamus(frame.Samus);
+        ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
-        FrameContext._enemyFrameNmiFrameCounter = frame.NmiFrameCounter ?? FrameContext._randomEnemyCounter;
+        FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.NmiFrameCounter);
+        Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter)));
+            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext.RandomEnemyCounter)));
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
@@ -866,7 +860,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
         Drawing.Clear();
 
-        foreach (ushort nativeIndex in ProcessingWindow._activeEnemyIndexes)
+        foreach (ushort nativeIndex in ProcessingWindow.ActiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotTable.SlotFromNativeIndex(nativeIndex);
             // EnemyMain $A0:9021-$902E decrements tangible actors' invincibility
@@ -1001,7 +995,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // collision routines dereference the live slot words, so publish bodies after AI
         // has had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (ushort nativeIndex in ProcessingWindow._interactiveEnemyIndexes)
+        foreach (ushort nativeIndex in ProcessingWindow.InteractiveEnemyIndexes)
         {
             RoomEnemySlot slot = SlotTable.SlotFromNativeIndex(nativeIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
@@ -1011,7 +1005,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 !slot.FrozenTimer.IsZero,
                 slot.Properties));
         }
-        FrameContext._randomEnemyCounter = unchecked((ushort)(FrameContext._randomEnemyCounter + 1));
+        FrameContext.AdvanceRandomEnemyCounter();
         DeadTorizoBehavior.QueueDeadTorizoFrameVramTransfers(frame.VramWriteQueue);
         DeadSidehopperBehavior.QueueDeadSidehopperFrameVramTransfers(frame.VramWriteQueue);
         frame.Samus?.Kinematics.ClearSolidEnemyCollisionIndexes();
@@ -1083,7 +1077,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RunMainAi(slot, frame);
 
     /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
+    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow.InteractiveEnemyIndexes;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -1102,7 +1096,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // on the following frame rather than retroactively changing already-emitted OAM.
         if (Earthquake.Advance(timeIsFrozen))
         {
-            foreach (ushort nativeIndex in ProcessingWindow._activeEnemyIndexes)
+            foreach (ushort nativeIndex in ProcessingWindow.ActiveEnemyIndexes)
                 SlotTable.SlotFromNativeIndex(nativeIndex).ShakeTimer = NativeCountdown.Start(RoomFxRomData.Earthquake.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
@@ -1312,8 +1306,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         int? nmiFrameCounter = null)
     {
         Room.EnsureLoaded();
-        DeathsAndDrops._samusForEnemyDrops = samus;
-        PrePhantoonRoomBehavior._enemyProjectileBackgroundScroll = backgroundScroll;
+        DeathsAndDrops.BindSamus(samus);
+        PrePhantoonRoomBehavior.BindBackgroundScroll(backgroundScroll);
         DeathsAndDrops.LastEnemyPickupSoundEffect = null;
         DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 = null;
         Projectiles.RunPass(level, samus, camera, nmiFrameCounter8, samusBombs, nmiFrameCounter);
@@ -1525,7 +1519,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     internal void ConsumeTargetPaletteWrites(Action<int, Bgr555> write)
     {
         Ensure.NotNull(write);
-        SporeSpawnBehavior._sporeSpawn?.ConsumeTargetColors(write);
+        SporeSpawnBehavior.ConsumeTargetColors(write);
     }
 
     // Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt pointer is last.

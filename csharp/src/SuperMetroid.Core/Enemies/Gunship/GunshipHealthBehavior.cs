@@ -23,7 +23,7 @@ internal sealed class GunshipHealthBehavior
         {
             for (int i = 0; i < _slotTable.EnemyCount; i++)
             {
-                var slot = _slotTable._slots[i];
+                var slot = _slotTable.Slots[i];
                 // The ship's top is the only enemy whose initialization is InitAI_ShipTop.
                 if (slot.EnemyDefinitionPointer != EnemyDefinitionId.ShipTop) continue;
                 return GunshipPartState.Of(slot).Function is GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus

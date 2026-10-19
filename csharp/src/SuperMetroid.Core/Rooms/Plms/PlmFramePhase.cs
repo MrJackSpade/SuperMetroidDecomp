@@ -164,14 +164,14 @@ internal sealed class PlmFramePhase
                          InWorldCollectibleKind.VariaSuit or
                          InWorldCollectibleKind.GravitySuit)
                 {
-                    if (_messageBoxes._pendingSuitPickup is not null || _suitPickup.IsActive)
+                    if (_messageBoxes.HasPendingSuitPickup || _suitPickup.IsActive)
                     {
                         throw new InvalidDataException(
                             "A second suit pickup attempted to replace an active transformation.");
                     }
-                    _messageBoxes._pendingSuitPickup = pickup.Kind == InWorldCollectibleKind.VariaSuit
+                    _messageBoxes.AwaitSuitPickup(pickup.Kind == InWorldCollectibleKind.VariaSuit
                         ? SamusSuitPickupKind.Varia
-                        : SamusSuitPickupKind.Gravity;
+                        : SamusSuitPickupKind.Gravity);
                 }
 
                 if (_messageBox.IsActive)
@@ -188,28 +188,26 @@ internal sealed class PlmFramePhase
                 {
                     if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
                     {
-                        if (_messageBoxes._pendingSaveStation is not null ||
-                            _messageBoxes._pendingSaveStationCompletion is not null ||
+                        if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
                         {
                             throw new InvalidDataException(
                                 "A save station attempted to replace an active PLM message owner.");
                         }
-                        _messageBoxes._pendingSaveStation = station;
+                        _messageBoxes.AwaitSaveConfirmation(station);
                         _messageBox.Begin(GameplayMessageIds.SaveConfirmation,
                             _controller1.Current);
                         continue;
                     }
                     if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
                     {
-                        if (_messageBoxes._pendingSaveStation is not null ||
-                            _messageBoxes._pendingSaveStationCompletion is not null ||
+                        if (_messageBoxes.HasPendingSaveStationWork ||
                             _messageBox.IsActive)
                         {
                             throw new InvalidDataException(
                                 "A completed save station attempted to replace an active message owner.");
                         }
-                        _messageBoxes._pendingSaveStationCompletion = station;
+                        _messageBoxes.AwaitSaveCompletion(station);
                         _messageBox.Begin(GameplayMessageIds.SaveCompleted, _controller1.Current);
                         continue;
                     }

@@ -1472,7 +1472,7 @@ internal static class LookupStream1Verification
             for (int change = 0; change < 2; change++)
             {
                 byte expected = (byte)(pose - 0xFD + change * 16);
-                residue._bytes[(0x7E0000 | pointer) - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart] = expected;
+                residue.Write((0x7E0000 | pointer) - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart, expected);
                 AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(residue, pointer, 0),
                     $"animation alias ${pose:X2} observes queue residue mutation {change}");
             }

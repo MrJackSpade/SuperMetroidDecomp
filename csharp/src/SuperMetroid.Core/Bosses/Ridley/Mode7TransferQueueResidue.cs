@@ -9,7 +9,17 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public sealed class Mode7TransferQueueResidue
 {
     /// <summary>The queue bytes in native address order.</summary>
-    internal readonly byte[] _bytes = new byte[Mode7TransferQueueLayout.QueueByteCount];
+    private readonly byte[] _bytes = new byte[Mode7TransferQueueLayout.QueueByteCount];
+
+    /// <summary>Writes one queue byte, as a descriptor is pushed.</summary>
+    internal void Write(int index, byte value) => _bytes[index] = value;
+
+    /// <summary>The NMI handler's <c>STZ Mode7Transfer.control</c>: clears the first control word only.</summary>
+    internal void ClearControlWord()
+    {
+        _bytes[0] = 0;
+        _bytes[1] = 0;
+    }
 
     /// <summary>
     /// The queue byte at bank-$91 low-half <paramref name="offset"/>, which aliases WRAM: running cadence stage five's

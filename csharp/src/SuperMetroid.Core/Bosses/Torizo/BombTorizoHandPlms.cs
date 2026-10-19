@@ -44,7 +44,7 @@ internal sealed class BombTorizoHandPlms
     /// translated family owns a slot, only whether one of forty header words matches.
     /// </summary>
     public bool HasActiveHeader(PlmHeaderId header) =>
-        _slotTable._slots.Any(slot => slot.Active && slot.HeaderPointer == header);
+        _slotTable.Slots.Any(slot => slot.Active && slot.HeaderPointer == header);
 
     /// <summary>Runs setup $D606 after the generic room allocator has installed the header.</summary>
     internal void SetupBombTorizoHandSlot(

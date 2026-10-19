@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Hud;
 public sealed class GameplayMessageBoxState
 {
     /// <summary>BG3 words for the active message, including its current confirmation cursor.</summary>
-    internal ushort[] _tilemap = [];
+    internal ushort[] TilemapWords = [];
     /// <summary>Editable item-title artwork rebound after asset reload or state restoration.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     /// <summary>Editable item-panel artwork, including remappable button glyphs.</summary>
@@ -92,7 +92,7 @@ public sealed class GameplayMessageBoxState
     public int MinimumDisplayFramesRemaining { get; private set; }
 
     /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
-    public ReadOnlySpan<ushort> Tilemap => _tilemap;
+    public ReadOnlySpan<ushort> Tilemap => TilemapWords;
 
     /// <summary>Current yes/no choice for save confirmation message $17.</summary>
     public bool ConfirmationSelectionYes { get; private set; } = true;
@@ -124,17 +124,17 @@ public sealed class GameplayMessageBoxState
         noticePresentation = notices;
         if (notices?.Contains(MessageId) == true)
         {
-            _tilemap = notices.Build(MessageId);
+            TilemapWords = notices.Build(MessageId);
             if (IsSaveConfirmation)
-                notices.ApplySelection(MessageId, _tilemap, ConfirmationSelectionYes);
+                notices.ApplySelection(MessageId, TilemapWords, ConfirmationSelectionYes);
         }
         else if (panels?.Contains(MessageId) == true)
         {
-            _tilemap = panels.Build(MessageId);
+            TilemapWords = panels.Build(MessageId);
             PatchInstalledPanelButton(MessageId);
         }
         else if (presentation?.Contains(MessageId) == true)
-            _tilemap = presentation.Build(MessageId);
+            TilemapWords = presentation.Build(MessageId);
     }
 
     /// <summary>
@@ -172,14 +172,14 @@ public sealed class GameplayMessageBoxState
         _shootBinding = shootBinding;
         _runBinding = runBinding;
         if (noticePresentation?.Contains(messageId) == true)
-            _tilemap = noticePresentation.Build(messageId);
+            TilemapWords = noticePresentation.Build(messageId);
         else if (panelPresentation?.Contains(messageId) == true)
         {
-            _tilemap = panelPresentation.Build(messageId);
+            TilemapWords = panelPresentation.Build(messageId);
             PatchInstalledPanelButton(messageId);
         }
         else if (titlePresentation?.Contains(messageId) == true)
-            _tilemap = titlePresentation.Build(messageId);
+            TilemapWords = titlePresentation.Build(messageId);
         else
             throw new InvalidOperationException(
                 $"Gameplay message {messageId} requires installed presentation assets.");
@@ -406,7 +406,7 @@ public sealed class GameplayMessageBoxState
         MessageId = GameplayMessageId.None;
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
-        _tilemap = [];
+        TilemapWords = [];
     }
 
     /// <summary>
@@ -421,7 +421,7 @@ public sealed class GameplayMessageBoxState
         if (noticePresentation?.Contains(MessageId) == true)
         {
             noticePresentation.ApplySelection(
-                MessageId, _tilemap, ConfirmationSelectionYes);
+                MessageId, TilemapWords, ConfirmationSelectionYes);
             return;
         }
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
@@ -431,13 +431,13 @@ public sealed class GameplayMessageBoxState
     internal void PatchConfiguredButton(GameplayMessageId messageId, SnesButton binding)
     {
         int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
-        if ((byteOffset & 1) != 0 || byteOffset + 1 >= _tilemap.Length * 2)
+        if ((byteOffset & 1) != 0 || byteOffset + 1 >= TilemapWords.Length * 2)
         {
             throw new InvalidDataException(
                 $"Message {messageId} configurable-button offset ${byteOffset:X4} is outside its tilemap.");
         }
 
-        _tilemap[byteOffset / 2] = ResolveButtonTilemapWord(binding);
+        TilemapWords[byteOffset / 2] = ResolveButtonTilemapWord(binding);
     }
 
     /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>

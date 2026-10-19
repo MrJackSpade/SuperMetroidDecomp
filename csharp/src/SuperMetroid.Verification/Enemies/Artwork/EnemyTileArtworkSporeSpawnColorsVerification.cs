@@ -97,7 +97,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
@@ -112,7 +112,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             int slot = SporeSpawnColorRomData.SporeDestination + color;
             AssertEqual(colors.ResolveSpore(color), cgram.Colors[slot],
                 $"live spore CGRAM color {color}");
-            AssertEqual(colors.ResolveSpore(color), state.TargetPalette.Span[slot],
+            AssertEqual(colors.ResolveSpore(color), state.TargetPalette.AsSpan()[slot],
                 $"live spore target color {color}");
         }
         AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
@@ -184,7 +184,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                 for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 {
                     Bgr555 actual = targetOnly
-                        ? state.TargetPalette.Span[destination + color]
+                        ? state.TargetPalette.AsSpan()[destination + color]
                         : cgram.Colors[destination + color];
                     AssertEqual(colors.ResolveDeath(layer, frame, color), actual,
                         $"live Spore Spawn {(targetOnly ? "target" : "current")} " +

@@ -160,7 +160,7 @@ internal static class LookupStream2Verification
     {
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = NativeCountdown.Start(2) };

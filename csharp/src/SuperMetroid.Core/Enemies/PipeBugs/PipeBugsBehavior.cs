@@ -51,7 +51,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Releases every initialized species state before a new room population loads.</summary>
     internal void ResetPipeBugRoomState() =>
-        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<PipeBugEnemyState>(null));
+        _slotTable.ClearSpeciesState<PipeBugEnemyState>();
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
@@ -446,7 +446,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         var formation = new RoomEnemySlot[NorfairFormationSize];
         for (int index = 0; index < formation.Length; index++)
         {
-            RoomEnemySlot member = _slotTable._slots[leader.SlotIndex + index];
+            RoomEnemySlot member = _slotTable.Slots[leader.SlotIndex + index];
             PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
             if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
             {

@@ -23,7 +23,7 @@ internal static class MagdolliteLavaBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
+        enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.VramTilesIndex = 512;

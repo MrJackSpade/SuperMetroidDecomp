@@ -1101,7 +1101,7 @@ internal sealed class SuperMetroidRuntime
         FixedPosition<RoomPixels> PreviousCameraPoint);
 
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
-    internal SuspendedGameplayFrameTail? _suspendedFrameTail;
+    private SuspendedGameplayFrameTail? _suspendedFrameTail;
 
     /// <summary>Updates live host guards without reconstructing any cartridge-owned state.</summary>
     internal void ApplyHostOptions(HostGameplayOverrides options)

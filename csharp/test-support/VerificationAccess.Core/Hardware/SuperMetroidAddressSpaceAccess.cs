@@ -18,13 +18,13 @@ internal static class SuperMetroidAddressSpaceAccess
 
             if (SnesBusLayout.IsWorkRamBank(bank))
             {
-                self._workRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset] = value;
+                self.WorkRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset] = value;
                 return;
             }
 
             if (SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
             {
-                self._workRam[offset] = value;
+                self.WorkRam[offset] = value;
                 return;
             }
 

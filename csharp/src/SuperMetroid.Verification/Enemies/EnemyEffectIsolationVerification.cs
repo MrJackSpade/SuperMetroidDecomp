@@ -96,7 +96,7 @@ internal static class EnemyEffectIsolationVerification
         var editedRot = new MotherBrainCorpseRottingState();
         baselineRot.Initialize(baseline, CorpseEffectArtwork(0x55));
         editedRot.Initialize(edited, CorpseEffectArtwork(0xaa));
-        AssertTrue(!baseline._rottingHeap.Bytes.SequenceEqual(edited._rottingHeap.Bytes), "different installed corpse pixels reach the rotting heap");
+        AssertTrue(!baseline.RottingHeap.Bytes.SequenceEqual(edited.RottingHeap.Bytes), "different installed corpse pixels reach the rotting heap");
         Action<MotherBrainSpriteTileTransferRequest> baselineTransfer = baselineEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
         Action<MotherBrainSpriteTileTransferRequest> editedTransfer = editedEnemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer;
         int finished = 0;
@@ -136,15 +136,15 @@ internal static class EnemyEffectIsolationVerification
                 AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
                     MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
             int artEnd = MotherBrainCorpseRottingState.GraphicsBufferSize;
-            AssertTrue(baseline._rottingHeap.Bytes[artEnd..].SequenceEqual(edited._rottingHeap.Bytes[artEnd..]) &&
-                baseline._bg2.Bytes.SequenceEqual(edited._bg2.Bytes), "corpse art changes only its graphics buffer");
+            AssertTrue(baseline.RottingHeap.Bytes[artEnd..].SequenceEqual(edited.RottingHeap.Bytes[artEnd..]) &&
+                baseline.Bg2.Bytes.SequenceEqual(edited.Bg2.Bytes), "corpse art changes only its graphics buffer");
             foreach (var request in expected.VramTransfers) baselineTransfer(request);
             foreach (var request in actual.VramTransfers) editedTransfer(request);
             foreach (var request in expected.VramTransfers)
             {
                 int source = checked((int)request.SourceAddress) - MotherBrainCorpseRottingState.GraphicsBufferAddress;
                 AssertTrue(baselineVram.Bytes.Slice(request.VramDestination * 2, request.Size)
-                    .SequenceEqual(baseline._rottingHeap.Bytes.Slice(source, request.Size)), "production staging DMA uploads current rot pixels");
+                    .SequenceEqual(baseline.RottingHeap.Bytes.Slice(source, request.Size)), "production staging DMA uploads current rot pixels");
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
@@ -157,7 +157,7 @@ internal static class EnemyEffectIsolationVerification
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         return enemies;
     }
 

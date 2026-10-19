@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();

@@ -10,9 +10,9 @@ internal static class SamusProjectileSystemAccess
         /// The independent trail pool in native low-to-high byte-index order. Allocation scans
         /// this collection backward, matching <c>$90:B679-$B683</c> rather than using a queue.
         /// </summary>
-        internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => self.SlotTable._trailSlots;
+        internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => self.SlotTable.TrailSlots;
 
         /// <summary>Debugger-friendly count of slots whose left stream still owns the slot.</summary>
-        internal int ActiveTrailCount => self.SlotTable._trailSlots.Count(slot => slot.IsActive);
+        internal int ActiveTrailCount => self.SlotTable.TrailSlots.Count(slot => slot.IsActive);
     }
 }

@@ -45,7 +45,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         var guarded = NewMotherBrainBabyPopulationReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);

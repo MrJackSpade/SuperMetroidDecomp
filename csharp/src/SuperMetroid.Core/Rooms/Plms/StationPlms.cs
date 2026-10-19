@@ -45,9 +45,19 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
     private const ushort StationAccessExtendedHoldFrames = 96;
     /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
-    internal readonly List<StationActivationEvent> _stationActivationEvents = [];
+    private readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
-    internal bool _saveStationLockedOut;
+    internal bool SaveStationLockedOut { get; private set; }
+
+    /// <summary>Room reset: no station has activated, and the save lockout of the previous entry ends.</summary>
+    internal void ResetForRoom()
+    {
+        _stationActivationEvents.Clear();
+        SaveStationLockedOut = false;
+    }
+
+    /// <summary>Frame start: drops the previous pass's activation events.</summary>
+    internal void BeginFrame() => _stationActivationEvents.Clear();
 
     /// <summary>
     /// The map station's side of gameplay resume ($82:A2E3). Map access-list deletion does
@@ -56,7 +66,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (PlmSlot slot in _slotTable._slots)
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
@@ -75,7 +85,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// station. Ordinary destination-room construction clears it by creating a fresh PLM
     /// owner; an SRAM load explicitly sets it after the station population is installed.
     /// </summary>
-    public void LockSaveStationForCurrentRoomEntry() => _saveStationLockedOut = true;
+    public void LockSaveStationForCurrentRoomEntry() => SaveStationLockedOut = true;
 
     /// <summary>
     /// Resumes the sleeping save-station PLM after bank $85 returns its YES/NO result.
@@ -99,7 +109,7 @@ internal sealed class StationPlms : IPlmFamilySource
         if (!accepted)
         {
             station.SavePhase = SaveStationPhase.Idle;
-            _saveStationLockedOut = true;
+            SaveStationLockedOut = true;
             return new SaveStationConfirmationResult(false, []);
         }
 
@@ -115,10 +125,10 @@ internal sealed class StationPlms : IPlmFamilySource
         station.SaveAnimationLoopsRemaining =
             NativeCountdown.Start(SaveStationAnimationDefinitions.SaveAnimationLoops);
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
-        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
-        _drawing._tilemapUpdates.Clear();
+        _sounds.Queue(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6);
+        _drawing.ClearTilemapUpdates();
         DrawSaveStationFrame(level, streamer, activation.BlockIndex, station, view);
-        return new SaveStationConfirmationResult(true, _drawing._tilemapUpdates.ToArray());
+        return new SaveStationConfirmationResult(true, _drawing.TilemapUpdates.ToArray());
     }
 
     /// <summary>Completes `$84:B030` after message $18 has closed.</summary>
@@ -136,13 +146,13 @@ internal sealed class StationPlms : IPlmFamilySource
             ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
         samus.InputLocked = false;
         station.SavePhase = SaveStationPhase.Idle;
-        _saveStationLockedOut = true;
+        SaveStationLockedOut = true;
     }
 
     /// <summary>Requires exactly one resident save PLM matching a frontend confirmation event.</summary>
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
-        StationPlmState[] matches = _slotTable._slots
+        StationPlmState[] matches = _slotTable.Slots
             .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
             .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
@@ -347,7 +357,7 @@ internal sealed class StationPlms : IPlmFamilySource
             _ => throw new InvalidOperationException($"Undefined station access {access}."),
         };
 
-        foreach (PlmSlot slot in _slotTable._slots)
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Family is not StationPlmState station)
                 continue;
@@ -377,7 +387,7 @@ internal sealed class StationPlms : IPlmFamilySource
             };
             if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&
                 (station.Kind != StationKind.Save ||
-                    (station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
+                    (station.SavePhase == SaveStationPhase.Idle && !SaveStationLockedOut)))
             {
                 // Recharge setup rejects an already-full resource before command six
                 // takes control. Rejecting it later leaves a locked Samus with no access
@@ -474,7 +484,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
-                _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
+                _sounds.Queue(RoomPlmSounds.StationExtension, MaximumQueued: 6);
                 DrawStationAccess(level, streamer, station, extended: false, view: view);
             }
         }
@@ -508,7 +518,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.PostActivationHold:
-                        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationRetraction, MaximumQueued: 6));
+                        _sounds.Queue(RoomPlmSounds.StationRetraction, MaximumQueued: 6);
                         station.OperationPhase = StationOperationPhase.Retracting;
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;

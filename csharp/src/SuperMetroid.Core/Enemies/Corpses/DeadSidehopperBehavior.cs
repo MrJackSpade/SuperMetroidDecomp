@@ -66,7 +66,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>The words each physical slot keeps across DeadSidehopper occupants for the current room.</summary>
-    internal readonly DeadSidehopperExtensionWords[] _extensions = NewExtensions();
+    internal readonly DeadSidehopperExtensionWords[] Extensions = NewExtensions();
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static DeadSidehopperExtensionWords[] NewExtensions() =>
@@ -83,8 +83,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Discards prior room corpse state and its queued tile transfers.</summary>
     internal void ResetDeadSidehopperRoomState()
     {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new DeadSidehopperExtensionWords();
+        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
+            Extensions[slotIndex] = new DeadSidehopperExtensionWords();
         _deadMonsters.Clear();
         _deadSidehopperLevel = null;
         _deadSidehopperCamera = default;
@@ -125,7 +125,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Properties = slot.Properties.Replace(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessOffScreen,
             EnemyProperties.ProcessOffScreen);
-        if (_slotTable._slots[0].Properties.HasAny(EnemyProperties.Invisible))
+        if (_slotTable.Slots[0].Properties.HasAny(EnemyProperties.Invisible))
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));
@@ -539,7 +539,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
-        if ((_frameContext._randomEnemyCounter & 7) == 0)
+        if ((_frameContext.RandomEnemyCounter & 7) == 0)
             _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
@@ -561,7 +561,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
     internal void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadTourianProgram program) =>
-        _extensions[slot.SlotIndex].Program = StartDeadTourianProgram(slot, program);
+        Extensions[slot.SlotIndex].Program = StartDeadTourianProgram(slot, program);
 
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
     internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
@@ -619,10 +619,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
+        AnimationProgramCursor<DeadTourianProgram> cursor = Extensions[slot.SlotIndex].Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyDeadSidehopperCue(slot, cue));
-        _extensions[slot.SlotIndex].Program = cursor;
+        Extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>

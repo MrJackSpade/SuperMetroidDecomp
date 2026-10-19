@@ -76,11 +76,11 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         var cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
-        enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
-        enemies.MagdolliteBehavior._magdollitePaletteFrame = 0;
-        enemies.MagdolliteBehavior._magdollitePaletteBaseColor = 0x80;
+        enemies.Presentation.BindCgram(cgram);
+        enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
+        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
+        enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
+        enemies.MagdolliteBehavior.MagdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         const int destination = 0x80 + MagdollitePaletteRomData.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
@@ -111,7 +111,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "Magdollite visual-cycle edit does not change enemy position");
         AssertEqual((ushort)8,
-            (ushort)enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer.RawValue,
+            (ushort)enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer.RawValue,
             "Magdollite color edits preserve the eight-tick cadence");
 
         File.WriteAllBytes(overrideFile, [0]);

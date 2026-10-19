@@ -121,9 +121,9 @@ internal sealed class PlmPopulationLoader
         RoomPlmPopulationRecord record,
         int blockIndex)
     {
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            PlmSlot slot = _slotTable._slots[index];
+            PlmSlot slot = _slotTable.Slots[index];
             if (slot.Active)
                 continue;
 

@@ -27,9 +27,9 @@ internal sealed class SamusEaterPlms
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Kinematics.Radius.Y
             : samus.Position.Y.Whole + samus.Kinematics.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            var slot = _slotTable._slots[index];
+            var slot = _slotTable.Slots[index];
             if (slot.Active) continue;
             slot.Clear();
             slot.Active = true;

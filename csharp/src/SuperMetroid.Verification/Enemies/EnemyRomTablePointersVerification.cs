@@ -121,14 +121,14 @@ internal static class EnemyRomTablePointersVerification
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            system.Presentation._cgram = new SnesCgram();
+            system.Presentation.BindCgram(new SnesCgram());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.SetSpawnParameter1(parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                system.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
+                system.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 

@@ -62,9 +62,9 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             new(WreckedShipTreadmillPlmRomData.BlockX, WreckedShipTreadmillPlmRomData.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillPlmRomData.BlockCount);
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -104,9 +104,9 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 

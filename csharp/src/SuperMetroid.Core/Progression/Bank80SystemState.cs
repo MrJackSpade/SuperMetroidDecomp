@@ -89,7 +89,7 @@ public sealed class Bank80SystemState
     /// <summary>Each area's boss state, including any bit whose meaning is not yet proven.</summary>
     private readonly BossBits[] _bossBitsByArea = new BossBits[AreaCount];
     /// <summary>Persistent broken-Chozo-orb bits, independent of item collection.</summary>
-    internal readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+    internal readonly byte[] RoomChozoBits = new byte[RoomChozoBitByteCount];
     /// <summary>Persistent bits keyed by physical item PLM arguments.</summary>
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
     /// <summary>Persistent colored-door bits recorded after their accepted hit sequence.</summary>
@@ -170,7 +170,7 @@ public sealed class Bank80SystemState
         Span<byte> bossBytes = mirror.BossBits;
         for (int area = 0; area < AreaCount; area++)
             bossBytes[area] = _bossBitsByArea[area].ToNativeByte();
-        _roomChozoBits.CopyTo(mirror.RoomChozoBits);
+        RoomChozoBits.CopyTo(mirror.RoomChozoBits);
         _collectedItemBits.CopyTo(mirror.CollectedItemBits);
         _openedDoorBits.CopyTo(mirror.OpenedDoorBits);
         _usedSaveStationsAndElevators.CopyTo(mirror.UsedSaveStations);
@@ -186,7 +186,7 @@ public sealed class Bank80SystemState
     {
         mirror.Events.CopyTo(_events);
         LoadBossBytes(mirror.BossBits);
-        mirror.RoomChozoBits.CopyTo(_roomChozoBits);
+        mirror.RoomChozoBits.CopyTo(RoomChozoBits);
         mirror.CollectedItemBits.CopyTo(_collectedItemBits);
         mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
         mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
@@ -493,7 +493,7 @@ public sealed class Bank80SystemState
                 "Chozo-state byte index must be in the native 64-byte table.");
         }
 
-        return _roomChozoBits[byteIndex];
+        return RoomChozoBits[byteIndex];
     }
 
     /// <summary>Restores all persistent broken-orb bits from the native save payload.</summary>
@@ -501,7 +501,7 @@ public sealed class Bank80SystemState
     {
         Ensure.LengthEqual(bytes, RoomChozoBitByteCount);
 
-        bytes.CopyTo(_roomChozoBits);
+        bytes.CopyTo(RoomChozoBits);
     }
 
     /// <summary>

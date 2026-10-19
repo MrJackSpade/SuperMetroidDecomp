@@ -430,8 +430,8 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
         source[index] = (byte)(0x80 + index);
 
     RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
-    AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
-    AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
+    AssertEqual(0x86, grid.StorageBytes[6], "scroll loader retains first nonlogical byte");
+    AssertEqual(0xb1, grid.StorageBytes[49], "scroll loader retains fiftieth byte");
 
     // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
     // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its

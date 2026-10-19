@@ -491,7 +491,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (body.SlotIndex == 0)
             throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
-        RoomEnemySlot balloon = _slotTable._slots[body.SlotIndex - 1];
+        RoomEnemySlot balloon = _slotTable.Slots[body.SlotIndex - 1];
         if (balloon.EnemyDefinitionPointer != EnemyDefinitionId.Powamp || balloon.Spawn.Population.Parameter1 == 0)
         {
             throw new InvalidDataException(

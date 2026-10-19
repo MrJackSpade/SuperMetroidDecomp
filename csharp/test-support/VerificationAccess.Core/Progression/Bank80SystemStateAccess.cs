@@ -26,14 +26,14 @@ internal static class Bank80SystemStateAccess
         internal bool HasRoomChozoBit(int bitIndex)
         {
             (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
-            return (self._roomChozoBits[byteIndex] & bitMask) != 0;
+            return (self.RoomChozoBits[byteIndex] & bitMask) != 0;
         }
 
         /// <summary>Sets the room's Chozo-statue bit in the native 64-byte table.</summary>
         internal void SetRoomChozoBit(int bitIndex)
         {
             (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
-            self._roomChozoBits[byteIndex] |= bitMask;
+            self.RoomChozoBits[byteIndex] |= bitMask;
         }
 
         /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>

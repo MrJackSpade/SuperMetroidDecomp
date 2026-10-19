@@ -15,25 +15,25 @@ internal static class RoomLevelDataAccess
             Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
                 !ReferenceEquals(source.Doors, self.Doors) ||
-                source._blockDefinitions.Length != self._blockDefinitions.Length ||
-                source._streamingForegroundAllocation.Length != self._streamingForegroundAllocation.Length ||
-                source._streamingBackgroundAllocation.Length != self._streamingBackgroundAllocation.Length ||
-                source._plmForegroundAllocation.Length != self._plmForegroundAllocation.Length ||
-                object.ReferenceEquals(source._visualStreamingForegroundAllocation, source._streamingForegroundAllocation) !=
-                    object.ReferenceEquals(self._visualStreamingForegroundAllocation, self._streamingForegroundAllocation) ||
-                object.ReferenceEquals(source._visualStreamingBackgroundAllocation, source._streamingBackgroundAllocation) !=
-                    object.ReferenceEquals(self._visualStreamingBackgroundAllocation, self._streamingBackgroundAllocation))
+                source.BlockDefinitions.Length != self.BlockDefinitions.Length ||
+                source.StreamingForegroundAllocation.Length != self.StreamingForegroundAllocation.Length ||
+                source.StreamingBackgroundAllocation.Length != self.StreamingBackgroundAllocation.Length ||
+                source.PlmForegroundAllocation.Length != self.PlmForegroundAllocation.Length ||
+                object.ReferenceEquals(source.VisualStreamingForegroundAllocation, source.StreamingForegroundAllocation) !=
+                    object.ReferenceEquals(self.VisualStreamingForegroundAllocation, self.StreamingForegroundAllocation) ||
+                object.ReferenceEquals(source.VisualStreamingBackgroundAllocation, source.StreamingBackgroundAllocation) !=
+                    object.ReferenceEquals(self.VisualStreamingBackgroundAllocation, self.StreamingBackgroundAllocation))
                 throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
-            source._foregroundEntries.CopyTo(self._foregroundEntries, 0);
-            source._behaviorBytes.CopyTo(self._behaviorBytes, 0);
-            source._backgroundEntries.CopyTo(self._backgroundEntries, 0);
-            source._blockDefinitions.CopyTo(self._blockDefinitions, 0);
-            source._streamingForegroundAllocation.CopyTo(self._streamingForegroundAllocation, 0);
-            source._streamingBackgroundAllocation.CopyTo(self._streamingBackgroundAllocation, 0);
-            source._visualStreamingForegroundAllocation.CopyTo(self._visualStreamingForegroundAllocation, 0);
-            source._visualStreamingBackgroundAllocation.CopyTo(self._visualStreamingBackgroundAllocation, 0);
-            source._plmForegroundAllocation.CopyTo(self._plmForegroundAllocation, 0);
-            source._plmBehaviorAllocation.CopyTo(self._plmBehaviorAllocation, 0);
+            source.ForegroundEntries.Span.CopyTo(System.Runtime.InteropServices.MemoryMarshal.AsMemory(self.ForegroundEntries).Span);
+            source.BehaviorBytes.CopyTo(self.BehaviorBytes, 0);
+            source.BackgroundEntries.CopyTo(self.BackgroundEntries, 0);
+            source.BlockDefinitions.Span.CopyTo(System.Runtime.InteropServices.MemoryMarshal.AsMemory(self.BlockDefinitions).Span);
+            source.StreamingForegroundAllocation.CopyTo(self.StreamingForegroundAllocation, 0);
+            source.StreamingBackgroundAllocation.CopyTo(self.StreamingBackgroundAllocation, 0);
+            source.VisualStreamingForegroundAllocation.CopyTo(self.VisualStreamingForegroundAllocation, 0);
+            source.VisualStreamingBackgroundAllocation.CopyTo(self.VisualStreamingBackgroundAllocation, 0);
+            source.PlmForegroundAllocation.CopyTo(self.PlmForegroundAllocation, 0);
+            source.PlmBehaviorAllocation.CopyTo(self.PlmBehaviorAllocation, 0);
             self.PendingDoorTransition = source.PendingDoorTransition;
             self.ElevatorDoorContactPending = source.ElevatorDoorContactPending;
         }

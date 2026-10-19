@@ -40,7 +40,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Discards all segment extensions when the room population changes.</summary>
     internal void ResetShaktoolRoomState() =>
-        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<ShaktoolSegmentState>(null));
+        _slotTable.ClearSpeciesState<ShaktoolSegmentState>();
 
     /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
     private static SnesAngle OppositeOrbitStep(SnesAngle angle) =>
@@ -132,7 +132,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.SlotIndex == 0)
             throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
 
-        RoomEnemySlot previous = _slotTable._slots[slot.SlotIndex - 1];
+        RoomEnemySlot previous = _slotTable.Slots[slot.SlotIndex - 1];
         // $AA:DC42/$DC4A/$DC60/$DC68 read the preceding physical record, without
         // testing its header. A lethal shot clears the head and marks the group
         // deleted, but EnemyMain still visits later entries in this frame's
@@ -371,7 +371,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.OwnerSlotIndex is < 0 or >= RoomEnemySystem.MaximumEnemyCount)
             throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
-        return _slotTable._slots[state.OwnerSlotIndex];
+        return _slotTable.Slots[state.OwnerSlotIndex];
     }
 
     /// <summary>Resolves and validates seven consecutive slots from a segment's owner slot.</summary>
@@ -380,7 +380,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         ShaktoolSegmentState state = RequireShaktoolState(anySegment);
         int ownerSlotIndex = state.OwnerSlotIndex;
         if (ownerSlotIndex < 0 ||
-            ownerSlotIndex + ShaktoolSegmentCount > _slotTable._slots.Length)
+            ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)
         {
             throw new InvalidDataException(
                 $"Shaktool owner slot {ownerSlotIndex} is invalid.");
@@ -389,7 +389,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         var group = new RoomEnemySlot[ShaktoolSegmentCount];
         for (int index = 0; index < group.Length; index++)
         {
-            RoomEnemySlot segment = _slotTable._slots[ownerSlotIndex + index];
+            RoomEnemySlot segment = _slotTable.Slots[ownerSlotIndex + index];
             // Group helpers also run during the remainder of the lethal frame.
             // The segment's state survives common-slot clearing with its record
             // values emptied; a cleared header is not a missing record.
@@ -406,12 +406,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires a following physical slot for a linked segment center.</summary>
     private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex + 1 >= _slotTable._slots.Length)
+        if (slot.SlotIndex + 1 >= _slotTable.Slots.Count)
         {
             throw new InvalidDataException(
                 $"Shaktool center slot {slot.SlotIndex} has no following segment.");
         }
-        return _slotTable._slots[slot.SlotIndex + 1];
+        return _slotTable.Slots[slot.SlotIndex + 1];
     }
 
     /// <summary>Requires an initialized extension for the given physical segment slot.</summary>
@@ -504,10 +504,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // 0..6 when Shaktool was placed later in a constructed population.
         int ownerSlotIndex = RequireShaktoolState(struckSegment).OwnerSlotIndex;
         if (ownerSlotIndex < 0 ||
-            ownerSlotIndex + ShaktoolSegmentCount > _slotTable._slots.Length)
+            ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)
             throw new InvalidDataException($"Shaktool post-shot owner slot {ownerSlotIndex} is invalid.");
         for (int index = 0; index < ShaktoolSegmentCount; index++)
-            _slotTable._slots[ownerSlotIndex + index].Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
+            _slotTable.Slots[ownerSlotIndex + index].Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>

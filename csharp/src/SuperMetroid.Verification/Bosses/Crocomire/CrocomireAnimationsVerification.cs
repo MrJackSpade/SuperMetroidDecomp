@@ -267,7 +267,7 @@ internal static class CrocomireAnimationsVerification
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
         shotSystem.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        shotSystem.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
+        shotSystem.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);

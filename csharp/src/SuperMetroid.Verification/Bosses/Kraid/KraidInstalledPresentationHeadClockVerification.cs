@@ -160,7 +160,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             Enemies = new RoomEnemySystem { TileArtwork = art };
             State = BuildKraidWorkingMap(art);
             Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            Enemies.Presentation._vram = Vram;
+            Enemies.Presentation.BindVram(Vram);
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
             hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             transfer = new Action<KraidEnemyState, ushort>(Enemies.KraidBehavior.TransferKraidHeadTilemap);

@@ -45,10 +45,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _room = room;
         _slotTable = slotTable;
     }
+    /// <summary>Room load: the placement scenario and the Samus the post-Ceres ship is placed against.</summary>
+    internal void BeginRoomLoad(GunshipLoadScenario scenario, SamusState? samus)
+    {
+        _gunshipLoadScenario = scenario;
+        _samusAtEnemyInitialization = samus;
+    }
     /// <summary>Selects ordinary Landing Site placement or the high-altitude post-Ceres descent.</summary>
-    internal GunshipLoadScenario _gunshipLoadScenario;
+    private GunshipLoadScenario _gunshipLoadScenario;
     /// <summary>Samus actor captured for the post-Ceres ship's initial placement.</summary>
-    internal SamusState? _samusAtEnemyInitialization;
+    private SamusState? _samusAtEnemyInitialization;
     /// <summary>Whether gunship restoration has requested message box $1C and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; internal set; }
     /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime SRAM persistence rather than performing a save itself.</summary>
@@ -67,8 +73,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!GunshipSavePromptPending)
             throw new InvalidOperationException("The gunship save prompt is not awaiting a response.");
 
-        RoomEnemySlot top = _slotTable._slots[0];
-        RoomEnemySlot pad = _slotTable._slots[2];
+        RoomEnemySlot top = _slotTable.Slots[0];
+        RoomEnemySlot pad = _slotTable.Slots[2];
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
         Part(top).Function = GunshipFunction.WaitForExitPadToOpen;
@@ -156,7 +162,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // dependency on physical slot order.
         if (slot.SlotIndex == 0)
             throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
-        slot.VramTilesIndex = _slotTable._slots[slot.SlotIndex - 1].VramTilesIndex;
+        slot.VramTilesIndex = _slotTable.Slots[slot.SlotIndex - 1].VramTilesIndex;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
 
         if (slot.Spawn.Population.Parameter2 != 0)
@@ -165,7 +171,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // Y-position word. The opening pad sits one pixel above the top hull origin.
             if (slot.SlotIndex < 2)
                 throw new InvalidDataException("Gunship entrance pad requires two preceding enemy slots.");
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(_slotTable._slots[slot.SlotIndex - 2].Position.Y.Whole - 1)));
+            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(_slotTable.Slots[slot.SlotIndex - 2].Position.Y.Whole - 1)));
         }
         else
         {
@@ -195,7 +201,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (top.SlotIndex + 2 >= _slotTable.EnemyCount)
             throw new InvalidDataException("Gunship top is missing its two following component slots.");
 
-        RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
+        RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
 
         // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
         // one/underflow. QueueSfx2_Max6($4D) occurs before the reload, exactly as it does in
@@ -314,8 +320,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
 
-        RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         top.Position = top.Position.WithWholeY(GunshipMotionDefinitions.LandedTopY);
         bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
         pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
@@ -333,7 +339,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         samus.Position += new Offset16<RoomPixels>(0, unchecked((short)yDelta));
         for (int component = 0; component < 3; component++)
         {
-            RoomEnemySlot slot = _slotTable._slots[top.SlotIndex + component];
+            RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
         }
 
@@ -341,7 +347,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (Part(top).LandingBrakeStep < 17)
             return;
 
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.WaitForLandingEntranceToOpen;
         Part(top).BaseY = top.Position.Y.Whole;
         Part(top).BobTimer = 1;
@@ -365,7 +371,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - targetY))
             return;
 
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.FinishLanding;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
@@ -382,7 +388,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         for (int component = 0; component < 3; component++)
         {
-            RoomEnemySlot slot = _slotTable._slots[top.SlotIndex + component];
+            RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
             uint fixedPosition = slot.Position.Y.RawValue;
             fixedPosition = unchecked(fixedPosition + delta);
             slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
@@ -403,7 +409,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         sbyte yDelta = bob.YDelta;
         for (int component = 0; component < 3; component++)
         {
-            RoomEnemySlot slot = _slotTable._slots[top.SlotIndex + component];
+            RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
         }
         Part(top).BobPhase = (Part(top).BobPhase + 1) & 3;
@@ -426,7 +432,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             (short)unchecked((ushort)(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
         if (insideEntrance && samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Standing)
         {
-            RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+            RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
             Part(top).Function = GunshipFunction.WaitForEntranceToOpen;
             // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
             // no horizontal motion from this alignment.
@@ -463,7 +469,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (EnemyMath.IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(Part(top).BaseY + 18))))
             return;
 
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.WaitForEntranceToClose;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
@@ -481,7 +487,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // already hidden/input-locked Samus rigidly attached to the ship.
         if (_room.Services.Events.Has(EventNumber.ZebesTimebombSet))
         {
-            RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
+            RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
             Part(top).Function = GunshipFunction.LoadLiftoffDustTiles;
             Part(top).LiftoffTransferIndex = 0;
             Part(bottom).EscapeVelocity = 0;
@@ -514,7 +520,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(Part(top).BaseY - 30))))
             return;
 
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         Part(top).Function = GunshipFunction.FinishSamusExit;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
@@ -556,8 +562,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship takeoff lost Samus.");
-        RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         int rumbleFrame = Part(bottom).RumbleFrame;
         int shake = (rumbleFrame & 1) != 0
             ? (rumbleFrame < 64 ? 1 : 2)
@@ -592,7 +598,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (EnemyMath.IsNegative16(top.Position.Y.Whole - 896))
         {
             Part(top).Function = GunshipFunction.AcceleratingLiftoff;
-            Part(_slotTable._slots[top.SlotIndex + 1]).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
+            Part(_slotTable.Slots[top.SlotIndex + 1]).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
         }
     }
 
@@ -612,7 +618,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         if (samus is null)
             throw new InvalidOperationException("Escaping gunship lost Samus.");
-        RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
+        RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
         GunshipPartState bottomPart = Part(bottom);
         bottomPart.EscapeVelocity = unchecked((ushort)(bottomPart.EscapeVelocity + GunshipMotionDefinitions.EscapeAcceleration));
         if ((SnesLittleEndian.HighByteInPlace(bottomPart.EscapeVelocity)) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
@@ -631,8 +637,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         ushort samusY)
     {
         samus.Position = samus.Position.WithWholeY(samusY);
-        RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
-        RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
+        RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
+        RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
         top.Position = top.Position.WithWholeY(unchecked((ushort)(samusY - 17)));
         pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
         bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samusY + 23)));

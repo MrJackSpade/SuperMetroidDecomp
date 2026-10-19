@@ -21,7 +21,10 @@ internal sealed class PrePhantoonRoomBehavior
 
     /// <summary>The runtime's BG scroll words, available to the current projectile pass.</summary>
     [NonSerialized]
-    internal BackgroundScrollState? _enemyProjectileBackgroundScroll;
+    private BackgroundScrollState? _enemyProjectileBackgroundScroll;
+
+    /// <summary>Binds the runtime's BG scroll words for the projectile pass that follows.</summary>
+    internal void BindBackgroundScroll(BackgroundScrollState? backgroundScroll) => _enemyProjectileBackgroundScroll = backgroundScroll;
 
     /// <summary>Requires the current projectile pass's background scroll state before the pre-instruction writes BG2.</summary>
     internal BackgroundScrollState RequireEnemyProjectileBackgroundScroll() =>

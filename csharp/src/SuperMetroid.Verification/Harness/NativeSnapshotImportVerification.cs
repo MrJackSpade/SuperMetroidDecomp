@@ -102,12 +102,11 @@ internal static class NativeSnapshotImportVerification
         }
         runtime.RoomPaletteFx.samusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.RoomPaletteFx.previousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
-        ushort[] initialHud = runtime.Hud._tiles;
+        ushort[] initialHud = runtime.Hud.Tiles;
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
-        runtime.Hud._previousSelectedItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
-        memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount)
-            .CopyTo(runtime.Room.LoadedCamera.Scrolls._storage._bytes);
+        runtime.Hud.PreviousSelectedItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
+        runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();
@@ -167,7 +166,7 @@ internal static class NativeSnapshotImportVerification
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
         samus.SelectedHudItem = HudItems.Decode(W(NativeSnapshotMemory.SelectedHudItem));
-        samus.ArmCannon._previousSelectedHudItem = samus.SelectedHudItem;
+        samus.ArmCannon.PreviousSelectedHudItem = samus.SelectedHudItem;
         samus.AutoCancelHudItemIndex = HudItems.Decode(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
         samus.ReserveTankMode = ReserveTankModes.Decode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxReserve));
@@ -229,8 +228,8 @@ internal static class NativeSnapshotImportVerification
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
-        var initialPlms = runtime.Plms.SlotTable._slots;
-        for (int index = 0; index < initialPlms.Length; index++)
+        var initialPlms = runtime.Plms.SlotTable.Slots;
+        for (int index = 0; index < initialPlms.Count; index++)
         {
             AssertTrue(W(NativeSnapshotMemory.PlmHeaders + index * 2) == 0, "native initial PLM pool is empty");
             initialPlms[index].Active = false;
@@ -239,7 +238,7 @@ internal static class NativeSnapshotImportVerification
             ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
-        runtime.Enemies.FrameContext._randomEnemyCounter = W(NativeSnapshotMemory.MainEnemyRoutineCount);
+        runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
         // The liquid's BG3 HDMA object has already run its first pass, so its callback is
         // installed. A live object owns the per-frame liquid motion; once Mother Brain's
         // $A9:8C0C has cleared the channel flags, the room's liquid objects are deleted.

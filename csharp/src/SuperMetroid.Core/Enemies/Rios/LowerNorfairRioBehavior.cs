@@ -299,7 +299,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             throw new InvalidDataException(
                 "A Lower Norfair Rio follower cannot occupy enemy slot zero.");
         }
-        return _slotTable._slots[follower.SlotIndex - 1];
+        return _slotTable.Slots[follower.SlotIndex - 1];
     }
 
     /// <summary>Requires the preceding slot to be an unfollowing Holtz parent record.</summary>

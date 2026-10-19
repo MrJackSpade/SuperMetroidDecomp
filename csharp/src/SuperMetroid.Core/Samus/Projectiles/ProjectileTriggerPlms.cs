@@ -28,9 +28,9 @@ internal sealed class ProjectileTriggerPlms
         // Native searches physical slots from $4E down to zero and accepts the first
         // matching block regardless of its header. Preserve that generality: reaction
         // PLMs and future translated actors must not be omitted from a family dispatcher.
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (!slot.Active || slot.BlockIndex != blockIndex)
                 continue;
 

@@ -22,9 +22,9 @@ internal sealed class ShaktoolPlms
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            PlmSlot slot = _slotTable._slots[index];
+            PlmSlot slot = _slotTable.Slots[index];
             if (slot.Active) continue;
             slot.Clear();
             slot.Active = true;

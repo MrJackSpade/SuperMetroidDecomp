@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 public sealed class VramStagingBuffer
 {
     /// <summary>The buffer's bytes in native address order.</summary>
-    internal readonly byte[] _bytes;
+    private readonly byte[] _bytes;
 
     /// <summary>Allocates a zeroed buffer of <paramref name="byteCount"/> bytes.</summary>
     public VramStagingBuffer(int byteCount) => _bytes = new byte[Ensure.AtLeastZero(byteCount)];

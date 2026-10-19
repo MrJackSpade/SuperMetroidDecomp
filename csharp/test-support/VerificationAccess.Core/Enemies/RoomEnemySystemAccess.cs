@@ -90,7 +90,7 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>Botwoon's live state while its room is loaded.</summary>
-        internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior._botwoonState;
+        internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior.BotwoonState;
 
         /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
         internal IReadOnlyList<EvirEnemyState?> EvirStates =>
@@ -98,18 +98,18 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Special drops a dying Metroid has requested this frame.</summary>
         internal IReadOnlyList<MetroidDropRequest> MetroidDropRequests =>
-            self.MetroidBehavior._metroidDropRequests;
+            self.MetroidBehavior.MetroidDropRequests;
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DeadSidehopperEntity, DeadSidehopperEnemyState>())];
 
         /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
-        internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior._deadTorizo;
+        internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior.DeadTorizo;
 
         /// <summary>Alternating VRAM records authored by the most recent actor frame.</summary>
         internal IReadOnlyList<VramWriteEntry> LastDeadTorizoVramTransfers =>
-            self.DeadTorizoBehavior._deadTorizoFrameVramTransfers;
+            self.DeadTorizoBehavior.DeadTorizoFrameVramTransfers;
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
         internal IReadOnlyList<SkreeEnemyState?> SkreeStates =>
@@ -202,7 +202,7 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => self.SpriteObjects.Slots;
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
-        internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior._sporeSpawn;
+        internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior.SporeSpawn;
 
         /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
         internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>
@@ -214,11 +214,11 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Each Ceres door slot's typed program cursor.</summary>
         internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresDoorProgram>> CeresDoorPrograms =>
-            self.CeresDoorBehavior._doorPrograms;
+            self.CeresDoorBehavior.DoorPrograms;
 
         /// <summary>Each Ceres steam vent slot's typed program cursor.</summary>
         internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresSteamProgram>> CeresSteamPrograms =>
-            self.CeresSteamBehavior._ventPrograms;
+            self.CeresSteamBehavior.VentPrograms;
 
         /// <summary>Typed state for each physical escape-Dachora slot.</summary>
         internal IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
@@ -238,7 +238,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
         internal IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
-            self.SporeSpawnBehavior._sporeSpawnDropRequests;
+            self.SporeSpawnBehavior.SporeSpawnDropRequests;
 
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
@@ -273,17 +273,17 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MetroidEntity, MetroidEnemyState>())];
 
         /// <summary>Baby Metroid actor state during the Mother Brain encounter.</summary>
-        internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior._shitroid;
+        internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior.Shitroid;
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
-        internal IReadOnlyList<int> ActiveEnemyIndexes => self.ProcessingWindow._activeEnemyIndexes;
+        internal IReadOnlyList<int> ActiveEnemyIndexes => self.ProcessingWindow.ActiveEnemyIndexes;
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
         internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EtecoonEntity, EtecoonEnemyState>())];
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
-        internal IReadOnlyList<int> InteractiveEnemyIndexes => self.ProcessingWindow._interactiveEnemyIndexes;
+        internal IReadOnlyList<int> InteractiveEnemyIndexes => self.ProcessingWindow.InteractiveEnemyIndexes;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>
@@ -294,7 +294,7 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
 
         /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
-        internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader._graphicsSet;
+        internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader.GraphicsSet;
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>
@@ -326,7 +326,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
         internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
-            self.PhantoonBehavior._phantoonFlameDropRequests;
+            self.PhantoonBehavior.PhantoonFlameDropRequests;
 
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
         internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
@@ -346,7 +346,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>
-            self.BombTorizoBehavior._torizoState is { IsGolden: false } ? self.BombTorizoBehavior._torizoState : null;
+            self.BombTorizoBehavior.TorizoState is { IsGolden: false } ? self.BombTorizoBehavior.TorizoState : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
@@ -354,7 +354,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
         internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
-            self.BombTorizoBehavior._torizoOrbDropRequests;
+            self.BombTorizoBehavior.TorizoOrbDropRequests;
 
         /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
         internal int ActiveEnemyProjectileCount =>

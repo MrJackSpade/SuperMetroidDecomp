@@ -101,7 +101,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(

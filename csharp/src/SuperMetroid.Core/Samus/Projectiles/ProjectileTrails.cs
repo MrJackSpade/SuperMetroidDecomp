@@ -81,9 +81,9 @@ internal sealed class ProjectileTrails
             // The original tests only the left timer. A right stream can still be alive in
             // malformed/debug-edited state and will be overwritten when the left sentinel is
             // clear; retain that asymmetric allocation contract rather than being "safer".
-            if (_slotTable._trailSlots[slotIndex].Left.InstructionTimer.IsZero)
+            if (_slotTable.TrailSlots[slotIndex].Left.InstructionTimer.IsZero)
             {
-                trail = _slotTable._trailSlots[slotIndex];
+                trail = _slotTable.TrailSlots[slotIndex];
                 break;
             }
         }

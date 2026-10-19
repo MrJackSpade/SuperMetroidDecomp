@@ -279,7 +279,7 @@ internal static class EnemyTileArtworkKraidVerification
         };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         Action<RoomEnemySlot, KraidEnemyState, int,
                 KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -362,7 +362,7 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         Action upload = enemies.KraidBehavior.UploadKraidRoomBackgroundTiles;
         upload();
         return vram;
@@ -375,7 +375,7 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         Action<KraidEnemyState, ushort> transfer = enemies.KraidBehavior.TransferKraidHeadTilemap;
         var state = new KraidEnemyState();
         transfer(state, pointer);
@@ -398,7 +398,7 @@ internal static class EnemyTileArtworkKraidVerification
     {
         var enemies = new RoomEnemySystem();
         var vram = new SnesVram();
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         enemies.KraidBehavior.TransferKraidTopTilemap(state);
         enemies.KraidBehavior.TransferKraidBottomTilemap(state);
         AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");

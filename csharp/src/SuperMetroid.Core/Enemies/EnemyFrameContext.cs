@@ -13,22 +13,49 @@ internal sealed class EnemyFrameContext
     /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
     /// the counter the cartridge keeps.
     /// </summary>
-    internal int _randomEnemyCounter;
+    internal int RandomEnemyCounter { get; private set; }
 
     /// <summary>
     /// The sixteen-bit frame counter for the current enemy pass, 0 through 65535, copied from the frame clock (or the
     /// random counter when the pass has none). It is independent of the eight-bit counter; standalone audits seed both
     /// from the same enemy clock. Readers take its low bits.
     /// </summary>
-    internal int _enemyFrameNmiFrameCounter;
+    internal int NmiFrameCounter { get; private set; }
     /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
-    internal SamusProjectileSystem? _samusProjectilesForEnemyFrame;
+    internal SamusProjectileSystem? SamusProjectiles { get; private set; }
     /// <summary>Forces every enemy slot through the current pass when native processing requires a full sweep.</summary>
-    internal bool _processAllEnemies;
+    internal bool ProcessAllEnemies { get; private set; }
 
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
-    internal bool _enemyFrameTimeIsFrozen;
+    internal bool TimeIsFrozen { get; private set; }
 
     /// <summary>Defers init-AI layer-1 camera reads until the door loader installs its final camera after IRQ scrolling.</summary>
-    internal bool _deferLoaderTimeCameraReads;
+    internal bool DeferLoaderTimeCameraReads { get; private set; }
+
+    /// <summary>Room load: records whether init AI defers its camera reads, and drops the previous room's projectiles.</summary>
+    internal void BeginRoomLoad(bool deferLoaderTimeCameraReads)
+    {
+        DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
+        SamusProjectiles = null;
+    }
+
+    /// <summary>Room load: ends a full sweep a boss requested in the previous room.</summary>
+    internal void EndFullSweep() => ProcessAllEnemies = false;
+
+    /// <summary>Forces every enemy slot through the passes that follow, as Draygon and Spore Spawn request.</summary>
+    internal void RequestFullSweep() => ProcessAllEnemies = true;
+
+    /// <summary>
+    /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter, which standalone
+    /// passes without a runtime clock take from the random counter.
+    /// </summary>
+    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, int? nmiFrameCounter)
+    {
+        TimeIsFrozen = timeIsFrozen;
+        SamusProjectiles = samusProjectiles;
+        NmiFrameCounter = nmiFrameCounter ?? RandomEnemyCounter;
+    }
+
+    /// <summary>The end-of-pass advance of the random counter, wrapping from 65535 to zero.</summary>
+    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter = unchecked((ushort)(RandomEnemyCounter + 1));
 }

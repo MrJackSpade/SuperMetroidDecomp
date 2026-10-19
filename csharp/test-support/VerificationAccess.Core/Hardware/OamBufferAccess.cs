@@ -12,6 +12,11 @@ internal static class OamBufferAccess
         /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.
         /// The caller owns whole-projectile viewport admission.
         /// </summary>
+        /// <summary>The low table as the native oracles write it; production only reads it.</summary>
+        internal Span<byte> WritableLowTable() =>
+            System.Runtime.InteropServices.MemoryMarshal.CreateSpan(
+                ref System.Runtime.InteropServices.MemoryMarshal.GetReference(self.LowTable), self.LowTable.Length);
+
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile parts")]
         public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
             SnesObjAttributeWord attributes, Position16<OamPixels> origin)
@@ -20,8 +25,8 @@ internal static class OamBufferAccess
             byte y = unchecked((byte)(origin.Y + yOffset));
             int spriteIndex = self.NextByteOffset >> 2;
             int lowOffset = self.NextByteOffset;
-            self._lowTable[lowOffset] = (byte)x;
-            self._lowTable[lowOffset + 1] = y;
+            self.WritableLowTable()[lowOffset] = (byte)x;
+            self.WritableLowTable()[lowOffset + 1] = y;
             self.WriteAttributes(lowOffset, attributes);
             self.SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, xOffset.IsLarge));
             self.NextByteOffset = (self.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
@@ -45,8 +50,8 @@ internal static class OamBufferAccess
 
             // Only the low bytes are stored: the caller has already admitted an on-screen point.
             int lowOffset = self.NextByteOffset;
-            self._lowTable[lowOffset] = unchecked((byte)position.X);
-            self._lowTable[lowOffset + 1] = unchecked((byte)position.Y);
+            self.WritableLowTable()[lowOffset] = unchecked((byte)position.X);
+            self.WritableLowTable()[lowOffset + 1] = unchecked((byte)position.Y);
             self.WriteAttributes(lowOffset, attributes);
             self.NextByteOffset += 4;
         }

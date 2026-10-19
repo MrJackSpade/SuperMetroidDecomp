@@ -36,9 +36,9 @@ internal sealed class BlockReactionPlms
 
         // Spawn_PLM at $84:84E7 probes $4E,$4C,...,$00. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -79,9 +79,9 @@ internal sealed class BlockReactionPlms
         // `$84:84ED-$84F7` searches the same descending slot order used by every other
         // gameplay-spawned PLM. Do not coalesce neighboring pieces: a native collision scan
         // can allocate more than one independently timed object in a single movement call.
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -129,9 +129,9 @@ internal sealed class BlockReactionPlms
                 "Samus-contact crumble BTS must be in the native table range zero through seven.");
         }
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -187,7 +187,7 @@ internal sealed class BlockReactionPlms
         // Spawn_PLM returns that carry unchanged when every slot is occupied:
         // setup never runs, so its no-Speed-Booster rejection cannot make this
         // contact solid. Preserve the block word; this is not a break animation.
-        if (_slotTable._slots.All(slot => slot.Active))
+        if (_slotTable.Slots.All(slot => slot.Active))
             return true;
 
         bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
@@ -196,9 +196,9 @@ internal sealed class BlockReactionPlms
         if (!activeSpeedBooster && !activeShinespark)
             return false;
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -248,9 +248,9 @@ internal sealed class BlockReactionPlms
 
         // `$84:84ED-$84F7` searches from native slot `$4E` toward `$00`. Importantly, the
         // full-pool path never calls setup and therefore must not mutate live level data.
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -333,9 +333,9 @@ internal sealed class BlockReactionPlms
             SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
             return false;
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -486,9 +486,9 @@ internal sealed class BlockReactionPlms
                 : PlmProgramStart.Delete;
         }
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 

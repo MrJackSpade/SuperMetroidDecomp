@@ -77,7 +77,7 @@ internal static class CeresRidleyMode7ColorsVerification
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)

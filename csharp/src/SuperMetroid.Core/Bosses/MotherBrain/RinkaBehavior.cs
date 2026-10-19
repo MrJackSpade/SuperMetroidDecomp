@@ -88,7 +88,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
     /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
-    internal bool _rinkaTerminationFlag;
+    private bool _rinkaTerminationFlag;
+
+    /// <summary>Mother Brain's request that special Rinkas be removed instead of launched or respawned.</summary>
+    internal void RequestTermination() => _rinkaTerminationFlag = true;
     /// <summary>Layer-1 camera coordinates used by the native spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
@@ -136,7 +139,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             // $A2:B69B tests its spawn points against layer 1. A door's loader runs this
             // while the door IRQ is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this slot.
-            if (_frameContext._deferLoaderTimeCameraReads)
+            if (_frameContext.DeferLoaderTimeCameraReads)
                 _deferredRinkaSpawnSlots.Add(slot.SlotIndex);
             else
                 ReserveSpecialRinkaSpawn(slot, state);
@@ -210,10 +213,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int slotIndex = _deferredRinkaSpawnSlots[0];
             _deferredRinkaSpawnSlots.RemoveAt(0);
-            RinkaEnemyState state = _slotTable._slots[slotIndex].SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
+            RinkaEnemyState state = _slotTable.Slots[slotIndex].SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
                 $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
             SetRinkaCamera(camera);
-            ReserveSpecialRinkaSpawn(_slotTable._slots[slotIndex], state);
+            ReserveSpecialRinkaSpawn(_slotTable.Slots[slotIndex], state);
         }
     }
 
@@ -582,7 +585,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
-        _deathsAndDrops._enemyDeathRespawnScratch = EnemyDeathsAndDrops.RespawnScratchWord(slot);
+        _deathsAndDrops.RecordRespawnScratch(slot);
         bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
@@ -611,7 +614,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // 64-byte target. Preserve it even for a non-respawning special Rinka so debugger
         // state remains structurally faithful after the common record disappears.
         slot.Spawn = survivingSpawnSnapshot;
-        _slotTable._slots[slotIndex].SetSpeciesState<RinkaEnemyState>(null);
+        _slotTable.Slots[slotIndex].SetSpeciesState<RinkaEnemyState>(null);
         if (respawns)
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);

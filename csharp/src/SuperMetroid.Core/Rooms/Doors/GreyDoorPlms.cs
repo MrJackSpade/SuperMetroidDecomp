@@ -77,7 +77,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     private void PlayDudSoundIfShot(PlmSlot slot)
     {
         if (slot.LoopTimer != 0)
-            _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued));
+            _sounds.Queue(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued);
         slot.LoopTimer = 0;
     }
 

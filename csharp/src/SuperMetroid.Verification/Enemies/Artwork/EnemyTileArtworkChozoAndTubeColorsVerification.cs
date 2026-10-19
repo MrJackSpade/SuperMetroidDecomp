@@ -108,7 +108,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { TileArtwork = edited };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._cgram = cgram;
+            enemies.Presentation.BindCgram(cgram);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(variant);
             initialize(enemies, statue);

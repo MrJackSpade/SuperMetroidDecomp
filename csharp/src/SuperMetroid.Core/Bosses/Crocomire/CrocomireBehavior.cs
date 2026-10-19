@@ -296,7 +296,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Crocomire's eight-color body hurt flash at $A4:8CCB.</summary>
     internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
-        bool white = !body.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0;
+        bool white = !body.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0;
         if (!white)
         {
             (_room.Artwork?.CrocomireColors ?? throw new InvalidDataException(

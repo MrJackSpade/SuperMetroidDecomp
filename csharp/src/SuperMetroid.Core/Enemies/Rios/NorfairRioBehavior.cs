@@ -308,7 +308,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (follower.SlotIndex == 0)
             throw new InvalidDataException("A Norfair Rio follower cannot occupy enemy slot zero.");
-        return _slotTable._slots[follower.SlotIndex - 1];
+        return _slotTable.Slots[follower.SlotIndex - 1];
     }
 
     /// <summary>Requires a flame follower to directly follow a primary Geruta population record.</summary>

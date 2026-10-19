@@ -48,13 +48,13 @@ internal sealed class BeamCombos
         SamusComboKind? combo = SamusComboMechanicsDefinitions.ComboKind(beam);
         // A live Ice or Plasma combo is not restarted.
         bool activated = combo is not null &&
-            !(combo == SamusComboKind.Ice && _slotTable._slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
-              combo == SamusComboKind.Plasma && _slotTable._slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo);
+            !(combo == SamusComboKind.Ice && _slotTable.Slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
+              combo == SamusComboKind.Plasma && _slotTable.Slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo);
         if (activated && combo is SamusComboKind kind)
         {
             for (int i = 3; i >= 0; i--)
             {
-                var slot = _slotTable._slots[i];
+                var slot = _slotTable.Slots[i];
                 slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToNativeWord() | SamusComboRomData.ProjectileTag);
                 slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
                 slot.PreInstruction = kind switch
@@ -86,7 +86,7 @@ internal sealed class BeamCombos
                 InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);
             }
             _slotTable.ProjectileCounter = 4;
-            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable._slots[0].Type & 63)));
+            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
             ComboState = kind == SamusComboKind.Spazer ? 0
                 : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight() ? 4 : -4;
             sound = kind switch
@@ -259,7 +259,7 @@ internal sealed class BeamCombos
         {
             int partner = slot.SlotIndex ^ 2;
             _animation.ClearProjectile(slot);
-            if (!falling) _animation.ClearProjectile(_slotTable._slots[partner]);
+            if (!falling) _animation.ClearProjectile(_slotTable.Slots[partner]);
             return 0;
         }
         ushort previousTimer = slot.TrailTimer.RawValue;

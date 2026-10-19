@@ -56,7 +56,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>The words each physical slot keeps across TourianEntranceStatue occupants for the current room.</summary>
-    internal readonly TourianEntranceStatueExtensionWords[] _extensions = NewExtensions();
+    internal readonly TourianEntranceStatueExtensionWords[] Extensions = NewExtensions();
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static TourianEntranceStatueExtensionWords[] NewExtensions() =>
@@ -75,7 +75,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.PaletteIndex = 0;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
-        _extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
+        Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
             TourianEntranceStatueAnimationDefinitions.InitialProgram(checked((ushort)statue.Spawn.Population.Parameter1)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
@@ -148,10 +148,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _extensions[slot.SlotIndex].Program ??
+        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = Extensions[slot.SlotIndex].Program ??
             throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
         EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
-        _extensions[slot.SlotIndex].Program = cursor;
+        Extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Ports TourianEntranceStatue's initialization AI.</summary>
@@ -163,8 +163,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new TourianEntranceStatueExtensionWords();
+        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
+            Extensions[slotIndex] = new TourianEntranceStatueExtensionWords();
         ResetTourianEntranceStatueRoomState();
     }
 

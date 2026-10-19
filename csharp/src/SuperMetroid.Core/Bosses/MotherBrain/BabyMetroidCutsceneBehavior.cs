@@ -62,7 +62,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // `$A0:9275` searches from native slot zero for the first consecutive free run.
         // The Baby header declares one part, so the first zero ID is the exact result.
-        int slotIndex = Array.FindIndex(_slotTable._slots, slot => slot.EnemyDefinitionPointer == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
             return; // Generic SpawnEnemy returns $FFFF and X=$0800 when the pool is full.
 
@@ -75,7 +75,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 $"names enemy ${(int)population.DefinitionPointer:X4}, not $ECBF.");
         }
 
-        RoomEnemySlot babySlot = _slotTable._slots[slotIndex];
+        RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot);
@@ -169,7 +169,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
             target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
-            (_frameContext._randomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
+            (_frameContext.RandomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
             _audio.QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
 
         // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.

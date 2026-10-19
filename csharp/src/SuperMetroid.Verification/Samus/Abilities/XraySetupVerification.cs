@@ -73,8 +73,8 @@ internal static class XraySetupVerification
         // Queue a staged transfer of the already captured second page's first word.
         first[0] = second[0];
         var queuedWord = new VramStagingBuffer(sizeof(ushort));
-        queuedWord._bytes[0] = SnesLittleEndian.LowByte(second[0]);
-        queuedWord._bytes[1] = SnesLittleEndian.HighByte(second[0]);
+        queuedWord.WritableBytes()[0] = SnesLittleEndian.LowByte(second[0]);
+        queuedWord.WritableBytes()[1] = SnesLittleEndian.HighByte(second[0]);
         runtime.VramWrites.EnqueueStaging(sizeof(ushort), XraySetupMemory.SavedBg1SecondScreen, queuedWord, 0,
             VramDmaDestination.FromNative(GameplayVramLayout.Bg1TilemapWord));
         var captured = new SnesVram();
@@ -105,7 +105,7 @@ internal static class XraySetupVerification
 
         void VerifySaved(int firstWord, ushort[] words, string context)
         {
-            ushort[] saved = runtime.Xray._savedBg1;
+            ushort[] saved = runtime.Xray.SavedBg1;
             for (int i = 0; i < words.Length; i++)
                 AssertEqual(words[i], saved[firstWord + i], $"{context}, word {i}");
         }

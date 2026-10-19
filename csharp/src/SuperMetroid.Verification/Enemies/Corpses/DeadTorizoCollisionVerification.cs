@@ -72,7 +72,7 @@ internal static class DeadTorizoCollisionVerification
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                return ((IReadOnlyList<int>)enemies.ProcessingWindow._interactiveEnemyIndexes).Contains(slot.NativeIndex);
+                return ((IReadOnlyList<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes).Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
                 IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), !slot.FrozenTimer.IsZero, slot.Properties)] : [],

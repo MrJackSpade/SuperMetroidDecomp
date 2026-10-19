@@ -19,7 +19,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileInheritanc
     private const int RecordByteCount = 4;
 
     /// <summary>The block's bytes in native address order.</summary>
-    private byte[] Records => inheritance._bytes;
+    private byte[] Records => inheritance.Bytes;
 
     /// <summary><c>CameraYSubSpeed</c>, the block's first word.</summary>
     internal ushort CameraYSubspeed => Word(0);

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class ShitroidEnemyState
 {
     /// <summary>Target palette image staged across the encounter's palette transitions.</summary>
-    internal readonly Bgr555[] _targetPalette = new Bgr555[256];
+    internal readonly Bgr555[] TargetPalette = new Bgr555[256];
 
     /// <summary>Creates the state for the Shitroid's slot.</summary>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
@@ -79,7 +79,7 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }
     /// <summary>Mutable target palette storage used by encounter palette updates.</summary>
-    internal Span<Bgr555> MutableTargetPalette => _targetPalette;
+    internal Span<Bgr555> MutableTargetPalette => TargetPalette;
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while

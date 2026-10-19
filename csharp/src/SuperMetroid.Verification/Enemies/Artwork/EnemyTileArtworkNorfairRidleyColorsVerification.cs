@@ -210,7 +210,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemy.Presentation._cgram = cgram;
+            enemy.Presentation.BindCgram(cgram);
             enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);

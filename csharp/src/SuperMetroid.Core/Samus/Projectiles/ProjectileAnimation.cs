@@ -80,12 +80,11 @@ internal sealed class ProjectileAnimation
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
         // value of zero therefore survives one visible call; testing equality here would
         // make every ROM-authored delay one frame too short.
-        NativeWordCounterStep timer = _charge._flareTimers[component].Decrement();
-        _charge._flareTimers[component] = timer.Remaining;
+        NativeWordCounterStep timer = _charge.DecrementFlareTimer(component);
         if (timer.IsNonNegative)
             return;
 
-        ushort frame = unchecked((ushort)(_charge._flareFrames[component] + 1));
+        ushort frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
         ushort delayList = ChargeFlareAnimationDefinitions.ReadWord(
             SamusProjectileRomData.Beams.ChargeFlareDelayListPointers + component * 2);
         byte delay = ChargeFlareAnimationDefinitions.ReadByte(
@@ -118,8 +117,8 @@ internal sealed class ProjectileAnimation
             }
         }
 
-        _charge._flareFrames[component] = frame;
-        _charge._flareTimers[component] = NativeCountdown.Start(delay);
+        _charge.SetFlareFrame(component, frame);
+        _charge.StartFlareTimer(component, delay);
     }
 
     /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
@@ -162,7 +161,7 @@ internal sealed class ProjectileAnimation
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
-        ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge._flareFrames[component]))));
+        ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge.FlareFrame(component)))));
         var catalog = artwork.Compositions ?? throw new InvalidOperationException(
             "Charge flare requires installed sprite compositions.");
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
@@ -178,8 +177,7 @@ internal sealed class ProjectileAnimation
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>
     internal void ClearFlareAnimationState()
     {
-        Array.Clear(_charge._flareFrames);
-        Array.Clear(_charge._flareTimers);
+        _charge.ClearFlare();
     }
 
     /// <summary>Restores sixteen suit colors from installed artwork and retains the native selection pointer for diagnostics.</summary>

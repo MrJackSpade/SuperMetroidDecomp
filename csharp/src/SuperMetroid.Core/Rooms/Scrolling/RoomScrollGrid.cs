@@ -15,12 +15,12 @@ public sealed class RoomScrollGrid
     public const int StorageByteCount = 50;
 
     /// <summary>The session's allocation, including bytes past this room's logical cells.</summary>
-    internal readonly RoomScrollStorage _storage;
+    internal readonly RoomScrollStorage Storage;
 
     /// <summary>Validates screen-cell dimensions within the 50-byte native allocation.</summary>
     private RoomScrollGrid(RoomScrollStorage storage, Extent16<RoomScreens> size)
     {
-        _storage = Ensure.NotNull(storage);
+        Storage = Ensure.NotNull(storage);
         if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(size));
 
@@ -40,7 +40,7 @@ public sealed class RoomScrollGrid
     {
         Ensure.LengthEqual(compiled, StorageByteCount);
         var grid = new RoomScrollGrid(storage, size);
-        compiled.CopyTo(storage._bytes);
+        storage.Load(compiled);
         return grid;
     }
 
@@ -70,7 +70,7 @@ public sealed class RoomScrollGrid
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(storage, size);
         for (int index = 0; index < grid.LogicalCellCount; index++)
-            storage._bytes[index] = (byte)(index / size.X == size.Y - 1
+            storage[index] = (byte)(index / size.X == size.Y - 1
                 ? lastRowState
                 : RoomScrollState.Green);
         return grid;
@@ -81,7 +81,7 @@ public sealed class RoomScrollGrid
     {
         if ((uint)index >= StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(index), index, "Scroll routine indexed outside the 50-byte allocation.");
-        return _storage._bytes[index];
+        return Storage[index];
     }
 
     /// <summary>Typed view of one byte inside the 50-byte scroll allocation.</summary>
@@ -100,7 +100,7 @@ public sealed class RoomScrollGrid
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return index < StorageByteCount ? _storage._bytes[index] : RoomScrollDefinitions.ExploredMapOverreadByte;
+        return index < StorageByteCount ? Storage[index] : RoomScrollDefinitions.ExploredMapOverreadByte;
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public sealed class RoomScrollGrid
         if ((uint)index >= StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         RoomScrollStates.Validate(state, nameof(state));
-        _storage._bytes[index] = (byte)state;
+        Storage[index] = (byte)state;
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
@@ -129,6 +129,6 @@ public sealed class RoomScrollGrid
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
         RoomScrollStates.Validate(state, nameof(state));
-        _storage._bytes[screen.Y * Size.X + screen.X] = (byte)state;
+        Storage[screen.Y * Size.X + screen.X] = (byte)state;
     }
 }

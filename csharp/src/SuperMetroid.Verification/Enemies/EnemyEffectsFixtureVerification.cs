@@ -49,7 +49,7 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
             Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            Enemies.Presentation._vram = Vram;
+            Enemies.Presentation.BindVram(Vram);
             Enemies.CrocomireBehavior.Crocomire = Actor;
             Enemies.CrocomireBehavior.CrocomireDeath = Effect;
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);

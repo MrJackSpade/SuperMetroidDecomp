@@ -18,7 +18,7 @@ internal static class WreckedShipGhostBehaviorVerification
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WreckedShipGhostFrameToolingDefinitions.Bank });

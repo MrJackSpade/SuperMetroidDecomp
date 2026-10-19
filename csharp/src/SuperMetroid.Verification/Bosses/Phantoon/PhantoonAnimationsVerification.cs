@@ -233,7 +233,7 @@ internal static class PhantoonAnimationsVerification
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 128);
-        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
+        enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(128, 96));
         return enemies;

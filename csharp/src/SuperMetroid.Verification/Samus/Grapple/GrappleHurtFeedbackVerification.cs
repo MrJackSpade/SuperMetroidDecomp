@@ -53,7 +53,7 @@ internal static class GrappleHurtFeedbackVerification
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.SpritemapPointer = 1;
-        var interactive = (List<int>)runtime.Enemies.ProcessingWindow._interactiveEnemyIndexes;
+        var interactive = (List<int>)runtime.Enemies.ProcessingWindow.InteractiveEnemyIndexes;
         interactive.Clear();
         interactive.Add(target.NativeIndex);
         int health = samus.Health;

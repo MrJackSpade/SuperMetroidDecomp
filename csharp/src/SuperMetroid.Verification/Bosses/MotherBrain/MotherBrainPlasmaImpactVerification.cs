@@ -33,7 +33,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Health = 18000;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;
-        ((List<int>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
+        ((List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
         var installation = RepositoryInstallation.Installation;
         var shots = new SamusProjectileSystem { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };

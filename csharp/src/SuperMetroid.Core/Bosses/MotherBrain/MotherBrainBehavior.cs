@@ -96,7 +96,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
 
     /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    internal readonly MotherBrainExtensionWords[] _extensions = NewExtensions();
+    internal readonly MotherBrainExtensionWords[] Extensions = NewExtensions();
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static MotherBrainExtensionWords[] NewExtensions() =>
@@ -116,12 +116,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        AnimationProgramCursor<MotherBrainTubePiece> cursor = _extensions[tube.SlotIndex].FallingTubeCursor;
+        AnimationProgramCursor<MotherBrainTubePiece> cursor = Extensions[tube.SlotIndex].FallingTubeCursor;
         NativeCountdown counter = tube.Timer;
         AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
-        _extensions[tube.SlotIndex].FallingTubeCursor = cursor;
+        Extensions[tube.SlotIndex].FallingTubeCursor = cursor;
         switch (advance.Kind)
         {
             case AnimationProgramAdvanceKind.Show:
@@ -392,7 +392,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
                 // shared word before later enemy slots can keep drawing replaced tile art.
-                _rinkaBehavior._rinkaTerminationFlag = true;
+                _rinkaBehavior.RequestTermination();
                 state.Form = MotherBrainForm.FakeDeath;
                 state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 
@@ -465,7 +465,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnMotherBrainPurpleBreathSmall(state);
         // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
-        if (AdvanceMotherBrainBrain(state, _deathsAndDrops._samusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
+        if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
@@ -605,7 +605,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         var programs = MotherBrainAnimations.Head;
         AnimationProgramStep<MotherBrainHeadProgram, MotherBrainHeadFrame, MotherBrainHeadCue> step = programs.Steps(cursor.Program)[cursor.Position];
-        if (_frameContext._enemyFrameTimeIsFrozen)
+        if (_frameContext.TimeIsFrozen)
         {
             return step.Kind == AnimationProgramStepKind.Show ? step.Frame : throw new InvalidOperationException(
                 $"Mother Brain's frozen brain rests on {step.Kind} step {cursor.Position} of {cursor.Program}, not a frame.");
@@ -2224,7 +2224,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
     internal void SpawnMotherBrainFallingTube(MotherBrainTubePiece piece)
     {
-        int slotIndex = Array.FindIndex(_slotTable._slots, slot => slot.EnemyDefinitionPointer == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
             return; // SpawnEnemy silently fails when all 32 native records are occupied.
 
@@ -2237,7 +2237,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"${(int)population.DefinitionPointer:X4}, not the falling tube.");
         }
 
-        RoomEnemySlot tube = _slotTable._slots[slotIndex];
+        RoomEnemySlot tube = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(tube, population, definition);
         _dispatch.RunInitializationAi(tube);
@@ -2255,7 +2255,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int tubeIndex = tube.Spawn.Population.Parameter1 / 2;
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
-        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
+        Extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
         tube.Radius = new(xRadius, yRadius);
         var state = new MotherBrainFallingTubeState
         {
@@ -2978,7 +2978,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
         // two advance together but are not aligned, so their low two bits differ.
-        if ((_frameContext._enemyFrameNmiFrameCounter & 3) != 0)
+        if ((_frameContext.NmiFrameCounter & 3) != 0)
             return;
 
         SpawnMotherBrainAscentDust(state);
@@ -4063,7 +4063,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             typewriterFinished = text.Step(_presentation.Vram);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EscapeTypewriterRomData.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext._randomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });
         _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }

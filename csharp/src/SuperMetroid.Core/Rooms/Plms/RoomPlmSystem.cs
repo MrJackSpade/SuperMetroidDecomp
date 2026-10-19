@@ -168,17 +168,14 @@ public sealed class RoomPlmSystem
     /// </summary>
     public void Reset()
     {
-        ChozoStatue._chozoEnemies = null;
-        ChozoStatue._chozoRoomFx = null;
-        foreach (PlmSlot slot in SlotTable._slots)
+        ChozoStatue.Unbind();
+        foreach (PlmSlot slot in SlotTable.Slots)
             slot.Clear();
-        Sounds._soundRequests.Clear();
-        Gates._pendingDownwardGateSounds.Clear();
-        Gates._downwardGateProjectileRequests.Clear();
+        Sounds.Clear();
+        Gates.ResetForRoom();
         Bindings.Clear();
-        Drawing._tilemapUpdates.Clear();
-        Stations._stationActivationEvents.Clear();
-        Stations._saveStationLockedOut = false;
+        Drawing.ClearTilemapUpdates();
+        Stations.ResetForRoom();
         // The progression owner belongs to the room population just discarded. Holding
         // it past Reset would let an accidentally reused PLM slot persist a hit into the
         // previous runtime/system-state instance.
@@ -195,18 +192,18 @@ public sealed class RoomPlmSystem
     {
         Ensure.NotNull(level);
         Ensure.NotNull(streamer);
-        Sounds._soundRequests.Clear();
+        Sounds.Clear();
         Gates.PublishPendingDownwardGateSounds();
-        Drawing._tilemapUpdates.Clear();
-        Stations._stationActivationEvents.Clear();
+        Drawing.ClearTilemapUpdates();
+        Stations.BeginFrame();
         MotherBrainGlass.BeginMotherBrainGlassFrame();
         CollectiblePlms.BeginCollectibleFrame();
         BombTorizoHand.BeginBombTorizoHandFrame();
 
         var context = new PlmStepContext(this, level, streamer, view, frame);
-        for (int slotIndex = SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = SlotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = SlotTable._slots[slotIndex];
+            PlmSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.Active)
                 continue;
 
@@ -227,7 +224,7 @@ public sealed class RoomPlmSystem
                 $"PLM slot {slotIndex} ({slot.HeaderPointer}) runs neither a typed program nor a family step.")).Advance(slot, context);
         }
 
-        return Drawing._tilemapUpdates;
+        return Drawing.TilemapUpdates;
     }
 
     /// <summary>

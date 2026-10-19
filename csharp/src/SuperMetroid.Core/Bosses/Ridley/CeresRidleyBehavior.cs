@@ -77,7 +77,7 @@ internal sealed class CeresRidleyBehavior
         if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
-        RoomEnemySlot slot = _slotTable._slots[0];
+        RoomEnemySlot slot = _slotTable.Slots[0];
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
@@ -1181,7 +1181,7 @@ internal sealed class CeresRidleyBehavior
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -1200,7 +1200,7 @@ internal sealed class CeresRidleyBehavior
         Ensure.NotNull(oam);
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -1227,7 +1227,7 @@ internal sealed class CeresRidleyBehavior
         // drawing to Ridley's scene when the common enemy pass intentionally hides the actor;
         // $A6:A2FA then draws this fixed overlay after the Baby. This is a native cross-slot
         // draw hook, not a replacement for the door actor's own instruction interpreter.
-        RoomEnemySlot door = _slotTable._slots[1];
+        RoomEnemySlot door = _slotTable.Slots[1];
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
@@ -1309,7 +1309,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Initializes one native wall actor at its authored X coordinate and variant parameter.</summary>
     private void SpawnCeresRidleyMode7Wall(ushort xPosition, ushort parameter1)
     {
-        int slotIndex = Array.FindIndex(_slotTable._slots, slot => slot.EnemyDefinitionPointer == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
@@ -1324,7 +1324,7 @@ internal sealed class CeresRidleyBehavior
             ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             Parameter1: parameter1,
             Parameter2: 0);
-        RoomEnemySlot wall = _slotTable._slots[slotIndex];
+        RoomEnemySlot wall = _slotTable.Slots[slotIndex];
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
         _dispatch.RunInitializationAi(wall);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
@@ -1352,7 +1352,7 @@ internal sealed class CeresRidleyBehavior
         // Samus's invincibility timer. It does not inspect the bank-$90 knockback-active
         // word. The extra host guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
-        RoomEnemySlot slot = _slotTable._slots[0];
+        RoomEnemySlot slot = _slotTable.Slots[0];
         if (_ridleyEncounter.Ridley is null ||
             !RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
             slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
@@ -1666,7 +1666,7 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case 6:
-                UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 NativeWordCounterStep delay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = delay.Remaining;
                 if (!delay.IsZero)
@@ -1686,7 +1686,7 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case 8:
-                UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 NativeWordCounterStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
                 if (japaneseDelay.IsZero)
@@ -1700,13 +1700,13 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case 10:
-                UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
                     state.FunctionTimer = NativeCountdown.Start(12);
                 return;
 
             case 12:
-                UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.FunctionTimer = NativeCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;

@@ -45,8 +45,8 @@ internal static class GameOverRomDataVerification
                 babyMenu.Phase = GameOverMenuPhase.FadeIn;
             }
         }
-        var queues = babyAudio._soundQueues;
-        var writes = babyAudio._soundWritePositions;
+        var queues = babyAudio.SoundQueues;
+        var writes = babyAudio.SoundWritePositions;
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
         // Record order in the native stream is the program's step identity.
         int step = 0;

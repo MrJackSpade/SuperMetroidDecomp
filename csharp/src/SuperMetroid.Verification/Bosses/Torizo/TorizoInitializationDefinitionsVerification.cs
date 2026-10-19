@@ -30,7 +30,7 @@ internal static class TorizoInitializationDefinitionsVerification
 
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._cgram = new SnesCgram();
+            enemies.Presentation.BindCgram(new SnesCgram());
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
             Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.InitializeBombTorizo;
@@ -51,7 +51,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = enemies.BombTorizoBehavior._torizoState
+                TorizoEnemyState started = enemies.BombTorizoBehavior.TorizoState
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(started.BodyProgram.Program), "Real Torizo initial program selection");
                 AssertEqual(AnimationProgramCursor<TorizoBodyProgram>.Start(started.BodyProgram.Program), started.BodyProgram, "Real Torizo starts its initial program");

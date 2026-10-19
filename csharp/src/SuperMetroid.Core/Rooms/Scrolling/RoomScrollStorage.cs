@@ -8,5 +8,15 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 public sealed class RoomScrollStorage
 {
     /// <summary>The allocation's bytes, one scroll state per 256-pixel screen, row-major.</summary>
-    internal readonly byte[] _bytes = new byte[RoomScrollGrid.StorageByteCount];
+    private readonly byte[] _bytes = new byte[RoomScrollGrid.StorageByteCount];
+
+    /// <summary>One cell's raw scroll byte, by allocation index.</summary>
+    internal byte this[int index]
+    {
+        get => _bytes[index];
+        set => _bytes[index] = value;
+    }
+
+    /// <summary>Copies a room's compiled scroll table over the whole allocation.</summary>
+    internal void Load(ReadOnlySpan<byte> compiled) => compiled.CopyTo(_bytes);
 }

@@ -198,7 +198,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 "A Norfair lava-jumping follower cannot occupy enemy slot zero.");
         }
 
-        return _slotTable._slots[follower.SlotIndex - 1];
+        return _slotTable.Slots[follower.SlotIndex - 1];
     }
 
     /// <summary>Rejects a follower population record without a same-species parent directly before it.</summary>

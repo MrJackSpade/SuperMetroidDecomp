@@ -144,7 +144,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every call writes these shared aliases, including the body fallthrough. Slot three
         // owns the casual-flame pattern index/control words used much later in the fight.
-        if (_slotTable._slots.Length > 3)
+        if (_slotTable.Slots.Count > 3)
         {
             state.Parts[3].BlendingControl = 0;
             state.Parts[3].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
@@ -374,7 +374,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot eye = state.Eye;
         state.Parts[eye.SlotIndex].WaveMode = 0;
-        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext._enemyFrameNmiFrameCounter >> 1) & 3];
+        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.NmiFrameCounter >> 1) & 3];
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.Parts[body.SlotIndex].SpeedFraction = 0;
         state.Parts[body.SlotIndex].SpeedPhase = 0;
@@ -588,7 +588,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state,
         ushort denominator)
     {
-        if ((_frameContext._enemyFrameNmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.NmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
@@ -1489,7 +1489,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state,
         ushort denominator)
     {
-        if ((_frameContext._enemyFrameNmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.NmiFrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
@@ -1652,7 +1652,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Parts[eye.SlotIndex].MosaicRegister != PhantoonDeathDefinitions.MosaicFinished)
         {
             // The mosaic grows one size step every sixteenth frame.
-            if (_frameContext._enemyFrameNmiFrameCounter % 16 != 0)
+            if (_frameContext.NmiFrameCounter % 16 != 0)
                 return;
 
             byte mosaic = unchecked((byte)state.Parts[eye.SlotIndex].MosaicRegister);
@@ -1709,7 +1709,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Parts[body.SlotIndex].FunctionTimer = NativeWordCounter.Decrement(checked((ushort)state.Parts[body.SlotIndex].FunctionTimer)).Value;
             return;
         }
-        if ((_frameContext._enemyFrameNmiFrameCounter & 3) != 0)
+        if ((_frameContext.NmiFrameCounter & 3) != 0)
             return;
 
         state.Parts[state.Eye.SlotIndex].FadeDenominator = 12;
@@ -1851,7 +1851,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot eye = state.Eye;
         state.Parts[body.SlotIndex].FunctionTimer = 60;
         state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
-        if ((_frameContext._enemyFrameNmiFrameCounter & 1) != 0)
+        if ((_frameContext.NmiFrameCounter & 1) != 0)
         {
             if (!state.Parts[eye.SlotIndex].FigureEightReversed)
                 state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor == 0 ? (ushort)533 : unchecked((ushort)(state.Parts[body.SlotIndex].PathCursor - 1));
@@ -1881,7 +1881,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private PhantoonEnemyState RequireCompletePhantoonStateForPart(RoomEnemySlot stateSlot) =>
         RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody
             ? stateSlot
-            : _slotTable._slots[0]);
+            : _slotTable.Slots[0]);
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>
     private const EnemyProjectilePreInstruction PhantoonStartingFlameWaitingPreInstruction =
         EnemyProjectilePreInstruction.PhantoonStartingFlames;
@@ -2206,13 +2206,13 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         RoomEnemyDefinition eye = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
-        _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
+        PhantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             flame.Position.Whole,
             eye.ItemDropChancesPointer);
     }
     /// <summary>Flame-destruction drop requests published during the current room encounter.</summary>
-    internal readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
+    internal readonly List<PhantoonFlameDropRequest> PhantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon { get; internal set; }
@@ -2221,14 +2221,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetPhantoonRoomState()
     {
         Phantoon = null;
-        _phantoonFlameDropRequests.Clear();
+        PhantoonFlameDropRequests.Clear();
     }
 
     /// <summary>Requires the native slot-zero body before handling another Phantoon part.</summary>
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
-            _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody)
+            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
                 $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} requires Phantoon's retail body in slot zero.");

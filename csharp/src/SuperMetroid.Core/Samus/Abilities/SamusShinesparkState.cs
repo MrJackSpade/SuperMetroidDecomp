@@ -187,8 +187,8 @@ public sealed class SamusShinesparkState
     /// </summary>
     public int CrashAngularTravel
     {
-        get => _firstReleasedCrashEcho.Position.Y;
-        private set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithY(checked((ushort)value));
+        get => FirstReleasedCrashEchoSlot.Position.Y;
+        private set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithY(checked((ushort)value));
     }
 
     /// <summary>The largest angular travel the shared echo coordinate holds; one more step wraps past it to zero.</summary>
@@ -212,18 +212,18 @@ public sealed class SamusShinesparkState
     /// Active is the drawing enable, not ownership: a combo can overwrite the projectile
     /// without clearing these words or allowing the old echo handler to keep running.
     /// </summary>
-    public ShinesparkReleasedEcho FirstReleasedCrashEcho => _firstReleasedCrashEcho.Snapshot;
+    public ShinesparkReleasedEcho FirstReleasedCrashEcho => FirstReleasedCrashEchoSlot.Snapshot;
 
     /// <summary>
     /// Host-readable snapshot of native projectile slot four. Native draws this slot before
     /// slot three, even though it is initialized second.
     /// </summary>
-    public ShinesparkReleasedEcho SecondReleasedCrashEcho => _secondReleasedCrashEcho.Snapshot;
+    public ShinesparkReleasedEcho SecondReleasedCrashEcho => SecondReleasedCrashEchoSlot.Snapshot;
 
     /// <summary>Fixed slot-three echo storage whose position aliases crash angular words.</summary>
-    internal readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
+    internal readonly ReleasedEchoSlot FirstReleasedCrashEchoSlot = new();
     /// <summary>Fixed slot-four echo storage drawn before the slot-three copy.</summary>
-    internal readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
+    internal readonly ReleasedEchoSlot SecondReleasedCrashEchoSlot = new();
 
     /// <summary>
     /// Samus_HandleTransitionsB_5 ($91:EEA6) clears $0A6A and replaces the shared
@@ -245,8 +245,8 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void ResetProjectileEchoStorage()
     {
-        _firstReleasedCrashEcho.Clear();
-        _secondReleasedCrashEcho.Clear();
+        FirstReleasedCrashEchoSlot.Clear();
+        SecondReleasedCrashEchoSlot.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = SnesAngle.Zero;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -549,7 +549,7 @@ false);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
-        _firstReleasedCrashEcho.DisableDrawing();
+        FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
         // The native entry does not initialize the aliased angular-travel/echo-Y
@@ -569,8 +569,8 @@ false);
     /// </summary>
     private short CrashAngularDelta
     {
-        get => unchecked((short)_firstReleasedCrashEcho.Position.X);
-        set => _firstReleasedCrashEcho.Position = _firstReleasedCrashEcho.Position.WithX(unchecked((ushort)value));
+        get => unchecked((short)FirstReleasedCrashEchoSlot.Position.X);
+        set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(unchecked((ushort)value));
     }
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
@@ -682,11 +682,11 @@ false);
         {
             if (unchecked((short)(projectileCounter - 4)) < 0)
             {
-                _firstReleasedCrashEcho.Initialize(departureAngles.First, samus.Position.Whole);
+                FirstReleasedCrashEchoSlot.Initialize(departureAngles.First, samus.Position.Whole);
                 projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First);
             }
 
-            _secondReleasedCrashEcho.Initialize(departureAngles.Second, samus.Position.Whole);
+            SecondReleasedCrashEchoSlot.Initialize(departureAngles.Second, samus.Position.Whole);
             projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
@@ -725,8 +725,8 @@ false,             CrashSequenceFinished: true);
     {
         ReleasedEchoSlot echo = projectile.SlotIndex switch
         {
-            3 => _firstReleasedCrashEcho,
-            4 => _secondReleasedCrashEcho,
+            3 => FirstReleasedCrashEchoSlot,
+            4 => SecondReleasedCrashEchoSlot,
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
         echo.Radius = unchecked((ushort)projectile.Velocity.X.SignedRawValue);

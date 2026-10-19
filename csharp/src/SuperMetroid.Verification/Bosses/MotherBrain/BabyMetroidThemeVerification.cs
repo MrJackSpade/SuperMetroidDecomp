@@ -18,7 +18,7 @@ internal static class BabyMetroidThemeVerification
         var enemies = new RoomEnemySystem();
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = (ushort)0;

@@ -17,7 +17,7 @@ public sealed class CrocomireDeathState
     internal const int Bg2WorkingWordCount = 2048;
 
     /// <summary>Per-column erased heights used by the melting progression.</summary>
-    internal readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];
+    internal readonly byte[] MeltingColumnHeights = new byte[MeltingColumnCount];
     /// <summary>Scratch graphics buffer preserving native copy overlap.</summary>
     private readonly byte[] _meltingGraphics = new byte[MeltingGraphicsByteCount];
     /// <summary>BG2 working tilemap used during the death sequence.</summary>
@@ -120,7 +120,7 @@ public sealed class CrocomireDeathState
     public bool MeltingHdmaActive { get; internal set; }
 
     /// <summary>Exposes column-height scratch for the active melting update.</summary>
-    internal Span<byte> MutableMeltingColumnHeights => _meltingColumnHeights;
+    internal Span<byte> MutableMeltingColumnHeights => MeltingColumnHeights;
     /// <summary>Exposes graphics scratch for native melting copies and tile erasure.</summary>
     internal Span<byte> MutableMeltingGraphics => _meltingGraphics;
     /// <summary>Exposes the BG2 tilemap while death-sequence graphics are assembled.</summary>

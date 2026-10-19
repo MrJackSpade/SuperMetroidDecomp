@@ -103,7 +103,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
-            enemies.DeadTourianBehavior._extensions[slot.SlotIndex].Program,
+            enemies.DeadTourianBehavior.Extensions[slot.SlotIndex].Program,
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
             state.RotTable, $"dead {species} variant {variantIndex}");

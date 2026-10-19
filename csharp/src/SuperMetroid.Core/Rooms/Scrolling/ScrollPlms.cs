@@ -23,7 +23,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
         _slotTable = slotTable;
     }
     /// <summary>Every live cartridge-authored scroll trigger, in native slot order.</summary>
-    public IReadOnlyList<ScrollPlmSnapshot> Snapshots => _slotTable._slots
+    public IReadOnlyList<ScrollPlmSnapshot> Snapshots => _slotTable.Slots
         .Where(slot => slot.Active && slot.Family is ScrollPlmState)
         .Select(slot => new ScrollPlmSnapshot(
             slot.BlockIndex))
@@ -37,7 +37,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
     /// <remarks>The first touch latches the trigger and wakes its instruction list with a one-tick timer; repeated collision probes do not wake it again before ordered scroll writes finish.</remarks>
     public bool TryNotifyScrollTouch(int blockIndex)
     {
-        foreach (PlmSlot slot in _slotTable._slots)
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not ScrollPlmState scroll)
                 continue;

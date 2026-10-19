@@ -22,7 +22,7 @@ public sealed class HyperBeamPaletteFxState
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
     /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
-    internal AnimationProgramCursor<PaletteFxProgram> _cursor;
+    internal AnimationProgramCursor<PaletteFxProgram> Cursor;
 
     /// <summary>The cycle's ten records in the order <see cref="PaletteFxProgram.HyperBeam1"/> shows them; a record's place is its colour frame.</summary>
     private static readonly int[] CycleRecords = [.. PaletteFxAnimations.Programs.Steps(PaletteFxProgram.HyperBeam1)
@@ -60,7 +60,7 @@ public sealed class HyperBeamPaletteFxState
         InstructionTimer = NativeCountdown.Start(1);
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
-        _cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
+        Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
@@ -92,7 +92,7 @@ public sealed class HyperBeamPaletteFxState
         }
 
         NativeCountdown unusedCounter = default;
-        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref _cursor, ref unusedCounter,
+        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref Cursor, ref unusedCounter,
             (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: DestinationColorIndex)
                 ? (PaletteFxProgram?)null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));

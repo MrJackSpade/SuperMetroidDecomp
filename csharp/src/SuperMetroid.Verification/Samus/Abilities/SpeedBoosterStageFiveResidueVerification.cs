@@ -43,8 +43,8 @@ internal static class SpeedBoosterStageFiveResidueVerification
         {
             Presentation = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };
-        enemies.Presentation._vram = new SnesVram();
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindVram(new SnesVram());
+        enemies.Presentation.BindCgram(new SnesCgram());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Room.Mode7QueueResidue = residue;
         var state = new RidleyEnemyState { Mode7TableIndex = 1 };

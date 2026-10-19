@@ -197,7 +197,7 @@ internal static class SporeSpawnAnimationsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState();
+        enemies.DeathsAndDrops.BindSamus(new SamusState());
         return enemies;
     }
 
@@ -226,10 +226,10 @@ internal static class SporeSpawnAnimationsVerification
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
-        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
-        enemies.SporeSpawnBehavior._sporeSpawn = state;
+        enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
+        enemies.SporeSpawnBehavior.SporeSpawn = state;
 
         for (int frame = 0; frame < frames; frame++)
         {

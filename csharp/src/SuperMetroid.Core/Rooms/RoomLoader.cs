@@ -278,12 +278,11 @@ internal sealed class RoomLoader
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
-        _player._samusLoadAppearancePaletteFxObject = loadAppearance;
+        _player.BeginLoadAppearance(loadAppearance, NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
         _roomPaletteFx.SpawnDefinition(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
-        _player._samusLoadAppearanceFramesRemaining = NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount);
         _player.IntroducedSamus.InputLocked = true;
         _player.PreviousMovementTypeForXray = _player.IntroducedSamus.PoseMetadata.ReadMovementType();
         _player.GroundedSamusMovementEnabled = false;

@@ -91,7 +91,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];

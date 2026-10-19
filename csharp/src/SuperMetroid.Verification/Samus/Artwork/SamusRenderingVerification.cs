@@ -1024,8 +1024,11 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
 /// Installs a delay stream at <c>$91:0302</c>, the Mode 7 transfer queue residue byte that pose
 /// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
 /// </summary>
-static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue residue, ReadOnlySpan<byte> stream) =>
-    stream.CopyTo(residue._bytes.AsSpan(0x7e0302 - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart));
+static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue residue, ReadOnlySpan<byte> stream)
+{
+    for (int index = 0; index < stream.Length; index++)
+        residue.Write(0x7e0302 - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart + index, stream[index]);
+}
 
 /// <summary>
 /// Gives every spritemap index the body-half matrix uses one visible OBJ, and seeds the

@@ -20,25 +20,25 @@ public sealed class RoomLevelData
     private static readonly ushort PrefilledSolidWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
 
     /// <summary>Mutable logical BG1 level words shared by terrain collision and room rendering.</summary>
-    internal readonly ushort[] _foregroundEntries;
+    private readonly ushort[] _foregroundEntries;
     /// <summary>Parallel BTS bytes interpreted according to each BG1 word's collision nibble.</summary>
-    internal readonly byte[] _behaviorBytes;
+    internal readonly byte[] BehaviorBytes;
     /// <summary>Logical BG2 level words kept in the room's authored row-major dimensions.</summary>
-    internal readonly ushort[] _backgroundEntries;
+    internal readonly ushort[] BackgroundEntries;
     /// <summary>Combined CRE and area 8-by-8 tile definitions selected by visual block numbers.</summary>
-    internal readonly byte[] _blockDefinitions;
+    private readonly byte[] _blockDefinitions;
     /// <summary>Native-sized BG1 allocation, including the decompressed tail used by streaming.</summary>
-    internal readonly ushort[] _streamingForegroundAllocation;
+    internal readonly ushort[] StreamingForegroundAllocation;
     /// <summary>Native-sized BG2 allocation, including its decompressed tail.</summary>
-    internal readonly ushort[] _streamingBackgroundAllocation;
+    internal readonly ushort[] StreamingBackgroundAllocation;
     /// <summary>Editable BG1 visual references kept separate from collision words.</summary>
-    internal readonly ushort[] _visualStreamingForegroundAllocation;
+    internal readonly ushort[] VisualStreamingForegroundAllocation;
     /// <summary>Editable BG2 visual references used by background streaming.</summary>
-    internal readonly ushort[] _visualStreamingBackgroundAllocation;
+    internal readonly ushort[] VisualStreamingBackgroundAllocation;
     /// <summary>Bounded level-data storage for PLM writes outside the authored room plane.</summary>
-    internal readonly ushort[] _plmForegroundAllocation;
+    internal readonly ushort[] PlmForegroundAllocation;
     /// <summary>BTS storage paired with native PLM indices, including their bounded tail.</summary>
-    internal readonly byte[] _plmBehaviorAllocation;
+    internal readonly byte[] PlmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
@@ -82,18 +82,18 @@ public sealed class RoomLevelData
         Size = size;
         Doors = doors;
         _foregroundEntries = foregroundEntries.ToArray();
-        _behaviorBytes = behaviorBytes.ToArray();
-        _backgroundEntries = backgroundEntries.ToArray();
+        BehaviorBytes = behaviorBytes.ToArray();
+        BackgroundEntries = backgroundEntries.ToArray();
         _blockDefinitions = blockDefinitions.ToArray();
 
         // The cartridge's initial 17-column fill can read past logical BG1 into adjacent
         // decompressed planes at the room's bottom edge. LandingSiteStreamingData supplies
         // that complete native allocation. Synthetic/general callers default to logical
         // BG1 only, which remains sufficient for in-bounds streaming and all collision.
-        _streamingForegroundAllocation = streamingForegroundAllocation.IsEmpty
+        StreamingForegroundAllocation = streamingForegroundAllocation.IsEmpty
             ? _foregroundEntries.ToArray()
             : streamingForegroundAllocation.ToArray();
-        if (_streamingForegroundAllocation.Length < expectedBlocks)
+        if (StreamingForegroundAllocation.Length < expectedBlocks)
         {
             throw new ArgumentException(
                 "The streaming BG1 allocation cannot be shorter than logical BG1.",
@@ -109,21 +109,21 @@ public sealed class RoomLevelData
         // cartridge would observe before the PLM population is constructed.
         int plmAllocationLength = Math.Max(
             RoomLevelMemoryLayout.PrefilledStreamingWordCount,
-            _streamingForegroundAllocation.Length);
-        _plmForegroundAllocation = new ushort[plmAllocationLength];
-        Array.Fill(_plmForegroundAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
-        _streamingForegroundAllocation.CopyTo(_plmForegroundAllocation, 0);
-        _plmBehaviorAllocation = new byte[plmAllocationLength];
-        _behaviorBytes.CopyTo(_plmBehaviorAllocation, 0);
+            StreamingForegroundAllocation.Length);
+        PlmForegroundAllocation = new ushort[plmAllocationLength];
+        Array.Fill(PlmForegroundAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
+        StreamingForegroundAllocation.CopyTo(PlmForegroundAllocation, 0);
+        PlmBehaviorAllocation = new byte[plmAllocationLength];
+        BehaviorBytes.CopyTo(PlmBehaviorAllocation, 0);
 
         // BG2 is copied to another region of the same pre-cleared WRAM allocation and can
         // be overread by the same 17-column/row camera fill. Keep its logical plane exact
         // for collision-independent inspection while giving bank $80 the native tail when
         // a cartridge loader supplies it.
-        _streamingBackgroundAllocation = streamingBackgroundAllocation.IsEmpty
-            ? _backgroundEntries.ToArray()
+        StreamingBackgroundAllocation = streamingBackgroundAllocation.IsEmpty
+            ? BackgroundEntries.ToArray()
             : streamingBackgroundAllocation.ToArray();
-        if (_streamingBackgroundAllocation.Length < expectedBlocks)
+        if (StreamingBackgroundAllocation.Length < expectedBlocks)
         {
             throw new ArgumentException(
                 "The streaming BG2 allocation cannot be shorter than logical BG2.",
@@ -133,22 +133,22 @@ public sealed class RoomLevelData
         // Collision and PLM scripts retain the unmodified native words. Only bank $80's
         // visual producer sees an installed layout, and only in the authored room plane;
         // native overread tails, BTS adjacency, and out-of-room prefill remain unchanged.
-        _visualStreamingForegroundAllocation = visualLayout is null
-            ? _streamingForegroundAllocation
-            : _streamingForegroundAllocation.ToArray();
-        _visualStreamingBackgroundAllocation = visualLayout is null
-            ? _streamingBackgroundAllocation
-            : _streamingBackgroundAllocation.ToArray();
+        VisualStreamingForegroundAllocation = visualLayout is null
+            ? StreamingForegroundAllocation
+            : StreamingForegroundAllocation.ToArray();
+        VisualStreamingBackgroundAllocation = visualLayout is null
+            ? StreamingBackgroundAllocation
+            : StreamingBackgroundAllocation.ToArray();
         if (visualLayout is not null)
         {
             if (visualLayout.Size != size)
                 throw new InvalidDataException("Installed room layout dimensions do not match the native allocation.");
             for (int index = 0; index < expectedBlocks; index++)
             {
-                _visualStreamingForegroundAllocation[index] =
+                VisualStreamingForegroundAllocation[index] =
                     new RoomLevelWord(_foregroundEntries[index]).WithVisualWord(visualLayout.ForegroundVisualWords.Span[index]).Raw;
-                _visualStreamingBackgroundAllocation[index] =
-                    new RoomLevelWord(_backgroundEntries[index]).WithVisualWord(visualLayout.BackgroundVisualWords.Span[index]).Raw;
+                VisualStreamingBackgroundAllocation[index] =
+                    new RoomLevelWord(BackgroundEntries[index]).WithVisualWord(visualLayout.BackgroundVisualWords.Span[index]).Raw;
             }
         }
     }
@@ -212,12 +212,12 @@ public sealed class RoomLevelData
         if (block.X < 0 || block.Y < 0)
             throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
         int blockIndex = checked(block.Y * Size.X + block.X);
-        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(block),
                 $"PLM block ({block.X},{block.Y}) resolves to native index {blockIndex}, " +
-                $"outside the {_plmForegroundAllocation.Length}-word safe level allocation.");
+                $"outside the {PlmForegroundAllocation.Length}-word safe level allocation.");
         }
 
         return blockIndex;
@@ -232,12 +232,12 @@ public sealed class RoomLevelData
     {
         if (IsLogicalBlockIndex(blockIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex), "The index is inside the authored room plane.");
-        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
         {
             throw new NotSupportedException(
-                $"Native block {blockIndex} lies past the {_plmForegroundAllocation.Length}-word level allocation.");
+                $"Native block {blockIndex} lies past the {PlmForegroundAllocation.Length}-word level allocation.");
         }
-        return _plmForegroundAllocation[blockIndex];
+        return PlmForegroundAllocation[blockIndex];
     }
 
     /// <summary>Whether a native PLM block index belongs to the authored logical plane.</summary>
@@ -247,12 +247,12 @@ public sealed class RoomLevelData
     /// <summary>Reads a block through the bounded level/BTS allocation used by PLM code.</summary>
     internal RoomCollisionBlock GetPlmCollisionBlockByIndex(int blockIndex)
     {
-        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         return new RoomCollisionBlock(
             blockIndex,
-            _plmForegroundAllocation[blockIndex],
-            new RoomBlockBehavior(_plmBehaviorAllocation[blockIndex]));
+            PlmForegroundAllocation[blockIndex],
+            new RoomBlockBehavior(PlmBehaviorAllocation[blockIndex]));
     }
 
     /// <summary>
@@ -270,32 +270,32 @@ public sealed class RoomLevelData
     /// </summary>
     internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord, ushort visualWord)
     {
-        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        if ((uint)blockIndex >= (uint)PlmForegroundAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         if (!RoomLevelWord.IsValidVisualWord(visualWord))
             throw new ArgumentOutOfRangeException(nameof(visualWord));
 
-        _plmForegroundAllocation[blockIndex] = levelWord;
+        PlmForegroundAllocation[blockIndex] = levelWord;
         if (!IsLogicalBlockIndex(blockIndex))
             return;
 
         _foregroundEntries[blockIndex] = levelWord;
-        if (blockIndex < _streamingForegroundAllocation.Length)
-            _streamingForegroundAllocation[blockIndex] = levelWord;
-        if (blockIndex < _visualStreamingForegroundAllocation.Length)
-            _visualStreamingForegroundAllocation[blockIndex] =
+        if (blockIndex < StreamingForegroundAllocation.Length)
+            StreamingForegroundAllocation[blockIndex] = levelWord;
+        if (blockIndex < VisualStreamingForegroundAllocation.Length)
+            VisualStreamingForegroundAllocation[blockIndex] =
                 new RoomLevelWord(levelWord).WithVisualWord(visualWord).Raw;
     }
 
     /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>
     internal void SetPlmBehavior(int blockIndex, byte behavior)
     {
-        if ((uint)blockIndex >= (uint)_plmBehaviorAllocation.Length)
+        if ((uint)blockIndex >= (uint)PlmBehaviorAllocation.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
 
-        _plmBehaviorAllocation[blockIndex] = behavior;
+        PlmBehaviorAllocation[blockIndex] = behavior;
         if (IsLogicalBlockIndex(blockIndex))
-            _behaviorBytes[blockIndex] = behavior;
+            BehaviorBytes[blockIndex] = behavior;
     }
 
     /// <summary>Typed overload for a bounded native PLM BTS write.</summary>
@@ -361,7 +361,7 @@ public sealed class RoomLevelData
         return new RoomCollisionBlock(
             blockIndex,
             _foregroundEntries[blockIndex],
-            new RoomBlockBehavior(_behaviorBytes[blockIndex]));
+            new RoomBlockBehavior(BehaviorBytes[blockIndex]));
     }
 
     /// <summary>
@@ -445,11 +445,11 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
 
         _foregroundEntries[blockIndex] = levelWord;
-        _plmForegroundAllocation[blockIndex] = levelWord;
-        if (blockIndex < _streamingForegroundAllocation.Length)
-            _streamingForegroundAllocation[blockIndex] = levelWord;
-        if (blockIndex < _visualStreamingForegroundAllocation.Length)
-            _visualStreamingForegroundAllocation[blockIndex] = levelWord;
+        PlmForegroundAllocation[blockIndex] = levelWord;
+        if (blockIndex < StreamingForegroundAllocation.Length)
+            StreamingForegroundAllocation[blockIndex] = levelWord;
+        if (blockIndex < VisualStreamingForegroundAllocation.Length)
+            VisualStreamingForegroundAllocation[blockIndex] = levelWord;
     }
 
     /// <summary>
@@ -462,10 +462,10 @@ public sealed class RoomLevelData
     /// </remarks>
     public void SetBehavior(int blockIndex, byte behavior)
     {
-        if ((uint)blockIndex >= (uint)_behaviorBytes.Length)
+        if ((uint)blockIndex >= (uint)BehaviorBytes.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        _behaviorBytes[blockIndex] = behavior;
-        _plmBehaviorAllocation[blockIndex] = behavior;
+        BehaviorBytes[blockIndex] = behavior;
+        PlmBehaviorAllocation[blockIndex] = behavior;
     }
 
     /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
@@ -500,8 +500,8 @@ public sealed class RoomLevelData
     public BackgroundTilemapStreamer CreateBackgroundStreamer(ushort sizeOfBg2 = 0) =>
         new(
             Size.X,
-            _visualStreamingForegroundAllocation,
-            _visualStreamingBackgroundAllocation,
+            VisualStreamingForegroundAllocation,
+            VisualStreamingBackgroundAllocation,
             _blockDefinitions,
             sizeOfBg2);
 }

@@ -349,7 +349,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectileSlot owner)
     {
-        SamusProjectileSlot? link = _slotTable._slots.FirstOrDefault(candidate => candidate.Damage == 0);
+        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => candidate.Damage == 0);
         if (link is null)
             return;
 
@@ -396,9 +396,9 @@ internal sealed class ProjectileMotion
             return;
 
         int linkIndex = (SnesLittleEndian.LowByte(owner.Variable)) >> 1;
-        if ((uint)linkIndex >= (uint)_slotTable._slots.Length)
+        if ((uint)linkIndex >= (uint)_slotTable.Slots.Count)
             return;
-        SamusProjectileSlot link = _slotTable._slots[linkIndex];
+        SamusProjectileSlot link = _slotTable.Slots[linkIndex];
         if (!link.IsActive)
             return;
 
@@ -447,7 +447,7 @@ internal sealed class ProjectileMotion
     {
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot candidate = _slotTable._slots[slotIndex];
+            SamusProjectileSlot candidate = _slotTable.Slots[slotIndex];
             if (candidate.PackedType.HasPlainFamilyPayload(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
         }

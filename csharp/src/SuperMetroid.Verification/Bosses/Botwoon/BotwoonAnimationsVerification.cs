@@ -189,7 +189,7 @@ internal static class BotwoonAnimationsVerification
         Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
-        enemies.BotwoonBehavior._botwoonState = state;
+        enemies.BotwoonBehavior.BotwoonState = state;
         spawnBody(head, state, 2);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
@@ -212,7 +212,7 @@ internal static class BotwoonAnimationsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         var state = new BotwoonEnemyState();
-        enemies.BotwoonBehavior._botwoonState = state;
+        enemies.BotwoonBehavior.BotwoonState = state;
         return (enemies, head, state);
     }
 

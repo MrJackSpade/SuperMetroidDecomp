@@ -71,7 +71,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort SporeSpawnCeilingY = 560;
 
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
-    internal readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
+    internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
 
     /// <summary>Last sound requested by the boss or one of its instructions in the current enemy frame.</summary>
     public SoundEffectId? LastSporeSpawnSoundEffect { get; private set; }
@@ -79,16 +79,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Removes boss state and clears pending PLM, sound, and drop publications on room load.</summary>
     internal void ResetSporeSpawnRoomState()
     {
-        _sporeSpawn = null;
+        SporeSpawn = null;
         LastSporeSpawnSoundEffect = null;
-        _sporeSpawnDropRequests.Clear();
+        SporeSpawnDropRequests.Clear();
     }
 
     /// <summary>Clears one-frame publications before the next enemy update.</summary>
     internal void BeginSporeSpawnFrame()
     {
         LastSporeSpawnSoundEffect = null;
-        _sporeSpawnDropRequests.Clear();
+        SporeSpawnDropRequests.Clear();
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     public void RunScrollingFinishedHook(ScrollBoundaryCamera camera)
     {
         Ensure.NotNull(camera);
-        if (_sporeSpawn?.ScrollClampHookActive != true)
+        if (SporeSpawn?.ScrollClampHookActive != true)
             return;
 
         // `$90:9589` loads $01D0, compares it with layer1_y_pos, and returns on BCC.
@@ -117,7 +117,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Gets the single boss state and verifies it belongs to the supplied body slot.</summary>
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemySlot slot)
     {
-        SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
+        SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn main AI ran without an initialized boss extension.");
         if (!ReferenceEquals(state.Body, slot))
             throw new InvalidOperationException("Spore Spawn extension belongs to another enemy slot.");
@@ -127,7 +127,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>SporeSpawn_Init</c> at $A5:EA2A.</summary>
     internal void InitializeSporeSpawn(RoomEnemySlot body)
     {
-        if (_sporeSpawn is not null)
+        if (SporeSpawn is not null)
             throw new InvalidDataException("A room population contains more than one Spore Spawn body.");
 
         var state = new SporeSpawnEnemyState(body)
@@ -136,7 +136,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             StalkAnchor = body.Position.Whole + new Offset16<RoomPixels>(0, -72),
             MovementCenter = body.Position.Whole,
         };
-        _sporeSpawn = state;
+        SporeSpawn = state;
 
         // Native writes these sixteen colors to target-palette row F. Room loading currently
         // presents completed fades directly, so install the identical final words in CGRAM
@@ -169,7 +169,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
         // enemy property. Preserve that distinction so all room actors use the same scan.
-        _frameContext._processAllEnemies = true;
+        _frameContext.RequestFullSweep();
         state.ScrollClampHookActive = true;
         for (ushort argument = 0; argument < 4; argument++)
             SpawnSporeSpawnSpawner(body, argument);
@@ -274,7 +274,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         UpdateSporeSpawnStalks(state);
         // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
-        if (_frameContext._enemyFrameNmiFrameCounter % 16 == 0)
+        if (_frameContext.NmiFrameCounter % 16 == 0)
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
@@ -633,7 +633,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Loads sprite, level, and background death colors into CGRAM or fade targets.</summary>
     internal void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, bool targetOnly)
     {
-        SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
+        SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Sprite,
@@ -704,7 +704,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             ushort x = unchecked((ushort)(random % 128 + 64));
             ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(random) % 64 + 528));
-            _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
+            SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.SporeSpawn);
         }
         state.DeathDropRequested = true;
@@ -792,7 +792,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_SporeSpawner</c> at $86:DD46.</summary>
     internal void RunSporeSpawnSpawnerPreInstruction(RoomEnemyProjectileSlot spawner)
     {
-        SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
+        SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "A Spore Spawn ceiling emitter survived without its owning boss state.");
         if (state.SporeGenerationSuppressed)
             return;
@@ -831,7 +831,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException(
                 $"Projectile {spore.Kind} reached Spore Spawn drop opcode $DC61.");
         }
-        _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
+        SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             spore.Position.Whole,
             EnemyDefinitionId.SporeSpawnStalk);
@@ -849,7 +849,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         BeginSporeSpawnFrame();
     }
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
-    internal SporeSpawnEnemyState? _sporeSpawn;
+    internal SporeSpawnEnemyState? SporeSpawn;
+
+    /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
+    internal void ConsumeTargetColors(Action<int, Bgr555> write) => SporeSpawn?.ConsumeTargetColors(write);
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)

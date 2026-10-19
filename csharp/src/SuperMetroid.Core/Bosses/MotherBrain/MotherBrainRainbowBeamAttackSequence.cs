@@ -35,7 +35,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
     /// <summary>Advances the post-fight corpse animation and its room effects.</summary>
-    internal readonly MotherBrainCorpseRottingState _corpseRotting = new();
+    internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
     /// <summary>Optional room artwork used to emit corpse tile transfers in installed rooms.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
@@ -334,7 +334,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
     /// </summary>
     public void InitializeCorpseRotting() =>
-        _corpseRotting.Initialize(CorpseStaging, _corpseArtwork ?? throw new InvalidDataException(
+        CorpseRotting.Initialize(CorpseStaging, _corpseArtwork ?? throw new InvalidDataException(
             "Mother Brain corpse rotting requires installed tile artwork."));
 
     /// <summary>
@@ -2033,10 +2033,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // route, but lazily perform the same work for focused debugger fixtures that
                 // start at a late phase. Nothing touches this private table/buffer in between,
                 // so the delayed call is state-equivalent while preventing a fake host setup.
-                if (!_corpseRotting.IsInitialized)
+                if (!CorpseRotting.IsInitialized)
                     InitializeCorpseRotting();
 
-                MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
+                MotherBrainCorpseRottingStepResult corpseRotting = CorpseRotting.Step(
                     CorpseStaging,
                     BrainPosition,
                     frame.RandomNumberSeed,

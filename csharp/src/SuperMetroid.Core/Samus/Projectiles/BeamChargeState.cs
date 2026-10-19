@@ -37,7 +37,51 @@ internal sealed class BeamChargeState
     }
 
     /// <summary>Current animation frame for each of the three flare components.</summary>
-    internal readonly ushort[] _flareFrames = new ushort[3];
+    internal readonly ushort[] FlareFrames = new ushort[3];
     /// <summary>Countdown to each flare component's next authored frame.</summary>
-    internal readonly NativeCountdown[] _flareTimers = new NativeCountdown[3];
+    internal readonly NativeCountdown[] FlareTimers = new NativeCountdown[3];
+
+    /// <summary>The current animation frame of flare <paramref name="component"/>.</summary>
+    internal ushort FlareFrame(int component) => FlareFrames[component];
+
+    /// <summary>Sets flare <paramref name="component"/>'s animation frame.</summary>
+    internal void SetFlareFrame(int component, ushort frame) => FlareFrames[component] = frame;
+
+    /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
+    internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = NativeCountdown.Start(frames);
+
+    /// <summary>Counts one call of flare <paramref name="component"/>'s countdown, keeping what remains.</summary>
+    internal NativeWordCounterStep DecrementFlareTimer(int component)
+    {
+        NativeWordCounterStep step = FlareTimers[component].Decrement();
+        FlareTimers[component] = step.Remaining;
+        return step;
+    }
+
+    /// <summary>The ordinary charge flare's first call: every frame at zero, the three countdowns at 3, 5 and 4.</summary>
+    internal void StartChargeFlare()
+    {
+        Array.Clear(FlareFrames);
+        StartFlareTimer(0, 3);
+        StartFlareTimer(1, 5);
+        StartFlareTimer(2, 4);
+    }
+
+    /// <summary>Hyper Beam's literal stores at <c>$90:BD29-$BD52</c>: frames 29, 5 and 5, each countdown at 3.</summary>
+    internal void StartHyperBeamFlare()
+    {
+        FlareFrames[0] = 29;
+        FlareFrames[1] = 5;
+        FlareFrames[2] = 5;
+        StartFlareTimer(0, 3);
+        StartFlareTimer(1, 3);
+        StartFlareTimer(2, 3);
+    }
+
+    /// <summary>Clears every flare frame and countdown.</summary>
+    internal void ClearFlare()
+    {
+        Array.Clear(FlareFrames);
+        Array.Clear(FlareTimers);
+    }
 }

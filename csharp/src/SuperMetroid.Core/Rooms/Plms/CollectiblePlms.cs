@@ -54,7 +54,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         get
         {
-            foreach (PlmSlot slot in _slotTable._slots)
+            foreach (PlmSlot slot in _slotTable.Slots)
                 if (slot.Active && (slot.Family as CollectiblePlmState)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
@@ -68,8 +68,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// </summary>
     internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
-        _drawing._tilemapUpdates.Clear();
-        foreach (PlmSlot slot in _slotTable._slots)
+        _drawing.ClearTilemapUpdates();
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.Family is not CollectiblePlmState { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
@@ -77,7 +77,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             FinishCollectiblePickup(level, streamer, slot, view);
         }
         CompleteSpeedBoosterPickupContinuation();
-        return _drawing._tilemapUpdates;
+        return _drawing.TilemapUpdates;
     }
 
     /// <summary>Applies the delayed lava-rise velocity after the Speed Booster message returns.</summary>
@@ -112,7 +112,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
-    public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable._slots
+    public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectiblePlmState { } item
             ? [new CollectiblePlmSnapshot(slot.HeaderPointer, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
@@ -126,7 +126,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// </summary>
     public bool TryNotifyCollectibleTouch(int blockIndex)
     {
-        foreach (PlmSlot slot in _slotTable._slots)
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
@@ -155,7 +155,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public bool TryNotifyCollectibleProjectileHit(
         int blockIndex)
     {
-        foreach (PlmSlot slot in _slotTable._slots)
+        foreach (PlmSlot slot in _slotTable.Slots)
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
@@ -441,7 +441,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
                 DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0), view);
-                _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6));
+                _sounds.Queue(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6);
                 item.Timer = 4;
                 return true;
 

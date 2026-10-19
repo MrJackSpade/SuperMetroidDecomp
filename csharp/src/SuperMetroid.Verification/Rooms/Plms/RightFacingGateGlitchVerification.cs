@@ -77,7 +77,7 @@ internal static class RightFacingGateGlitchVerification
         var populationVram = new SnesVram();
         // One pristine level and one working level restored from it per position. The
         // field-by-field check proves no state from the previous position survives.
-        RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.ForegroundEntries.Span, original.BehaviorBytes.Span, original.BackgroundEntries.Span), original.BlockDefinitions.Span);
+        RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.ForegroundEntries.Span, original.BehaviorBytes.AsSpan(), original.BackgroundEntries.AsSpan()), original.BlockDefinitions.Span);
         RoomLevelData pristine = NewLevel();
         RoomLevelData level = NewLevel();
         for (int x = gateX - 192; x < gateX; x++)

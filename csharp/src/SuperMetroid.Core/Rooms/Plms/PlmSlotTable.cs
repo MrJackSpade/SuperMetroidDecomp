@@ -8,11 +8,15 @@ internal sealed class PlmSlotTable
     internal const int SlotCount = 40;
 
     /// <summary>Stable slot objects indexed like the native forty-entry PLM table.</summary>
-    internal readonly PlmSlot[] _slots = Enumerable
+    private readonly PlmSlot[] _slots = Enumerable
         .Range(0, SlotCount)
         .Select(_ => new PlmSlot())
         .ToArray();
 
+    /// <summary>The forty slots in native index order.</summary>
+    internal IReadOnlyList<PlmSlot> Slots => _slots;
+    /// <summary>The native index of <paramref name="slot"/>, or -1 when it is not one of this table's slots.</summary>
+    internal int IndexOf(PlmSlot slot) => Array.IndexOf(_slots, slot);
     /// <summary>Number of occupied native-equivalent PLM slots.</summary>
     public int ActiveCount
     {

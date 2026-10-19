@@ -258,7 +258,7 @@ internal sealed class BeamFiring
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
 
-        int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.Damage == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
@@ -270,7 +270,7 @@ internal sealed class BeamFiring
         // The fire routines overwrite only the words they initialize. Words such as the
         // subpixels keep the slot's previous occupant until velocity setup, so the left
         // muzzle check's -1 speed ($90:BDA7) can carry back into the same whole pixel.
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
@@ -362,7 +362,7 @@ internal sealed class BeamFiring
 
         sharedProjectiles.SetSharedCooldown(1);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
-        int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.Damage == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
@@ -370,7 +370,7 @@ internal sealed class BeamFiring
         }
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
@@ -413,10 +413,7 @@ internal sealed class BeamFiring
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
         sharedProjectiles.SetSharedCooldown(21);
         _charge.ChargedShotGlowTimer = NativeCountdown.Start((1 << 15) | 20);
-        _charge._flareFrames[0] = 29;
-        _charge._flareFrames[1] = 5;
-        _charge._flareFrames[2] = 5;
-        _charge._flareTimers[0] = _charge._flareTimers[1] = _charge._flareTimers[2] = NativeCountdown.Start(3);
+        _charge.StartHyperBeamFlare();
         _charge.FlareCounter = 1 << 15;
 
         SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(
@@ -456,12 +453,12 @@ internal sealed class BeamFiring
         if (ammo == 0)
             return (null, null);
 
-        int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.Damage == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
             return (null, null);
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
             return (null, null);

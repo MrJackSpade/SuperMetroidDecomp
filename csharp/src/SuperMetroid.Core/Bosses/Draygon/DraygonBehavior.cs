@@ -102,7 +102,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         body.PaletteIndex = EnemyPaletteBits.Palette7;
         body.InstructionTimer = NativeCountdown.Start(1);
 
-        _frameContext._processAllEnemies = true;
+        _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
             BackgroundTilemapPrepared = true,
@@ -1119,7 +1119,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
         // the separate 8-bit counter at $05B5; only its low bits are tested.
-        RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext._enemyFrameNmiFrameCounter));
+        RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext.NmiFrameCounter));
     }
 
     /// <summary>Ports DraygonEye's main AI.</summary>

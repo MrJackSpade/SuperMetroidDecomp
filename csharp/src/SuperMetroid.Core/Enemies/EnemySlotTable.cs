@@ -7,10 +7,31 @@ internal sealed class EnemySlotTable
 {
 
     /// <summary>Fixed physical slot storage; native indexes address $40-byte records within this array.</summary>
-    internal readonly RoomEnemySlot[] _slots = new RoomEnemySlot[RoomEnemySystem.MaximumEnemyCount];
+    private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>All 32 physical enemy slots, including unused zero-pointer slots.</summary>
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
+
+    /// <summary>The lowest physical slot with no enemy definition, or -1 when every slot is taken.</summary>
+    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.EnemyDefinitionPointer == 0);
+
+    /// <summary>Drops one species' state from every slot.</summary>
+    internal void ClearSpeciesState<TState>() where TState : class
+    {
+        foreach (RoomEnemySlot slot in _slots)
+            slot.SetSpeciesState<TState>(null);
+    }
+
+    /// <summary>Creates the 32 slots once, each bound to the species registry that dispatches its entity.</summary>
+    /// <exception cref="InvalidOperationException">The slots already exist.</exception>
+    internal void InstallSlots(EnemySpeciesRegistry species)
+    {
+        Ensure.NotNull(species);
+        if (_slots[0] is not null)
+            throw new InvalidOperationException("The enemy slots are installed once, when the room enemy system is built.");
+        for (int slotIndex = 0; slotIndex < _slots.Length; slotIndex++)
+            _slots[slotIndex] = new RoomEnemySlot(slotIndex, species);
+    }
 
     /// <summary>Converts an aligned native byte offset to a physical slot and rejects out-of-range or unaligned indexes.</summary>
     internal RoomEnemySlot SlotFromNativeIndex(int nativeIndex)

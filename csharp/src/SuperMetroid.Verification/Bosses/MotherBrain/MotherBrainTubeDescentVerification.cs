@@ -16,7 +16,7 @@ internal static class MotherBrainTubeDescentVerification
     {
         var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { Presentation = { MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors } };
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindCgram(new SnesCgram());
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var tube = enemies.SlotTable.Slots[2];

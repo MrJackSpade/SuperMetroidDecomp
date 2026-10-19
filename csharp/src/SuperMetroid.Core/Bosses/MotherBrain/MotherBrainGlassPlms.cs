@@ -32,12 +32,12 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Physical slot of the live glass PLM, or minus one after deletion.</summary>
     private int _motherBrainGlassSlotIndex = -1;
     /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
-    internal bool _motherBrainGlassWasLoaded;
+    internal bool MotherBrainGlassWasLoaded;
     /// <summary>
     /// Glass hit count retained after the glass PLM's physical slot has been deleted. Only glass-phase head hits
     /// add to it, so it stays far below the slot word's range; nothing in play reads it back.
     /// </summary>
-    internal int _motherBrainGlassLastRoomArgument;
+    internal int MotherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
@@ -50,8 +50,8 @@ internal sealed class MotherBrainGlassPlms
         RoomPlmPopulationRecord record,
         PlmSlot slot)
     {
-        int physicalSlot = Array.IndexOf(_slotTable._slots, slot);
-        if (record.RecordIndex != 0 || physicalSlot != _slotTable._slots.Length - 1 ||
+        int physicalSlot = _slotTable.IndexOf(slot);
+        if (record.RecordIndex != 0 || physicalSlot != _slotTable.Slots.Count - 1 ||
             record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != MotherBrainGlassBlockDefinitions.GlassRoomArgument)
         {
             throw new InvalidDataException(
@@ -70,8 +70,8 @@ internal sealed class MotherBrainGlassPlms
 
         _motherBrainGlassSlotIndex = physicalSlot;
         _motherBrainGlassRoomWidth = level.Size.X;
-        _motherBrainGlassWasLoaded = true;
-        _motherBrainGlassLastRoomArgument = 0;
+        MotherBrainGlassWasLoaded = true;
+        MotherBrainGlassLastRoomArgument = 0;
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ internal sealed class MotherBrainGlassPlms
     /// </summary>
     public void IncrementMotherBrainGlassRoomArgument()
     {
-        if (!_motherBrainGlassWasLoaded)
+        if (!MotherBrainGlassWasLoaded)
         {
             throw new InvalidOperationException(
                 "Mother Brain head damage requires loaded room PLM $D6DE.");
@@ -91,7 +91,7 @@ internal sealed class MotherBrainGlassPlms
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         else
-            _motherBrainGlassLastRoomArgument++;
+            MotherBrainGlassLastRoomArgument++;
     }
 
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
@@ -102,8 +102,8 @@ internal sealed class MotherBrainGlassPlms
     {
         _motherBrainGlassProjectileRequests.Clear();
         _motherBrainGlassSlotIndex = -1;
-        _motherBrainGlassWasLoaded = false;
-        _motherBrainGlassLastRoomArgument = 0;
+        MotherBrainGlassWasLoaded = false;
+        MotherBrainGlassLastRoomArgument = 0;
         _motherBrainGlassRoomWidth = 0;
     }
 
@@ -126,7 +126,7 @@ internal sealed class MotherBrainGlassPlms
     /// </summary>
     internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
-        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: ShatterSoundMaximumQueued));
+        _sounds.Queue(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: ShatterSoundMaximumQueued);
         // The native fragment spawn carries both block coordinates as bytes.
         Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
             checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
@@ -148,9 +148,9 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Finds the original live glass slot without accepting a later PLM that reused its index.</summary>
     internal bool TryGetMotherBrainGlassSlot([NotNullWhen(true)] out PlmSlot? slot)
     {
-        if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable._slots.Length)
+        if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable.Slots.Count)
         {
-            PlmSlot candidate = _slotTable._slots[_motherBrainGlassSlotIndex];
+            PlmSlot candidate = _slotTable.Slots[_motherBrainGlassSlotIndex];
             if (candidate.Active && candidate.HeaderPointer == PlmHeaderId.MotherBrainGlass)
             {
                 slot = candidate;
@@ -166,7 +166,7 @@ internal sealed class MotherBrainGlassPlms
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
             return;
-        _motherBrainGlassLastRoomArgument = slot.RoomArgument;
+        MotherBrainGlassLastRoomArgument = slot.RoomArgument;
         _motherBrainGlassSlotIndex = -1;
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.

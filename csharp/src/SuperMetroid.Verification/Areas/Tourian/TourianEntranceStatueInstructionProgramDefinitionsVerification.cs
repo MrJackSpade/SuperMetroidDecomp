@@ -37,7 +37,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
         {
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._cgram = new SnesCgram();
+            enemies.Presentation.BindCgram(new SnesCgram());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xaa });
@@ -45,7 +45,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                enemies.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
+                enemies.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);

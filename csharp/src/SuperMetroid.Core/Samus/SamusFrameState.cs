@@ -18,9 +18,29 @@ namespace SuperMetroid.Core.Samus;
 internal sealed class SamusFrameState
 {
     /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
-    internal NativeCountdown _samusLoadAppearanceFramesRemaining;
+    internal NativeCountdown LoadAppearanceFramesRemaining { get; private set; }
     /// <summary>Palette-FX object selected while Samus's load appearance is active.</summary>
-    internal PaletteFxObject? _samusLoadAppearancePaletteFxObject;
+    internal PaletteFxObject? LoadAppearancePaletteFx { get; private set; }
+
+    /// <summary>Whether Samus's saved-game load appearance is still running.</summary>
+    internal bool LoadAppearanceActive => !LoadAppearanceFramesRemaining.IsZero;
+
+    /// <summary>Starts the saved-game load appearance with its palette-FX object and length.</summary>
+    internal void BeginLoadAppearance(PaletteFxObject paletteFx, NativeCountdown frames)
+    {
+        LoadAppearancePaletteFx = paletteFx;
+        LoadAppearanceFramesRemaining = frames;
+    }
+
+    /// <summary>Counts one load-appearance update; returns whether that was its last.</summary>
+    internal bool AdvanceLoadAppearance()
+    {
+        LoadAppearanceFramesRemaining = LoadAppearanceFramesRemaining.Decrement().Remaining;
+        return LoadAppearanceFramesRemaining.IsZero;
+    }
+
+    /// <summary>Ends the load appearance, releasing its palette-FX object.</summary>
+    internal void EndLoadAppearance() => LoadAppearancePaletteFx = null;
 
     /// <summary>
     /// Normal-gameplay Samus rendering state. Null means the current scenario has not

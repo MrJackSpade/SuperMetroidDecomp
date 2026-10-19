@@ -29,7 +29,7 @@ internal static class DeadTourianBehaviorVerification
         corpse.SetSpawnParameter1(0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),
-            enemies.DeadSidehopperBehavior._extensions[0].Program, "real dead Sidehopper initializer starts the alive-idle pose");
+            enemies.DeadSidehopperBehavior.Extensions[0].Program, "real dead Sidehopper initializer starts the alive-idle pose");
 
         foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
         {

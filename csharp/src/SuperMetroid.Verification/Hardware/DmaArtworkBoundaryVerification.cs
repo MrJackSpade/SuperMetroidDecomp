@@ -40,7 +40,7 @@ internal static class DmaArtworkBoundaryVerification
         var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var background = new SnesVram();
-        enemies.Presentation._vram = background;
+        enemies.Presentation.BindVram(background);
         Action upload = new Action(enemies.KraidBehavior.UploadKraidRoomBackgroundTiles);
         upload();
         var expected = new SnesVram();
@@ -59,7 +59,7 @@ internal static class DmaArtworkBoundaryVerification
         foreach (bool queued in new[] { false, true })
         {
             var actual = new SnesVram(); expected = new SnesVram();
-            enemies.Presentation._vram = actual;
+            enemies.Presentation.BindVram(actual);
             var state = new KraidEnemyState(); var writes = new VramWriteQueue();
             enemies.KraidBehavior.Kraid = state;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];

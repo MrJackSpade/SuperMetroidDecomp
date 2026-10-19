@@ -70,8 +70,8 @@ internal static class PauseReserveManualVerification
             pause.Step(0, SnesButton.Up);
             pause.Step(0, SnesButton.Down);
             audio.Reset();
-            var positions = audio._soundWritePositions;
-            var queues = audio._soundQueues;
+            var positions = audio.SoundWritePositions;
+            var queues = audio.SoundQueues;
             int count = startingHealth == 98 ? 1 : 10;
             for (int frame = 0; frame < count; frame++)
             {

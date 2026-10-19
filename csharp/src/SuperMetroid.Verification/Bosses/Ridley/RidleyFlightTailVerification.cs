@@ -101,11 +101,11 @@ internal static class RidleyFlightTailVerification
         projectiles.SlotTable.ProjectileCounter = (ushort)1;
         projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
-        enemies.FrameContext._samusProjectilesForEnemyFrame = projectiles;
+        enemies.FrameContext.SeedSamusProjectiles(projectiles);
         aim(state, samus, 0);
         int? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        enemies.FrameContext._samusProjectilesForEnemyFrame = null;
+        enemies.FrameContext.SeedSamusProjectiles(null);
         aim(state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;

@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    (installed.TourianEntranceStatueBehavior._extensions[0].Program ?? throw new InvalidOperationException("The statue has no animation.")).Program),
+                    (installed.TourianEntranceStatueBehavior.Extensions[0].Program ?? throw new InvalidOperationException("The statue has no animation.")).Program),
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
                 installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),
@@ -218,7 +218,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
             enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemy.Presentation._cgram = cgram;
+            enemy.Presentation.BindCgram(cgram);
             return (enemy, cgram);
         }
 

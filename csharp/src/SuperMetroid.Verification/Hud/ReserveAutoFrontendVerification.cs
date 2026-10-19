@@ -104,8 +104,8 @@ internal static class ReserveAutoFrontendVerification
         lockedAnimationFrame = samus.AnimationFrame;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.GameState = SuperMetroidGameState.ReserveTanksAuto;
-        var positions = audio._soundWritePositions;
-        var queues = audio._soundQueues;
+        var positions = audio.SoundWritePositions;
+        var queues = audio.SoundQueues;
         for (int frame = 0; frame < 33; frame++)
         {
             // Drain the unrelated host transport between observations. Production

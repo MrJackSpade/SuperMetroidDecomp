@@ -32,7 +32,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return;
 
@@ -67,7 +67,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return;
 
@@ -78,8 +78,8 @@ internal sealed class ProjectileEnemyImpacts
             // variable's low byte. `$90:BE17` clears that exact slot before repurposing the
             // owner; it does not broadly delete unrelated Super Missile records.
             int linkIndex = (SnesLittleEndian.LowByte(slot.Variable)) >> 1;
-            if ((uint)linkIndex < SamusProjectileSystem.SlotCount && linkIndex != slotIndex && _slotTable._slots[linkIndex].IsActive)
-                _animation.ClearProjectile(_slotTable._slots[linkIndex]);
+            if ((uint)linkIndex < SamusProjectileSystem.SlotCount && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
+                _animation.ClearProjectile(_slotTable.Slots[linkIndex]);
         }
 
         if (family == SamusProjectileFamily.Beam)
@@ -155,7 +155,7 @@ internal sealed class ProjectileEnemyImpacts
 
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+            SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
             if (!slot.PackedType.HasPlainFamilyPayload(SamusProjectileFamily.Missile))
                 continue;
 
@@ -183,7 +183,7 @@ internal sealed class ProjectileEnemyImpacts
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
-        SamusProjectileSlot slot = _slotTable._slots[slotIndex];
+        SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (!slot.HasEnemyCollisionPayload)
             return false;
 

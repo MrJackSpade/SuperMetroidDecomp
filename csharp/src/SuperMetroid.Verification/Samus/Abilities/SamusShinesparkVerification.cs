@@ -490,7 +490,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 
         // Four short of the largest travel, so the first orbiting call wraps it to zero.
         int seededTravel = SamusShinesparkState.LargestCrashAngularTravel - 3;
-        samus.Shinespark._firstReleasedCrashEcho.Position = new Position16<RoomPixels>(0, checked((ushort)seededTravel));
+        samus.Shinespark.FirstReleasedCrashEchoSlot.Position = new Position16<RoomPixels>(0, checked((ushort)seededTravel));
         int nmiFrame = 0;
         void StepSpark() => samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { NmiFrameCounter = nmiFrame++ });
 

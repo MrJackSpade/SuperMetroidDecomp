@@ -243,7 +243,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // A0:9275 scans physical slots from zero. In particular, a primary's
         // death vacates its slot before spawning the next generation; surviving
         // linked halves retain pointers to that reused physical slot.
-        int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.EnemyDefinitionPointer == 0);
+        int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
             throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
 
@@ -256,7 +256,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"${(int)population.DefinitionPointer:X4}.");
         }
 
-        RoomEnemySlot spawned = _slotTable._slots[slotIndex];
+        RoomEnemySlot spawned = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned);
@@ -303,7 +303,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         int slotIndex = slot.SlotIndex;
         slot.Clear();
         slot.Spawn = survivingSpawn;
-        _slotTable._slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
+        _slotTable.Slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
         _roomStatus.RecordKill();
     }
 

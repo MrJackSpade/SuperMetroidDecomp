@@ -127,7 +127,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._cgram = cgram;
+            enemies.Presentation.BindCgram(cgram);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);

@@ -34,9 +34,9 @@ public sealed class OamBuffer
     /// <summary>Four sprites share one high-OAM byte of X-high and size pairs.</summary>
     private const int HighPairsPerByte = 4;
     /// <summary>Mutable low-OAM bytes staged before the next hardware upload.</summary>
-    internal readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    private readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
     /// <summary>Mutable two-bit sprite pairs staged after the low table.</summary>
-    internal readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
+    private readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
     [PpuLayoutAccess]

@@ -966,7 +966,7 @@ internal static class LookupStream3Verification
             var actual = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, (ushort)pointer, expected);
             AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
-            AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
+            AssertTrue(actual.StorageBytes.ToArray().SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }
         var unchangedScroll = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), new byte[50], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");

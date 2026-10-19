@@ -30,7 +30,10 @@ internal sealed class EnemyPopulationLoader
         _dispatch = dispatch;
     }
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
-    internal readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
+    internal readonly List<RoomEnemyGraphicsSetEntry> GraphicsSet = new();
+
+    /// <summary>Room load: forgets the previous room's graphics set before the new one loads.</summary>
+    internal void ResetForRoomLoad() => GraphicsSet.Clear();
 
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
     public int DeathQuota { get; private set; }
@@ -49,7 +52,7 @@ internal sealed class EnemyPopulationLoader
     {
         Ensure.NotNull(queue);
         _room.EnsureLoaded();
-        foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
+        foreach (RoomEnemyGraphicsSetEntry entry in GraphicsSet)
         {
             if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
                 throw new InvalidDataException("Enemy tile DMA is not word-aligned or exceeds one native transfer.");
@@ -73,7 +76,7 @@ internal sealed class EnemyPopulationLoader
         foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
             EnemyDefinitionId definitionPointer = source.DefinitionPointer;
-            if (_graphicsSet.Count == RoomEnemySystem.MaximumGraphicsSetCount)
+            if (GraphicsSet.Count == RoomEnemySystem.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
                     $"Enemy graphics set {graphicsSet.Name} exceeds the native four-entry arrays.");
@@ -105,7 +108,7 @@ internal sealed class EnemyPopulationLoader
             }
 
 
-            _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
+            GraphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,
                 source.PaletteRow,
                 nextEnemyTileIndex,
@@ -142,7 +145,7 @@ internal sealed class EnemyPopulationLoader
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);
-            RoomEnemySlot slot = _slotTable._slots[slotIndex];
+            RoomEnemySlot slot = _slotTable.Slots[slotIndex];
             _dispatch.InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 _roomStatus.BossId = definition.BossId;
@@ -173,7 +176,7 @@ internal sealed class EnemyPopulationLoader
     /// <summary>Finds the room-set tile and OBJ palette indexes, falling back to standard sprite tile zero and palette five.</summary>
     internal (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(EnemyDefinitionId definitionPointer)
     {
-        foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
+        foreach (RoomEnemyGraphicsSetEntry entry in GraphicsSet)
         {
             if (entry.DefinitionPointer == definitionPointer)
             {

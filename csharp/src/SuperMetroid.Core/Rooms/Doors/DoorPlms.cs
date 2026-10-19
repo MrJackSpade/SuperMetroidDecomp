@@ -59,9 +59,9 @@ internal sealed class DoorPlms : IPlmFamilySource
         Ensure.NotNull(system);
 
         int blockIndex = level.GetBlockIndex(door.PlmBlock);
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot resident = _slotTable._slots[slotIndex];
+            PlmSlot resident = _slotTable.Slots[slotIndex];
             if (!resident.Active || resident.BlockIndex != blockIndex)
                 continue;
 
@@ -88,9 +88,9 @@ internal sealed class DoorPlms : IPlmFamilySource
         if (DoorClosingPlmRomData.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -186,7 +186,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
     internal void QueueDudSound() =>
-        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued));
+        _sounds.Queue(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued);
 
     /// <summary>The dud sound's native queue cap.</summary>
     private const int DudSoundMaximumQueued = 6;
@@ -315,9 +315,9 @@ internal sealed class DoorPlms : IPlmFamilySource
                 "Validated blue-door BTS escaped its four-way header table."),
         };
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 

@@ -28,7 +28,7 @@ internal static class MaridiaPipeTerrainAudit
             int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
             int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
             int tilemap = background ? r.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;
-            var source = background ? level.BackgroundEntries.Span : level.ForegroundEntries.Span;
+            ReadOnlySpan<ushort> source = background ? level.BackgroundEntries : level.ForegroundEntries.Span;
             int differences = 0;
             var rows = new SortedSet<int>();
             string first = "";

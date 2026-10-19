@@ -102,7 +102,7 @@ internal static class ChargeFlarePlacementVerification
             foreach (var target in new[] { originalSystem, editedSystem })
             {
                 target.Charge.FlareCounter = (ushort)30;
-                var frames = target.Charge._flareFrames;
+                var frames = target.Charge.FlareFrames;
                 Array.Fill(frames, (ushort)2);
             }
             subject.HyperBeamEnabled = hyper;
@@ -168,7 +168,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
-        Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
+        Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.

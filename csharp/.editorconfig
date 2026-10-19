@@ -105,6 +105,8 @@ dotnet_diagnostic.SME6408.severity = error
 dotnet_diagnostic.SME6351.severity = error
 dotnet_diagnostic.SME6352.severity = error
 dotnet_diagnostic.SME6353.severity = error
+# #1328: underscore-prefixed members are private.
+dotnet_diagnostic.SME6354.severity = error
 
 # Owner decision (2026-10-17): the SME code-quality rules apply only to SuperMetroid.Core and
 # SuperMetroid.AssetExtraction. Core is what the Godot port carries over and AssetExtraction is the ROM import pipeline
@@ -172,6 +174,7 @@ dotnet_diagnostic.SME6408.severity = none
 dotnet_diagnostic.SME6351.severity = none
 dotnet_diagnostic.SME6352.severity = none
 dotnet_diagnostic.SME6353.severity = none
+dotnet_diagnostic.SME6354.severity = none
 
 [{test-support,test-fixtures,tools}/**.cs]
 dotnet_diagnostic.SME6201.severity = none
@@ -234,3 +237,4 @@ dotnet_diagnostic.SME6408.severity = none
 dotnet_diagnostic.SME6351.severity = none
 dotnet_diagnostic.SME6352.severity = none
 dotnet_diagnostic.SME6353.severity = none
+dotnet_diagnostic.SME6354.severity = none

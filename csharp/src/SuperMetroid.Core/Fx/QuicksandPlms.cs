@@ -35,9 +35,9 @@ internal sealed class QuicksandPlms
         QuicksandReactionDefinition definition =
             QuicksandDefinitions.ResolveReaction(header);
 
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 

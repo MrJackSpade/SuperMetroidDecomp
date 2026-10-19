@@ -108,7 +108,7 @@ public sealed class SamusProjectileSystem
     public const int TrailSlotCount = 18;
 
     /// <summary>The slots in native low-to-high byte-index order: $00, $02, ... $08.</summary>
-    public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable._slots;
+    public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
@@ -400,7 +400,7 @@ public sealed class SamusProjectileSystem
         // installing ordinary movement. A muzzle born against a solid door can therefore
         // already be an explosion before the descending alpha-pass loop begins below.
         bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
-            SlotTable._slots[initialCollisionSlot].PackedType.IsFamily(
+            SlotTable.Slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
         bool persistentMemoryCorrupted = false;
@@ -413,7 +413,7 @@ public sealed class SamusProjectileSystem
         // the newly published freeze flag before HandleProjectile, not only at entry.
         for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             if (slot.Cursor is null)
                 continue;
 
@@ -556,12 +556,11 @@ public sealed class SamusProjectileSystem
             // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
             for (int component = 2; component >= 0; component--)
             {
-                NativeWordCounterStep timer = Charge._flareTimers[component].Decrement();
-                Charge._flareTimers[component] = timer.Remaining;
+                NativeWordCounterStep timer = Charge.DecrementFlareTimer(component);
                 if (timer.IsZeroOrNegative)
                 {
-                    bool finalFrame = Charge._flareFrames[component] == 1;
-                    Charge._flareFrames[component] = NativeWordCounter.Decrement(Charge._flareFrames[component]).Value;
+                    bool finalFrame = Charge.FlareFrame(component) == 1;
+                    Charge.SetFlareFrame(component, NativeWordCounter.Decrement(Charge.FlareFrame(component)).Value);
                     if (finalFrame)
                     {
                         // The fast-spark component at native offset four owns the global
@@ -571,7 +570,7 @@ public sealed class SamusProjectileSystem
                     }
                     else
                     {
-                        Charge._flareTimers[component] = NativeCountdown.Start(3);
+                        Charge.StartFlareTimer(component, 3);
                     }
                 }
             }
@@ -583,10 +582,7 @@ public sealed class SamusProjectileSystem
         // the central flare; calls 30+ additionally draw both orbiting spark components.
         if (Charge.FlareCounter == 1)
         {
-            Charge._flareFrames[0] = Charge._flareFrames[1] = Charge._flareFrames[2] = 0;
-            Charge._flareTimers[0] = NativeCountdown.Start(3);
-            Charge._flareTimers[1] = NativeCountdown.Start(5);
-            Charge._flareTimers[2] = NativeCountdown.Start(4);
+            Charge.StartChargeFlare();
         }
         if (Charge.FlareCounter < 15)
             return default;
@@ -623,7 +619,7 @@ public sealed class SamusProjectileSystem
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.IsActive ||
                 slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
                 continue;
@@ -673,7 +669,7 @@ public sealed class SamusProjectileSystem
         // is also handled first, left side before right.
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
+            SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
             ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: true, artwork);
             ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: false, artwork);
         }
@@ -693,7 +689,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(sprites);
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
+            SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
             ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: true, artwork, objects);
             ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: false, artwork, objects);
         }
@@ -711,7 +707,7 @@ public sealed class SamusProjectileSystem
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             SamusProjectileFamily family = slot.PackedType.Family;
             if (!slot.IsActive || family is not (
                     SamusProjectileFamily.BeamExplosion or
@@ -734,8 +730,7 @@ public sealed class SamusProjectileSystem
         Charge.FlareCounter = 0;
         Charge.PreviousBeamChargeCounter = 0;
         Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
-        Array.Clear(Charge._flareFrames);
-        Array.Clear(Charge._flareTimers);
+        Charge.ClearFlare();
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;
         Charge.SamusChargePaletteIndex = 0;
@@ -755,9 +750,9 @@ public sealed class SamusProjectileSystem
             samus.Shinespark.ResetProjectileEchoStorage();
         }
         Combos.ComboState = 0;
-        foreach (SamusProjectileSlot slot in SlotTable._slots)
+        foreach (SamusProjectileSlot slot in SlotTable.Slots)
             slot.ClearForProjectileDataReset();
-        foreach (SamusProjectileTrailSlot trail in SlotTable._trailSlots)
+        foreach (SamusProjectileTrailSlot trail in SlotTable.TrailSlots)
             trail.ClearFields();
         SlotTable.ProjectileCounter = 0;
         Firing.ProjectileInvincibilityTimer = NativeCountdown.Start(0);

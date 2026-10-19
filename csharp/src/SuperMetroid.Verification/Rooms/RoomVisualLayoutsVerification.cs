@@ -119,7 +119,7 @@ internal static class RoomVisualLayoutsVerification
                         $"room ${header.Pointer:X4} state ${statePointer:X4} collision word {blockIndex}");
                     AssertEqual(nativeBts, block.Bts.Value,
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BTS {blockIndex}");
-                    AssertEqual(nativeBg2Word, loaded.BackgroundEntries.Span[blockIndex],
+                    AssertEqual(nativeBg2Word, loaded.BackgroundEntries.AsSpan()[blockIndex],
                         $"room ${header.Pointer:X4} state ${statePointer:X4} BG2 word {blockIndex}");
                     if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;
                     if (block.CollisionType is RoomCollisionType.SpikeAir or
@@ -153,10 +153,10 @@ internal static class RoomVisualLayoutsVerification
             visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
-            nativeRoom.LevelData.BehaviorBytes.Span.SequenceEqual(
-                editedRoom.LevelData.BehaviorBytes.Span) &&
-            nativeRoom.LevelData.BackgroundEntries.Span.SequenceEqual(
-                editedRoom.LevelData.BackgroundEntries.Span),
+            nativeRoom.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
+                editedRoom.LevelData.BehaviorBytes.AsSpan()) &&
+            nativeRoom.LevelData.BackgroundEntries.AsSpan().SequenceEqual(
+                editedRoom.LevelData.BackgroundEntries.AsSpan()),
             "visual room-layout override leaves full native BG1/BTS/BG2 allocations unchanged");
 
         BackgroundTilemapStreamer nativeStream = nativeRoom.LevelData.CreateBackgroundStreamer();
@@ -196,10 +196,10 @@ internal static class RoomVisualLayoutsVerification
                 visualLayouts: stock, levelStreams: levelStreams);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
                     installedOther.LevelData.ForegroundEntries.Span) &&
-                nativeOther.LevelData.BehaviorBytes.Span.SequenceEqual(
-                    installedOther.LevelData.BehaviorBytes.Span) &&
-                nativeOther.LevelData.BackgroundEntries.Span.SequenceEqual(
-                    installedOther.LevelData.BackgroundEntries.Span) &&
+                nativeOther.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
+                    installedOther.LevelData.BehaviorBytes.AsSpan()) &&
+                nativeOther.LevelData.BackgroundEntries.AsSpan().SequenceEqual(
+                    installedOther.LevelData.BackgroundEntries.AsSpan()) &&
                 nativeOther.LevelData.Size.Y == installedOther.LevelData.Size.Y,
                 $"installed room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
         }

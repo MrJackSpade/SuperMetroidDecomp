@@ -8,9 +8,9 @@ public sealed class PhantoonWaveHdmaState
     /// <summary>Wave mode captured for the next channel setup: the introductory or final-death wave, never zero.</summary>
     private int _pendingMode;
     /// <summary>Reusable short or long wave-cycle scroll words; death initialization fills the full range.</summary>
-    internal ushort[] _cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
+    internal ushort[] Cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
     /// <summary>Selected wave cycle length, set only when pending setup executes.</summary>
-    internal int _cycleLength;
+    internal int CycleLength;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
@@ -29,7 +29,7 @@ public sealed class PhantoonWaveHdmaState
     /// unused by the intro, without advancing setup or changing the latched display.
     /// </summary>
     /// <param name="bg2HorizontalScroll">Base BG2 horizontal-scroll word in whole pixels, copied to every modeled cycle sample.</param>
-    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => Array.Fill(_cycle, bg2HorizontalScroll);
+    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => Array.Fill(Cycle, bg2HorizontalScroll);
 
     /// <summary>$88:E487 schedules a new channel; its instruction setup runs at the next HDMA pass.</summary>
     /// <param name="mode">Nonzero native eye-parameter-one value; bit zero selects a 128-line cycle instead of 64 lines. A new request replaces any pending mode.</param>
@@ -49,7 +49,7 @@ public sealed class PhantoonWaveHdmaState
         if (_pendingSetup)
         {
             boss.Parts[boss.Eye.SlotIndex].WaveMode = _pendingMode;
-            _cycleLength = ((_pendingMode & PhantoonWaveRomData.LongWaveModeBit) != 0
+            CycleLength = ((_pendingMode & PhantoonWaveRomData.LongWaveModeBit) != 0
                 ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle) * 2;
             Phase = PhantoonWaveRomData.InitialPhase;
             Active = true;
@@ -64,7 +64,7 @@ public sealed class PhantoonWaveHdmaState
         }
         Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
         PhantoonWaveTable.Build(checked((ushort)boss.Parts[boss.Eye.SlotIndex].WaveMode), checked((ushort)Phase), checked((ushort)boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude),
-            boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
+            boss.Bg2Scroll.X, Cycle.AsSpan(0, CycleLength));
     }
 
     /// <summary>Latch the completed HDMA data with the accepted NMI's other presentation state.</summary>
@@ -74,7 +74,7 @@ public sealed class PhantoonWaveHdmaState
         int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
         var scrolls = new ushort[lines];
         for (int i = 0; i < lines; i++)
-            scrolls[i] = _cycle[(i + SnesPpuLayout.GameplayHudHeightPixels) % _cycleLength];
+            scrolls[i] = Cycle[(i + SnesPpuLayout.GameplayHudHeightPixels) % CycleLength];
         DisplayedScrolls = scrolls;
     }
 }

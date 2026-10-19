@@ -17,7 +17,7 @@ internal static class BombTorizoFixtureState
             Posture = TorizoParameterFlagCodec.PostureOf(parameter1),
             PostureParameterLowBits = TorizoParameterFlagCodec.PostureLowBitsOf(parameter1),
         };
-        behavior._torizoState = state;
+        behavior.TorizoState = state;
         return state;
     }
 }

@@ -6,7 +6,16 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class PlmSoundQueue
 {
     /// <summary>Retains PLM sound requests from the current handler pass until frame publication.</summary>
-    internal readonly List<PlmSoundRequest> _soundRequests = new();
+    private readonly List<PlmSoundRequest> _soundRequests = new();
+
+    /// <summary>Queues <paramref name="soundEffect"/> under the native queue cap.</summary>
+    internal void Queue(SoundEffectId soundEffect, int MaximumQueued) => _soundRequests.Add(CreateSoundRequest(soundEffect, MaximumQueued));
+
+    /// <summary>Queues requests built earlier, in order.</summary>
+    internal void QueueAll(IEnumerable<PlmSoundRequest> requests) => _soundRequests.AddRange(requests);
+
+    /// <summary>Frame start and room reset: drops the previous pass's requests.</summary>
+    internal void Clear() => _soundRequests.Clear();
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
     public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;

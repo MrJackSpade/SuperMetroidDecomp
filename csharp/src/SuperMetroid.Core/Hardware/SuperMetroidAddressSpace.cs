@@ -15,7 +15,7 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
     public const int WorkRamByteCount = 2 * SnesBusLayout.BankBytes;
 
     /// <summary>Backing bytes for both full WRAM banks and their low-window system-bank mirrors.</summary>
-    internal readonly byte[] _workRam = new byte[WorkRamByteCount];
+    internal readonly byte[] WorkRam = new byte[WorkRamByteCount];
 
     /// <summary>
     /// Creates the mutable WRAM portion of the runtime address space without a cartridge
@@ -31,9 +31,9 @@ public class SuperMetroidAddressSpace : ISnesAddressSpace, ISnesMutableMemory
         int bank = SnesAddressMath.BankNumber(cpuAddress);
         int offset = SnesAddressMath.OffsetInBank(cpuAddress);
         if (SnesBusLayout.IsWorkRamBank(bank))
-            return _workRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset];
+            return WorkRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset];
         if (SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
-            return _workRam[offset];
+            return WorkRam[offset];
         throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
             "WRAM reads require bank $7E/$7F or a low-window system-bank mirror.");
     }

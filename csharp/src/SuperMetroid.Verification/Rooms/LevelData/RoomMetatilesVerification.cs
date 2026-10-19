@@ -86,7 +86,7 @@ internal static class RoomMetatilesVerification
         var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), cre);
         var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.Transfer.Span);
         AssertTrue(originalLevel.ForegroundEntries.Span.SequenceEqual(modifiedLevel.ForegroundEntries.Span) &&
-            originalLevel.BehaviorBytes.Span.SequenceEqual(modifiedLevel.BehaviorBytes.Span),
+            originalLevel.BehaviorBytes.AsSpan().SequenceEqual(modifiedLevel.BehaviorBytes.AsSpan()),
             "visual metatile edit leaves room collision nibble and BTS unchanged");
         ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(
             levelWord, originalLevel.BlockDefinitions.Span);
@@ -103,8 +103,8 @@ internal static class RoomMetatilesVerification
                 editedLanding.LevelData.BlockDefinitions.Span) &&
             nativeLanding.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedLanding.LevelData.ForegroundEntries.Span) &&
-            nativeLanding.LevelData.BehaviorBytes.Span.SequenceEqual(
-                editedLanding.LevelData.BehaviorBytes.Span),
+            nativeLanding.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
+                editedLanding.LevelData.BehaviorBytes.AsSpan()),
             "real room loader applies the visual CRE edit without changing level placement or BTS");
 
         topLeft["palette"] = RoomMetatileFormat.PaletteCount;

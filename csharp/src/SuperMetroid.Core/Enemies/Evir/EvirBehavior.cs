@@ -119,7 +119,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (source.SpeedRecord != speedRecord)
                 continue;
-            RoomEnemySlot enemy = _slotTable._slots[source.SlotIndex];
+            RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
             ushort value = source.Field switch
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
@@ -420,7 +420,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private bool EvirBodyFacesRight(RoomEnemySlot projectile)
     {
-        EvirEnemyState body = _slotTable._slots[projectile.SlotIndex - 2].SpeciesState<EvirEnemyState>() ?? throw new InvalidDataException(
+        EvirEnemyState body = _slotTable.Slots[projectile.SlotIndex - 2].SpeciesState<EvirEnemyState>() ?? throw new InvalidDataException(
             $"Evir projectile slot {projectile.SlotIndex} has no body two slots before it.");
         return body.InstalledProgram == EvirProgram.BodyFacingRight;
     }
@@ -467,15 +467,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // clear the body after the active list was built; its deleted arms and spit
         // still execute once and read the cleared common words. Validate authored
         // identities at initialization, then retain the established physical alias.
-        if ((uint)targetIndex >= _slotTable._slots.Length ||
-            (_slotTable._slots[targetIndex].EnemyDefinitionPointer != expectedDefinition &&
-                (initializing || _slotTable._slots[targetIndex].SpeciesState<EvirEnemyState>() is null)))
+        if ((uint)targetIndex >= _slotTable.Slots.Count ||
+            (_slotTable.Slots[targetIndex].EnemyDefinitionPointer != expectedDefinition &&
+                (initializing || _slotTable.Slots[targetIndex].SpeciesState<EvirEnemyState>() is null)))
         {
             throw new InvalidDataException(
                 $"Evir {relationship} expected definition ${(int)expectedDefinition:X4} " +
                 $"at relative slot {relativeSlot:+#;-#;0} from {owner.SlotIndex}.");
         }
-        return _slotTable._slots[targetIndex];
+        return _slotTable.Slots[targetIndex];
     }
 
     /// <summary>Requires an initialized extension at the given physical slot.</summary>
@@ -495,13 +495,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int firstRelativeIndex = actor.SlotIndex + 1;
         int secondRelativeIndex = actor.SlotIndex + 2;
-        if ((uint)secondRelativeIndex >= _slotTable._slots.Length)
+        if ((uint)secondRelativeIndex >= _slotTable.Slots.Count)
         {
             throw new InvalidDataException(
                 $"Evir callback at slot {actor.SlotIndex} exceeds the native +$80 slot alias.");
         }
-        RoomEnemySlot firstRelative = _slotTable._slots[firstRelativeIndex];
-        RoomEnemySlot secondRelative = _slotTable._slots[secondRelativeIndex];
+        RoomEnemySlot firstRelative = _slotTable.Slots[firstRelativeIndex];
+        RoomEnemySlot secondRelative = _slotTable.Slots[secondRelativeIndex];
 
         if (actor.Health == 0)
         {
@@ -616,7 +616,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastEvirSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<EvirEnemyState>(null);
     }
 

@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState()

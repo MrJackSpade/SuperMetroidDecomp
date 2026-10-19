@@ -59,7 +59,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BotwoonSpecialDropCount = 16;
 
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
-    internal BotwoonEnemyState? _botwoonState;
+    internal BotwoonEnemyState? BotwoonState;
     /// <summary>Last sound selected by Botwoon in the current enemy frame.</summary>
     public SoundEffectId? LastBotwoonSoundEffect { get; internal set; }
 
@@ -83,7 +83,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards prior-room Botwoon state and all published sound, drop, wall, and music requests.</summary>
     internal void ResetBotwoonRoomState()
     {
-        _botwoonState = null;
+        BotwoonState = null;
         LastBotwoonSoundEffect = null;
         LastBotwoonMusicRequest = null;
     }
@@ -92,7 +92,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeBotwoon(RoomEnemySlot head)
     {
         var state = new BotwoonEnemyState();
-        _botwoonState = state;
+        BotwoonState = state;
         head.SetSpeciesState(state, state.ClearWithRecord);
         // `$B3:9583` installs InstList_Botwoon_Hide: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
@@ -858,8 +858,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the initialized Botwoon head in physical slot zero.</summary>
     internal BotwoonEnemyState RequireBotwoonState(RoomEnemySlot head) =>
-        _botwoonState is not null && head.SlotIndex == 0
-            ? _botwoonState
+        BotwoonState is not null && head.SlotIndex == 0
+            ? BotwoonState
             : throw new InvalidOperationException(
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
 
@@ -977,7 +977,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        BotwoonEnemyState state = _botwoonState ?? throw new InvalidOperationException(
+        BotwoonEnemyState state = BotwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
         BotwoonBodyFunction function =
             ClosedNativeWords.Decode<BotwoonBodyFunction>(segment.Velocity.X.RawValue, "Botwoon body function");
@@ -1040,7 +1040,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
             .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
-        RoomEnemySlot head = _slotTable._slots[0];
+        RoomEnemySlot head = _slotTable.Slots[0];
         if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
             segment.GraphicsIndex = new SnesObjAttributeWord(checked((ushort)segment.GraphicsIndex))
                 .WithPaletteIndex(0);

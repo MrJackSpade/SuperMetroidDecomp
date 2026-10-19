@@ -13,7 +13,7 @@ public sealed class ObjCharacterUploads
     public const int TableByteCount = 512 * 32;
 
     /// <summary>The uploads in order; a later upload shows over an earlier one where they overlap.</summary>
-    internal readonly List<ObjCharacterUpload> _uploads = [];
+    private readonly List<ObjCharacterUpload> _uploads = [];
 
     /// <summary>The uploads in order.</summary>
     public IReadOnlyList<ObjCharacterUpload> Uploads => _uploads;

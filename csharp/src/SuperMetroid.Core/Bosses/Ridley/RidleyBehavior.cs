@@ -1127,7 +1127,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
         InitializeNorfairRidleyExplosion(
             slot,
-            _slotTable._slots[0],
+            _slotTable.Slots[0],
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
 
@@ -1429,9 +1429,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         void SpawnPart(ushort parameter)
         {
-            int slotIndex = Array.FindIndex(
-                _slotTable._slots,
-                candidate => candidate.EnemyDefinitionPointer == 0);
+            int slotIndex = _slotTable.FindFreeSlotIndex();
             if (slotIndex < 0)
             {
                 throw new InvalidOperationException(
@@ -1452,7 +1450,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
                 Parameter1: parameter,
                 Parameter2: 0);
-            RoomEnemySlot fragment = _slotTable._slots[slotIndex];
+            RoomEnemySlot fragment = _slotTable.Slots[slotIndex];
             _dispatch.InitializeSlotFromDefinition(fragment, population, definition);
             InitializeNorfairRidleyExplosion(fragment, body, state);
             // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.

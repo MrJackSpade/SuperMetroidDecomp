@@ -32,7 +32,7 @@ internal static class KraidGrowthCommandCursorVerification
         };
         var state = new KraidEnemyState();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = new SnesVram();
+        enemies.Presentation.BindVram(new SnesVram());
         enemies.KraidBehavior.Kraid = state;
         Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
         Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.RunKraidFootMain;

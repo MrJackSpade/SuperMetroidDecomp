@@ -151,7 +151,7 @@ internal sealed class RidleyTail
         ushort targetX = samus.Position.X.Whole;
         ushort targetY = unchecked((ushort)(samus.Position.Y.Whole + 24));
         // $D242 scans only the five ordinary projectile slots, first match wins.
-        if (_frameContext._samusProjectilesForEnemyFrame is { } projectiles && projectiles.SlotTable.ProjectileCounter > 0)
+        if (_frameContext.SamusProjectiles is { } projectiles && projectiles.SlotTable.ProjectileCounter > 0)
         {
             RidleyTailSegment tip = state.TailSegments[6];
             foreach (var projectile in projectiles.Slots.Take(5))
@@ -376,7 +376,7 @@ internal sealed class RidleyTail
     /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>
     internal bool ResolveRidleyTailSamusContact(SamusState samus)
     {
-        RoomEnemySlot body = _slotTable._slots[0];
+        RoomEnemySlot body = _slotTable.Slots[0];
         RidleyEnemyState? state = _ridleyEncounter.Ridley;
         // $A6:CAF5 checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.

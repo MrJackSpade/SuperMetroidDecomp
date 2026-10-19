@@ -45,8 +45,8 @@ internal static class RoomDefinitionIntegrationVerification
             "guarded post-Ceres room entry retains compiled incoming door");
         AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,
             "guarded post-Ceres room entry retains compiled header, selection, and state");
-        AssertTrue(expected.Room.LoadedCamera.Scrolls.Storage.SequenceEqual(
-                actual.Room.LoadedCamera.Scrolls.Storage),
+        AssertTrue(expected.Room.LoadedCamera.Scrolls.StorageBytes.ToArray().SequenceEqual(
+                actual.Room.LoadedCamera.Scrolls.StorageBytes.ToArray()),
             "guarded post-Ceres room entry retains compiled scroll constraints");
         AssertEqual((expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
             (actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),

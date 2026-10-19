@@ -43,13 +43,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
-    internal NativeCountdown _magdollitePaletteAnimationTimer;
+    internal NativeCountdown MagdollitePaletteAnimationTimer;
     /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteRomData.FrameCount"/> minus one; each step advances it around the cycle.</summary>
-    internal int _magdollitePaletteFrame;
+    internal int MagdollitePaletteFrame;
     /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
-    internal int _magdollitePaletteBaseColor;
+    internal int MagdollitePaletteBaseColor;
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
-    internal bool _magdollitePaletteAnimationInstalled;
+    internal bool MagdollitePaletteAnimationInstalled;
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
     public SoundEffectId? LastMagdolliteSoundEffect { get; private set; }
@@ -58,10 +58,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetMagdolliteRoomState()
     {
         LastMagdolliteSoundEffect = null;
-        _magdollitePaletteAnimationInstalled = false;
-        _magdollitePaletteAnimationTimer = NativeCountdown.Start(0);
-        _magdollitePaletteFrame = 0;
-        _magdollitePaletteBaseColor = 0;
+        MagdollitePaletteAnimationInstalled = false;
+        MagdollitePaletteAnimationTimer = NativeCountdown.Start(0);
+        MagdollitePaletteFrame = 0;
+        MagdollitePaletteBaseColor = 0;
     }
 
     /// <summary>Clears events whose public meaning is limited to one enemy frame.</summary>
@@ -108,13 +108,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every one of the three initializers installs the same global graphics-drawn hook.
         // Retail's last Magdollite record therefore resets this clock to eight and selects
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
-        _magdollitePaletteAnimationInstalled = true;
+        MagdollitePaletteAnimationInstalled = true;
         int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
             checked((ushort)slot.PaletteIndex)).PaletteIndex;
-        _magdollitePaletteBaseColor =
+        MagdollitePaletteBaseColor =
             (paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase) / sizeof(ushort);
-        _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
-        _magdollitePaletteFrame = 0;
+        MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
+        MagdollitePaletteFrame = 0;
     }
 
     /// <summary>Starts the head in its Samus-facing idle list, retaining the initializer's reversed marker convention until the first tick.</summary>
@@ -522,9 +522,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (headIndex < 0 || headIndex + 2 >= RoomEnemySystem.MaximumEnemyCount)
             throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
 
-        RoomEnemySlot head = _slotTable._slots[headIndex];
-        RoomEnemySlot body = _slotTable._slots[headIndex + 1];
-        RoomEnemySlot overlay = _slotTable._slots[headIndex + 2];
+        RoomEnemySlot head = _slotTable.Slots[headIndex];
+        RoomEnemySlot body = _slotTable.Slots[headIndex + 1];
+        RoomEnemySlot overlay = _slotTable.Slots[headIndex + 2];
         if (head.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || head.Spawn.Population.Parameter1 != 0 ||
             body.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || body.Spawn.Population.Parameter1 != 1 ||
             overlay.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || overlay.Spawn.Population.Parameter1 != 2)
@@ -538,17 +538,17 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the global graphics-drawn palette hook at $A8:B0B2.</summary>
     internal void StepMagdollitePaletteAnimation()
     {
-        if (!_magdollitePaletteAnimationInstalled)
+        if (!MagdollitePaletteAnimationInstalled)
             return;
 
-        _magdollitePaletteAnimationTimer = _magdollitePaletteAnimationTimer.Decrement().Remaining;
-        if (!_magdollitePaletteAnimationTimer.IsZero)
+        MagdollitePaletteAnimationTimer = MagdollitePaletteAnimationTimer.Decrement().Remaining;
+        if (!MagdollitePaletteAnimationTimer.IsZero)
             return;
 
-        _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
-        _magdollitePaletteFrame = (_magdollitePaletteFrame + 1) % MagdollitePaletteRomData.FrameCount;
-        int paletteFrame = _magdollitePaletteFrame;
-        int destination = _magdollitePaletteBaseColor +
+        MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
+        MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteRomData.FrameCount;
+        int paletteFrame = MagdollitePaletteFrame;
+        int destination = MagdollitePaletteBaseColor +
             MagdollitePaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))
@@ -659,7 +659,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.SlotIndex + 1 >= RoomEnemySystem.MaximumEnemyCount)
             throw new InvalidDataException($"Magdollite slot {slot.SlotIndex} has no following component.");
-        return _slotTable._slots[slot.SlotIndex + 1];
+        return _slotTable.Slots[slot.SlotIndex + 1];
     }
 
     /// <summary>Ports the shared post-combat tail at $A8:B410.</summary>
@@ -669,10 +669,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // touch/shot reaches only the collision-enabled head, but power bombs may expose
         // this retail cross-record quirk, so do not silently normalize current to a group.
         RoomEnemySlot? following = current.SlotIndex + 1 < RoomEnemySystem.MaximumEnemyCount
-            ? _slotTable._slots[current.SlotIndex + 1]
+            ? _slotTable.Slots[current.SlotIndex + 1]
             : null;
         RoomEnemySlot? secondFollowing = current.SlotIndex + 2 < RoomEnemySystem.MaximumEnemyCount
-            ? _slotTable._slots[current.SlotIndex + 2]
+            ? _slotTable.Slots[current.SlotIndex + 2]
             : null;
 
         if (current.Health == 0)

@@ -657,7 +657,7 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
@@ -1304,8 +1304,8 @@ internal static class LookupStream4Verification
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
-        enemies.Presentation._vram = vram;
-        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation.BindVram(vram);
+        enemies.Presentation.BindCgram(new SnesCgram());
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
@@ -1993,7 +1993,7 @@ internal static class LookupStream4Verification
             AssertEqual(expected, GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Native message button placement case");
             var state = new GameplayMessageBoxState();
             var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
-            state._tilemap = cells;
+            state.TilemapWords = cells;
             patch(state, id, (SnesButton)ushort.MaxValue);
             for (int index = 0; index < cells.Length; index++)
                 AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : (ushort)(0x4000 + index), cells[index],
@@ -2453,7 +2453,7 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
-                enemies.Presentation._cgram = actual; enemies.Presentation._vram = vram;
+                enemies.Presentation.BindCgram(actual); enemies.Presentation.BindVram(vram);
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
@@ -2522,7 +2522,7 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
-                enemies.Presentation._cgram = cgram; enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+                enemies.Presentation.BindCgram(cgram); enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
@@ -2586,7 +2586,7 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
@@ -2641,7 +2641,7 @@ internal static class LookupStream4Verification
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
                 Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
@@ -2781,7 +2781,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
@@ -2873,7 +2873,7 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
@@ -2956,7 +2956,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 var guard = NewBotwoonColorReadGuard(rom);
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                enemies.Presentation._cgram = cgram;
+                enemies.Presentation.BindCgram(cgram);
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState() { PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor };
@@ -3329,7 +3329,7 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
-            enemies.Presentation._cgram = cgram;
+            enemies.Presentation.BindCgram(cgram);
             Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
@@ -3419,7 +3419,7 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = selected } };
-            enemies.Presentation._cgram = cgram;
+            enemies.Presentation.BindCgram(cgram);
             Action<ushort> apply = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
             for (int row = 0; row < 9; row++)
             {
@@ -3522,7 +3522,7 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
             var cgram = new SnesCgram();
-            enemies.Presentation._cgram = cgram;
+            enemies.Presentation.BindCgram(cgram);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.UpdateNorfairRidleyHealthPalette;
             Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.UpdateCeresRidleyHealthPalette;
             void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234)); }

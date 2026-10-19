@@ -38,7 +38,7 @@ internal static class QueuedVramAssetsVerification
         }
 
         var mixedStaging = new VramStagingBuffer(3);
-        ((byte[])[1, 2, 3]).CopyTo(mixedStaging._bytes, 0);
+        ((byte[])[1, 2, 3]).CopyTo(mixedStaging.WritableBytes());
         var mixed = new VramWriteQueue();
         mixed.EnqueueStaging(2, 0x7e0000, mixedStaging, 0, VramDmaDestination.FromNative(0));
         mixed.EnqueueAsset(VramAssetId.StandardHudTiles, 3, VramDmaDestination.FromNative(0));

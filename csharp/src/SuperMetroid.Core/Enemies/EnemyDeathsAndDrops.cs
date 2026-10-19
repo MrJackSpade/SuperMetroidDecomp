@@ -48,7 +48,10 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     private bool _criticalEnergyDropBias;
     /// <summary>Live Samus owner needed when a dying grappled enemy drops the beam.</summary>
-    internal SamusState? _samusForEnemyDrops;
+    internal SamusState? SamusForEnemyDrops { get; private set; }
+
+    /// <summary>Binds the live Samus owner for the room load or enemy frame that follows.</summary>
+    internal void BindSamus(SamusState? samus) => SamusForEnemyDrops = samus;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
     public SoundEffectId? LastEnemyPickupSoundEffect { get; internal set; }
@@ -71,7 +74,21 @@ internal sealed class EnemyDeathsAndDrops
     /// kill inside its loop resizes the explosion for every lower slot that frame; the
     /// walker reads it back as an ordinary radius, so no wider value can reach it.
     /// </summary>
-    internal int? _enemyDeathRespawnScratch;
+    private int? _enemyDeathRespawnScratch;
+
+    /// <summary>Records a dying actor's respawn word in scratch <c>$12</c>, as <c>EnemyDeath</c> and <c>RinkaDeath</c> do.</summary>
+    internal void RecordRespawnScratch(RoomEnemySlot enemy) => _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
+
+    /// <summary>Clears scratch <c>$12</c>'s death record.</summary>
+    internal void ClearRespawnScratch() => _enemyDeathRespawnScratch = null;
+
+    /// <summary>Takes the death record a kill left in scratch <c>$12</c>, clearing it.</summary>
+    internal int? TakeRespawnScratch()
+    {
+        int? scratch = _enemyDeathRespawnScratch;
+        _enemyDeathRespawnScratch = null;
+        return scratch;
+    }
 
     /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
@@ -82,14 +99,14 @@ internal sealed class EnemyDeathsAndDrops
         RoomEnemySlot enemy,
         int deathAnimation)
     {
-        _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
+        RecordRespawnScratch(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiStates == EnemyAiStates.Grappled)
         {
-            if (_samusForEnemyDrops is null)
+            if (SamusForEnemyDrops is null)
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
-            _samusForEnemyDrops.Grapple.Phase = GrapplePhase.Dropped;
+            SamusForEnemyDrops.Grapple.Phase = GrapplePhase.Dropped;
         }
         if (deathAnimation >= 5)
             deathAnimation = 0;
@@ -311,7 +328,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal EnemyPickupKind SelectRandomEnemyDrop(RoomEnemyProjectileSlot projectile)
     {
-        SamusState samus = _samusForEnemyDrops ?? throw new InvalidOperationException(
+        SamusState samus = SamusForEnemyDrops ?? throw new InvalidOperationException(
             "Enemy drop selection requires the active Samus state.");
         if (ResolveEnemyDropChances(projectile) is not { } table)
             return EnemyPickupKind.NoDrop;

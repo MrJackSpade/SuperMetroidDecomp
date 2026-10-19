@@ -15,7 +15,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     public const int RetailRomByteCount = CartridgeFormatDefinitions.RetailRomByteCount;
 
     /// <summary>Immutable image shared through the cartridge cache and reattached after debugger restore.</summary>
-    [NonSerialized] internal byte[] _rom;
+    [NonSerialized] internal byte[] RomImage;
     /// <summary>Digest identifying the cached cartridge image across debugger graph restores.</summary>
     private readonly byte[] _romSha256;
 
@@ -30,11 +30,11 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
                 "ROM must contain one to 128 complete 32 KiB LoROM banks.",
                 nameof(unheaderedRom));
 
-        _rom = CartridgeImageCache.Share(unheaderedRom, out _romSha256);
+        RomImage = CartridgeImageCache.Share(unheaderedRom, out _romSha256);
     }
 
     /// <summary>Reattaches the cached immutable image after a debugger graph restore.</summary>
-    void IRestoredSharedContent.ReattachSharedContent() => _rom = CartridgeImageCache.Resolve(_romSha256);
+    void IRestoredSharedContent.ReattachSharedContent() => RomImage = CartridgeImageCache.Resolve(_romSha256);
 
     /// <summary>Reads the immutable image through an upper-window LoROM CPU address and its mirrored banks.</summary>
     /// <param name="cpuAddress">A 24-bit CPU address with a bank offset of <c>$8000-$FFFF</c>, outside WRAM banks <c>$7E-$7F</c>.</param>
@@ -50,10 +50,10 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
                 "Cartridge reads require an upper-window LoROM address outside WRAM banks.");
 
         int offset = ToRomOffset(cpuAddress);
-        if ((uint)offset >= _rom.Length)
+        if ((uint)offset >= RomImage.Length)
             throw new InvalidOperationException(
                 $"Cartridge address ${bank:X2}:{SnesAddressMath.OffsetInBank(cpuAddress):X4} is not populated.");
-        return _rom[offset];
+        return RomImage[offset];
     }
 
     /// <summary>Maps an upper-window LoROM address to a zero-based image offset, folding bank mirrors into the 4 MiB image window.</summary>

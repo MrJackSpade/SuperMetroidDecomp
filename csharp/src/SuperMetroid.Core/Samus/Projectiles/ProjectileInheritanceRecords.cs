@@ -21,7 +21,7 @@ public sealed class ProjectileInheritanceRecords
     private const int RecordByteCount = 4;
 
     /// <summary>The block's bytes in cartridge address order.</summary>
-    internal readonly byte[] _bytes = new byte[ByteCount];
+    internal readonly byte[] Bytes = new byte[ByteCount];
 
     /// <summary>
     /// The camera's vertical subspeed, the fraction of its vertical speed in 1/65536 pixels, 0 through 65535. It is
@@ -42,7 +42,7 @@ public sealed class ProjectileInheritanceRecords
     }
 
     /// <summary>The native alpha tail zeroes the four distance records, leaving the camera subspeed.</summary>
-    internal void ClearMovement() => Array.Clear(_bytes, FirstRecordOffset, ByteCount - FirstRecordOffset);
+    internal void ClearMovement() => Array.Clear(Bytes, FirstRecordOffset, ByteCount - FirstRecordOffset);
 
     /// <summary>Combines a shot's base speed with the direction-specific overlapping words using native signed arithmetic.</summary>
     internal EightEightVector<RoomPixels> ReadVelocity(ushort directionWord, short baseSpeed)
@@ -80,13 +80,13 @@ public sealed class ProjectileInheritanceRecords
     private ushort LaunchVelocityWord(SamusCollisionDirection direction) => ReadWord(RecordOffset(direction) - 1);
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="offset"/>.</summary>
-    private ushort ReadWord(int offset) => SnesLittleEndian.Word(_bytes[offset], _bytes[offset + 1]);
+    private ushort ReadWord(int offset) => SnesLittleEndian.Word(Bytes[offset], Bytes[offset + 1]);
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
     private void WriteWord(int offset, ushort value)
     {
-        _bytes[offset] = SnesLittleEndian.LowByte(value);
-        _bytes[offset + 1] = SnesLittleEndian.HighByte(value);
+        Bytes[offset] = SnesLittleEndian.LowByte(value);
+        Bytes[offset + 1] = SnesLittleEndian.HighByte(value);
     }
 
     /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>

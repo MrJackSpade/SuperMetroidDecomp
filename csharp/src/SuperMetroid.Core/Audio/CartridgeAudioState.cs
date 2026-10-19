@@ -15,22 +15,22 @@ public sealed class CartridgeAudioState
     private readonly MusicCommand[] _musicEntries =
         new MusicCommand[AudioRomData.Queues.MusicCapacity];
     /// <summary>Per-entry frame delays paired with queued music commands.</summary>
-    internal readonly MusicCommandDelay[] _musicDelays =
+    internal readonly MusicCommandDelay[] MusicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
     /// <summary>Three independent unread SFX rings, one per SPC sound library.</summary>
-    internal readonly byte[,] _soundQueues = new byte[
+    internal readonly byte[,] SoundQueues = new byte[
         AudioRomData.Queues.SoundLibraryCount,
         AudioRomData.Queues.SoundCapacity];
     /// <summary>Next unread position in each library's SFX ring.</summary>
-    internal readonly byte[] _soundReadPositions =
+    internal readonly byte[] SoundReadPositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Next insertion position in each library's SFX ring.</summary>
-    internal readonly byte[] _soundWritePositions =
+    internal readonly byte[] SoundWritePositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Per-library port handshake phase, from request through zero acknowledgement.</summary>
-    internal readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
+    internal readonly byte[] SoundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Request byte currently awaiting each SPC library's acknowledgement.</summary>
-    internal readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+    private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
 
     /// <summary>The request bytes the three sound dispatchers last wrote to their APU ports; port 0 is zero.</summary>
     internal CartridgeAudioAcknowledgements SoundPortWrites => new(0, _currentSounds[0], _currentSounds[1], _currentSounds[2]);
@@ -41,14 +41,14 @@ public sealed class CartridgeAudioState
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
     /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
-    internal int _musicReadPosition;
+    internal int MusicReadPosition;
     /// <summary>Insertion slot of the circular delayed-music command queue, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
-    internal int _musicWritePosition;
+    internal int MusicWritePosition;
     /// <summary>
     /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
     /// next call, which is what fetches the next queued entry.
     /// </summary>
-    internal NativeCountdown _musicTimer;
+    internal NativeCountdown MusicTimer;
     /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
     private MusicCommand _musicEntry;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioRomData.Queues.MusicAndSfxDowntimeFrames"/>, for which a music change forces all SFX ports to zero.</summary>
@@ -73,7 +73,7 @@ public sealed class CartridgeAudioState
     public int MusicTrackIndex { get; private set; }
 
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
-    public bool HasQueuedMusic => _musicDelays.Any(delay => delay.Frames != 0);
+    public bool HasQueuedMusic => MusicDelays.Any(delay => delay.Frames != 0);
 
     /// <summary>
     /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
@@ -86,7 +86,7 @@ public sealed class CartridgeAudioState
         {
             for (int library = 0; library < AudioRomData.Queues.SoundLibraryCount; library++)
             {
-                if (((_soundWritePositions[library] - _soundReadPositions[library]) &
+                if (((SoundWritePositions[library] - SoundReadPositions[library]) &
                      AudioRomData.Queues.SoundIndexMask) != 0)
                 {
                     return true;
@@ -101,16 +101,16 @@ public sealed class CartridgeAudioState
     {
         DoorTransitionSoundsDisabled = false;
         Array.Clear(_musicEntries);
-        Array.Clear(_musicDelays);
-        Array.Clear(_soundQueues);
-        Array.Clear(_soundReadPositions);
-        Array.Clear(_soundWritePositions);
-        Array.Clear(_soundStates);
+        Array.Clear(MusicDelays);
+        Array.Clear(SoundQueues);
+        Array.Clear(SoundReadPositions);
+        Array.Clear(SoundWritePositions);
+        Array.Clear(SoundStates);
         Array.Clear(_currentSounds);
         Array.Clear(_soundClearDelays);
-        _musicReadPosition = 0;
-        _musicWritePosition = 0;
-        _musicTimer = default;
+        MusicReadPosition = 0;
+        MusicWritePosition = 0;
+        MusicTimer = default;
         _musicEntry = default;
         _soundHandlerDowntime = 0;
         MusicDataIndex = 0;
@@ -200,9 +200,9 @@ public sealed class CartridgeAudioState
         int roomTrack = MusicTrackIndex;
 
         Array.Clear(_musicEntries);
-        Array.Clear(_musicDelays);
-        _musicReadPosition = _musicWritePosition;
-        _musicTimer = default;
+        Array.Clear(MusicDelays);
+        MusicReadPosition = MusicWritePosition;
+        MusicTimer = default;
         _musicEntry = default;
 
         QueueMusicDelayed8(MusicCommand.SelectTrack(
@@ -252,7 +252,7 @@ public sealed class CartridgeAudioState
         }
 
         int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) &
+        int occupancy = (SoundWritePositions[queue] - SoundReadPositions[queue]) &
             AudioRomData.Queues.SoundIndexMask;
         if (occupancy >= maximumQueued)
             return SnesLittleEndian.Word(unchecked((byte)occupancy), checked((byte)soundEffect.Value));
@@ -261,20 +261,20 @@ public sealed class CartridgeAudioState
         if (soundSuppressed || DoorTransitionSoundsDisabled)
             return accumulator;
 
-        byte write = _soundWritePositions[queue];
+        byte write = SoundWritePositions[queue];
         byte next = unchecked((byte)(
             (write + 1) & AudioRomData.Queues.SoundIndexMask));
-        if (next == _soundReadPositions[queue])
+        if (next == SoundReadPositions[queue])
         {
             // A full native ring retains the lower-numbered (higher-priority) request.
-            if (soundEffect.Value < _soundQueues[queue, write])
-                _soundQueues[queue, write] = checked((byte)soundEffect.Value);
+            if (soundEffect.Value < SoundQueues[queue, write])
+                SoundQueues[queue, write] = checked((byte)soundEffect.Value);
             return accumulator;
         }
 
-        _soundQueues[queue, write] = checked((byte)soundEffect.Value);
-        _soundWritePositions[queue] = next;
-        _soundQueues[queue, next] = 0;
+        SoundQueues[queue, write] = checked((byte)soundEffect.Value);
+        SoundWritePositions[queue] = next;
+        SoundQueues[queue, next] = 0;
         return accumulator;
     }
 
@@ -316,20 +316,20 @@ public sealed class CartridgeAudioState
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
         }
 
-        int next = (_musicWritePosition + 1) & AudioRomData.Queues.MusicIndexMask;
-        if (requireFreeSlot && next == _musicReadPosition)
+        int next = (MusicWritePosition + 1) & AudioRomData.Queues.MusicIndexMask;
+        if (requireFreeSlot && next == MusicReadPosition)
             return;
 
-        _musicEntries[_musicWritePosition] = command;
-        _musicDelays[_musicWritePosition] = delay;
-        _musicWritePosition = next;
+        _musicEntries[MusicWritePosition] = command;
+        MusicDelays[MusicWritePosition] = delay;
+        MusicWritePosition = next;
     }
 
     /// <summary>Advances the bank-80 timer and emits either a data upload or music port write at expiry.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
-        NativeWordCounterStep step = _musicTimer.Decrement();
-        _musicTimer = step.Remaining;
+        NativeWordCounterStep step = MusicTimer.Decrement();
+        MusicTimer = step.Remaining;
         bool timerExpired = step.IsZero;
         if (step.IsNonNegative)
         {
@@ -363,22 +363,22 @@ public sealed class CartridgeAudioState
             _soundHandlerDowntime = AudioRomData.Queues.MusicAndSfxDowntimeFrames;
         }
 
-        if (_musicReadPosition == _musicWritePosition)
+        if (MusicReadPosition == MusicWritePosition)
         {
-            _musicTimer = default;
+            MusicTimer = default;
             return;
         }
 
-        _musicEntry = _musicEntries[_musicReadPosition];
-        _musicTimer = NativeCountdown.Start(_musicDelays[_musicReadPosition].Frames);
+        _musicEntry = _musicEntries[MusicReadPosition];
+        MusicTimer = NativeCountdown.Start(MusicDelays[MusicReadPosition].Frames);
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
     private void ClearAndAdvanceMusicEntry()
     {
-        _musicEntries[_musicReadPosition] = default;
-        _musicDelays[_musicReadPosition] = default;
-        _musicReadPosition = (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask;
+        _musicEntries[MusicReadPosition] = default;
+        MusicDelays[MusicReadPosition] = default;
+        MusicReadPosition = (MusicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask;
     }
 
     /// <summary>Either clears all three SFX ports during music downtime or advances their independent handshakes.</summary>
@@ -414,7 +414,7 @@ public sealed class CartridgeAudioState
         int acknowledgement,
         List<CartridgeAudioCommand> commands)
     {
-        switch (_soundStates[queue])
+        switch (SoundStates[queue])
         {
             case 0: // $82:8A2C - send the next queued request to its APU port.
                 SendNextSound(queue, commands);
@@ -429,7 +429,7 @@ public sealed class CartridgeAudioState
                 }
                 else
                 {
-                    _soundStates[queue] = 2;
+                    SoundStates[queue] = 2;
                     _soundClearDelays[queue] = 2;
                 }
                 break;
@@ -440,7 +440,7 @@ public sealed class CartridgeAudioState
                     commands.Add(CartridgeAudioCommand.WritePort(
                         ApuPorts.ForSoundLibrary(queue), 0));
                     _currentSounds[queue] = 0;
-                    _soundStates[queue] = 3;
+                    SoundStates[queue] = 3;
                 }
                 break;
 
@@ -452,31 +452,31 @@ public sealed class CartridgeAudioState
                 }
                 else
                 {
-                    _soundStates[queue] = 0;
+                    SoundStates[queue] = 0;
                     SendNextSound(queue, commands);
                 }
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"SFX library {queue + 1} entered invalid retail dispatcher state {_soundStates[queue]}.");
+                    $"SFX library {queue + 1} entered invalid retail dispatcher state {SoundStates[queue]}.");
         }
     }
 
     /// <summary>Dequeues one unread SFX request, writes its port, and enters the acknowledgement phase.</summary>
     private void SendNextSound(int queue, List<CartridgeAudioCommand> commands)
     {
-        if (_soundReadPositions[queue] == _soundWritePositions[queue])
+        if (SoundReadPositions[queue] == SoundWritePositions[queue])
             return;
 
-        byte read = _soundReadPositions[queue];
-        byte sound = _soundQueues[queue, read];
+        byte read = SoundReadPositions[queue];
+        byte sound = SoundQueues[queue, read];
         commands.Add(CartridgeAudioCommand.WritePort(
             ApuPorts.ForSoundLibrary(queue), sound));
         _currentSounds[queue] = sound;
-        _soundReadPositions[queue] = unchecked((byte)(
+        SoundReadPositions[queue] = unchecked((byte)(
             (read + 1) & AudioRomData.Queues.SoundIndexMask));
-        _soundStates[queue] = 1;
+        SoundStates[queue] = 1;
     }
 
 }

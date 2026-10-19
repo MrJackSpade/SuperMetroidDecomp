@@ -8,17 +8,17 @@ internal static class CartridgeAudioStateQueueAccess
     {
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
         internal string MusicQueueForVerification() =>
-            $"{self._musicReadPosition:X}/{self._musicWritePosition:X} " +
-            $"t={self._musicTimer.RawValue:X} d=" +
-            string.Join(",", self._musicDelays.Select(delay => $"{delay.Frames:X}"));
+            $"{self.MusicReadPosition:X}/{self.MusicWritePosition:X} " +
+            $"t={self.MusicTimer.RawValue:X} d=" +
+            string.Join(",", self.MusicDelays.Select(delay => $"{delay.Frames:X}"));
 
         /// <summary>One entry of an SFX library's queue ($0643+).</summary>
         internal byte SoundQueueEntryForVerification(int queue, int index) =>
-            self._soundQueues[queue, index];
+            self.SoundQueues[queue, index];
 
         /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
         internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
-            (self._soundReadPositions[queue], self._soundWritePositions[queue],
-             self._soundStates[queue]);
+            (self.SoundReadPositions[queue], self.SoundWritePositions[queue],
+             self.SoundStates[queue]);
     }
 }

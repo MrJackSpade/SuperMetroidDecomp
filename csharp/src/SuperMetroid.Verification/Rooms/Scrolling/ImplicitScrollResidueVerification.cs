@@ -24,7 +24,7 @@ internal static class ImplicitScrollResidueVerification
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
         RoomScrollGrid before = RoomScrollGrid.FromDefinition(storage, previous.State.Scroll, previous.Size);
-        byte[] previousTail = before.Storage.ToArray();
+        byte[] previousTail = before.StorageBytes.ToArray();
         RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");

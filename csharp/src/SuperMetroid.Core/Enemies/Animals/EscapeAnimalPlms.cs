@@ -23,7 +23,7 @@ internal sealed class EscapeAnimalPlms
     public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
     {
         // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
-        if (_slotTable._slots.All(slot => slot.Active))
+        if (_slotTable.Slots.All(slot => slot.Active))
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         RoomPlmSystem.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
         for (int row = 1; row <= 2; row++)
@@ -42,13 +42,13 @@ internal sealed class EscapeAnimalPlms
         Ensure.NotNull(level);
         IGlobalEventFlags events = _bindings.Events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
-        if (_slotTable._slots.All(slot => slot.Active))
+        if (_slotTable.Slots.All(slot => slot.Active))
             return false;
         if (!events.Has(EventNumber.CrittersEscaped))
             return false;
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            PlmSlot slot = _slotTable._slots[index];
+            PlmSlot slot = _slotTable.Slots[index];
             if (slot.Active)
                 continue;
             slot.Clear();
@@ -73,9 +73,9 @@ internal sealed class EscapeAnimalPlms
         // grapple word is rejected; ordinary nonzero beams and bombs are accepted.
         if (projectileType == (SamusProjectileTypeWord)0)
             return false;
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            PlmSlot slot = _slotTable._slots[index];
+            PlmSlot slot = _slotTable.Slots[index];
             if (slot.Active) continue;
             slot.Clear();
             slot.Active = true;

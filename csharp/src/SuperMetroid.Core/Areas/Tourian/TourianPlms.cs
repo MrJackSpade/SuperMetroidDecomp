@@ -55,9 +55,9 @@ internal sealed class TourianPlms
         Ensure.NotNull(level);
         int blockIndex = level.GetBlockIndex(
             new(OldTourianEscapeShaftWallPlmDefinitions.BlockX, OldTourianEscapeShaftWallPlmDefinitions.BlockY));
-        for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slotTable._slots[slotIndex];
+            PlmSlot slot = _slotTable.Slots[slotIndex];
             if (slot.Active)
                 continue;
 
@@ -100,9 +100,9 @@ internal sealed class TourianPlms
     public bool TrySpawnTourianAccess(RoomLevelData level, bool clear)
     {
         TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear);
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            var slot = _slotTable._slots[index];
+            var slot = _slotTable.Slots[index];
             if (slot.Active) continue;
             slot.Clear();
             slot.Active = true;

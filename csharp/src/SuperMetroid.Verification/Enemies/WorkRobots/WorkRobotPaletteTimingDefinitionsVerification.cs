@@ -95,10 +95,10 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord = 0;
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteRow = 0;
+        enemies.Presentation.BindCgram(cgram);
+        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
+        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
+        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationPaletteRow = 0;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
@@ -113,13 +113,13 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 ? 0
                 : nextLoad;
             AssertEqual(record + 1,
-                enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord,
+                enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord,
                 $"production Work Robot palette load {nextLoad} advances record");
             AssertEqual(
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
                     unchecked((ushort)(record *
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
-                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer.RawValue,
+                (ushort)enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer.RawValue,
                 $"production Work Robot palette load {nextLoad} timer");
             for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
             {

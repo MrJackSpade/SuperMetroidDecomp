@@ -134,8 +134,8 @@ internal static class RoomArtworkRenderParityVerification
             {
                 AssertTrue(native.Room.LoadedLevelData.ForegroundEntries.Span.SequenceEqual(
                         changed.Room.LoadedLevelData.ForegroundEntries.Span) &&
-                    native.Room.LoadedLevelData.BehaviorBytes.Span.SequenceEqual(
-                        changed.Room.LoadedLevelData.BehaviorBytes.Span),
+                    native.Room.LoadedLevelData.BehaviorBytes.AsSpan().SequenceEqual(
+                        changed.Room.LoadedLevelData.BehaviorBytes.AsSpan()),
                     $"{artwork} override does not change placement or collision BTS");
             }
 

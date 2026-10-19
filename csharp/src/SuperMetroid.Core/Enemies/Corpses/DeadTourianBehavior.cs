@@ -39,7 +39,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The words each physical slot keeps across DeadTourian occupants for the current room.</summary>
-    internal readonly DeadTourianExtensionWords[] _extensions = NewExtensions();
+    internal readonly DeadTourianExtensionWords[] Extensions = NewExtensions();
 
     /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
     private static DeadTourianExtensionWords[] NewExtensions() =>
@@ -48,8 +48,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards all corpse program state before loading another room.</summary>
     internal void ResetDeadTourianCorpseRoomState()
     {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new DeadTourianExtensionWords();
+        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
+            Extensions[slotIndex] = new DeadTourianExtensionWords();
     }
 
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
@@ -125,7 +125,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         state.Function = DeadTourianCorpseFunction.Waiting;
-        _extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
+        Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(state.RotTable);
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
     }
@@ -250,7 +250,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
-        if ((_frameContext._randomEnemyCounter & 7) == 0)
+        if ((_frameContext.RandomEnemyCounter & 7) == 0)
             _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
@@ -307,10 +307,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
+        AnimationProgramCursor<DeadTourianProgram> cursor = Extensions[slot.SlotIndex].Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
-        _extensions[slot.SlotIndex].Program = cursor;
+        Extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Ports DeadTourian's initialization AI.</summary>

@@ -16,6 +16,13 @@ internal sealed class ChozoStatuePlms
     /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Room reset: drops the previous room's enemy and layer-3 bindings.</summary>
+    internal void Unbind()
+    {
+        _chozoEnemies = null;
+        _chozoRoomFx = null;
+    }
+
     /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
     internal ChozoStatuePlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
@@ -23,9 +30,9 @@ internal sealed class ChozoStatuePlms
         _slotTable = slotTable;
     }
     /// <summary>Bound enemy owner for statue hand activation; reattached after room load or state restore.</summary>
-    [NonSerialized] internal RoomEnemySystem? _chozoEnemies;
+    [NonSerialized] private RoomEnemySystem? _chozoEnemies;
     /// <summary>Bound room FX owner for Lower Norfair acid height writes; reattached after restore.</summary>
-    [NonSerialized] internal RoomLayer3FxState? _chozoRoomFx;
+    [NonSerialized] private RoomLayer3FxState? _chozoRoomFx;
 
     /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
     public void BindChozoStatueContext(RoomEnemySystem enemies, RoomLayer3FxState roomFx)
@@ -53,9 +60,9 @@ internal sealed class ChozoStatuePlms
             ? (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
                 .HasAnyBossBits(_bindings.Area, BossBits.AreaBoss)
             : (samus.CollectedItems & SamusEquipmentFlags.SpaceJump) != 0;
-        for (int i = _slotTable._slots.Length - 1; i >= 0; i--)
+        for (int i = _slotTable.Slots.Count - 1; i >= 0; i--)
         {
-            PlmSlot reaction = _slotTable._slots[i];
+            PlmSlot reaction = _slotTable.Slots[i];
             if (reaction.Active) continue;
             reaction.Clear();
             reaction.Active = true;
@@ -81,9 +88,9 @@ internal sealed class ChozoStatuePlms
         ChozoStatuePlmDefinition definition =
             ChozoStatuePlmDefinitions.Resolve(request.HeaderPointer);
         int index = level.GetBlockIndex(request.Block);
-        for (int i = _slotTable._slots.Length - 1; i >= 0; i--)
+        for (int i = _slotTable.Slots.Count - 1; i >= 0; i--)
         {
-            PlmSlot slot = _slotTable._slots[i];
+            PlmSlot slot = _slotTable.Slots[i];
             if (slot.Active) continue;
             slot.Clear();
             slot.Active = true;

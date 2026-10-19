@@ -121,13 +121,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort BombTorizoCoreExplosionHealth = 100;
 
     /// <summary>Current statue state, cleared when the room reloads.</summary>
-    internal TorizoEnemyState? _torizoState;
+    internal TorizoEnemyState? TorizoState;
     /// <summary>Drop requests published by the Chozo-orb projectile instruction.</summary>
-    internal readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
+    internal readonly List<TorizoOrbDropRequest> TorizoOrbDropRequests = new();
 
     /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
     public TorizoEnemyState? GoldenTorizo =>
-        _torizoState is { IsGolden: true } ? _torizoState : null;
+        TorizoState is { IsGolden: true } ? TorizoState : null;
 
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
@@ -135,8 +135,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards the previous statue, orb requests, and frame-level sound/music publications on room load.</summary>
     internal void ResetBombTorizoRoomState()
     {
-        _torizoState = null;
-        _torizoOrbDropRequests.Clear();
+        TorizoState = null;
+        TorizoOrbDropRequests.Clear();
         LastBombTorizoMusicRequest = null;
     }
 
@@ -155,7 +155,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             PostureParameterLowBits = TorizoParameterFlagCodec.PostureLowBitsOf(torizo.Spawn.Population.Parameter1),
             Behavior = TorizoParameterFlagCodec.BehaviorOf(torizo.Spawn.Population.Parameter2),
         };
-        _torizoState = state;
+        TorizoState = state;
 
         // Boss bit four is shared by the Bomb and Golden Torizo encounters, but it is stored
         // per area. The room loader supplies the current area's accessor, keeping the actor
@@ -665,8 +665,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a slot unless it is the statue currently bound to this room owner.</summary>
     internal TorizoEnemyState RequireBombTorizoState(RoomEnemySlot torizo) =>
-        _torizoState is not null && ReferenceEquals(_torizoState.Slot, torizo)
-            ? _torizoState
+        TorizoState is not null && ReferenceEquals(TorizoState.Slot, torizo)
+            ? TorizoState
             : throw new InvalidOperationException(
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
@@ -849,7 +849,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances BombTorizo's typed animation.</summary>
     internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext._enemyFrameNmiFrameCounter) });
+        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext.NmiFrameCounter) });
     }
 
     /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
@@ -2116,7 +2116,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             : EnemyDefinitionId.BombTorizoOrb;
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(header);
-        _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());
+        TorizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,
             definition.ItemDropChancesPointer);

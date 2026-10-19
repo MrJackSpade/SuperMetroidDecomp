@@ -660,7 +660,7 @@ internal sealed class EnemyCollision
         int carry = horizontalRadius & 1;
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
         int reactionCount = 0;
-        _deathsAndDrops._enemyDeathRespawnScratch = null;
+        _deathsAndDrops.ClearRespawnScratch();
 
         // The native pass walks all 32 physical slots from $07C0 down to zero, independent
         // of the ordinary active list. That matters while a power bomb reaches off-screen
@@ -670,10 +670,9 @@ internal sealed class EnemyCollision
             // A death inside the previous reaction overwrote `$12`, the horizontal radius
             // this walker never reloads: zero for an ordinary kill and $4000 for a
             // respawning one. The vertical radius in `$14` survives unchanged.
-            if (_deathsAndDrops._enemyDeathRespawnScratch is { } deathScratch)
+            if (_deathsAndDrops.TakeRespawnScratch() is { } deathScratch)
                 horizontalRadius = deathScratch;
-            _deathsAndDrops._enemyDeathRespawnScratch = null;
-            RoomEnemySlot enemy = _slotTable._slots[slotIndex];
+            RoomEnemySlot enemy = _slotTable.Slots[slotIndex];
             if (enemy.EnemyDefinitionPointer is 0 or EnemyDefinitionId.Respawn ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
@@ -747,7 +746,7 @@ internal sealed class EnemyCollision
             reactionCount++;
         }
 
-        _deathsAndDrops._enemyDeathRespawnScratch = null;
+        _deathsAndDrops.ClearRespawnScratch();
         return reactionCount;
     }
 
@@ -963,7 +962,7 @@ internal sealed class EnemyCollision
         // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
         if (contactDamageIndex == SamusContactDamageIndex.PseudoScrew)
         {
-            SamusProjectileSystem projectiles = _frameContext._samusProjectilesForEnemyFrame
+            SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
                 ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
             projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
         }

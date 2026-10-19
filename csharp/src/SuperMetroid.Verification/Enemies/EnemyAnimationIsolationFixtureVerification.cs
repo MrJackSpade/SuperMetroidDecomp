@@ -62,8 +62,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
             Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            Enemies.Presentation._vram = Vram;
-            Enemies.Presentation._cgram = Colors;
+            Enemies.Presentation.BindVram(Vram);
+            Enemies.Presentation.BindCgram(Colors);
             Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => RandomWord);
             Enemies.VerificationServices().SeedRandom = (Action<ushort>)(value => RandomWord = value);
@@ -82,7 +82,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             {
                 Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)EnemyExtraProperties.UsesExtendedSpritemap));
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
-                Enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(Actor, isGolden: true)
+                Enemies.BombTorizoBehavior.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
                     Function = TorizoFunction.GoldenPreInstruction,
                     PreInstruction = TorizoPreInstruction.Idle,

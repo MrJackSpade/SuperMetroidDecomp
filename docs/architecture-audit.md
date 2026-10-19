@@ -168,6 +168,10 @@ up-is-zero result of the cartridge angle routine); a name ending in Step, Delta,
 table units and is not an angle (SME6352). No member, tuple element or by-reference parameter carries a processor
 carry or overflow flag: carry arithmetic is `SnesCarry`'s operations, and results name what happened (SME6353).
 
+**SME6354** keeps underscore-prefixed fields and properties private (#1328). An underscore names a type's own
+implementation state; another type changes it through a named operation on the owner (`BeginRoomLoad`,
+`BindCgram`, `RecordRespawnScratch`) or reads a member named as part of the owner's surface, never the field.
+
 **SME6408** keeps enemy state out of generic slot words. `RoomEnemySlot` declares no multipurpose word
 (`VariableA`-`F`, `Parameter1`/`2` or another lettered variable or numbered parameter): each family owns its state as
 typed fields, and authored spawn parameters are read from the slot's spawn record.

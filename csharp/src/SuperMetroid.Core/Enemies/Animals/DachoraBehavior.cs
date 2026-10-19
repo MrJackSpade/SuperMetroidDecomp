@@ -507,7 +507,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         var echoes = new RoomEnemySlot[4];
         for (int echoIndex = 0; echoIndex < echoes.Length; echoIndex++)
         {
-            RoomEnemySlot echo = _slotTable._slots[body.SlotIndex + echoIndex + 1];
+            RoomEnemySlot echo = _slotTable.Slots[body.SlotIndex + echoIndex + 1];
             if (echo.EnemyDefinitionPointer != EnemyDefinitionId.Dachora)
             {
                 throw new InvalidDataException(

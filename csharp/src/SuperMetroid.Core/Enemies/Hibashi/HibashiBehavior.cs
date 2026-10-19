@@ -180,7 +180,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (graphics.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
             throw new InvalidDataException("Hibashi graphics part has no following enemy slot.");
-        return _slotTable._slots[graphics.SlotIndex + 1];
+        return _slotTable.Slots[graphics.SlotIndex + 1];
     }
 
     /// <summary>Rejects geyser AI or instruction dispatch for an uninitialized slot.</summary>

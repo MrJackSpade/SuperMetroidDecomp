@@ -190,7 +190,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-            enemies.Presentation._vram = vram;
+            enemies.Presentation.BindVram(vram);
             enemies.CrocomireBehavior.CrocomireDeath = death;
             Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
             Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
@@ -256,7 +256,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         };
         death.MutableMeltingGraphics.Fill(0xff);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = new SnesVram();
+        enemies.Presentation.BindVram(new SnesVram());
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Func<bool> erase = enemies.CrocomireBehavior.EraseNextCrocomireMeltingColumn;
 
@@ -304,7 +304,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
         Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
         Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
@@ -343,7 +343,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         enemies.CrocomireBehavior.CrocomireDeath = death;
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch

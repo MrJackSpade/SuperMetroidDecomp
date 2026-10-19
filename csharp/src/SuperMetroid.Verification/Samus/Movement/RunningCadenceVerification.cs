@@ -19,7 +19,7 @@ internal static class RunningCadenceVerification
         var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         int stageFiveOffset = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
             SamusRunningCadenceDefinitions.MaximumSoundQueueSelection) - SnesAddressMath.OffsetInBank(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart);
-        residue._bytes[stageFiveOffset] = bus.MutableDelay;
+        residue.Write(stageFiveOffset, bus.MutableDelay);
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
         Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
         Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
@@ -108,7 +108,7 @@ internal static class RunningCadenceVerification
         {
             int accumulator = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
             bus.MutableDelay = (byte)accumulator;
-            residue._bytes[stageFiveOffset] = bus.MutableDelay;
+            residue.Write(stageFiveOffset, bus.MutableDelay);
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
             ushort frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, SnesButton.B,

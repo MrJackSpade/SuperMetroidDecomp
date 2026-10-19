@@ -143,7 +143,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
-        runtime.Enemies.DeathsAndDrops._samusForEnemyDrops = runtime.Player.Samus;
+        runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
@@ -940,7 +940,7 @@ internal static class RidleyFullMovieVerification
         var (bus, runtime, samus, game) = ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         // Ridley's body, fragments and fireballs run typed programs (#1287); compare their cursors as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        Array initialPlms = runtime.Plms.SlotTable._slots;
+        PlmSlot[] initialPlms = [.. runtime.Plms.SlotTable.Slots];
         var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
@@ -995,7 +995,7 @@ internal static class RidleyFullMovieVerification
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
-            Check("Previous HUD selection", runtime.Hud._previousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
+            Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
             CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
@@ -1410,7 +1410,7 @@ internal static class RidleyFullMovieVerification
                 {
                     Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], NativeSnapshotMemory.Level + block * 2);
                     byte expectedBehavior = memory[NativeSnapshotMemory.Bts + block];
-                    byte actualBehavior = activeLevel.BehaviorBytes.Span[block];
+                    byte actualBehavior = activeLevel.BehaviorBytes.AsSpan()[block];
                     if (actualBehavior != expectedBehavior)
                         mismatches.Add($"Room BTS {block}: native={expectedBehavior:X2} port={actualBehavior:X2}");
                 }

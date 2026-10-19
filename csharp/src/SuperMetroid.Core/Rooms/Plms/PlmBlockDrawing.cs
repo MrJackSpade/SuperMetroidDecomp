@@ -20,7 +20,13 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal sealed class PlmBlockDrawing
 {
     /// <summary>Visible PLM block transfers staged for BG1 after physical level words are changed.</summary>
-    internal readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
+    private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
+
+    /// <summary>The tilemap updates the current pass has drawn.</summary>
+    internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => _tilemapUpdates;
+
+    /// <summary>Frame start and room reset: drops the previous pass's tilemap updates.</summary>
+    internal void ClearTilemapUpdates() => _tilemapUpdates.Clear();
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     [field: NonSerialized]

@@ -52,7 +52,7 @@ internal static class NativeCaptureSeeds
         {
             writer.Write((ushort)level.Size.X); writer.Write((ushort)level.Size.Y);
             foreach (ushort tile in level.ForegroundEntries.Span) writer.Write(tile);
-            writer.Write(level.BehaviorBytes.Span);
+            writer.Write(level.BehaviorBytes);
         }
         File.WriteAllText(Path.Combine(output, "seed.txt"), scenario.TakeoffSeed());
         var (rows, apex) = scenario.Jump();

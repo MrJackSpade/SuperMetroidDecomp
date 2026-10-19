@@ -211,7 +211,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         for (int childOffset = 1; childOffset <= 4; childOffset++)
         {
-            RoomEnemySlot child = _slotTable._slots[mama.SlotIndex + childOffset];
+            RoomEnemySlot child = _slotTable.Slots[mama.SlotIndex + childOffset];
             if (child.EnemyDefinitionPointer != EnemyDefinitionId.BabyTurtle)
             {
                 throw new InvalidDataException(
@@ -472,7 +472,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The original cap comparison accidentally omits X and reads slot-zero's extension.
         // The retail parent is slot zero, but retaining the explicit source documents the
         // behavior for debugger-created populations as well.
-        MamaTurtleEnemyState comparisonState = _slotTable._slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
+        MamaTurtleEnemyState comparisonState = _slotTable.Slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
         if (unchecked((short)(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed)) < 0)
         {
             // The $2000 fraction step carries into the whole word; both are one 16.16 add.
@@ -772,7 +772,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Four bounds deliberately come from physical slot zero because all four native
         // loads omit `,x`. The damage callback still runs for the current Mama slot.
-        RoomEnemySlot boundsSource = _slotTable._slots[0];
+        RoomEnemySlot boundsSource = _slotTable.Slots[0];
         ushort left = unchecked((ushort)(
             boundsSource.Position.X.Whole - boundsSource.Radius.X - 8));
         ushort right = unchecked((ushort)(
@@ -946,9 +946,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMamaTurtleSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<MamaTurtleEnemyState>(null);
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<BabyTurtleEnemyState>(null);
     }
 

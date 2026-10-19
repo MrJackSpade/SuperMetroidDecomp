@@ -91,7 +91,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bottom.SlotIndex == 0)
             throw new InvalidDataException("Kzan bottom cannot occupy enemy slot zero.");
 
-        RoomEnemySlot precedingSlot = _slotTable._slots[bottom.SlotIndex - 1];
+        RoomEnemySlot precedingSlot = _slotTable.Slots[bottom.SlotIndex - 1];
         bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, unchecked((ushort)(precedingSlot.Position.Y.Whole + 12))));
     }
 

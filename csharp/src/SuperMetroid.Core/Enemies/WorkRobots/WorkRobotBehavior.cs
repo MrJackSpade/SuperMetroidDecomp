@@ -60,15 +60,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Shared countdown to the next robot palette animation record.</summary>
-    internal NativeCountdown _workRobotPaletteAnimationTimer;
+    internal NativeCountdown WorkRobotPaletteAnimationTimer;
     /// <summary>
     /// The next palette record the robot palette hook loads, 0 through
     /// <see cref="WorkRobotPaletteTimingDefinitions.RecordCount"/>; the count itself is the table's terminator, which the
     /// hook resolves back to record zero before loading.
     /// </summary>
-    internal int _workRobotPaletteAnimationRecord;
+    internal int WorkRobotPaletteAnimationRecord;
     /// <summary>The OBJ palette row, 0 through 7, the robot graphics-drawn hook animates.</summary>
-    internal int _workRobotPaletteAnimationPaletteRow;
+    internal int WorkRobotPaletteAnimationPaletteRow;
 
     /// <summary>
     /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
@@ -107,9 +107,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The graphics-drawn hook is global. Every powered initialization resets its shared
         // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
-        _workRobotPaletteAnimationTimer = NativeCountdown.Start(1);
-        _workRobotPaletteAnimationRecord = 0;
-        _workRobotPaletteAnimationPaletteRow = (slot.PaletteIndex >> 9) & 7;
+        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(1);
+        WorkRobotPaletteAnimationRecord = 0;
+        WorkRobotPaletteAnimationPaletteRow = (slot.PaletteIndex >> 9) & 7;
     }
 
     /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
@@ -131,7 +131,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This global write disables an earlier robot's palette hook too. Mixed powered and
         // unpowered sets are unusual, but retaining the shared timer makes order observable.
-        _workRobotPaletteAnimationTimer = NativeCountdown.Start(0);
+        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(0);
         state.FallVelocity = WorkRobotInitialFallVelocity;
 
         // $A8:CC1C writes four colors to active palette RAM through a stale global palette
@@ -352,27 +352,27 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>
     internal void StepWorkRobotPaletteAnimation()
     {
-        if (_workRobotPaletteAnimationTimer.IsZero)
+        if (WorkRobotPaletteAnimationTimer.IsZero)
             return;
-        _workRobotPaletteAnimationTimer = _workRobotPaletteAnimationTimer.Decrement().Remaining;
-        if (!_workRobotPaletteAnimationTimer.IsZero)
+        WorkRobotPaletteAnimationTimer = WorkRobotPaletteAnimationTimer.Decrement().Remaining;
+        if (!WorkRobotPaletteAnimationTimer.IsZero)
             return;
 
         // The terminator after the last record resolves back to the first.
-        if (_workRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
-            _workRobotPaletteAnimationRecord = 0;
-        int record = _workRobotPaletteAnimationRecord;
+        if (WorkRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
+            WorkRobotPaletteAnimationRecord = 0;
+        int record = WorkRobotPaletteAnimationRecord;
         ushort recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
         int destination = 128 +
-            _workRobotPaletteAnimationPaletteRow * 16 +
+            WorkRobotPaletteAnimationPaletteRow * 16 +
             WorkRobotPaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(_presentation.Cgram, record, destination);
-        _workRobotPaletteAnimationTimer =
+        WorkRobotPaletteAnimationTimer =
             NativeCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
-        _workRobotPaletteAnimationRecord = record + 1;
+        WorkRobotPaletteAnimationRecord = record + 1;
     }
 
     /// <summary>Rejects a robot callback before its slot initializes movement and laser state.</summary>
@@ -522,9 +522,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastWorkRobotSoundEffect = null;
-        _workRobotPaletteAnimationTimer = NativeCountdown.Start(0);
-        _workRobotPaletteAnimationRecord = 0;
-        _workRobotPaletteAnimationPaletteRow = 0;
+        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(0);
+        WorkRobotPaletteAnimationRecord = 0;
+        WorkRobotPaletteAnimationPaletteRow = 0;
     }
 
     /// <inheritdoc/>

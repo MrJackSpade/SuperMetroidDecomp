@@ -8,12 +8,6 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
     /// <summary>Exposes corpse processing and focused finish-off, damage, neck, and draw-timing hooks on the live sequence.</summary>
     extension(MotherBrainRainbowBeamAttackSequence self)
     {
-        /// <summary>
-        /// Shared row-by-row corpse graphics processor initialized by the brain enemy slot.
-        /// Its WRAM table and graphics buffer remain public debugger evidence rather than being
-        /// hidden behind a host-only opacity value.
-        /// </summary>
-        internal MotherBrainCorpseRottingState CorpseRotting => self._corpseRotting;
 
         /// <summary>
         /// Starts at the low-health handoff in `$A9:BB1A`, including its immediate really-slow

@@ -57,7 +57,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     /// <summary>Single slot-zero actor's private velocity, palette, and cutscene state.</summary>
-    internal ShitroidEnemyState? _shitroid;
+    internal ShitroidEnemyState? Shitroid;
     /// <summary>Layer-one camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 
@@ -70,7 +70,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards the prior room's actor state, camera, and pending cutscene outputs.</summary>
     internal void ResetShitroidRoomState()
     {
-        _shitroid = null;
+        Shitroid = null;
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
         _shitroidCamera = Position16<RoomPixels>.Zero;
@@ -91,7 +91,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Shitroid requires native enemy slot zero, not slot {slot.SlotIndex}.");
         }
-        if (_shitroid is not null)
+        if (Shitroid is not null)
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
         // The cutscene shares the same $7E:2000 scratch surface as corpse-rotting code.
@@ -125,7 +125,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = ShitroidAiFunction.Dormant;
         }
         state.ReactsToSamus = false;
-        _shitroid = state;
+        Shitroid = state;
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
@@ -810,15 +810,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         int victimIndex = slot.SlotIndex + 1;
-        if ((uint)victimIndex >= _slotTable._slots.Length || _slotTable._slots[victimIndex].EnemyDefinitionPointer == 0)
+        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].EnemyDefinitionPointer == 0)
             throw new InvalidDataException("Shitroid's physical slot-one victim is missing.");
-        return _slotTable._slots[victimIndex];
+        return _slotTable.Slots[victimIndex];
     }
 
     /// <summary>Rejects missing state or dispatch from an enemy slot other than the initialized Baby Metroid.</summary>
     private ShitroidEnemyState RequireShitroidState(RoomEnemySlot slot)
     {
-        ShitroidEnemyState state = _shitroid ??
+        ShitroidEnemyState state = Shitroid ??
             throw new InvalidDataException("Shitroid has no initialized extended state.");
         if (!ReferenceEquals(state.Slot, slot))
             throw new InvalidDataException("A non-Shitroid slot entered the Shitroid dispatcher.");

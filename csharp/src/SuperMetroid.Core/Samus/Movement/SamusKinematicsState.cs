@@ -19,7 +19,7 @@ public sealed class SamusKinematicsState
     /// WRAM $7E:182C-$1833 retains each direction's solid-enemy hit until EnemyMain's
     /// tail clears all four words; dead-monster AI observes this delayed result.
     /// </summary>
-    internal readonly ushort[] _solidEnemyCollisionIndexes =
+    private readonly ushort[] _solidEnemyCollisionIndexes =
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 
     /// <summary>

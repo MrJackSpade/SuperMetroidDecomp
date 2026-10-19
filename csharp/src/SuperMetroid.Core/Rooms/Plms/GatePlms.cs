@@ -31,9 +31,16 @@ internal sealed class GatePlms : IPlmFamilySource
         _sounds = sounds;
     }
     /// <summary>Spawn and close requests published by gate PLMs for the projectile system.</summary>
-    internal readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
+    private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
     /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
-    internal readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
+    private readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
+
+    /// <summary>Room reset: drops pending gate sounds and projectile requests.</summary>
+    internal void ResetForRoom()
+    {
+        _pendingDownwardGateSounds.Clear();
+        _downwardGateProjectileRequests.Clear();
+    }
 
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load
@@ -108,11 +115,11 @@ internal sealed class GatePlms : IPlmFamilySource
         // temporary slot synchronously. A saturated pool therefore drops the collision just
         // as the cartridge does.
         PlmSlot? temporary = null;
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            if (_slotTable._slots[index].Active)
+            if (_slotTable.Slots[index].Active)
                 continue;
-            temporary = _slotTable._slots[index];
+            temporary = _slotTable.Slots[index];
             temporary.Clear();
             temporary.Active = true;
             temporary.HeaderPointer = HeaderForGateTrigger(trigger);
@@ -141,9 +148,9 @@ internal sealed class GatePlms : IPlmFamilySource
 
         int gateBlockIndex = IsLeftTrigger(trigger) ? blockIndex + 1 : blockIndex - 1;
         PlmSlot? gate = null;
-        for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
+        for (int index = _slotTable.Slots.Count - 1; index >= 0; index--)
         {
-            PlmSlot candidate = _slotTable._slots[index];
+            PlmSlot candidate = _slotTable.Slots[index];
             if (candidate.Active && candidate.Family is DownwardGatePlmState &&
                 candidate.BlockIndex == gateBlockIndex)
             {
@@ -181,7 +188,7 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()
     {
-        _sounds._soundRequests.AddRange(_pendingDownwardGateSounds);
+        _sounds.QueueAll(_pendingDownwardGateSounds);
         _pendingDownwardGateSounds.Clear();
     }
 

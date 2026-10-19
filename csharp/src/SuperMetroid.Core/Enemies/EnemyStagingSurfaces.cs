@@ -13,31 +13,31 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
 {
     /// <summary>Group A, <c>$7E:2000-$2FFF</c>.</summary>
-    internal readonly VramStagingBuffer _bg2 = new(EnemyStagingDefinitions.Bg2ByteCount);
+    internal readonly VramStagingBuffer Bg2 = new(EnemyStagingDefinitions.Bg2ByteCount);
 
     /// <summary>Group B, <c>$7E:9000-$97FF</c>.</summary>
-    internal readonly VramStagingBuffer _rottingHeap = new(EnemyStagingDefinitions.RottingHeapByteCount);
+    internal readonly VramStagingBuffer RottingHeap = new(EnemyStagingDefinitions.RottingHeapByteCount);
 
     /// <summary>The enemy BG2 staging image Mother Brain's body and the extended-tilemap writer (<c>$A0:96CA</c>) fill.</summary>
-    public StagingWordView EnemyBg2Tilemap => _bg2.WordView(0, _bg2.Length / sizeof(ushort));
+    public StagingWordView EnemyBg2Tilemap => Bg2.WordView(0, Bg2.Length / sizeof(ushort));
 
     /// <summary>The 4bpp corpse tile surface the dead-monster and Dead Torizo rotting routines move pixel rows in.</summary>
-    public StagingByteView CorpseTiles => _bg2.ByteView(0, _bg2.Length);
+    public StagingByteView CorpseTiles => Bg2.ByteView(0, Bg2.Length);
 
     /// <summary>The Shitroid cutscene's scratch surface, cleared by its initializer.</summary>
-    public StagingByteView ShitroidScratch => _bg2.ByteView(0, _bg2.Length);
+    public StagingByteView ShitroidScratch => Bg2.ByteView(0, Bg2.Length);
 
     /// <summary>Mother Brain's six-row corpse tile staging buffer, uploaded by <c>$A9:E1F4</c>.</summary>
     public StagingByteView MotherBrainCorpseTiles =>
-        _rottingHeap.ByteView(0, EnemyStagingDefinitions.MotherBrainCorpseTileByteCount);
+        RottingHeap.ByteView(0, EnemyStagingDefinitions.MotherBrainCorpseTileByteCount);
 
     /// <summary>The Dead Torizo sand strips that <c>$A9:D69C</c> rewrites line by line.</summary>
     public StagingByteView DeadTorizoSand =>
-        _rottingHeap.ByteView(EnemyStagingDefinitions.DeadTorizoSandOffset, EnemyStagingDefinitions.DeadTorizoSandByteCount);
+        RottingHeap.ByteView(EnemyStagingDefinitions.DeadTorizoSandOffset, EnemyStagingDefinitions.DeadTorizoSandByteCount);
 
     /// <summary>Mother Brain's 48-entry rot table.</summary>
     public CorpseRotTable MotherBrainRotTable =>
-        new(_rottingHeap.ByteView(0, _rottingHeap.Length), EnemyStagingDefinitions.MotherBrainRotTableOffset,
+        new(RottingHeap.ByteView(0, RottingHeap.Length), EnemyStagingDefinitions.MotherBrainRotTableOffset,
             MotherBrainCorpseRottingState.EntryCount);
 
     /// <summary>
@@ -47,9 +47,9 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     public CorpseRotTable RotTable(ushort nativePointer, int entryCount)
     {
         int firstByte = nativePointer - SnesAddress.FromBusAddress(EnemyStagingDefinitions.RottingHeapNativeAddress).Offset;
-        if (firstByte < 0 || firstByte + entryCount * CorpseRotTable.EntryByteCount > _rottingHeap.Length)
+        if (firstByte < 0 || firstByte + entryCount * CorpseRotTable.EntryByteCount > RottingHeap.Length)
             throw new InvalidDataException($"Corpse rot table $7E:{nativePointer:X4} with {entryCount} entries lies outside the rotting heap.");
-        return new(_rottingHeap.ByteView(0, _rottingHeap.Length), firstByte, entryCount);
+        return new(RottingHeap.ByteView(0, RottingHeap.Length), firstByte, entryCount);
     }
 
     /// <summary>
@@ -77,12 +77,12 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     public bool TryResolve(int nativeAddress, int byteCount, out VramStagingBuffer buffer, out int offset)
     {
         offset = nativeAddress - EnemyStagingDefinitions.Bg2NativeAddress;
-        buffer = _bg2;
-        if (offset >= 0 && offset + byteCount <= _bg2.Length)
+        buffer = Bg2;
+        if (offset >= 0 && offset + byteCount <= Bg2.Length)
             return true;
         offset = nativeAddress - EnemyStagingDefinitions.RottingHeapNativeAddress;
-        buffer = _rottingHeap;
-        return offset >= 0 && offset + byteCount <= _rottingHeap.Length;
+        buffer = RottingHeap;
+        return offset >= 0 && offset + byteCount <= RottingHeap.Length;
     }
 
     /// <summary>Maps a native bank-$7E source span to the surface and offset that hold it.</summary>

@@ -38,7 +38,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         corpseTiles[0] = 0x5a;
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
 
         enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
             MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
@@ -167,7 +167,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
         for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
@@ -226,7 +226,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
 
         MotherBrainSpriteTileTransferRequest[] timerRequests =
         [
@@ -310,7 +310,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._vram = vram;
+        enemies.Presentation.BindVram(vram);
         for (int page = 0; page < sheet.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(

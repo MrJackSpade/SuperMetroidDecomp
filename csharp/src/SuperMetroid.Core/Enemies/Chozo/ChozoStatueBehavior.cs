@@ -50,15 +50,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
-    internal readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
+    internal readonly List<ChozoStatuePlmRequest> ChozoStatuePlmRequests = new();
 
     /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
     internal void ApplyPendingChozoStatuePlms(RoomLevelData level, ChozoStatuePlms chozoStatuePlms)
     {
-        while (_chozoStatuePlmRequests.Count != 0)
+        while (ChozoStatuePlmRequests.Count != 0)
         {
-            chozoStatuePlms.TrySpawnChozoStatuePlm(level, _chozoStatuePlmRequests[0]);
-            _chozoStatuePlmRequests.RemoveAt(0);
+            chozoStatuePlms.TrySpawnChozoStatuePlm(level, ChozoStatuePlmRequests[0]);
+            ChozoStatuePlmRequests.RemoveAt(0);
         }
     }
 
@@ -82,9 +82,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
     {
         Ensure.NotNull(services);
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<ChozoStatueState>(null);
-        _chozoStatuePlmRequests.Clear();
+        ChozoStatuePlmRequests.Clear();
         LastChozoStatueSoundEffect = null;
         ChozoStatueSamusControlsEnabled = true;
         ChozoStatueAcidLoweringStarted = false;
@@ -133,7 +133,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
         // explicitly so malformed/debug populations expose the same cross-slot behavior.
-        _slotTable._slots[0].Layer = 0;
+        _slotTable.Slots[0].Layer = 0;
 
         if (state.IsWreckedShip)
         {
@@ -168,7 +168,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Ensure.NotNull(level);
         _room.EnsureLoaded();
-        RoomEnemySlot statue = _slotTable._slots[0];
+        RoomEnemySlot statue = _slotTable.Slots[0];
         if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
@@ -357,7 +357,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
+        ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
             new Position16<RoomPixels>(probeX, probeY).ToRoomBlock(),
             IsHardcoded: false));
@@ -404,7 +404,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Queues an authored bank-$84 PLM spawn at its fixed room block.</summary>
     private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
-        _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
+        ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             header,
             block,
             IsHardcoded: true));

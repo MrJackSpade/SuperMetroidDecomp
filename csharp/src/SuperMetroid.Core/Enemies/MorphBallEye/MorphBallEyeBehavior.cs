@@ -43,7 +43,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Typed native state for every loaded mount/body record.</summary>
     public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates =>
-        [.. _slotTable._slots.Select(slot => slot.SpeciesState<MorphBallEyeEnemyState>())];
+        [.. _slotTable.Slots.Select(slot => slot.SpeciesState<MorphBallEyeEnemyState>())];
 
     /// <summary>The room-global bank-$88 beam object spawned by an eye body.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
@@ -316,14 +316,14 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemySlot RequireMorphBallEyeBeamBody()
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
-        if ((uint)index >= _slotTable._slots.Length ||
-            _slotTable._slots[index].EnemyDefinitionPointer != EnemyDefinitionId.Eye ||
-            unchecked((short)_slotTable._slots[index].Spawn.Population.Parameter2) < 0)
+        if ((uint)index >= _slotTable.Slots.Count ||
+            _slotTable.Slots[index].EnemyDefinitionPointer != EnemyDefinitionId.Eye ||
+            unchecked((short)_slotTable.Slots[index].Spawn.Population.Parameter2) < 0)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye HDMA object lost its body in enemy slot {index}.");
         }
-        return _slotTable._slots[index];
+        return _slotTable.Slots[index];
     }
 
     /// <summary>Rejects AI or beam processing before the eye slot's native state exists.</summary>
@@ -358,7 +358,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMorphBallEyeSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable._slots)
+        foreach (RoomEnemySlot cleared in _slotTable.Slots)
             cleared.SetSpeciesState<MorphBallEyeEnemyState>(null);
         MorphBallEyeBeam.Reset();
     }

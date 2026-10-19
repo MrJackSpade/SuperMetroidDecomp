@@ -1331,15 +1331,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
     /// </summary>
     internal void StepSamusLoadAppearance()
     {
-        if (_player._samusLoadAppearanceFramesRemaining.IsZero)
+        if (!_player.LoadAppearanceActive)
             return;
         SamusState samus = _player.Samus
             ?? throw new InvalidOperationException("Samus load appearance lost its actor.");
 
-        _player._samusLoadAppearanceFramesRemaining = _player._samusLoadAppearanceFramesRemaining.Decrement().Remaining;
-        if (!_player._samusLoadAppearanceFramesRemaining.IsZero)
+        if (!_player.AdvanceLoadAppearance())
             return;
-        if (_player._samusLoadAppearancePaletteFxObject is { } loadAppearance && _roomPaletteFx.IsDefinitionActive(loadAppearance))
+        if (_player.LoadAppearancePaletteFx is { } loadAppearance && _roomPaletteFx.IsDefinitionActive(loadAppearance))
         {
             throw new InvalidDataException(
                 $"Samus load palette FX {loadAppearance} " +
@@ -1351,6 +1350,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         samus.CommitPoseHistory();
         samus.InputLocked = false;
         _player.GroundedSamusMovementEnabled = true;
-        _player._samusLoadAppearancePaletteFxObject = null;
+        _player.EndLoadAppearance();
     }
 }

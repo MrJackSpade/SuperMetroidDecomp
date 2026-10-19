@@ -26,9 +26,22 @@ internal sealed class EnemyProcessingWindow
         _slotTable = slotTable;
     }
     /// <summary>Native indexes scheduled for AI this frame, including forced off-screen actors.</summary>
-    internal readonly List<int> _activeEnemyIndexes = new();
+    private readonly List<int> _activeEnemyIndexes = new();
     /// <summary>Active native indexes still eligible for Samus interaction and grapple endpoint scans.</summary>
-    internal readonly List<int> _interactiveEnemyIndexes = new();
+    private readonly List<int> _interactiveEnemyIndexes = new();
+
+    /// <summary>Native indexes scheduled for AI this frame.</summary>
+    internal IReadOnlyList<int> ActiveEnemyIndexes => _activeEnemyIndexes;
+
+    /// <summary>Active native indexes still eligible for Samus interaction.</summary>
+    internal IReadOnlyList<int> InteractiveEnemyIndexes => _interactiveEnemyIndexes;
+
+    /// <summary>Room load: no enemy is scheduled until the first pass prepares the window.</summary>
+    internal void ResetForRoomLoad()
+    {
+        _activeEnemyIndexes.Clear();
+        _interactiveEnemyIndexes.Clear();
+    }
 
     /// <summary>
     /// Runs the bank-$88 morph-ball eye beam HDMA object, then
@@ -55,7 +68,7 @@ internal sealed class EnemyProcessingWindow
     {
         _activeEnemyIndexes.Clear();
         _interactiveEnemyIndexes.Clear();
-        foreach (RoomEnemySlot slot in _slotTable._slots)
+        foreach (RoomEnemySlot slot in _slotTable.Slots)
         {
             if (slot.EnemyDefinitionPointer is 0 or EnemyDefinitionId.Respawn)
                 continue;
@@ -65,7 +78,7 @@ internal sealed class EnemyProcessingWindow
                 continue;
             }
 
-            bool active = _frameContext._processAllEnemies ||
+            bool active = _frameContext.ProcessAllEnemies ||
                 slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
                 (slot.AiStates & EnemyAiStates.Frozen) != 0 ||
                 EnemyIsWithinProcessingWindow(slot, camera);

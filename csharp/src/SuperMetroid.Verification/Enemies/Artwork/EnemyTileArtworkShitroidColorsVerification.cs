@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation._cgram = cgram;
+        enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         enemies.ShitroidBehavior.InitializeShitroid(slot, (ushort)0);
         ShitroidEnemyState state = enemies.Shitroid ??
@@ -142,7 +142,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
             {
                 Bgr555 expected = colors.TargetColor(target, color);
-                AssertEqual(expected, state.TargetPalette.Span[destination + color],
+                AssertEqual(expected, state.TargetPalette.AsSpan()[destination + color],
                     $"live Shitroid {target} target buffer color {color}");
                 AssertEqual(expected, cgram.Colors[destination + color],
                     $"live Shitroid {target} CGRAM color {color}");

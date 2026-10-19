@@ -40,7 +40,7 @@ internal static class ChargeFlarePlacementVerification
         foreach (var entry in document.Required("offsets").AsObject())
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value.")).Required("x").GetValue<int>() + 7;
         var edited = Load(document);
-        Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(bus, stock, edited));
+        Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
@@ -159,7 +159,7 @@ internal static class ChargeFlarePlacementVerification
 
     /// <summary>Confirms stock and edited flare offsets flow through actor drawing, artwork rebinding, and debugger restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
+    private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

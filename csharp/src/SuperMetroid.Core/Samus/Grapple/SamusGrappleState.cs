@@ -35,12 +35,10 @@ public sealed class SamusGrappleState
     /// </summary>
     public int RopeLength
     {
-        get => _ropeLength;
-        set => _ropeLength = Ensure.BetweenInclusive(0, short.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, short.MaxValue, value);
     }
 
-    /// <summary>Backing value of <see cref="RopeLength"/>, always 0 through 32767.</summary>
-    private int _ropeLength;
     /// <summary>Gets or sets the signed per-update change in rope length.</summary>
     public short RopeLengthDelta { get; set; }
     /// <summary>
@@ -138,12 +136,9 @@ public sealed class SamusGrappleState
     /// </summary>
     public int FlareCounter
     {
-        get => _flareCounter;
-        set => _flareCounter = Ensure.BetweenInclusive(0, short.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, short.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="FlareCounter"/>, always 0 through 32767.</summary>
-    private int _flareCounter;
 
     /// <summary>
     /// Position in the main-flare delay stream, 0 through 65535. The flare step advances and rewinds it as a
@@ -163,12 +158,10 @@ public sealed class SamusGrappleState
     /// </summary>
     public int PointAnimationFrame
     {
-        get => _pointAnimationFrame;
-        set => _pointAnimationFrame = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
-    /// <summary>Backing value of <see cref="PointAnimationFrame"/>, always 0 through 255.</summary>
-    private int _pointAnimationFrame;
     /// <summary>
     /// Sixteen timers at WRAM $7E:0D42. A connected rope draws slots 15 downward; retaining
     /// all sixteen makes shortening and lengthening the rope resume the original slot state.

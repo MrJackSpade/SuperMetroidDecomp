@@ -35,62 +35,44 @@ public readonly record struct SnesWindowRegisters(
     /// <summary>Inclusive first-window left screen column.</summary>
     public int FirstLeft
     {
-        get => firstLeft;
-        init => firstLeft = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="FirstLeft"/>.</summary>
-    private readonly int firstLeft = Ensure.BetweenInclusive(0, MaximumColumn, FirstLeft);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, FirstLeft);
 
     /// <summary>Inclusive first-window right screen column.</summary>
     public int FirstRight
     {
-        get => firstRight;
-        init => firstRight = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="FirstRight"/>.</summary>
-    private readonly int firstRight = Ensure.BetweenInclusive(0, MaximumColumn, FirstRight);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, FirstRight);
 
     /// <summary>Inclusive second-window left screen column.</summary>
     public int SecondLeft
     {
-        get => secondLeft;
-        init => secondLeft = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="SecondLeft"/>.</summary>
-    private readonly int secondLeft = Ensure.BetweenInclusive(0, MaximumColumn, SecondLeft);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, SecondLeft);
 
     /// <summary>Inclusive second-window right screen column.</summary>
     public int SecondRight
     {
-        get => secondRight;
-        init => secondRight = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="SecondRight"/>.</summary>
-    private readonly int secondRight = Ensure.BetweenInclusive(0, MaximumColumn, SecondRight);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, SecondRight);
 
     /// <summary>The four two-bit BG operations.</summary>
     public int BackgroundLogic
     {
-        get => backgroundLogic;
-        init => backgroundLogic = Ensure.BetweenInclusive(0, MaximumLogic, value);
-    }
-
-    /// <summary>Validated store of <see cref="BackgroundLogic"/>.</summary>
-    private readonly int backgroundLogic = Ensure.BetweenInclusive(0, MaximumLogic, BackgroundLogic);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumLogic, value);
+    } = Ensure.BetweenInclusive(0, MaximumLogic, BackgroundLogic);
 
     /// <summary>The OBJ and colour two-bit operations, with any unused high bits.</summary>
     public int ObjectColorLogic
     {
-        get => objectColorLogic;
-        init => objectColorLogic = Ensure.BetweenInclusive(0, MaximumLogic, value);
-    }
-
-    /// <summary>Validated store of <see cref="ObjectColorLogic"/>.</summary>
-    private readonly int objectColorLogic = Ensure.BetweenInclusive(0, MaximumLogic, ObjectColorLogic);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumLogic, value);
+    } = Ensure.BetweenInclusive(0, MaximumLogic, ObjectColorLogic);
 
     /// <summary>
     /// Evaluates the target's selected and combined windows at one screen pixel.

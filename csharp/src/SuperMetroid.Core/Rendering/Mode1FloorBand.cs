@@ -12,20 +12,14 @@ public readonly record struct Mode1FloorBand(int FirstScanline, int TilemapWord,
     /// <summary>BG2 tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
-        get => tilemapWord;
-        init => tilemapWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
-    private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(TilemapWord);
 
     /// <summary>BG2 4-bpp character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
-        get => characterWord;
-        init => characterWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="CharacterWord"/>.</summary>
-    private readonly int characterWord = VramWordRange.Require(CharacterWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(CharacterWord);
 }

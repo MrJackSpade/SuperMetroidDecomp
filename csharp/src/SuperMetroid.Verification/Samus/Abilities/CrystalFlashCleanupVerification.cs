@@ -95,7 +95,7 @@ internal static class CrystalFlashCleanupVerification
                 // header damage and the runtime's ordinary collision ordering. A
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
-                runtime.Enemies.Load(new RoomEnemyLoadRequest(contactBus, contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), contactBus.ReadEnemyGraphicsSet(CrystalFlashContactDefinitions.Pointer), runtime.Vram, runtime.Cgram, new StandaloneRoomEnemyServices(() => 1)));
+                runtime.Enemies.Load(new RoomEnemyLoadRequest(contactBus, contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), CrystalFlashContactPopulation.ReadEnemyGraphicsSet(CrystalFlashContactDefinitions.Pointer), runtime.Vram, runtime.Cgram, new StandaloneRoomEnemyServices(() => 1)));
                 contactEnemy = runtime.Enemies.SlotTable.Slots[0];
                 (contactEnemy.SpeciesState<RipperEnemyState>()
                     ?? throw new InvalidOperationException("The contact Ripper has no state.")).XVelocity = SnesSignedSixteenSixteen.Zero;

@@ -15,7 +15,7 @@ internal static class GrappleRopeGeometryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple rope angle tables")]
     internal static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
     {
-        Suite(nameof(VerifyGrappleEndpointGeometry), () => VerifyGrappleEndpointGeometry(bus));
+        Suite(nameof(VerifyGrappleEndpointGeometry), () => VerifyGrappleEndpointGeometry());
         // Exercise the actual drawing entry point, with valid initial instruction
         // timers. Expected positions emulate $94:AFD5-B091's overlapping-word
         // accumulator, using cartridge samples independently of compiled tables.

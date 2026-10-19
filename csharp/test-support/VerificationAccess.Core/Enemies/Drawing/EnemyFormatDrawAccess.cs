@@ -19,7 +19,7 @@ internal static class EnemyFormatDrawAccess
     internal static SpriteArtwork BlankObjectPage { get; } =
         ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), []);
 
-    /// <summary>Appends the OAM image of the draws <paramref name="draw"/> publishes, in emission order, after the buffer's records.</summary>
+    /// <summary>Appends the OAM image of a draw's published entries, in emission order, after the buffer's records.</summary>
     extension(OamBuffer target)
     {
         /// <summary>

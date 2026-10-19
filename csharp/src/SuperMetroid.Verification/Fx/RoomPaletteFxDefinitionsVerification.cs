@@ -84,7 +84,6 @@ internal static class RoomPaletteFxDefinitionsVerification
         var guardedRom = NewRoomPaletteFxDefinitionGuard(rom, forbidden);
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
 
-        const ushort fxPointer = 0x9000;
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {

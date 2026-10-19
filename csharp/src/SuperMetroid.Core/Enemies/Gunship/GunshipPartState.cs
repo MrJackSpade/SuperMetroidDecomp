@@ -22,9 +22,6 @@ internal sealed class GunshipPartState
     /// <summary>The word holding the top hull's base Y or landing-brake step, or the bottom hull's rumble frame.</summary>
     private int _heightOrStepWord;
 
-    /// <summary>The word holding the function, or the bottom hull's escape velocity once liftoff starts.</summary>
-    private int _functionOrVelocityWord;
-
     /// <summary>The top hull's function timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
     public int FunctionTimer
     {
@@ -84,18 +81,18 @@ internal sealed class GunshipPartState
     /// <summary>The bank-$A2 function the top hull dispatches, held as the cartridge's word.</summary>
     public GunshipFunction Function
     {
-        get => (GunshipFunction)_functionOrVelocityWord;
-        internal set => _functionOrVelocityWord = (ushort)value;
+        get => (GunshipFunction)FunctionWord;
+        internal set => FunctionWord = (ushort)value;
     }
 
     /// <summary>The function word as the cartridge compares it.</summary>
-    internal int FunctionWord => _functionOrVelocityWord;
+    internal int FunctionWord { get; private set; }
 
     /// <summary>The bottom hull's unsigned 8.8 escape speed in pixels per update, raised each update up to its cap.</summary>
     public int EscapeVelocity
     {
-        get => _functionOrVelocityWord;
-        internal set => _functionOrVelocityWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get => FunctionWord;
+        internal set => FunctionWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>The state of a gunship slot, failing if the slot never initialized as a gunship part.</summary>
@@ -110,6 +107,6 @@ internal sealed class GunshipPartState
         _bobPhaseWord = 0;
         _timerWord = 0;
         _heightOrStepWord = 0;
-        _functionOrVelocityWord = 0;
+        FunctionWord = 0;
     }
 }

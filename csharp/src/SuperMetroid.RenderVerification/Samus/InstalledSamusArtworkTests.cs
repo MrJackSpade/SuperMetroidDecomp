@@ -27,7 +27,7 @@ internal static class InstalledSamusArtworkTests
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int transfers = CheckBodyTransfers(fixture, check);
         int poses = CheckPoseDrawing(fixture, check);
-        int queued = CheckQueuedTransfers(fixture, memory, check);
+        int queued = CheckQueuedTransfers(fixture, check);
         Require(check.ChangedPixels > 0, "The artwork acceptance run changed no visible pixels.");
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {fixture.EditedPngCount} actual PNG overrides; " +
             $"{transfers} split body transfers, {poses} pose draws, {queued} cannon/death uploads; " +
@@ -148,8 +148,7 @@ internal static class InstalledSamusArtworkTests
 
     /// <summary>Checks queued arm-cannon and death-tile uploads across an installed-artwork rebind.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture,
-        SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
+    private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture, ArtworkPixelCheck check)
     {
         int count = 0;
         foreach (ushort source in SamusArmCannonArtworkFormat.TileSourcePointers)

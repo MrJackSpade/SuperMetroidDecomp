@@ -55,7 +55,7 @@ internal static class SaveSchemaTranslationVerification
         var mirror = new Bank80SystemState(); mirror.LoadPersistentMirror(image);
         AssertEqual(restoredSystem.SavedLoadingGameState, mirror.SavedLoadingGameState, "native mirror retains the saved dispatcher word");
 
-        Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(bus, ram));
+        Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
 
         // Build a genuine old envelope independently: old named fields override its raw mirror.
         JsonObject legacy = RequiredJson.Parse(json).AsObject();
@@ -109,7 +109,7 @@ internal static class SaveSchemaTranslationVerification
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
     }
     /// <summary>Confirms translated completion and item-load fields are consumed by the live frontend.</summary>
-    private static void VerifyNamedSaveRuntime(SuperMetroidAddressSpace bus, SaveSlotStore ram)
+    private static void VerifyNamedSaveRuntime(SaveSlotStore ram)
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
         var frontend = new SuperMetroidGame(ram);

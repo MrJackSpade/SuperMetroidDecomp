@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
@@ -8,21 +10,19 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal sealed class TorizoHitboxList
 {
-    /// <summary>The right-facing counterpart, or null when this list is its own.</summary>
-    private readonly TorizoHitboxList? rightFacing;
-
     /// <summary>Creates a list of rectangles with an optional separately fitted right-facing counterpart.</summary>
     /// <param name="rectangles">Rectangles in test order; the first one a probe overlaps decides the reaction.</param>
     /// <param name="rightFacing">The list a mirrored, right-facing frame uses in place of this one.</param>
     internal TorizoHitboxList(GoldenTorizoCollisionHitbox[] rectangles, TorizoHitboxList? rightFacing = null)
     {
         Rectangles = Ensure.NotNull(rectangles);
-        this.rightFacing = rightFacing;
+        RightFacing = rightFacing;
     }
 
     /// <summary>Rectangles in test order; empty for a component without collision.</summary>
     internal IReadOnlyList<GoldenTorizoCollisionHitbox> Rectangles { get; }
 
     /// <summary>The list a mirrored, right-facing copy of a component holding this list uses.</summary>
-    internal TorizoHitboxList RightFacing => rightFacing ?? this;
+    [AllowNull]
+    internal TorizoHitboxList RightFacing => field ?? this;
 }

@@ -150,7 +150,7 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
     public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {
-        if (index < 0 || index >= PointerCount)
+        if (index is < 0 or >= PointerCount)
             throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.");
         ushort pointer = Pointer(index);
         definition = pointer == 0 ? null : definitions[pointer];

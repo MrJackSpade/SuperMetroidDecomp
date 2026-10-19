@@ -94,7 +94,7 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), Clone(samus));
         }
-        Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(bus, stock, edited, body, roomAssets, maps,
+        Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(stock, edited, body, roomAssets, maps,
             grappleArtwork));
         Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state with visual/cadence ROM forbidden; actual actor override/rebind passes.");
 
@@ -156,7 +156,7 @@ internal static class GrappleFlarePresentationVerification
 
     /// <summary>Checks the real actor consumes stock and edited flare compositions and rebinds current art after a saved-state restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
+    private static void VerifyGrappleFlareActorBinding(
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)

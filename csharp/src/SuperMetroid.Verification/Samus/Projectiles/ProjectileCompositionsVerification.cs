@@ -70,7 +70,7 @@ internal static class ProjectileCompositionsVerification
         GameInstallation installation = GameAssetInstaller.Install(
             Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
-        Suite(nameof(VerifyRuntimeProjectileCompositions), () => VerifyRuntimeProjectileCompositions(rom, content, edited, editedId,
+        Suite(nameof(VerifyRuntimeProjectileCompositions), () => VerifyRuntimeProjectileCompositions(content, edited, editedId,
             roomAssets, installation.LoadMaps()));
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(rom, content, edited, editedId);
@@ -176,7 +176,7 @@ internal static class ProjectileCompositionsVerification
 
     /// <summary>Checks frontend gameplay drawing binds selected projectile art for each production owner family.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
+    private static void VerifyRuntimeProjectileCompositions(
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {

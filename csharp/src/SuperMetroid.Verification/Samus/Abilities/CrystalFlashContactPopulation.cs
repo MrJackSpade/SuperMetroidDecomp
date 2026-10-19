@@ -25,7 +25,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     }
 
     /// <summary>Associates the constructed population with its retail Ripper graphics header.</summary>
-    public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
+    public static RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));

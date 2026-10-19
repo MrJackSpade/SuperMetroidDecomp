@@ -118,7 +118,7 @@ internal static class ProjectileTrailArtworkVerification
         var part = document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first));
         part["flipX"] = !part.Required("flipX").GetValue<bool>();
         var edited = Load(document);
-        Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(bus, catalog, edited));
+        Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(catalog, edited));
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
@@ -198,7 +198,7 @@ internal static class ProjectileTrailArtworkVerification
     }
     /// <summary>Checks runtime art rebinding changes OAM but leaves saved trail timing and serialized game state intact.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
+    private static void VerifyRuntimeTrailBinding(ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

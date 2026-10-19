@@ -89,14 +89,14 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectilePreInstruction.RTS_86E6D1,
             EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
-        table.RegisterCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.RegisterEnemyProjectileHandlers(table);
         return table;
     }
 
     /// <summary>Carries out one shared bank-$86 command of a typed projectile program.</summary>
-    private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EnemyProjectileCommonCue cue)
+    private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue.Kind)
         {

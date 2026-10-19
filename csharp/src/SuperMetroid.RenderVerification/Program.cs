@@ -123,7 +123,7 @@ internal static class Program
                     using var device = new D3D11RenderDevice(kind);
                     using var renderer = new D3D11FrameRenderer(device);
                     long sequence = 0;
-                    MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
+                    MinimapBlinkAudit.Run(runtime =>
                     {
                         var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Clock.Counter),
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));

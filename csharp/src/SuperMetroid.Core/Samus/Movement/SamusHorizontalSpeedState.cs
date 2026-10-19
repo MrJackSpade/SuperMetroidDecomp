@@ -65,12 +65,9 @@ public sealed class SamusHorizontalSpeedState
     /// </remarks>
     public int SpeedBoostCounter
     {
-        get => _speedBoostCounter;
-        set => _speedBoostCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="SpeedBoostCounter"/>, always 0 through 65535.</summary>
-    private int _speedBoostCounter;
 
     /// <summary>The counter span of one Speed Booster stage: the cadence countdown runs below it.</summary>
     private const int BoostStage = 1 << 8;
@@ -193,12 +190,9 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public int SpeedDivisor
     {
-        get => _speedDivisor;
-        set => _speedDivisor = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="SpeedDivisor"/>, always 0 through 65535.</summary>
-    private int _speedDivisor;
 
     /// <summary>
     /// Acceleration mode at WRAM <c>$0B4A</c>: zero accelerates, while every nonzero value
@@ -217,12 +211,9 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public int DecelerationMultiplier
     {
-        get => _decelerationMultiplier;
-        set => _decelerationMultiplier = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="DecelerationMultiplier"/>, always 0 through 255.</summary>
-    private int _decelerationMultiplier;
 
     /// <summary>
     /// The table the current inside-block/environment reaction selected. Normal air, water, and

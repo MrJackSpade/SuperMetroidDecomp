@@ -69,8 +69,6 @@ public sealed class ManagedSnesDsp
     private int echoBufferIndex;
     /// <summary>Current position in the eight-tap FIR history ring.</summary>
     private int firBufferIndex;
-    /// <summary>Native stereo frames currently written to the gameplay output buffer.</summary>
-    private int sampleOffset;
 
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
     public ManagedSnesDsp(byte[] apuRam)
@@ -82,7 +80,7 @@ public sealed class ManagedSnesDsp
     }
 
     /// <summary>Native stereo frames accumulated since the last host-buffer copy.</summary>
-    public int BufferedStereoFrameCount => sampleOffset;
+    public int BufferedStereoFrameCount { get; private set; }
 
     /// <summary>
     /// Voices whose output reaches the main mix; all by default. The offline clip renderer (#1305)
@@ -118,7 +116,7 @@ public sealed class ManagedSnesDsp
         Array.Clear(firBufferLeft);
         Array.Clear(firBufferRight);
         Array.Clear(sampleBuffer);
-        sampleOffset = 0;
+        BufferedStereoFrameCount = 0;
     }
 
     /// <summary>
@@ -292,11 +290,11 @@ public sealed class ManagedSnesDsp
         if (mute)
             totalLeft = totalRight = 0;
         HandleNoise();
-        if (sampleOffset < NativeStereoFramesPerVideoFrame)
+        if (BufferedStereoFrameCount < NativeStereoFramesPerVideoFrame)
         {
-            sampleBuffer[sampleOffset * 2] = unchecked((short)totalLeft);
-            sampleBuffer[sampleOffset * 2 + 1] = unchecked((short)totalRight);
-            sampleOffset = SpcDriverWrap.Word(sampleOffset + 1);
+            sampleBuffer[BufferedStereoFrameCount * 2] = unchecked((short)totalLeft);
+            sampleBuffer[BufferedStereoFrameCount * 2 + 1] = unchecked((short)totalRight);
+            BufferedStereoFrameCount = SpcDriverWrap.Word(BufferedStereoFrameCount + 1);
         }
     }
 
@@ -305,12 +303,12 @@ public sealed class ManagedSnesDsp
     /// <exception cref="ArgumentException"><paramref name="destination"/> is shorter than one native frame.</exception>
     public void CopyNativeSamples(Span<short> destination)
     {
-        if (sampleOffset != NativeStereoFramesPerVideoFrame)
-            throw new InvalidDataException($"S-DSP frame holds {sampleOffset} of {NativeStereoFramesPerVideoFrame} samples.");
+        if (BufferedStereoFrameCount != NativeStereoFramesPerVideoFrame)
+            throw new InvalidDataException($"S-DSP frame holds {BufferedStereoFrameCount} of {NativeStereoFramesPerVideoFrame} samples.");
         if (destination.Length < sampleBuffer.Length)
             throw new ArgumentException($"Native destination requires {sampleBuffer.Length} samples.", nameof(destination));
         sampleBuffer.CopyTo(destination);
-        sampleOffset = 0;
+        BufferedStereoFrameCount = 0;
     }
 
     /// <summary>Starts a PCM source at its beginning and resets the selected voice envelope.</summary>

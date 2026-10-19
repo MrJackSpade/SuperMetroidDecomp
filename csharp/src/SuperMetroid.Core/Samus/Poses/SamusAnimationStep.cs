@@ -15,12 +15,9 @@ public sealed record SamusAnimationStep
     /// </summary>
     public int NmiFrameCounter
     {
-        get => _nmiFrameCounter;
-        init => _nmiFrameCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="NmiFrameCounter"/>, always 0 through 65535.</summary>
-    private readonly int _nmiFrameCounter;
 
     /// <summary>System.</summary>
     public Bank80SystemState? System { get; init; } = null;

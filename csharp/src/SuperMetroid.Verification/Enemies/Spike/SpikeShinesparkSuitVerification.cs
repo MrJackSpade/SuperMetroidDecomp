@@ -32,7 +32,7 @@ internal static class SpikeShinesparkSuitVerification
             (10, ShinesparkPhase.Stored, SamusPoseId.FallingRightPose, SamusSpecialPaletteType.SpeedBoosterShine),
         })
         {
-            SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: false);
+            SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(underwater: false);
             SamusState samus = runtime.Player.IntroducedSamus;
             for (int frame = 0; frame < 15; frame++)
             {
@@ -52,7 +52,7 @@ internal static class SpikeShinesparkSuitVerification
         // complete alpha/beta pair, so an in-flight spike knockback must retain its
         // coordinates, animation cursor, movement owner, and stored-shine palette
         // while automatic Reserve recovery advances only global hurt timers.
-        SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(bus, underwater: true);
+        SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(underwater: true);
         SamusState frozenSamus = frozenRuntime.Player.IntroducedSamus;
         for (int frame = 0; frame < 8; frame++)
             frozenRuntime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
@@ -100,7 +100,7 @@ internal static class SpikeShinesparkSuitVerification
             (11, 6, false),
         })
         {
-            SamusState samus = RunReserveSpikeSuitCase(bus, expected.FreezeAfter, expected.LaunchAfter);
+            SamusState samus = RunReserveSpikeSuitCase(expected.FreezeAfter, expected.LaunchAfter);
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
                 samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
@@ -115,11 +115,10 @@ internal static class SpikeShinesparkSuitVerification
 
     /// <summary>Runs one underwater automatic-Reserve freeze and post-recovery Jump timing case.</summary>
     private static SamusState RunReserveSpikeSuitCase(
-        SuperMetroidAddressSpace bus,
         int freezeAfter,
         int launchAfter)
     {
-        SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: true);
+        SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(underwater: true);
         SamusState samus = runtime.Player.IntroducedSamus;
         for (int frame = 0; frame < freezeAfter; frame++)
             runtime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
@@ -149,9 +148,7 @@ internal static class SpikeShinesparkSuitVerification
     }
 
     /// <summary>Creates a grounded morph-ball fixture with stored shine and spike contact.</summary>
-    private static SuperMetroidRuntime CreateSpikeSuitRuntime(
-        SuperMetroidAddressSpace bus,
-        bool underwater)
+    private static SuperMetroidRuntime CreateSpikeSuitRuntime(bool underwater)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

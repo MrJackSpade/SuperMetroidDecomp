@@ -25,7 +25,7 @@ public static class SamusSpecialSuperPalette
         Ensure.NotNull(samus);
 
         int phase = samus.SpecialSuperPaletteFlags;
-        if (phase == 0 || phase >= FirstDrainedBranchPhase)
+        if (phase is 0 or >= FirstDrainedBranchPhase)
             return false;
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();

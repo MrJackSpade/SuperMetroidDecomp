@@ -206,12 +206,9 @@ public sealed class SamusState
     /// </summary>
     public int SubunitHealth
     {
-        get => _subunitHealth;
-        set => _subunitHealth = Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, value);
     }
-
-    /// <summary>Backing value of <see cref="SubunitHealth"/>, always 0 through 65535.</summary>
-    private int _subunitHealth;
 
     /// <summary>How many <see cref="SubunitHealth"/> units make one <see cref="Health"/> unit.</summary>
     private const int SubunitsPerHealthUnit = 65536;
@@ -340,12 +337,9 @@ public sealed class SamusState
     /// </remarks>
     public int BombSpreadChargeTimeoutCounter
     {
-        get => _bombSpreadChargeTimeoutCounter;
-        set => _bombSpreadChargeTimeoutCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="BombSpreadChargeTimeoutCounter"/>, always 0 through 65535.</summary>
-    private int _bombSpreadChargeTimeoutCounter;
 
     /// <summary>
     /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
@@ -390,12 +384,9 @@ public sealed class SamusState
     /// </summary>
     public int SpecialSuperPaletteFlags
     {
-        get => _specialSuperPaletteFlags;
-        internal set => _specialSuperPaletteFlags = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-
-    /// <summary>Backing value of <see cref="SpecialSuperPaletteFlags"/>, always 0 through 65535.</summary>
-    private int _specialSuperPaletteFlags;
 
     /// <summary>
     /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first

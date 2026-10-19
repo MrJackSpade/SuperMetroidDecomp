@@ -222,8 +222,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         var conversion = (IConversionOperation)context.Operation;
         if (conversion.IsImplicit)
             return;
-        bool toButtons = IsControllerButtons(conversion.Type) && IsIntegral(conversion.Operand.Type);
-        bool fromButtons = IsControllerButtons(conversion.Operand.Type) && IsIntegral(conversion.Type);
+        IAssemblySymbol analyzed = context.Compilation.Assembly;
+        bool toButtons = IsControllerButtons(conversion.Type, analyzed) && IsIntegral(conversion.Operand.Type);
+        bool fromButtons = IsControllerButtons(conversion.Operand.Type, analyzed) && IsIntegral(conversion.Type);
         if (!toButtons && !fromButtons || InControllerWordBoundary(context.ContainingSymbol))
             return;
         Report(context, ControllerWordConversionRule, conversion.Syntax.GetLocation(),
@@ -231,8 +232,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Whether a type is the controller button set declared by the compilation being analyzed.</summary>
-    private static bool IsControllerButtons(ITypeSymbol? type) =>
-        type is INamedTypeSymbol named && named.ToDisplayString() == ControllerButtonsType && IsOwned(named);
+    private static bool IsControllerButtons(ITypeSymbol? type, IAssemblySymbol analyzed) =>
+        type is INamedTypeSymbol named && named.ToDisplayString() == ControllerButtonsType &&
+        SymbolEqualityComparer.Default.Equals(named.ContainingAssembly, analyzed);
 
     /// <summary>Whether a declaration, its property or a containing type carries [ControllerWordBoundary].</summary>
     private static bool InControllerWordBoundary(ISymbol? symbol)

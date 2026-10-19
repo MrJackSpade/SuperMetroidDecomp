@@ -32,7 +32,7 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
         Suite(nameof(VerifyCompiledCeresRoomFxConsumers), () => VerifyCompiledCeresRoomFxConsumers(bus));
-        Console.WriteLine($"Compiled room FX: {capture.Lists.Count} headers with {capture.Records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
+        Console.WriteLine($"Compiled room FX: {capture.Lists.Count} headers with {capture.Records.Count} typed records across {RoomStateDefinitions.All.Count} room states match every native field.");
     }
 
     /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>

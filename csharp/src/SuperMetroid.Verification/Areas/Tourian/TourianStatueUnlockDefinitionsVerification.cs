@@ -91,7 +91,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
-        foreach (TourianStatueTilePicture picture in definition.Pictures)
+        foreach (TourianStatueTilePicture picture in TourianStatueAnimatedTileProgramDefinition.Pictures)
         {
             int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);

@@ -130,7 +130,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>Carries out one cue of the gate's programs.</summary>
-    private static void ApplyDownwardGateCue(RoomEnemyProjectileSlot projectile, SamusState? samus, DownwardGateProjectileCue cue)
+    private static void ApplyDownwardGateCue(RoomEnemyProjectileSlot projectile, DownwardGateProjectileCue cue)
     {
         switch (cue.Kind)
         {
@@ -154,7 +154,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
     internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));
         table.RegisterPreInstruction(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);

@@ -81,7 +81,7 @@ internal static class GrappleTileArtworkVerification
                 BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };
         }
-        Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(bus, stock, edited));
+        Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(stock, edited));
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16)); wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(wrong), "Wrong Grapple PNG dimensions rejected");

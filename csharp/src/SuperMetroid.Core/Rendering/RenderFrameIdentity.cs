@@ -15,10 +15,7 @@ public readonly record struct RenderFrameIdentity(long Sequence, long Generation
     /// <summary>Captured simulation frame number, 0 through <see cref="MaximumSimulationFrame"/>.</summary>
     public int SimulationFrame
     {
-        get => simulationFrame;
-        init => simulationFrame = Ensure.BetweenInclusive(0, MaximumSimulationFrame, value);
-    }
-
-    /// <summary>Validated store of <see cref="SimulationFrame"/>.</summary>
-    private readonly int simulationFrame = Ensure.BetweenInclusive(0, MaximumSimulationFrame, SimulationFrame);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumSimulationFrame, value);
+    } = Ensure.BetweenInclusive(0, MaximumSimulationFrame, SimulationFrame);
 }

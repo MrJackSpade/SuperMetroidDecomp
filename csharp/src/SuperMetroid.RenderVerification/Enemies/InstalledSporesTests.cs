@@ -238,7 +238,7 @@ internal static class InstalledSporesTests
             // Statue frames overlap the middle strip and must retain their original
             // aliases even though spores now occupy the final nine characters.
             foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
-            foreach (var picture in statue.Pictures)
+            foreach (var picture in TourianStatueAnimatedTileProgramDefinition.Pictures)
             {
                 int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(statue, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +

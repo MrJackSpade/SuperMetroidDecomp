@@ -9,30 +9,21 @@ public sealed record FixedColorAddRenderLayer(int Red, int Green, int Blue) : Re
     /// <summary>Fixed red intensity.</summary>
     public int Red
     {
-        get => red;
-        init => red = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
-    }
-
-    /// <summary>Validated store of <see cref="Red"/>.</summary>
-    private readonly int red = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Red);
+        get;
+        init => field = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
+    } = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Red);
 
     /// <summary>Fixed green intensity.</summary>
     public int Green
     {
-        get => green;
-        init => green = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
-    }
-
-    /// <summary>Validated store of <see cref="Green"/>.</summary>
-    private readonly int green = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Green);
+        get;
+        init => field = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
+    } = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Green);
 
     /// <summary>Fixed blue intensity.</summary>
     public int Blue
     {
-        get => blue;
-        init => blue = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
-    }
-
-    /// <summary>Validated store of <see cref="Blue"/>.</summary>
-    private readonly int blue = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Blue);
+        get;
+        init => field = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, value);
+    } = Ensure.BetweenInclusive(0, Bgr555.MaxChannel, Blue);
 }

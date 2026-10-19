@@ -19,32 +19,23 @@ public readonly record struct FixedColorRegisterSnapshot(int Red, int Green, int
     /// <summary>The first COLDATA write.</summary>
     public int Red
     {
-        get => red;
-        init => red = Ensure.BetweenInclusive(0, MaximumWrite, value);
-    }
-
-    /// <summary>Validated store of <see cref="Red"/>.</summary>
-    private readonly int red = Ensure.BetweenInclusive(0, MaximumWrite, Red);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumWrite, value);
+    } = Ensure.BetweenInclusive(0, MaximumWrite, Red);
 
     /// <summary>The second COLDATA write.</summary>
     public int Green
     {
-        get => green;
-        init => green = Ensure.BetweenInclusive(0, MaximumWrite, value);
-    }
-
-    /// <summary>Validated store of <see cref="Green"/>.</summary>
-    private readonly int green = Ensure.BetweenInclusive(0, MaximumWrite, Green);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumWrite, value);
+    } = Ensure.BetweenInclusive(0, MaximumWrite, Green);
 
     /// <summary>The third COLDATA write.</summary>
     public int Blue
     {
-        get => blue;
-        init => blue = Ensure.BetweenInclusive(0, MaximumWrite, value);
-    }
-
-    /// <summary>Validated store of <see cref="Blue"/>.</summary>
-    private readonly int blue = Ensure.BetweenInclusive(0, MaximumWrite, Blue);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumWrite, value);
+    } = Ensure.BetweenInclusive(0, MaximumWrite, Blue);
 
     /// <summary>The five-bit intensity of <see cref="Red"/>, 0 through <see cref="Bgr555.MaxChannel"/>.</summary>
     public int RedIntensity => Red & IntensityMask;

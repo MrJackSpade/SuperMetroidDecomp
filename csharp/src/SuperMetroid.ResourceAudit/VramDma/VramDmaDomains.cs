@@ -83,7 +83,7 @@ internal static class VramDmaDomains
                     (BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>
-                    definition.Pictures.Select(picture =>
+                    TourianStatueAnimatedTileProgramDefinition.Pictures.Select(picture =>
                         (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture), definition.TransferByteCount))));
             case "treadmill":
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>

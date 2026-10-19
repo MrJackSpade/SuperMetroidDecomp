@@ -12,7 +12,7 @@ internal static class GrappleEndpointGeometryVerification
 {
     /// <summary>Checks endpoint visibility and attributes across pose, camera, and coordinate boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    internal static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
+    internal static void VerifyGrappleEndpointGeometry()
     {
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
         // rope origin off-screen so its first visited slot is culled and only
@@ -55,13 +55,13 @@ internal static class GrappleEndpointGeometryVerification
             AssertEqual((byte)0x20, oam.LowTable[2], "Native endpoint character");
             AssertEqual((byte)0x3a, oam.LowTable[3], "Native endpoint palette/priority");
         }
-        Suite(nameof(VerifyGrappleEndpointActor), () => VerifyGrappleEndpointActor((SuperMetroidAddressSpace)bus));
+        Suite(nameof(VerifyGrappleEndpointActor), () => VerifyGrappleEndpointActor());
         Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
     }
 
     /// <summary>Checks the endpoint pose gate through the full gameplay actor drawing pass.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
+    private static void VerifyGrappleEndpointActor()
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

@@ -11,20 +11,14 @@ public readonly record struct XrayWindowLine(int Left, int Right)
     /// <summary>Inclusive left screen column.</summary>
     public int Left
     {
-        get => left;
-        init => left = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="Left"/>.</summary>
-    private readonly int left = Ensure.BetweenInclusive(0, MaximumColumn, Left);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, Left);
 
     /// <summary>Inclusive right screen column.</summary>
     public int Right
     {
-        get => right;
-        init => right = Ensure.BetweenInclusive(0, MaximumColumn, value);
-    }
-
-    /// <summary>Validated store of <see cref="Right"/>.</summary>
-    private readonly int right = Ensure.BetweenInclusive(0, MaximumColumn, Right);
+        get;
+        init => field = Ensure.BetweenInclusive(0, MaximumColumn, value);
+    } = Ensure.BetweenInclusive(0, MaximumColumn, Right);
 }

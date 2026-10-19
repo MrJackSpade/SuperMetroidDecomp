@@ -60,8 +60,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The CGRAM colour index that receives the eight common grey colours.</summary>
     public required int GreyColorIndex { get; init; }
 
-    /// <summary>The pictures this statue's program shows, each one artwork window.</summary>
-    public IReadOnlyList<TourianStatueTilePicture> Pictures => AllPictures;
+    /// <summary>The pictures every statue's program shows, each one artwork window.</summary>
+    public static IReadOnlyList<TourianStatueTilePicture> Pictures => AllPictures;
 
     /// <summary>The statue's typed animated-tile programs.</summary>
     internal AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program =>

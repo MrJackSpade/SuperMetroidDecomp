@@ -24,7 +24,7 @@ internal static class MetroidBombPlacementVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
-        Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(bus, room));
+        Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(room));
         var assets = LoadFixtureRoomAssets(room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
@@ -76,7 +76,7 @@ internal static class MetroidBombPlacementVerification
     }
 
     /// <summary>Compares the retail room's placed-bomb detach trajectory with native frames 61 through 66.</summary>
-    private static void VerifyMetroidBombRuntime(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
+    private static void VerifyMetroidBombRuntime(CartridgeRoomHeader room)
     {
         // Use the dry-floor setup from the full-alpha native capture, not the
         // former submerged fixture or a hand-positioned already-exploding bomb.

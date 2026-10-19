@@ -136,7 +136,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         }
     }
 
-    /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="columns"/> blocks across and <paramref name="rows"/> blocks up or down of the PLM.</summary>
+    /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="reach"/> blocks across and up or down of the PLM.</summary>
     internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, Extent16<RoomBlocks> reach)
     {
         SamusState samus = _bindings.Samus?.Current

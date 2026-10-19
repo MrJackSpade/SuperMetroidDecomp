@@ -27,40 +27,28 @@ public readonly record struct OrdinaryGameplayRegisters(
     /// <summary>BG2 tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int Bg2TilemapWord
     {
-        get => bg2TilemapWord;
-        init => bg2TilemapWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="Bg2TilemapWord"/>.</summary>
-    private readonly int bg2TilemapWord = VramWordRange.Require(Bg2TilemapWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(Bg2TilemapWord);
 
     /// <summary>BG1 four-bit planar character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int Bg1CharacterWord
     {
-        get => bg1CharacterWord;
-        init => bg1CharacterWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="Bg1CharacterWord"/>.</summary>
-    private readonly int bg1CharacterWord = VramWordRange.Require(Bg1CharacterWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(Bg1CharacterWord);
 
     /// <summary>BG2 four-bit planar character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int Bg2CharacterWord
     {
-        get => bg2CharacterWord;
-        init => bg2CharacterWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="Bg2CharacterWord"/>.</summary>
-    private readonly int bg2CharacterWord = VramWordRange.Require(Bg2CharacterWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(Bg2CharacterWord);
 
     /// <summary>BG3 two-bit planar HUD character base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int HudCharacterWord
     {
-        get => hudCharacterWord;
-        init => hudCharacterWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="HudCharacterWord"/>.</summary>
-    private readonly int hudCharacterWord = VramWordRange.Require(HudCharacterWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(HudCharacterWord);
 }

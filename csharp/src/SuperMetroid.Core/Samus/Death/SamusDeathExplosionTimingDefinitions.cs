@@ -31,7 +31,7 @@ internal static class SamusDeathExplosionTimingDefinitions
     /// <summary>Returns the fixed duration for one authored explosion-frame index.</summary>
     public static ushort DurationForIndex(int index)
     {
-        if (index < 0 || index >= RecordCount)
+        if (index is < 0 or >= RecordCount)
         {
             throw new InvalidDataException(
                 $"Samus death-explosion timing index {index} is outside the " +

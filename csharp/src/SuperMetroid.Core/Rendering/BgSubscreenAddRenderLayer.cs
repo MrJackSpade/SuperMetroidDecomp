@@ -15,32 +15,23 @@ public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWor
     /// <summary>Subscreen BG tilemap base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int TilemapWord
     {
-        get => tilemapWord;
-        init => tilemapWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="TilemapWord"/>.</summary>
-    private readonly int tilemapWord = VramWordRange.Require(TilemapWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(TilemapWord);
 
     /// <summary>Subscreen character-data base VRAM word address, 0 through <c>VramWordRange.MaximumWord</c>.</summary>
     public int CharacterWord
     {
-        get => characterWord;
-        init => characterWord = VramWordRange.Require(value);
-    }
-
-    /// <summary>Validated store of <see cref="CharacterWord"/>.</summary>
-    private readonly int characterWord = VramWordRange.Require(CharacterWord);
+        get;
+        init => field = VramWordRange.Require(value);
+    } = VramWordRange.Require(CharacterWord);
 
     /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="Bg2BppViewportRenderLayer.MaximumScroll"/>.</summary>
     public int VerticalScroll
     {
-        get => verticalScroll;
-        init => verticalScroll = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, value);
-    }
-
-    /// <summary>Validated store of <see cref="VerticalScroll"/>.</summary>
-    private readonly int verticalScroll = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, VerticalScroll);
+        get;
+        init => field = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, value);
+    } = Ensure.BetweenInclusive(0, Bg2BppViewportRenderLayer.MaximumScroll, VerticalScroll);
 
     /// <summary>Copied per-scanline BG scroll registers; an empty array selects the uniform scroll properties.</summary>
     private Position16<BgPlanePixels>[] scrolls = [];

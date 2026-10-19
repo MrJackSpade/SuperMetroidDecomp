@@ -19,7 +19,7 @@ internal static class GrappleTileBindingVerification
     /// The actual actor pass publishes grapple draws bound to the installed atlas's endpoint/rope tiles; rebinding host
     /// artwork leaves saved state untouched; a restored state draws with whichever atlas the host binds.
     /// </summary>
-    internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
+    internal static void VerifyGrappleTileBinding(GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();

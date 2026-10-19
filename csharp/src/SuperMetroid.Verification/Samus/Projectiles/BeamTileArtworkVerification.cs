@@ -32,7 +32,7 @@ internal static class BeamTileArtworkVerification
         var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus));
-        Suite(nameof(VerifyRuntimeBeamArtwork), () => VerifyRuntimeBeamArtwork(bus, files, catalog));
+        Suite(nameof(VerifyRuntimeBeamArtwork), () => VerifyRuntimeBeamArtwork(files, catalog));
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
@@ -121,7 +121,7 @@ internal static class BeamTileArtworkVerification
 
     /// <summary>Checks accepted NMI publication of edited PNG bytes and host artwork rebinding after a runtime restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
+    private static void VerifyRuntimeBeamArtwork(Dictionary<string, byte[]> files, BeamTileCatalog stock)
     {
         var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), new(64, 8));
         image.Pixels[0] ^= 1;

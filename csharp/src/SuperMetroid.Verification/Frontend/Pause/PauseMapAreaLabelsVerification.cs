@@ -62,14 +62,14 @@ internal static class PauseMapAreaLabelsVerification
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();
             var pixels = pause.Render();
-            var oam = pause.entries;
+            var oam = pause.screen.Objects;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
             AssertTrue(oam.LowTable.Slice(start, labelBytes).SequenceEqual(native.LowTable[..labelBytes]),
                 $"{area} destination spelling, order, coordinates and palette match raw ROM OAM");
             AssertLabels(start, "stable map");
             var nativePixels = SnesObjRenderer.Render(native, rawVram, nativeColors, PauseMenuLayout.ObjectSelection);
-            var installedPixels = SnesObjRenderer.Render(native, pause.vram, pause.cgram, PauseMenuLayout.ObjectSelection);
+            var installedPixels = SnesObjRenderer.Render(native, PauseScreenFixtures.Vram(pause.screen), PauseScreenFixtures.Cgram(pause.screen), PauseMenuLayout.ObjectSelection);
             AssertTrue(nativePixels.SequenceEqual(installedPixels), $"{area} installed label artwork and colors equal raw ROM");
             // The high-priority BG2 holder covers destination names at the map edges.
             // Confirm visible lettering in the map interior, separately from complete OBJ/OAM equality above.
@@ -93,13 +93,13 @@ internal static class PauseMapAreaLabelsVerification
             }
             AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
             pause.Step(SnesButton.R, 0); _ = pause.Render();
-            AssertLabels(pause.entries.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
+            AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.Render();
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
             _ = pause.Render();
             AssertEqual(1, pause.ScreenMode, "equipment page reached");
-            AssertTrue(pause.entries.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
+            AssertTrue(pause.screen.Objects.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
             for (int frame = 0; pause.IsPageTransitionActive; frame++)
             {
@@ -110,10 +110,10 @@ internal static class PauseMapAreaLabelsVerification
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.Render();
             AssertEqual(0, pause.ScreenMode, "map fade-in reached");
-            AssertLabels(pause.entries.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
+            AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)
             {
-                var actual = pause.entries;
+                var actual = pause.screen.Objects;
                 AssertTrue(actual.LowTable.Slice(firstByte, labelBytes).SequenceEqual(native.LowTable[..labelBytes]), $"{area} {phase} native label order/coordinates");
                 for (int sprite = 0; sprite < labelBytes / 4; sprite++)
                 {
@@ -126,7 +126,7 @@ internal static class PauseMapAreaLabelsVerification
             // The separate current-area heading was already installed correctly.
             int title = 0x820000 | Read(0x82965f + (int)area * 2);
             for (int word = 0; word < 12; word++)
-                AssertEqual(Read(title + word * 2), pause.vram.ReadWord(0x38aa + word), $"{area} heading agrees with native BG2 patch");
+                AssertEqual(Read(title + word * 2), pause.screen.Tilemaps.Bg2[0xaa + word], $"{area} heading agrees with native BG2 patch");
         }
         Console.WriteLine("Pause area labels: five outside-Tourian areas match raw ROM destination OAM/pixels and area-title words.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);

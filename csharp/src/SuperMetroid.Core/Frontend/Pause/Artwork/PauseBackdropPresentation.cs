@@ -27,16 +27,16 @@ public sealed class PauseBackdropPresentation
         return result;
     }
 
-    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, directly into VRAM.</summary>
+    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, into the pause BG2 tilemap.</summary>
     /// <param name="destination">The pause BG2 tilemap; words outside the 32-by-32 image remain unchanged.</param>
     /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
-    public void LoadTo(VramRegion destination, AreaId area)
+    public void LoadTo(Span<ushort> destination, AreaId area)
     {
         var selected = areas[AreaIds.ToIndex(area)];
-        Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.WordCount);
+        Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
-            destination.Write(cell, selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell));
+            destination[cell] = selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell);
     }
 
     /// <summary>Extracts only tilemap words changed from the stock calculation, preserving independent authored edits.</summary>

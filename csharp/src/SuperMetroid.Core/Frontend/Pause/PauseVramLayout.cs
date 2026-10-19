@@ -31,21 +31,12 @@ public static class PauseVramLayout
     public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
         PauseMenuLayout.Bg2TilemapWord, 0x0400, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
 
-    /// <summary>VMADD $3B20-$3B5F: the two mutable button-label rows the NMI DMA queued from WRAM <c>$7E:3640</c>.</summary>
-    public static readonly PpuLayoutCell ButtonRows = new(nameof(ButtonRows), PpuLayoutRegion.Vram,
-        0x3b20, 0x0040, "BG tilemap words (two 32-word rows)", Bg2Tilemap);
-
-    /// <summary>VMADD $5800-$5BFF: the gameplay BG3 tilemap pause keeps resident (SetupPPUForPauseMenu sets BG3SC=$58).</summary>
-    public static readonly PpuLayoutCell RetainedHudTilemap = new(nameof(RetainedHudTilemap), PpuLayoutRegion.Vram,
-        GameplayVramLayout.HudTilemapWord, 0x0400, "BG3 tilemap words (32x32)", GameplayVramLayout.HudTilemap);
-
-    /// <summary>VMADD $5820-$587F: the mutable HUD rows whose accepted NMI DMA pause mirrors.</summary>
-    public static readonly PpuLayoutCell AcceptedHudRows = new(nameof(AcceptedHudRows), PpuLayoutRegion.Vram,
-        HudState.VramDestination, HudState.MutableByteCount / sizeof(ushort), "BG3 tilemap words", RetainedHudTilemap);
-
-    /// <summary>VMADD $5880-$5FFF: the FX rows <c>QueueClearingOfFxTilemap</c> ($80:A211) fills below the HUD.</summary>
-    public static readonly PpuLayoutCell Bg3FxRows = new(nameof(Bg3FxRows), PpuLayoutRegion.Vram,
-        0x5880, 0x0780, "BG3 tilemap words", GameplayVramLayout.HudTilemap);
+    /// <summary>
+    /// VMADD $5800-$5FFF: the BG3 tilemap (SetupPPUForPauseMenu sets BG3SC=$58): gameplay's retained HUD rows, then the FX
+    /// rows <c>QueueClearingOfFxTilemap</c> ($80:A211) fills.
+    /// </summary>
+    public static readonly PpuLayoutCell Bg3Tilemap = new(nameof(Bg3Tilemap), PpuLayoutRegion.Vram,
+        GameplayVramLayout.HudTilemapWord, 0x0800, "BG3 tilemap words (32x64)", PpuMemoryLayout.Vram);
 
     /// <summary>Pause OBSEL=$01 places the shared menu OBJ characters at VRAM byte $4000.</summary>
     internal const int MapSpriteByteAddress = 0x4000;

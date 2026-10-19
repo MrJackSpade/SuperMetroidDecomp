@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -44,12 +45,8 @@ internal sealed class PauseMenuState
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Host-bound map artwork, rebound after debugger state restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    /// <summary>Pause-owned VRAM image, including retained gameplay HUD rows.</summary>
-    internal readonly SnesVram vram = new();
-    /// <summary>Pause-owned CGRAM image with live palette and reserve-arrow edits.</summary>
-    internal readonly SnesCgram cgram = new();
-    /// <summary>The pause screen's sprite entries over the shared menu OBJ page (#1358).</summary>
-    internal readonly ScreenSprites entries;
+    /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
+    internal readonly PauseScreen screen;
     /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
     internal readonly byte[] equipmentTilemap;
     /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
@@ -114,14 +111,9 @@ internal sealed class PauseMenuState
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
-        // address, hence the doubled byte destinations below.
-        var pauseVram = new PauseVram(vram);
-        entry.MapPresentation.Tiles.LoadTo(pauseVram.MapCharacters);
-        entry.MapPresentation.PauseTiles.LoadTo(pauseVram.InterfaceCharacters);
-        entry.MapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
-        entries = new ScreenSprites(entry.MapPresentation.Sprites.Page);
-        entry.MapPresentation.HudTiles.LoadTo(vram);
+        // GameState_13 uploads the map, pause interface, menu OBJ and HUD characters; the
+        // screen binds that artwork and its capture places the characters.
+        screen = new PauseScreen(entry.MapPresentation);
         LoadPauseBackdrop();
         if (entry.GameplayLayer3 is not null)
         {
@@ -131,7 +123,7 @@ internal sealed class PauseMenuState
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
             // pixels in the area that its BG3 plane normally covers. Gameplay's BG3 plane
             // is the displayed tilemap (#1351), so pause takes those words from it.
-            new PauseVram(vram).RetainHudTilemap(entry.GameplayLayer3);
+            screen.Tilemaps.RetainHud(entry.GameplayLayer3);
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
@@ -141,10 +133,8 @@ internal sealed class PauseMenuState
         // untouched zero tilemap word selects pause character zero, which is the visible
         // orange `1` glyph. Copying only the live HUD without replaying this queued DMA
         // consequently tiled `1` through every otherwise-empty map cell.
-        var clearedFxTilemap = new ushort[PauseMenuLayout.Bg3FxClearWordCount];
-        Array.Fill(clearedFxTilemap, PauseMenuLayout.Bg3FxClearTile);
-        new PauseVram(vram).Bg3FxRows.Write(clearedFxTilemap);
-        new CgramPalettes(cgram).LoadImage(entry.MapPresentation.Palettes.Pause);
+        screen.Tilemaps.ClearFx(PauseMenuLayout.Bg3FxClearTile);
+        new CgramPalettes(screen.Palette).LoadImage(entry.MapPresentation.Palettes.Pause);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -260,7 +250,7 @@ internal sealed class PauseMenuState
         pauseNmiFrameCounter8 = nmiFrameCounter8;
         // $82:90E8 calls the palette handler after stable pause dispatch. The
         // outer pause/unpause fades draw sprites without advancing this owner.
-        if (advancePalette && paletteAnimation.Step(cgram))
+        if (advancePalette && paletteAnimation.Step(screen.Palette))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == 0)
             StepMapIndicatorAnimation();
@@ -289,33 +279,33 @@ internal sealed class PauseMenuState
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(new PpuMemorySnapshot(vram.CaptureImage(), cgram.Colors, entries.Draws), layers,
+        return new(PauseScreenImage.Capture(screen), layers,
             PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
     private void PrepareRenderSprites()
     {
-        entries.BeginFrame();
+        screen.Objects.BeginFrame();
         if (ScreenMode == 0)
         {
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(entries, mapScrollPosition);
-            mapArrows?.DrawArrows(entries, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, mapScrollPosition);
+            mapArrows?.DrawArrows(screen.Objects, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Native pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase OAM order.
-            icons.DrawBossMarkers(entries, mapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(entries, mapScrollPosition);
+            icons.DrawBossMarkers(screen.Objects, mapScrollPosition);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, mapScrollPosition);
         }
         else
         {
             DrawEquipmentItemSelector();
             DrawReserveTanks();
         }
-        entries.FinishFrame();
+        screen.Objects.FinishFrame();
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
@@ -466,7 +456,7 @@ internal sealed class PauseMenuState
             "Pause map requires installed map presentation assets.")).Get(area);
         byte[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
-        new PauseVram(vram).Bg1Tilemap.Load(mapTilemap);
+        MenuTilemaps.Load(screen.Tilemaps.Bg1, mapTilemap);
 
         // Installed backdrops already contain their authored area lettering.
     }
@@ -647,7 +637,7 @@ internal sealed class PauseMenuState
         // because custom phases may draw different compositions.
         lastSelectorCategory = selectedCategory;
         lastMapIndicatorSprite = null;
-        selector.Draw(entries, selectedCategory, selectedItem, itemSelectorAnimationFrame);
+        selector.Draw(screen.Objects, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
     /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
@@ -712,10 +702,7 @@ internal sealed class PauseMenuState
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, "Pause label mode must be 0..2.");
         }
 
-        new PauseVram(vram).ButtonRows.Load(
-            pauseButtonTilemap.AsSpan(
-                PauseMenuLayout.ButtonRowsSourceOffset,
-                PauseMenuLayout.ButtonRowsByteCount));
+        UploadButtonRows();
     }
 
     /// <summary>Draws an installed map sprite composition with its selected palette bits.</summary>
@@ -725,12 +712,16 @@ internal sealed class PauseMenuState
         // and reserve tanks draw through their semantic presentation owners.
         (mapPresentation ?? throw new InvalidOperationException(
             "Menu spritemap requires installed presentation assets."))
-            .Sprites.Draw(id, entries, origin, paletteBits);
+            .Sprites.Draw(id, screen.Objects, origin, paletteBits);
     }
 
-    /// <summary>Uploads the current mutable equipment page to BG1 VRAM.</summary>
+    /// <summary>Shows the current mutable equipment page on BG1's first screen, leaving the second as the map left it.</summary>
     private void UploadEquipmentTilemap() =>
-        new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
+        MenuTilemaps.Load(screen.Tilemaps.Bg1[..(equipmentTilemap.Length / sizeof(ushort))], equipmentTilemap);
+
+    /// <summary>Shows the mutable button-label source's two rows on BG2, as the queued $7E:3640 transfer does.</summary>
+    private void UploadButtonRows() => MenuTilemaps.Load(screen.Tilemaps.ButtonRows,
+        pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceOffset, PauseMenuLayout.ButtonRowsByteCount));
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
@@ -911,7 +902,7 @@ internal sealed class PauseMenuState
     {
         // Pause owns an isolated PPU image. Mirror the native mutable HUD range,
         // leaving its static first row and deliberately cleared FX rows untouched.
-        new PauseVram(vram).MirrorAcceptedHudRows(gameplayLayer3);
+        screen.Tilemaps.MirrorAcceptedHud(gameplayLayer3);
     }
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
@@ -923,15 +914,11 @@ internal sealed class PauseMenuState
         mapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
         mapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
-        catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
-        catalog.Sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
-        entries.BindArtwork(catalog.Sprites.Page);
+        screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
-        new CgramPalettes(cgram).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
+        new CgramPalettes(screen.Palette).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
             FrontendPaletteLayout.PauseReserveArrowColor6, FrontendPaletteLayout.PauseReserveArrowColor11);
-        catalog.Tiles.LoadTo(new PauseVram(vram).MapCharacters);
-        catalog.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
@@ -973,8 +960,7 @@ internal sealed class PauseMenuState
         // the refreshed backdrop, including a Start/fade highlight.
         // Do not rerun controls or rebuild equipment: that would erase native
         // same-frame label overruns and change the state being restored.
-        new PauseVram(vram).ButtonRows.Load(
-            pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceOffset, PauseMenuLayout.ButtonRowsByteCount));
+        UploadButtonRows();
         // Preserve the serialized scroll position and transition timing. Only refresh
         // BG1 when it currently contains the map; the equipment page shares that VRAM.
         if (ScreenMode == 0) LoadPauseMapTilemap();
@@ -985,7 +971,7 @@ internal sealed class PauseMenuState
     {
         (mapPresentation ?? throw new InvalidOperationException(
             "Pause backdrop requires installed presentation assets."))
-            .PauseBackdrops.LoadTo(new PauseVram(vram).Bg2Tilemap, area);
+            .PauseBackdrops.LoadTo(screen.Tilemaps.Bg2, area);
     }
 
     /// <summary>Adopts replacement button art while preserving palette bits from the live menu.</summary>
@@ -1032,7 +1018,7 @@ internal sealed class PauseMenuState
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyArrowColors(cgram, animated, nmiFrameCounter8,
+        presentation.ApplyArrowColors(screen.Palette, animated, nmiFrameCounter8,
             PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
         presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
         reserveArrowLatched = true;
@@ -1094,7 +1080,7 @@ internal sealed class PauseMenuState
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))
-                .PauseReserveTanks.Draw(entries, map, index);
+                .PauseReserveTanks.Draw(screen.Objects, map, index);
         }
     }
 

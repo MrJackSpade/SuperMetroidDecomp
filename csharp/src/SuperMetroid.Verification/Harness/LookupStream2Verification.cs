@@ -557,21 +557,21 @@ internal static class LookupStream2Verification
             AssertTrue(PauseTileGrid.Compile(cells, "Edited buttons").SequenceEqual(selected.CreateButtonTilemap()), "Independent control-template edit");
             ConfirmArea(selected, AreaId.Crateria, PauseTileGrid.Compile(document.Areas[AreaId.Crateria.ToString()], "Unchanged area"));
         }
-        var invalidVram = new SnesVram();
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(-1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop negative VRAM destination");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(SnesVram.WordCount - PauseBackdropDefinitions.Cells + 1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop end-of-VRAM bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(0, PauseBackdropDefinitions.Cells), (AreaId)7), "Backdrop area bound");
-        AssertTrue(invalidVram.Bytes.All(value => value == 0), "Invalid load fails before any VRAM mutation");
+        var shortTilemap = new ushort[PauseBackdropDefinitions.Cells - 1];
+        var invalidTilemap = new ushort[PauseBackdropDefinitions.Cells];
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(shortTilemap, AreaId.Crateria), "Backdrop destination shorter than the image");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidTilemap, (AreaId)7), "Backdrop area bound");
+        AssertTrue(shortTilemap.All(word => word == 0) && invalidTilemap.All(word => word == 0), "Invalid load fails before any tilemap write");
         Console.WriteLine($"Backdrop geometry:7680native words, exact{areaResiduals.Sum(cells => cells.Count)}area/{buttonResiduals.Count}button residuals,53actual VRAM loads,10independent edits and bounds pass; selected layout/art/style inputs remain required.");
 
         static void ConfirmArea(PauseBackdropPresentation presentation, AreaId area, byte[] native)
         {
-            var vram = new SnesVram();
-            byte[] expected = Enumerable.Repeat((byte)0x55, SnesVram.ByteCount).ToArray();
-            vram.LoadBytes(0, expected);
-            native.CopyTo(expected, 0x7000);
-            presentation.LoadTo(new VramStore(vram).All.Slice(0x7000 / sizeof(ushort), PauseBackdropDefinitions.Cells), area);
-            AssertTrue(expected.SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
+            const int untouched = 8;
+            ushort[] words = Enumerable.Repeat((ushort)0x5555, PauseBackdropDefinitions.Cells + untouched).ToArray();
+            presentation.LoadTo(words, area);
+            byte[] loaded = System.Runtime.InteropServices.MemoryMarshal.AsBytes<ushort>(words.AsSpan(0, PauseBackdropDefinitions.Cells)).ToArray();
+            AssertTrue(native.AsSpan(0, loaded.Length).SequenceEqual(loaded) && words[PauseBackdropDefinitions.Cells..].All(word => word == 0x5555),
+                "Actual area load writes every selected word and leaves words past the image untouched");
         }
     }
     /// <summary>Checks pause equipment base cells, edit preservation, and layout geometry.</summary>

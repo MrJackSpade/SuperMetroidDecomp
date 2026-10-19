@@ -71,7 +71,7 @@ internal static class PauseMapArrowsVerification
                     arrowAttributes.Add((ushort)(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1])));
             }
             var pixels = pause.Render();
-            var actual = pause.entries;
+            var actual = pause.screen.Objects;
             AssertTrue(actual.LowTable[..expectedBytes].SequenceEqual(expected.LowTable[..expectedBytes]),
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;

@@ -9,8 +9,6 @@ internal static class PauseMenuLayout
     public const ushort Bg2TilemapWord = 0x3800;
     /// <summary>Pause character/palette word used to blank the retained FX plane.</summary>
     public const ushort Bg3FxClearTile = 0x184e;
-    /// <summary>Number of BG3 words below the four-row HUD.</summary>
-    public const int Bg3FxClearWordCount = 0x0780;
     /// <summary>Byte offset of those rows in the bank-$B6 button tilemap.</summary>
     public const int ButtonRowsSourceOffset = 0x0240;
     /// <summary>Combined byte length of the two mutable button rows.</summary>

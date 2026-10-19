@@ -710,7 +710,7 @@ internal static class RidleyFullMovieVerification
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
         var menu = game.Session.pauseMenu;
-        var menuPalette = ((PauseMenuState)(menu ?? throw new InvalidOperationException("Verification requires menu."))).cgram;
+        var menuPalette = ((PauseMenuState)(menu ?? throw new InvalidOperationException("Verification requires menu."))).screen.Palette;
         Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
@@ -1253,12 +1253,12 @@ internal static class RidleyFullMovieVerification
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
-            SnesCgram comparedPalette = runtime.Cgram;
+            IPaletteColors comparedPalette = runtime.Cgram;
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
                 object menu = game.Session.pauseMenu ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
-                comparedPalette = ((PauseMenuState)menu).cgram;
+                comparedPalette = ((PauseMenuState)menu).screen.Palette;
             }
             if (!deferLoadingOwners)
             for (int color = 0; color < SnesCgram.ColorCount; color++)

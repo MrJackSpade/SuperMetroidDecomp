@@ -104,8 +104,8 @@ internal static class PpuLayoutBoundaryVerification
         // write 32K words per pair.
         int stride = Math.Max(1, (end - first) / 64);
         for (int word = first; word < end; word += stride)
-            write.Write(word - writer.Offset, (ushort)(seed ^ word * 0x9e37));
-        write.Write(end - 1 - writer.Offset, (ushort)(seed ^ (end - 1) * 0x9e37));
+            write.Write([(ushort)(seed ^ word * 0x9e37)], word - writer.Offset);
+        write.Write([(ushort)(seed ^ (end - 1) * 0x9e37)], end - 1 - writer.Offset);
         for (int word = first; word < end; word += stride)
             AssertEqual((ushort)(seed ^ word * 0x9e37), read.ReadWord(word - reader.Offset), $"{context} word ${word:X4}");
         AssertEqual((ushort)(seed ^ (end - 1) * 0x9e37), read.ReadWord(end - 1 - reader.Offset), $"{context} last word");
@@ -163,7 +163,7 @@ internal static class PpuLayoutBoundaryVerification
         var vram = new SnesVram();
         var bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, SnesTileFlipFlags.Vertical);
-        bg1.Write(0x41, tile);
+        bg1.Write([tile.Raw], 0x41);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
         AssertEqual((byte)(SnesLittleEndian.LowByte(tile.Raw)), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
         AssertEqual(SnesLittleEndian.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");

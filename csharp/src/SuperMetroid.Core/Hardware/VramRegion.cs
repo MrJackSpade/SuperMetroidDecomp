@@ -64,13 +64,6 @@ public readonly struct VramRegion
         vram.ExecuteWordTransfer(words, (ushort)(first + wordOffset), step);
     }
 
-    /// <summary>Writes one word at <paramref name="wordOffset"/>.</summary>
-    public void Write(int wordOffset, ushort word)
-    {
-        ReadOnlySpan<ushort> words = [word];
-        Write(words, wordOffset);
-    }
-
     /// <summary>The VMADD step for <paramref name="increment"/>.</summary>
     internal static int Step(VramIncrement increment) => increment switch
     {

@@ -122,7 +122,7 @@ public sealed class PauseReserveUiPresentation
     /// <param name="color11Index">CGRAM color index 0-255 for arrow palette slot eleven, not a byte offset.</param>
     /// <exception cref="ArgumentOutOfRangeException">A supplied CGRAM color index is invalid.</exception>
     [PpuLayoutBoundary("codec: reserve-arrow colours at their native CGRAM index operands")]
-    public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
+    public void ApplyArrowColors(IPaletteColors cgram, bool animated, int frame, int color6Index, int color11Index)
     {
         var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
         new CgramPalettes(cgram).All.Write(color6Index, colors.Item1); new CgramPalettes(cgram).All.Write(color11Index, colors.Item2);

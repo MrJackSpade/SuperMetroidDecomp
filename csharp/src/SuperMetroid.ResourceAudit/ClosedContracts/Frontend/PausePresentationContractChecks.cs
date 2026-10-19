@@ -27,12 +27,12 @@ internal static class PausePresentationContractChecks
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
                     PauseSelectorPresentation selector, PauseReserveTankPresentation tanks,
-                    Span<byte> page, SnesVram vram, OamBuffer oam) {
+                    Span<byte> page, Span<ushort> tilemap, OamBuffer oam) {
                     baseImage.CreateTilemap();
                     baseImage.RebindBaseInto(page, labels);
                     baseImage.RebindBeforeInventoryRefreshInto(page);
-                    backdrop.LoadTo(new PauseVram(vram).Bg2Tilemap, AreaId.Ceres);
-                    backdrop.LoadTo(new PauseVram(vram).Bg2Tilemap, (AreaId)99);
+                    backdrop.LoadTo(tilemap, AreaId.Ceres);
+                    backdrop.LoadTo(tilemap, (AreaId)99);
                     backdrop.CreateButtonTilemap();
                     wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
                     wireframe.ApplyTo(page, (PauseWireframeKind)99);

@@ -126,13 +126,9 @@ internal static class CoreAccess
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Position16<MapPixels> MapScroll => pause.mapScrollPosition;
 
-        /// <summary>Reads the displayed BG1 map tile word from pause-menu VRAM.</summary>
-        [PpuLayoutBoundary("rendering view: the pause map BG1 tilemap word displayed at a map cell")]
-        internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
-        {
-            var vram = pause.vram;
-            return new MapTileWord(vram.ReadWord(PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)));
-        }
+        /// <summary>Reads the displayed BG1 map tile word of the pause screen.</summary>
+        internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell) =>
+            new(pause.screen.Tilemaps.Bg1[AreaMapLayout.GetTilemapWordIndex(cell)]);
     }
 
     /// <summary>Reads the shooting-star array in its native update order.</summary>

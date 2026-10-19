@@ -54,8 +54,8 @@ internal static class PauseBackdropsVerification
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
-            var vram = new SnesVram(); original.PauseBackdrops.LoadTo(new VramStore(vram).All.Slice(0 / sizeof(ushort), PauseBackdropDefinitions.Cells), area);
-            AssertTrue(expected.SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
+            var words = new ushort[PauseBackdropDefinitions.Cells]; original.PauseBackdrops.LoadTo(words, area);
+            AssertTrue(expected.SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.AsBytes<ushort>(words).ToArray()), "all 1024 backdrop words match native frame plus unmasked area lettering");
             var native = Create(bus, area, original);
             var pause = Create(guard, area, original);
             var persistentEdit = Create(guard, area, edited);
@@ -136,8 +136,8 @@ internal static class PauseBackdropsVerification
         using (var authored = new MemoryStream())
         {
             PauseBackdropPresentation.Write(authored, document with { Areas = invalidAreas }); authored.Position = 0;
-            var compiled = PauseBackdropPresentation.Load(authored); var memory = new SnesVram(); compiled.LoadTo(new VramStore(memory).All.Slice(0 / sizeof(ushort), PauseBackdropDefinitions.Cells), AreaId.Crateria);
-            AssertEqual((ushort)0xfdff, BinaryPrimitives.ReadUInt16LittleEndian(memory.Bytes), "named Interface atlas resolves its own tile coordinates and every visual attribute");
+            var compiled = PauseBackdropPresentation.Load(authored); var words = new ushort[PauseBackdropDefinitions.Cells]; compiled.LoadTo(words, AreaId.Crateria);
+            AssertEqual((ushort)0xfdff, words[0], "named Interface atlas resolves its own tile coordinates and every visual attribute");
         }
         foreach (var invalid in new[] { document.Buttons[0] with { Atlas = "Other" }, document.Buttons[0] with { TileColumn = 32 },
             document.Buttons[0] with { TileRow = 8 }, document.Buttons[0] with { Palette = -1 }, document.Buttons[0] with { Palette = 8 } })

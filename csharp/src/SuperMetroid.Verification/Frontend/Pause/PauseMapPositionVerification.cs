@@ -55,7 +55,7 @@ internal static class PauseMapPositionVerification
                 var expected = new OamBuffer(); expected.BeginFrame();
                 DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), new(x, y), 0x0e00);
                 int bytes = expected.NextByteOffset; expected.FinalizeFrame();
-                var actual = pause.entries;
+                var actual = pause.screen.Objects;
                 AssertTrue(expected.LowTable[..bytes].SequenceEqual(actual.LowTable[..bytes]), "current-position marker native OAM and animation timing");
                 AssertEqual(expected.HighTable[0], actual.HighTable[0], "current-position marker size/X bits");
                 var nativePixels = SnesObjRenderer.Render(expected, rawVram, colors, PauseMenuLayout.ObjectSelection);

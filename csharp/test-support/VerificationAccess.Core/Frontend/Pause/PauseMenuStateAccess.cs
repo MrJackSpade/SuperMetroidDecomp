@@ -21,7 +21,7 @@ internal static class PauseMenuStateAccess
         internal (int Frame, int Timer) ItemSelectorAnimationState => (self.itemSelectorAnimationFrame, self.itemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-        internal int LastRenderedSpriteCount => self.entries.Draws.Length;
+        internal int LastRenderedSpriteCount => self.screen.Objects.Draws.Length;
 
         /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
         internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.lastMapIndicatorSprite;
@@ -31,17 +31,15 @@ internal static class PauseMenuStateAccess
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word after its queued-equivalent
-        /// upload. This narrow friend-test seam proves the bottom pause chrome reached VRAM;
-        /// callers cannot mutate the private menu PPU.
+        /// upload, proving the bottom pause chrome reached the shown BG2 rows.
         /// </summary>
-        [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
         internal ushort ReadPauseButtonLabelWord(int nativeWordIndex)
         {
             const int firstUploadedNativeWordIndex = 0x0320;
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
             if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-            return self.vram.ReadWord(PauseVramLayout.ButtonRows.Offset + uploadedWordOffset);
+            return self.screen.Tilemaps.ButtonRows[uploadedWordOffset];
         }
 
         /// <summary>

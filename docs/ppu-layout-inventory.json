@@ -1509,18 +1509,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Frontend.Pause.PauseVramLayout",
-      "name": "AcceptedHudRows",
-      "region": "Vram",
-      "offset": "$5820",
-      "count": 96,
-      "encoding": "BG3 tilemap words",
-      "aliasOf": "PauseVramLayout.RetainedHudTilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Pause.PauseVramLayout",
       "name": "Bg1Tilemap",
       "region": "Vram",
       "offset": "$3000",
@@ -1545,27 +1533,14 @@
     },
     {
       "owner": "SuperMetroid.Core.Frontend.Pause.PauseVramLayout",
-      "name": "Bg3FxRows",
+      "name": "Bg3Tilemap",
       "region": "Vram",
-      "offset": "$5880",
-      "count": 1920,
-      "encoding": "BG3 tilemap words",
-      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "offset": "$5800",
+      "count": 2048,
+      "encoding": "BG3 tilemap words (32x64)",
+      "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Pause.PauseVramLayout",
-      "name": "ButtonRows",
-      "region": "Vram",
-      "offset": "$3B20",
-      "count": 64,
-      "encoding": "BG tilemap words (two 32-word rows)",
-      "aliasOf": "PauseVramLayout.Bg2Tilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVram.cs",
-        "csharp/test-support/VerificationAccess.Core/Frontend/Pause/PauseMenuStateAccess.cs"
       ]
     },
     {
@@ -1600,18 +1575,6 @@
       "count": 4096,
       "encoding": "4-bpp OBJ characters (map objects)",
       "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Pause.PauseVramLayout",
-      "name": "RetainedHudTilemap",
-      "region": "Vram",
-      "offset": "$5800",
-      "count": 1024,
-      "encoding": "BG3 tilemap words (32x32)",
-      "aliasOf": "GameplayVramLayout.HudTilemap",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVram.cs"
       ]
@@ -1748,7 +1711,6 @@
       "encoding": "BG3 tilemap words (32x64)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Fx/RoomFxVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
         "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"

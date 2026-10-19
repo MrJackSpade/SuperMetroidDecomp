@@ -78,7 +78,7 @@ internal static class ChozoStatueVisualsVerification
                     new ushort[width * 16], new byte[width * 16],
                     blockDefinitions: blockDefinitions);
                 BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-                var plms = new RoomPlmSystem { Drawing = { ChozoStatueVisuals = selected } };
+                var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = selected });
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                     $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
@@ -98,7 +98,7 @@ internal static class ChozoStatueVisualsVerification
             var crumbleLevel = CreateRoom(new(width, 16),
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
-            var crumblePlms = new RoomPlmSystem();
+            var crumblePlms = PlmFixtures.Unbound();
             AssertTrue(crumblePlms.ChozoStatue.TrySpawnChozoStatuePlm(crumbleLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
@@ -118,7 +118,7 @@ internal static class ChozoStatueVisualsVerification
             var wreckedHandLevel = CreateRoom(new(width, 16),
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
-            var wreckedHandPlms = new RoomPlmSystem();
+            var wreckedHandPlms = PlmFixtures.Unbound();
             AssertTrue(wreckedHandPlms.ChozoStatue.TrySpawnChozoStatuePlm(wreckedHandLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),

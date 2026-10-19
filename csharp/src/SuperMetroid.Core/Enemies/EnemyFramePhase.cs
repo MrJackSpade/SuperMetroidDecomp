@@ -42,8 +42,6 @@ internal sealed class EnemyFramePhase
     private readonly OamBuffer _oam;
     /// <summary>Exposes Samus's pose, motion, and collision handoffs around EnemyMain.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies collision PLMs to enemy processing.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Supplies live Samus beams and missiles to enemy collision resolution.</summary>
     private readonly SamusProjectileSystem _projectiles;
     /// <summary>Provides active room geometry and camera and receives enemy camera requests.</summary>
@@ -69,7 +67,6 @@ internal sealed class EnemyFramePhase
         _clock = dependencies.Clock;
         _oam = dependencies.Oam;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
@@ -114,12 +111,13 @@ internal sealed class EnemyFramePhase
     /// The camera's frame-start Samus checkpoint, under the live previous-position words that
     /// <c>CapScrollingSpeed</c> reads.
     /// </param>
-    internal void RunEnemyMainPhase(bool processingListPrepared, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint)
+    /// <param name="plms">The loaded room's PLM system.</param>
+    internal void RunEnemyMainPhase(bool processingListPrepared, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomPlmSystem plms)
     {
         if (_room.Camera is not null && _enemies.IsLoaded)
         {
-            EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects);
+            EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, plms);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

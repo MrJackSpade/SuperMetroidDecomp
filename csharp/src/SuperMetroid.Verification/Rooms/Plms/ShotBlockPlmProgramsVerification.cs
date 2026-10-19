@@ -386,7 +386,7 @@ internal static class ShotBlockPlmProgramsVerification
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var streamer = level.CreateBackgroundStreamer();
-            var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -498,7 +498,7 @@ internal static class ShotBlockPlmProgramsVerification
         var words = new ushort[width * height];
         words[blockIndex] = 0xc321;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[0x400 * 8]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnProjectileShotBlock(
                 level, blockIndex, behavior, 0, solidBlock: true),
             $"shot-block BTS {behavior} allocates its native PLM program");

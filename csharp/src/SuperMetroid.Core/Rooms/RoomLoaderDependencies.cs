@@ -83,8 +83,8 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>Plms.</summary>
-    public required RoomPlmSystem Plms { get; init; }
+    /// <summary>The host's installed PLM artwork each room's PLM system draws with.</summary>
+    public required PlmShotBlockVisuals ShotBlockVisuals { get; init; }
 
     /// <summary>Projectiles.</summary>
     public required SamusProjectileSystem Projectiles { get; init; }

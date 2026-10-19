@@ -174,7 +174,7 @@ internal static class LinkedRestoreVisualsVerification
         var definitions = new byte[0x400 * 8];
         definitions[editedWord * 8] = (byte)editedWord;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-        var plms = new RoomPlmSystem { Drawing = { LinkedRestoreVisuals = visuals } };
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmLinkedRestoreVisuals = visuals });
         bool spawned = bomb
             ? plms.TrySpawnCollisionBombBlock(level, blockIndex, 1)
             : plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,

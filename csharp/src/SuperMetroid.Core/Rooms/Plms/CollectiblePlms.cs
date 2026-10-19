@@ -175,16 +175,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>Clears pickup publications at the start of a PLM handler frame.</summary>
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
-    /// <summary>Clears dynamic graphics allocation and pickup/message state for a new room.</summary>
-    internal void ResetCollectibleState()
-    {
-        _collectiblePickupEvents.Clear();
-        _nextCollectibleGraphicsSlot = 0;
-        _lastCollectiblePickup = null;
-        _collectibleFanfareRequested = false;
-        _pendingSpeedBoosterPickupContinuation = false;
-    }
-
     /// <summary>
     /// Runs one permanent-item setup on the physical slot selected by the shared room
     /// loader. The setup remains table-driven by the cartridge header and presentation.

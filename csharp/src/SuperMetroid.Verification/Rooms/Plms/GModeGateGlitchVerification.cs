@@ -183,7 +183,7 @@ internal static class GModeGateGlitchVerification
         ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
         byte[] behavior = Enumerable.Repeat((byte)0x80, 16).ToArray();
         RoomLevelData level = CreateRoom(new(4, 4), words, behavior);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
 
         int contact = 0;
         while (!plms.Quicksand.IsAllocationFull)
@@ -250,7 +250,7 @@ internal static class GModeGateGlitchVerification
         }
 
         RoomLevelData freeLevel = DoorRoom();
-        var freePlms = new RoomPlmSystem();
+        var freePlms = PlmFixtures.Unbound();
         AssertTrue(freePlms.DoorPlms.TrySpawnBlueDoorOpening(
                 freeLevel,
                 doorIndex,
@@ -264,7 +264,7 @@ internal static class GModeGateGlitchVerification
             "suspended blue-door opening actor remains allocated");
 
         RoomLevelData fullLevel = DoorRoom();
-        var fullPlms = new RoomPlmSystem();
+        var fullPlms = PlmFixtures.Unbound();
         FillSuspendedPlmPool(fullPlms);
         AssertTrue(!fullPlms.DoorPlms.TrySpawnBlueDoorOpening(
                 fullLevel,
@@ -333,14 +333,14 @@ internal static class GModeGateGlitchVerification
             }
 
             RoomLevelData controlLevel = CreateLevel();
-            var controlPlms = new RoomPlmSystem();
+            var controlPlms = PlmFixtures.Unbound();
             SamusState controlSamus = CreateSamus();
             BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
             RoomLevelData level = CreateLevel();
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             FillSuspendedPlmPool(plms);
             SamusState samus = CreateSamus();
 
@@ -374,8 +374,8 @@ internal static class GModeGateGlitchVerification
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState { Health = 1, MaxHealth = 99 };
-        var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        var plms = PlmFixtures.Unbound();
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(plms.TryNotifyStationTouch(
@@ -448,8 +448,8 @@ internal static class GModeGateGlitchVerification
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
-        var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
+        var plms = PlmFixtures.Unbound();
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
         StepNoobTube(plms, level, streamer);
 
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(

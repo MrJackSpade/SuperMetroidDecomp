@@ -37,7 +37,7 @@ internal static class MotherBrainDeathHandoffVerification
 
         ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new byte[8192]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
         AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");
         AssertEqual((byte)1, level.GetCollisionBlock(new(0, 6)).Bts.Value, "door setup selects second door header");

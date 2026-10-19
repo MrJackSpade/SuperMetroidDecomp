@@ -71,7 +71,7 @@ internal static class BotwoonWallPlmsVerification
             words[y * width + 15] = 0x0123;
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(level,
                 clear ? PlmHeaderId.ClearBotwoonWall :
                     PlmHeaderId.CrumbleBotwoonWall),

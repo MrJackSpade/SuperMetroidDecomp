@@ -48,8 +48,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>Plms.</summary>
-    public required RoomPlmSystem Plms { get; init; }
 
     /// <summary>Projectiles.</summary>
     public required SamusProjectileSystem Projectiles { get; init; }

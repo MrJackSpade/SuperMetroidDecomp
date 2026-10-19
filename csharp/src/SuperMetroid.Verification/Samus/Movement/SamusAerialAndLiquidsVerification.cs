@@ -621,7 +621,7 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
     screwBombForeground[screwBombIndex] = 0xf123;
     screwBombBts[screwBombIndex] = 4;
     RoomLevelData screwBombLevel = CreateRoom(new(16, 16), screwBombForeground, screwBombBts);
-    var screwBombPlms = new RoomPlmSystem();
+    var screwBombPlms = PlmFixtures.Unbound();
     SamusState screwBombSamus = CreateFallingSpin(
         SamusPoseId.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
     ushort screwBombY = screwBombSamus.Position.Y.Whole;

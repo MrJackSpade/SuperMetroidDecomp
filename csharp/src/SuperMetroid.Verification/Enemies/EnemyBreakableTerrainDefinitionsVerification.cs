@@ -29,7 +29,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 $"compiled enemy spike reaction ${behavior:X2}");
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw], [behavior], [0]), []);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
             bool collision;

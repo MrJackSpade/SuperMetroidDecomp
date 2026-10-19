@@ -129,10 +129,7 @@ internal static class KraidRoomVisualsVerification
         RoomLevelData tubeLevel = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
         tubeLevel.SetBlockDefinitionWord(0x005b * 4, 0x005b);
-        var tubePlms = new RoomPlmSystem
-        {
-            Drawing = { KraidVisuals = edited, MaridiaElevatubeVisuals = tube },
-        };
+        var tubePlms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmKraidVisuals = edited, RoomPlmMaridiaElevatubeVisuals = tube });
         AssertTrue(tubePlms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(tubeLevel),
             "elevatube allocates alongside Kraid appearance resource");
         var tubeGuard = NewKraidRoomSourceGuard(new TestAddressSpace());
@@ -164,10 +161,7 @@ internal static class KraidRoomVisualsVerification
         foreach (ushort tile in new ushort[] { 0x0058, 0x0059, 0x005a })
             level.SetBlockDefinitionWord(tile * 4, tile);
         level.SetBlockDefinitionWord(0x0180 * 4, 0x0180);
-        var plms = new RoomPlmSystem
-        {
-            Drawing = { KraidVisuals = catalogs.Kraid, MaridiaElevatubeVisuals = catalogs.Tube },
-        };
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmKraidVisuals = catalogs.Kraid, RoomPlmMaridiaElevatubeVisuals = catalogs.Tube });
         AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid visual owner ${(int)header:X4} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());

@@ -32,8 +32,6 @@ internal sealed class MessageBoxFlow
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Supplies Samus inventory and state for HUD refresh and suit pickup.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Continues station and collectible PLM lists after their message boxes close.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Supplies level data, streamer, and camera for resumed PLM drawing.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Starts Varia or Gravity transformation after its suspended PLM resumes.</summary>
@@ -55,7 +53,6 @@ internal sealed class MessageBoxFlow
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
@@ -117,7 +114,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended)
+    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms)
     {
 
         if (_enemies.Gunship.SavePromptPending)
@@ -147,7 +144,7 @@ internal sealed class MessageBoxFlow
                 "A save-station message returned without active room level data.");
             if (_room.BackgroundStreamer is null || _room.Camera is null)
                 throw new InvalidOperationException("A save-station message returned without an active room.");
-            SaveStationConfirmationResult confirmation = _plms.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
+            SaveStationConfirmationResult confirmation = plms.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(_vram);
             if (confirmation.Saving)
@@ -167,13 +164,13 @@ internal sealed class MessageBoxFlow
 
         if (_pendingSaveStationCompletion is { } completedStation)
         {
-            _plms.Stations.CompleteSaveStation(completedStation);
+            plms.Stations.CompleteSaveStation(completedStation);
             _pendingSaveStationCompletion = null;
         }
 
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
-        foreach (PlmTilemapUpdate update in _plms.CollectiblePlms.CompleteCollectibleMessage(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
+        foreach (PlmTilemapUpdate update in plms.CollectiblePlms.CompleteCollectibleMessage(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
             update.ExecuteTo(_vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.

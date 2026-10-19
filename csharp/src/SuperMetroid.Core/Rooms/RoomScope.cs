@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -36,6 +37,9 @@ internal sealed record RoomScope
 
     /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
     public required LandingSiteEntryState? LandingSiteEntry { get; init; }
+
+    /// <summary>The room's PLM population and the family owners that run it.</summary>
+    public required RoomPlmSystem Plms { get; init; }
 
     /// <summary>The room's runtime services, bound to its area, shared by its PLMs and enemies.</summary>
     public required RoomEnemyRuntimeServices Services { get; init; }

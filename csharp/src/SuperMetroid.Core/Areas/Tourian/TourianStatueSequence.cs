@@ -25,8 +25,6 @@ public sealed class TourianStatueSequence
     private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies equipped items to palette FX created during the release animation.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Spawns the access obstruction's clearing or opening PLM at the descent endpoint.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
@@ -49,7 +47,6 @@ public sealed class TourianStatueSequence
         _cgram = dependencies.Cgram;
         _enemies = dependencies.Enemies;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _roomPaletteFx = dependencies.RoomPaletteFx;
@@ -93,7 +90,7 @@ public sealed class TourianStatueSequence
     /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
     /// </remarks>
-    public void Load()
+    public void Load(RoomPlmSystem plms)
     {
         objects.Clear();
         delay = -2;
@@ -106,7 +103,7 @@ public sealed class TourianStatueSequence
         {
             descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
-            _plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: true);
+            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: true);
             EnableScrolling();
         }
         else
@@ -236,7 +233,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>$88:DBD7/DC23/DC69/DCBA, including the authored delay and quarter-pixel descent.</summary>
-    public void StepDescent()
+    public void StepDescent(RoomPlmSystem plms)
     {
         if (!Enabled) return;
         _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.Surface.Y);
@@ -266,7 +263,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueRomData.DescentDistance)
         {
-            _plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: false);
+            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: false);
             _system.SetEvent(EventNumber.TourianUnlocked);
         }
     }

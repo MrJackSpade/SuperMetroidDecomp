@@ -119,18 +119,20 @@ public sealed class RoomPlmSystem
     /// <summary>Handles grey door conditions and opening animation.</summary>
     internal GreyDoorPlms GreyDoors { get; }
 
-    /// <summary>Creates the forty empty PLM slots and the PLM family owners that run in them.</summary>
-    public RoomPlmSystem()
+    /// <summary>Creates one room's forty empty PLM slots and the PLM family owners that run in them.</summary>
+    /// <param name="bindings">The room's service owners, which every resident PLM uses.</param>
+    /// <param name="visuals">The host's installed PLM artwork.</param>
+    internal RoomPlmSystem(PlmRoomBindings bindings, PlmShotBlockVisuals visuals)
     {
+        Bindings = Ensure.NotNull(bindings);
         SlotTable = new PlmSlotTable();
         Sounds = new PlmSoundQueue();
-        Drawing = new PlmBlockDrawing();
+        Drawing = new PlmBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerPlms(SlotTable);
         BreakableTerrain = new EnemyBreakableTerrainPlms(SlotTable);
         Quicksand = new QuicksandPlms(SlotTable);
         Scrolls = new ScrollPlms(SlotTable);
         WreckedShipTreadmill = new WreckedShipTreadmillPlms(SlotTable);
-        Bindings = new PlmRoomBindings();
         Shaktool = new ShaktoolPlms(Bindings, SlotTable);
         SamusEater = new SamusEaterPlms(Bindings, SlotTable);
         EscapeAnimals = new EscapeAnimalPlms(Bindings, SlotTable);
@@ -161,28 +163,6 @@ public sealed class RoomPlmSystem
     /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
     internal DoorPlms DoorPlms { get; }
 
-    /// <summary>
-    /// Clears the room-owned allocation during <c>$82:E3C0</c>'s destination-room setup.
-    /// PLMs never survive a door transition; retaining one would let its old block index
-    /// mutate unrelated level data in the newly decompressed room.
-    /// </summary>
-    public void Reset()
-    {
-        ChozoStatue.Unbind();
-        foreach (PlmSlot slot in SlotTable.Slots)
-            slot.Clear();
-        Sounds.Clear();
-        Gates.ResetForRoom();
-        Bindings.Clear();
-        Drawing.ClearTilemapUpdates();
-        Stations.ResetForRoom();
-        // The progression owner belongs to the room population just discarded. Holding
-        // it past Reset would let an accidentally reused PLM slot persist a hit into the
-        // previous runtime/system-state instance.
-        MotherBrainGlass.ResetMotherBrainGlassState();
-        CollectiblePlms.ResetCollectibleState();
-        BombTorizoHand.ResetBombTorizoHandState();
-    }
 
     /// <summary>
     /// Executes the PLM handler with the accepted NMI's newly pressed controller bits.

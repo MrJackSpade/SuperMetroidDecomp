@@ -42,6 +42,9 @@ internal static class SuperMetroidRuntimeAccess
     /// <summary>Provides debugger-only Samus placement, palette setup, and escape-timer tile upload through an initialized runtime.</summary>
     extension(SuperMetroidRuntime self)
     {
+        /// <summary>The loaded room's PLM system, which each room builds with its scope.</summary>
+        internal RoomPlmSystem Plms => self.Room.LoadedScope.Plms;
+
 
         /// <summary>
         /// Creates pose-$01 Samus on a supported Landing Site floor beneath world X=$0440 and

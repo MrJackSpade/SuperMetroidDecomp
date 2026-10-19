@@ -21,7 +21,7 @@ internal static class BotwoonPlmIdentityVerification
         var installation = RepositoryInstallation.Installation;
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         for (int i = 0; i < 40; i++)
         {
             PlmHeaderId header = (i & 1) == 0 ? PlmHeaderId.ClearBotwoonWall : PlmHeaderId.CrumbleBotwoonWall;
@@ -37,7 +37,7 @@ internal static class BotwoonPlmIdentityVerification
         var before = plms.PopulationSlots.ToArray();
         AssertTrue(!plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, PlmHeaderId.ClearBotwoonWall), "full native PLM pool declines spawn");
         AssertTrue(before.SequenceEqual(plms.PopulationSlots), "failed spawn preserves every owner and timer");
-        plms.Reset();
+        plms = PlmFixtures.Unbound();
         AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.ClearBotwoonWall) && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.CrumbleBotwoonWall),
             "room reset retires both Botwoon header identities");
         Console.WriteLine("Botwoon hardcoded PLMs: both header identities, slot order, placement, programs, timers and full-pool/reset behavior pass.");

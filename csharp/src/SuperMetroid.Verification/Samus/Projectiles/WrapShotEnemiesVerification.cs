@@ -58,7 +58,7 @@ internal static class WrapShotEnemiesVerification
                 EquippedBeams = SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             int health = enemy.Health;
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {

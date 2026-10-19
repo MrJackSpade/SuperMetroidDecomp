@@ -38,8 +38,6 @@ internal sealed class PlmFramePhase
     private readonly MessageBoxFlow _messageBoxes;
     /// <summary>Supplies Samus and the X-ray PLM-suspension flag.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Runs bank-$84 objects and publishes pickup, station, and projectile requests.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Supplies active level data, streamer, camera, and scroll state.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
@@ -64,7 +62,6 @@ internal sealed class PlmFramePhase
         _messageBox = dependencies.MessageBox;
         _messageBoxes = dependencies.MessageBoxes;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _vram = dependencies.Vram;
@@ -80,7 +77,7 @@ internal sealed class PlmFramePhase
     /// door/elevator freeze flag is set. This call is the cartridge's one exception: it
     /// advances freshly loaded room setup lists once before the destination fades in.
     /// </remarks>
-    internal void RunDoorTransitionPlmHandler()
+    internal void RunDoorTransitionPlmHandler(RoomPlmSystem plms)
     {
         // The explicit transition-time call still enters the common bank-$84 handler,
         // whose first instruction returns while native PLM word `$1C23` is disabled.
@@ -88,19 +85,19 @@ internal sealed class PlmFramePhase
         if (_player.Samus?.Xray.ArePlmsSuspended == true)
             return;
 
-        RunPlmHandlerCore(controllerNewInput: 0);
+        RunPlmHandlerCore(controllerNewInput: 0,plms);
 
         // Setup-time PLMs do not have Samus contact/input available. If a future
         // translation publishes a player-facing event here, fail at the exact ownership
         // boundary instead of silently discarding it.
-        if (_plms.CollectiblePlms.CollectiblePickupEvents.Count != 0 || _plms.Stations.StationActivationEvents.Count != 0)
+        if (plms.CollectiblePlms.CollectiblePickupEvents.Count != 0 || plms.Stations.StationActivationEvents.Count != 0)
         {
             throw new InvalidDataException(
                 "A door-transition PLM handler unexpectedly published a player interaction.");
         }
-        foreach (MotherBrainGlassProjectileRequest request in _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
+        foreach (MotherBrainGlassProjectileRequest request in plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
-        foreach (BombTorizoStatueProjectileRequest request in _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
+        foreach (BombTorizoStatueProjectileRequest request in plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
             _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
     }
 
@@ -109,7 +106,7 @@ internal sealed class PlmFramePhase
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void RunPlmHandlerCore(SnesButton controllerNewInput)
+    private void RunPlmHandlerCore(SnesButton controllerNewInput, RoomPlmSystem plms)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null || _player.Samus is null)
         {
@@ -117,12 +114,12 @@ internal sealed class PlmFramePhase
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = _plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
+        IReadOnlyList<PlmTilemapUpdate> updates = plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
         foreach (PlmTilemapUpdate update in updates)
             update.ExecuteTo(_vram);
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests();
+        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms);
 
-        foreach (PlmVramWriteRequest request in _plms.BombTorizoHand.VramWriteRequests)
+        foreach (PlmVramWriteRequest request in plms.BombTorizoHand.VramWriteRequests)
         {
             _vramWrites.Enqueue(
                 checked((ushort)request.SizeInBytes),
@@ -132,7 +129,7 @@ internal sealed class PlmFramePhase
     }
 
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
-    internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus)
+    internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus, RoomPlmSystem plms)
     {
         // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
         // enemy-projectile passes but before MainScrollingRoutine. A grapple block
@@ -141,7 +138,7 @@ internal sealed class PlmFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.ArePlmsSuspended)
         {
-            RunPlmHandlerCore(_controller1.NewlyPressed);
+            RunPlmHandlerCore(_controller1.NewlyPressed,plms);
 
             // Item PLMs publish acquisition only after their native trigger and
             // handler pass. Apply the hardware-facing consequences at that same seam:
@@ -149,7 +146,7 @@ internal sealed class PlmFramePhase
             // suit changes defer their visible palette reveal until bank-$88 stage
             // three after the message. Resource tanks and other equipment bits are
             // consumed directly by the HUD/movement owners.
-            foreach (CollectiblePickupEvent pickup in _plms.CollectiblePlms.CollectiblePickupEvents)
+            foreach (CollectiblePickupEvent pickup in plms.CollectiblePlms.CollectiblePickupEvents)
             {
                 if (pickup.Kind is
                     InWorldCollectibleKind.ChargeBeam or
@@ -182,7 +179,7 @@ internal sealed class PlmFramePhase
                 }
                 _messageBox.Begin(pickup.MessageBoxIndex, _controller1.Current);
             }
-            foreach (StationActivationEvent station in _plms.Stations.StationActivationEvents)
+            foreach (StationActivationEvent station in plms.Stations.StationActivationEvents)
             {
                 if (station.Kind == StationKind.Save)
                 {
@@ -223,12 +220,12 @@ internal sealed class PlmFramePhase
                 _messageBox.Begin(station.MessageBoxIndex, _controller1.Current);
             }
             foreach (MotherBrainGlassProjectileRequest request in
-                     _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
+                     plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             {
                 _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
             }
             foreach (BombTorizoStatueProjectileRequest request in
-                     _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
+                     plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
             {
                 _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
             }

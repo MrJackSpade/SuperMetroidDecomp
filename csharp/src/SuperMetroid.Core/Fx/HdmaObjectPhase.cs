@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -33,9 +34,9 @@ internal sealed class HdmaObjectPhase
     /// <c>GenerateRandomNumber</c>: the room liquid's shared state and the Tourian
     /// statues' BG2 delay and descent ($88:DBD7-$DCBA), whose rumble reads that RNG.
     /// </summary>
-    internal void AdvanceHdmaObjectPreInstructions()
+    internal void AdvanceHdmaObjectPreInstructions(RoomPlmSystem plms)
     {
         _roomLayer3Fx.AdvanceHdmaSharedState(_system, _freeze.TimeIsFrozen);
-        _tourianStatues.StepDescent();
+        _tourianStatues.StepDescent(plms);
     }
 }

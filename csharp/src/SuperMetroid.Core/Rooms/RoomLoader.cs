@@ -81,7 +81,7 @@ internal sealed class RoomLoader
     /// <summary>The session's room scroll allocation; it outlives each room so implicit tables keep the previous room's tail.</summary>
     private readonly RoomScrollStorage _scrollStorage = new();
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
-    private readonly RoomPlmSystem _plms;
+    private readonly PlmShotBlockVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly SamusProjectileSystem _projectiles;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
@@ -134,7 +134,7 @@ internal sealed class RoomLoader
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
+        _shotBlockVisuals = dependencies.ShotBlockVisuals;
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
@@ -262,7 +262,7 @@ internal sealed class RoomLoader
         // LoadFromLoadStation writes `$1E75 = 1`. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
         // reopens its confirmation message.
-        _plms.Stations.LockSaveStationForCurrentRoomEntry();
+        _room.LoadedScope.Plms.Stations.LockSaveStationForCurrentRoomEntry();
 
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
@@ -988,9 +988,9 @@ internal sealed class RoomLoader
         }
 
         // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.
-        // Resetting these owners before Load/beam upload prevents stale projectile and PLM
-        // indices from addressing a different room's new arrays on the first visible frame.
-        _plms.Reset();
+        // Resetting these owners before Load/beam upload prevents stale projectile indices
+        // from addressing a different room's new arrays on the first visible frame; the
+        // destination's PLM system is built new with its scope below.
         _bombProjectiles.Reset();
         _projectiles.ResetForRoomTransition(_player.Samus);
 
@@ -1000,42 +1000,45 @@ internal sealed class RoomLoader
         // can observe the resulting physical header/argument ordering. All room families
         // enter through this one parser; an unsupported header throws with complete record
         // context instead of being skipped by a collection of sibling scans.
-        // One set of runtime services serves the room's PLMs and enemies.
-        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, _plms, _display, _backgroundScroll, room.AreaIndex);
-        scope.Services = areaServices;
+        // The room's PLM system is built with its bindings, then one set of runtime services
+        // serves the room's PLMs and enemies.
+        var progress = new RoomAreaProgress(_system, room.AreaIndex);
         var plmServices = new RoomPlmRuntimeServices(_enemies, _player, _room, _system);
-        _plms.PopulationLoader.LoadRoomPopulation(
-            new PlmRoom(assets.LevelData, backgroundStreamer, _vram, _system, room.AreaIndex),
-            room.State.PlmPopulation,
-            new RoomPlmServices
-            {
-                Samus = plmServices,
-                Bosses = areaServices.Bosses,
-                Events = areaServices.Events,
-                TourianStatue = plmServices,
-                RoomFx = _roomLayer3Fx,
-                Earthquake = plmServices,
-                Enemies = plmServices,
-            });
+        var plmRoom = new PlmRoom(assets.LevelData, backgroundStreamer, _vram, _system, room.AreaIndex);
+        var plmBindings = new RoomPlmServices
+        {
+            Samus = plmServices,
+            Bosses = progress,
+            Events = progress,
+            TourianStatue = plmServices,
+            RoomFx = _roomLayer3Fx,
+            Earthquake = plmServices,
+            Enemies = plmServices,
+        };
+        var plms = new RoomPlmSystem(new PlmRoomBindings(plmRoom, plmBindings), _shotBlockVisuals);
+        scope.Plms = plms;
+        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, _backgroundScroll, progress);
+        scope.Services = areaServices;
+        plms.PopulationLoader.LoadRoomPopulation(plmRoom, room.State.PlmPopulation, plmBindings);
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of
         // those programs rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetupCode(door);
+        _doorTransition.RunDoorSetupCode(door, plms);
         if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
-            _plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
+            plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
-            _plms.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
+            plms.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
                 assets.LevelData.GetBlockIndex(new(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY)));
         // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
         // forty native slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
-            _plms.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
+            plms.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
         // `$8F:9194` also spawns this PLM before writing the quake SetupEscapeRoomEffects owns.
         if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
-            _plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
+            plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
 
         if (runDoorClosingPlm)
         {
@@ -1044,7 +1047,7 @@ internal sealed class RoomLoader
             // groups those owners differently, yet this point preserves the observable
             // PLM-pool order: every room-authored actor exists before the closer requests
             // the next highest free slot, and no enemy-authored PLM has run yet.
-            _plms.DoorPlms.TrySpawnDoorClosingPlm(assets.LevelData, door, _system);
+            plms.DoorPlms.TrySpawnDoorClosingPlm(assets.LevelData, door, _system);
         }
 
         // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies. Golden Torizo's code mutates
@@ -1080,12 +1083,12 @@ internal sealed class RoomLoader
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
         // requests here—the first point matching the cartridge's completed room teardown—
         // so the closed actor survives into the initial viewport.
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests();
+        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms);
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             _enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects);
-        _tourianStatues.Load();
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects, plms);
+        _tourianStatues.Load(plms);
         _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)

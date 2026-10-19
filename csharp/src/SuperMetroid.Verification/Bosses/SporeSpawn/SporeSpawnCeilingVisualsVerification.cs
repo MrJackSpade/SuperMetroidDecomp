@@ -173,7 +173,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
-        var plms = new RoomPlmSystem { Drawing = { SporeSpawnCeilingVisuals = edited } };
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSporeSpawnCeilingVisuals = edited });
         AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
                     PlmHeaderId.CrumbleSporeSpawnCeiling),

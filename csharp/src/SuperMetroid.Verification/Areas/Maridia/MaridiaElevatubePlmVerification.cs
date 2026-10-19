@@ -29,7 +29,7 @@ internal static class MaridiaElevatubePlmVerification
 
         RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
         var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());

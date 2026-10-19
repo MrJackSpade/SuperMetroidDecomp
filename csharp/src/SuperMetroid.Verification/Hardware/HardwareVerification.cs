@@ -518,6 +518,8 @@ internal static void VerifyFrameRuntime()
 
     var bus = new TestAddressSpace();
     var runtime = CreateRetailRuntimeFixture();
+    // Gameplay frames run in a loaded room; its queued transfers drain ahead of this one.
+    runtime.RoomLoader.InitializeStartingCeresRoom();
     runtime.VramWrites.EnqueueWords(2, 0x7e1234, [0xfeca], VramDmaDestination.FromNative(0x0020));
     runtime.EscapeTimer.RequestCeresStart();
 

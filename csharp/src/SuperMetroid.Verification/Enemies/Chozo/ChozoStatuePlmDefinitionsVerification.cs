@@ -66,7 +66,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             const int height = 16;
             int blockCount = width * height;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new byte[8]);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             var request = new ChozoStatuePlmRequest(
                 definition.HeaderPointer,
                 Block: new Position16<RoomBlocks>(3, 4),

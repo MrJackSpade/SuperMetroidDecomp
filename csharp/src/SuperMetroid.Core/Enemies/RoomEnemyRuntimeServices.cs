@@ -22,16 +22,16 @@ internal sealed class RoomEnemyRuntimeServices(
     RoomPlmSystem plms,
     GameplayDisplayState display,
     BackgroundScrollState backgroundScroll,
-    AreaId area) : IRoomEnemyServices,
-    IEnemyRandomNumbers, IGlobalEventFlags, IAreaBossFlags, IRoomScrollZoneAccess, ISamusControlLock,
+    RoomAreaProgress progress) : IRoomEnemyServices,
+    IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
     IMotherBrainRoomEffects, IRoomPlmPresence
 {
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
     /// <summary>Exposes persistent global event bits to enemy AI.</summary>
-    public IGlobalEventFlags Events => this;
+    public IGlobalEventFlags Events => progress;
     /// <summary>Exposes boss bits for the active room's area.</summary>
-    public IAreaBossFlags Bosses => this;
+    public IAreaBossFlags Bosses => progress;
     /// <summary>Exposes active PLM-header presence to enemy AI.</summary>
     public IRoomPlmPresence Plms => this;
     /// <summary>Exposes the room camera's scroll-zone storage.</summary>
@@ -49,21 +49,6 @@ internal sealed class RoomEnemyRuntimeServices(
 
     /// <summary>Installs an enemy-supplied seed into the shared system RNG.</summary>
     public void Seed(int value) => system.SetRandomNumber(value);
-
-    /// <summary>Checks a persistent event bit from the system owner.</summary>
-    public bool Has(EventNumber eventNumber) => system.HasEvent(eventNumber);
-
-    /// <summary>Publishes an event bit through the system owner.</summary>
-    public void Set(EventNumber eventNumber) => system.SetEvent(eventNumber);
-
-    /// <summary>Clears an event bit through the system owner.</summary>
-    public void Clear(EventNumber eventNumber) => system.ClearEvent(eventNumber);
-
-    /// <summary>Checks whether any requested boss bit is set for this room's area.</summary>
-    public bool IsDefeated(BossBits bits) => system.HasAnyBossBits(area, bits);
-
-    /// <summary>Sets boss bits in the active room's area record.</summary>
-    public void SetDefeated(BossBits bits) => system.SetBossBits(area, bits);
 
     /// <summary>Reads a camera scroll-zone cell without mutating its storage.</summary>
     RoomScrollState IRoomScrollZoneAccess.Read(int index) => room.LoadedCamera.Scrolls.ReadState(index);

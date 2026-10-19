@@ -245,7 +245,7 @@ internal static class BombBlockProgramsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -280,7 +280,7 @@ internal static class BombBlockProgramsVerification
             for (int tile = 0; tile < 4; tile++)
                 definitions[0x58 * 8 + tile * 2] = tileIndex;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
             var streamer = level.CreateBackgroundStreamer();
@@ -334,7 +334,7 @@ internal static class BombBlockProgramsVerification
         var bts = new byte[words.Length];
         bts[blockIndex] = behavior;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new byte[0x400 * 8]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         bool spawned = producer switch
         {
             BombBlockProducer.Collision =>

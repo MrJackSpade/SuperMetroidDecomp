@@ -49,13 +49,6 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
 
-    /// <summary>Room reset: no station has activated, and the save lockout of the previous entry ends.</summary>
-    internal void ResetForRoom()
-    {
-        _stationActivationEvents.Clear();
-        SaveStationLockedOut = false;
-    }
-
     /// <summary>Frame start: drops the previous pass's activation events.</summary>
     internal void BeginFrame() => _stationActivationEvents.Clear();
 

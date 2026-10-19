@@ -97,16 +97,6 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
-    /// <summary>Discards cached glass slot, shot count, room dimensions, and pending shard requests.</summary>
-    internal void ResetMotherBrainGlassState()
-    {
-        _motherBrainGlassProjectileRequests.Clear();
-        _motherBrainGlassSlotIndex = -1;
-        MotherBrainGlassWasLoaded = false;
-        MotherBrainGlassLastRoomArgument = 0;
-        _motherBrainGlassRoomWidth = 0;
-    }
-
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {

@@ -58,7 +58,7 @@ internal static class MaridiaElevatubeVisualsVerification
             RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-            var plms = new RoomPlmSystem { Drawing = { MaridiaElevatubeVisuals = edited } };
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMaridiaElevatubeVisuals = edited });
             AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
             var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());

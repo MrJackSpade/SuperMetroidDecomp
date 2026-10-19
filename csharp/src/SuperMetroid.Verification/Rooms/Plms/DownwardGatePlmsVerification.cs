@@ -280,8 +280,8 @@ internal static class DownwardGatePlmsVerification
             new byte[roomWidth * 16],
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        var plms = new RoomPlmSystem { Drawing = { DownwardGateVisuals = visuals } };
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmDownwardGateVisuals = visuals });
+        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }

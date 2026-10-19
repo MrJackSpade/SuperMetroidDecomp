@@ -24,11 +24,11 @@ internal static class EscapeAnimalBlocksVerification
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8192]);
         var streamer = new BackgroundTilemapStreamer(16, words, new ushort[256], new byte[8192]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         plms.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
         AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "rescue origin is shootable BTS 4F");

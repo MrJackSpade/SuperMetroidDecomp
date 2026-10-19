@@ -44,7 +44,7 @@ internal static class GrappleDoorsVerification
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
             SeedStationaryGrappleCollisionProbe(samus);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
             AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");

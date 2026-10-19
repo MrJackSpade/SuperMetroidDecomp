@@ -57,15 +57,15 @@ internal static class DraygonCannonPlmProgramVerification
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var disabled = new List<DraygonCannonControlWord>();
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
             new RoomPlmDraygonCannonVisualEntry(
                 DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer),
                 draw.VisualWords())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
-        plms.Drawing.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
-        AssertEqual(4, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
+        PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
+        AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
         static void Step(RoomPlmSystem plms, ISnesAddressSpace bus,

@@ -30,6 +30,9 @@ internal sealed class ActiveRoomState
     /// <summary>The scope a room load is building; null between loads.</summary>
     private RoomScopeConstruction? _construction;
 
+    /// <summary>The loaded room's scope; gameplay runs only in a loaded room.</summary>
+    internal RoomScope LoadedScope => Scope ?? throw new InvalidOperationException("No room is loaded.");
+
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets)

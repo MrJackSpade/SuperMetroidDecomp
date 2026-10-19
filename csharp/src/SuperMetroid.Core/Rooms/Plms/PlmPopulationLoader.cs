@@ -58,11 +58,6 @@ internal sealed class PlmPopulationLoader
         Ensure.NotNull(services.Samus);
         Ensure.NotNull(services.Bosses);
 
-        // These are room-owned services used later by resident pre-instructions. They are
-        // installed once, not once per family scan, so every actor in this population sees
-        // the same cartridge/runtime state owner.
-        _bindings.Install(room, services);
-
         int spawnedRecordCount = 0;
         for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
         {

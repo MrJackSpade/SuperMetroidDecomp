@@ -68,12 +68,12 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 }
             }
             var level = CreateRoom(new(32, 16), new ushort[512], new byte[512], blockDefinitions: new byte[0x400 * 8]);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             var bus = new TestAddressSpace();
             if (field == 0)
             {
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
-                AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
+                AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
                 plms.DrawSolePlmFrameForVerification(level, level.CreateBackgroundStreamer(), pointer);
             }
             int drawX = 3, drawY = 4;

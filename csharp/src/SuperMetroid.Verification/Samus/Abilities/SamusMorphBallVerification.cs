@@ -1026,7 +1026,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var reactionDefinitions = new byte[0x400 * 8];
     RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new ushort[reactionWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer reactionStreamer = reactionLevel.CreateBackgroundStreamer();
-    var reactionPlms = new RoomPlmSystem();
+    var reactionPlms = PlmFixtures.Unbound();
     var reactionBombs = CreateBombFixture();
     var reactionSamus = new SamusState
     {
@@ -1099,7 +1099,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new ushort[integratedRevealWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer integratedRevealStreamer =
         integratedRevealLevel.CreateBackgroundStreamer();
-    var integratedRevealPlms = new RoomPlmSystem();
+    var integratedRevealPlms = PlmFixtures.Unbound();
     var integratedRevealBombs = CreateBombFixture();
     var integratedRevealSamus = new SamusState
     {
@@ -1139,7 +1139,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     bombDoorWords[bombDoorIndex] = 0xc000;
     bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
     RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
-    var bombDoorPlms = new RoomPlmSystem();
+    var bombDoorPlms = PlmFixtures.Unbound();
     var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState
     {
@@ -1160,7 +1160,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "normal bomb synchronously runs blue-door setup");
 
     RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
-    var powerBombDoorPlms = new RoomPlmSystem();
+    var powerBombDoorPlms = PlmFixtures.Unbound();
     AssertTrue(!powerBombDoorPlms.DoorPlms.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
             bombDoorIndex,
@@ -1180,7 +1180,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     shotWords[shotIndex] = 0xc321;
     RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer shotStreamer = shotLevel.CreateBackgroundStreamer();
-    var shotPlms = new RoomPlmSystem();
+    var shotPlms = PlmFixtures.Unbound();
     AssertTrue(
         shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, 0x0500),
         "normal bomb allocates respawning shot-block PLM");
@@ -1218,7 +1218,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer powerBombShotStreamer =
         powerBombShotLevel.CreateBackgroundStreamer();
-    var powerBombShotPlms = new RoomPlmSystem();
+    var powerBombShotPlms = PlmFixtures.Unbound();
     AssertTrue(
         powerBombShotPlms.TrySpawnProjectileShotBlock(
             powerBombShotLevel,
@@ -1257,7 +1257,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new ushort[integratedPowerBombWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer integratedPowerBombStreamer =
         integratedPowerBombLevel.CreateBackgroundStreamer();
-    var integratedPowerBombPlms = new RoomPlmSystem();
+    var integratedPowerBombPlms = PlmFixtures.Unbound();
     var integratedPowerBombs = CreateBombFixture();
     var integratedPowerBombSamus = new SamusState
     {
@@ -1299,7 +1299,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     collisionProbeWords[shotIndex] = 0xc321;
     collisionProbeBts[shotIndex] = 0x10;
     RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new ushort[collisionProbeWords.Length]), reactionDefinitions);
-    var collisionProbePlms = new RoomPlmSystem();
+    var collisionProbePlms = PlmFixtures.Unbound();
     RunPowerBombToInitialBoundary(
             collisionProbeLevel,
             collisionProbePlms,
@@ -1318,7 +1318,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // leaving an apparently occupied host PLM slot.
     RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer superShotStreamer = superShotLevel.CreateBackgroundStreamer();
-    var superShotPlms = new RoomPlmSystem();
+    var superShotPlms = PlmFixtures.Unbound();
     AssertTrue(!superShotPlms.TrySpawnProjectileShotBlock(
             superShotLevel,
             shotIndex,
@@ -1365,7 +1365,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
         BackgroundTilemapStreamer permanentWeaponStreamer =
             permanentWeaponLevel.CreateBackgroundStreamer();
-        var permanentWeaponPlms = new RoomPlmSystem();
+        var permanentWeaponPlms = PlmFixtures.Unbound();
         AssertTrue(permanentWeaponPlms.TrySpawnProjectileShotBlock(
                 permanentWeaponLevel,
                 shotIndex,
@@ -1390,7 +1390,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
     RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer noOpShotStreamer = noOpShotLevel.CreateBackgroundStreamer();
-    var noOpShotPlms = new RoomPlmSystem();
+    var noOpShotPlms = PlmFixtures.Unbound();
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             shotIndex,
@@ -1440,7 +1440,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     revealWords[areaNoOpIndex] = 0xc222;
     RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new byte[revealWords.Length], new ushort[revealWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer revealStreamer = revealLevel.CreateBackgroundStreamer();
-    var revealPlms = new RoomPlmSystem();
+    var revealPlms = PlmFixtures.Unbound();
     AssertTrue(
         revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, 0x0500),
         "normal bomb allocates power-bomb reveal PLM");
@@ -1488,7 +1488,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         words[crumbleIndex] = 0xb000;
         behaviors[crumbleIndex] = behavior;
         var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), reactionDefinitions);
-        var tablePlms = new RoomPlmSystem();
+        var tablePlms = PlmFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
             new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
         tablePlms.Step(tableLevel, tableLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -1496,7 +1496,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).PackedWord.Raw,
             $"extended bomb-special BTS {behavior:X2} native reveal/no-op terrain");
     }
-        var specialPlms = new RoomPlmSystem();
+        var specialPlms = PlmFixtures.Unbound();
     AssertTrue(
         specialPlms.TrySpawnBombedSpecialBlock(
             specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0500),
@@ -1564,7 +1564,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // moves right fractionally, moves upward by the pre-gravity 2.C000 magnitude, then stores
     // the reduced 2.8000 magnitude for the following frame.
     SamusBombJumpMovement.Step(
-empty, bombJump, nmiFrameCounter: 0, new RoomPlmSystem());
+empty, bombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     AssertTrue(bombJump.BombJumpActive, "unobstructed diagonal bomb jump remains active");
     AssertEqual(startX, bombJump.Position.X.Whole, "right bomb jump retains whole X on first fractional step");
     AssertEqual(0x3000, bombJump.Kinematics.Position.X.Fraction, "right bomb jump uses native $90:9F25 fractional displacement");
@@ -1576,7 +1576,7 @@ empty, bombJump, nmiFrameCounter: 0, new RoomPlmSystem());
     // making another vertical move. The normal type-four ball handler owns the descent.
     bombJump.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0xffff, 0);
     SamusBombJumpMovement.Step(
-empty, bombJump, nmiFrameCounter: 1, new RoomPlmSystem());
+empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
@@ -1602,7 +1602,7 @@ empty, bombJump, nmiFrameCounter: 1, new RoomPlmSystem());
     SamusBombJumpMovement.Start(straightBombJump);
     ushort straightXSubposition = straightBombJump.Kinematics.Position.X.Fraction;
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
-ceiling, straightBombJump, nmiFrameCounter: 0, new RoomPlmSystem());
+ceiling, straightBombJump, nmiFrameCounter: 0, PlmFixtures.Unbound());
     AssertTrue(!straightBombJump.BombJumpActive && ceilingHit.Vertical is { Collided: true },
         "straight bomb jump terminates on ceiling");
     AssertEqual(straightXSubposition, straightBombJump.Kinematics.Position.X.Fraction,

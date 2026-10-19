@@ -17,8 +17,12 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Draws PLM blocks into the room level data and BG1: compiled draw lists, level words and the visual catalogs that resolve them.</summary>
-internal sealed class PlmBlockDrawing
+/// <param name="visuals">The host's installed PLM artwork, which outlives each room's drawing.</param>
+internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
 {
+    /// <summary>The host's installed PLM artwork.</summary>
+    private readonly PlmShotBlockVisuals _visuals = Ensure.NotNull(visuals);
+
     /// <summary>Visible PLM block transfers staged for BG1 after physical level words are changed.</summary>
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
 
@@ -29,119 +33,92 @@ internal sealed class PlmBlockDrawing
     internal void ClearTilemapUpdates() => _tilemapUpdates.Clear();
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals { get; set; }
+    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals => _visuals.RoomPlmShotBlockVisuals;
 
     /// <summary>Nonserialized Grapple-block art; the compiled full level words own collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals { get; set; }
+    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals => _visuals.RoomPlmGrappleBlockVisuals;
 
     /// <summary>Nonserialized station appearance; the compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmStationVisualCatalog? StationVisuals { get; set; }
+    public RoomPlmStationVisualCatalog? StationVisuals => _visuals.RoomPlmStationVisuals;
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals { get; set; }
+    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals => _visuals.RoomPlmBlueDoorVisuals;
 
     /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals { get; set; }
+    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals => _visuals.RoomPlmColoredDoorVisuals;
 
     /// <summary>Visual-only grey caps and shared clear frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals { get; set; }
+    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals => _visuals.RoomPlmGreyDoorVisuals;
 
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals { get; set; }
+    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals => _visuals.RoomPlmEyeDoorVisuals;
 
     /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals { get; set; }
+    public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals => _visuals.RoomPlmMotherBrainGlassVisuals;
 
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals { get; set; }
+    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals => _visuals.RoomPlmNoobTubeVisuals;
 
     /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals { get; set; }
+    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals => _visuals.RoomPlmDownwardGateVisuals;
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals { get; set; }
+    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals => _visuals.RoomPlmElevatorPlatformVisuals;
 
     /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals { get; set; }
+    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals => _visuals.RoomPlmEscapeGateVisuals;
 
     /// <summary>Nonserialized Bomb Torizo hand art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals { get; set; }
+    public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals => _visuals.RoomPlmBombTorizoHandVisuals;
 
     /// <summary>Nonserialized Draygon cannon art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals { get; set; }
+    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals => _visuals.RoomPlmDraygonCannonVisuals;
 
     /// <summary>Nonserialized Chozo statue PLM art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals { get; set; }
+    public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals => _visuals.RoomPlmChozoStatueVisuals;
 
     /// <summary>Nonserialized linked-block restoration art; collision stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals { get; set; }
+    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals => _visuals.RoomPlmLinkedRestoreVisuals;
 
     /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals { get; set; }
+    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals => _visuals.RoomPlmTourianAccessVisuals;
 
     /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals { get; set; }
+    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals => _visuals.RoomPlmSpeedBoosterVisuals;
 
     /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
-    [field: NonSerialized]
-    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals { get; set; }
+    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals => _visuals.RoomPlmMaridiaElevatubeVisuals;
 
     /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals { get; set; }
+    public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals => _visuals.RoomPlmSporeSpawnCeilingVisuals;
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals { get; set; }
+    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals => _visuals.RoomPlmSamusEaterVisuals;
 
     /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals { get; set; }
+    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals => _visuals.RoomPlmBotwoonWallVisuals;
 
     /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
-    [field: NonSerialized]
-    public RoomPlmKraidVisualCatalog? KraidVisuals { get; set; }
+    public RoomPlmKraidVisualCatalog? KraidVisuals => _visuals.RoomPlmKraidVisuals;
 
     /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals { get; set; }
+    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals => _visuals.RoomPlmCrocomireVisuals;
 
     /// <summary>Gets or replaces nonserialized Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; compiled run geometry, collision words, and PLM timing remain unchanged.</remarks>
-    [field: NonSerialized]
-    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals { get; set; }
+    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals => _visuals.RoomPlmMotherBrainFakeDeathVisuals;
 
     /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals { get; set; }
+    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals => _visuals.RoomPlmCollectibleVisuals;
 
     /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; set; }
+    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
 
     /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
     internal void DrawPlmInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>

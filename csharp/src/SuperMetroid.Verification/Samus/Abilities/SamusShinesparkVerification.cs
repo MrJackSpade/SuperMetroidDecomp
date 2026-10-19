@@ -283,7 +283,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
     horizontal.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x2800);
-    var shineBombPlms = new RoomPlmSystem();
+    var shineBombPlms = PlmFixtures.Unbound();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
     horizontal.Shinespark.Step(new SamusTerrain { Level = empty, Plms = shineBombPlms }, horizontal, new ShinesparkFrame { NmiFrameCounter = 4 });

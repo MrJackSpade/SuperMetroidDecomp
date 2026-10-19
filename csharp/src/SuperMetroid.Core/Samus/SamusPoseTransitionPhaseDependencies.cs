@@ -24,8 +24,6 @@ internal sealed record SamusPoseTransitionPhaseDependencies
     public required GameplayOptions Options { get; init; }
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
-    /// <summary>Plms.</summary>
-    public required RoomPlmSystem Plms { get; init; }
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 }

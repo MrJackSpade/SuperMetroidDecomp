@@ -48,16 +48,16 @@ internal static class BombTorizoHandVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         var editedVisuals = new RoomPlmBombTorizoHandVisualCatalog(
         [
             new("intact", [0x0053, 0x0066, 0x0064, 0x0045,
                 0x0046, 0x0047, 0x0048, 0x0049]),
             new("cleared", Enumerable.Repeat((ushort)0x00ff, 16).ToArray()),
         ]);
-        plms.Drawing.BombTorizoHandVisuals = editedVisuals;
+        PlmFixtures.VisualsOf(plms).RoomPlmBombTorizoHandVisuals = editedVisuals;
 
-        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "enemy header scan sees live Bomb Torizo hand");
@@ -153,8 +153,8 @@ internal static class BombTorizoHandVerification
             plms.BombTorizoHand.MusicRequests[0],
             "terminal hand music request");
 
-        var defeated = new RoomPlmSystem();
-        AssertEqual(1, defeated.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
+        var defeated = PlmFixtures.Unbound();
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref defeated, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "defeated setup exposes no transient hand header");

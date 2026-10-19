@@ -94,7 +94,7 @@ internal static class SpeedBoosterVisualsVerification
                 int blockIndex) = CreateSpeedBoosterBlockFixture(
                     new RoomBlockBehavior(0x82), AreaId.Brinstar);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-            plms.Drawing.SpeedBoosterVisuals = edited;
+            PlmFixtures.VisualsOf(plms).RoomPlmSpeedBoosterVisuals = edited;
             var guard = NewSpeedBoosterPlmReadGuard(bus);
             AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
                     new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),

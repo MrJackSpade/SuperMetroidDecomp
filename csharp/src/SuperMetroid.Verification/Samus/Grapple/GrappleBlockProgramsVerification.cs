@@ -213,7 +213,7 @@ internal static class GrappleBlockProgramsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem { Drawing = { GrappleBlockVisuals = visuals } };
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGrappleBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -320,7 +320,7 @@ internal static class GrappleBlockProgramsVerification
         var words = new ushort[width * width];
         words[blockIndex] = 0xe123;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[0x400 * 8]);
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");
         return new GrappleBlockFixture(level, level.CreateBackgroundStreamer(), plms);

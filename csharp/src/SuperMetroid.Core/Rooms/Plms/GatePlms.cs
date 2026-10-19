@@ -35,13 +35,6 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
     private readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
 
-    /// <summary>Room reset: drops pending gate sounds and projectile requests.</summary>
-    internal void ResetForRoom()
-    {
-        _pendingDownwardGateSounds.Clear();
-        _downwardGateProjectileRequests.Clear();
-    }
-
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load
     /// consumes the initial closed actor after enemy loading clears bank $86's pool; normal

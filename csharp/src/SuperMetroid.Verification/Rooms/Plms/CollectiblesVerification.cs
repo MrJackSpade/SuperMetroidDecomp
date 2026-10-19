@@ -52,7 +52,7 @@ internal static class CollectiblesVerification
         {
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
-            var unusedPlms = new RoomPlmSystem();
+            var unusedPlms = PlmFixtures.Unbound();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedPlms.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
@@ -297,8 +297,8 @@ internal static class CollectiblesVerification
             Health = 99,
             MaxHealth = 99,
         };
-        var plms = new RoomPlmSystem();
-        int loaded = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
+        var plms = PlmFixtures.Unbound();
+        int loaded = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }

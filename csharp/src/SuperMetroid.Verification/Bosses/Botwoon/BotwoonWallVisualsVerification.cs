@@ -153,7 +153,7 @@ internal static class BotwoonWallVisualsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-        var plms = new RoomPlmSystem { Drawing = { BotwoonWallVisuals = edited } };
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBotwoonWallVisuals = edited });
         AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(level,
                 PlmHeaderId.ClearBotwoonWall),
             "edited Botwoon wall-clear PLM allocates");

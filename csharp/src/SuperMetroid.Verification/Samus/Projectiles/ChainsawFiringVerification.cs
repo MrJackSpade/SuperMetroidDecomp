@@ -101,7 +101,7 @@ internal static class ChainsawFiringVerification
             EquippedBeams = (SamusBeamFlags)0x000d,
             SelectedHudItem = HudItem.Beam,
         };
-        var doorPlms = new RoomPlmSystem();
+        var doorPlms = PlmFixtures.Unbound();
         var doorProjectiles = CreateProjectileFixture();
         doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
         AssertEqual(1, doorPlms.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
@@ -185,9 +185,9 @@ internal static class ChainsawFiringVerification
         byte[] interferenceBts = new byte[25];
         interferenceWords[yellowDoorBlock] = 0x8000;
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[0x400 * 8]);
-        var interferencePlms = new RoomPlmSystem();
+        var interferencePlms = PlmFixtures.Unbound();
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
-        AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
         interferencePlms.Step(interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
@@ -219,7 +219,7 @@ internal static class ChainsawFiringVerification
         breakingWords[bombableBlock] =
             (ushort)((int)RoomCollisionType.BombableBlock << 12);
         var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new byte[25], new ushort[25]), new byte[0x2000]);
-        var breakingPlms = new RoomPlmSystem();
+        var breakingPlms = PlmFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,

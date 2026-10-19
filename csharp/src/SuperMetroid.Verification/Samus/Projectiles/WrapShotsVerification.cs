@@ -51,7 +51,7 @@ internal static class WrapShotsVerification
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             int firstRemoteHit = -1;
             for (int frame = 0; frame < 40; frame++)
             {

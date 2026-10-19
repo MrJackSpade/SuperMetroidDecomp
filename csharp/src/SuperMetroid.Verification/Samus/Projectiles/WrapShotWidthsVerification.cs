@@ -39,7 +39,7 @@ internal static class WrapShotWidthsVerification
                 EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             int hit = -1;
             for (int frame = 0; frame < 40; frame++)
             {

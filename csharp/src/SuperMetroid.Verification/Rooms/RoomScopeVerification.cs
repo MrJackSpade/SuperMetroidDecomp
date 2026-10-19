@@ -50,12 +50,17 @@ internal static class RoomScopeVerification
             ReferenceEquals(destination.LevelData, runtime.Room.LevelData) &&
             ReferenceEquals(destination.BackgroundStreamer, runtime.Room.BackgroundStreamer),
             "the room views read the adopted scope");
+        VerificationAssert.AssertTrue(!ReferenceEquals(source.Plms, destination.Plms) &&
+            !destination.Plms.SlotTable.Slots.Intersect(source.Plms.SlotTable.Slots).Any(),
+            "no PLM slot survives the load: the destination builds its own PLM system");
+        VerificationAssert.AssertTrue(ReferenceEquals(destination.Plms, runtime.Plms),
+            "the runtime's PLM system is the loaded room's");
         VerificationAssert.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
         VerificationAssert.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
         VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
         VerificationAssert.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
         VerificationAssert.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
-        Console.WriteLine("Room scope: a streamed door load builds a new scope whose camera carries the fractions, ideal position, speed and previous Samus point.");
+        Console.WriteLine("Room scope: a streamed door load builds a new scope and PLM system; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 
     /// <summary>Runs the room-scope carry-over confirmation.</summary>

@@ -49,8 +49,6 @@ internal sealed class DoorTransitionRunner
     private readonly OamBuffer _oam;
     /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Spawns door setup PLMs and manages their sound queue.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Holds destination room data, camera, and background streamer.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Applies room liquid state during the door HDMA pass.</summary>
@@ -77,7 +75,6 @@ internal sealed class DoorTransitionRunner
         _sprites = dependencies.Sprites;
         _oam = _sprites.Oam;
         _player = dependencies.Player;
-        _plms = dependencies.Plms;
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _system = dependencies.System;
@@ -93,7 +90,7 @@ internal sealed class DoorTransitionRunner
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
-    internal void RunDoorSetupCode(CartridgeDoorHeader door)
+    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -134,19 +131,19 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards,plms);
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards,plms);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
-                SetUpMaridiaElevatube(fromSouth: true);
+                SetUpMaridiaElevatube(fromSouth: true,plms);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
-                SetUpMaridiaElevatube(fromSouth: false);
+                SetUpMaridiaElevatube(fromSouth: false,plms);
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
@@ -164,7 +161,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomPlmSystem plms)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.ActiveRoom is null)
         {
@@ -176,7 +173,7 @@ internal sealed class DoorTransitionRunner
         // Both native spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's native false result here.
-        _ = _plms.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
+        _ = plms.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             _room.BackgroundStreamer,
             direction,
@@ -184,7 +181,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
-    private void SetUpMaridiaElevatube(bool fromSouth)
+    private void SetUpMaridiaElevatube(bool fromSouth, RoomPlmSystem plms)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
@@ -198,13 +195,13 @@ internal sealed class DoorTransitionRunner
 
         // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
         // occupied. Retaining the bool-returning allocator preserves that cartridge edge.
-        _ = _plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
+        _ = plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
-    public void RunDoorSoundWaitFrame(SnesButton controllerInput)
+    public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomPlmSystem plms)
     {
-        RunDoorSoundWaitPrologue(controllerInput);
-        DrawDoorTransitionActors(runEnemyProjectiles: false);
+        RunDoorSoundWaitPrologue(controllerInput,plms);
+        DrawDoorTransitionActors(runEnemyProjectiles: false, plms);
     }
 
     /// <summary>
@@ -213,11 +210,11 @@ internal sealed class DoorTransitionRunner
     /// runs while Samus is locked. On the entry frame it precedes the state handler, so
     /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(SnesButton controllerInput)
+    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms)
     {
-        _plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
+        plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, plms);
     }
 
     /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
@@ -225,13 +222,14 @@ internal sealed class DoorTransitionRunner
     /// True for the destination fade-in ($82:E743); the source waits ($E29E/$E2DB) run
     /// enemies and drawing without Enemy_Projectile_Handler.
     /// </param>
-    internal void DrawDoorTransitionActors(bool runEnemyProjectiles)
+    /// <param name="plms">The loaded room's PLM system.</param>
+    internal void DrawDoorTransitionActors(bool runEnemyProjectiles, RoomPlmSystem plms)
     {
         _sprites.BeginFrame();
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(_bombProjectiles.PowerBombExplosion);
-        _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint);
+        _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint, plms);
         // The Samus-collision pass belongs to gameplay only.
         if (runEnemyProjectiles)
             RunEnemyProjectileHandler();
@@ -257,11 +255,11 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
-    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled)
+    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled, RoomPlmSystem plms)
     {
         if (hdmaObjectsEnabled)
         {
-            _hdmaPhase.AdvanceHdmaObjectPreInstructions();
+            _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms);
             if (_player.Samus is not null && _roomLayer3Fx.MovesLiquidInHdmaPass)
                 _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
         }

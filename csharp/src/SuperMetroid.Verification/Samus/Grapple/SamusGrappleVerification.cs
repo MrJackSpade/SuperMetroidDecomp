@@ -260,7 +260,7 @@ firingLevel, firingSamus, SnesButton.X);
     RoomLevelData breakableFiringLevel = CreateRoom(new(8, 8), breakableFiringBlocks, breakableFiringBts);
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     breakableFiringSamus.Kinematics.YSpeed = breakableFiringSamus.Kinematics.YSpeed.WithWhole(1);
-    var breakableFiringPlms = new RoomPlmSystem();
+    var breakableFiringPlms = PlmFixtures.Unbound();
     SamusGrappleMovement.BeginFiring(breakableFiringSamus);
     SamusGrappleMovement.StepFiring(
 
@@ -394,7 +394,7 @@ spikeLevel, spikeSamus, SnesButton.X);
         endpointBlocks[3 * 8 + 3] = collisionWord;
         endpointBts[3 * 8 + 3] = 0x0c;
         RoomLevelData endpointLevel = CreateRoom(new(8, 8), endpointBlocks, endpointBts);
-        var endpointPlms = new RoomPlmSystem();
+        var endpointPlms = PlmFixtures.Unbound();
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         SamusGrappleMovement.BeginFiring(endpointSamus);
         SamusGrappleMovement.StepFiring(

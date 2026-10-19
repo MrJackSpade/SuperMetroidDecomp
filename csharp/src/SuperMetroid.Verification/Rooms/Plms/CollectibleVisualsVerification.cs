@@ -55,7 +55,7 @@ internal static class CollectibleVisualsVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, 0xeed7, roomArgument: 0, precollected: false);
-            fixture.Plms.Drawing.CollectibleVisuals = visuals;
+            PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = visuals;
             fixture.Level.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
             fixture.Streamer.SetBlockDefinitionWord(0x04a * 4, 0x0123);
@@ -94,7 +94,7 @@ internal static class CollectibleVisualsVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)kind), precollected: false);
-            fixture.Plms.Drawing.CollectibleVisuals = stock;
+            PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = stock;
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
@@ -104,7 +104,7 @@ internal static class CollectibleVisualsVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
-            fixture.Plms.Drawing.CollectibleVisuals = stock;
+            PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = stock;
             if (header == 0xef7f)
                 AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(
                         fixture.BlockIndex),

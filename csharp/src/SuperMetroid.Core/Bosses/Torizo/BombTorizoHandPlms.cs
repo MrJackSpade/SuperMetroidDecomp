@@ -71,13 +71,6 @@ internal sealed class BombTorizoHandPlms
         _musicRequests.Clear();
     }
 
-    /// <summary>Clears pending output and forgets the room width captured when the hand was installed.</summary>
-    internal void ResetBombTorizoHandState()
-    {
-        BeginBombTorizoHandFrame();
-        _bombTorizoHandRoomWidth = 0;
-    }
-
     /// <summary>
     /// Runs pre-instruction <c>$84:D33B</c> before the ordinary PLM timer pass.
     /// </summary>

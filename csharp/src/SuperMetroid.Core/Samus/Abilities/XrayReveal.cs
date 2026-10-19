@@ -16,8 +16,6 @@ internal sealed class XrayReveal
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the active Samus X-ray setup stage during NMI reads.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies collectible PLMs overlaid on the captured room map.</summary>
-    private readonly RoomPlmSystem _plms;
     /// <summary>Supplies the active room, level, area, and X-ray pointer.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies system flags that affect revealed overlays.</summary>
@@ -36,11 +34,10 @@ internal sealed class XrayReveal
     internal StagingWordView RevealTilemap => _tilemapStaging.TilemapWords;
 
     /// <summary>Binds the gameplay owners used to capture BG1 and construct the X-ray reveal.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, Bg2TilemapStaging tilemapStaging)
+    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, ActiveRoomState room, Bank80SystemState system, SnesVram vram, Bg2TilemapStaging tilemapStaging)
     {
         _backgroundScroll = backgroundScroll;
         _player = player;
-        _plms = plms;
         _room = room;
         _system = system;
         _vram = vram;
@@ -55,7 +52,7 @@ internal sealed class XrayReveal
     /// advances. The captured pages and the reveal map are owned state, so state saves retain the
     /// exact captured map and rendering never reruns game logic to synthesize a replacement.
     /// </summary>
-    internal void BuildXrayRevealTilemap()
+    internal void BuildXrayRevealTilemap(RoomPlmSystem plms)
     {
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("X-ray setup has no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");
@@ -67,7 +64,7 @@ internal sealed class XrayReveal
         Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
             (byte)room.AreaIndex, XrayRevealVisuals);
-        XrayRevealOverlays.Apply(level, map, _plms.CollectiblePlms.Collectibles, _system,
+        XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,
             room.State.XrayOverlay, layer1, XrayRevealVisuals);
         StagingWordView reveal = RevealTilemap;
         for (int i = 0; i < map.Length; i++) reveal[i] = map[i];

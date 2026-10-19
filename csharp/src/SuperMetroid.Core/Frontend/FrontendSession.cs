@@ -288,12 +288,12 @@ internal sealed class FrontendSession
                 soundSuppressed: request.SoundSuppressed);
         }
 
-        foreach (PlmSoundRequest request in runtime.Plms.Sounds.SoundRequests)
+        foreach (PlmSoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (PlmMusicRequest request in runtime.Plms.BombTorizoHand.MusicRequests)
+        foreach (PlmMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
-        if (runtime.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
+        if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (EnemySoundRequest request in runtime.Enemies.Audio.SoundRequests)

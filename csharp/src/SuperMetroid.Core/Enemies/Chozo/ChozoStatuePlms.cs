@@ -16,13 +16,6 @@ internal sealed class ChozoStatuePlms
     /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Room reset: drops the previous room's enemy and layer-3 bindings.</summary>
-    internal void Unbind()
-    {
-        _chozoEnemies = null;
-        _chozoRoomFx = null;
-    }
-
     /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
     internal ChozoStatuePlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {

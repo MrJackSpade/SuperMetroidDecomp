@@ -22,7 +22,7 @@ internal static class WaveDoorBandsVerification
             words[target] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
             behaviors[target] = (left ? RoomBlockBehaviorValues.BlueDoorFacingRight : RoomBlockBehaviorValues.BlueDoorFacingLeft).ToBtsByte();
             var level = CreateRoom(new(16, 32), words, behaviors);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             var shot = new SamusProjectileSlot(0)
             {
                 Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),

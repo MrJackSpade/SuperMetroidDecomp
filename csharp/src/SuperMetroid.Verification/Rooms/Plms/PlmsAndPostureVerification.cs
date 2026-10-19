@@ -53,7 +53,7 @@ internal static void VerifyBreakableGrapplePlms()
     // on the following pass because DrawPLMBlock deliberately seeded timer one.
     RoomLevelData respawning = CreateLevel(1, definitions);
     BackgroundTilemapStreamer respawningStreamer = respawning.CreateBackgroundStreamer();
-    var respawningPlms = new RoomPlmSystem();
+    var respawningPlms = PlmFixtures.Unbound();
     AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
     AssertEqual(0, respawning.GetCollisionBlockByIndex(blockIndex).Bts.Value,
@@ -104,7 +104,7 @@ internal static void VerifyBreakableGrapplePlms()
     // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
     RoomLevelData permanent = CreateLevel(2, definitions);
     BackgroundTilemapStreamer permanentStreamer = permanent.CreateBackgroundStreamer();
-    var permanentPlms = new RoomPlmSystem();
+    var permanentPlms = PlmFixtures.Unbound();
     AssertTrue(permanentPlms.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
         "nonrespawning grapple PLM occupies a native slot");
     permanentPlms.Step(permanent, permanentStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -137,7 +137,7 @@ internal static void VerifyBreakableGrapplePlms()
     RoomLevelData respawning2x2 = CreateBombLevel(3, definitions);
     BackgroundTilemapStreamer respawning2x2Streamer =
         respawning2x2.CreateBackgroundStreamer();
-    var respawning2x2Plms = new RoomPlmSystem();
+    var respawning2x2Plms = PlmFixtures.Unbound();
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
@@ -174,7 +174,7 @@ internal static void VerifyBreakableGrapplePlms()
     RoomLevelData permanent1x2 = CreateBombLevel(6, definitions);
     BackgroundTilemapStreamer permanent1x2Streamer =
         permanent1x2.CreateBackgroundStreamer();
-    var permanent1x2Plms = new RoomPlmSystem();
+    var permanent1x2Plms = PlmFixtures.Unbound();
     AssertTrue(permanent1x2Plms.TrySpawnCollisionBombBlock(
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");

@@ -63,10 +63,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             blockDefinitions[originalVisual * 8] = 0x0d;
             blockDefinitions[0x53 * 8] = 0x53;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
-            var plms = new RoomPlmSystem
-            {
-                Drawing = { BlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock },
-            };
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock });
             RoomBlockBehavior behavior = new(unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));
             AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,

@@ -62,9 +62,9 @@ internal static class NoobTubePlmVerification
         var projectiles = new List<NoobTubeProjectileRequest>();
         var earthquakes = new List<ushort>();
         bool brokenEvent = false;
-        var plms = new RoomPlmSystem();
+        var plms = PlmFixtures.Unbound();
 
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
+        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
                 AssertEqual(NoobTubePlmRomData.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
@@ -316,8 +316,8 @@ internal static class NoobTubePlmVerification
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
-        var plms = new RoomPlmSystem();
-        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
+        var plms = PlmFixtures.Unbound();
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not set its event again.") }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake."), WriteType = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });

@@ -64,7 +64,7 @@ internal static class GateBeamCollisionVerification
             words[first] = words[second] = 0xc000;
             bts[first] = bts[second] = 0x10;
             var level = CreateRoom(new(16, 16), words, bts);
-            var plms = new RoomPlmSystem();
+            var plms = PlmFixtures.Unbound();
             if (full)
                 for (int i = 0; i < 40; i++)
                     AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, (byte)0x10, 0, true), "Fill gate probe pool");

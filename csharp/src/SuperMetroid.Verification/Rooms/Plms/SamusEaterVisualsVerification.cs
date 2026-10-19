@@ -254,7 +254,7 @@ internal static class SamusEaterVisualsVerification
         var level = CreateRoom(new(width, height), new ushort[width * height],
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
-        var plms = new RoomPlmSystem { Drawing = { SamusEaterVisuals = visuals } };
+        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSamusEaterVisuals = visuals });
         var streamer = level.CreateBackgroundStreamer();
         int origin = 8 * width + 8;
         plms.Drawing.DrawPlmInstruction(level, streamer, origin, pointer, default);

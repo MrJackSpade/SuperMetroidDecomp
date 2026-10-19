@@ -230,9 +230,8 @@ internal static class RoomSkyTilemapsVerification
         if (blockLandingList)
             guard.Forbid(address => address >= LandingSiteRomData.LibraryBackgroundListAddress &&
                     address < LandingSiteRomData.LibraryBackgroundListAddress +
-                        LibraryBackgroundProgramDefinitions.Get(
-                            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress))
-                            .NativeByteCount,
+                        LibraryBackgroundProgramImporter.ByteSpan(source,
+                            unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)),
                 address => $"Landing Site entry reread compiled transfer list ${address:X6}.");
         return guard;
     }

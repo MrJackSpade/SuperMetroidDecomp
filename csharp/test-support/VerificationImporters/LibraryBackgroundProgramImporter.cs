@@ -15,7 +15,17 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class LibraryBackgroundProgramImporter
 {
     /// <summary>Decodes one bounded bank $8F list into typed transfer, decompression, and clear commands.</summary>
-    public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
+    public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer) => Decode(source, pointer, out _);
+
+    /// <summary>The native encoded length of the list at <paramref name="pointer"/>, its two-byte terminator included.</summary>
+    public static int ByteSpan(ISnesAddressSpace source, ushort pointer)
+    {
+        Decode(source, pointer, out int byteSpan);
+        return byteSpan;
+    }
+
+    /// <summary>Decodes one list and measures its encoded length.</summary>
+    private static LibraryBackgroundProgram Decode(ISnesAddressSpace source, ushort pointer, out int byteSpan)
     {
         Ensure.NotNull(source);
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
@@ -27,7 +37,10 @@ internal static class LibraryBackgroundProgramImporter
             LibraryBackgroundCommand command = (LibraryBackgroundCommand)Word(cursor);
             cursor = (ushort)(cursor + 2);
             if (command == LibraryBackgroundCommand.End)
-                return new LibraryBackgroundProgram($"$8F:{pointer:X4}", instructions.ToArray(), (ushort)(cursor - pointer));
+            {
+                byteSpan = (ushort)(cursor - pointer);
+                return new LibraryBackgroundProgram($"$8F:{pointer:X4}", instructions.ToArray());
+            }
             ushort door = 0;
             if (command == LibraryBackgroundCommand.TransferForDoor)
             {

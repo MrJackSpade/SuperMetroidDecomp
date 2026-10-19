@@ -67,9 +67,6 @@ internal static class LibraryBackgroundProgramsVerification
 
             AssertEqual((ushort)LibraryBackgroundCommand.End, ReadWord(cursor),
                 $"library BG $8F:{program.Pointer:X4} terminator");
-            cursor = unchecked((ushort)(cursor + sizeof(ushort)));
-            AssertEqual(program.NativeByteCount, unchecked((ushort)(cursor - program.Pointer)),
-                $"library BG $8F:{program.Pointer:X4} native byte span");
         }
 
         AssertEqual(LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,

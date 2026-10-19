@@ -115,7 +115,7 @@ try {
             $instructionCount++
         }
         if (-not $terminated) { throw ('Unterminated library list ${0:X4}.' -f $pointer) }
-        $lines.Add(('    ], 0x{0:X4});' -f ($cursor - $pointer)))
+        $lines.Add('    ]);')
         $lines.Add('')
     }
     $lines.Add('    /// <summary>The retail programs in the cartridge''s list order.</summary>')

@@ -646,23 +646,15 @@ Commit and push that update too.
     support owns `NativeEnemyProjectileInstruction` and `SnesWindowSelectionPairBits`; the Tooling enum keeps
     what tools emit) and the small moves after it. The prune takes comma-separated `--path-prefix` values. Never
     prune `SuperMetroid.Core/Hardware/`: it deletes the CPU-bus interfaces and the move step cannot repair the
-    hierarchies (3291 compile errors). What remains, each needing its own change:
-    - CPU bus (`ISnesMemoryBus`, `SnesMemoryBusRequirement`, `SnesWordReads`, `ISnesAddressSpace.WriteByte`,
-      `SuperMetroidAddressSpace.WriteByte`, test support's `SyntheticCartridge.WriteByte`): production keeps
-      `SuperMetroidAddressSpace` as the WRAM image for the desktop host and debugger save states, but only tests
-      and the import pipeline write through it. About 1700 test call sites pass it as an `ISnesAddressSpace`;
-      moving the write path out of Core means a test-support bus that wraps it, adopted at those sites.
-    - Corpse definitions (15 fields): the routine and table pointers of `DeadSidehopper/DeadTorizo/DeadTourian
-      CorpseDefinition` are read only by the tests that rebuild the record from ROM and compare it, and by
-      `LookupSmallGameTablesVerification`, which locates code through `CopyFunction`. Strip the fields with
-      `--remove-keys` (it removes the construction arguments too) and narrow those comparisons to the fields
-      production reads.
-    - `LibraryBackgroundProgram.NativeByteCount` is written by `tools/generate-library-background-programs.ps1`;
-      remove it there and in the generated catalog together.
-    - `CeresElevatorProjectileDefinition.DefinitionPointer`, `EnemyProjectileDefinition.InitialInstructionList`
-      (positional, test-read), the `SamusBeamLoadoutWord(ushort)` and `EnemySpritemapPart(…, byte, …)` convenience
-      constructors, `EnemyFrameCollision.Count` and `CpuBusCell.Require`: tests are the only readers; move them to
-      test-support access types or convert at the test call sites.
+    hierarchies (3291 compile errors). `25924e7c0` and `338c78937` removed the test-only definition fields (corpse
+    pointers, the Ceres header pointer, the projectile initial list), two convenience constructors,
+    `EnemyFrameCollision.Count` and `CpuBusCell.Require`, and pruned the constants they fed; the library-background
+    byte count left Core, its generator and the generated catalog together. What remains (6 findings) is the CPU
+    bus write path: `ISnesMemoryBus`, `SnesMemoryBusRequirement`, `SnesWordReads`, `ISnesAddressSpace.WriteByte`,
+    `SuperMetroidAddressSpace.WriteByte` and test support's `SyntheticCartridge.WriteByte`. Production keeps
+    `SuperMetroidAddressSpace` as the WRAM image for the desktop host and debugger save states, but only tests and
+    the import pipeline write through it. About 1700 test call sites pass it as an `ISnesAddressSpace`, so moving
+    the write path out of Core means a test-support bus that wraps it, adopted at those sites.
   - Q5.2 remains: about 30 Core readers still resolve a frame to its word for the family collision catalogs
     (`ComponentsAt`/`HasFrame`/`IsFrame`/`TryGetComponents` in 15 catalogs plus Kraid's two), the common empty
     checks, the extended-hitbox test and `EnemySpritemapDraw`. Those catalogs are re-keyed by `EnemyFrameId` one at

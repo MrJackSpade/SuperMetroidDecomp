@@ -18,6 +18,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks pause-menu render packets through map, equipment, and fade states.</summary>
 internal static class PauseSnapshotTestsVerification
@@ -42,7 +43,7 @@ internal static class PauseSnapshotTestsVerification
         ushort[] hud = new ushort[128];
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
         gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram) });
         var pages = new HashSet<int>();
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)

@@ -246,6 +246,7 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveHudVerificatio
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveManualVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseSnapshotTestsVerification;
+using static SuperMetroid.Verification.Frontend.Pause.PauseHudPlaneVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPositionVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveVerification;
 using static SuperMetroid.Verification.Rooms.Plms.PlmsAndPostureVerification;
@@ -413,6 +414,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPpuMemorySnapshotOwnership), () => VerifyPpuMemorySnapshotOwnership()),
         new(nameof(VerifyTitleRenderSnapshots), () => VerifyTitleRenderSnapshots()),
         new(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots()),
+        new(nameof(VerifyPauseHudFromLayer3Plane), () => VerifyPauseHudFromLayer3Plane()),
         new(nameof(VerifyPauseBossMarkers), () => VerifyPauseBossMarkers()),
         new(nameof(VerifyFileMenuRenderSnapshots), () => VerifyFileMenuRenderSnapshots()),
         new(nameof(VerifyRenderFrameHandoff), () => VerifyRenderFrameHandoff()),

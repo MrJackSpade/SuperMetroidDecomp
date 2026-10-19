@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("catalog: ordinary gameplay VRAM")]
 public static class GameplayVramLayout
 {
-    /// <summary>VMADD of <see cref="Bg1Tilemap"/>, for render packets and the PPU backend.</summary>
+    /// <summary>VMADD of <c>Bg1Tilemap</c>, for render packets and the PPU backend.</summary>
     [PpuLayoutAccess]
     public const ushort Bg1TilemapWord = 0x5000;
 
@@ -35,10 +35,6 @@ public static class GameplayVramLayout
     /// <summary>VMADD $4800-$4FFF: BG2's two horizontal 32x32 tilemap screens (BG2SC=$49).</summary>
     public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
         Bg2TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
-
-    /// <summary>VMADD $5000-$57FF: BG1's two horizontal 32x32 tilemap screens (BG1SC=$51), the level ring.</summary>
-    public static readonly PpuLayoutCell Bg1Tilemap = new(nameof(Bg1Tilemap), PpuLayoutRegion.Vram,
-        Bg1TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5800-$5FFF: BG3's tilemap (BG3SC=$5A): the four HUD rows followed by the layer-3 FX screen.</summary>
     public static readonly PpuLayoutCell HudTilemap = new(nameof(HudTilemap), PpuLayoutRegion.Vram,

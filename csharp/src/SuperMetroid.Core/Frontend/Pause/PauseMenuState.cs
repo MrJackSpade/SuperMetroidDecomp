@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -120,14 +121,15 @@ internal sealed class PauseMenuState
         entry.MapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
         entry.MapPresentation.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
-        if (entry.GameplayVram is not null)
+        if (entry.GameplayLayer3 is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
             // tilemap. The four-row gameplay HUD already resident at VRAM word $5800 is
             // intentionally retained. A fresh host-side VRAM object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
-            // pixels in the area that its BG3 plane normally covers.
-            new PauseVram(vram).RetainedHudTilemap.Load(new PauseVram(entry.GameplayVram).RetainedHudTilemap);
+            // pixels in the area that its BG3 plane normally covers. Gameplay's BG3 plane
+            // is the displayed tilemap (#1351), so pause takes those words from it.
+            new PauseVram(vram).RetainHudTilemap(entry.GameplayLayer3);
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
@@ -902,12 +904,13 @@ internal sealed class PauseMenuState
         }
     }
 
-    /// <summary>Retains only HUD DMA accepted by NMI, not the pending WRAM tilemap.</summary>
-    public void SynchronizeAcceptedHud(SnesVram gameplayVram)
+    /// <summary>Retains only the HUD gameplay's last NMI displayed, not the pending WRAM tilemap.</summary>
+    /// <param name="gameplayLayer3">The BG3 plane gameplay latched at that NMI (#1351).</param>
+    public void SynchronizeAcceptedHud(Layer3Plane gameplayLayer3)
     {
         // Pause owns an isolated PPU image. Mirror the native mutable HUD range,
         // leaving its static first row and deliberately cleared FX rows untouched.
-        new PauseVram(vram).AcceptedHudRows.Load(new PauseVram(gameplayVram).AcceptedHudRows);
+        new PauseVram(vram).MirrorAcceptedHudRows(gameplayLayer3);
     }
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>

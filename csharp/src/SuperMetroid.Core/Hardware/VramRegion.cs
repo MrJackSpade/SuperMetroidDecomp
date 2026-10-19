@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Hardware;
 public readonly struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
-    private readonly SnesVram vram;
+    internal readonly SnesVram vram;
     /// <summary>First physical VMADD word in the region.</summary>
-    private readonly int first;
+    internal readonly int first;
 
     /// <summary>Binds the VRAM words described by <paramref name="cell"/>.</summary>
     [PpuLayoutAccess]
@@ -52,13 +52,6 @@ public readonly struct VramRegion
         vram.LoadBytes(first * sizeof(ushort) + byteOffset, bytes);
     }
 
-    /// <summary>Copies another region's bytes in, starting <paramref name="byteOffset"/> bytes into this region.</summary>
-    public void Load(VramRegion source, int byteOffset = 0)
-    {
-        CheckBytes(byteOffset, source.ByteCount);
-        vram.LoadBytes(first * sizeof(ushort) + byteOffset, source.vram.Bytes.Slice(source.first * sizeof(ushort), source.ByteCount));
-    }
-
     /// <summary>
     /// Writes a word stream through the VMDATA port starting <paramref name="wordOffset"/> words in,
     /// advancing VMADD by <paramref name="increment"/> after each word.
@@ -78,13 +71,6 @@ public readonly struct VramRegion
         Write(words, wordOffset);
     }
 
-    /// <summary>The word at <paramref name="wordOffset"/>.</summary>
-    public ushort ReadWord(int wordOffset)
-    {
-        CheckWords(wordOffset, 1);
-        return vram.ReadWord(first + wordOffset);
-    }
-
     /// <summary>The VMADD step for <paramref name="increment"/>.</summary>
     internal static int Step(VramIncrement increment) => increment switch
     {
@@ -94,7 +80,7 @@ public readonly struct VramRegion
     };
 
     /// <summary>Rejects a word span that crosses this region's physical allocation.</summary>
-    private void CheckWords(int wordOffset, int wordCount)
+    internal void CheckWords(int wordOffset, int wordCount)
     {
         if (wordOffset < 0 || wordCount < 0 || wordOffset + wordCount > WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordOffset), wordOffset,

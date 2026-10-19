@@ -22,7 +22,7 @@ internal static class XrayTilemapVerification
             definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
-        ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, vram, new(248, 248), new(16, 16), area);
+        ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(248, 248), new(16, 16), area);
         void Set(int index, RoomCollisionType type, byte bts)
         {
             level.SetPlmForegroundEntry(index, (ushort)((int)type << 12));

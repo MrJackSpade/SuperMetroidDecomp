@@ -12,11 +12,12 @@ using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks X-ray setup's staged BG1 capture and frozen reveal-map lifetime.</summary>
 internal static class XraySetupVerification
 {
-    /// <summary>Checks NMI sampling of each BG1 page and stage-four reveal construction with edited art and overlays.</summary>
+    /// <summary>Checks stage-four reveal construction from the shown BG1 plane with edited art and overlays (#1351).</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXraySetupBuffers()
     {
@@ -63,42 +64,20 @@ internal static class XraySetupVerification
             for (int block = 0; block < blocks.Length; block++)
                 level.SetPlmForegroundEntry(block, blocks[block], visual);
         }
-        // A page cell inside the room shows the painted word; cells beyond the room's edge read zero.
-        void VerifyPage(int screen, ushort shown, ushort stale, string context)
-        {
-            ReadOnlySpan<ushort> page = runtime.Xray.SavedBg1.AsSpan(screen * XrayTilemapLayout.ScreenWords, XrayTilemapLayout.ScreenWords);
-            int painted = 0;
-            foreach (ushort word in page)
-            {
-                AssertTrue(word == shown || word == 0, $"{context}: saved word ${word:X4} is neither the shown tile nor beyond the room");
-                AssertTrue(word != stale || stale == 0, $"{context}: no word keeps the earlier tile");
-                if (word == shown) painted++;
-            }
-            AssertTrue(painted > 0, $"{context}: the page shows the room");
-        }
-
+        // Stage four builds the reveal from the BG1 plane the room shows then (#1351); nothing is captured earlier.
         ShowEverywhere(0x0456);
         runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, new ushort[XrayTilemapLayout.ScreenWords], "stage two only queues the second page read"));
-        // The source is sampled at the NEXT NMI, not when the request is issued.
         ShowEverywhere(0x0789);
         runtime.StepFrame(held);
-        VerifyPage(1, 0x0789, 0x0456, "stage-two read completes at the next NMI");
-
-        // Change the source before stage four. A render-time rebuild or a single late
-        // read cannot keep the already captured second page.
         ShowEverywhere(0x0abc);
         runtime.StepFrame(held);
-        VerifyPage(0, 0x0abc, 0x0789, "stage-three read completes before stage-four build");
-        VerifyPage(1, 0x0789, 0x0abc, "stage four keeps the captured second page");
-        var captured = new SnesVram();
-        captured.ExecuteWordTransfer(runtime.Xray.SavedBg1, GameplayVramLayout.Bg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        var original = XrayRevealTilemap.Build(level, captured,
+        var bg1 = new RoomBackgroundLayer(level.ForegroundPlane, scroll.Bg1Offset.AsBgPlaneOffset());
+        var original = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);
-        var expected = XrayRevealTilemap.Build(level, captured,
+        var expected = XrayRevealTilemap.Build(level, bg1,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
@@ -106,21 +85,15 @@ internal static class XraySetupVerification
             "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(level, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
-        AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the separately captured pages and overlays");
-        AssertTrue(expected.Any(word => word is 0x0abc or 0x0789), "fixture observes captured BG1 content, not only reveal replacements");
+        AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the shown BG1 plane and overlays");
+        AssertTrue(expected.Contains((ushort)0x0abc), "the reveal copies the level data shown at stage four");
+        AssertTrue(!expected.Any(word => word is 0x0456 or 0x0789), "no earlier setup call's BG1 reaches the reveal");
         ShowEverywhere(0x0def);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "widening/full beam never rebuilds the frozen reveal map");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive, "setup fixture tears down normally");
-        Console.WriteLine("  X-ray setup: separate BG1 capture calls, frozen reveal/overlays and full-beam lifetime agree.");
-
-        void VerifySaved(int firstWord, ushort[] words, string context)
-        {
-            ushort[] saved = runtime.Xray.SavedBg1;
-            for (int i = 0; i < words.Length; i++)
-                AssertEqual(words[i], saved[firstWord + i], $"{context}, word {i}");
-        }
+        Console.WriteLine("  X-ray setup: the stage-four reveal resolves from level data, then stays frozen through the full beam.");
     }
 
     /// <summary>Runs the staged X-ray setup buffer check.</summary>

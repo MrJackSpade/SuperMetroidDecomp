@@ -13,6 +13,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks that the pause menu reads physical buttons whatever the gameplay bindings are.</summary>
 internal static class PauseRemappedShoulderVerification
@@ -35,7 +36,7 @@ internal static class PauseRemappedShoulderVerification
             runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = SnesButton.L, AimDown = SnesButton.R };
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random) { GameState = SuperMetroidGameState.PausedB };
             game.AdoptRuntime(runtime);
             game.Session.pauseMenu = pause;

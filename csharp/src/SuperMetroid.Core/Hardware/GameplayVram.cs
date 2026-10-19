@@ -10,9 +10,6 @@ public readonly struct GameplayVram(SnesVram vram)
     /// <summary>The standard BG3 upload: HUD characters followed by the cleared BG2 tilemap.</summary>
     public VramRegion HudCharacterUpload => new(vram, GameplayVramLayout.HudCharacterUpload);
 
-    /// <summary>BG1's level tilemap.</summary>
-    public VramRegion Bg1Tilemap => new(vram, GameplayVramLayout.Bg1Tilemap);
-
     /// <summary>BG2's background tilemap.</summary>
     public VramRegion Bg2Tilemap => new(vram, GameplayVramLayout.Bg2Tilemap);
 

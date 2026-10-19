@@ -13,6 +13,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Samus's refill-station lock release when the pause menu closes.</summary>
 internal static class UnpauseStationLockReleaseVerification
@@ -34,7 +35,7 @@ internal static class UnpauseStationLockReleaseVerification
         samus.InputLocked = false;
         samus.ScriptLocks.LockIntoRefillStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
         EnterPauseEquipment(pause);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);

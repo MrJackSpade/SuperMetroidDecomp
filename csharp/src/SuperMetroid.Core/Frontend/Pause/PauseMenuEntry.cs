@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -24,8 +25,8 @@ internal sealed record PauseMenuEntry
     /// <summary>Audio.</summary>
     public CartridgeAudioState? Audio { get; init; } = null;
 
-    /// <summary>Gameplay vram.</summary>
-    public SnesVram? GameplayVram { get; init; } = null;
+    /// <summary>The BG3 plane gameplay displayed at its last NMI (#1351), whose HUD rows pause keeps resident.</summary>
+    public Layer3Plane? GameplayLayer3 { get; init; } = null;
 
     /// <summary>Map reveal mode.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;

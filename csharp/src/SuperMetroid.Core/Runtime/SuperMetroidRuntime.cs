@@ -163,7 +163,7 @@ internal sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Room = Room, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites});
         GameplayWindows = new GameplayWindowRegisters(Room);
         Bg2TilemapStaging = new Bg2TilemapStaging();
-        Xray = new XrayReveal(BackgroundScroll, Player, Room, System, Bg2TilemapStaging);
+        Xray = new XrayReveal(BackgroundScroll, Room, System, Bg2TilemapStaging);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, PhysicalController1 = PhysicalController1, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Clock = Clock, Sprites = Sprites, Options = Options, Player = Player, Room = Room, SuitPickup = SuitPickup, Vram = Vram, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
@@ -324,6 +324,11 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>PPU video RAM receiving accepted-NMI transfers.</summary>
     public SnesVram Vram { get; } = new();
+
+    /// <summary>The BG3 plane the last accepted NMI latched (#1351): the HUD and room effect as displayed.</summary>
+    /// <exception cref="InvalidOperationException">No NMI has latched a room's backgrounds yet.</exception>
+    public Layer3Plane AcceptedLayer3Plane =>
+        (Display.Latched.Rooms ?? throw new InvalidOperationException("No accepted NMI has latched a room's BG3 plane.")).Bg3;
 
     /// <summary>The background character artwork the frame shows, composed over <see cref="Vram"/> at capture (#1350).</summary>
     public BgArtworkBindings BgArtwork { get; }

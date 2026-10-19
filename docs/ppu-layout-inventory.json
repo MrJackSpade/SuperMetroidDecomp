@@ -1785,19 +1785,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
-      "name": "Bg1Tilemap",
-      "region": "Vram",
-      "offset": "$5000",
-      "count": 2048,
-      "encoding": "BG tilemap words (64x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
-        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
       "name": "Bg2Tilemap",
       "region": "Vram",
       "offset": "$4800",
@@ -2315,7 +2302,8 @@
         "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/Mode7VramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Hardware/VramStore.cs"
+        "csharp/src/SuperMetroid.Core/Hardware/VramStore.cs",
+        "csharp/test-support/VerificationAccess.Core/Hardware/GameplayVramLayoutConstants.cs"
       ]
     },
     {

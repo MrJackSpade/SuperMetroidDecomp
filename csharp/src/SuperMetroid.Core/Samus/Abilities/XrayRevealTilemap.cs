@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Xray;
 
@@ -11,12 +12,22 @@ public static class XrayRevealTilemap
     /// Ports $91:CB8E-CFD9's base-copy and terrain-reveal passes. Item and special-room
     /// overlays are applied afterwards by their respective owners, as on the cartridge.
     /// </summary>
-    public static ushort[] Build(RoomLevelData level, SnesVram vram,
+    /// <param name="level">The room whose blocks the reveal resolves.</param>
+    /// <param name="bg1">
+    /// The BG1 plane the base copy reads (#1351): each of its 64x32 tilemap cells shows the plane at the scrolled position
+    /// nearest the screen, where the cartridge read the BG1 tilemap back out of VRAM.
+    /// </param>
+    /// <param name="bg1Scroll">BG1's scroll register.</param>
+    /// <param name="layer1Position">Layer one's position, which selects the revealed blocks.</param>
+    /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
+    /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
+    public static ushort[] Build(RoomLevelData level, IBgTileSource bg1,
         Position16<RoomPixels> bg1Scroll, Position16<RoomPixels> layer1Position,
         byte area, XrayRevealVisualCatalog? visuals = null)
     {
         Ensure.NotNull(level);
-        Ensure.NotNull(vram);
+        Ensure.NotNull(bg1);
+        Position16<BgPlanePixels> scroll = bg1Scroll.AsBgPlaneScroll();
         var result = new ushort[XrayTilemapLayout.BufferWords];
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)
@@ -78,8 +89,10 @@ public static class XrayRevealTilemap
         }
         ushort ReadBg1(int x, int y)
         {
-            int tile = ((x & 63) / 32) * XrayTilemapLayout.ScreenWords + (y & 31) * 32 + (x & 31);
-            return new GameplayVram(vram).Bg1Tilemap.ReadWord(tile);
+            var cell = new Position16<BgPlanePixels>(
+                unchecked((ushort)(scroll.X + (((x & 63) * SnesPpuLayout.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
+                unchecked((ushort)(scroll.Y + (((y & 31) * SnesPpuLayout.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
+            return bg1.TrySample(cell, out BgTileSample sample) ? sample.Tile.Raw : (ushort)0;
         }
         void CopyMetatile(int destination, ushort metatile)
         {

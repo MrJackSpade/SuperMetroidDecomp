@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>
 internal static class PauseReserveHudVerification
@@ -40,7 +41,7 @@ internal static class PauseReserveHudVerification
         samus.CollectedBeams = SamusBeamFlags.Charge;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = ReserveTankMode.Auto });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
         EnterPauseEquipment(pause);
         pause.Step(0, SnesButton.Up);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);

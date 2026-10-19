@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
@@ -63,7 +64,7 @@ internal static class MoatFirstEntryVerification
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.Room.LoadedRoom;
-                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayVram = runtime.Vram });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayLayer3 = runtime.AcceptedLayer3Plane });
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.

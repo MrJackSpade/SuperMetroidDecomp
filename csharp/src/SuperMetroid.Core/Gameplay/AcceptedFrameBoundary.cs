@@ -70,7 +70,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Transfers the X-ray BG1 read at the end of the accepted publication.</summary>
+    /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
     private readonly XrayReveal _xray;
     /// <summary>Executes the queued video transfers, whose address-sourced entries read live memory.</summary>
     private readonly Action _drainQueuedVramWrites;
@@ -185,7 +185,6 @@ internal sealed class AcceptedFrameBoundary
         // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         _artwork.PublishReboundBeamPalette();
-        _xray.TransferXrayBg1Read();
     }
 
     /// <summary>
@@ -253,9 +252,10 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as this NMI uploads them,
-    /// over the room effect's area.
+    /// over the room effect's area. A state import that resumes inside pause takes the plane gameplay would have latched
+    /// from it (#1351).
     /// </summary>
-    private Layer3Plane CaptureLayer3Plane()
+    internal Layer3Plane CaptureLayer3Plane()
     {
         var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
         // Without installed HUD artwork the HUD shows the stock top row, as the bus-sourced upload does.

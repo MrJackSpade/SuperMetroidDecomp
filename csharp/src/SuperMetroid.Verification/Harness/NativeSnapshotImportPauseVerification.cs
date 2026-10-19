@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Frontend.Pause;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Restores stable pause-map state from a native WRAM snapshot for frame comparison.</summary>
 internal static class NativeSnapshotImportPauseVerification
@@ -28,7 +29,7 @@ internal static class NativeSnapshotImportPauseVerification
         runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         CartridgeRoomHeader room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayLayer3 = runtime.FrameBoundary.CaptureLayer3Plane(), MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         menu.mapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
         var palette = menu.paletteAnimation;
         palette.timer = memory[PauseMemory.PaletteAnimationTimer];

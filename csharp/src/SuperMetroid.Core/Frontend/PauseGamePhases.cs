@@ -48,7 +48,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             throw new InvalidOperationException(
                 "Pause setup requires an active cartridge room header.");
         session.pauseMenu = new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
-                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayVram = session.GameplayRuntime.Vram, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation });
+                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayLayer3 = session.GameplayRuntime.AcceptedLayer3Plane, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation });
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.pauseMenu);
         session.ApplyDisplayBrightness(session.pauseBrightness);
@@ -71,7 +71,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void DispatchPausedB(SnesButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
+        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
         session.GameplayRuntime.UpdatePauseHeldInput();
         ReserveTankMode previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
         bool unpauseRequested = session.ActivePauseMenu.Step(
@@ -98,7 +98,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void DispatchUnpausingA(SnesButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
+        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, fadingOut: true, advancePalette: false);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);

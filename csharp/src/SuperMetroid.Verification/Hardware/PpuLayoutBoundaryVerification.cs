@@ -161,7 +161,7 @@ internal static class PpuLayoutBoundaryVerification
     private static void VerifyPpuTypedRoundTrips()
     {
         var vram = new SnesVram();
-        var bg1 = new GameplayVram(vram).Bg1Tilemap;
+        var bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, SnesTileFlipFlags.Vertical);
         bg1.Write(0x41, tile);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
@@ -216,7 +216,7 @@ internal static class PpuLayoutBoundaryVerification
             "a VRAM cell must fit in $8000 words");
         AssertThrows<ArgumentOutOfRangeException>(() => PpuMemoryLayout.Colors("Past", 0xf8, 9, "colours"), "a CGRAM cell must fit in 256 colours");
         AssertThrows<ArgumentException>(() => new VramRegion(vram, PpuMemoryLayout.ObjPalette0), "a VRAM view rejects a CGRAM cell");
-        AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayout.Bg1Tilemap), "a palette view rejects a VRAM cell");
+        AssertThrows<ArgumentException>(() => new CgramPalette(cgram, GameplayVramLayoutConstants.Bg1Tilemap), "a palette view rejects a VRAM cell");
         AssertThrows<ArgumentOutOfRangeException>(() => VramDmaDestination.At(GameplayVramLayout.HudTilemap, GameplayVramLayout.HudTilemap.Count),
             "a queued destination must start inside its cell");
         AssertThrows<ArgumentOutOfRangeException>(() => GameplayWindowRegisterLayout.ShadowAddress(PpuMemoryLayout.Cgram),
@@ -330,7 +330,7 @@ internal static class PpuLayoutBoundaryVerification
                 CgramPalette objects = new CgramPalettes(cgram).Objects;
                 for (int index = 0; index < objects.Count; index++)
                     objects.Write(index, Bgr555.Saturating(objects[index].Red + 1, frame & 31, index & 31));
-                VramRegion bg1 = new GameplayVram(vram).Bg1Tilemap;
+                VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)
                 {
                     row.AsSpan().Fill((ushort)(frame + line));

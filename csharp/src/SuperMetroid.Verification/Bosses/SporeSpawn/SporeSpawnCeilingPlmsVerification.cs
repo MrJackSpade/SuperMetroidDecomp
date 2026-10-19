@@ -122,12 +122,11 @@ internal static class SporeSpawnCeilingPlmsVerification
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundFrame = -1;
         for (int frame = 0; frame < 32 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
+            plms.Step(level);
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,

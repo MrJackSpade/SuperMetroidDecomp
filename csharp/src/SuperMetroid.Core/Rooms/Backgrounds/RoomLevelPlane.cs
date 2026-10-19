@@ -1,0 +1,79 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using System.Collections.Immutable;
+
+namespace SuperMetroid.Core.Rooms.Backgrounds;
+
+/// <summary>
+/// One room background plane as its level data shows it: a grid of 16x16 blocks, each a visual level word naming a
+/// block definition and its mirroring, over the room's block definitions. Immutable; the room publishes a new plane
+/// when gameplay changes a block or a definition, so renderers resolve tiles from level data with no stored tilemap
+/// (#1346). Tiles expand through <see cref="LevelBlockTilemapExpander"/>, the one mirroring rule every room view uses.
+/// </summary>
+public sealed class RoomLevelPlane
+{
+    /// <summary>Pixels along each side of a level block.</summary>
+    public const int BlockPixels = 16;
+
+    /// <summary>Definition bytes per block: four little-endian tilemap words.</summary>
+    public const int DefinitionBytes = 8;
+
+    /// <summary>The visual level words, row by row.</summary>
+    private readonly ushort[] blocks;
+
+    /// <summary>Copies the logical blocks and checks every block names a loaded definition.</summary>
+    /// <param name="size">The room's size in blocks.</param>
+    /// <param name="blocks">At least <paramref name="size"/>'s blocks of visual level words, row by row; any allocation tail is ignored.</param>
+    /// <param name="definitions">The block definitions, <see cref="DefinitionBytes"/> bytes each.</param>
+    /// <exception cref="ArgumentException">The blocks do not cover the room, or the definitions are not whole.</exception>
+    /// <exception cref="InvalidDataException">A block names a definition the room has not loaded.</exception>
+    public RoomLevelPlane(Extent16<RoomBlocks> size, ReadOnlySpan<ushort> blocks, ImmutableArray<byte> definitions)
+    {
+        int count = size.X * size.Y;
+        if (count == 0 || blocks.Length < count)
+            throw new ArgumentException($"A {size.X}x{size.Y}-block plane needs {count} level words; got {blocks.Length}.", nameof(blocks));
+        if (definitions.IsDefaultOrEmpty || definitions.Length % DefinitionBytes != 0)
+            throw new ArgumentException("Block definitions are whole groups of four tilemap words.", nameof(definitions));
+        int loaded = definitions.Length / DefinitionBytes;
+        foreach (ushort word in blocks[..count])
+        {
+            int definition = new RoomLevelWord(word).VisualBlockIndex;
+            if (definition >= loaded)
+                throw new InvalidDataException($"Level word ${word:X4} names block ${definition:X3}; the room loaded {loaded}.");
+        }
+        Size = size;
+        this.blocks = blocks[..count].ToArray();
+        Definitions = definitions;
+    }
+
+    /// <summary>The room's size in blocks.</summary>
+    public Extent16<RoomBlocks> Size { get; }
+
+    /// <summary>The visual level words, row by row.</summary>
+    public ReadOnlySpan<ushort> Blocks => blocks;
+
+    /// <summary>The room's block definitions, <see cref="DefinitionBytes"/> bytes each, shared by every plane of one publication.</summary>
+    public ImmutableArray<byte> Definitions { get; }
+
+    /// <summary>The four tiles a block shows, already mirrored by the block's flips.</summary>
+    /// <param name="block">The block, inside the room.</param>
+    public ExpandedBlockTiles BlockTiles(Position16<RoomBlocks> block) =>
+        LevelBlockTilemapExpander.Expand(blocks[block.Y * Size.X + block.X], Definitions.AsSpan());
+
+    /// <summary>The tile shown at a level pixel; false outside the room, where the plane shows nothing.</summary>
+    /// <param name="level">The level pixel; coordinates past the room's right or bottom edge, or wrapped below zero, are outside.</param>
+    /// <param name="tile">The tilemap word shown there.</param>
+    public bool TryTileAt(Position16<BgPlanePixels> level, out SnesBgTilemapWord tile)
+    {
+        if (level.X >= Size.X * BlockPixels || level.Y >= Size.Y * BlockPixels)
+        {
+            tile = default;
+            return false;
+        }
+        ExpandedBlockTiles tiles = BlockTiles(new Position16<RoomBlocks>(
+            (ushort)(level.X / BlockPixels), (ushort)(level.Y / BlockPixels)));
+        bool right = level.X % BlockPixels >= SnesPpuLayout.BackgroundTileSizePixels;
+        bool bottom = level.Y % BlockPixels >= SnesPpuLayout.BackgroundTileSizePixels;
+        tile = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
+        return true;
+    }
+}

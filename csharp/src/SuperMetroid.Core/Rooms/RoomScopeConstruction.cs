@@ -40,8 +40,6 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// <summary>The camera, once the camera step has run.</summary>
     public ScrollBoundaryCamera? Camera { get; set; }
 
-    /// <summary>The background streamer, once the streamer step has run.</summary>
-    public BackgroundTilemapStreamer? BackgroundStreamer { get; set; }
 
     /// <summary>The scrolling-sky updater, if the room has one.</summary>
     public ScrollingSkyState? ScrollingSky { get; set; }
@@ -104,7 +102,6 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         LoadStation = LoadStation,
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
-        BackgroundStreamer = BackgroundStreamer ?? throw Missing(nameof(BackgroundStreamer)),
         ScrollingSky = ScrollingSky,
         LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),

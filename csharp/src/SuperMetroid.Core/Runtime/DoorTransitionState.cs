@@ -131,7 +131,8 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.FixDoorsMovingUp:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false, runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
-                runtime.RoomLoader.FixPendingDoorTilesMovingUp();
+                // `$80:AD1D` repairs the source room's tilemap ring for an upward door; with
+                // backgrounds drawn from level data there is no ring, only this frame.
                 Phase = DoorTransitionPhase.SetupNewRoom;
                 break;
 

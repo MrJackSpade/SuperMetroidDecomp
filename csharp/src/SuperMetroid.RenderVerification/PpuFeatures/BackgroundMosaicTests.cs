@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks BG2 mosaic sampling against an independent pixel oracle and the Direct3D renderer.</summary>
 internal static class BackgroundMosaicTests
@@ -42,7 +43,7 @@ internal static class BackgroundMosaicTests
                 SnesMainScreenLayers.Obj | (mode == 2 ? SnesMainScreenLayers.None : SnesMainScreenLayers.Bg2) |
                     (mode == 3 ? SnesMainScreenLayers.Bg1 : SnesMainScreenLayers.None),
                 Bg2Mosaic: new(size));
-            var ordinary = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(horizontal, vertical));
+            var ordinary = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Blank(), new Bg2HdmaScrollTables(horizontal, vertical));
             RenderLayer layer = mode is 0 or 3 ? ordinary : new GameplayColorMathRenderLayer(ordinary, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = mode == 2 ? SnesColorMathControl.Backdrop : SnesColorMathControl.None, AddSubscreen = mode == 2, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: mode == 2);
             var scene = new LayeredRenderSnapshot(memory, [layer], 0, 15);
             var packet = new RenderFrameSnapshot(new(++cases, 1, 0), scene);

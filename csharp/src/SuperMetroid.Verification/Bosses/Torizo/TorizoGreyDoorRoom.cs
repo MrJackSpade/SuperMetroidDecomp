@@ -11,9 +11,6 @@ internal readonly record struct TorizoGreyDoorRoom
     /// <summary>Level.</summary>
     public required RoomLevelData Level { get; init; }
 
-    /// <summary>Streamer.</summary>
-    public required BackgroundTilemapStreamer Streamer { get; init; }
-
     /// <summary>Plms.</summary>
     public required RoomPlmSystem Plms { get; init; }
 

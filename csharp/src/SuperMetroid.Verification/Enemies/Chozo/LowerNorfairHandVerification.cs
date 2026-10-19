@@ -122,8 +122,7 @@ internal static class LowerNorfairHandVerification
         RoomLevelData reentered = runtime.Room.LoadedLevelData;
         reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
         AssertEqual((ushort)0x0053,
-            reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                0x1d * reentered.Size.X + 0x0c, 0).TopRow[0],
+            reentered.DisplayedBlockTiles(0x1d * reentered.Size.X + 0x0c).TopLeft.Raw,
             "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");

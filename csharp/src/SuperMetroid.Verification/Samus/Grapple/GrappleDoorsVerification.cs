@@ -50,11 +50,10 @@ internal static class GrappleDoorsVerification
             AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
                 "blue-door setup changes origin before animation");
-            var streamer = level.CreateBackgroundStreamer();
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+                plms.Step(level);
                 heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }

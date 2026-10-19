@@ -124,11 +124,10 @@ internal static class TourianAccessPlmProgramsVerification
         AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             if (frame == 0 && !clear)
                 AssertEqual((ushort)0x0053,
                     level.GetCollisionBlockByIndex(12 * width + 6).PackedWord.Raw,

@@ -23,8 +23,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
-    /// <summary>Background phase.</summary>
-    public required BackgroundScrollPhase BackgroundPhase { get; init; }
 
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }

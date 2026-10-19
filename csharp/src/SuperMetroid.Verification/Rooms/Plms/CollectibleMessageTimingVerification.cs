@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks the pickup grant and delayed visual update around the synchronous item message.</summary>
 internal static class CollectibleMessageTimingVerification
@@ -37,12 +38,14 @@ internal static class CollectibleMessageTimingVerification
         runtime.StepFrame(0);
         var item = runtime.Plms.CollectiblePlms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);
         ushort visible = runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex];
-        var update = (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")).BuildPlmLevelBlockUpdate(item.BlockIndex,
-            bg1XOffset: unchecked((ushort)runtime.BackgroundScroll.Bg1Offset.X));
-        ushort[] TileWords() => new[] { runtime.Vram.ReadWord(update.TopRowDestination),
-            runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 1)),
-            runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 32)),
-            runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 33)) };
+        // The tiles the displayed frame shows for the pickup block: its latched room BG1 (#1346).
+        ushort[] TileWords()
+        {
+            ExpandedBlockTiles shown = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
+                "The displayed frame has no room backgrounds.")).Bg1.Plane.BlockTiles(
+                runtime.Room.LoadedLevelData.Size.CellAtRowMajorIndex(item.BlockIndex));
+            return [shown.TopLeft.Raw, shown.TopRight.Raw, shown.BottomLeft.Raw, shown.BottomRight.Raw];
+        }
         ushort[] HudWords() => runtime.Hud.Tiles.WhereToArray((_, index) => index % 32 < 26);
         ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.Tiles.Length)
             .Where(index => index % 32 < 26)
@@ -59,7 +62,7 @@ internal static class CollectibleMessageTimingVerification
         void AssertHeld()
         {
             AssertEqual(visible, runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex], "pickup level tile remains during message");
-            AssertTrue(beforeTile.SequenceEqual(TileWords()), "visible pickup VRAM remains during message");
+            AssertTrue(beforeTile.SequenceEqual(TileWords()), "displayed pickup tile remains during message");
             AssertTrue(beforeHud.SequenceEqual(HudWords()), "HUD counters remain during message");
             AssertTrue(beforeVisibleHud.SequenceEqual(VisibleHudWords()), "displayed HUD VRAM remains during message");
             AssertEqual((ushort)199, samus.MaxHealth, "message cannot repeat acquisition");

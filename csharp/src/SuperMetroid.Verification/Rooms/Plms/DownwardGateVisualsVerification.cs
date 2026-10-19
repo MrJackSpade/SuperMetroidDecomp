@@ -47,22 +47,18 @@ internal static class DownwardGateVisualsVerification
         (ushort physical, ushort streamed, ushort triggerPhysical, ushort triggerStreamed)
             Render(RoomPlmDownwardGateVisualCatalog visuals)
         {
-            (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
-                RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
+            (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
-            StepDownwardGatePlm(plms, level, streamer);
+            StepDownwardGatePlm(plms, level);
             AssertEqual(visuals.GetWord(0xa55d, 0, 1) == 0x0053
                     ? (ushort)0x0053 : (ushort)0x000f,
-                streamer.BuildPlmLevelBlockUpdate(
-                    gateBlockIndex + level.Size.X, 0).TopRow[0],
+                level.DisplayedBlockTiles(gateBlockIndex + level.Size.X).TopLeft.Raw,
                 "first gate PLM step draws its selected second-column visual word");
-            StepDownwardGatePlm(plms, level, streamer);
+            StepDownwardGatePlm(plms, level);
             int columnIndex = gateBlockIndex + level.Size.X;
             int triggerIndex = gateBlockIndex - 1;
-            ushort streamed = level.CreateBackgroundStreamer()
-                .BuildPlmLevelBlockUpdate(columnIndex, 0).TopRow[0];
-            ushort triggerStreamed = level.CreateBackgroundStreamer()
-                .BuildPlmLevelBlockUpdate(triggerIndex, 0).TopRow[0];
+            ushort streamed = level.DisplayedBlockTiles(columnIndex).TopLeft.Raw;
+            ushort triggerStreamed = level.DisplayedBlockTiles(triggerIndex).TopLeft.Raw;
             return (level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
                 streamed,
                 level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,

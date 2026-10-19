@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 
@@ -17,10 +18,12 @@ internal static class GameplayRenderAllocationVerification
         cgram.SetColor(0, Bgr555.FromWord(0x1234));
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), 0, 0, 0, 0,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+        var rooms = RoomBackgroundsFixtures.Seeded(new Random(1346), registers.Bg1Scroll.AsBgPlaneScroll(),
+            registers.Bg2Scroll.AsBgPlaneScroll(), door: true, overlay: true);
         var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, sprites),
-            [new OrdinaryGameplayRenderLayer(registers)], 3, 15);
+            [new OrdinaryGameplayRenderLayer(registers, rooms)], 3, 15);
         var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, sprites,
-            new OrdinaryGameplayRenderLayer(registers));
+            new OrdinaryGameplayRenderLayer(registers, rooms));
         for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
         long before = GC.GetAllocatedBytesForCurrentThread();
         var actual = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -43,7 +46,7 @@ internal static class GameplayRenderAllocationVerification
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = PpuMemorySnapshot.Capture(vram, cgram, sprites);
         var xray = new LayeredRenderSnapshot(memory,
-            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 3, 15);
+            [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 3, 15);
         var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);
         SoftwareLayeredSnapshotRenderer.Render(xray, reusable); // Warm pooled scratch.
         Array.Fill(reusable, new SuperMetroid.Core.Hardware.Rgba32(255, 0, 255));

@@ -25,7 +25,7 @@ internal static class GrappleGatesVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var trigger in new[] { DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight })
         {
-            var (bus, level, streamer, plms, gateIndex) = CreateDownwardGateFixture(trigger);
+            var (bus, level, plms, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
@@ -54,7 +54,7 @@ internal static class GrappleGatesVerification
                     var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
-                StepDownwardGatePlm(plms, level, streamer);
+                StepDownwardGatePlm(plms, level);
                 AssertEqual(0, plms.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

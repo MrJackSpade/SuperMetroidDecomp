@@ -79,12 +79,11 @@ internal static class BotwoonWallPlmsVerification
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
             new RoomScrollStorage(), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+            plms.Step(level, scrolls);
             soundCount += plms.Sounds.SoundRequests.Count(request =>
                 request.SoundEffect == BotwoonWallPlmProgramDefinitions.CrumbleSound);
             if (clear && frame == 0)

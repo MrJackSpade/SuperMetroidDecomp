@@ -22,4 +22,9 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
 
     /// <summary>The active PLM population.</summary>
     IRoomPlmPresence Plms { get; }
+
+    /// <summary>Writes tilemap words over the room's BG1 from BG1 tilemap word <paramref name="firstWord"/> onward.</summary>
+    /// <param name="firstWord">The first BG1 tilemap word written.</param>
+    /// <param name="words">The tilemap words, in tilemap order.</param>
+    void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words);
 }

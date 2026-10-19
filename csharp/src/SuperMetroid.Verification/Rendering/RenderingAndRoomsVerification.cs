@@ -661,8 +661,8 @@ internal static void VerifyMovedSamusCameraTracking()
 }
 
 /// <summary>
-/// Checks the exact parallax multiply, scroll-register wrapping, signed block conversion,
-/// and row/column selection at $80:A2F9-$80:A527.
+/// Checks the exact parallax multiply, scroll-register wrapping, frozen frames and door-setup offsets of
+/// $80:A2F9-$80:A527 and $80:AE29.
 /// </summary>
 internal static void VerifyBackgroundScrollState()
 {
@@ -674,56 +674,26 @@ internal static void VerifyBackgroundScrollState()
         Bg2Offset = new(3, 4),
     };
 
-    state.PrimePreviousBlocks();
-    IReadOnlyList<BackgroundUpdateRequest> requests = state.StepScrolling();
+    state.StepScrolling();
     AssertEqual(0x1244, state.Bg1Scroll.X, "$80:A3B7 BG1 X plus offset");
     AssertEqual(0x01f0, state.Bg1Scroll.Y, "$80:A3C0 BG1 Y wrapping offset");
     AssertEqual(0x091a, state.Layer2Position.X, "$80:A2F9 half-speed X parallax");
     AssertEqual(0x0200, state.Layer2Position.Y, "$80:A33A zero mode copies layer 1");
     AssertEqual(0x091d, state.Bg2Scroll.X, "$80:A3CF BG2 X plus offset");
-    AssertEqual(0, requests.Count, "primed scrolling emits no unchanged block updates");
 
-    // Crossing one 16-pixel boundary right/down creates requests in native order: level
-    // column, background column, level row, background row. Coordinate offsets are the
-    // literal +$10 and +$0F selected by the assembly.
-    state.Layer1Position = new(0x1244, 0x0210);
-    requests = state.StepScrolling();
-    AssertEqual(4, requests.Count, "four scrolling update requests");
-    AssertEqual(
-        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Column, new(0x0134, 0x0021), new(0x0135, 0x0020)),
-        requests[0],
-        "rightward level column request");
-    AssertEqual(BackgroundLayer.Background, requests[1].Layer, "second request is BG2 column");
-    AssertEqual(BackgroundUpdateAxis.Column, requests[1].Axis, "second request axis");
-    AssertEqual(
-        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Row, new(0x0124, 0x0030), new(0x0125, 0x002f)),
-        requests[2],
-        "downward level row request");
-    AssertEqual(BackgroundLayer.Background, requests[3].Layer, "fourth request is BG2 row");
-    AssertEqual(BackgroundUpdateAxis.Row, requests[3].Axis, "fourth request axis");
-
-    // Mode one preserves both the layer-2 position and its PPU scroll mirror, and its odd
-    // low bit suppresses both BG2 stream directions.
+    // Mode one preserves both the layer-2 position and its PPU scroll mirror.
     ushort oldLayer2X = state.Layer2Position.X;
     ushort oldBg2X = state.Bg2Scroll.X;
     state.Layer2Scroll = Layer2ScrollModes.FromHeader(1, 1);
     state.Layer1Position = new(0x1300, 0x0300);
-    requests = state.StepScrolling();
+    state.StepScrolling();
     AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
     AssertEqual(oldBg2X, state.Bg2Scroll.X, "fixed BG2 X register remains unchanged");
-    AssertEqual(2, requests.Count, "fixed BG2 modes emit only level updates");
-
-    // World coordinates are sign-extended after division by 16, whereas PPU registers are
-    // always logically shifted. $FFF0 therefore means block -1 ($FFFF), not $0FFF.
-    state.Layer1Position = state.Layer1Position.WithX(0xfff0);
-    state.PrimePreviousBlocks();
-    AssertEqual(0xffff, state.Layer1Block.X, "$80:A4CD signed layer block");
 
     ushort frozenBg1X = state.Bg1Scroll.X;
     state.Layer1Position = state.Layer1Position.WithX(0x4444);
-    requests = state.StepScrolling(timeIsFrozen: true);
+    state.StepScrolling(timeIsFrozen: true);
     AssertEqual(frozenBg1X, state.Bg1Scroll.X, "$80:A3AB frozen scroll registers");
-    AssertEqual(0, requests.Count, "$80:A3AB frozen update list");
 
     var destinationParallax = new BackgroundScrollState
     {
@@ -761,15 +731,11 @@ internal static void VerifyBackgroundScrollState()
         "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
     AssertEqual(new Offset16<Bg2Pixels>(0x0100, 0), rightDoor.Bg2Offset,
         "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
-    rightDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Right);
-    requests = rightDoor.CalculateScrollsAndUpdates();
+    rightDoor.CalculateScrollRegisters();
     AssertEqual((ushort)0x0124, rightDoor.Bg1Scroll.X,
         "$80:AE29 right-door BG1 retains source plus first step");
     AssertEqual((ushort)0x0004, rightDoor.Bg2Scroll.X,
         "$80:AE29 right-door BG2 advances from cleared register");
-    AssertEqual(2, requests.Count, "$80:AD4A right-door initial BG1/BG2 streams");
-    AssertEqual((ushort)0x0000, requests[0].SourceBlock.X,
-        "$80:AD4A right-door initial level column");
 
     var leftDoor = new BackgroundScrollState
     {
@@ -779,40 +745,13 @@ internal static void VerifyBackgroundScrollState()
     leftDoor.ConfigureDoorOpeningOffsets(
         retainedBg1Scroll: new(0x0120, 0x0340),
         stagedLayer1: new(0x0100, 0x0000));
-    leftDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Left);
-    requests = leftDoor.CalculateScrollsAndUpdates();
+    leftDoor.CalculateScrollRegisters();
     AssertEqual((ushort)0x011c, leftDoor.Bg1Scroll.X,
         "$80:AE29 left-door BG1 retains source minus first step");
     AssertEqual((ushort)0xfffc, leftDoor.Bg2Scroll.X,
         "$80:AE29 left-door BG2 retreats from cleared register");
-    AssertEqual(2, requests.Count, "$80:AD74 left-door initial BG1/BG2 streams");
-    AssertEqual((ushort)0x000f, requests[0].SourceBlock.X,
-        "$80:AD74 left-door initial level column");
 
-    // `$80:AD1D` runs against the source room before an upward destination replaces its
-    // level-data pointer. Its temporary -16-pixel probe writes the current top row for
-    // both scrolling layers, then restores every visible coordinate/register word.
-    var upwardSource = new BackgroundScrollState
-    {
-        Layer1Position = new(0, 0x0200),
-        Layer2Position = new(0, 0x0200),
-    };
-    upwardSource.PrimePreviousBlocks();
-    Position16<RoomPixels> sourceBg1Scroll = upwardSource.Bg1Scroll;
-    requests = upwardSource.FixDoorsMovingUp();
-    AssertEqual(2, requests.Count, "$80:AD1D upward source row count");
-    AssertEqual(BackgroundUpdateAxis.Row, requests[0].Axis,
-        "$80:AD1D emits a BG1 row");
-    AssertEqual((ushort)0x0020, requests[0].SourceBlock.Y,
-        "$80:AD1D repairs the source viewport's current top row");
-    AssertEqual(new Position16<RoomPixels>(0, 0x0200), upwardSource.Layer1Position,
-        "$80:AD1D restores the source layer-one position");
-    AssertEqual(sourceBg1Scroll, upwardSource.Bg1Scroll,
-        "$80:AD1D restores source BG1HOFS/BG1VOFS");
-
-    // Upward setup carries frame counter one from that repair. It primes previous rows at
-    // destination+$100, presents destination+$FB after the built-in first moving call,
-    // and intentionally emits no destination row until counter five.
+    // Upward setup presents destination+$FB after the built-in first moving call.
     var upwardDestination = new BackgroundScrollState
     {
         Layer1Position = new(0, 0x02fb),
@@ -821,17 +760,11 @@ internal static void VerifyBackgroundScrollState()
     upwardDestination.ConfigureDoorOpeningOffsets(
         retainedBg1Scroll: new(0x0120, 0x0340),
         stagedLayer1: new(0, 0x0300));
-    requests = upwardDestination.PrimeVerticalDoorOpeningBlocks(
-        DoorDirection.Up,
-        stagedLayer1Y: 0x0300,
-        stagedLayer2Y: 0x01e0);
-    AssertEqual(0, requests.Count, "$80:ADC8 upward setup defers destination rows");
-    AssertEqual((ushort)0x0031, upwardDestination.PreviousLayer1Block.Y,
-        "$80:ADC8 upward previous-row bias");
+    upwardDestination.CalculateScrollRegisters();
     AssertEqual((ushort)0x033b, upwardDestination.Bg1Scroll.Y,
         "$80:AF89 upward setup preserves source BG1 minus five pixels");
 
-    Console.WriteLine("  BG scroll: parallax, signed blocks, row/column dispatch, and door setup agree.");
+    Console.WriteLine("  BG scroll: parallax, frozen frames and door setup offsets agree.");
 }
 
 /// <summary>Checks all four branches shared by $80:AA95 and $80:AC57.</summary>
@@ -913,9 +846,6 @@ internal static void VerifyRoomLevelData()
     AssertThrows<ArgumentOutOfRangeException>(
         () => level.GetCollisionBlock(new(0, height)),
         "room collision rejects Y beyond header height");
-
-    BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-    AssertTrue(streamer is not null, "room level constructs visual streamer from same allocation");
 
     Console.WriteLine("  Room level: shared BG1/BTS indexing, collision type, and pixel conversion agree.");
 }
@@ -1031,92 +961,6 @@ internal static void VerifyCartridgeRoomStateSelection()
         "  Room states: complete selector catalog, operands, priority, and failures agree.");
 }
 
-/// <summary>Checks $80:A9DE-$80:AD17 staging geometry and $80:8CD8 NMI destinations.</summary>
-[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-internal static void VerifyBackgroundTilemapStreamer()
-{
-    const int width = 32;
-    var level = new ushort[width * 32];
-    var background = new ushort[level.Length];
-    var definitions = new byte[8];
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(0), 0x0001);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(2), 0x0002);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(4), 0x0003);
-    BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(6), 0x0004);
-    var streamer = new BackgroundTilemapStreamer(width, level, background, definitions);
-
-    // X block $11 selects the second BG1 screen base ($53E0); Y block 5 splits a column
-    // into 22 unwrapped words and 10 wrapped words for each of its left/right halves.
-    var columnRequest = new BackgroundUpdateRequest(
-        BackgroundLayer.Level,
-        BackgroundUpdateAxis.Column,
-        SourceBlock: new(2, 3), VramBlock: new(0x11, 5));
-    TilemapStreamUpdate column = streamer.Build(columnRequest)
-        ?? throw new InvalidOperationException("Non-Mode-7 column was incorrectly skipped.");
-    AssertEqual(32, column.Segments[0].SourceWords.Length, "column left staging words");
-    AssertEqual(0x0001, column.Segments[0].SourceWords[0], "column top-left tile");
-    AssertEqual(0x0003, column.Segments[0].SourceWords[1], "column bottom-left tile");
-    AssertEqual(4, column.Segments.Count, "wrapped column DMA count");
-    AssertEqual(22, column.Segments[0].WordCount, "column unwrapped word count");
-    AssertEqual(10, column.Segments[2].WordCount, "column wrapped word count");
-    AssertEqual(0x5542, column.Segments[0].VramWordDestination, "column unwrapped destination");
-    AssertEqual(0x5402, column.Segments[2].VramWordDestination, "column wrapped destination");
-    AssertEqual(TilemapDmaDirection.Column, column.Segments[0].Direction, "column VMAIN mode");
-    var streamedVram = new SnesVram();
-    column.ExecuteTo(streamedVram);
-    AssertEqual(0x0001, streamedVram.ReadWord(0x5542), "column DMA left top word");
-    AssertEqual(0x0002, streamedVram.ReadWord(0x5543), "column DMA right top word");
-    AssertEqual(0x0003, streamedVram.ReadWord(0x5562), "column DMA left bottom word");
-
-    // X within-screen 5 yields 22 unwrapped and 12 wrapped row words. The bottom half uses
-    // the same destination with bit $20 set, exactly as the NMI routine does.
-    var rowRequest = new BackgroundUpdateRequest(
-        BackgroundLayer.Level,
-        BackgroundUpdateAxis.Row,
-        SourceBlock: new(2, 3), VramBlock: new(5, 6));
-    TilemapStreamUpdate row = streamer.Build(rowRequest)
-        ?? throw new InvalidOperationException("Non-Mode-7 row was incorrectly skipped.");
-    AssertEqual(34, row.Segments[0].SourceWords.Length, "row top staging words");
-    AssertEqual(0x0001, row.Segments[0].SourceWords[0], "row top-left tile");
-    AssertEqual(0x0002, row.Segments[0].SourceWords[1], "row top-right tile");
-    AssertEqual(22, row.Segments[0].WordCount, "row unwrapped word count");
-    AssertEqual(12, row.Segments[2].WordCount, "row wrapped word count");
-    AssertEqual(0x518a, row.Segments[0].VramWordDestination, "row unwrapped destination");
-    AssertEqual(0x51aa, row.Segments[1].VramWordDestination, "row bottom destination");
-    AssertEqual(0x5580, row.Segments[2].VramWordDestination, "row wrapped destination");
-    AssertEqual(TilemapDmaDirection.Row, row.Segments[0].Direction, "row VMAIN mode");
-    streamedVram.Clear();
-    row.ExecuteTo(streamedVram);
-    AssertEqual(0x0001, streamedVram.ReadWord(0x518a), "row DMA top-left word");
-    AssertEqual(0x0002, streamedVram.ReadWord(0x518b), "row DMA top-right word");
-    AssertEqual(0x0003, streamedVram.ReadWord(0x51aa), "row DMA bottom-left word");
-
-    // Ceres door $83:AB7C enters a 2x1-screen room with BG2 starting at block ($0C,$04).
-    // The native sixteen-block column therefore continues four rows beyond the logical
-    // 512-word plane into custom_background's retained allocation. This was the real-route
-    // failure found while expanding the horizontal door regression beyond two rooms.
-    var shortRoomAllocation = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
-    Array.Fill(shortRoomAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
-    var shortRoomStreamer = new BackgroundTilemapStreamer(
-        width,
-        shortRoomAllocation,
-        shortRoomAllocation,
-        definitions);
-    TilemapStreamUpdate ceresDoorColumn = shortRoomStreamer.Build(
-        new BackgroundUpdateRequest(
-            BackgroundLayer.Background,
-            BackgroundUpdateAxis.Column,
-            SourceBlock: new(0x000c, 0x0004), VramBlock: new(0, 0)))
-        ?? throw new InvalidOperationException("Ceres door BG2 column was incorrectly skipped.");
-    AssertEqual(32, ceresDoorColumn.Segments[0].SourceWords.Length,
-        "$83:AB7C complete off-room BG2 column allocation");
-    AssertEqual((ushort)0x0001, ceresDoorColumn.Segments[0].SourceWords[^2],
-        "$83:AB7C bottom overread retains prefilled block definition");
-
-    AssertEqual<TilemapStreamUpdate?>(null, streamer.Build(rowRequest, mode7Enabled: true), "$80:AB78 Mode 7 return");
-    Console.WriteLine("  BG stream: row/column staging splits and NMI destinations agree.");
-}
-
 /// <summary>Checks Mode-1 4-bpp BG pixels, palette selection, transparency, and H flip.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyFourBitBackgroundRendering()
@@ -1177,6 +1021,7 @@ internal static void VerifyFourBitBackgroundRendering()
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
                 new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0,
                 GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+            RoomBackgroundsFixtures.Blank(),
             new Bg2HdmaScrollTables(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
@@ -1199,23 +1044,13 @@ internal static void VerifyFourBitBackgroundRendering()
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
                 new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0,
-                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj)));
+                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+            RoomBackgroundsFixtures.Blank()));
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
 
-    // The force-blank room fill is exactly 17 level columns when layer-2 X mode is odd.
-    var scroll = new BackgroundScrollState
-    {
-        Layer1Position = new(0x0120, 0x0230),
-        Layer2Scroll = Layer2ScrollModes.FromHeader(0x81, 1),
-    };
-    IReadOnlyList<BackgroundUpdateRequest> initial = scroll.BuildInitialViewportRequests();
-    AssertEqual(17, initial.Count, "$80:A176 initial BG1 column count");
-    AssertEqual(0x0012, initial[0].SourceBlock.X, "initial first source column");
-    AssertEqual(0x0022, initial[16].SourceBlock.X, "initial seventeenth source column");
-
-    Console.WriteLine("  BG render: 4-bpp pixels, BGSC geometry, and 17-column initial fill agree.");
+    Console.WriteLine("  BG render: 4-bpp pixels and BGSC geometry agree.");
 }
 
 /// <summary>

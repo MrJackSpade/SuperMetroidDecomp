@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -143,7 +144,9 @@ public static class GameplayDisplayCapture
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Scrolls;
-        var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(
+        RoomBackgrounds rooms = latched.Rooms
+            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.");
+        var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
             VisibleLines(phantoonScrolls ?? lavaX ?? waterX ?? skyX),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
@@ -249,7 +252,8 @@ public static class GameplayDisplayCapture
             floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, GameplayVramLayout.Bg2TilemapWord,
                 GameplayRenderDefinitions.CeresCharacterWord,
                 ppu.Bg2Scroll + shake.Bg2,
-                new Extent16<TilemapCells>(64, 32));
+                new Extent16<TilemapCells>(64, 32),
+                latched.Rooms?.Bg2);
         }
         else
         {
@@ -277,7 +281,7 @@ public static class GameplayDisplayCapture
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.Registers with
         {
             MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2,
-        }, ordinary.Bg2LineScrolls);
+        }, ordinary.Rooms, ordinary.Bg2LineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
         // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
@@ -328,8 +332,9 @@ public static class GameplayDisplayCapture
         };
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
-        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers)
-            : new OrdinaryGameplayRenderLayer(registers, ordinary.Bg2LineScrolls);
+        // The reveal map is BG2's tilemap, so the room's layer-2 plane is not shown under it.
+        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null })
+            : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx) : null;
         if (mode != XrayRoomBlendMode.Fireflea && sub is null)

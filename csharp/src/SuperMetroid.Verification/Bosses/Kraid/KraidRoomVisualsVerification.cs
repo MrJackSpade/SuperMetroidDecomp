@@ -121,10 +121,10 @@ internal static class KraidRoomVisualsVerification
         var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 0));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, (ushort)KraidRoomDraw.ClearCeiling, 14, 0x0130, 0x0059, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 64));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, (ushort)KraidRoomDraw.ClearSpikes, 21, 0x0110, 0x005a, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 192));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0180, new KraidRoomVisualCatalogs { Kraid = null, Tube = tube }, layer1X: 0));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, (ushort)KraidRoomDraw.ClearCeiling, 14, 0x0130, 0x0059, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, (ushort)KraidRoomDraw.ClearSpikes, 21, 0x0110, 0x005a, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0180, new KraidRoomVisualCatalogs { Kraid = null, Tube = tube }));
 
         RoomLevelData tubeLevel = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
@@ -133,24 +133,21 @@ internal static class KraidRoomVisualsVerification
         AssertTrue(tubePlms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(tubeLevel),
             "elevatube allocates alongside Kraid appearance resource");
         var tubeGuard = NewKraidRoomSourceGuard(new TestAddressSpace());
-        tubePlms.Step(tubeLevel, tubeLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        tubePlms.Step(tubeLevel);
         int tubeBlock = tubeLevel.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         AssertEqual((ushort)0x8180,
             tubeLevel.GetCollisionBlockByIndex(tubeBlock).PackedWord.Raw,
             "elevatube retains shared native physical word");
         // A PLM redraw identifies its block by the BG1 ring destination of that block.
-        int tubeDestination = tubeLevel.CreateBackgroundStreamer()
-            .BuildPlmLevelBlockUpdate(tubeBlock, 0).TopRowDestination;
-        AssertTrue(tubePlms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == tubeDestination && update.TopRow[0] == 0x005b),
+        AssertEqual((ushort)0x005b, tubeLevel.DisplayedBlockTiles(tubeBlock).TopLeft.Raw,
             "elevatube retains its own edited appearance, not Kraid's first frame");
         AssertEqual(0, tubeGuard.ForbiddenReadAttempts,
             "elevatube does not read migrated Kraid source data");
     }
 
     /// <summary>Spawns a Kraid mutation and checks its collision word and streamed tile after an owner-specific art edit.</summary>
-    private static void VerifyKraidDraw(PlmHeaderId header, ushort drawPointer, int blockOffset, ushort physicalWord, ushort visualWord, KraidRoomVisualCatalogs catalogs, ushort layer1X)
+    private static void VerifyKraidDraw(PlmHeaderId header, ushort drawPointer, int blockOffset, ushort physicalWord, ushort visualWord, KraidRoomVisualCatalogs catalogs)
     {
         const int width = 32;
         ushort[] words = new ushort[width * 16];
@@ -165,21 +162,15 @@ internal static class KraidRoomVisualsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid visual owner ${(int)header:X4} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(layer1X, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         int blockIndex = 5 * width + 5 + blockOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Kraid draw ${drawPointer:X4} retains physical block {blockOffset}");
         AssertEqual(visualWord,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                blockIndex, 0).TopRow[0],
+            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Kraid draw ${drawPointer:X4} edit survives streaming");
-        int blockDestination = level.CreateBackgroundStreamer()
-            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == visualWord),
+        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Kraid draw ${drawPointer:X4} uses owner-specific visible block {blockOffset}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Kraid draw ${drawPointer:X4} reads no migrated source bytes");

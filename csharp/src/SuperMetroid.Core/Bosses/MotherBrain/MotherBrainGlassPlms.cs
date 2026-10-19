@@ -48,7 +48,6 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Runs setup $D5F6 against the already allocated highest room slot.</summary>
     internal void SetupMotherBrainGlassSlot(
         RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
         RoomPlmPopulationRecord record,
         PlmSlot slot)
     {
@@ -68,7 +67,6 @@ internal sealed class MotherBrainGlassPlms
         ushort glassLevelWord = unchecked((ushort)((original.PackedWord.Raw & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
-        streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
 
         _motherBrainGlassSlotIndex = physicalSlot;
         _motherBrainGlassRoomWidth = level.Size.X;

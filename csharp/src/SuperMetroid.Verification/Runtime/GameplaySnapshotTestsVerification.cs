@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
 /// per-line scroll independently of later live-memory changes.</summary>
@@ -30,6 +31,8 @@ internal static class GameplaySnapshotTestsVerification
         random.NextBytes(oam);
         var memory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), oam, 128, 3);
         var live = new SoftwarePpuSnapshotMemory(memory);
+        // Cases without horizontal HDMA show BG2 from a room plane, the others from the VRAM tilemap.
+        var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
         int samples = 0;
         foreach (Extent16<TilemapCells> mapSize in new Extent16<TilemapCells>[] { new(64, 32), new(32, 64), new(64, 64) })
         for (int mask = 0; mask < 8; mask++)
@@ -43,7 +46,7 @@ internal static class GameplaySnapshotTestsVerification
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 mapSize, GameplayVramLayout.Bg2TilemapWord, 0, 0x6000,
                 GameplayVramLayout.HudCharacterWord, layers);
-            var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(x, y));
+            var layer = new OrdinaryGameplayRenderLayer(registers, (hdma & 1) == 0 ? rooms : rooms with { Bg2 = null }, new Bg2HdmaScrollTables(x, y));
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 live.Vram, live.Cgram, live.Sprites, layer);
             // Mutating both caller arrays after capture must not alter retained HDMA.

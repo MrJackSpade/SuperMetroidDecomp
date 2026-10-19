@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -71,6 +72,45 @@ public static class SnesBgTilemapRenderer
                         output[screenY * width + screenX + offset] = colors[format.CgramColor(entry.PaletteIndex, colorIndex)];
                 }
                 screenX += runLength;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Decodes a pixel-scrolled Mode-1 4-bpp viewport of a sampled background (#1346) over an existing raster. Positions
+    /// the background shows nothing at, transparent character pixels and nonmatching priority tiles leave the
+    /// destination untouched.
+    /// </summary>
+    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, IBgTileSource tiles,
+        int characterBaseWord, BgViewport viewport, bool? priority = null)
+    {
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(tiles);
+        int width = viewport.Size.X;
+        int height = viewport.Size.Y;
+        if (width == 0 || height == 0)
+            throw new ArgumentOutOfRangeException(nameof(viewport.Size));
+        Ensure.LengthEqual(output, width * height);
+        if (viewport.HorizontalScrollByLine is not null && viewport.HorizontalScrollByLine.Count != height)
+            throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(viewport.HorizontalScrollByLine));
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
+        Span<Rgba32> colors = stackalloc Rgba32[SnesCgram.ColorCount];
+        SnesGameplayFrameRenderer.ExpandCgram(cgram, colors);
+        for (int screenY = 0; screenY < height; screenY++)
+        {
+            ushort scrolledY = unchecked((ushort)(viewport.Scroll.Y + screenY));
+            ushort lineHorizontalScroll = viewport.HorizontalScrollByLine is null
+                ? viewport.Scroll.X
+                : viewport.HorizontalScrollByLine[screenY];
+            for (int screenX = 0; screenX < width; screenX++)
+            {
+                if (tiles.TrySample(new Position16<BgPlanePixels>(unchecked((ushort)(lineHorizontalScroll + screenX)), scrolledY),
+                        out BgTileSample sample) &&
+                    (!priority.HasValue || sample.Tile.HasPriority == priority.Value) &&
+                    SnesGameplayFrameRenderer.TryDecodeOrdinaryGameplayBgPixel(vramBytes, colors, sample.Tile,
+                        characterBaseWord, sample.Pixel, out Rgba32 color, out _))
+                    output[screenY * width + screenX] = color;
             }
         }
     }

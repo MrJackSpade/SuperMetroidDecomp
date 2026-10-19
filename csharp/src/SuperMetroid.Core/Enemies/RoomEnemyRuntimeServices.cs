@@ -73,6 +73,9 @@ internal sealed class RoomEnemyRuntimeServices(
     public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
         display.LayerBlendingDefaultConfig = configuration;
 
+    /// <summary>Writes tilemap words over the loaded room's BG1.</summary>
+    public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) => room.LoadedScope.DrawBg1Overlay(firstWord, words);
+
     /// <summary>Writes the room's BG2 scroll registers through the background owner.</summary>
     public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => backgroundScroll.SetBg2ScrollRegisters(scroll);
 

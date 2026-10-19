@@ -20,8 +20,6 @@ internal sealed class XrayReveal
     private readonly ActiveRoomState _room;
     /// <summary>Supplies system flags that affect revealed overlays.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Supplies the BG1 tilemap pages captured after NMI video writes.</summary>
-    private readonly SnesVram _vram;
     /// <summary>The session's BG tilemap staging; the frozen reveal map is built in its bytes (<c>$7E:4000</c>).</summary>
     private readonly Bg2TilemapStaging _tilemapStaging;
     /// <summary>
@@ -34,13 +32,12 @@ internal sealed class XrayReveal
     internal StagingWordView RevealTilemap => _tilemapStaging.TilemapWords;
 
     /// <summary>Binds the gameplay owners used to capture BG1 and construct the X-ray reveal.</summary>
-    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, ActiveRoomState room, Bank80SystemState system, SnesVram vram, Bg2TilemapStaging tilemapStaging)
+    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, ActiveRoomState room, Bank80SystemState system, Bg2TilemapStaging tilemapStaging)
     {
         _backgroundScroll = backgroundScroll;
         _player = player;
         _room = room;
         _system = system;
-        _vram = vram;
         _tilemapStaging = tilemapStaging;
     }
     /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
@@ -70,7 +67,10 @@ internal sealed class XrayReveal
         for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
     }
 
-    /// <summary>Completes the previous setup call's VRAM read after NMI's video writes.</summary>
+    /// <summary>
+    /// Completes the previous setup call's read of one BG1 tilemap screen after NMI's video writes. The room shows BG1
+    /// from level data (#1346), so each tilemap cell reads the level tile at the scrolled position nearest the screen.
+    /// </summary>
     internal void TransferXrayBg1Read()
     {
         if (_player.Samus?.Xray is not { IsActive: true } xray) return;
@@ -89,10 +89,17 @@ internal sealed class XrayReveal
         };
         if (read is not (int sourceScreen, int savedScreen)) return;
         ushort[] saved = SavedBg1;
-        VramRegion bg1 = new GameplayVram(_vram).Bg1Tilemap;
+        var room = new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset());
+        Position16<BgPlanePixels> scroll = _backgroundScroll.Bg1Scroll.AsBgPlaneScroll();
         int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
-        int sourceWord = sourceScreen * XrayTilemapLayout.ScreenWords;
         for (int i = 0; i < XrayTilemapLayout.ScreenWords; i++)
-            saved[firstWord + i] = bg1.ReadWord(sourceWord + i);
+        {
+            int column = sourceScreen * XrayTilemapLayout.ScreenColumns + i % XrayTilemapLayout.ScreenColumns;
+            int row = i / XrayTilemapLayout.ScreenColumns;
+            var cell = new Position16<BgPlanePixels>(
+                unchecked((ushort)(scroll.X + ((column * SnesPpuLayout.BackgroundTileSizePixels - scroll.X) & (XrayTilemapLayout.TilemapPixelWidth - 1)))),
+                unchecked((ushort)(scroll.Y + ((row * SnesPpuLayout.BackgroundTileSizePixels - scroll.Y) & (XrayTilemapLayout.TilemapPixelHeight - 1)))));
+            saved[firstWord + i] = room.TrySample(cell, out BgTileSample sample) ? sample.Tile.Raw : (ushort)0;
+        }
     }
 }

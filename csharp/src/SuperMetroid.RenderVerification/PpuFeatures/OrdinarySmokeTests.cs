@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Compares ordinary gameplay rendering across native geometry, layer, and HDMA settings.</summary>
 internal static class OrdinarySmokeTests
@@ -19,6 +20,8 @@ internal static class OrdinarySmokeTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         Bgr555[] colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = PpuMemorySnapshot.FromOam(vram, colors, oam, 128, 3);
+        // Even HDMA cases show BG2 from a room plane, odd ones from the VRAM tilemap.
+        var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
         ushort[] x = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(65535 - i * 17))).ToArray();
         ushort[] y = Enumerable.Range(0, 192).Select(i => unchecked((ushort)(511 + i * 3))).ToArray();
         int count = 0;
@@ -31,7 +34,7 @@ internal static class OrdinarySmokeTests
             if ((mask & 4) != 0) flags |= SnesMainScreenLayers.Obj;
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 new Extent16<TilemapCells>((ushort)geometry.Item1, (ushort)geometry.Item2), 0x4800, 0, 0x6000, 0x4000, flags);
-            var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(
+            var layer = new OrdinaryGameplayRenderLayer(registers, hdma % 2 == 0 ? rooms : rooms with { Bg2 = null }, new Bg2HdmaScrollTables(
                 (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { layer }, 3, 15));

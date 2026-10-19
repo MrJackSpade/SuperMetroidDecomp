@@ -159,32 +159,18 @@ internal static class RoomVisualLayoutsVerification
                 editedRoom.LevelData.BackgroundEntries.AsSpan()),
             "visual room-layout override leaves full native BG1/BTS/BG2 allocations unchanged");
 
-        BackgroundTilemapStreamer nativeStream = nativeRoom.LevelData.CreateBackgroundStreamer();
-        BackgroundTilemapStreamer stockStream = stockRoom.LevelData.CreateBackgroundStreamer();
-        BackgroundTilemapStreamer editedStream = editedRoom.LevelData.CreateBackgroundStreamer();
-        PlmTilemapUpdate nativeFirst = nativeStream.BuildPlmLevelBlockUpdate(0, 0);
-        PlmTilemapUpdate stockFirst = stockStream.BuildPlmLevelBlockUpdate(0, 0);
-        PlmTilemapUpdate editedFirst = editedStream.BuildPlmLevelBlockUpdate(0, 0);
-        AssertTrue(nativeFirst.TopRow.SequenceEqual(stockFirst.TopRow) &&
-            nativeFirst.BottomRow.SequenceEqual(stockFirst.BottomRow),
+        // The renderers resolve each block from the level planes (#1346), so the shown first blocks are the planes'.
+        ExpandedBlockTiles nativeFirst = nativeRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0));
+        AssertEqual(nativeFirst, stockRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0)),
             "stock installed BG1 layout retains native rendered tile words");
-        AssertTrue(!nativeFirst.TopRow.SequenceEqual(editedFirst.TopRow) ||
-            !nativeFirst.BottomRow.SequenceEqual(editedFirst.BottomRow),
+        AssertTrue(nativeFirst != editedRoom.LevelData.ForegroundPlane.BlockTiles(new(0, 0)),
             "edited BG1 layout changes the live renderer's first block");
 
-        var bg2Request = new BackgroundUpdateRequest(BackgroundLayer.Background,
-            BackgroundUpdateAxis.Row, SourceBlock: new(0, 0), VramBlock: new(0, 0));
-        TilemapStreamUpdate nativeBg2 = nativeStream.Build(bg2Request)
-            ?? throw new InvalidOperationException("Native BG2 row was suppressed.");
-        TilemapStreamUpdate stockBg2 = stockStream.Build(bg2Request)
-            ?? throw new InvalidOperationException("Stock BG2 row was suppressed.");
-        TilemapStreamUpdate editedBg2 = editedStream.Build(bg2Request)
-            ?? throw new InvalidOperationException("Edited BG2 row was suppressed.");
-        // A row update's first DMA segment sources the complete staged top-half tile row.
-        AssertTrue(nativeBg2.Segments[0].SourceWords.SequenceEqual(stockBg2.Segments[0].SourceWords),
+        ExpandedBlockTiles nativeBg2 = nativeRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0));
+        AssertEqual(nativeBg2, stockRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0)),
             "stock installed BG2 layout retains native rendered tile words");
-        AssertTrue(!nativeBg2.Segments[0].SourceWords.SequenceEqual(editedBg2.Segments[0].SourceWords),
-            "edited BG2 layout changes the live renderer's first row");
+        AssertTrue(nativeBg2 != editedRoom.LevelData.BackgroundPlane.BlockTiles(new(0, 0)),
+            "edited BG2 layout changes the live renderer's first block");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes
         // an extra physical row beyond its camera. Both must survive the installed-stream path.

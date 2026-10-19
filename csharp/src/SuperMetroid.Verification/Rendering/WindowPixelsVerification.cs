@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks hardware window masking against independently composed layer pixels.</summary>
 internal static class WindowPixelsVerification
@@ -24,6 +25,7 @@ internal static class WindowPixelsVerification
         random.NextBytes(objects);
         var capturedMemory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), objects, 128, 3);
         var memory = new SoftwarePpuSnapshotMemory(capturedMemory);
+        var rooms = RoomBackgroundsFixtures.Seeded(random, new(3, 5), new(7, 11), door: true, overlay: true);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         var reference = new Dictionary<SnesMainScreenLayers, Rgba32[]>();
         for (int mask = 0; mask < 8; mask++)
@@ -44,7 +46,7 @@ internal static class WindowPixelsVerification
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
-                new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
+                new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 3, 15));
             var restoredRegisters = ((OrdinaryGameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0]).Registers;
             AssertEqual(windows, restoredRegisters.Windows, "the frame keeps its window registers");
             AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "the frame keeps its TMW");
@@ -72,7 +74,7 @@ internal static class WindowPixelsVerification
             SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Sprites,
                 new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
                     new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
-                    enabled, Windows: windows, MainScreenWindowMask: admission)));
+                    enabled, Windows: windows, MainScreenWindowMask: admission), rooms));
     }
 
     /// <summary>Runs window pixels and gameplay snapshots.</summary>

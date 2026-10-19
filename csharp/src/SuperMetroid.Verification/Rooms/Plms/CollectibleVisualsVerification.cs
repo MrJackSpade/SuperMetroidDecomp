@@ -58,17 +58,13 @@ internal static class CollectibleVisualsVerification
             PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = visuals;
             fixture.Level.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
-            fixture.Streamer.SetBlockDefinitionWord(0x04a * 4, 0x0123);
-            fixture.Streamer.SetBlockDefinitionWord(0x053 * 4, 0x0456);
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertTrue(fixture.Plms.TilemapUpdates.Count > 0,
-                "collectible frame publishes an immediate BG1 redraw");
+            fixture.Plms.Step(fixture.Level);
             var result = (fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
-                fixture.Plms.TilemapUpdates[0].TopRow[0],
-                fixture.Streamer.BuildPlmLevelBlockUpdate(fixture.BlockIndex, 0).TopRow[0]);
+                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw,
+                fixture.Level.DisplayedBlockTiles(fixture.BlockIndex).TopLeft.Raw);
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "edited item art leaves the native touch trigger active");
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             AssertEqual(199, fixture.Samus.MaxHealth,
                 "edited energy-tank art leaves the pickup reward unchanged");
             AssertTrue(fixture.System.HasCollectedItemBit(0),
@@ -95,7 +91,7 @@ internal static class CollectibleVisualsVerification
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)kind), precollected: false);
             PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = stock;
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             AssertEqual(1, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
         }
@@ -109,7 +105,7 @@ internal static class CollectibleVisualsVerification
                 AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(
                         fixture.BlockIndex),
                     "shot-block collectible accepts its native trigger");
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             AssertEqual(1, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
         }

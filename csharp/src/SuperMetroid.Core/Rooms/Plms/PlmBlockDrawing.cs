@@ -23,15 +23,6 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
     /// <summary>The host's installed PLM artwork.</summary>
     private readonly PlmShotBlockVisuals _visuals = Ensure.NotNull(visuals);
 
-    /// <summary>Visible PLM block transfers staged for BG1 after physical level words are changed.</summary>
-    private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
-
-    /// <summary>The tilemap updates the current pass has drawn.</summary>
-    internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => _tilemapUpdates;
-
-    /// <summary>Frame start and room reset: drops the previous pass's tilemap updates.</summary>
-    internal void ClearTilemapUpdates() => _tilemapUpdates.Clear();
-
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
     public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals => _visuals.RoomPlmShotBlockVisuals;
 
@@ -121,11 +112,11 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
     public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
 
     /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
-    internal void DrawPlmInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>
-        DrawPlmInstruction(level, streamer, 0, blockIndex, drawPointer, view);
+    internal void DrawPlmInstruction(RoomLevelData level, int blockIndex, ushort drawPointer) =>
+        DrawPlmInstruction(level, 0, blockIndex, drawPointer);
 
     /// <summary>Resolves a compiled or cartridge draw list, selecting installed visuals by PLM owner while retaining physical collision words.</summary>
-    internal void DrawPlmInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer, PlmView view)
+    internal void DrawPlmInstruction(RoomLevelData level, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer)
     {
         // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
         // level words. Bit 15 means a vertical column; a clear bit means a horizontal row.
@@ -135,34 +126,34 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
         if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
         {
-            DrawCompiledBlockInstruction(level, streamer, bombedReveal, origin, view);
+            DrawCompiledBlockInstruction(level, bombedReveal, origin);
             return;
         }
         if (CrateriaMainstreetEscapePassagePlmDefinitions.TryGetDraw(drawPointer, out var clearedPassage))
         {
-            DrawCompiledBlockInstruction(level, streamer, clearedPassage, origin, view);
+            DrawCompiledBlockInstruction(level, clearedPassage, origin);
             return;
         }
         if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(drawPointer, out var openWall))
         {
-            DrawCompiledBlockInstruction(level, streamer, openWall, origin, view);
+            DrawCompiledBlockInstruction(level, openWall, origin);
             return;
         }
         if (EscapeAnimalPlmDrawDefinitions.TryGet(drawPointer, out var animalWall))
         {
-            DrawCompiledBlockInstruction(level, streamer, animalWall, origin, view);
+            DrawCompiledBlockInstruction(level, animalWall, origin);
             return;
         }
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
         {
             for (int run = 0; run < compiled.RunCount; run++)
             for (int block = 0; block < compiled.WordsPerRun; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(compiled.Vertical ? 0 : block)), checked((short)(compiled.Vertical ? block : run))), compiled.WordAt(run, block), view, ShotBlockVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(compiled.Vertical ? 0 : block)), checked((short)(compiled.Vertical ? block : run))), compiled.WordAt(run, block), ShotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (drawPointer == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
         {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord, view, SpeedBoosterVisuals?.GetWord(drawPointer, 0, 0));
+            DrawPlmWordAt(level, drawPointer, origin, SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord, SpeedBoosterVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&
@@ -170,17 +161,17 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         {
             // $9367 is shared with Maridia's elevatube. Select its appearance
             // from the active PLM header, never from the pointer alone.
-            DrawKraidBlockInstruction(level, streamer, ownedKraidDraw, origin, view, KraidVisuals);
+            DrawKraidBlockInstruction(level, ownedKraidDraw, origin, KraidVisuals);
             return;
         }
         if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
         {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, MaridiaElevatubePlmDefinitions.PhysicalWord, view, MaridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
+            DrawPlmWordAt(level, drawPointer, origin, MaridiaElevatubePlmDefinitions.PhysicalWord, MaridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
             return;
         }
         if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))
         {
-            DrawKraidBlockInstruction(level, streamer, kraidDraw, origin, view, null);
+            DrawKraidBlockInstruction(level, kraidDraw, origin, null);
             return;
         }
         if (CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer,
@@ -188,13 +179,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         {
             for (int run = 0; run < crocomireDraw.RunCount; run++)
             for (int block = 0; block < crocomireDraw.WordsPerRun; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.WordAt(run, block), view, CrocomireVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.WordAt(run, block), CrocomireVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var backgroundFakeDeath))
         {
             for (int column = 0; column < 13; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.WordAt(column), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.WordAt(column), MotherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
             return;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regularFakeDeath))
@@ -204,7 +195,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
             {
                 bool vertical = regularFakeDeath.Vertical(run);
                 Position16<RoomBlocks> run0 = origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : regularFakeDeath.NextX(run - 1))), 0);
-                DrawPlmWordAt(level, streamer, drawPointer, run0 + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : block)), checked((short)(vertical ? block : 0))), regularFakeDeath.WordAt(run, block), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, run0 + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : block)), checked((short)(vertical ? block : 0))), regularFakeDeath.WordAt(run, block), MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             }
             return;
         }
@@ -212,21 +203,21 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         {
             for (int run = 0; run < 2; run++)
             for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : boundaryFakeDeath.NextX(0))), checked((short)((run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block))), boundaryFakeDeath.WordAt(run, block), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : boundaryFakeDeath.NextX(0))), checked((short)((run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block))), boundaryFakeDeath.WordAt(run, block), MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))
         {
             for (int row = 0; row < tourianRows; row++)
             for (int column = 0; column < 4; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, view, TourianAccessVisuals?.GetWord(drawPointer, row, column));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, TourianAccessVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))
         {
             for (int row = 0; row < 2; row++)
             for (int column = 0; column < 2; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), sporeCeilingWord, view, SporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), sporeCeilingWord, SporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
             return;
         }
         if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))
@@ -235,7 +226,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
             for (int run = 0; run < 3; run++)
             {
                 for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
-                    DrawPlmWordAt(level, streamer, drawPointer, plant + new Offset16<RoomBlocks>(checked((short)block), 0), samusEater.WordAt(run, block), view, SamusEaterVisuals?.GetWord(drawPointer, run, block));
+                    DrawPlmWordAt(level, drawPointer, plant + new Offset16<RoomBlocks>(checked((short)block), 0), samusEater.WordAt(run, block), SamusEaterVisuals?.GetWord(drawPointer, run, block));
                 plant = origin + new Offset16<RoomBlocks>(SamusEaterPlmDrawDefinitions.Draw.NextX(run), samusEater.NextY(run));
             }
             return;
@@ -243,21 +234,21 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
         {
             for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDrawDefinitions.LevelWordAt(row), view, BotwoonWallVisuals?.GetWord(drawPointer, 0, row));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDrawDefinitions.LevelWordAt(row), BotwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
         {
             for (int run = 0; run < bombRestore.RunCount; run++)
             for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombRestore.Vertical ? 0 : block)), checked((short)(bombRestore.Vertical ? block : run))), bombRestore.WordAt(run, block), view, LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombRestore.Vertical ? 0 : block)), checked((short)(bombRestore.Vertical ? block : run))), bombRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
         {
             for (int run = 0; run < crumbleRestore.RunCount; run++)
             for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crumbleRestore.Vertical ? 0 : block)), checked((short)(crumbleRestore.Vertical ? block : run))), crumbleRestore.WordAt(run, block), view, LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crumbleRestore.Vertical ? 0 : block)), checked((short)(crumbleRestore.Vertical ? block : run))), crumbleRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))
@@ -265,7 +256,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
             for (int cell = 0; cell < 4; cell++)
             {
                 ushort physical = blueDoor.WordAt(cell);
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(blueDoor.Vertical ? 0 : cell)), checked((short)(blueDoor.Vertical ? cell : 0))), physical, view, BlueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(blueDoor.Vertical ? 0 : cell)), checked((short)(blueDoor.Vertical ? cell : 0))), physical, BlueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
             }
             return;
         }
@@ -274,20 +265,20 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
             for (int cell = 0; cell < 4; cell++)
             {
                 ushort physical = coloredDoor.WordAt(cell);
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(coloredDoor.Vertical ? 0 : cell)), checked((short)(coloredDoor.Vertical ? cell : 0))), physical, view, ColoredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(coloredDoor.Vertical ? 0 : cell)), checked((short)(coloredDoor.Vertical ? cell : 0))), physical, ColoredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
             }
             return;
         }
         if (GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var greyDoor))
         {
             for (int cell = 0; cell < 4; cell++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(greyDoor.Vertical ? 0 : cell)), checked((short)(greyDoor.Vertical ? cell : 0))), greyDoor.WordAt(cell), view, GreyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(greyDoor.Vertical ? 0 : cell)), checked((short)(greyDoor.Vertical ? cell : 0))), greyDoor.WordAt(cell), GreyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
             return;
         }
         if (EyeDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var eyeDoor))
         {
             for (int cell = 0; cell < eyeDoor.WordCount; cell++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), view, EyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), EyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
             return;
         }
         if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var motherBrainGlass))
@@ -301,7 +292,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = motherBrainGlass.WordAt(run, cell);
                     ushort visual = MotherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, glass + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : cell)), checked((short)(vertical ? cell : 0))), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, glass + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : cell)), checked((short)(vertical ? cell : 0))), physical, visual);
                 }
                 glass = origin + new Offset16<RoomBlocks>(motherBrainGlass.NextX(run), motherBrainGlass.NextY(run));
             }
@@ -317,7 +308,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = noobTube.WordAt(run, cell);
                     ushort visual = NoobTubeVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, tube + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, tube + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
                 }
                 tube = origin + new Offset16<RoomBlocks>(0, noobTube.NextY(run));
             }
@@ -333,7 +324,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = station.WordAt(run, cell);
                     ushort visual = StationVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, stationCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, stationCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
                 }
                 stationCursor = origin + new Offset16<RoomBlocks>(station.NextX(run), station.NextY(run));
             }
@@ -349,7 +340,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = elevator.WordAt(run, cell);
                     ushort visual = ElevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, elevatorCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, elevatorCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
                 }
                 elevatorCursor = origin + new Offset16<RoomBlocks>(elevator.NextX(run), elevator.NextY(run));
             }
@@ -365,7 +356,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = gate.WordAt(run, word);
                     ushort visual = DownwardGateVisuals?.GetWord(drawPointer, run, word)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, gateCursor + new Offset16<RoomBlocks>(checked((short)(gate.Column ? 0 : word)), checked((short)(gate.Column ? word : 0))), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, gateCursor + new Offset16<RoomBlocks>(checked((short)(gate.Column ? 0 : word)), checked((short)(gate.Column ? word : 0))), physical, visual);
                 }
                 gateCursor = origin + new Offset16<RoomBlocks>(gate.NextX(run), 0);
             }
@@ -378,7 +369,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 ushort physical = escapeGate.WordAt(row);
                 ushort visual = EscapeGateVisuals?.GetWord(drawPointer, row)
                     ?? new RoomLevelWord(physical).VisualWord;
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), physical, view, visual);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), physical, visual);
             }
             return;
         }
@@ -390,7 +381,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 ushort physical = bombTorizoHand.WordAt(run, word);
                 ushort visual = BombTorizoHandVisuals?.GetWord(drawPointer, run, word)
                     ?? new RoomLevelWord(physical).VisualWord;
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombTorizoHand.OriginX(run) + word)), bombTorizoHand.OriginY(run)), physical, view, visual);
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombTorizoHand.OriginX(run) + word)), bombTorizoHand.OriginY(run)), physical, visual);
             }
             return;
         }
@@ -404,7 +395,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = draygonCannon.WordAt(run, cell);
                     ushort visual = DraygonCannonVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, cannon + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, cannon + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
                 }
                 cannon = origin + new Offset16<RoomBlocks>(draygonCannon.NextX(run), draygonCannon.NextY(run));
             }
@@ -420,7 +411,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                     ushort physical = chozoStatue.WordAt(run, cell);
                     ushort visual = ChozoStatueVisuals?.GetWord(drawPointer, run, cell)
                         ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, chozo + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
+                    DrawPlmWordAt(level, drawPointer, chozo + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, visual);
                 }
                 chozo = origin + new Offset16<RoomBlocks>(chozoStatue.NextX(run), chozoStatue.NextY(run));
             }
@@ -428,14 +419,14 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
         }
         if (RoomPlmCollectibleDrawDefinitions.TryGetWord(drawPointer, out ushort collectible))
         {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, collectible, view, CollectibleVisuals?.GetWord(drawPointer));
+            DrawPlmWordAt(level, drawPointer, origin, collectible, CollectibleVisuals?.GetWord(drawPointer));
             return;
         }
         if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
         {
             // All five cartridge lists are a single word at the PLM origin. The
             // complete native word retains Grapple/air collision independently of art.
-            DrawPlmWordAt(level, streamer, grapple.Pointer, origin, grapple.LevelWord, view, GrappleBlockVisuals?.GetWord(grapple.Pointer));
+            DrawPlmWordAt(level, grapple.Pointer, origin, grapple.LevelWord, GrappleBlockVisuals?.GetWord(grapple.Pointer));
             return;
         }
 
@@ -443,7 +434,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
     }
 
     /// <summary>Walks signed-offset runs in a compiled PLM list and applies each authored physical word.</summary>
-    private void DrawCompiledBlockInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, RoomPlmShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin, PlmView view)
+    private static void DrawCompiledBlockInstruction(RoomLevelData level, RoomPlmShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin)
     {
         Position16<RoomBlocks> entry = origin;
         ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
@@ -460,7 +451,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : offset)), checked((short)(vertical ? offset : 0)));
                 ushort physicalWord = run.LevelWords.Span[offset];
                 ushort visualWord = new RoomLevelWord(physicalWord).VisualWord;
-                DrawPlmWordAt(level, streamer, definition.Pointer, block, physicalWord, view, visualWord);
+                DrawPlmWordAt(level, definition.Pointer, block, physicalWord, visualWord);
             }
 
             entry = origin + run.Next;
@@ -468,7 +459,7 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
     }
 
     /// <summary>Converts a draw-list block coordinate to a safe native level index before writing its physical and visual words.</summary>
-    private void DrawPlmWordAt(RoomLevelData level, BackgroundTilemapStreamer streamer, ushort drawPointer, Position16<RoomBlocks> block, ushort levelWord, PlmView view, ushort? visualWord = null)
+    private static void DrawPlmWordAt(RoomLevelData level, ushort drawPointer, Position16<RoomBlocks> block, ushort levelWord, ushort? visualWord = null)
     {
         int blockIndex;
         try
@@ -482,51 +473,26 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 "the safe native level allocation.", error);
         }
 
-        DrawLevelWord(level, streamer, blockIndex, levelWord, view, visualWord);
+        DrawLevelWord(level, blockIndex, levelWord, visualWord);
     }
 
-    /// <summary>Updates level collision and BG1 appearance, queuing a tilemap transfer only for blocks in the native draw window.</summary>
-    internal void DrawLevelWord(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort levelWord, PlmView view, ushort? visualWord = null)
+    /// <summary>Updates level collision and BG1 appearance; BG1 shows the new block because it renders from level data.</summary>
+    internal static void DrawLevelWord(RoomLevelData level, int blockIndex, ushort levelWord, ushort? visualWord = null)
     {
         ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
         level.SetPlmForegroundEntry(blockIndex, levelWord, renderedWord);
-        if (!level.IsLogicalBlockIndex(blockIndex))
-            return;
-
-        streamer.SetLevelEntry(blockIndex,
-            new RoomLevelWord(levelWord).WithVisualWord(renderedWord).Raw);
-
-        if (!IsInsideNativeDrawWindow(level.Size.CellAtRowMajorIndex(blockIndex), view.Layer1Position))
-            return;
-
-        _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, checked((ushort)view.Bg1XOffset)));
     }
 
-    /// <summary>Accepts the 16 visible rows and 17 horizontally intersecting blocks used by the native PLM upload path.</summary>
-    private static bool IsInsideNativeDrawWindow(
-        Position16<RoomBlocks> block,
-        Position16<RoomPixels> layer1Position)
-    {
-        int topBlock = layer1Position.Y >> 4;
-        if (block.Y < topBlock || block.Y > topBlock + 15)
-            return false;
-
-        // $84:8DF4 calculates floor((layer1X+15)/16)-1, then admits the following
-        // seventeen blocks. In ordinary non-wrapped room coordinates this is the partially
-        // visible left block plus the sixteen blocks that can intersect the 256-pixel view.
-        int leftBlock = ((layer1Position.X + 15) >> 4) - 1;
-        return block.X >= leftBlock && block.X < leftBlock + 17;
-    }
 
     /// <summary>Draws one horizontal Kraid mutation with optional Kraid-owned visual replacements.</summary>
-    private void DrawKraidBlockInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, KraidRoomPlmDrawDefinitions.Draw draw, Position16<RoomBlocks> origin, PlmView view, RoomPlmKraidVisualCatalog? visuals)
+    private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomPlmDrawDefinitions.Draw draw, Position16<RoomBlocks> origin, RoomPlmKraidVisualCatalog? visuals)
     {
         for (int block = 0; block < draw.BlockCount; block++)
         {
             ushort physicalWord = draw.WordAt(block);
             ushort visualWord = visuals?.GetWord(draw.Pointer, 0, block)
                 ?? new RoomLevelWord(physicalWord).VisualWord;
-            DrawPlmWordAt(level, streamer, draw.Pointer, origin + new Offset16<RoomBlocks>(checked((short)block), 0), physicalWord, view, visualWord);
+            DrawPlmWordAt(level, draw.Pointer, origin + new Offset16<RoomBlocks>(checked((short)block), 0), physicalWord, visualWord);
         }
     }
 }

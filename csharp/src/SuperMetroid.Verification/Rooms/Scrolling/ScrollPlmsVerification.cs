@@ -35,7 +35,7 @@ internal static class ScrollPlmsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
         var plms = PlmFixtures.Unbound();
-        AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, plms.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
@@ -65,7 +65,6 @@ internal static class ScrollPlmsVerification
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
             new RoomScrollStorage(), size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 
         // $94:9956 reacts only to the center sample, including extension resolution.
         // Foot/head visits must not substitute for a center skipped by native row deduplication.
@@ -78,7 +77,7 @@ internal static class ScrollPlmsVerification
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+            plms.Step(level, scrolls);
         }
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
@@ -87,7 +86,7 @@ internal static class ScrollPlmsVerification
             "direct special-air contact finds resident scroll owner");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "scroll byte-pair program mutates active room grid");
         AssertTrue(!plms.ScrollPlmTriggered(origin),
@@ -107,7 +106,7 @@ internal static class ScrollPlmsVerification
             "scroll extension remains traversable special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "extension-triggered contact executes the same scroll program");
 
@@ -136,7 +135,7 @@ internal static class ScrollPlmsVerification
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "Morph Ball scroll contact executes resident bank-$8F program");
 

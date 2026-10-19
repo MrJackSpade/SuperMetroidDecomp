@@ -1248,7 +1248,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var coloredDoorPlms = PlmFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, coloredDoors.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1276,15 +1276,13 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new byte[residentWords.Length], new ushort[residentWords.Length]), new byte[8]);
     var residentDoorSystem = new Bank80SystemState();
     var residentDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, residentDoorLevel.CreateBackgroundStreamer(), new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
-    BackgroundTilemapStreamer residentDoorStreamer =
-        residentDoorLevel.CreateBackgroundStreamer();
-    residentDoorPlms.Step(residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    residentDoorPlms.Step(residentDoorLevel);
 
     AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0000),
         "resident red door receives power-beam family for native rejection");
-    residentDoorPlms.Step(residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    residentDoorPlms.Step(residentDoorLevel);
     AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
@@ -1294,7 +1292,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
             $"red door accepts missile collision {hit}");
-        residentDoorPlms.Step(residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+        residentDoorPlms.Step(residentDoorLevel);
     }
     ColoredDoorPlmSnapshot openingDoor = residentDoorPlms.ColoredDoors.Single();
     AssertEqual(ColoredDoorPhase.Opening, openingDoor.Phase,
@@ -1316,8 +1314,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     reopenedWords[residentDoorBlock] = 0x8120;
     RoomLevelData reopenedDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reopenedWords, new byte[reopenedWords.Length], new ushort[reopenedWords.Length]), new byte[8]);
     var reopenedDoorPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-    reopenedDoorPlms.Step(reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reopenedDoorPlms.Step(reopenedDoorLevel);
     AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Bts.Value,
         "persisted left-facing red door reloads as ordinary left blue cap");
     AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
@@ -1342,7 +1340,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new byte[greyDoorWords.Length], new ushort[greyDoorWords.Length]), new byte[8]);
     var greyDoorSystem = new Bank80SystemState();
     var greyDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, greyDoorLevel.CreateBackgroundStreamer(), new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
@@ -1355,11 +1353,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(greyDoorPersistedArgument, lockedGreyDoor.RoomArgument,
         "grey-door setup removes condition selector before persistence checks");
 
-    BackgroundTilemapStreamer greyDoorStreamer = greyDoorLevel.CreateBackgroundStreamer();
-    greyDoorPlms.Step(greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 1, enemyDeathQuota: 2);
+    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
         "shared BTS $44 collision publishes power-beam hit to grey door");
-    greyDoorPlms.Step(greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 1, enemyDeathQuota: 2);
+    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
@@ -1369,7 +1366,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // timer while selecting its activation link, so this impact must not persist/open it.
     AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
         "quota-completion frame can observe a colliding shot");
-    greyDoorPlms.Step(greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 2);
+    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertTrue(greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "enemy-quota grey door is native producer of Zebes-awake event");
     AssertEqual(GreyDoorPhase.Flashing, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
@@ -1379,7 +1376,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
         "later shot reaches flashing grey door's installed shot pre-instruction");
-    greyDoorPlms.Step(greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 2);
+    greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertEqual(GreyDoorPhase.Opening, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
@@ -1391,8 +1388,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     reloadedGreyWords[greyDoorBlock] = 0x8220;
     RoomLevelData reloadedGreyLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reloadedGreyWords, new byte[reloadedGreyWords.Length], new ushort[reloadedGreyWords.Length]), new byte[8]);
     var reloadedGreyPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-    reloadedGreyPlms.Step(reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reloadedGreyPlms.Step(reloadedGreyLevel);
     AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Bts.Value,
         "persisted left grey door reloads as ordinary left blue cap");
     AssertEqual(0, reloadedGreyPlms.GreyDoorSnapshots.Count,
@@ -1464,13 +1461,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "Setup_BlueDoor synchronously changes cap origin to type eight");
 
-    BackgroundTilemapStreamer blueDoorStreamer = blueDoor.CreateBackgroundStreamer();
-    blueDoorPlms.Step(blueDoor, blueDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    blueDoorPlms.Step(blueDoor);
     AssertTrue(blueDoorPlms.Sounds.SoundRequests.Any(request =>
             request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
-        blueDoorPlms.Step(blueDoor, blueDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+        blueDoorPlms.Step(blueDoor);
     for (int rowOffset = 0; rowOffset < 4; rowOffset++)
     {
         AssertEqual(RoomCollisionType.Air,

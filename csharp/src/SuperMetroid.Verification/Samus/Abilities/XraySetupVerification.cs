@@ -52,51 +52,63 @@ internal static class XraySetupVerification
         AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "setup fixture activates X-ray");
         SnesButton held = runtime.Options.ControllerBindings.Dash;
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
-        var first = Enumerable.Repeat((ushort)0x0123, XrayTilemapLayout.ScreenWords).ToArray();
-        var second = Enumerable.Repeat((ushort)0x0456, XrayTilemapLayout.ScreenWords).ToArray();
-        runtime.Vram.ExecuteWordTransfer(second,
-            GameplayVramLayout.Bg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
-        runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, new ushort[second.Length], "stage two only queues the second page read"));
-        // The source is sampled at the NEXT NMI, not when the request is issued.
-        Array.Fill(second, (ushort)0x0789);
-        runtime.Vram.ExecuteWordTransfer(second,
-            GameplayVramLayout.Bg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
-        runtime.Vram.ExecuteWordTransfer(first, GameplayVramLayout.Bg1TilemapWord, 1);
-        runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, second, "stage-two read completes at the next NMI"));
+        RoomLevelData level = runtime.Room.LoadedLevelData;
+        // BG1 shows level data (#1346): repaint every block's visual with one tile word, keeping collision.
+        void ShowEverywhere(ushort tile)
+        {
+            const int visual = 1;
+            for (int corner = 0; corner < 4; corner++)
+                level.SetBlockDefinitionWord(visual * 4 + corner, tile);
+            ReadOnlySpan<ushort> blocks = level.ForegroundEntries.Span;
+            for (int block = 0; block < blocks.Length; block++)
+                level.SetPlmForegroundEntry(block, blocks[block], visual);
+        }
+        // A page cell inside the room shows the painted word; cells beyond the room's edge read zero.
+        void VerifyPage(int screen, ushort shown, ushort stale, string context)
+        {
+            ReadOnlySpan<ushort> page = runtime.Xray.SavedBg1.AsSpan(screen * XrayTilemapLayout.ScreenWords, XrayTilemapLayout.ScreenWords);
+            int painted = 0;
+            foreach (ushort word in page)
+            {
+                AssertTrue(word == shown || word == 0, $"{context}: saved word ${word:X4} is neither the shown tile nor beyond the room");
+                AssertTrue(word != stale || stale == 0, $"{context}: no word keeps the earlier tile");
+                if (word == shown) painted++;
+            }
+            AssertTrue(painted > 0, $"{context}: the page shows the room");
+        }
 
-        // Deliberately destroy the live source before stage four. A render-time rebuild
-        // or a single late VRAM snapshot cannot pass this page-ownership assertion.
-        runtime.Vram.ExecuteWordTransfer(new ushort[XrayTilemapLayout.ScreenWords],
-            GameplayVramLayout.Bg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
-        // Queue a staged transfer of the already captured second page's first word.
-        first[0] = second[0];
-        var queuedWord = new VramStagingBuffer(sizeof(ushort));
-        queuedWord.WritableBytes()[0] = SnesLittleEndian.LowByte(second[0]);
-        queuedWord.WritableBytes()[1] = SnesLittleEndian.HighByte(second[0]);
-        runtime.VramWrites.EnqueueStaging(sizeof(ushort), XraySetupMemory.SavedBg1SecondScreen, queuedWord, 0,
-            VramDmaDestination.FromNative(GameplayVramLayout.Bg1TilemapWord));
+        ShowEverywhere(0x0456);
+        runtime.StepFrame(held);
+        Suite(nameof(VerifySaved), () => VerifySaved(XrayTilemapLayout.ScreenWords, new ushort[XrayTilemapLayout.ScreenWords], "stage two only queues the second page read"));
+        // The source is sampled at the NEXT NMI, not when the request is issued.
+        ShowEverywhere(0x0789);
+        runtime.StepFrame(held);
+        VerifyPage(1, 0x0789, 0x0456, "stage-two read completes at the next NMI");
+
+        // Change the source before stage four. A render-time rebuild or a single late
+        // read cannot keep the already captured second page.
+        ShowEverywhere(0x0abc);
+        runtime.StepFrame(held);
+        VerifyPage(0, 0x0abc, 0x0789, "stage-three read completes before stage-four build");
+        VerifyPage(1, 0x0789, 0x0abc, "stage four keeps the captured second page");
         var captured = new SnesVram();
-        captured.ExecuteWordTransfer(first.Concat(second).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
+        captured.ExecuteWordTransfer(runtime.Xray.SavedBg1, GameplayVramLayout.Bg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        var original = XrayRevealTilemap.Build(runtime.Room.LoadedLevelData, captured,
+        var original = XrayRevealTilemap.Build(level, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);
-        var expected = XrayRevealTilemap.Build(runtime.Room.LoadedLevelData, captured,
+        var expected = XrayRevealTilemap.Build(level, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
-        XrayRevealOverlays.Apply(runtime.Room.LoadedLevelData, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
+        XrayRevealOverlays.Apply(level, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
-        runtime.StepFrame(held);
-        Suite(nameof(VerifySaved), () => VerifySaved(0, first, "stage-three read completes before stage-four build"));
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "stage four builds from the separately captured pages and overlays");
-        AssertTrue(expected.Any(word => word == first[1] || word == second[0]), "fixture observes captured BG1 content, not only reveal replacements");
-        runtime.Vram.ExecuteWordTransfer(new ushort[XrayTilemapLayout.BufferWords], GameplayVramLayout.Bg1TilemapWord, 1);
+        AssertTrue(expected.Any(word => word is 0x0abc or 0x0789), "fixture observes captured BG1 content, not only reveal replacements");
+        ShowEverywhere(0x0def);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(runtime.Xray)), "widening/full beam never rebuilds the frozen reveal map");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);

@@ -224,6 +224,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainWalkBackwar
 using static SuperMetroid.Verification.Samus.Projectiles.MurderBeamVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.OceanSkyVerification;
+using static SuperMetroid.Verification.Rooms.Backgrounds.RoomBackgroundsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.OldTourianEscapeShaftWallVerification;
 using static SuperMetroid.Verification.Harness.OperationContractsVerification;
 using static SuperMetroid.Verification.Harness.NullContractsVerification;
@@ -691,6 +692,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics()),
         new(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking()),
         new(nameof(VerifyBackgroundScrollState), () => VerifyBackgroundScrollState()),
+        new(nameof(VerifyRoomBackgroundSources), () => VerifyRoomBackgroundSources()),
+        new(nameof(VerifyPlmBlockChangeReachesPlane), () => VerifyPlmBlockChangeReachesPlane()),
+        new(nameof(VerifyPublishedRoomBackgrounds), () => VerifyPublishedRoomBackgrounds()),
         new(nameof(VerifyLevelBlockTilemapExpansion), () => VerifyLevelBlockTilemapExpansion()),
         new(nameof(VerifyRoomLevelData), () => VerifyRoomLevelData()),
         new(nameof(VerifyCartridgeRoomStateSelection), () => VerifyCartridgeRoomStateSelection()),
@@ -711,7 +715,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReplayTraceCompaction), () => VerifyReplayTraceCompaction()),
         new(nameof(VerifyReplaySnapshotSaveRamSizes), () => VerifyReplaySnapshotSaveRamSizes()),
         .. MapPresentationSuites(),
-        new(nameof(VerifyBackgroundTilemapStreamer), () => VerifyBackgroundTilemapStreamer()),
         new(nameof(VerifyFourBitBackgroundRendering), () => VerifyFourBitBackgroundRendering()),
         new(nameof(VerifyLoRomCrossBankCompressedData), () => VerifyLoRomCrossBankCompressedData()),
         new(nameof(VerifyMode7Rendering), () => VerifyMode7Rendering()),

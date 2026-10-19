@@ -553,7 +553,7 @@ internal static class DebuggerObjectGraphSerializer
         string assembly = type.Assembly.GetName().Name ?? string.Empty;
         if (assembly.StartsWith("SuperMetroid.", StringComparison.Ordinal) ||
             assembly is "System.Private.CoreLib" or "System.Collections" or
-                "System.Collections.Concurrent" or "System.Linq")
+                "System.Collections.Concurrent" or "System.Collections.Immutable" or "System.Linq")
         {
             return type;
         }

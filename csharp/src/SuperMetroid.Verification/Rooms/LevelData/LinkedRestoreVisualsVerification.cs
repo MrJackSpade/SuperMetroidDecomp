@@ -181,17 +181,12 @@ internal static class LinkedRestoreVisualsVerification
                 new RoomBlockBehavior(1));
         AssertTrue(spawned, $"{editedId} installs its real linked PLM");
 
-        var streamer = level.CreateBackgroundStreamer();
         var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
         bool sawImmediate = false;
-        // A PLM redraw identifies its block by the BG1 ring destination it targets.
-        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            sawImmediate |= plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == editedWord);
+            plms.Step(level);
+            sawImmediate |= level.DisplayedBlockTiles(blockIndex).TopLeft.Raw == editedWord;
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{editedId} does not reread compiled program or draw bytes");
@@ -201,8 +196,7 @@ internal static class LinkedRestoreVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"{editedId} preserves its native physical parent word");
         AssertEqual(editedWord,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                blockIndex, 0).TopRow[0],
+            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"{editedId} survives later room streaming");
     }
 }

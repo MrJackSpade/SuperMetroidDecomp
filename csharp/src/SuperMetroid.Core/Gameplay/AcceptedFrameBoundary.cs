@@ -18,6 +18,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -168,7 +169,8 @@ internal sealed class AcceptedFrameBoundary
             CaptureSceneRegisters(),
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
-            CaptureXrayRevealTilemap());
+            CaptureXrayRevealTilemap(),
+            CaptureRoomBackgrounds());
         _artwork.PublishReboundHudArtwork();
         _drainQueuedVramWrites();
         // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
@@ -218,6 +220,27 @@ internal sealed class AcceptedFrameBoundary
             Displays?.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });
+    }
+
+    /// <summary>
+    /// The room backgrounds this NMI displays (#1346): BG1 from the level plane through the BG1 offset, BG2 from the
+    /// layer-2 plane when that layer streams (otherwise BG2 shows the tilemap its owner loaded), the source screen of a
+    /// door's opening scroll, and the room's BG1 overlay. The planes are shared until gameplay changes level data.
+    /// </summary>
+    private RoomBackgrounds? CaptureRoomBackgrounds()
+    {
+        // Before the first room no background is shown.
+        if (_room.Scope is not { } scope)
+            return null;
+        RoomLevelData level = scope.LevelData;
+        Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
+        return new RoomBackgrounds(
+            new RoomBackgroundLayer(level.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset()),
+            layer2.Horizontal.Streams || layer2.Vertical.Streams
+                ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset())
+                : null,
+            _room.DoorSourceBackground,
+            scope.Bg1Overlay);
     }
 
     /// <summary>COLDATA shadows the HDMA pre-instructions wrote during the previous main loop.</summary>

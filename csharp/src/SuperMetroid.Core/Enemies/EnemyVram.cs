@@ -34,7 +34,4 @@ public readonly struct EnemyVram(SnesVram vram)
 
     /// <summary>Queued-DMA destination <paramref name="wordOffset"/> words into the BG3 characters Kraid's death restores.</summary>
     public static VramDmaDestination KraidBg3RestoreDma(int wordOffset) => VramDmaDestination.At(EnemyVramLayout.KraidBg3Restore, wordOffset);
-
-    /// <summary>Queued-DMA destination of the English EMERGENCY title row.</summary>
-    public static VramDmaDestination CeresEmergencyTextDma => VramDmaDestination.At(EnemyVramLayout.CeresEmergencyText);
 }

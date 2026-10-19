@@ -39,8 +39,6 @@ internal sealed class RoomLoader
 {
     /// <summary>Supplies decoded graphics and palette assets for the room being entered.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Executes VRAM background uploads requested during room transitions.</summary>
-    private readonly BackgroundScrollPhase _backgroundPhase;
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Receives room and player palette data during a load.</summary>
@@ -101,7 +99,6 @@ internal sealed class RoomLoader
     internal RoomLoader(RoomLoaderDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
-        _backgroundPhase = dependencies.BackgroundPhase;
         _backgroundScroll = dependencies.BackgroundScroll;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
@@ -400,11 +397,9 @@ internal sealed class RoomLoader
         _room.Camera.SetDoorTransitionPosition(alignment.CameraPosition);
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
-        // convergence step. The gameplay scroll owner performs the same parallax math;
-        // its generated block requests are intentionally discarded because native door
-        // alignment does not enter the row/column streaming dispatcher here.
+        // convergence step; the gameplay scroll owner performs the same parallax math.
         _backgroundScroll.Layer1Position = _room.Camera.PixelPosition;
-        _ = _backgroundScroll.StepScrolling();
+        _backgroundScroll.StepScrolling();
         return false;
     }
 
@@ -415,20 +410,6 @@ internal sealed class RoomLoader
     /// scroll is being staged.
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
-
-    /// <summary>
-    /// Runs the upward-only source-room tilemap correction at <c>$80:AD1D</c> before the
-    /// destination loader replaces the active level-data producer.
-    /// </summary>
-    internal void FixPendingDoorTilesMovingUp()
-    {
-        CartridgeDoorHeader door = PendingDoorTransition
-            ?? throw new InvalidOperationException("No pending door destination exists.");
-        if (door.Orientation.Direction != DoorDirection.Up)
-            return;
-        IReadOnlyList<BackgroundUpdateRequest> requests = _backgroundScroll.FixDoorsMovingUp();
-        _backgroundPhase.ExecuteBackgroundStreamRequests(requests, "upward source-door repair");
-    }
 
     /// <summary>Whether the pending door's destination room header selects the isolated door transition.</summary>
     public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
@@ -549,39 +530,20 @@ internal sealed class RoomLoader
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         Position16<RoomPixels> stagedLayer1 = _doorOpeningScroll.CameraPosition + layer1Staging;
-        ushort stagedLayer2Y = direction == DoorDirection.Up
-            ? unchecked((ushort)(_doorOpeningScroll.Layer2Position.Y + 4))
-            : _doorOpeningScroll.Layer2Position.Y;
         Position16<RoomPixels> retainedBg1Scroll = direction == DoorDirection.Down
             ? sourceScroll.Bg1Scroll + new Offset16<RoomPixels>(0, 1)
             : sourceScroll.Bg1Scroll;
         _backgroundScroll.ConfigureDoorOpeningOffsets(retainedBg1Scroll, stagedLayer1);
         _pendingDoorOpeningPpuScroll = null;
+        // The source screen stays where it was while the destination scrolls in around it.
+        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.Bg1Scroll.AsBgPlaneScroll());
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each native directional setup immediately invokes its first DoorTransition_*
-        // step. That call both advances from +/-$100 to +/-$FC and streams the boundary
-        // row/column exposed by the off-screen starting viewport. DoorOpeningScrollState
-        // already incorporates that first four-pixel coordinate step, so execute the
-        // matching producer request here as well. Merely calculating and discarding it
-        // updated the previous-block words but left the corresponding VRAM ring-buffer
-        // column stale—the source-side column visible on a left transition then appeared
-        // one block too high when interpreted using the destination room's row origin.
-        if (!door.Orientation.IsVertical)
-        {
-            _backgroundScroll.PrimeHorizontalDoorOpeningBlocks(door.Orientation.Direction);
-            IReadOnlyList<BackgroundUpdateRequest> initialRequests =
-                _backgroundScroll.CalculateScrollsAndUpdates();
-            _backgroundPhase.ExecuteBackgroundStreamRequests(initialRequests, "horizontal door-opening setup");
-        }
-        else
-        {
-            IReadOnlyList<BackgroundUpdateRequest> initialRequests =
-                _backgroundScroll.PrimeVerticalDoorOpeningBlocks(
-                    door.Orientation.Direction,
-                    stagedLayer1.Y,
-                    stagedLayer2Y);
-            _backgroundPhase.ExecuteBackgroundStreamRequests(initialRequests, "vertical door-opening setup");
-        }
+        // step, which recomputes the scroll registers from the already-advanced layer
+        // positions. Down's frame-zero probe restores the registers it moved, so only the
+        // horizontal and upward setups leave new registers behind.
+        if (direction != DoorDirection.Down)
+            _backgroundScroll.CalculateScrollRegisters();
         _player.Samus.Position = _doorOpeningScroll.SamusPosition;
         _room.Camera.PublishDoorSamusPosition(_player.Samus.Position.Whole);
         // Recreate the VRAM producer requests for IRQ progress already published
@@ -602,24 +564,17 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("Door-opening scroll lost its room actors.");
         bool completed = state.Advance();
         PublishDoorOpeningLayers(state);
-        // The IRQ moves four pixels per call. Every fourth call crosses a 16-pixel block
-        // boundary and `$80:A3E4` produces the newly exposed row/column DMA. Discarding
-        // those requests left one stale ring-buffer column on horizontal transitions; on
-        // a left door that stale source-door column was interpreted with the destination
-        // row origin and appeared to jump upward by one 16x16 block.
-        IReadOnlyList<BackgroundUpdateRequest> requests = state.ShouldStreamAfterAdvance
-            ? _backgroundScroll.CalculateScrollsAndUpdates()
-            : Array.Empty<BackgroundUpdateRequest>();
-        _backgroundPhase.ExecuteBackgroundStreamRequests(requests, "door-opening scroll");
+        // The IRQ recomputes the scroll registers after each four-pixel step, except
+        // during an upward door's first frames.
+        if (state.RecalculatesScrollAfterAdvance)
+            _backgroundScroll.CalculateScrollRegisters();
 
         if (completed)
         {
             // `$80:AE4E` calls the direction routine first. That routine performs the
-            // last `$80:A3A0` row/column calculation using the stepped coordinates.
+            // last `$80:A3A0` register calculation using the stepped coordinates.
             // The wrapper then snaps only layer one to the exact destination without
-            // recalculating PPU scroll or streaming another row. Publishing the snap
-            // before CalculateScrollsAndUpdates shifted an upward door's last request
-            // into the next 16-pixel row and corrupted the elevator shaft ring buffer.
+            // recalculating PPU scroll.
             state.SnapLayerOneToDestination();
             PublishDoorCameraPosition(state.CameraPosition);
         }
@@ -714,6 +669,7 @@ internal sealed class RoomLoader
                 _player.Samus.InputLocked = true;
         }
         _doorOpeningScroll = null;
+        _room.DoorSourceBackground = null;
     }
 
     /// <summary>
@@ -821,7 +777,8 @@ internal sealed class RoomLoader
         DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(_backgroundScroll.Bg1Scroll),
+            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningPpuScroll(_backgroundScroll.Bg1Scroll,
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane, _backgroundScroll.Bg1Offset.AsBgPlaneOffset())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
@@ -886,7 +843,7 @@ internal sealed class RoomLoader
         }
         _backgroundScroll.Layer2Scroll = room.State.Layer2Scroll;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
-            _backgroundScroll.PrimePreviousBlocks();
+            _backgroundScroll.CalculateScrolls();
         else
         {
             // Up calculates BG2 from destination+$1F before changing the IRQ's layer-one
@@ -906,9 +863,6 @@ internal sealed class RoomLoader
             selectedFx?.Type == (byte)RoomFxType.ScrollingSky ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
-        BackgroundTilemapStreamer backgroundStreamer = assets.LevelData.CreateBackgroundStreamer(
-            sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)2048);
-        scope.BackgroundStreamer = backgroundStreamer;
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
             ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
@@ -1000,7 +954,7 @@ internal sealed class RoomLoader
         // serves the room's PLMs and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
         var plmServices = new RoomPlmRuntimeServices(scope, _player, _room, _system);
-        var plmRoom = new PlmRoom(assets.LevelData, backgroundStreamer, _vram, _system, room.AreaIndex);
+        var plmRoom = new PlmRoom(assets.LevelData, _vram, _system, room.AreaIndex);
         var plmBindings = new RoomPlmServices
         {
             Samus = plmServices,
@@ -1095,10 +1049,8 @@ internal sealed class RoomLoader
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
-            // State-$0B never calls DisplayViewablePartOfRoom. The source-room tilemap must
-            // remain in VRAM until each four-pixel IRQ crossing replaces one boundary row
-            // or column. An eager destination fill destroys the circular-map seam before
-            // the opening IRQ and visibly offsets door/elevator arrivals.
+            // State-$0B never calls DisplayViewablePartOfRoom: the source screen stays
+            // visible while the opening scroll moves the destination in around it.
             _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
             _room.Adopt(scope.Complete());
             return new InitialViewportResult();
@@ -1107,16 +1059,7 @@ internal sealed class RoomLoader
         _room.Adopt(scope.Complete());
         _pendingDoorOpeningPpuScroll = null;
         _backgroundScroll.Layer1Position = destinationCamera.PixelPosition;
-        IReadOnlyList<BackgroundUpdateRequest> requests = _backgroundScroll.BuildInitialViewportRequests();
-        int segmentCount = 0;
-        foreach (BackgroundUpdateRequest request in requests)
-        {
-            TilemapStreamUpdate update = backgroundStreamer.Build(request)
-                ?? throw new InvalidOperationException("Initial room display unexpectedly requested Mode 7 streaming.");
-            update.ExecuteTo(_vram);
-            segmentCount += update.Segments.Count;
-        }
-        _backgroundScroll.PrimePreviousBlocks();
+        _backgroundScroll.CalculateScrolls();
         return new InitialViewportResult();
     }
 

@@ -142,7 +142,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
-        if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.ActiveRoom is null)
+        if (_room.LevelData is null || _room.ActiveRoom is null)
         {
             throw new InvalidOperationException(
                 "Wrecked Ship treadmill door setup requires an active destination room.");
@@ -154,7 +154,6 @@ internal sealed class DoorTransitionRunner
         // above cannot exhaust; preserve the PLM allocator's native false result here.
         _ = plms.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
-            _room.BackgroundStreamer,
             direction,
             _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }

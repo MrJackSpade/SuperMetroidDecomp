@@ -55,7 +55,6 @@ internal static class DraygonCannonPlmProgramVerification
         var level = CreateRoom(new(width, 32),
             new ushort[width * 32], new byte[width * 32],
             blockDefinitions: blockDefinitions);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var disabled = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
@@ -65,38 +64,29 @@ internal static class DraygonCannonPlmProgramVerification
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
         PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
-        AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
+        AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
         static void Step(RoomPlmSystem plms, ISnesAddressSpace bus,
-            RoomLevelData level, BackgroundTilemapStreamer streamer) =>
+            RoomLevelData level) =>
             // Keep both upper and lower shield origins inside the visible
             // tilemap ring so their immediate redraws are observable.
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0x00e0), Bg1XOffset = 0 });
+            plms.Step(level);
 
-        Step(plms, guarded, level, streamer);
+        Step(plms, guarded, level);
         int rightShieldBlock = 18 * width + 2;
         int leftShieldBlock = 15 * width + 29;
         AssertEqual((ushort)0xc514,
             level.GetCollisionBlockByIndex(rightShieldBlock).PackedWord.Raw,
             "edited right shield retains native physical collision and tile reference");
-        // The immediate redraw is identified by its BG1 ring destination (bg1XOffset 0).
-        int rightShieldDestination = streamer.BuildPlmLevelBlockUpdate(
-            rightShieldBlock, bg1XOffset: 0).TopRowDestination;
         AssertEqual((ushort)0x0053,
-            plms.TilemapUpdates.Last(update =>
-                update.TopRowDestination == rightShieldDestination).TopRow[0],
-            "edited right shield reaches the immediate tilemap update");
-        AssertEqual((ushort)0x0053,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                rightShieldBlock, 0).TopRow[0],
+            level.DisplayedBlockTiles(rightShieldBlock).TopLeft.Raw,
             "edited right shield survives later room streaming");
         AssertEqual((ushort)0xc114,
             level.GetCollisionBlockByIndex(leftShieldBlock).PackedWord.Raw,
             "edited left shield retains native physical collision and tile reference");
         AssertEqual((ushort)0x0054,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                leftShieldBlock, 0).TopRow[0],
+            level.DisplayedBlockTiles(leftShieldBlock).TopLeft.Raw,
             "edited offscreen left shield enters later background streaming");
         AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
@@ -106,7 +96,7 @@ internal static class DraygonCannonPlmProgramVerification
         var seenRightDamageWords = new HashSet<ushort>();
         for (int frame = 0; frame < 28; frame++)
         {
-            Step(plms, guarded, level, streamer);
+            Step(plms, guarded, level);
             seenRightDamageWords.Add(
                 level.GetCollisionBlockByIndex(rightBlock).PackedWord.Raw);
         }
@@ -121,7 +111,7 @@ internal static class DraygonCannonPlmProgramVerification
         var seenLeftDamageWords = new HashSet<ushort>();
         for (int frame = 0; frame < 28; frame++)
         {
-            Step(plms, guarded, level, streamer);
+            Step(plms, guarded, level);
             seenLeftDamageWords.Add(
                 level.GetCollisionBlockByIndex(leftBlock).PackedWord.Raw);
         }

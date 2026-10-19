@@ -28,7 +28,7 @@ internal static class SpeedBoosterPickupVerification
             var fxSession = CreateRetailFxSession(cartridge);
             var fx = RoomLayer3FxState.ForRoom(fxSession, vram, new SnesCgram(), RoomFxDefinitions.Suffix(0x8600), null, 0);
             CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
@@ -36,13 +36,13 @@ internal static class SpeedBoosterPickupVerification
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
                     () => fixture.Plms.CollectiblePhases[0] == CollectiblePhase.Visible,
-                    _ => fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
+                    _ => fixture.Plms.Step(fixture.Level),
                     maximumFrames: 20,
                     context: "Speed Booster orb burst");
             }
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "Speed Booster pickup accepts contact");
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message has not yet armed lava");
@@ -51,7 +51,7 @@ internal static class SpeedBoosterPickupVerification
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.YVelocity.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
@@ -72,7 +72,7 @@ internal static class SpeedBoosterPickupVerification
                     fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
             }
             fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");

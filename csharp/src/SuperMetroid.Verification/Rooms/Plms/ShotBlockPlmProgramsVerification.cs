@@ -26,7 +26,7 @@ internal static class ShotBlockPlmProgramsVerification
         // was absent from the compiled program. Exercise the actual interpreter
         // against RAM-only memory, not the old import-capable reference guard.
         ShotBlockFixture reported = NewShotBlockFixture(4);
-        reported.Plms.Step(reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        reported.Plms.Step(reported.Level);
         AssertEqual((ushort)0x0053,
             reported.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
             "reported permanent shot block draws its first break frame without a cartridge read");
@@ -38,12 +38,12 @@ internal static class ShotBlockPlmProgramsVerification
         {
             ShotBlockFixture fixture = NewShotBlockFixture(behavior);
             var memory = new SuperMetroidAddressSpace();
-            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level);
             AssertEqual((ushort)0x0053,
                 fixture.Level.GetCollisionBlockByIndex(27).PackedWord.Raw,
                 $"shot-block BTS {behavior} first physical break frame");
             for (int frame = 1; frame < 420; frame++)
-                fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                fixture.Plms.Step(fixture.Level);
             ushort expected = behavior switch
             {
                 0 => 0xc052,
@@ -178,8 +178,8 @@ internal static class ShotBlockPlmProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                stock.Plms.Step(stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                stock.Plms.Step(stock.Level);
+                compiled.Plms.Step(compiled.Level);
                 AssertEqual(stock.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
                 AssertEqual(stock.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -385,16 +385,13 @@ internal static class ShotBlockPlmProgramsVerification
             RoomPlmShotBlockVisualCatalog visuals)
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var streamer = level.CreateBackgroundStreamer();
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(1, plms.TilemapUpdates.Count,
-                "visual-only edit publishes one immediate PLM tilemap update");
+            plms.Step(level);
             return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                plms.TilemapUpdates[0].TopRow[0],
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
+                level.DisplayedBlockTiles(block).TopLeft.Raw,
+                level.DisplayedBlockTiles(block).TopLeft.Raw);
         }
 
         var native = Render(stock);
@@ -483,10 +480,9 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Minimal room, streamer, and PLM owners for stepping a shot-block program.</summary>
+    /// <summary>Minimal room, and PLM owners for stepping a shot-block program.</summary>
     internal sealed record ShotBlockFixture(
         RoomLevelData Level,
-        BackgroundTilemapStreamer Streamer,
         RoomPlmSystem Plms);
 
     /// <summary>Spawns the chosen BTS behavior at a fixed 8-by-8 room block for deterministic frame checks.</summary>
@@ -502,7 +498,7 @@ internal static class ShotBlockPlmProgramsVerification
         AssertTrue(plms.TrySpawnProjectileShotBlock(
                 level, blockIndex, behavior, 0, solidBlock: true),
             $"shot-block BTS {behavior} allocates its native PLM program");
-        return new ShotBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+        return new ShotBlockFixture(level, plms);
     }
 
     /// <summary>Rejects runtime reads of the compiled control and sound bytes recorded from bank $84.</summary>

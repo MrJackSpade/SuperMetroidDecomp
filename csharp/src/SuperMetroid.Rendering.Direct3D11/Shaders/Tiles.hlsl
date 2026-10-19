@@ -13,7 +13,7 @@ cbuffer TileParameters : register(b0)
     uint Operation, TilemapWord, CharacterWord, HorizontalScroll;
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
-    uint AddB, MessageDarkIndex, Reserved14, Reserved3;
+    uint AddB, MessageDarkIndex, RoomSource, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FillCharacterZero, FirstScanline, EndScanline;
@@ -24,6 +24,11 @@ cbuffer TileParameters : register(b0)
 StructuredBuffer<uint> Memory : register(t0);
 // Published background layers (D3D11BgLayerBuffer): count, 6-word records, cells, then artwork characters.
 StructuredBuffer<uint> BgLayers : register(t2);
+// Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay.
+StructuredBuffer<uint> RoomLevels : register(t3);
+// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it.
+static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2;
+static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -69,6 +74,55 @@ uint BgLayerColor(uint layer, uint2 screen)
     if (bpp == 4)
         color |= (((BgLayerByte(artwork, row + 16) >> (7 - px)) & 1) << 2) | (((BgLayerByte(artwork, row + 17) >> (7 - px)) & 1) << 3);
     return color == 0 ? 0 : ((cell >> 16) & 7) * (1u << bpp) + color;
+}
+// The tile a room plane shows at a scrolled position, and the pixel within it; false outside the room. A mirrored
+// block shows its definition's opposite quadrant with that tile's own flip toggled (LevelBlockTilemapExpander).
+bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within)
+{
+    uint record = slot * RoomRecordWords;
+    uint width = RoomLevels[record + 1], height = RoomLevels[record + 2];
+    uint2 level = (scrolled - uint2(RoomLevels[record + 4], RoomLevels[record + 5])) & 65535;
+    entry = 0;
+    within = level & 7;
+    bool inside = level.x < width * 16 && level.y < height * 16;
+    if (inside)
+    {
+        uint word = RoomLevels[RoomLevels[record] + (level.y >> 4) * width + (level.x >> 4)];
+        uint h = (word >> 10) & 1, v = (word >> 11) & 1;
+        uint quadrant = ((((level.y >> 3) & 1) ^ v) << 1) | (((level.x >> 3) & 1) ^ h);
+        entry = RoomLevels[RoomLevels[record + 3] + (word & 1023) * 4 + quadrant] ^ (h << 14) ^ (v << 15);
+    }
+    return inside;
+}
+// BG2 from the room's layer-2 plane, or BG1 as RoomBackgrounds resolves it: a door's source screen, then words
+// written over BG1, then the level plane.
+bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
+{
+    entry = 0;
+    within = uint2(0, 0);
+    scrolled &= 65535;
+    uint slot = source == RoomSourceBg2 ? 1 : 0;
+    bool overlaid = false;
+    if (source != RoomSourceBg2)
+    {
+        uint door = RoomLevels[RoomDoorWindowWord];
+        uint2 doorWithin = (scrolled - uint2(door & 65535, door >> 16)) & 65535;
+        uint overlay = RoomLevels[RoomOverlayWord];
+        if (RoomLevels[RoomDoorSlot * RoomRecordWords + 1] != 0 && doorWithin.x < 256 && doorWithin.y < 192)
+            slot = RoomDoorSlot;
+        else if (overlay != 0)
+        {
+            uint2 cell = uint2((scrolled.x >> 3) & 63, (scrolled.y >> 3) & 31);
+            uint written = RoomLevels[overlay + (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31)];
+            overlaid = written != 4294967295u;
+            entry = written;
+            within = scrolled & 7;
+        }
+    }
+    bool shown = overlaid;
+    if (!overlaid)
+        shown = RoomPlaneTile(slot, scrolled, entry, within);
+    return shown;
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
@@ -247,14 +301,24 @@ void Main(uint3 id : SV_DispatchThreadID)
     // BG2-only grouping happens before the current scanline's HDMA scroll.
     uint2 sampleScreen = id.xy;
     if (Operation == OpBg4 && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
-    uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
-    uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
-    uint tileX = x >> 3, tileY = y >> 3;
-    uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
-    uint entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
+    uint entry = 0;
+    uint2 within = uint2(0, 0);
+    if (RoomSource != 0)
+    {
+        if (!RoomTile(RoomSource, sampleScreen + scroll, entry, within)) return;
+    }
+    else
+    {
+        uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
+        uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
+        uint tileX = x >> 3, tileY = y >> 3;
+        uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
+        entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
+        within = uint2(x & 7, y & 7);
+    }
     if (PriorityFilter != 0 && ((entry >> 13) & 1) != PriorityFilter - 1) return;
-    uint sourceX = (entry & 16384) != 0 ? 7 - (x & 7) : x & 7;
-    uint sourceY = (entry & 32768) != 0 ? 7 - (y & 7) : y & 7;
+    uint sourceX = (entry & 16384) != 0 ? 7 - within.x : within.x;
+    uint sourceY = (entry & 32768) != 0 ? 7 - within.y : within.y;
     bool fourBpp = Operation == OpBg4 || (Operation == OpSubscreenAdd && Reserved27 != 0);
     uint stride = fourBpp ? 16 : 8;
     uint row = ((CharacterWord + (entry & 1023) * stride) & 32767) * 2 + sourceY * 2;

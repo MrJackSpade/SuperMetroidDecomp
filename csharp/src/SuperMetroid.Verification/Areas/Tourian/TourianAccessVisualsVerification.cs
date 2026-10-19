@@ -175,20 +175,16 @@ internal static class TourianAccessVisualsVerification
         AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} real PLM allocates");
         var bus = NewTourianAccessSourceGuard(rom);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         // The edited bottom clear row must be inside the camera to assert its
         // immediate VRAM update; the physical level mutation is world-relative.
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 12 * 16), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
+        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");
         AssertEqual((ushort)0x0058,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                blockIndex, 0).TopRow[0],
+            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Tourian {(clear ? "clear" : "crumble")} edit survives later streaming");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");

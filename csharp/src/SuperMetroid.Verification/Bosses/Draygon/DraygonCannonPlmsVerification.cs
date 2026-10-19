@@ -33,11 +33,10 @@ internal static class DraygonCannonPlmsVerification
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
             blockDefinitions: new byte[0x400 * 8]);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var disabledWords = new List<DraygonCannonControlWord>();
         var plms = PlmFixtures.Unbound();
 
-        AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
+        AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
             "Draygon cannon population record count");
 
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
@@ -62,7 +61,7 @@ internal static class DraygonCannonPlmsVerification
         AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Bts.Value,
             "shielded right cannon extension points to its origin");
 
-        StepDraygonCannonPlms(plms, level, streamer);
+        StepDraygonCannonPlms(plms, level);
         AssertSequenceEqual(
             new[] { DraygonCannonControlWord.UpperLeft },
             disabledWords,
@@ -71,14 +70,14 @@ internal static class DraygonCannonPlmsVerification
 
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0000),
             "beam collision reaches the right cannon PLM");
-        StepDraygonCannonPlms(plms, level, streamer);
+        StepDraygonCannonPlms(plms, level);
         AssertEqual(1, disabledWords.Count, "beam cannot damage a Draygon cannon");
 
         for (int hit = 0; hit < 3; hit++)
         {
             AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0100),
                 $"missile hit {hit + 1} reaches right cannon");
-            SettleDraygonCannonHit(plms, level, streamer);
+            SettleDraygonCannonHit(plms, level);
         }
         AssertTrue(disabledWords.Contains(DraygonCannonControlWord.LowerLeft),
             "third missile disables the lower-left firing word");
@@ -86,7 +85,7 @@ internal static class DraygonCannonPlmsVerification
 
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(upperLeftBlock, 0x0200),
             "Super Missile collision reaches left cannon");
-        SettleDraygonCannonHit(plms, level, streamer);
+        SettleDraygonCannonHit(plms, level);
         AssertTrue(disabledWords.Contains(DraygonCannonControlWord.UpperRight),
             "one Super Missile disables the upper-right firing word");
         AssertDestroyedCannon(level, upperLeftBlock, roomWidth, "upper-left cannon");
@@ -115,19 +114,17 @@ internal static class DraygonCannonPlmsVerification
     /// <summary>Advances the PLM long enough to resolve a notified projectile hit and its follow-up draw.</summary>
     private static void SettleDraygonCannonHit(
         RoomPlmSystem plms,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer)
+        RoomLevelData level)
     {
         for (int frame = 0; frame < 3; frame++)
-            StepDraygonCannonPlms(plms, level, streamer);
+            StepDraygonCannonPlms(plms, level);
     }
 
     /// <summary>Runs one PLM frame with fixed view and no scroll, enemy-death, or controller events.</summary>
     private static void StepDraygonCannonPlms(
         RoomPlmSystem plms,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer) =>
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        RoomLevelData level) =>
+        plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Requires both cannon cells to become spike blocks with BTS 03 after destruction.</summary>
     private static void AssertDestroyedCannon(

@@ -30,8 +30,19 @@ internal static class SoftwareMode7GameplayRenderer
             // its band. Transparent floor pixels expose backdrop, never the Mode-7 map.
             var low = scratch.Colors(output.Length);
             var high = scratch.Colors(output.Length);
-            SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = floor.TilemapWord, CharacterBaseWord = floor.CharacterWord }, new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize }, priority: false);
-            SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = floor.TilemapWord, CharacterBaseWord = floor.CharacterWord }, new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize }, priority: true);
+            var viewport = new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize };
+            // The floor is the room's layer-2 plane when it streams (#1346), otherwise the BG2 tilemap.
+            if (floor.Room is { } room)
+            {
+                SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram, room, floor.CharacterWord, viewport, priority: false);
+                SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram, room, floor.CharacterWord, viewport, priority: true);
+            }
+            else
+            {
+                var addresses = new BgVramAddresses { TilemapBaseWord = floor.TilemapWord, CharacterBaseWord = floor.CharacterWord };
+                SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram, addresses, viewport, priority: false);
+                SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram, addresses, viewport, priority: true);
+            }
             for (int i = floorStart * width; i < output.Length; i++)
             {
                 byte priority = objects.Priorities[i];

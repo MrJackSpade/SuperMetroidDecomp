@@ -132,7 +132,6 @@ internal static class EyeDoorPlmsVerification
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
             blockDefinitions: new byte[0x400 * 8]);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var samus = new SamusState
         {
@@ -140,7 +139,7 @@ internal static class EyeDoorPlmsVerification
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var plms = PlmFixtures.Unbound();
-        AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = effects.Add } }),
+        AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = effects.Add } }),
             $"{orientation} eye-door population record count");
 
         AssertEqual(3, plms.SlotTable.ActiveCount, $"{orientation} eye door retains three PLM slots");
@@ -163,7 +162,7 @@ internal static class EyeDoorPlmsVerification
         // Three blocks in front of the eye: near enough to open it, too far to make it close.
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new((eyeX + 3) * 16 + 8, eyeY * 16 + 8));
         for (int frame = 0; frame < 256 && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Projectile); frame++)
-            StepEyeDoorPlms(plms, level, streamer);
+            StepEyeDoorPlms(plms, level);
         EyeDoorProjectileRequest shot = effects.First(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Projectile);
         AssertEqual(EyeDoorPlmProgramDefinitions.ShotParameterOf(orientation), shot.Parameter, $"{orientation} attack operand");
         AssertEqual(eyeBlock, shot.PlmBlockIndex, $"{orientation} attack leaves the eye's block");
@@ -176,7 +175,7 @@ internal static class EyeDoorPlmsVerification
                 eyeBlock,
                 new SamusProjectileTypeWord(0x0000)),
             $"{orientation} beam collision reaches resident eye");
-        StepEyeDoorPlms(plms, level, streamer);
+        StepEyeDoorPlms(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
@@ -193,12 +192,12 @@ internal static class EyeDoorPlmsVerification
                     eyeBlock,
                     new SamusProjectileTypeWord(projectileWord)),
                 $"{orientation} missile-family hit {hit + 1} reaches resident eye");
-            StepEyeDoorPlms(plms, level, streamer);
+            StepEyeDoorPlms(plms, level);
             if (hit + 1 < acceptedHits && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat))
             {
                 // A hit that leaves the door shut ends its flinch with the eye's sweat.
                 for (int frame = 0; frame < 128 && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat); frame++)
-                    StepEyeDoorPlms(plms, level, streamer);
+                    StepEyeDoorPlms(plms, level);
                 AssertEqual(EyeDoorPlmProgramDefinitions.SweatParameterOf(orientation),
                     effects.First(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat).Parameter,
                     $"{orientation} sweat operand");
@@ -208,7 +207,7 @@ internal static class EyeDoorPlmsVerification
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} accepted hit threshold persists door bit");
         for (int frame = 0; frame < 256 && plms.SlotTable.ActiveCount != 0; frame++)
-            StepEyeDoorPlms(plms, level, streamer);
+            StepEyeDoorPlms(plms, level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             $"{orientation} eye and both passive components complete together");
         AssertEqual(2, effects.Count(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Smoke &&
@@ -318,9 +317,8 @@ internal static class EyeDoorPlmsVerification
     /// <summary>Advances linked PLMs with a fixed camera and no unrelated room event or input.</summary>
     private static void StepEyeDoorPlms(
         RoomPlmSystem plms,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer) =>
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        RoomLevelData level) =>
+        plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Runs both facing fixtures and projectile behavior from the eye-door verification command.</summary>
     [VerificationCommand("--eye-door-plms")]

@@ -63,8 +63,7 @@ internal static class RoomScopeVerification
         VerificationAssert.AssertTrue(ReferenceEquals(parlor, destination.Room) && ReferenceEquals(door, destination.Door),
             "the scope holds the destination room and door");
         VerificationAssert.AssertTrue(ReferenceEquals(destination.Camera, runtime.Room.Camera) &&
-            ReferenceEquals(destination.LevelData, runtime.Room.LevelData) &&
-            ReferenceEquals(destination.BackgroundStreamer, runtime.Room.BackgroundStreamer),
+            ReferenceEquals(destination.LevelData, runtime.Room.LevelData),
             "the room views read the adopted scope");
         VerificationAssert.AssertTrue(!ReferenceEquals(source.Plms, destination.Plms) &&
             !destination.Plms.SlotTable.Slots.Intersect(source.Plms.SlotTable.Slots).Any(),

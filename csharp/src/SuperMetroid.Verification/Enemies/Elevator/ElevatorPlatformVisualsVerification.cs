@@ -57,16 +57,14 @@ internal static class ElevatorPlatformVisualsVerification
             }
             RoomLevelData level = CreateRoom(new(32, 16), new ushort[32 * 16],
                 new byte[32 * 16], blockDefinitions: definitions);
-            BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmElevatorPlatformVisuals = visuals });
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).PackedWord.Raw == 0x8085);
             return (level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                level.CreateBackgroundStreamer()
-                    .BuildPlmLevelBlockUpdate(index, 0).TopRow[0]);
+                level.DisplayedBlockTiles(index).TopLeft.Raw);
         }
 
         var native = Render(stock);

@@ -69,8 +69,7 @@ internal static class CrocomireArenaPlmsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header ${(int)header:X4} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
             $"Crocomire header ${(int)header:X4} persists for native draw frame");
         for (int y = 0; y < 9; y++)
@@ -78,7 +77,7 @@ internal static class CrocomireArenaPlmsVerification
             AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).PackedWord.Raw,
                 $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             $"Crocomire header ${(int)header:X4} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,

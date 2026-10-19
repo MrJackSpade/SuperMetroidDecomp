@@ -59,15 +59,12 @@ internal static class StationVisualsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), definitions);
-            BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
-            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertTrue(plms.TilemapUpdates.Count > 0,
-                "station frame publishes an immediate PLM redraw");
+            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            plms.Step(level);
             return (level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                plms.TilemapUpdates[0].TopRow[0],
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(block, 0).TopRow[0]);
+                level.DisplayedBlockTiles(block).TopLeft.Raw,
+                level.DisplayedBlockTiles(block).TopLeft.Raw);
         }
 
         var native = Render(stock);

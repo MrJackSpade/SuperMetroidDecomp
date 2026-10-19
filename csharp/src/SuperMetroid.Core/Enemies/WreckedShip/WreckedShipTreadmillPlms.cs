@@ -13,7 +13,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.WreckedShipTreadmill, static (slot, context) =>
-            TryStepWreckedShipTreadmill(context.Level, context.Streamer, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+            TryStepWreckedShipTreadmill(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
     /// <summary>Native PLM slot pool used for treadmill and elevatube allocation.</summary>
@@ -33,12 +33,10 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     /// <returns>False only when all forty native PLM slots are occupied.</returns>
     public bool TrySpawnWreckedShipEntranceTreadmill(
         RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
         WreckedShipTreadmillDirection direction,
         bool areaBossDefeated)
     {
         Ensure.NotNull(level);
-        Ensure.NotNull(streamer);
 
         PlmHeaderId header = direction switch
         {
@@ -78,13 +76,10 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                 areaBossDefeated);
 
             // Setup $84:B04A writes exact level words and deliberately leaves BTS alone.
-            // The streamer mirrors decompressed level memory, so update it at the same
-            // synchronous setup seam without inventing an immediate DrawPLM VRAM upload.
             for (int offset = 0; offset < WreckedShipTreadmillPlmRomData.BlockCount; offset++)
             {
                 int blockIndex = origin + offset;
                 level.SetForegroundEntry(blockIndex, WreckedShipTreadmillPlmRomData.BlankAirWord);
-                streamer.SetLevelEntry(blockIndex, WreckedShipTreadmillPlmRomData.BlankAirWord);
             }
             return true;
         }
@@ -125,7 +120,6 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     /// <summary>Consumes the native first-pass boss test for one treadmill PLM.</summary>
     internal static bool TryStepWreckedShipTreadmill(
         RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
         PlmSlot slot)
     {
         if (slot.Family is not WreckedShipTreadmillPlmState state)
@@ -151,9 +145,6 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                     blockIndex,
                     WreckedShipTreadmillPlmRomData.ActiveTreadmillWord);
                 level.SetBehavior(blockIndex, bts);
-                streamer.SetLevelEntry(
-                    blockIndex,
-                    WreckedShipTreadmillPlmRomData.ActiveTreadmillWord);
             }
         }
 

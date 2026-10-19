@@ -1,0 +1,157 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hud;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+
+namespace SuperMetroid.Verification.Rooms.Backgrounds;
+
+/// <summary>
+/// Checks the room backgrounds the display description publishes (#1346): BG1 and BG2 resolved from level data
+/// through the scroll registers, the door's source screen, words written over BG1, and PLM block changes.
+/// </summary>
+internal static class RoomBackgroundsVerification
+{
+    /// <summary>Blocks along each side of the constructed planes.</summary>
+    private const int Side = 4;
+
+    /// <summary>Resolves constructed planes through scroll offsets, a door window and an overlay.</summary>
+    internal static void VerifyRoomBackgroundSources()
+    {
+        // Definition n shows tile words n*4 .. n*4+3; the level words select definitions with flips.
+        var definitions = new byte[16 * RoomLevelPlane.DefinitionBytes];
+        for (int word = 0; word < definitions.Length / 2; word++)
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(word * 2), (ushort)word);
+        var blocks = new ushort[Side * Side];
+        for (int block = 0; block < blocks.Length; block++)
+            blocks[block] = (ushort)((block % 4) << 10 | block);
+        var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks, [.. definitions]);
+        var offset = new Offset16<BgPlanePixels>(0x10, -0x08);
+        var layer = new RoomBackgroundLayer(plane, offset);
+
+        int checks = 0;
+        for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
+        for (int x = 0; x < Side * RoomLevelPlane.BlockPixels; x += 5)
+        {
+            var level = new Position16<BgPlanePixels>((ushort)x, (ushort)y);
+            ExpandedBlockTiles tiles = LevelBlockTilemapExpander.Expand(
+                blocks[y / RoomLevelPlane.BlockPixels * Side + x / RoomLevelPlane.BlockPixels], definitions);
+            bool right = x % RoomLevelPlane.BlockPixels >= 8, bottom = y % RoomLevelPlane.BlockPixels >= 8;
+            SnesBgTilemapWord expected = bottom ? right ? tiles.BottomRight : tiles.BottomLeft : right ? tiles.TopRight : tiles.TopLeft;
+            AssertTrue(layer.TrySample(level + offset, out BgTileSample sample), $"level pixel {x},{y} is inside the room");
+            AssertEqual(expected, sample.Tile, $"scroll {x + offset.X},{y + offset.Y} shows the level block's tile at scroll minus offset");
+            AssertEqual(new Position16<CharacterPixels>((ushort)(x % 8), (ushort)(y % 8)), sample.Pixel,
+                $"scroll {x + offset.X},{y + offset.Y} samples the tile's pixel at the level position");
+            checks++;
+        }
+        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, 0) + offset + new Offset16<BgPlanePixels>(-1, 0), out _),
+            "a scroll left of the room shows no tile");
+        AssertTrue(!layer.TrySample(new Position16<BgPlanePixels>(0, Side * RoomLevelPlane.BlockPixels) + offset, out _),
+            "a scroll below the room shows no tile");
+
+        // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
+        var sourceBlocks = Enumerable.Repeat((ushort)15, Side * Side).ToArray();
+        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks, [.. definitions]),
+            new Offset16<BgPlanePixels>(0, 0));
+        var sourceScroll = new Position16<BgPlanePixels>(0, 0);
+        var door = RoomDoorBackground.Begin(source, sourceScroll);
+        var withDoor = new RoomBackgrounds(layer, null, door).Bg1Source;
+        var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
+        AssertTrue(withDoor.TrySample(top, out BgTileSample doorSample) && doorSample.Tile.Raw == 15 * 4 + 1,
+            "the door window's first gameplay line shows the source room");
+        AssertTrue(withDoor.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample above) &&
+                layer.TrySample(top + new Offset16<BgPlanePixels>(0, -1), out BgTileSample destination) && above == destination,
+            "the line above the window shows the destination room");
+
+        // Words written over BG1 replace the room's tile at their tilemap cell only.
+        var overlay = RoomTilemapOverlay.Empty.With(3 * 32 + 5, [0x1234]);
+        var withOverlay = new RoomBackgrounds(layer, null, null, overlay).Bg1Source;
+        var cell = new Position16<BgPlanePixels>(5 * 8 + 2, 3 * 8 + 1);
+        AssertTrue(withOverlay.TrySample(cell, out BgTileSample written) && written.Tile.Raw == 0x1234 &&
+                written.Pixel == new Position16<CharacterPixels>(2, 1),
+            "a written word is shown at its tilemap cell");
+        var neighbor = cell + new Offset16<BgPlanePixels>(8, 0);
+        AssertTrue(withOverlay.TrySample(neighbor, out BgTileSample unwritten) &&
+                layer.TrySample(neighbor, out BgTileSample room) && unwritten == room,
+            "the next cell shows the room");
+        Console.WriteLine($"  Room backgrounds: {checks} level samples, door window and overlay agree.");
+    }
+
+    /// <summary>A PLM's block change reaches the next published plane, and an earlier plane keeps its blocks.</summary>
+    internal static void VerifyPlmBlockChangeReachesPlane()
+    {
+        var definitions = new byte[16 * RoomLevelPlane.DefinitionBytes];
+        for (int word = 0; word < definitions.Length / 2; word++)
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(definitions.AsSpan(word * 2), (ushort)(0x100 + word));
+        RoomLevelData level = CreateRoom(new(Side, Side), new ushort[Side * Side], new byte[Side * Side], blockDefinitions: definitions);
+        RoomLevelPlane before = level.ForegroundPlane;
+        AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
+        const int block = 2 * Side + 1;
+        PlmBlockDrawing.DrawLevelWord(level, block, 0x8007);
+        RoomLevelPlane after = level.ForegroundPlane;
+        AssertEqual(LevelBlockTilemapExpander.Expand(0x8007, definitions), after.BlockTiles(new(1, 2)),
+            "the next plane shows the PLM's block");
+        AssertEqual(LevelBlockTilemapExpander.Expand(0, definitions), before.BlockTiles(new(1, 2)),
+            "the earlier plane keeps the block it published");
+        Console.WriteLine("  Room backgrounds: a PLM block change reaches the next plane only.");
+    }
+
+    /// <summary>
+    /// Loads retail rooms and checks the published description: BG1 is the room's foreground plane at the BG1 offset,
+    /// BG2 is its layer-2 plane only when layer 2 streams, and BG1 at the scroll shows the level at the camera.
+    /// </summary>
+    internal static void VerifyPublishedRoomBackgrounds()
+    {
+        var runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        // The room-state data selects layer-2 scroll $00/$C0 for the main shaft (streams) and $01/$01 for Kraid (fixed).
+        foreach ((RoomHeaderDefinition room, bool streams) in new[] { (RoomHeaderDefinitions.GreenBrinstarMainShaft, true), (RoomHeaderDefinitions.Kraid, false) })
+        {
+            runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0x30));
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
+            runtime.PublishDisplayFrame();
+            RoomBackgrounds published = runtime.Display.Latched.Rooms
+                ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
+            RoomLevelData level = runtime.Room.LoadedLevelData;
+            AssertTrue(ReferenceEquals(level.ForegroundPlane, published.Bg1.Plane), $"{room.Name} BG1 is the room's foreground plane");
+            AssertEqual(runtime.BackgroundScroll.Bg1Offset.AsBgPlaneOffset(), published.Bg1.ScrollOffset, $"{room.Name} BG1 offset");
+            AssertEqual(streams, published.Bg2 is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
+            if (published.Bg2 is { } bg2)
+            {
+                AssertTrue(ReferenceEquals(level.BackgroundPlane, bg2.Plane), $"{room.Name} BG2 is the room's layer-2 plane");
+                AssertEqual(runtime.BackgroundScroll.Bg2Offset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
+            }
+            Position16<BgPlanePixels> scroll = runtime.BackgroundScroll.Bg1Scroll.AsBgPlaneScroll();
+            Position16<BgPlanePixels> camera = runtime.BackgroundScroll.Layer1Position.AsBgPlaneScroll();
+            for (int y = 0; y < 192; y += 37)
+            for (int x = 0; x < 256; x += 41)
+            {
+                var screen = new Offset16<BgPlanePixels>((short)x, (short)y);
+                AssertTrue(published.Bg1Source.TrySample(scroll + screen, out BgTileSample shown) &&
+                        level.ForegroundPlane.TryTileAt(camera + screen, out SnesBgTilemapWord expected) && shown.Tile == expected,
+                    $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
+            }
+        }
+        Console.WriteLine("  Room backgrounds: published planes, offsets and camera agree for streaming and fixed BG2 rooms.");
+    }
+
+    /// <summary>Runs the room background checks.</summary>
+    [VerificationCommand("--room-backgrounds")]
+    internal static int RoomBackgroundsCommand()
+    {
+        Suite(nameof(VerifyRoomBackgroundSources), () => VerifyRoomBackgroundSources());
+        Suite(nameof(VerifyPlmBlockChangeReachesPlane), () => VerifyPlmBlockChangeReachesPlane());
+        Suite(nameof(VerifyPublishedRoomBackgrounds), () => VerifyPublishedRoomBackgrounds());
+        return 0;
+    }
+}

@@ -179,8 +179,7 @@ internal static class SporeSpawnCeilingVisualsVerification
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
         var guard = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
+        plms.Step(level);
         int blockIndex = clear ? 31 * width + 8 : 30 * width + 7;
         ushort expectedPhysical = clear ? (ushort)0x00ff : (ushort)0x0053;
         ushort expectedVisual = clear ? (ushort)0x0059 : (ushort)0x0058;
@@ -188,20 +187,15 @@ internal static class SporeSpawnCeilingVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        int blockDestination = level.CreateBackgroundStreamer()
-            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == expectedVisual),
+        AssertEqual((ushort)expectedVisual, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit reaches immediate redraw");
         AssertEqual(expectedVisual,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                blockIndex, 0).TopRow[0],
+            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit survives streaming");
         int deletionFrame = -1;
         for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
+            plms.Step(level);
             if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }

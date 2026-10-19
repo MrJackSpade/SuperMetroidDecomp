@@ -26,6 +26,9 @@ internal sealed class ActiveRoomState
     /// </summary>
     internal SnesMainScreenLayers? DoorTransitionMainScreenLayers { get; set; }
 
+    /// <summary>The source room's BG1 screen during a door's opening scroll, or null (#1346).</summary>
+    internal RoomDoorBackground? DoorSourceBackground { get; set; }
+
     /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
     public LoadStationEntry? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
@@ -84,9 +87,6 @@ internal sealed class ActiveRoomState
     /// <summary>The loaded room's scroll camera.</summary>
     public ScrollBoundaryCamera LoadedCamera => Camera ??
         throw new InvalidOperationException("No room camera is loaded.");
-
-    /// <summary>Landing Site's ROM-backed bank-$80 tilemap producer after room initialization.</summary>
-    public BackgroundTilemapStreamer? BackgroundStreamer => View(c => c.BackgroundStreamer, s => s.BackgroundStreamer);
 
 
     /// <summary>

@@ -51,7 +51,7 @@ internal static class WrapShotRoomsVerification
                 runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
-                runtime.Plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
+                runtime.Plms.Step(level);
                 openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;

@@ -40,10 +40,9 @@ internal static class MotherBrainGlassPlmProgramVerification
         var guarded = NewMotherBrainGlassProgramReadGuard(source);
         const int width = 32;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16), new RoomLevelPlanes(new ushort[width * 16], new byte[width * 16], new ushort[width * 16]), new byte[0x400 * 8]);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         bool eventSet = false;
         var plms = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
             {
                 AssertEqual(EventNumber.MotherBrainGlassDestroyed, eventNumber,
                     "glass completion sets the native break event");
@@ -53,10 +52,10 @@ internal static class MotherBrainGlassPlmProgramVerification
         // With no head hits, the first one-frame draw must loop at the $0002
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "intact glass first draw advances to the hit threshold");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "zero head hits loop at the first glass stage");
         AssertTrue(!eventSet && plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
@@ -70,7 +69,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         int emitted = 0;
         for (int frame = 0; frame < 128 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             emitted += plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count;
         }
         AssertTrue(eventSet && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass),

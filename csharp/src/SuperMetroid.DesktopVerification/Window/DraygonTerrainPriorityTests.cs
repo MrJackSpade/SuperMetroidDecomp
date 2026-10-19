@@ -76,7 +76,7 @@ internal static class DraygonTerrainPriorityTests
             r.MainScreenWindowMask != SnesMainScreenLayers.None)
             throw new InvalidOperationException("Draygon priority audit requires the ordinary BG scroll path.");
         var isolated = new OrdinaryGameplayRenderLayer(r with
-            { MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 });
+            { MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 }, layer.Rooms);
         var actual = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(
             capture.Memory, new RenderLayer[] { isolated }, capture.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness));

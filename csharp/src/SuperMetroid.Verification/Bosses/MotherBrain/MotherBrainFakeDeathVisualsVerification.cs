@@ -64,12 +64,12 @@ internal static class MotherBrainFakeDeathVisualsVerification
                     1, 0),
                 "Mother Brain override edits second-run tube tile");
             VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
-                new(12, 0), 0x1249, 0x0058, edited, cameraX: 64);
+                new(12, 0), 0x1249, 0x0058, edited);
             VerifyMotherBrainVisualDraw(PlmHeaderId.ClearMotherBrainBottomRightTube,
-                new(-1, 0), 0x00ff, 0x0059, edited, cameraX: 0);
+                new(-1, 0), 0x00ff, 0x0059, edited);
             VerifyMotherBrainVisualDraw(PlmHeaderId.MotherBrainsBackgroundRowD,
                 new(12, 0), 0x1249, new RoomLevelWord(0x1249).VisualWord,
-                null, cameraX: 64);
+                null);
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmMotherBrainFakeDeathVisualFiles.Extract(rom, refreshed,
@@ -108,7 +108,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(PlmHeaderId header,
         Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
-        RoomPlmMotherBrainFakeDeathVisualCatalog? visuals, ushort cameraX)
+        RoomPlmMotherBrainFakeDeathVisualCatalog? visuals)
     {
         const int width = 32;
         ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
@@ -121,17 +121,13 @@ internal static class MotherBrainFakeDeathVisualsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header ${(int)header:X4} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
-        plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(cameraX, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Mother Brain visual header ${(int)header:X4} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        int blockDestination = level.CreateBackgroundStreamer()
-            .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == visualWord),
+        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Mother Brain visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain visual header ${(int)header:X4} reads no compiled source");

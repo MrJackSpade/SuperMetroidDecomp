@@ -891,18 +891,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "CeresEmergencyText",
-      "region": "Vram",
-      "offset": "$50CB",
-      "count": 9,
-      "encoding": "BG tilemap words",
-      "aliasOf": "GameplayVramLayout.Bg1Tilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
       "name": "CrocomireSkeletonTiles",
       "region": "Vram",
       "offset": "$6000",
@@ -1840,7 +1828,6 @@
       "encoding": "BG tilemap words (64x32)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
         "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]

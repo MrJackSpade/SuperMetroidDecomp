@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -23,6 +24,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bosses">Boss-owned BG register shadows.</param>
 /// <param name="FixedColors">COLDATA shadows.</param>
 /// <param name="XrayRevealTilemap">X-ray reveal tilemap uploaded to VRAM by the NMI queue, while X-ray is active.</param>
+/// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
 public sealed record GameplayNmiDisplayLatch(
     GameplayPpuRenderSnapshot Ppu,
     GameplayWindowRegisterSnapshot Windows,
@@ -34,4 +36,5 @@ public sealed record GameplayNmiDisplayLatch(
     GameplayLatchedSceneRegisters Scene,
     GameplayLatchedBossBackgrounds Bosses,
     GameplayLatchedFixedColors FixedColors,
-    ImmutableArray<ushort>? XrayRevealTilemap);
+    ImmutableArray<ushort>? XrayRevealTilemap,
+    RoomBackgrounds? Rooms);

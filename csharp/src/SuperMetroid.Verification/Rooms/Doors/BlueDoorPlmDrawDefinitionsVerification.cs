@@ -70,8 +70,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 new SamusProjectileTypeWord(0)),
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
-            BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -83,16 +82,13 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             if (orientation == ColoredDoorOrientation.Left)
             {
                 AssertEqual((ushort)0x0053,
-                    plms.TilemapUpdates[0].TopRow[0],
-                    "edited blue-door tile reaches immediate redraw");
-                AssertEqual((ushort)0x0053,
-                    level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
+                    level.DisplayedBlockTiles(origin).TopLeft.Raw,
                     "edited blue-door tile survives later camera streaming");
             }
 
             // Continue through every opening draw, the long air-cap hold and Delete.
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level);
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
@@ -103,7 +99,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     $"{orientation} allocates actor for {program}");
                 plms.StartSoleProgramForVerification(PlmProgramStart.Typed(program));
                 for (int frame = 0; frame < 20 && plms.SlotTable.ActiveCount != 0; frame++)
-                    plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                    plms.Step(level);
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
                 AssertEqual((int)behavior.Value,

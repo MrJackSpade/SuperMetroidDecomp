@@ -1,39 +1,32 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Samples an immutable background while retaining the last decoded tile row.
-/// Windowed composition may skip pixels; the cache key uses source coordinates,
-/// not call count, so clipping, flipped tiles and discontinuous HDMA remain exact.
-/// Create a new sampler after changing VRAM or palette contents.
+/// Samples an immutable background while retaining the last decoded tile row. The tiles come from a
+/// <see cref="IBgTileSource"/> (room level data or a VRAM tilemap) and their characters from VRAM. Windowed
+/// composition may skip pixels; the cache key is the tile and its row, not call count, so clipping, flipped tiles and
+/// discontinuous HDMA remain exact. Create a new sampler after changing VRAM or palette contents.
 /// </summary>
-[PpuLayoutBoundary("backend: software PPU per-pixel background fetch")]
+[PpuLayoutBoundary("backend: software PPU per-pixel background character fetch")]
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
-    int map, int characters, Extent16<TilemapCells> mapSize, bool fourBit)
+    IBgTileSource tiles, int characters, bool fourBit)
 {
-    /// <summary>Source tile-row key of the cached decode; minus one forces the first VRAM fetch.</summary>
+    /// <summary>Tile word and source row of the cached decode; minus one forces the first fetch.</summary>
     private int cachedKey = -1;
-    /// <summary>Decoded tilemap attributes for the cached source tile row.</summary>
-    private SnesBgTilemapWord tile;
     /// <summary>Two or four fetched bitplane bytes for the cached source row, reused across its eight pixels.</summary>
     private int plane0, plane1, plane2, plane3;
 
-    /// <summary>Samples the plane pixel, wrapping each axis within the tilemap.</summary>
+    /// <summary>Samples the plane pixel at a scrolled position; transparent where the background shows nothing.</summary>
     internal (Rgba32 Color, bool High) Sample(Position16<BgPlanePixels> pixel, bool opaqueZero = false)
     {
-        int mapWidth = mapSize.X;
-        int x = pixel.X & (mapWidth * 8 - 1);
-        int y = pixel.Y & (mapSize.Y * 8 - 1);
-        int tx = x >> 3;
-        int key = y * mapWidth + tx;
+        if (!tiles.TrySample(pixel, out BgTileSample sample))
+            return (default, false);
+        SnesBgTilemapWord tile = sample.Tile;
+        int py = tile.FlipVertically ? 7 - sample.Pixel.Y : sample.Pixel.Y;
+        int key = tile.Raw << 3 | py;
         if (key != cachedKey)
         {
-            int ty = y >> 3;
-            int page = ((ty >> 5) * (mapWidth >> 5) + (tx >> 5)) * 1024;
-            tile = vram.ReadWord((map + page + (ty & 31) * 32 + (tx & 31)) & (SnesVram.WordCount - 1));
-            int py = tile.FlipVertically ? 7 - (y & 7) : y & 7;
             int row = ((characters + tile.CharacterIndex * (fourBit ? 16 : 8)) * 2 + py * 2) & (SnesVram.ByteCount - 1);
             plane0 = vram.ReadByte(row);
             plane1 = vram.ReadByte((row + 1) & (SnesVram.ByteCount - 1));
@@ -41,7 +34,7 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
             plane3 = fourBit ? vram.ReadByte((row + 17) & (SnesVram.ByteCount - 1)) : 0;
             cachedKey = key;
         }
-        int shift = tile.FlipHorizontally ? x & 7 : 7 - (x & 7);
+        int shift = tile.FlipHorizontally ? sample.Pixel.X : 7 - sample.Pixel.X;
         int color = (plane0 >> shift & 1) | (plane1 >> shift & 1) << 1 |
             (plane2 >> shift & 1) << 2 | (plane3 >> shift & 1) << 3;
         return (color == 0 && !opaqueZero ? default : colors[tile.PaletteIndex * (fourBit ? 16 : 4) + color], tile.HasPriority);

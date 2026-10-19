@@ -75,7 +75,7 @@ internal static class DraygonPrebattleXrayVerification
         var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
         var combatWithoutBg2 = new LayeredRenderSnapshot(combat.Memory,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.Registers with
-                { MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Bg2LineScrolls) },
+                { MainScreenLayers = ordinary.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2 }, ordinary.Rooms, ordinary.Bg2LineScrolls) },
             combat.ObjectSelection, combat.Brightness);
         int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2)).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
@@ -83,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
 
         Rgba32[] RenderWithRegisters(OrdinaryGameplayRegisters registers)
         {
-            var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
+            var gameplay = new OrdinaryGameplayRenderLayer(registers, math.Gameplay.Rooms, math.Gameplay.Bg2LineScrolls, math.Gameplay.MainScreenLayersByLine);
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, new ColorMathRegisters { ColorMath = math.ColorMath, AddSubscreen = math.AddSubscreen, FixedRed = math.FixedRed, FixedGreen = math.FixedGreen, FixedBlue = math.FixedBlue }, math.Subscreen, math.SubscreenUsesBg2);
             return SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { changed }, scene.ObjectSelection, scene.Brightness));
         }

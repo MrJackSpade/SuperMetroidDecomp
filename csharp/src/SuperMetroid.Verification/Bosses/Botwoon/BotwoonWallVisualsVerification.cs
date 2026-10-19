@@ -158,23 +158,18 @@ internal static class BotwoonWallVisualsVerification
                 PlmHeaderId.ClearBotwoonWall),
             "edited Botwoon wall-clear PLM allocates");
         var guard = NewBotwoonWallSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         int blockIndex = 7 * width + 15;
         AssertEqual((ushort)0x00ff,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             "edited Botwoon wall art retains the physical clear word");
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
-        int blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == 0x0058),
+        AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             "Botwoon wall edit reaches immediate redraw");
         AssertEqual((ushort)0x0058,
-            level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                blockIndex, 0).TopRow[0],
+            level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             "Botwoon wall edit survives background streaming");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             "edited Botwoon wall preserves native deletion timing");
         AssertEqual(0, guard.ForbiddenReadAttempts,

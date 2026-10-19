@@ -28,7 +28,8 @@ internal static class BackgroundSamplerVerification
         {
             // Exercise VRAM wrapping as well as page boundaries and random flipped tiles.
             int map = 32760, characters = 32760;
-            var sampler = new SnesBackgroundPixelSampler(vram, colors, map, characters, new Extent16<TilemapCells>(width, height), fourBit);
+            var sampler = new SnesBackgroundPixelSampler(vram, colors,
+                new VramBgTilemap(vram, map, new Extent16<TilemapCells>(width, height)), characters, fourBit);
             for (int run = 0; run < 256; run++)
             {
                 int originX = random.Next(-1024, 1024), y = random.Next(-1024, 1024);

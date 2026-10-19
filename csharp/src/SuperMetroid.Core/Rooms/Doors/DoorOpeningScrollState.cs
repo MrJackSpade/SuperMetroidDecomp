@@ -55,8 +55,8 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Deferred Samus endpoint retained by the door loader for the destination handoff.</summary>
     public FixedPosition<RoomPixels> FinalSamusPosition { get; }
 
-    /// <summary>Whether the just-advanced IRQ may stream background data; upward doors delay the first rows.</summary>
-    public bool ShouldStreamAfterAdvance { get; private set; } = true;
+    /// <summary>Whether the just-advanced IRQ recomputes the scroll registers; upward doors delay their first frames.</summary>
+    public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
 
     /// <summary>Builds the native setup position and IRQ trajectory from a door header and destination coordinates.</summary>
     public static DoorOpeningScrollState Create(
@@ -179,7 +179,7 @@ internal sealed class DoorOpeningScrollState
         SamusPosition = SamusPosition.Advance(SamusIrqStep);
 
         RemainingFrames--;
-        ShouldStreamAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
+        RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
         return RemainingFrames == 0;
     }
 

@@ -63,9 +63,4 @@ public static class EnemyVramLayout
     public static readonly PpuLayoutCell KraidRoomBackgroundTiles = new(nameof(KraidRoomBackgroundTiles), PpuLayoutRegion.Vram,
         KraidBackgroundRomData.RoomBackgroundTileVramWord, KraidBackgroundRomData.RoomBackgroundTileBytes / sizeof(ushort),
         "4-bpp BG characters", GameplayVramLayout.BackgroundCharacters);
-
-    /// <summary>VMADD $50CB-$50D3: the BG1 row receiving the English EMERGENCY title (<c>DrawEmergencyText</c>, $A6:C136).</summary>
-    public static readonly PpuLayoutCell CeresEmergencyText = new(nameof(CeresEmergencyText), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.EmergencyDestination, SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.Emergency.WordCount,
-        "BG tilemap words", GameplayVramLayout.Bg1Tilemap);
 }

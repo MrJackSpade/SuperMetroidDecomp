@@ -23,12 +23,11 @@ internal static class EscapeAnimalBlocksVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8192]);
-        var streamer = new BackgroundTilemapStreamer(16, words, new ushort[256], new byte[8192]);
         var plms = PlmFixtures.Unbound();
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
+        PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         plms.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
         AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "rescue origin is shootable BTS 4F");
@@ -51,7 +50,7 @@ internal static class EscapeAnimalBlocksVerification
         AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
         AssertTrue(system.HasEvent(EventNumber.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
             AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).PackedWord.Raw, "native rescue opening clears artwork but remains solid to Samus");

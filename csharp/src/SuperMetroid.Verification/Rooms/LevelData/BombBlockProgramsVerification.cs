@@ -185,8 +185,8 @@ internal static class BombBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                native.Plms.Step(native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                native.Plms.Step(native.Level);
+                compiled.Plms.Step(compiled.Level);
                 AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -248,13 +248,10 @@ internal static class BombBlockProgramsVerification
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
-            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(1, plms.TilemapUpdates.Count,
-                "first bomb-break frame publishes one immediate tile upload");
+            plms.Step(level);
             return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                plms.TilemapUpdates[0].TopRow[0],
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0]);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = Render(RoomPlmShotBlockVisualCatalog.Stock());
@@ -283,15 +280,13 @@ internal static class BombBlockProgramsVerification
             var plms = PlmFixtures.Unbound();
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 1),
                 "restored-art test installs linked respawning bomb block");
-            var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0]);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stockParent = RenderRestoredParent(0x17);
@@ -319,10 +314,9 @@ internal static class BombBlockProgramsVerification
 
     /// <summary>Constructed room and PLM owners for one bomb-block trigger and animation.</summary>
     /// <param name="Level">Room collision and BTS planes containing the triggered tile.</param>
-    /// <param name="Streamer">BG update owner used when the tile is restored.</param>
     /// <param name="Plms">PLM system executing the chosen native program.</param>
     internal sealed record BombBlockFixture(
-        RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
+        RoomLevelData Level, RoomPlmSystem Plms);
 
     /// <summary>Spawns a bomb-block PLM through body collision, Bomb or Power Bomb against one synthetic room tile.</summary>
     private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
@@ -348,7 +342,7 @@ internal static class BombBlockProgramsVerification
             _ => throw new ArgumentOutOfRangeException(nameof(producer)),
         };
         AssertTrue(spawned, $"bomb BTS {behavior}/{producer} installs its native program");
-        return new BombBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+        return new BombBlockFixture(level, plms);
     }
 
     /// <summary>Runs the bomb-block mapping, timeline and visual-separation verification command.</summary>

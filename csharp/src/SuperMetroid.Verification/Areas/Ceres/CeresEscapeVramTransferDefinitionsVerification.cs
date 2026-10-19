@@ -15,6 +15,8 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>
 internal static class CeresEscapeVramTransferDefinitionsVerification
@@ -58,7 +60,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         CeresEscapeOverlayTilemapCatalog overlay =
             CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
-        var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var japaneseOverlay = new RecordedBg1Overlay();
+        var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: japaneseOverlay.Services())
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
@@ -108,21 +112,19 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             }
         }
 
-        var japaneseQueue = new VramWriteQueue();
-        system.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, japaneseQueue);
-        AssertEqual(4, japaneseQueue.Entries.Count,
-            "Ceres Japanese overlay queues four compiled transfers");
+        // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
+        system.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
+        var written = new bool[RoomTilemapOverlay.WordCount];
         for (int index = 0; index < 4; index++)
         {
             CeresEscapeVramTransferDefinition expected = records[index];
-            VramWriteEntry actual = japaneseQueue.Entries[index];
-            AssertEqual(expected.ByteCount, actual.SizeInBytes,
-                $"Ceres Japanese transfer {index} byte count");
-            AssertEqual(expected.SourceAddress, actual.SourceAddress,
-                $"Ceres Japanese transfer {index} source");
-            AssertEqual(expected.DestinationWord, actual.Destination.Encoded,
-                $"Ceres Japanese transfer {index} destination");
+            int first = expected.DestinationWord - GameplayVramLayout.Bg1TilemapWord;
+            for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
+                written[first + word] = true;
         }
+        for (int word = 0; word < written.Length; word++)
+            AssertEqual(written[word], japaneseOverlay.Overlay.Words[word] != RoomTilemapOverlay.Unwritten,
+                $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");
         system.Presentation.EscapeTimerArtwork = null;
         try
         {

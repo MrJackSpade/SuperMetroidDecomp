@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="LayerOneXOverride">The Shitroid's direct layer-one X write ($A9:EFE6) in room pixels, if any.</param>
 /// <param name="DeleteLiquidHdmaObjects">Mother Brain's tube landed ($A9:8C0C), deleting HDMA objects 0-3.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
-/// <param name="KraidLayer1XBlockReset">Kraid's dead-room function wrote PreviousLayer1XBlock ($A7:C85E).</param>
 /// <param name="RoomEffects">The hardcoded PLMs and room writes enemy AI requested.</param>
 public readonly record struct EnemyFrameResult(
     ElevatorFrameEvent Elevator,
@@ -24,5 +23,4 @@ public readonly record struct EnemyFrameResult(
     int? LayerOneXOverride,
     bool DeleteLiquidHdmaObjects,
     GunshipFrameEvent Gunship,
-    bool KraidLayer1XBlockReset,
     EnemyRoomEffectRequests RoomEffects);

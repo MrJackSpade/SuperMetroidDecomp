@@ -13,6 +13,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks Samus Eater PLM draw geometry, editable visual blocks and physical collision isolation against retail data.</summary>
 internal static class SamusEaterVisualsVerification
@@ -255,17 +256,12 @@ internal static class SamusEaterVisualsVerification
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSamusEaterVisuals = visuals });
-        var streamer = level.CreateBackgroundStreamer();
         int origin = 8 * width + 8;
-        plms.Drawing.DrawPlmInstruction(level, streamer, origin, pointer, default);
+        plms.Drawing.DrawPlmInstruction(level, origin, pointer);
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "Samus Eater edited draw retains native collision word");
-        // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        int originDestination = level.CreateBackgroundStreamer()
-            .BuildPlmLevelBlockUpdate(origin, 0).TopRowDestination;
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == originDestination && update.TopRow[0] == visualWord),
+        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(origin).TopLeft.Raw,
             "Samus Eater edited block reaches the real redraw path");
         int nativeCursor = 0x840000 | pointer;
         int expectedX = 8, expectedY = 8;

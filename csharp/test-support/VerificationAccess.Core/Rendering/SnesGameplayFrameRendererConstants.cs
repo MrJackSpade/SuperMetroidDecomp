@@ -83,7 +83,7 @@ internal static class SnesGameplayFrameRendererConstants
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         SnesGameplayFrameRenderer.ExpandCgram(cgram, palette);
-        var floorGeometry = new BgTilemapGeometry(GameplayVramLayout.RoomTilemapSize);
+        var floorGeometry = new BgTilemapGeometry(GameplayVramLayoutConstants.RoomTilemapSize);
         for (int screenY = floorFirstScanline; screenY < SnesGameplayFrameRenderer.Height; screenY++)
         {
             int scrolledY = floorGeometry.WrapY(floor.Bg2Scroll.Y + screenY);
@@ -101,7 +101,7 @@ internal static class SnesGameplayFrameRendererConstants
                 int tileX = BgCharacterGrid.CharacterOf(scrolledX);
                 if (tileX != previousTileX)
                 {
-                    bg2Entry = SnesVramAddressing.ReadWord(vramBytes, floorGeometry.EntryWordAddress(
+                    bg2Entry = SnesVramAddressingConstants.ReadWord(vramBytes, floorGeometry.EntryWordAddress(
                         GameplayVramLayout.Bg2TilemapWord, new Position16<TilemapCells>((ushort)tileX, (ushort)tileY)));
                     previousTileX = tileX;
                 }

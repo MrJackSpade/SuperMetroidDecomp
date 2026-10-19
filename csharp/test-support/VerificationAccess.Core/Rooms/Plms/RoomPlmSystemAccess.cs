@@ -140,12 +140,12 @@ internal static class RoomPlmSystemAccess
         /// interpreter dispatches a timer/draw pair, without injecting a synthetic program.
         /// </summary>
         internal void DrawSolePlmFrameForVerification(RoomLevelData level,
-            BackgroundTilemapStreamer streamer, ushort drawPointer)
+            ushort drawPointer)
         {
             PlmSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.DrawPlmInstruction(level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
+            self.Drawing.DrawPlmInstruction(level, active[0].HeaderPointer, active[0].BlockIndex, drawPointer);
         }
 
         /// <summary>
@@ -227,9 +227,6 @@ internal static class RoomPlmSystemAccess
                 LoopTimer: checked((ushort)slot.LoopTimer),
                 Animation: slot.Animation);
         }
-
-        /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>
-        internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => self.Drawing.TilemapUpdates;
 
         /// <summary>
         /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
@@ -489,22 +486,15 @@ internal static class RoomPlmSystemAccess
                 projectileType);
 
         /// <summary>
-        /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots.
+        /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots. Drawn blocks change the level
+        /// data, which BG1 shows (#1346).
         /// </summary>
-        /// <remarks>
-        /// The caller supplies current layer-1 coordinates because native DrawPLM clips before
-        /// queuing VRAM work. Level-data writes always occur; only the PPU-ring update is clipped.
-        /// Returned updates are also exposed through the verification <c>TilemapUpdates</c> property so a debugger
-        /// can inspect the exact block and destination before the runtime executes them.
-        /// </remarks>
-        internal IReadOnlyList<PlmTilemapUpdate> Step(
+        internal void Step(
             RoomLevelData level,
-            BackgroundTilemapStreamer streamer,
-            PlmView view,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
+            => self.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
     /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>

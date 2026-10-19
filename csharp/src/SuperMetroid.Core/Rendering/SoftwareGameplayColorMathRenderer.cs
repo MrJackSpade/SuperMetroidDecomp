@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Buffers;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -44,14 +45,15 @@ public static class SoftwareGameplayColorMathRenderer
         Rgba32 backdrop = memory.Cgram.GetRgba(0);
         var colors = new Rgba32[256];
         for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
-        var hud = new SnesBackgroundPixelSampler(memory.Vram, colors, GameplayVramLayout.HudTilemapWord,
-            r.HudCharacterWord, new Extent16<TilemapCells>(32, 32), false);
-        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, GameplayVramLayout.Bg1TilemapWord,
-            r.Bg1CharacterWord, new Extent16<TilemapCells>(64, 32), true);
-        var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, r.Bg2TilemapWord,
-            r.Bg2CharacterWord, r.Bg2MapSize, true);
+        var hud = new SnesBackgroundPixelSampler(memory.Vram, colors,
+            new VramBgTilemap(memory.Vram, GameplayVramLayout.HudTilemapWord, new Extent16<TilemapCells>(32, 32)), r.HudCharacterWord, false);
+        RoomBackgrounds rooms = layer.Gameplay.Rooms;
+        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, rooms.Bg1Source, r.Bg1CharacterWord, true);
+        var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors,
+            rooms.Bg2 ?? (IBgTileSource)new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2CharacterWord, true);
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
-            subLayer.TilemapWord, subLayer.CharacterWord, new Extent16<TilemapCells>(32, checked((ushort)subLayer.MapHeightTiles)), false) : null;
+            new VramBgTilemap(memory.Vram, subLayer.TilemapWord, new Extent16<TilemapCells>(32, checked((ushort)subLayer.MapHeightTiles))),
+            subLayer.CharacterWord, false) : null;
         SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)

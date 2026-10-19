@@ -180,8 +180,8 @@ internal static class ContactCrumbleProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
             {
-                native.Plms.Step(native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                native.Plms.Step(native.Level);
+                compiled.Plms.Step(compiled.Level);
                 AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"contact-crumble BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -243,18 +243,14 @@ internal static class ContactCrumbleProgramsVerification
             AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(0)),
                 "visual test installs the real contact-crumble PLM");
-            var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
-            AssertEqual(1, plms.TilemapUpdates.Count,
-                "contact-break first frame publishes one immediate upload");
             return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                plms.TilemapUpdates[0].TopRow[0],
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0]);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = RenderBreak(RoomPlmShotBlockVisualCatalog.Stock());
@@ -284,15 +280,13 @@ internal static class ContactCrumbleProgramsVerification
             AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(1)),
                 "restored-art test installs linked contact-crumble PLM");
-            var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0]);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stockParent = RenderRestoredParent(0x17);
@@ -307,12 +301,11 @@ internal static class ContactCrumbleProgramsVerification
             "edited block $0BC composition reaches later streaming");
     }
 
-    /// <summary>Constructed room, streamer and PLM owner used for one contact-crumble BTS timeline.</summary>
+    /// <summary>Constructed room and PLM owner used for one contact-crumble BTS timeline.</summary>
     /// <param name="Level">Room block plane containing the triggered contact tile.</param>
-    /// <param name="Streamer">BG tilemap update owner observing restored artwork.</param>
     /// <param name="Plms">PLM system holding the native crumble instruction list.</param>
     internal sealed record ContactCrumbleFixture(
-        RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
+        RoomLevelData Level, RoomPlmSystem Plms);
 
     /// <summary>Installs the selected contact-crumble BTS on a synthetic room block and spawns its native PLM program.</summary>
     private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts)
@@ -328,7 +321,7 @@ internal static class ContactCrumbleProgramsVerification
         AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                 new RoomBlockBehavior(bts)),
             $"contact-crumble BTS {bts} installs its native program");
-        return new ContactCrumbleFixture(level, level.CreateBackgroundStreamer(), plms);
+        return new ContactCrumbleFixture(level, plms);
     }
 
     /// <summary>Runs the contact-crumble program and restore-draw verification command.</summary>

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
@@ -40,6 +41,10 @@ public sealed class RoomLevelData
     internal readonly ushort[] PlmForegroundAllocation;
     /// <summary>BTS storage paired with native PLM indices, including their bounded tail.</summary>
     internal readonly byte[] PlmBehaviorAllocation;
+    /// <summary>The BG1 plane last published for display, until the next visual write; derived, never saved.</summary>
+    [NonSerialized] private RoomLevelPlane? foregroundPlane;
+    /// <summary>The BG2 plane last published for display, until the next definition write; derived, never saved.</summary>
+    [NonSerialized] private RoomLevelPlane? backgroundPlane;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
@@ -186,6 +191,19 @@ public sealed class RoomLevelData
     public ReadOnlyMemory<byte> BlockDefinitions => _blockDefinitions;
 
     /// <summary>
+    /// BG1 as the level data shows it (#1346). The same immutable plane is returned until a block or definition write,
+    /// so frames that change nothing share it.
+    /// </summary>
+    public RoomLevelPlane ForegroundPlane => foregroundPlane ??= new(Size, VisualStreamingForegroundAllocation, PublishedDefinitions());
+
+    /// <summary>The layer-2 plane as the level data shows it, shared until a definition write.</summary>
+    public RoomLevelPlane BackgroundPlane => backgroundPlane ??= new(Size, VisualStreamingBackgroundAllocation, PublishedDefinitions());
+
+    /// <summary>The block definitions both planes of a publication share.</summary>
+    private ImmutableArray<byte> PublishedDefinitions() =>
+        foregroundPlane?.Definitions ?? backgroundPlane?.Definitions ?? [.. _blockDefinitions];
+
+    /// <summary>
     /// Converts a 16-pixel block coordinate using the same row-major multiplication as
     /// bank $94. Invalid coordinates fail loudly instead of wrapping into unrelated WRAM.
     /// </summary>
@@ -286,6 +304,7 @@ public sealed class RoomLevelData
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
             VisualStreamingForegroundAllocation[blockIndex] =
                 new RoomLevelWord(levelWord).WithVisualWord(visualWord).Raw;
+        foregroundPlane = null;
     }
 
     /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>
@@ -451,6 +470,7 @@ public sealed class RoomLevelData
             StreamingForegroundAllocation[blockIndex] = levelWord;
         if (blockIndex < VisualStreamingForegroundAllocation.Length)
             VisualStreamingForegroundAllocation[blockIndex] = levelWord;
+        foregroundPlane = null;
     }
 
     /// <summary>
@@ -492,17 +512,7 @@ public sealed class RoomLevelData
 
         _blockDefinitions[byteOffset] = unchecked((byte)tilemapWord);
         _blockDefinitions[byteOffset + 1] = SnesLittleEndian.HighByte(tilemapWord);
+        foregroundPlane = null;
+        backgroundPlane = null;
     }
-
-    /// <summary>
-    /// Constructs bank $80's visual row/column producer over the exact same decompressed
-    /// room allocation later consumed by collision.
-    /// </summary>
-    public BackgroundTilemapStreamer CreateBackgroundStreamer(ushort sizeOfBg2 = 0) =>
-        new(
-            Size.X,
-            VisualStreamingForegroundAllocation,
-            VisualStreamingBackgroundAllocation,
-            _blockDefinitions,
-            sizeOfBg2);
 }

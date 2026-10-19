@@ -92,7 +92,7 @@ internal static class FrozenGateGlitchVerification
 
         for (int warm = 0; warm < 2; warm++)
         {
-            plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+            plms.Step(level);
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -130,7 +130,7 @@ internal static class FrozenGateGlitchVerification
         AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
 
-        plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+        plms.Step(level);
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         bool gateWoke = gate.Animation is not { } woken || !woken.RunningProgram.Equals(sleepingProgram);

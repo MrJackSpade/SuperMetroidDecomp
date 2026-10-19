@@ -42,18 +42,16 @@ internal static void VerifyBreakableGrapplePlms()
     static void StepMany(
         RoomPlmSystem plms,
         RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
         int count)
     {
         for (int frame = 0; frame < count; frame++)
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
     }
 
     // BTS one waits 240 handler calls, breaks through four exact visual words, reverses
     // through the same words, restores both the saved level word and BTS one, then deletes
     // on the following pass because DrawPLMBlock deliberately seeded timer one.
     RoomLevelData respawning = CreateLevel(1, definitions);
-    BackgroundTilemapStreamer respawningStreamer = respawning.CreateBackgroundStreamer();
     var respawningPlms = PlmFixtures.Unbound();
     AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
@@ -62,19 +60,16 @@ internal static void VerifyBreakableGrapplePlms()
     AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "CFB5 retains original level word until handler");
 
-    IReadOnlyList<PlmTilemapUpdate> firstDraw = respawningPlms.Step(respawning, respawningStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    respawningPlms.Step(respawning);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "connection-frame PLM pass draws grapple frame zero");
-    AssertEqual(1, firstDraw.Count, "visible grapple mutation emits one VRAM redraw");
-    AssertEqual(0x50c6, firstDraw[0].TopRowDestination,
-        "PLM redraw targets block (3,3) in left BG1 ring screen");
-    AssertEqual(0x1111, firstDraw[0].TopRow[0],
-        "PLM redraw expands ROM-selected visual block definition");
+    AssertEqual(0x1111, respawning.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        "the drawn block shows its ROM-selected visual block definition");
 
-    StepMany(respawningPlms,respawning, respawningStreamer, 239);
+    StepMany(respawningPlms,respawning, 239);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "respawning block remains grapple terrain through timer 240 minus one");
-    respawningPlms.Step(respawning, respawningStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    respawningPlms.Step(respawning);
     AssertEqual(0x0053, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.Sounds.SoundRequests.Count,
@@ -82,43 +77,42 @@ internal static void VerifyBreakableGrapplePlms()
     AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), respawningPlms.Sounds.SoundRequests[0],
         "break transition uses library two sound $0A with maximum six");
 
-    StepMany(respawningPlms,respawning, respawningStreamer, 4);
+    StepMany(respawningPlms,respawning, 4);
     AssertEqual(0x0054, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "respawning break frame one advances after four");
-    StepMany(respawningPlms,respawning, respawningStreamer, 4);
+    StepMany(respawningPlms,respawning, 4);
     AssertEqual(0x0055, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "respawning break frame two advances after four");
-    StepMany(respawningPlms,respawning, respawningStreamer, 6);
+    StepMany(respawningPlms,respawning, 6);
     AssertEqual(0x00ff, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "respawning break reaches blank frame after six");
-    StepMany(respawningPlms,respawning, respawningStreamer, 4 + 4 + 4 + 4);
+    StepMany(respawningPlms,respawning, 4 + 4 + 4 + 4);
     AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "DrawPLMBlock restores the complete saved grapple word");
     AssertEqual(1, respawning.GetCollisionBlockByIndex(blockIndex).Bts.Value,
         "respawning instruction restores BTS one before terrain");
     AssertEqual(1, respawningPlms.SlotTable.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
-    respawningPlms.Step(respawning, respawningStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    respawningPlms.Step(respawning);
     AssertEqual(0, respawningPlms.SlotTable.ActiveCount,
         "restored grapple PLM deletes on following handler pass");
 
     // BTS two uses the shorter 120-frame delay and never restores the saved word/BTS.
     RoomLevelData permanent = CreateLevel(2, definitions);
-    BackgroundTilemapStreamer permanentStreamer = permanent.CreateBackgroundStreamer();
     var permanentPlms = PlmFixtures.Unbound();
     AssertTrue(permanentPlms.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
         "nonrespawning grapple PLM occupies a native slot");
-    permanentPlms.Step(permanent, permanentStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    StepMany(permanentPlms,permanent, permanentStreamer, 119);
+    permanentPlms.Step(permanent);
+    StepMany(permanentPlms,permanent, 119);
     AssertEqual(0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "nonrespawning block retains grapple terrain through timer 120 minus one");
-    permanentPlms.Step(permanent, permanentStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    permanentPlms.Step(permanent);
     AssertEqual(0x0053, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "nonrespawning timer 120 begins break sequence");
-    StepMany(permanentPlms,permanent, permanentStreamer, 4 + 4 + 4);
+    StepMany(permanentPlms,permanent, 4 + 4 + 4);
     AssertEqual(0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "nonrespawning sequence ends on blank-air visual word");
-    permanentPlms.Step(permanent, permanentStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    permanentPlms.Step(permanent);
     AssertEqual(0, permanentPlms.SlotTable.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
     AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Bts.Value,
@@ -136,19 +130,15 @@ internal static void VerifyBreakableGrapplePlms()
     }
 
     RoomLevelData respawning2x2 = CreateBombLevel(3, definitions);
-    BackgroundTilemapStreamer respawning2x2Streamer =
-        respawning2x2.CreateBackgroundStreamer();
     var respawning2x2Plms = PlmFixtures.Unbound();
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
     AssertEqual(0x0058, respawning2x2.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
         "CE83 synchronously installs the native air-type bomb-parent visual");
-    IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(respawning2x2, respawning2x2Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    respawning2x2Plms.Step(respawning2x2);
     AssertEqual(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x06), 3), respawning2x2Plms.Sounds.SoundRequests[0],
         "collision break queues library-two sound six with native maximum three");
-    AssertEqual(4, first2x2Draw.Count,
-        "2x2 draw record emits one debugger-visible redraw for each mutated level word");
     AssertEqual(0x0053,
         respawning2x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
         "2x2 first row begins at PLM origin");
@@ -156,10 +146,10 @@ internal static void VerifyBreakableGrapplePlms()
         respawning2x2.GetCollisionBlock(new(4, 4)).PackedWord.Raw,
         "signed {0,+1} record draws the 2x2 lower-right block");
 
-    StepMany(respawning2x2Plms,respawning2x2, respawning2x2Streamer, 12);
+    StepMany(respawning2x2Plms,respawning2x2, 12);
     AssertEqual(0x00ff, respawning2x2.GetCollisionBlock(new(4, 4)).PackedWord.Raw,
         "BTS-3 reaches its four-block blank frame after three four-frame transitions");
-    StepMany(respawning2x2Plms,respawning2x2, respawning2x2Streamer, 384 + 12);
+    StepMany(respawning2x2Plms,respawning2x2, 384 + 12);
     AssertEqual(0xf058, respawning2x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
         "BTS-3 restores the type-F parent after the exact 384-frame blank hold");
     AssertEqual(0x5058, respawning2x2.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
@@ -168,28 +158,26 @@ internal static void VerifyBreakableGrapplePlms()
         "BTS-3 restores the type-D vertical extension row");
     AssertEqual(1, respawning2x2Plms.SlotTable.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
-    respawning2x2Plms.Step(respawning2x2, respawning2x2Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    respawning2x2Plms.Step(respawning2x2);
     AssertEqual(0, respawning2x2Plms.SlotTable.ActiveCount,
         "BTS-3 deletes on the handler pass after linked-block restoration");
 
     RoomLevelData permanent1x2 = CreateBombLevel(6, definitions);
-    BackgroundTilemapStreamer permanent1x2Streamer =
-        permanent1x2.CreateBackgroundStreamer();
     var permanent1x2Plms = PlmFixtures.Unbound();
     AssertTrue(permanent1x2Plms.TrySpawnCollisionBombBlock(
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
-    permanent1x2Plms.Step(permanent1x2, permanent1x2Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    permanent1x2Plms.Step(permanent1x2);
     AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
         "vertical draw writes BTS-6 origin");
     AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
         "vertical draw advances its second word by one room row");
     AssertEqual(0, permanent1x2.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
         "vertical draw does not accidentally advance into the neighboring column");
-    StepMany(permanent1x2Plms,permanent1x2, permanent1x2Streamer, 12);
+    StepMany(permanent1x2Plms,permanent1x2, 12);
     AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
         "permanent BTS-6 finishes on two vertical blank-air words");
-    permanent1x2Plms.Step(permanent1x2, permanent1x2Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+    permanent1x2Plms.Step(permanent1x2);
     AssertEqual(0, permanent1x2Plms.SlotTable.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 

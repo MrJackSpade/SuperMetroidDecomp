@@ -67,12 +67,11 @@ internal static class KraidRoomPlmsVerification
             level.GetCollisionBlockByIndex(5 * width + 5).PackedWord.Raw,
             $"Kraid mutation ${(int)header:X4} setup preserves tile priority");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
              plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             if (frame == 0 && header is
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or

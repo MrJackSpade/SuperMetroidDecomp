@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Compares native PPU window geometry and admission masks across software and GPU rendering.</summary>
 internal static class HardwareWindowTests
@@ -18,6 +19,7 @@ internal static class HardwareWindowTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = PpuMemorySnapshot.FromOam(vram, colors, oam, 128, 3);
+        var rooms = RoomBackgroundsFixtures.Seeded(random, new(3, 5), new(7, 11), door: true, overlay: true);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         int sequence = 0;
         foreach (bool empty in new[] { false, true })
@@ -31,7 +33,7 @@ internal static class HardwareWindowTests
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,
-                new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
+                new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers, rooms) }, 3, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: native windows operation={operation}, TMW={admission}, empty={empty}");
         }

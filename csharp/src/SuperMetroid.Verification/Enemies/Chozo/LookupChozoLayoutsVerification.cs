@@ -71,7 +71,7 @@ internal static class LookupChozoLayoutsVerification
             {
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)), "Chozo layout fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, level.CreateBackgroundStreamer(), pointer);
+                plms.DrawSolePlmFrameForVerification(level, pointer);
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }
             int drawX = 3, drawY = 4;

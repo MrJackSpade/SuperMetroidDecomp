@@ -5,6 +5,12 @@ public static class XrayTilemapLayout
 {
     /// <summary>One SNES tilemap screen contains 32 by 32 tile words.</summary>
     public const int ScreenWords = 1024;
+    /// <summary>Tile words in one row of a tilemap screen.</summary>
+    public const int ScreenColumns = 32;
+    /// <summary>Pixels across the two-screen BG1 tilemap the setup reads.</summary>
+    public const int TilemapPixelWidth = 512;
+    /// <summary>Pixels down the two-screen BG1 tilemap the setup reads.</summary>
+    public const int TilemapPixelHeight = 256;
     /// <summary>Both BG2 screens are transferred, even though only the first column of the second is populated.</summary>
     public const int BufferWords = ScreenWords * 2;
     /// <summary>Sixteen rows of metatiles are constructed, including offscreen rows.</summary>

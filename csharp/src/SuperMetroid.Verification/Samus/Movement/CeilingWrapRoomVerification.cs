@@ -74,7 +74,7 @@ internal static class CeilingWrapRoomVerification
             SnesButton pressed = frame == 0 ? held : SnesButton.None;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
-            plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             if (firstFull < 0 && plms.SlotTable.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");

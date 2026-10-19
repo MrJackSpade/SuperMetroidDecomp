@@ -91,13 +91,12 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x57 * 8] = 0x57;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainGlassVisuals = visuals });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(level, streamer, selected.Pointer);
+        plms.DrawSolePlmFrameForVerification(level, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;
@@ -122,11 +121,8 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         if (visuals is not null)
         {
             const int editedBlock = 7 * width + 6;
-            AssertTrue(plms.TilemapUpdates.Any(update => update.TopRow[0] == 0x0057),
-                "edited multi-run glass tile reaches the immediate PLM update");
             AssertEqual((ushort)0x0057,
-                level.CreateBackgroundStreamer()
-                    .BuildPlmLevelBlockUpdate(editedBlock, 0).TopRow[0],
+                level.DisplayedBlockTiles(editedBlock).TopLeft.Raw,
                 "edited glass tile survives later camera streaming");
             AssertEqual((ushort)0x0ecf,
                 level.GetCollisionBlockByIndex(editedBlock).PackedWord.Raw,

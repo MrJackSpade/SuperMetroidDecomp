@@ -125,7 +125,7 @@ internal static class WordReadsVerification
         AssertEqual(2 * 4 + 3, two.CgramColor(2, 3), "2-bpp palettes hold four colors");
         vram[0x7fff * 2] = 0x34;
         vram[0x7fff * 2 + 1] = 0x12;
-        AssertEqual((ushort)0x1234, SnesVramAddressing.ReadWord(vram, 0xffff), "VRAM word addresses wrap and read low byte first");
+        AssertEqual((ushort)0x1234, SnesVramAddressingConstants.ReadWord(vram, 0xffff), "VRAM word addresses wrap and read low byte first");
     }
 
     /// <summary>Names the exact unmapped byte requested by the recording source.</summary>

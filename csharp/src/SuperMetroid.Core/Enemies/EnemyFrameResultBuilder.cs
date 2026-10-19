@@ -35,9 +35,6 @@ internal sealed class EnemyFrameResultBuilder
     /// <summary>The gunship lifecycle event, if any.</summary>
     internal GunshipFrameEvent Gunship { get; set; }
 
-    /// <summary>Kraid's dead-room function wrote PreviousLayer1XBlock.</summary>
-    internal bool KraidLayer1XBlockReset { get; set; }
-
     /// <summary>Botwoon's wall PLM.</summary>
     internal PlmHeaderId? BotwoonWall { get; set; }
 
@@ -75,7 +72,6 @@ internal sealed class EnemyFrameResultBuilder
         LayerOneXOverride = null;
         DeleteLiquidHdmaObjects = false;
         Gunship = GunshipFrameEvent.None;
-        KraidLayer1XBlockReset = false;
         BotwoonWall = null;
         SporeSpawnCeiling = null;
         CrocomirePlms.Clear();
@@ -88,7 +84,7 @@ internal sealed class EnemyFrameResultBuilder
 
     /// <summary>The results written so far.</summary>
     internal EnemyFrameResult Build() => new(Elevator, ElevatorClearedProjectileData, DraygonDiscardedSamusPoseRequests,
-        CeresEscapeStarted, LayerOneXOverride, DeleteLiquidHdmaObjects, Gunship, KraidLayer1XBlockReset,
+        CeresEscapeStarted, LayerOneXOverride, DeleteLiquidHdmaObjects, Gunship,
         new EnemyRoomEffectRequests(BotwoonWall, SporeSpawnCeiling, [.. CrocomirePlms], [.. KraidPlms], MotherBrainDeathStep,
             MotherBrainFxEntry, [.. MotherBrainPlms], [.. ShitroidPlms]));
 }

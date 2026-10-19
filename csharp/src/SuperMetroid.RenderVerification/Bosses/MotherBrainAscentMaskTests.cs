@@ -5,6 +5,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Bosses;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks Mother Brain ascent's per-line layer mask, floor occlusion, and CPU/GPU packet parity.</summary>
 internal static class MotherBrainAscentMaskTests
@@ -23,7 +24,6 @@ internal static class MotherBrainAscentMaskTests
             vram.LoadBytes(64 + row * 2, new byte[] { 0, 255 });
             vram.LoadBytes(96 + row * 2, new byte[] { 255, 0 });
         }
-        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x2002, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
@@ -34,7 +34,7 @@ internal static class MotherBrainAscentMaskTests
         ushort[] masks = Enumerable.Range(32, 192).Select(y => (ushort)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
         foreach (bool active in new[] { true, false })
         {
-            var layer = new OrdinaryGameplayRenderLayer(registers, mainScreenLayersByLine: active ? masks : []);
+            var layer = new OrdinaryGameplayRenderLayer(registers, RoomBackgroundsFixtures.Uniform(new(1)), mainScreenLayersByLine: active ? masks : []);
             var scene = new LayeredRenderSnapshot(memory, [layer], 0, 15);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             Check(16, 218, active ? 1 : 129, "leg hidden by floor only during ascent");

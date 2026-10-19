@@ -14,14 +14,6 @@ public static class SnesVramAddressing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WrapWord(int wordAddress) => wordAddress & (SnesPpuLayout.VramWordCount - 1);
 
-    /// <summary>Reads the little-endian VRAM word at a (wrapped) word address from a snapshot of VRAM bytes.</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ushort ReadWord(ReadOnlySpan<byte> vram, int wordAddress)
-    {
-        int byteOffset = ByteOffsetOfWord(wordAddress);
-        return SnesLittleEndian.Word(vram[byteOffset], vram[byteOffset + 1]);
-    }
-
     /// <summary>The byte offset of a (wrapped) word address in VRAM storage; the word's low byte comes first.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ByteOffsetOfWord(int wordAddress) => WrapWord(wordAddress) * BytesPerWord;

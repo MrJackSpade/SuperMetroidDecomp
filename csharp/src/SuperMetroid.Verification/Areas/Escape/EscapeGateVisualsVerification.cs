@@ -102,25 +102,20 @@ internal static class EscapeGateVisualsVerification
         var system = new Bank80SystemState();
 
         RoomLevelData closedLevel = CreateLevel();
-        BackgroundTilemapStreamer closedStreamer = closedLevel.CreateBackgroundStreamer();
         var closed = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
-        closed.Step(closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        closed.Step(closedLevel);
         AssertEqual((ushort)0x830f,
             closedLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0053, closed.TilemapUpdates[0].TopRow[0],
-            "edited closed gate reaches immediate visible tilemap update");
         AssertEqual((ushort)0x0053,
-            closedLevel.CreateBackgroundStreamer()
-                .BuildPlmLevelBlockUpdate(origin, 0).TopRow[0],
+            closedLevel.DisplayedBlockTiles(origin).TopLeft.Raw,
             "edited closed gate survives later camera streaming");
 
         RoomLevelData closingLevel = CreateLevel();
-        BackgroundTilemapStreamer closingStreamer = closingLevel.CreateBackgroundStreamer();
         var closing = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
             Name: nameof(DoorDefinitions.MotherBrain1),
@@ -134,12 +129,12 @@ internal static class EscapeGateVisualsVerification
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
-            closing.Step(closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            closing.Step(closingLevel);
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "edited half-closed gate preserves native physical collision");
-        AssertEqual((ushort)0x0054, closing.TilemapUpdates[0].TopRow[0],
-            "edited half-closed gate reaches immediate visible tilemap update");
+        AssertEqual((ushort)0x0054, closingLevel.DisplayedBlockTiles(origin).TopLeft.Raw,
+            "edited half-closed gate is shown");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "escape-gate visuals never reread compiled program or draw payloads");
     }

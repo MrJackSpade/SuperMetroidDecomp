@@ -37,6 +37,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -881,7 +882,9 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
     int generatedRandomCalls = 0;
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } })
+    // The escape writes its warning text over BG1 (#1346).
+    RoomTilemapOverlay ceresOverlay = RoomTilemapOverlay.Empty;
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, DrawBg1OverlayWords = (firstWord, words) => ceresOverlay = ceresOverlay.With(firstWord, words) })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -1247,8 +1250,9 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         bool finalBackground = record == backgroundTransfers.Count - 1;
-        AssertEqual(spriteTransfers.Count + record + 1 + (finalBackground ? 1 : 0),
-            escapeWrites.Entries.Count, "Ceres background transfers yield and append EMERGENCY on the final frame");
+        AssertEqual(spriteTransfers.Count + record + 1, escapeWrites.Entries.Count, "Ceres background transfers yield one per frame");
+        AssertEqual(finalBackground, ceresOverlay.Words.Any(word => word != RoomTilemapOverlay.Unwritten),
+            "Ceres writes EMERGENCY over BG1 on the final background frame");
         AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer.RawValue, "Ceres background/hold phase handoff");
     }
     var nativeTransfers = spriteTransfers.Concat(backgroundTransfers).ToArray();
@@ -1275,10 +1279,16 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres first timer record selects installed artwork");
     AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
         "Ceres second timer record selects installed artwork");
-    AssertEqual(0xa6c164, escapeWrites.Entries[^1].SourceAddress,
-        "Ceres EMERGENCY text uses the cartridge tilemap words");
-    AssertEqual(0x50cb, escapeWrites.Entries[^1].Destination.Encoded,
-        "Ceres EMERGENCY text targets BG1 row six");
+    CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
+    AssertTrue((InstalledFixtures.EnemyTiles.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
+            "Verification requires installed Ceres overlay tilemaps.")).TryResolve(0xa6c164, emergency.WordCount * sizeof(ushort),
+            out ReadOnlyMemory<byte> emergencyBytes),
+        "Ceres EMERGENCY text resolves the cartridge tilemap words");
+    for (int word = 0; word < emergency.WordCount; word++)
+        AssertEqual(SnesLittleEndian.Word(emergencyBytes.Span[word * 2], emergencyBytes.Span[word * 2 + 1]),
+            ceresOverlay.Words[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
+    AssertEqual(emergency.WordCount, ceresOverlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten),
+        "Ceres EMERGENCY writes only its own words over BG1");
     AssertEqual(6, state.FunctionTimer.RawValue,
         "Ceres self-destruct reaches the native 128-frame English hold");
     AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,

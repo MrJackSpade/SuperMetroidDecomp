@@ -13,10 +13,11 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
-/// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against cartridge VRAM.</summary>
+/// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against the cartridge's BG1 transfers.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
     /// <summary>JSON options: Web defaults: camel-case names, case-insensitive matching, quoted numbers.</summary>
@@ -44,37 +45,41 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
 
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
-        var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
-        var installedQueue = new VramWriteQueue();
-        installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
-        installed.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue);
-        AssertEqual(5, installedQueue.Entries.Count,
-            "Ceres production queues English title and four Japanese subtitle rows");
-        var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram,
-            new CeresEscapeOverlayProvider(stock));
+        var installedOverlay = new RecordedBg1Overlay();
+        var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: installedOverlay.Services()) { TileArtwork = stock };
+        installed.CeresRidleyBehavior.DrawCeresEmergencyText();
+        installed.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
 
-        var nativeQueue = new VramWriteQueue();
+        // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1.
+        RoomTilemapOverlay native = RoomTilemapOverlay.Empty;
         CeresEscapeOverlayTilemapDefinition title =
             CeresEscapeOverlayTilemapDefinitions.Emergency;
-        nativeQueue.Enqueue(checked((ushort)(title.WordCount * sizeof(ushort))),
-            title.SourceAddress,
-            VramDmaDestination.FromNative(CeresEscapeOverlayTilemapDefinitions.EmergencyDestination));
+        native = WithNativeWords(native, title.SourceAddress, title.WordCount * sizeof(ushort),
+            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
+        int nativeTransfers = 1;
         foreach (CeresEscapeVramTransferDefinition transfer in
                  CeresEscapeVramTransferDefinitionsTooling.All)
         {
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
-            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
-            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
-            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
-            nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
+            native = WithNativeWords(native, CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor + 5));
+            nativeTransfers++;
         }
-        var nativeVram = new SnesVram();
-        ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        AssertTrue(nativeVram.ImageEquals(installedVram),
-            "Ceres English/Japanese tilemap VRAM matches cartridge without source reads");
+        AssertEqual(5, nativeTransfers, "the cartridge writes the English title and four Japanese subtitle rows");
+        AssertTrue(native.Words.SequenceEqual(installedOverlay.Overlay.Words),
+            "Ceres English/Japanese BG1 overlay matches cartridge without source reads");
+
+        RoomTilemapOverlay WithNativeWords(RoomTilemapOverlay overlay, int source, int byteCount, int destinationWord)
+        {
+            var words = new ushort[byteCount / sizeof(ushort)];
+            for (int index = 0; index < words.Length; index++)
+                words[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
+            return overlay.With(destinationWord - GameplayVramLayout.Bg1TilemapWord, words);
+        }
 
         string overrideDirectory = Path.Combine(stockDirectory,
             "ceres-escape-overlay-overrides");
@@ -100,17 +105,13 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "edited Ceres title changes exactly its first tile word");
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
-        var editedQueue = new VramWriteQueue();
-        editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
-        var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram,
-            new CeresEscapeOverlayProvider(edited));
-        AssertEqual((ushort)(nativeVram.ReadWord(
-                CeresEscapeOverlayTilemapDefinitions.EmergencyDestination) ^ 1),
-            editedVram.ReadWord(
-                CeresEscapeOverlayTilemapDefinitions.EmergencyDestination),
-            "edited Ceres title changes the live VRAM word");
+        var editedOverlay = new RecordedBg1Overlay();
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: editedOverlay.Services()) { TileArtwork = edited };
+        editedEnemies.CeresRidleyBehavior.DrawCeresEmergencyText();
+        int titleWord = CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord;
+        AssertEqual(native.Words[titleWord] ^ 1, editedOverlay.Overlay.Words[titleWord],
+            "edited Ceres title changes the word shown over BG1");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
                     title.WordCount * sizeof(ushort),
@@ -126,10 +127,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresEmergencyText(new VramWriteQueue()),
+        ExpectMissing(() => missing.CeresRidleyBehavior.DrawCeresEmergencyText(),
             "missing installed English title");
-        ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,
-                    new VramWriteQueue()),
+        ExpectMissing(() => missing.CeresRidleyBehavior.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay),
             "missing installed Japanese subtitle rows");
         Console.WriteLine(
             "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +

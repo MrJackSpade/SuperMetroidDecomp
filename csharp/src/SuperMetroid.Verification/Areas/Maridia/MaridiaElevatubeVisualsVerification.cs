@@ -62,27 +62,22 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
             var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
-            BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             int blockIndex = level.GetBlockIndex(
                 new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             AssertEqual((ushort)0x8180,
                 level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
                 "edited elevatube tile retains native physical block");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            int blockDestination = level.CreateBackgroundStreamer()
-                .BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
-            AssertTrue(plms.TilemapUpdates.Any(update =>
-                    update.TopRowDestination == blockDestination && update.TopRow[0] == 0x0058),
+            AssertEqual((ushort)0x0058, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
                 "edited elevatube reaches immediate tilemap update");
             AssertEqual((ushort)0x0058,
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0],
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
                 "edited elevatube survives later camera streaming");
             int heardAtFrame = -1;
             for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
             {
-                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level);
                 if (plms.Sounds.SoundRequests.Any(request =>
                         request.SoundEffect == SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,

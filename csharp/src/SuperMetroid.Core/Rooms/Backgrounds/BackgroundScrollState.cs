@@ -4,12 +4,11 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// Bank-$80 layer-position, PPU scroll-register, and 16-pixel streaming-block state.
+/// Bank-$80 layer-position and PPU scroll-register state.
 /// </summary>
 /// <remarks>
-/// This is a direct behavioral port of <c>$80:A2F9-$80:A527</c>. It deliberately stops
-/// at the four row/column update calls: each call is returned as a typed request so the
-/// following level-data-to-VRAM translation can be implemented and debugged independently.
+/// This is a direct behavioral port of the scroll half of <c>$80:A2F9-$80:A527</c>. The cartridge's row and column
+/// tilemap streaming is not ported: backgrounds render from level data through the offsets here (#1346).
 /// No desktop camera interpolation is hidden in this class. Every native routine below
 /// computes its two axes independently, so whole-value updates preserve its results.
 /// </remarks>
@@ -40,28 +39,6 @@ public sealed class BackgroundScrollState
 
     /// <summary>Modeled BG2HOFS/BG2VOFS mirrors in direct-page words <c>$00B5/$00B7</c>.</summary>
     public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
-
-    // "Block" means one 16x16 level block here, not one 256x256 room-scroll cell.
-    /// <summary>BG1 scroll converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public Position16<TilemapBlocks> Bg1Block { get; private set; }
-
-    /// <summary>BG2 scroll converted from pixels to the 16-pixel circular-VRAM block coordinate.</summary>
-    public Position16<TilemapBlocks> Bg2Block { get; private set; }
-
-    /// <summary>Layer-one world position converted to a 16-pixel source-data block coordinate.</summary>
-    public Position16<RoomBlocks> Layer1Block { get; private set; }
-
-    /// <summary>Layer-two world position converted to a 16-pixel source-data block coordinate.</summary>
-    public Position16<RoomBlocks> Layer2Block { get; private set; }
-
-    /// <summary>Prior layer-one source block used to detect a newly exposed tilemap column or row.</summary>
-    public Position16<RoomBlocks> PreviousLayer1Block { get; private set; }
-
-    /// <summary>Prior layer-two source block used to detect a newly exposed background column or row.</summary>
-    public Position16<RoomBlocks> PreviousLayer2Block { get; private set; }
-
-    /// <summary>Stores $FFFF to the previous layer-one X block, as Kraid's dead-room tail does.</summary>
-    internal void ResetPreviousLayer1XBlock() => PreviousLayer1Block = PreviousLayer1Block.WithX(ushort.MaxValue);
 
     /// <summary>
     /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
@@ -117,192 +94,21 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Implements the gameplay entry point at <c>$80:A3AB</c>. A frozen frame performs no
-    /// register, parallax, previous-block, or streaming-request changes.
+    /// Implements the gameplay entry point at <c>$80:A3AB</c>: the scroll registers and layer-two parallax follow
+    /// layer one. A frozen frame changes nothing.
     /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> StepScrolling(bool timeIsFrozen = false)
+    public void StepScrolling(bool timeIsFrozen = false)
     {
         if (timeIsFrozen)
-            return Array.Empty<BackgroundUpdateRequest>();
-
-        CalculateGameplayScrolls();
-        return CalculateBlocksAndUpdates();
+            return;
+        CalculateScrolls();
     }
 
     /// <summary>
-    /// Implements <c>$80:A37B</c>, used by door transitions that already own layer-2
-    /// positions and merely need all four PPU scroll mirrors recomputed.
+    /// Applies BG1 offsets and derives each BG2 axis from its scroll mode, preserving fixed-mode registers. Room entry
+    /// runs it once before the first frame; gameplay runs it every unfrozen frame.
     /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> CalculateScrollsAndUpdates()
-    {
-        CalculateScrollRegisters();
-        return CalculateBlocksAndUpdates();
-    }
-
-    /// <summary>
-    /// Seeds the "previous" blocks after room/door setup so the first stationary
-    /// gameplay frame does not request four phantom rows and columns.
-    /// </summary>
-    public void PrimePreviousBlocks()
-    {
-        // Room setup reaches this logical state through several native entry points. Doing
-        // the gameplay calculation here makes the C# initialization operation atomic: the
-        // saved layer-2 blocks correspond to the parallax position, not constructor zeroes.
-        CalculateGameplayScrolls();
-        CalculateBlockCoordinates();
-        CopyCurrentBlocksToPrevious();
-    }
-
-    /// <summary>
-    /// Recreates the horizontal previous-block words left by
-    /// <c>DoorTransitionScrollingSetup_Right/Left</c> after their built-in first
-    /// four-pixel transition call.
-    /// </summary>
-    /// <remarks>
-    /// The runtime stores the already-advanced +/-$FC coordinate atomically. Native first
-    /// primes the +/-$100 coordinate, biases its previous-X word, and only then advances.
-    /// Reconstructing those previous words is what makes the first streaming request select
-    /// room column zero/last instead of wrapping to an unrelated word before level data.
-    /// </remarks>
-    public void PrimeHorizontalDoorOpeningBlocks(DoorDirection direction)
-    {
-        if (direction is not (DoorDirection.Right or DoorDirection.Left))
-            throw new ArgumentOutOfRangeException(
-                nameof(direction), direction, "Horizontal door direction must be right or left.");
-
-        CalculateScrollRegisters();
-        CalculateBlockCoordinates();
-
-        var bias = new Offset16<RoomBlocks>(direction == DoorDirection.Right ? (short)-1 : (short)2, 0);
-        PreviousLayer1Block = Layer1Block + bias;
-        PreviousLayer2Block = Layer2Block + bias;
-    }
-
-    /// <summary>
-    /// Executes <c>$80:AD1D</c>'s source-room row repair before an upward door replaces
-    /// the active level data. The routine deliberately restores its layer positions and
-    /// PPU mirrors but retains the row written by its temporary 16-pixel probe.
-    /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> FixDoorsMovingUp()
-    {
-        Position16<RoomPixels> savedLayer1 = Layer1Position;
-        Position16<Bg2Pixels> savedLayer2 = Layer2Position;
-        Position16<RoomPixels> savedBg1Scroll = Bg1Scroll;
-        Position16<Bg2Pixels> savedBg2Scroll = Bg2Scroll;
-
-        Layer1Position = Layer1Position - new Offset16<RoomPixels>(0, 16);
-        Layer2Position = Layer2Position - new Offset16<Bg2Pixels>(0, 16);
-        // `$80:AFAB` calls only CalculateBlocks before it copies the previous
-        // coordinates. At this instant the BG block words still come from the displayed
-        // PPU scroll registers, while the layer blocks come from this temporary probe.
-        // CalculateBGPositionAndUpdates at $AFB7 recomputes the registers afterwards.
-        CalculateBlockCoordinates();
-        CopyCurrentBlocksToPrevious();
-        AdvancePreviousRows(1);
-        CalculateScrollRegisters();
-        IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
-
-        Layer1Position = savedLayer1;
-        Layer2Position = savedLayer2;
-        Bg1Scroll = savedBg1Scroll;
-        Bg2Scroll = savedBg2Scroll;
-        return requests;
-    }
-
-    /// <summary>
-    /// Reconstructs the previous-block words left by the two vertical setup routines.
-    /// Down also returns frame zero's hidden row transfer; up carries frame counter one
-    /// from <c>FixDoorsMovingUp</c> and therefore performs no destination transfer yet.
-    /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> PrimeVerticalDoorOpeningBlocks(
-        DoorDirection direction,
-        ushort stagedLayer1Y,
-        ushort stagedLayer2Y)
-    {
-        if (direction is not (DoorDirection.Down or DoorDirection.Up))
-            throw new ArgumentOutOfRangeException(
-                nameof(direction), direction, "Vertical door direction must be down or up.");
-
-        Position16<RoomPixels> actualLayer1 = Layer1Position;
-        Position16<Bg2Pixels> actualLayer2 = Layer2Position;
-        Layer1Position = Layer1Position.WithY(stagedLayer1Y);
-        Layer2Position = Layer2Position.WithY(stagedLayer2Y);
-        // Both `$80:AF24` (down) and `$80:AFAB` (up) calculate block coordinates before
-        // their temporary layer position is reflected into the PPU scroll mirrors. This
-        // mixed old-register/new-layer snapshot is intentional circular-buffer state.
-        CalculateBlockCoordinates();
-        CopyCurrentBlocksToPrevious();
-
-        if (direction == DoorDirection.Up)
-        {
-            AdvancePreviousRows(1);
-            Layer1Position = actualLayer1;
-            Layer2Position = actualLayer2;
-            CalculateScrollRegisters();
-            return Array.Empty<BackgroundUpdateRequest>();
-        }
-
-        // DoorTransition_Down frame zero probes fifteen pixels above the staged viewport,
-        // publishes its newly exposed bottom row, and then restores the visible registers.
-        Position16<RoomPixels> savedBg1Scroll = Bg1Scroll;
-        Position16<Bg2Pixels> savedBg2Scroll = Bg2Scroll;
-        Layer1Position = Layer1Position.WithY(unchecked((ushort)(stagedLayer1Y - 15)));
-        Layer2Position = Layer2Position.WithY(unchecked((ushort)(stagedLayer2Y - 15)));
-        CalculateBlockCoordinates();
-        CopyCurrentBlocksToPrevious();
-        AdvancePreviousRows(-1);
-        CalculateScrollRegisters();
-        IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
-        Layer1Position = actualLayer1;
-        Layer2Position = actualLayer2;
-        Bg1Scroll = savedBg1Scroll;
-        Bg2Scroll = savedBg2Scroll;
-        return requests;
-    }
-
-    /// <summary>
-    /// Ports the 17-column force-blank fill at <c>$80:A176-$80:A210</c>.
-    /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> BuildInitialViewportRequests()
-    {
-        CalculateGameplayScrolls();
-        CalculateBlockCoordinates();
-        bool streamsLayer2 = Layer2Scroll.Horizontal.Streams;
-        var requests = new List<BackgroundUpdateRequest>(streamsLayer2 ? 34 : 17);
-        var nextColumn = new Offset16<RoomBlocks>(1, 0);
-        var nextTilemapColumn = new Offset16<TilemapBlocks>(1, 0);
-
-        // The loop condition tests the old X value after pushing it, so values 0..16 run:
-        // seventeen columns. Each column is staged and DMAed before these four block words
-        // increment in native code; returning ordered requests preserves that sequencing.
-        for (int column = 0; column < 17; column++)
-        {
-            requests.Add(new BackgroundUpdateRequest(
-                BackgroundLayer.Level,
-                BackgroundUpdateAxis.Column,
-                Layer1Block,
-                Bg1Block));
-
-            if (streamsLayer2)
-            {
-                requests.Add(new BackgroundUpdateRequest(
-                    BackgroundLayer.Background,
-                    BackgroundUpdateAxis.Column,
-                    Layer2Block,
-                    Bg2Block));
-            }
-
-            Layer1Block += nextColumn;
-            Bg1Block += nextTilemapColumn;
-            Layer2Block += nextColumn;
-            Bg2Block += nextTilemapColumn;
-        }
-
-        return requests;
-    }
-
-    /// <summary>Applies BG1 offsets and derives each BG2 axis from its scroll mode, preserving fixed-mode registers.</summary>
-    private void CalculateGameplayScrolls()
+    public void CalculateScrolls()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
 
@@ -321,96 +127,14 @@ public sealed class BackgroundScrollState
         }
     }
 
-    /// <summary>Recomputes PPU scroll mirrors from existing layer positions without changing BG2 parallax state.</summary>
-    private void CalculateScrollRegisters()
+    /// <summary>
+    /// Implements <c>$80:A37B</c>'s register half, used by door transitions that already own the layer positions:
+    /// recomputes all four PPU scroll mirrors without changing BG2 parallax state.
+    /// </summary>
+    public void CalculateScrollRegisters()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
         Bg2Scroll = Layer2Position + Bg2Offset;
-    }
-
-    /// <summary>Primes the row and column crossing detector with the current source blocks.</summary>
-    private void CopyCurrentBlocksToPrevious()
-    {
-        PreviousLayer1Block = Layer1Block;
-        PreviousLayer2Block = Layer2Block;
-    }
-
-    /// <summary>Biases both previous row words, as the vertical door setups do.</summary>
-    private void AdvancePreviousRows(short rows)
-    {
-        var bias = new Offset16<RoomBlocks>(0, rows);
-        PreviousLayer1Block += bias;
-        PreviousLayer2Block += bias;
-    }
-
-    /// <summary>Emits up to four newly exposed level or background strips when 16-pixel boundaries are crossed.</summary>
-    private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
-    {
-        CalculateBlockCoordinates();
-        var requests = new List<BackgroundUpdateRequest>(capacity: 4);
-
-        // $80:A3E4-$80:A413. Crossing right selects the column 16 blocks beyond the
-        // viewport's left edge; crossing left selects the new leftmost column itself.
-        if (Layer1Block.X != PreviousLayer1Block.X)
-        {
-            short distance = SignedDifference(Layer1Block.X, PreviousLayer1Block.X) < 0 ? (short)0 : (short)16;
-            PreviousLayer1Block = PreviousLayer1Block.WithX(Layer1Block.X);
-            requests.Add(new BackgroundUpdateRequest(
-                BackgroundLayer.Level,
-                BackgroundUpdateAxis.Column,
-                Layer1Block + new Offset16<RoomBlocks>(distance, 0),
-                Bg1Block + new Offset16<TilemapBlocks>(distance, 0)));
-        }
-
-        // Odd layer-2 scroll modes suppress dynamic tilemap updates on that axis. Mode one
-        // is fixed; other odd values still calculate parallax with bit zero masked away.
-        if (Layer2Scroll.Horizontal.Streams && Layer2Block.X != PreviousLayer2Block.X)
-        {
-            short distance = SignedDifference(Layer2Block.X, PreviousLayer2Block.X) < 0 ? (short)0 : (short)16;
-            PreviousLayer2Block = PreviousLayer2Block.WithX(Layer2Block.X);
-            requests.Add(new BackgroundUpdateRequest(
-                BackgroundLayer.Background,
-                BackgroundUpdateAxis.Column,
-                Layer2Block + new Offset16<RoomBlocks>(distance, 0),
-                Bg2Block + new Offset16<TilemapBlocks>(distance, 0)));
-        }
-
-        // The visible playfield is 15 blocks tall (240 pixels in the tilemap staging
-        // scheme). Downward crossings upload row +15; upward crossings upload row +1.
-        if (Layer1Block.Y != PreviousLayer1Block.Y)
-        {
-            short distance = SignedDifference(Layer1Block.Y, PreviousLayer1Block.Y) < 0 ? (short)1 : (short)15;
-            PreviousLayer1Block = PreviousLayer1Block.WithY(Layer1Block.Y);
-            requests.Add(new BackgroundUpdateRequest(
-                BackgroundLayer.Level,
-                BackgroundUpdateAxis.Row,
-                Layer1Block + new Offset16<RoomBlocks>(0, distance),
-                Bg1Block + new Offset16<TilemapBlocks>(0, distance)));
-        }
-
-        if (Layer2Scroll.Vertical.Streams && Layer2Block.Y != PreviousLayer2Block.Y)
-        {
-            short distance = SignedDifference(Layer2Block.Y, PreviousLayer2Block.Y) < 0 ? (short)1 : (short)15;
-            PreviousLayer2Block = PreviousLayer2Block.WithY(Layer2Block.Y);
-            requests.Add(new BackgroundUpdateRequest(
-                BackgroundLayer.Background,
-                BackgroundUpdateAxis.Row,
-                Layer2Block + new Offset16<RoomBlocks>(0, distance),
-                Bg2Block + new Offset16<TilemapBlocks>(0, distance)));
-        }
-
-        return requests;
-    }
-
-    /// <summary>Implements the eight four-LSR sequences at <c>$80:A4BB</c>.</summary>
-    private void CalculateBlockCoordinates()
-    {
-        // PPU scroll mirrors are treated as unsigned words by four logical shifts; world
-        // positions receive the ROM's explicit 12-to-16-bit sign extension.
-        Bg1Block = Bg1Scroll.ToTilemapBlocks();
-        Bg2Block = Bg2Scroll.ToTilemapBlocks();
-        Layer1Block = Layer1Position.ToSourceBlocks();
-        Layer2Block = Layer2Position.ToSourceBlocks();
     }
 
     /// <summary>Copies, freezes, or parallax-scales one layer-two axis as the room state's scroll selects.</summary>
@@ -438,6 +162,4 @@ public sealed class BackgroundScrollState
         return true;
     }
 
-    /// <summary>Interprets wrapped source-block subtraction as a signed 16-bit movement direction.</summary>
-    private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }

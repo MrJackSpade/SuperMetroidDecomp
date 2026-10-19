@@ -6,6 +6,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks waterfall subscreen priority and subtraction against software and GPU rendering.</summary>
 internal static class WaterfallTests
@@ -30,7 +31,6 @@ internal static class WaterfallTests
             vram.LoadBytes(64 + row * 2, new byte[] { 0, 255 });
             vram.LoadBytes(0x2000 + 48 + row * 2, new byte[] { 255, 255 });
         }
-        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)2, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
         vram.ExecuteWordTransfer(new ushort[] { 0x2003 }, 0x5c00 + 8 * 32 + 4, 1);
@@ -38,7 +38,6 @@ internal static class WaterfallTests
         vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 6, 1);
         vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 8, 1);
         vram.ExecuteWordTransfer(new ushort[] { 0 }, 0x5c00 + 8 * 32 + 8, 1);
-        vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg1TilemapWord + 8 * 32 + 14, 1);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 80; oam[1] = 64; oam[3] = 0x36;
         oam[4] = 96; oam[5] = 64; oam[7] = 0x38;
@@ -47,7 +46,7 @@ internal static class WaterfallTests
             GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000, WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new Bg2BppColorMathRenderLayer(0x5c00, 0x1000, 32, 32,
             ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
-        var layer = new GameplayColorMathRenderLayer(new(registers), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);
+        var layer = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(new(1), (14, 8, new(4)))), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, bg3, subscreenUsesBg2: true);
         var scene = new LayeredRenderSnapshot(memory, [layer], 0, 15);
         var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
         Check(16, 19, 13, 7, "BG2 beats low BG3 and subtracts through foreground");

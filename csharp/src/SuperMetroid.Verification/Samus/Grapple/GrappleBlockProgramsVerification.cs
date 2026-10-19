@@ -158,8 +158,8 @@ internal static class GrappleBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 300; frame++)
             {
-                native.Plms.Step(native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                native.Plms.Step(native.Level);
+                compiled.Plms.Step(compiled.Level);
                 AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -216,13 +216,10 @@ internal static class GrappleBlockProgramsVerification
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGrappleBlockVisuals = visuals });
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
-            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(1, plms.TilemapUpdates.Count,
-                "first Grapple draw publishes one immediate tile upload");
+            plms.Step(level);
             return (level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
-                plms.TilemapUpdates[0].TopRow[0],
-                level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
-                    blockIndex, 0).TopRow[0]);
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+                level.DisplayedBlockTiles(blockIndex).TopLeft.Raw);
         }
 
         var stock = Render(RoomPlmGrappleBlockVisualCatalog.Stock());
@@ -308,9 +305,9 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Constructed room collision, tile streamer, and PLM system for one grapple BTS program.</summary>
+    /// <summary>Constructed room collision and PLM system for one grapple BTS program.</summary>
     internal sealed record GrappleBlockFixture(
-        RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
+        RoomLevelData Level, RoomPlmSystem Plms);
 
     /// <summary>Spawns one grapple block at cell 27 in an eight-column synthetic room.</summary>
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
@@ -323,7 +320,7 @@ internal static class GrappleBlockProgramsVerification
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");
-        return new GrappleBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+        return new GrappleBlockFixture(level, plms);
     }
 
     /// <summary>Runs the grapple-block mechanics and visual checks from their command-line switch.</summary>

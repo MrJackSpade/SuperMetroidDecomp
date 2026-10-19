@@ -33,13 +33,12 @@ internal static class MaridiaElevatubePlmVerification
         AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
         var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         int heardAtFrame = -1;
         for (int frame = 0; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level);
             if (frame == 0)
                 AssertEqual((ushort)0x8180,
                     level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,

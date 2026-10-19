@@ -56,6 +56,7 @@ using SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Areas.Ceres;
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -475,20 +476,18 @@ internal static class LookupStream5Verification
         CeresEscapeOverlayTilemapCatalog Check(CeresEscapeOverlayTilemapDocument source)
         {
             var result = CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(source)));
-            var system = new RoomEnemySystem(new EnemySession())
+            var overlay = new RecordedBg1Overlay();
+            var system = new RoomEnemySystem(new EnemySession(), services: overlay.Services())
             {
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeOverlayTilemaps = result }),
             };
-            var queue = new VramWriteQueue();
-            system.CeresRidleyBehavior.QueueCeresEmergencyText(queue);
-            AssertEqual(1, queue.Entries.Count, "Actual emergency producer queues one installed page");
-            VramWriteEntry entry = queue.Entries[0];
-            AssertEqual(ReadVerificationWord(rom, 0xa6c15d), entry.SizeInBytes, "Native emergency byte extent");
-            AssertEqual(ReadVerificationWord(rom, 0xa6c162), entry.Destination.Encoded, "Native emergency BG destination");
-            AssertEqual(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, entry.SourceAddress, "Actual emergency source identity");
-            AssertTrue(result.TryResolve(entry.SourceAddress, entry.SizeInBytes, out var queued), "Actual emergency transfer resolves installed words");
-            for (int index = 0; index < source.Pages["emergency"].Length; index++)
-                AssertEqual(source.Pages["emergency"][index], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(queued.Span[(index * 2)..]), "Actual queued emergency preserves independent edits");
+            system.CeresRidleyBehavior.DrawCeresEmergencyText();
+            int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
+            int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
+            AssertEqual(count, overlay.Overlay.Words.Count(word => word != RoomTilemapOverlay.Unwritten), "Native emergency word extent");
+            AssertEqual(source.Pages["emergency"].Length, count, "Edited emergency page keeps its native extent");
+            for (int index = 0; index < count; index++)
+                AssertEqual(source.Pages["emergency"][index], overlay.Overlay.Words[first + index], "Actual shown emergency preserves independent edits");
             var transfers = new Dictionary<int, byte[]>();
             foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
             {

@@ -162,9 +162,9 @@ internal sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Room = Room, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites});
         GameplayWindows = new GameplayWindowRegisters(Room);
         Bg2TilemapStaging = new Bg2TilemapStaging();
-        Xray = new XrayReveal(BackgroundScroll, Player, Room, System, Vram, Bg2TilemapStaging);
+        Xray = new XrayReveal(BackgroundScroll, Player, Room, System, Bg2TilemapStaging);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, PhysicalController1 = PhysicalController1, Display = Display, DisplayedSprites = DisplayedSprites, GameplayWindows = GameplayWindows, Clock = Clock, Sprites = Sprites, Options = Options, Player = Player, Room = Room, SuitPickup = SuitPickup, Vram = Vram, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
-        BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
+        BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Artwork = Artwork, Player = Player, Room = Room, VramWrites = VramWrites});
@@ -172,7 +172,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites});
@@ -805,8 +805,8 @@ internal sealed class SuperMetroidRuntime
         // before arrival resumes, exposing wrapped Samus art above the room.
         if (!deathOwnsSamus && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive)
         {
-            if (Room.LevelData is null || Room.BackgroundStreamer is null)
-                throw new InvalidOperationException("Gameplay camera tracking requires active room stream data.");
+            if (Room.LevelData is null)
+                throw new InvalidOperationException("Gameplay camera tracking requires active room level data.");
 
             ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
 
@@ -853,16 +853,13 @@ internal sealed class SuperMetroidRuntime
             // MainScrollingRoutine `$90:9563` invokes the mutable global
             // scrolling-finished hook after both axes have tracked Samus. Live Spore
             // Spawn installs `$90:9589`, which owns the arena's vertical camera floor;
-            // it must run before BG streaming and OAM consume layer-one position.
+            // it must run before the BG scroll registers and OAM consume layer-one position.
             Room.LoadedScope.Enemies.RoomMainHooks.RunSporeSpawnScrollingFinishedHook(camera);
             camera.FinishSamusScrolling(currentCameraPoint);
 
-            // The camera can cross a 16-pixel boundary in the same main-loop pass.
-            // Build and execute the exact row/column staging transfers now so both the
-            // live PPU diagnostic and the following frame see the newly exposed edge.
-            IReadOnlyList<BackgroundUpdateRequest> backgroundRequests =
-                BackgroundPhase.UpdateBackgroundScrollingFromCamera();
-            BackgroundPhase.ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");
+            // The scroll registers follow the camera in the same main-loop pass, so the
+            // following frame shows the room from level data at the new position.
+            BackgroundPhase.UpdateBackgroundScrollingFromCamera();
 
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area

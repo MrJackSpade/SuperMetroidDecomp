@@ -114,18 +114,12 @@ internal static class CrocomireArenaVisualsVerification
         AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header ${(int)header:X4} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
-        plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Crocomire visual header ${(int)header:X4} retains physical block");
-        // $84:8E7C places block (x, y) in BG1's two-screen ring at this word (BG1 X offset zero).
-        int ringX = (blockIndex % width) & 0x1f;
-        int ringY = (blockIndex / width) & 0x0f;
-        ushort blockDestination = (ushort)((ringX < 0x10 ? 0x5000 : 0x53e0) + ringY * 0x40 + ringX * 2);
-        AssertTrue(plms.TilemapUpdates.Any(update =>
-                update.TopRowDestination == blockDestination &&
-                update.TopRow[0] == visualWord),
+        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Crocomire visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Crocomire visual header ${(int)header:X4} reads no compiled source");

@@ -76,8 +76,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation { Program: SpeedBoosterBlockProgram.Respawning },
             "BTS $0E starts the respawning program");
 
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        StepSpeedBoosterPlm(plms, level, streamer);
+        StepSpeedBoosterPlm(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
@@ -86,7 +85,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "first handler pass queues crumble sound six with cartridge maximum one");
 
         for (int frame = 0; frame < 80 && plms.SlotTable.ActiveCount != 0; frame++)
-            StepSpeedBoosterPlm(plms, level, streamer);
+            StepSpeedBoosterPlm(plms, level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             "respawning speed-block list reaches its delete instruction");
         AssertEqual(RoomCollisionType.SpecialBlock,
@@ -113,9 +112,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
             plms.PopulationSlots.Single().HeaderPointer,
             "BTS $0F selects the standard permanent header");
 
-        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         for (int frame = 0; frame < 12 && plms.SlotTable.ActiveCount != 0; frame++)
-            StepSpeedBoosterPlm(plms, level, streamer);
+            StepSpeedBoosterPlm(plms, level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             "permanent speed-block list deletes after its four crumble frames");
         AssertEqual(RoomCollisionType.Air,
@@ -176,7 +174,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             behaviors,
             blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
-        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");
         return (bus, level, plms, blockIndex);
     }
@@ -253,9 +251,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
     /// <summary>Advances a fixture PLM one frame with stationary view and no controller or enemy-death events.</summary>
     private static void StepSpeedBoosterPlm(
         RoomPlmSystem plms,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer) =>
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        RoomLevelData level) =>
+        plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Runs the focused Speed Booster collision and PLM verification from its command-line switch.</summary>
     [VerificationCommand("--speed-booster-block-plms")]

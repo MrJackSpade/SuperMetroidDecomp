@@ -49,15 +49,8 @@ internal static class VramDmaDomains
             case "trails":
                 return Typed([(VramAssetId.ProjectileIceWaveTrailTiles, ProjectileTrailAtlasDefinitions.IceWaveByteCount),
                     (VramAssetId.ProjectileMissileTrailTiles, ProjectileTrailAtlasDefinitions.MissileByteCount)]);
-            case "emergency":
-                var page = CeresEscapeOverlayTilemapDefinitions.Emergency;
-                return Native([(page.SourceAddress, page.WordCount * sizeof(ushort))]);
             case "ceres":
                 return Native(CeresEscapeVramTransferDefinitionsTooling.All.Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
-            case "ceres-japanese":
-                return Native(CeresEscapeVramTransferDefinitionsTooling.All.Where(frame =>
-                    frame.Pointer is >= CeresEscapeVramTransferDefinitions.JapaneseOverlay and
-                    < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "kraid":
                 return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
                     (KraidBackgroundRomData.StandardBg3AssetForQuarter(index), (int)KraidBackgroundRomData.StandardBg3TransferBytes)));

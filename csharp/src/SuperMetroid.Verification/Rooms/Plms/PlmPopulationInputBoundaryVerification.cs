@@ -39,8 +39,7 @@ internal static class PlmPopulationInputBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new byte[8]);
         var plms = PlmFixtures.Unbound();
-        var streamer = level.CreateBackgroundStreamer();
-        AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(3, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(ReusedPopulationSlots),
             "extension deletion permits immediate highest-slot reuse in authored order");
@@ -50,7 +49,7 @@ internal static class PlmPopulationInputBoundaryVerification
             "typed extension setup publishes its native collision type");
         var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(plms.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
-        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+        plms.Step(level, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 

@@ -130,9 +130,6 @@ internal sealed class EnemyFramePhase
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
-            // $A7:C85E writes PreviousLayer1XBlock during EnemyMain: every BG1 column streams as new.
-            if (result.KraidLayer1XBlockReset)
-                _backgroundScroll.ResetPreviousLayer1XBlock();
             if (room.Enemies.PhantoonBehavior.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,

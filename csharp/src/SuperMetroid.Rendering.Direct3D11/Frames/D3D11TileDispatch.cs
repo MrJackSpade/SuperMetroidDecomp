@@ -37,6 +37,9 @@ internal sealed record D3D11TileDispatch
     public uint Blue { get; init; } = 0;
 
 
+    /// <summary>Where a BG pass reads its tiles: the VRAM tilemap at <see cref="Map"/>, or the room's BG1 or BG2.</summary>
+    public D3D11RoomSource RoomSource { get; init; } = D3D11RoomSource.VramTilemap;
+
     /// <summary>First scanline.</summary>
     public uint FirstScanline { get; init; } = 0;
 

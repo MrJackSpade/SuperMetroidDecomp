@@ -34,7 +34,7 @@ internal sealed class PlmFramePhase
     private readonly MessageBoxFlow _messageBoxes;
     /// <summary>Supplies Samus and the X-ray PLM-suspension flag.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies active level data, streamer, camera, and scroll state.</summary>
+    /// <summary>Supplies active level data, camera, and scroll state.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
@@ -102,15 +102,13 @@ internal sealed class PlmFramePhase
     /// </summary>
     private void RunPlmHandlerCore(SnesButton controllerNewInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null || _player.Samus is null)
+        if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
         {
             throw new InvalidOperationException(
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = bombProjectiles.PowerBombExplosion.Status });
-        foreach (PlmTilemapUpdate update in updates)
-            update.ExecuteTo(_vram);
+        plms.Step(_room.LevelData, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = bombProjectiles.PowerBombExplosion.Status });
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms, room.Enemies);
 
         foreach (PlmVramWriteRequest request in plms.BombTorizoHand.VramWriteRequests)

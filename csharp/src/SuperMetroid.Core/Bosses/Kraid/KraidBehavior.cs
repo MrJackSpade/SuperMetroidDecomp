@@ -1487,8 +1487,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case KraidAiFunction.DeathFinishedWasDead:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
-                // $A7:C85E forces BG1 column streaming to treat every column as new.
-                _frameResults.KraidLayer1XBlockReset = true;
                 return;
             default:
                 throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a death function.");

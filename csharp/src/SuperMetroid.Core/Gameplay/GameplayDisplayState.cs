@@ -68,7 +68,7 @@ internal sealed class GameplayDisplayState
         default, default, null, null, null, null, 0,
         new GameplayLatchedSceneRegisters(false, false, GameplayVramLayout.HudCharacterWord, default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
-        default, default, null);
+        default, default, null, null);
 
     /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]

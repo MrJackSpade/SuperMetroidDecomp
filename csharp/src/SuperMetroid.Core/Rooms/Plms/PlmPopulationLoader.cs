@@ -143,8 +143,8 @@ internal sealed class PlmPopulationLoader
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
-        (RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram, Bank80SystemState system, AreaId areaIndex) =
-            (room.Level, room.Streamer, room.Vram, room.System, room.AreaIndex);
+        (RoomLevelData level, SnesVram vram, Bank80SystemState system, AreaId areaIndex) =
+            (room.Level, room.Vram, room.System, room.AreaIndex);
         PlmHeaderId header = record.HeaderPointer;
         if (DoorPlms.TryIdentifyColoredDoor(
                 header,
@@ -183,7 +183,7 @@ internal sealed class PlmPopulationLoader
 
         if (header == PlmHeaderId.MotherBrainGlass)
         {
-            _motherBrainGlass.SetupMotherBrainGlassSlot(level, streamer, record, slot);
+            _motherBrainGlass.SetupMotherBrainGlassSlot(level, record, slot);
             return true;
         }
 
@@ -251,7 +251,7 @@ internal sealed class PlmPopulationLoader
             return true;
         }
 
-        if (StationPlms.TrySetupStationOrElevator(level, streamer, system, areaIndex, slot))
+        if (StationPlms.TrySetupStationOrElevator(level, system, areaIndex, slot))
             return true;
 
         return false;

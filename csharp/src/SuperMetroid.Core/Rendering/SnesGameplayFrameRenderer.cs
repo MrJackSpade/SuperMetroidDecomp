@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -135,8 +136,10 @@ public static class SnesGameplayFrameRenderer
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
 
-        var bg1Geometry = new BgTilemapGeometry(GameplayVramLayout.RoomTilemapSize);
-        var bg2Geometry = new BgTilemapGeometry(bg2TilemapSize);
+        // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane, or the
+        // tilemap its owner loaded when it has none (#1346).
+        IBgTileSource bg1 = layer.Rooms.Bg1Source;
+        IBgTileSource bg2 = layer.Rooms.Bg2 ?? (IBgTileSource)new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
@@ -148,22 +151,14 @@ public static class SnesGameplayFrameRenderer
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.
             int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
-            int bg1ScrolledY = bg1Geometry.WrapY(bg1Scroll.Y + physicalBackgroundY);
+            ushort bg1ScrolledY = unchecked((ushort)(bg1Scroll.Y + physicalBackgroundY));
             ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine.IsEmpty
                 ? bg2Scroll.X
                 : bg2HorizontalScrollByLine[screenY - HudHeight];
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine.IsEmpty
                 ? bg2Scroll.Y
                 : bg2VerticalScrollByLine[screenY - HudHeight];
-            int bg2ScrolledY = bg2Geometry.WrapY(bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll));
-            int bg1TileY = BgCharacterGrid.CharacterOf(bg1ScrolledY);
-            int bg2TileY = BgCharacterGrid.CharacterOf(bg2ScrolledY);
-            int bg1PixelY = BgCharacterGrid.PixelWithinCharacter(bg1ScrolledY);
-            int bg2PixelY = BgCharacterGrid.PixelWithinCharacter(bg2ScrolledY);
-            int previousBg1TileX = -1;
-            int previousBg2TileX = -1;
-            SnesBgTilemapWord bg1Entry = default;
-            SnesBgTilemapWord bg2Entry = default;
+            ushort bg2ScrolledY = unchecked((ushort)bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll));
 
             for (int screenX = 0; screenX < Width; screenX++)
             {
@@ -171,31 +166,15 @@ public static class SnesGameplayFrameRenderer
                 Rgba32 winner = output[destination];
                 int winnerRank = 0;
 
-                // Horizontal fine scrolling changes the active tile only once every eight
-                // output pixels. Cache each BGSC word across that run; rereading the same
-                // two VRAM bytes for every pixel was pure interpreter overhead, especially
-                // in Debug builds where these tiny accessors are not reliably inlined.
-                int bg2ScrolledX = bg2Geometry.WrapX(bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll));
-                int bg2TileX = BgCharacterGrid.CharacterOf(bg2ScrolledX);
-                if (bg2Enabled && bg2TileX != previousBg2TileX)
-                {
-                    // BGSC's two size bits select either two horizontal 32x32 screens
-                    // (ordinary rooms) or two vertical screens (Landing Site's sky).
-                    // Both contain 2,048 words, but putting the screen index on the wrong
-                    // axis makes the sky go black and then decode unrelated VRAM as the
-                    // camera crosses the first 256-pixel boundary.
-                    bg2Entry = SnesVramAddressing.ReadWord(vramBytes, bg2Geometry.EntryWordAddress(
-                        bg2TilemapBaseWord, new Position16<TilemapCells>((ushort)bg2TileX, (ushort)bg2TileY)));
-                    previousBg2TileX = bg2TileX;
-                }
-
                 if (bg2Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg2) == 0 &&
+                    bg2.TrySample(new Position16<BgPlanePixels>(
+                        unchecked((ushort)bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll)), bg2ScrolledY), out BgTileSample bg2Sample) &&
                     TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
-                        bg2Entry,
+                        bg2Sample.Tile,
                         bg2CharacterBaseWord,
-                        new Position16<CharacterPixels>((ushort)BgCharacterGrid.PixelWithinCharacter(bg2ScrolledX), (ushort)bg2PixelY),
+                        bg2Sample.Pixel,
                         out Rgba32 bg2Color,
                         out bool bg2High))
                 {
@@ -203,22 +182,15 @@ public static class SnesGameplayFrameRenderer
                     winnerRank = bg2High ? 6 : 3;
                 }
 
-                int bg1ScrolledX = bg1Geometry.WrapX(bg1Scroll.X + screenX);
-                int bg1TileX = BgCharacterGrid.CharacterOf(bg1ScrolledX);
-                if (bg1Enabled && bg1TileX != previousBg1TileX)
-                {
-                    bg1Entry = SnesVramAddressing.ReadWord(vramBytes, bg1Geometry.EntryWordAddress(
-                        GameplayVramLayout.Bg1TilemapWord, new Position16<TilemapCells>((ushort)bg1TileX, (ushort)bg1TileY)));
-                    previousBg1TileX = bg1TileX;
-                }
-
                 if (bg1Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg1) == 0 &&
+                    bg1.TrySample(new Position16<BgPlanePixels>(
+                        unchecked((ushort)(bg1Scroll.X + screenX)), bg1ScrolledY), out BgTileSample bg1Sample) &&
                     TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
-                        bg1Entry,
+                        bg1Sample.Tile,
                         bg1CharacterBaseWord,
-                        new Position16<CharacterPixels>((ushort)BgCharacterGrid.PixelWithinCharacter(bg1ScrolledX), (ushort)bg1PixelY),
+                        bg1Sample.Pixel,
                         out Rgba32 bg1Color,
                         out bool bg1High))
                 {

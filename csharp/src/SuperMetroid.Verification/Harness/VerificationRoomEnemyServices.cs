@@ -136,6 +136,10 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("write Mother Brain's BG2 scroll registers").MotherBrain.SetBg2Scroll(scroll);
     }
 
+    /// <summary>Forwards a BG1 overlay write to the loaded room.</summary>
+    public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
+        Loaded("write over the room's BG1").DrawBg1Overlay(firstWord, words);
+
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(PlmHeaderId header) =>
         Loaded("query the active room PLM population").Plms.HasActiveHeader(header);

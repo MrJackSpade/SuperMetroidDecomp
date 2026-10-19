@@ -19,6 +19,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Enemies;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
@@ -137,7 +138,7 @@ internal static class InstalledSporesTests
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
-                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
+                        GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2), RoomBackgroundsFixtures.Blank());
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
@@ -349,8 +350,6 @@ internal static class InstalledSporesTests
                 vram.LoadBytes(64 + y * 2, new byte[] { 0, 255 });
                 vram.LoadBytes(GameplayVramLayout.HudCharacterWord * 2 + 48 + y * 2, new byte[] { 255, 255 });
             }
-            vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)(1 | (bg1High ? 0x2000 : 0)), 2048).ToArray(),
-                GameplayVramLayout.Bg1TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)(2 | (bg2High ? 0x2000 : 0)), 2048).ToArray(),
                 GameplayVramLayout.Bg2TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
@@ -360,7 +359,7 @@ internal static class InstalledSporesTests
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
-            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers),
+            var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);

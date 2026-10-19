@@ -1,24 +1,31 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// Landing Site's bank-$88 scrolling-sky tilemap updater and horizontal HDMA state.
+/// The scrolling sky's 23 parallax bands and BG2 vertical scroll (#1347).
 /// </summary>
 /// <remarks>
-/// <see cref="ProcessFrame"/> ports <c>$88:ADC2</c> and <c>$88:AFA3</c>. The original
-/// materializes an indirect HDMA byte table; this model retains the same 23 fixed-point
-/// data slots and exposes their final per-gameplay-scanline BG2HOFS values directly.
+/// <see cref="ProcessFrame"/> ports <c>$88:ADC2</c> and the vertical scroll of <c>$88:AFA3</c>. The sky's rows are
+/// drawn from <see cref="SkyTilemap"/>, so the cartridge's circular row streaming is not modeled; the bands are
+/// published with <see cref="Publish"/>.
 /// </remarks>
+/// <param name="variant">The land or ocean chunk table the room main selects.</param>
+/// <param name="horizontalHdmaConfigured">Whether the sky FX or setup spawned the band HDMA object.</param>
 [RoomLifetime]
-public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
+public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool horizontalHdmaConfigured = true)
 {
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
     public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
 
+    /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
+    public ScrollingSkyChunkTable Variant { get; } = variant;
+
     /// <summary>23 native 16.16 HDMA data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
+
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
     /// implementation. This is the same bank-$8F dispatch decision made by the cartridge;
@@ -28,14 +35,19 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         callback is RoomMainCallback.ScrollingSkyLand or
             RoomMainCallback.ScrollingSkyLandZebesTimebombSet;
 
-    /// <summary>Identifies room-main tilemap streaming; HDMA setup is a separate decision.</summary>
+    /// <summary>Identifies the scrolling-sky room mains; HDMA setup is a separate decision.</summary>
     public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
+    /// <summary>The chunk table a scrolling-sky room main reads its rows through.</summary>
+    public static ScrollingSkyChunkTable VariantOf(RoomMainCallback callback) =>
+        IsLandRoomMain(callback) ? ScrollingSkyChunkTable.Land
+            : callback == RoomMainCallback.ScrollingSkyOcean ? ScrollingSkyChunkTable.Ocean
+            : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
+
     /// <summary>
     /// The BG2 scroll the sky publishes: <c>$88:AFB2</c> copies layer-one Y, with its sixteen-bit wrap, into Y.
-    /// X stays zero because the sky never writes the uniform horizontal scroll; its bands come from
-    /// <see cref="BuildGameplayHorizontalScrolls"/> instead.
+    /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
     public Position16<Bg2Pixels> Bg2Scroll { get; private set; }
 
@@ -50,18 +62,13 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         return SnesFixedPosition.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
     }
 
-    /// <summary>
-    /// Advances the fixed-point sky strips and appends the four ordinary VRAM queue records
-    /// used to keep the circular BG2 tilemap populated around the camera.
-    /// </summary>
-    public void ProcessFrame(ushort layer1YPosition, bool timeIsFrozen, VramWriteQueue writes,
-        RoomMainCallback roomMainCallback = RoomMainCallback.ScrollingSkyLand)
+    /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the BG2 vertical scroll.</summary>
+    public void ProcessFrame(ushort layer1YPosition, bool timeIsFrozen)
     {
-        Ensure.NotNull(writes);
         if (timeIsFrozen)
         {
-            // $88:AFA8 writes a zero first HDMA entry, terminating the table, and queues no
-            // rows. The pre-instruction wrapper likewise skips fixed-point advancement.
+            // $88:AFA8 writes a zero first HDMA entry, terminating the table. The
+            // pre-instruction wrapper likewise skips fixed-point advancement.
             HdmaEnabled = false;
             return;
         }
@@ -69,35 +76,25 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         HdmaEnabled = HorizontalHdmaConfigured;
         if (HorizontalHdmaConfigured) AdvanceHorizontalScrolls();
         Bg2Scroll = new Position16<Bg2Pixels>(0, layer1YPosition);
-        QueueTilemapRows(layer1YPosition, writes, roomMainCallback == RoomMainCallback.ScrollingSkyOcean
-            ? ScrollingSkyChunkTable.Ocean
-            : ScrollingSkyChunkTable.Land);
     }
 
     /// <summary>
-    /// Resolves the indirect HDMA table into one BG2HOFS word per gameplay scanline.
-    /// Index zero corresponds to physical scanline 32, immediately below the HUD.
+    /// The sky layer the frame shows, positioned from <paramref name="layer1YPosition"/>; null when the room spawned no
+    /// band HDMA object, whose BG2 is the room's own background.
     /// </summary>
-    public ushort[] BuildGameplayHorizontalScrolls(ushort layer1YPosition, int lineCount = 192)
+    /// <param name="tilemap">The installed sky rows for <see cref="Variant"/>.</param>
+    /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
+    public ScrollingSkyLayer? Publish(SkyTilemap tilemap, ushort layer1YPosition)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lineCount);
-        var result = new ushort[lineCount];
-        if (!HdmaEnabled)
-            return result;
-
-        for (int line = 0; line < lineCount; line++)
-        {
-            ushort worldY = unchecked((ushort)(
-                layer1YPosition + RoomFxRomData.ScrollingSky.GameplayFirstScanline + line));
-            int sectionIndex = FindSection(worldY);
-
-            // The assembly's fallback entries point at direct-page BG2HOFS ($00B5). Its
-            // ordinary value is zero for Landing Site; all positions >=$500 use that path.
-            result[line] = sectionIndex >= 0
-                ? GetDataSlotPosition(RoomFxRomData.ScrollingSky.GetSection(sectionIndex).DataSlot)
-                : (ushort)0;
-        }
-        return result;
+        Ensure.NotNull(tilemap);
+        if (tilemap.Variant != Variant)
+            throw new ArgumentException($"The sky shows the {Variant} rows; got the {tilemap.Variant} rows.", nameof(tilemap));
+        if (!HorizontalHdmaConfigured)
+            return null;
+        var offsets = ImmutableArray.CreateBuilder<ushort>(_fixedHorizontalScrolls.Length);
+        for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
+            offsets.Add(GetDataSlotPosition(slot));
+        return new ScrollingSkyLayer(tilemap, layer1YPosition, offsets.MoveToImmutable(), HdmaEnabled);
     }
 
     /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>
@@ -113,74 +110,5 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         // $88:ADF2-$88:ADFA clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
-    }
-
-    /// <summary>Streams paired BG2 tilemap rows behind the HUD and below the screen using bank-$88 chunks.</summary>
-    private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, ScrollingSkyChunkTable pointerTable)
-    {
-        // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
-        // down to an 8-pixel boundary. All arithmetic is modular 16-bit as on the 65C816.
-        ushort upperPosition = unchecked((ushort)(
-            (layer1YPosition & RoomFxRomData.ScrollingSky.SourcePositionMask) -
-            RoomFxRomData.ScrollingSky.UpperRowCameraOffset));
-        int upperChunk = SnesLittleEndian.HighByte(upperPosition);
-        int upperByteOffset = (SnesLittleEndian.LowByte(upperPosition)) * 8;
-        // Ocean index 255 reads the wrapper's TimeIsFrozenFlag address ($0A78) as its DMA source: live WRAM the port
-        // does not keep there. The rows lie behind the HUD, so they upload blank (owner decision on #1318).
-        bool upperBlank = pointerTable == ScrollingSkyChunkTable.Ocean && upperChunk == byte.MaxValue;
-        int upperSource = upperBlank ? 0 : RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
-                pointerTable, upperChunk) + upperByteOffset));
-
-        // Second pair: two rows just below the 224-line screen, based on cameraY+$F0.
-        ushort lowerPosition = unchecked((ushort)(
-            (layer1YPosition & RoomFxRomData.ScrollingSky.SourcePositionMask) +
-            RoomFxRomData.ScrollingSky.LowerRowCameraOffset));
-        int lowerChunk = SnesLittleEndian.HighByte(lowerPosition);
-        int lowerByteOffset = (SnesLittleEndian.LowByte(lowerPosition)) * 8;
-        int lowerSource = RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
-                pointerTable, lowerChunk) + lowerByteOffset));
-
-        int upperRow = 4 * (unchecked((ushort)(
-            layer1YPosition - RoomFxRomData.ScrollingSky.UpperRowCameraOffset)) &
-            RoomFxRomData.ScrollingSky.TilemapPositionMask);
-        int lowerRow = 4 * (unchecked((ushort)(
-            layer1YPosition + RoomFxRomData.ScrollingSky.LowerRowCameraOffset)) &
-            RoomFxRomData.ScrollingSky.TilemapPositionMask);
-
-        if (upperBlank)
-        {
-            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount, RoomFxVram.ScrollingSkyDma(upperRow));
-            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
-        }
-        else
-        {
-            writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
-            writes.Enqueue(
-                RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-                upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
-        }
-        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, lowerSource, RoomFxVram.ScrollingSkyDma(lowerRow));
-        writes.Enqueue(
-            RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            lowerSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            RoomFxVram.ScrollingSkyDma(lowerRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
-    }
-
-    /// <summary>Finds the sky strip covering a world scanline, or the direct-page fallback below the sky.</summary>
-    private static int FindSection(ushort worldY)
-    {
-        for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
-        {
-            int nextTop = index + 1 < RoomFxRomData.ScrollingSky.SectionCount
-                ? RoomFxRomData.ScrollingSky.GetSection(index + 1).TopPosition
-                : RoomFxRomData.ScrollingSky.WorldEndPosition;
-            if (worldY >= RoomFxRomData.ScrollingSky.GetSection(index).TopPosition && worldY < nextTop)
-                return index;
-        }
-        return -1;
     }
 }

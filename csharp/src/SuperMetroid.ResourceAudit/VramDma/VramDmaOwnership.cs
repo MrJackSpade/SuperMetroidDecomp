@@ -46,8 +46,7 @@ internal static class VramDmaOwnership
                 TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture) == source))) return true;
         int offset = source - RoomSkyTilemapFormat.FirstSourceAddress;
         return offset >= 0 && offset + count <= RoomSkyTilemapFormat.TotalByteCount &&
-            ((offset % RoomSkyTilemapFormat.PageByteCount == 0 && count == RoomSkyTilemapFormat.PageByteCount) ||
-             ((source & 1) == 0 && count == RoomFxRomData.ScrollingSky.TilemapRowByteCount));
+            offset % RoomSkyTilemapFormat.PageByteCount == 0 && count == RoomSkyTilemapFormat.PageByteCount;
     }
 
     /// <summary>Recognizes a typed installed VRAM asset only with its reviewed transfer length, including separate ice/wave and missile trail ranges.</summary>

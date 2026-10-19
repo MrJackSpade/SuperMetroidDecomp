@@ -4,22 +4,23 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
-/// <summary>Compares compiled land and ocean sky chunk pointers and caller row transfers with native bank-$88 tables.</summary>
+/// <summary>Compares compiled land and ocean sky chunk pointers and the sky rows they select with native bank-$88 tables.</summary>
 internal static class LookupSkyChunkPointersVerification
 {
-    /// <summary>Checks the land sky table and its full camera-coordinate transfer behavior.</summary>
+    /// <summary>Checks the land sky table and the rows it selects.</summary>
     internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land, RoomMainCallback.ScrollingSkyLand));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land));
 
-    /// <summary>Checks the ocean sky table and its full camera-coordinate transfer behavior.</summary>
+    /// <summary>Checks the ocean sky table and the rows it selects.</summary>
     internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean, RoomMainCallback.ScrollingSkyOcean));
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean));
 
-    /// <summary>Checks reachable and adjacent pointer indices, then compares four queued source rows for every 16-bit camera position.</summary>
-    private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table, RoomMainCallback callback)
+    /// <summary>Checks reachable and adjacent pointer indices, then the row every vertical position shows.</summary>
+    private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table)
     {
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | (((int)table + 2 * index) & 0xffff));
         for (int index = 0; index <= 256; index++)
@@ -42,25 +43,17 @@ internal static class LookupSkyChunkPointersVerification
             AssertEqual("pointerTable", exception.ParamName, "Table rejection precedes index handling");
         }
 
-        for (int camera = 0; camera <= ushort.MaxValue; camera++)
+        // Each 8-pixel row reads its chunk's page at the row's offset (#1347); a chunk whose native word names no page
+        // (the ocean table's adjacent code) shows nothing.
+        SkyTilemap rows = RoomSkyTilemapFixtures.Numbered().Tilemap(table);
+        for (int row = 0; row < SkyTilemap.Rows; row++)
         {
-            var queue = new VramWriteQueue();
-            new ScrollingSkyState().ProcessFrame((ushort)camera, false, queue, callback);
-            AssertEqual(4, queue.Entries.Count, "Sky publishes four row transfers");
-            ushort upper = unchecked((ushort)((camera & 0x07f8) - 16));
-            ushort lower = unchecked((ushort)((camera & 0x07f8) + 240));
-            int upperSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(upper)) + (SnesLittleEndian.LowByte(upper)) * 8));
-            int lowerSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(lower)) + (SnesLittleEndian.LowByte(lower)) * 8));
-            // Ocean index 255 points the top rows at live WRAM; they upload blank instead (#1318).
-            bool upperBlank = table == ScrollingSkyChunkTable.Ocean && SnesLittleEndian.HighByte(upper) == byte.MaxValue;
-            AssertEqual(upperBlank, queue.Entries[0].ZeroFill && queue.Entries[1].ZeroFill, "Sky upper blank only for ocean's wrapped top");
-            if (!upperBlank)
-            {
-                AssertEqual(upperSource, queue.Entries[0].SourceAddress, "Sky upper source from native pointer");
-                AssertEqual(upperSource + 64, queue.Entries[1].SourceAddress, "Sky upper continuation");
-            }
-            AssertEqual(lowerSource, queue.Entries[2].SourceAddress, "Sky lower source from native pointer");
-            AssertEqual(lowerSource + 64, queue.Entries[3].SourceAddress, "Sky lower continuation");
+            int offset = Original(row / 32) - 0xb180;
+            bool page = offset >= 0 && offset % 0x800 == 0 && offset / 0x800 < 7;
+            AssertEqual(page, rows.RowShown(row), $"Sky row {row} shows exactly when its native chunk names a page");
+            for (int column = 0; page && column < SkyTilemap.Columns; column++)
+                AssertEqual(RoomSkyTilemapFixtures.NumberedWord(offset / 0x800, row % 32 * 32 + column), rows.Words[row * SkyTilemap.Columns + column],
+                    $"Sky row {row} column {column} reads its native page");
         }
     }
 }

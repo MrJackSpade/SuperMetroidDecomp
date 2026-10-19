@@ -144,8 +144,9 @@ public static class GameplayDisplayCapture
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Scrolls;
-        RoomBackgrounds rooms = latched.Rooms
-            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.");
+        // A sky room shows the sky's rows on BG2 (#1347).
+        RoomBackgrounds rooms = (latched.Rooms
+            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with { Sky = live.ScrollingSky?.Tilemap };
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
             VisibleLines(phantoonScrolls ?? lavaX ?? waterX ?? skyX),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),
@@ -168,7 +169,7 @@ public static class GameplayDisplayCapture
     /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
     internal static ushort[]? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake)
     {
-        if (live.ScrollingSkyHorizontalScrolls is not { } table) return null;
+        if (live.ScrollingSky?.GameplayLineScrolls() is not { } table) return null;
         // Room shake is added to the live BG2HOFS register after HDMA supplies each band value.
         var lines = new ushort[table.Length];
         for (int line = 0; line < lines.Length; line++) lines[line] = Add(table[line], shake.Bg2.X);
@@ -333,7 +334,7 @@ public static class GameplayDisplayCapture
         // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
         // rooms retain their original map and per-line register values.
         // The reveal map is BG2's tilemap, so the room's layer-2 plane is not shown under it.
-        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null })
+        var gameplay = reveal ? new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms with { Bg2 = null, Sky = null })
             : new OrdinaryGameplayRenderLayer(registers, ordinary.Rooms, ordinary.Bg2LineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
             ? SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx) : null;

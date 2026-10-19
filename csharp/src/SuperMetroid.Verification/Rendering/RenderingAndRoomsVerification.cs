@@ -26,6 +26,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Verifies room loading, camera/scroll state and PPU output with focused cartridge and synthetic fixtures.</summary>
 internal static class RenderingAndRoomsVerification
@@ -1223,41 +1224,39 @@ internal static void VerifyScrollingSkyState()
         !ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyOcean),
         "$8F:C11B ocean wrapper is not silently treated as land sky");
 
-    var sky = new ScrollingSkyState();
-    var writes = new VramWriteQueue();
-    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false, writes);
+    AssertEqual(ScrollingSkyChunkTable.Land, ScrollingSkyState.VariantOf(RoomMainCallback.ScrollingSkyLandZebesTimebombSet),
+        "land sky mains read the land chunk table");
+    AssertEqual(ScrollingSkyChunkTable.Ocean, ScrollingSkyState.VariantOf(RoomMainCallback.ScrollingSkyOcean),
+        "the ocean main reads the ocean chunk table");
+    AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyState.VariantOf(RoomMainCallback.None),
+        "a room main without a sky has no chunk table");
 
+    var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
+    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false);
     AssertEqual(new Position16<Bg2Pixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
-    AssertEqual(4, writes.Entries.Count, "$88:AFA3 four sky transfers");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, VramDmaDestination.FromNative(0x4820)), writes.Entries[0], "sky upper first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, VramDmaDestination.FromNative(0x4840)), writes.Entries[1], "sky upper second row");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, VramDmaDestination.FromNative(0x4c20)), writes.Entries[2], "sky wrapped lower first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, VramDmaDestination.FromNative(0x4c40)), writes.Entries[3], "sky wrapped lower second row");
-
-    // At camera Y=0, the native indexed read reaches the fixed word at $88:AF9A.
-    // The compiled catalog preserves that top-of-room overread without a ROM bus.
-    var topSky = new ScrollingSkyState();
-    var topWrites = new VramWriteQueue();
-    topSky.ProcessFrame(layer1YPosition: 0, timeIsFrozen: false, topWrites);
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, VramDmaDestination.FromNative(0x4fc0)), topWrites.Entries[0],
-        "sky Y=0 wrapped compiled pointer");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, VramDmaDestination.FromNative(0x4bc0)), topWrites.Entries[2],
-        "sky Y=0 lower row remains in chunk zero");
+    AssertTrue(ScrollingSkyChunkDefinitions.TryGetPage(ScrollingSkyChunkTable.Land, 5, out ushort wrapped) && wrapped == 0xb180,
+        "land chunk five wraps to the first sky page");
 
     // The $02E0 section aliases data slot eight, which already received the $0238 row's
     // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.
     AssertEqual(1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
-    ushort[] lines = sky.BuildGameplayHorizontalScrolls(layer1YPosition: 0x02c0, lineCount: 1);
-    AssertEqual(1, lines[0], "sky scanline resolves aliased HDMA slot");
+    SkyTilemap rows = RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Land);
+    ScrollingSkyLayer layer = sky.Publish(rows, 0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    AssertEqual(1, layer.GameplayLineScrolls(1)[0], "sky scanline resolves aliased HDMA slot");
 
-    int tailBeforeFreeze = writes.TailInBytes;
-    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true, writes);
+    sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: true);
     AssertEqual(false, sky.HdmaEnabled, "frozen sky terminates HDMA table");
-    AssertEqual(tailBeforeFreeze, writes.TailInBytes, "frozen sky queues no rows");
+    ScrollingSkyLayer frozen = sky.Publish(rows, 0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
+    AssertTrue(!frozen.BandsShown && frozen.GameplayLineScrolls().All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
+    AssertEqual(1, frozen.BandOffsets[8], "a frozen frame keeps the band offsets");
+    AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, horizontalHdmaConfigured: false).Publish(rows, 0) is null,
+        "a sky main without the band HDMA object publishes no sky layer");
+    AssertThrows<ArgumentException>(() => sky.Publish(RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Ocean), 0),
+        "the land sky rejects the ocean rows");
 
-    Console.WriteLine("  Sky: HDMA bands, circular uploads, and the Y=0 compiled overread agree.");
+    Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");
 }
 
 // Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision

@@ -932,16 +932,9 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the scrolling sky, animated tiles, escape effects, the elevatube and the room main routines.</summary>
     private void RunRoomMains(RuntimeFramePolicy policy)
     {
-        // Landing Site's room main ASM appends four sky rows after ordinary gameplay logic;
-        // they become visible when the following accepted NMI drains the queue.
+        // Landing Site's room main advances the sky bands after ordinary gameplay logic.
         if (Room.ScrollingSky is not null && Room.Camera is not null)
-        {
-            Room.ScrollingSky.ProcessFrame(
-                Room.Camera.PixelPosition.Y,
-                timeIsFrozen: Freeze.TimeIsFrozen,
-                VramWrites,
-                Room.ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
-        }
+            Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition.Y, timeIsFrozen: Freeze.TimeIsFrozen);
 
         RoomMains.RunAnimatedTilesObjectHandler(Room.LoadedScope);
         EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope.Enemies);
@@ -1034,10 +1027,9 @@ internal sealed class SuperMetroidRuntime
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionMainScreenLayers,
-            sky is { HorizontalHdmaConfigured: true }
-                ? ImmutableArray.Create(sky.BuildGameplayHorizontalScrolls(Room.Camera?.PixelPosition.Y
-                    ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")))
-                : null,
+            sky?.Publish((Artwork.RoomSkyTilemapArt ?? throw new InvalidOperationException(
+                    "The scrolling sky has no installed sky pages.")).Tilemap(sky.Variant),
+                Room.Camera?.PixelPosition.Y ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
             crocomireDeath is { MeltingHdmaActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
             motherBrain is { RisingHdmaActive: true },

@@ -855,7 +855,7 @@ internal sealed class RoomLoader
             _backgroundScroll.PrepareDoorOpeningDestination(camera, parallaxBasis);
         }
 
-        // The main callback streams offscreen tilemap rows even in Crateria's rock room.
+        // The main callback runs even in Crateria's rock room, whose BG2 stays its own background.
         // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
         // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
@@ -864,7 +864,7 @@ internal sealed class RoomLoader
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
-            ? new ScrollingSkyState(skyHdmaConfigured)
+            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHdmaConfigured)
             : null;
 
         assets.LoadGraphics(_vram, _cgram);

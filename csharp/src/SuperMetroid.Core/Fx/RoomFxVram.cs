@@ -10,9 +10,6 @@ public readonly struct RoomFxVram(SnesVram vram)
     /// <summary>The room effect's layer-3 tilemap.</summary>
     public VramRegion Layer3Tilemap => new(vram, RoomFxVramLayout.Layer3Tilemap);
 
-    /// <summary>Queued-DMA destination <paramref name="wordOffset"/> words into the scrolling-sky rows.</summary>
-    public static VramDmaDestination ScrollingSkyDma(int wordOffset) => VramDmaDestination.At(RoomFxVramLayout.ScrollingSkyRows, wordOffset);
-
     /// <summary>Queued-DMA destination of the mutable HUD rows.</summary>
     public static VramDmaDestination HudMutableRowsDma => VramDmaDestination.At(RoomFxVramLayout.HudMutableRows);
 }

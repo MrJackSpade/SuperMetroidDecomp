@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -16,7 +17,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Arrays are owned copies; simulation cannot change them after publication.
 /// </summary>
 /// <param name="DoorTransitionMainScreenLayers">TM the door-transition IRQ handlers (<c>$80:96F1</c> and peers) write below the HUD, or null outside a door transition.</param>
-/// <param name="ScrollingSkyHorizontalScrolls">The sky's per-gameplay-line BG2HOFS HDMA values before room shake, when the sky's HDMA object is configured.</param>
+/// <param name="ScrollingSky">The scrolling sky's rows and parallax bands, when the room spawned the sky's band HDMA object.</param>
 /// <param name="CrocomireMeltingScrolls">Crocomire's melting BG2VOFS HDMA table, while its channel is active.</param>
 /// <param name="MotherBrainRisingHdmaActive">Whether Mother Brain's ascent HDMA owns the gameplay layers.</param>
 /// <param name="RainbowBeam">Rainbow-beam window description; its fixed color comes from the NMI latch.</param>
@@ -29,7 +30,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue BG2VOFS HDMA object is running.</param>
 public sealed record GameplayFrameEndDisplayInputs(
     SnesMainScreenLayers? DoorTransitionMainScreenLayers,
-    ImmutableArray<ushort>? ScrollingSkyHorizontalScrolls,
+    ScrollingSkyLayer? ScrollingSky,
     ImmutableArray<ushort>? CrocomireMeltingScrolls,
     bool MotherBrainRisingHdmaActive,
     MotherBrainRainbowBeamRenderSnapshot? RainbowBeam,

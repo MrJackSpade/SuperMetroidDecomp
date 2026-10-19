@@ -9,4 +9,6 @@ internal enum D3D11RoomSource : uint
     Bg1 = 1,
     /// <summary>The room's layer-2 plane.</summary>
     Bg2 = 2,
+    /// <summary>The scrolling sky's rows (#1347).</summary>
+    Sky = 3,
 }

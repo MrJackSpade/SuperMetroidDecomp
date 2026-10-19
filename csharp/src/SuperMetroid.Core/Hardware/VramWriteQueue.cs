@@ -98,13 +98,6 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { StagingWords = words });
     }
 
-    /// <summary>Queues a transfer of <paramref name="sizeInBytes"/> zero bytes, for a source the port does not model.</summary>
-    public void EnqueueZeroFill(ushort sizeInBytes, VramDmaDestination destination)
-    {
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, destination) { ZeroFill = true });
-    }
-
     /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
     private void Append(VramWriteEntry entry)
     {
@@ -161,8 +154,6 @@ public sealed class VramWriteQueue
                 WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
             else if (entry.StagingWords is { } words)
                 WriteStaged(vram, objects, entry, LittleEndianBytes(words, entry.SizeInBytes));
-            else if (entry.ZeroFill)
-                WriteStaged(vram, objects, entry, new byte[entry.SizeInBytes]);
             else if (entry.AssetId == VramAssetId.None)
             {
                 if (assets is not IInstalledArtworkTransferSource artwork ||

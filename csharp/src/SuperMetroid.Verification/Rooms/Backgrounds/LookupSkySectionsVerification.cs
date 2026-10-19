@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -21,11 +22,11 @@ internal static class LookupSkySectionsVerification
             AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.ScrollingSky.GetSection(invalid),
                 "Sky preserves former indexed row bounds");
 
-        var sky = new ScrollingSkyState();
+        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
         var expectedSlots = new uint[23];
         for (int frame = 0; frame < 16; frame++)
         {
-            sky.ProcessFrame(0x0300, false, new VramWriteQueue());
+            sky.ProcessFrame(0x0300, false);
             for (int index = 0; index < originalCount; index++)
             {
                 int source = 0x88aec1 + index * 8;
@@ -36,6 +37,8 @@ internal static class LookupSkySectionsVerification
             expectedSlots[22] = 0;
         }
         ushort end = ReadVerificationWord(rom, 0x88af79);
+        ScrollingSkyLayer layer = sky.Publish(RoomSkyTilemapFixtures.Numbered().Tilemap(ScrollingSkyChunkTable.Land), 0)
+            ?? throw new InvalidOperationException("The configured sky publishes its layer.");
         for (int worldY = 0; worldY <= ushort.MaxValue; worldY++)
         {
             ushort expected = 0;
@@ -49,7 +52,7 @@ internal static class LookupSkySectionsVerification
                 expected = SnesFixedPosition.WholeOf(unchecked((int)expectedSlots[slot]));
                 break;
             }
-            ushort actual = sky.BuildGameplayHorizontalScrolls(unchecked((ushort)(worldY - 32)), 1)[0];
+            ushort actual = (layer with { VerticalScroll = unchecked((ushort)(worldY - 32)) }).GameplayLineScrolls(1)[0];
             AssertEqual(expected, actual, "Sky caller band selection, ushort camera wrap and terminal fallback");
         }
     }

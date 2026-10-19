@@ -136,10 +136,10 @@ public static class SnesGameplayFrameRenderer
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
 
-        // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane, or the
-        // tilemap its owner loaded when it has none (#1346).
+        // BG1 comes from the room backgrounds; BG2 from the room's layer-2 plane or the sky's rows, or the
+        // tilemap its owner loaded when it has neither (#1346, #1347).
         IBgTileSource bg1 = layer.Rooms.Bg1Source;
-        IBgTileSource bg2 = layer.Rooms.Bg2 ?? (IBgTileSource)new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize);
+        IBgTileSource bg2 = layer.Rooms.Bg2Source ?? new VramBgTilemap(vram, bg2TilemapBaseWord, bg2TilemapSize);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers

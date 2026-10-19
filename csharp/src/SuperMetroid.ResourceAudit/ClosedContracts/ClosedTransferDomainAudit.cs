@@ -21,12 +21,10 @@ internal static class ClosedTransferDomainAudit
         {
             int offset = source - RoomSkyTilemapFormat.FirstSourceAddress;
             if ((uint)offset >= RoomSkyTilemapFormat.TotalByteCount) return null; // Valid false query.
-            if ((source & 1) != 0) return "Owned scrolling-sky source must be even-addressed.";
             if (Constant("byteCount") is not int skyCount) return null;
             bool page = offset % RoomSkyTilemapFormat.PageByteCount == 0 && skyCount == RoomSkyTilemapFormat.PageByteCount;
-            bool row = skyCount == SuperMetroid.Core.Fx.RoomFxRomData.ScrollingSky.TilemapRowByteCount;
-            return (!page && !row) || (long)offset + skyCount > RoomSkyTilemapFormat.TotalByteCount
-                ? "Owned scrolling-sky source/length is neither a complete aligned page nor a complete even-addressed row." : null;
+            return !page || (long)offset + skyCount > RoomSkyTilemapFormat.TotalByteCount
+                ? "Owned scrolling-sky source/length is not a complete aligned page." : null;
         }
         if (!GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source)) return null;
         return Constant("byteCount") is int count && count != GunshipLiftoffTransferDefinitions.ByteCount

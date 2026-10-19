@@ -282,8 +282,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[9] = (uint)layer.ColorMath;
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
         data[16] = (uint)r.Bg2TilemapWord; data[17] = (uint)r.HudCharacterWord;
-        // BG1 is always the room's; BG2 is its layer-2 plane or the tilemap at word 16.
-        data[14] = (uint)(layer.Gameplay.Rooms.Bg2 is null ? D3D11RoomSource.VramTilemap : D3D11RoomSource.Bg2);
+        // BG1 is always the room's; BG2 is its layer-2 plane, the sky's rows or the tilemap at word 16.
+        data[14] = (uint)D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
         data[27] = (uint)r.Bg2Mosaic.Size;
@@ -407,7 +407,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[1] = (uint)r.Bg2TilemapWord; data[2] = (uint)r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
-        data[14] = (uint)(layer.Rooms.Bg2 is null ? D3D11RoomSource.VramTilemap : D3D11RoomSource.Bg2);
+        data[14] = (uint)D3D11RoomSources.Bg2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
         // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
         data[27] = (uint)r.Bg2Mosaic.Size;
@@ -491,7 +491,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         foreach (RenderLayer layer in scene.Layers)
             if (layer is Mode7GameplayRenderLayer { Floor.Room: { } floorRoom })
                 floor = floorRoom;
-        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay))
+        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);

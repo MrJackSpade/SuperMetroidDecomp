@@ -85,49 +85,11 @@ internal static class VramDmaDomains
                 return Native(LibraryBackgroundSources.Program(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)).Instructions
                     .Where(instruction => instruction.Command == LibraryBackgroundCommand.TransferForDoor)
                     .Select(instruction => (instruction.SourceAddress, (int)instruction.ByteCount)));
-            case "sky":
-                return Native(SkyRows());
             case "plm":
                 // The descriptor walker follows byte widths and source/count
                 // correlation in all compiled PLM lists, including disconnected tails.
                 return [];
             default: throw new InvalidDataException("Unregistered DMA producer domain " + family);
-        }
-    }
-
-    /// <summary>Derives scrolling-sky row transfers from reachable room states and camera bounds.</summary>
-    private static IEnumerable<(int, int)> SkyRows()
-    {
-        // Finite source arithmetic for the rooms selecting this callback, not
-        // gameplay execution. Using the entire $07F8 mask incorrectly invents
-        // index 6..8 ocean rows below the six-screen room. Last-row blue scrolls
-        // align at zero; nonblue rows permit the camera's additional $1F.
-        foreach (var room in RoomHeaderDefinitions.All)
-        foreach (var state in RoomStateSelectionDefinitions.GetStates(room)
-                     .Where(state => ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback)))
-        {
-            ScrollingSkyChunkTable table = state.MainCallback == RoomMainCallback.ScrollingSkyOcean
-                ? ScrollingSkyChunkTable.Ocean
-                : ScrollingSkyChunkTable.Land;
-            int logicalCount = room.Size.Area;
-            bool blueBottom = state.Scroll.ImplicitBottomRow is { } bottomRow
-                ? bottomRow == RoomScrollState.Blue
-                : state.Scroll.Storage.Span
-                    .Slice(logicalCount - room.Size.X, room.Size.X)
-                    .All(cell => cell == (byte)RoomScrollState.Blue);
-            int maximum = ((room.Size.Y - 1) << VramDmaDomainGeometry.ScreenPixelShift) +
-                (blueBottom ? 0 : VramDmaDomainGeometry.NonBlueLowerAlignment);
-            for (int camera = 0; camera <= maximum; camera += VramDmaDomainGeometry.TileRowPixels)
-            foreach (int offset in new[] { -(int)RoomFxRomData.ScrollingSky.UpperRowCameraOffset,
-                         (int)RoomFxRomData.ScrollingSky.LowerRowCameraOffset })
-            {
-                ushort position = unchecked((ushort)((camera & RoomFxRomData.ScrollingSky.SourcePositionMask) + offset));
-                int source = RoomFxRomData.Banks.Tilemaps | unchecked((ushort)(
-                    ScrollingSkyChunkDefinitions.Get(table, SnesLittleEndian.HighByte(position)) +
-                    (position & VramDmaDomainGeometry.WithinScreenMask) * VramDmaDomainGeometry.TileRowPixels));
-                yield return (source, RoomFxRomData.ScrollingSky.TilemapRowByteCount);
-                yield return (source + RoomFxRomData.ScrollingSky.TilemapRowByteCount, RoomFxRomData.ScrollingSky.TilemapRowByteCount);
-            }
         }
     }
 }

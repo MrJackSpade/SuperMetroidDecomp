@@ -26,9 +26,9 @@ StructuredBuffer<uint> Memory : register(t0);
 StructuredBuffer<uint> BgLayers : register(t2);
 // Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay.
 StructuredBuffer<uint> RoomLevels : register(t3);
-// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it.
-static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2;
-static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19;
+// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, or the sky's rows.
+static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3;
+static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -94,8 +94,18 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within)
     }
     return inside;
 }
-// BG2 from the room's layer-2 plane, or BG1 as RoomBackgrounds resolves it: a door's source screen, then words
-// written over BG1, then the level plane.
+// The tile a sky row shows (SkyTilemap): 32-tile rows repeating every 2048 pixels down; a row selecting no page
+// shows nothing.
+bool SkyTile(uint2 scrolled, out uint entry, out uint2 within)
+{
+    uint word = RoomLevels[RoomLevels[RoomSkyWord] + ((scrolled.y & 2047) >> 3) * 32 + ((scrolled.x >> 3) & 31)];
+    bool shown = word != 4294967295u;
+    entry = shown ? word : 0;
+    within = scrolled & 7;
+    return shown;
+}
+// BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
+// screen, then words written over BG1, then the level plane.
 bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
 {
     entry = 0;
@@ -103,7 +113,7 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
     scrolled &= 65535;
     uint slot = source == RoomSourceBg2 ? 1 : 0;
     bool overlaid = false;
-    if (source != RoomSourceBg2)
+    if (source != RoomSourceBg2 && source != RoomSourceSky)
     {
         uint door = RoomLevels[RoomDoorWindowWord];
         uint2 doorWithin = (scrolled - uint2(door & 65535, door >> 16)) & 65535;
@@ -120,7 +130,9 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within)
         }
     }
     bool shown = overlaid;
-    if (!overlaid)
+    if (source == RoomSourceSky)
+        shown = SkyTile(scrolled, entry, within);
+    else if (!overlaid)
         shown = RoomPlaneTile(slot, scrolled, entry, within);
     return shown;
 }

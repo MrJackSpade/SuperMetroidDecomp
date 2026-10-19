@@ -15,6 +15,8 @@ public static class ScrollingSkyChunkDefinitions
     private const int FirstPage = 0xb180;
     /// <summary>Native byte stride between successive bank-$8A scrolling-sky tilemap pages.</summary>
     private const int PageByteCount = 0x0800;
+    /// <summary>The seven contiguous sky pages from <see cref="FirstPage"/>.</summary>
+    private const int PageCount = 7;
 
     /// <summary>$88:ADB2 REP #$30: ocean index6 reads opcode/operand as word30C2.</summary>
     private const ushort OceanAdjacentStatusInstruction = 0x30c2;
@@ -27,6 +29,17 @@ public static class ScrollingSkyChunkDefinitions
     public const ushort LandWrappedTop = 0xada6;
     /// <summary>$88:AFA4: ocean index255 reads the shared wrapper's TimeIsFrozenFlag address.</summary>
     public const ushort OceanWrappedTop = 0x0a78;
+
+    /// <summary>The sky page a chunk selects; false for a compatibility word, which selects no page.</summary>
+    /// <param name="pointerTable">The land or ocean table.</param>
+    /// <param name="index">The chunk index.</param>
+    /// <param name="page">The page's bank-$8A address when the chunk selects one.</param>
+    public static bool TryGetPage(ScrollingSkyChunkTable pointerTable, int index, out ushort page)
+    {
+        page = Get(pointerTable, index);
+        int offset = page - FirstPage;
+        return offset >= 0 && offset % PageByteCount == 0 && offset / PageByteCount < PageCount;
+    }
 
     /// <summary>Selects a page or native compatibility word for the exact supported domain.</summary>
     public static ushort Get(ScrollingSkyChunkTable pointerTable, int index)

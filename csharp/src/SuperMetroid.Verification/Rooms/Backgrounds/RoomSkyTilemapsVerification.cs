@@ -19,10 +19,10 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
-/// <summary>Checks installed scrolling-sky pages and Landing Site transfers against native VRAM output.</summary>
+/// <summary>Checks installed scrolling-sky pages, the rows they show and Landing Site transfers against native data.</summary>
 internal static class RoomSkyTilemapsVerification
 {
-    /// <summary>Checks page roundtrips, land and ocean row DMA, wrapped WRAM sources, and one edited visible tile.</summary>
+    /// <summary>Checks page roundtrips, land and ocean rows, Landing Site page uploads, and one edited visible tile.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomSkyTilemaps()
     {
@@ -43,41 +43,28 @@ internal static class RoomSkyTilemapsVerification
         }
         var stock = new RoomSkyTilemapCatalog(pages);
         AssertThrows<InvalidDataException>(
-            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2,
-                0x20, out _),
-            "sky catalog rejects a truncated row inside an installed page");
+            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 0x40, 0x40, out _),
+            "sky catalog rejects a row: rows are drawn from the pages, not transferred (#1347)");
         AssertThrows<InvalidDataException>(
-            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 1,
-                RoomFxRomData.ScrollingSky.TilemapRowByteCount, out _),
-            "sky catalog rejects a byte-unaligned row inside an installed page");
-        AssertThrows<InvalidDataException>(
-            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress +
-                RoomSkyTilemapFormat.TotalByteCount - 0x20,
-                RoomFxRomData.ScrollingSky.TilemapRowByteCount, out _),
-            "sky catalog rejects a row extending past the installed pages");
-        foreach (RoomMainCallback callback in new[]
-                 {
-                     RoomMainCallback.ScrollingSkyLand,
-                     RoomMainCallback.ScrollingSkyOcean,
-                 })
-        for (int cameraY = 0; cameraY <= 0x04f0; cameraY++)
+            () => stock.TryResolve(RoomSkyTilemapFormat.FirstSourceAddress + 2, RoomSkyTilemapFormat.PageByteCount, out _),
+            "sky catalog rejects an unaligned page");
+        // Every row the land and ocean tables select is the native page row at that offset; the ocean table's
+        // adjacent-code chunks select no row.
+        foreach (ScrollingSkyChunkTable table in new[] { ScrollingSkyChunkTable.Land, ScrollingSkyChunkTable.Ocean })
         {
-            var queued = new VramWriteQueue();
-            new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued, callback);
-            foreach (VramWriteEntry transfer in queued.Entries)
+            SkyTilemap rows = stock.Tilemap(table);
+            AssertTrue(ReferenceEquals(rows, stock.Tilemap(table)), $"{table} sky rows are built once per installed catalog");
+            for (int row = 0; row < SkyTilemap.Rows; row++)
             {
-                // Ocean's wrapped top-of-room pointer selects live WRAM the port does not
-                // keep there; those rows behind the HUD upload blank (#1318).
-                if (transfer.ZeroFill)
+                if (!ScrollingSkyChunkDefinitions.TryGetPage(table, row / 32, out ushort page))
                 {
-                    AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
-                        $"only ocean's wrapped top row uploads blank (camera Y=${cameraY:X4})");
+                    AssertTrue(!rows.RowShown(row), $"{table} row {row} selects no page");
                     continue;
                 }
-                AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
-                        out _),
-                    $"scrolling-sky {callback} camera Y=${cameraY:X4} transfer " +
-                    $"${transfer.SourceAddress:X6}+${transfer.SizeInBytes:X} has installed artwork");
+                byte[] native = ReadRetailSkyBytes(bus, 0x8a0000 | (page + row % 32 * 0x40), 0x40);
+                for (int column = 0; column < SkyTilemap.Columns; column++)
+                    AssertEqual(SnesLittleEndian.Word(native[column * 2], native[column * 2 + 1]), rows.Words[row * SkyTilemap.Columns + column],
+                        $"{table} sky row {row} column {column} is the native page word");
             }
         }
         var guard = NewSkyPageReadGuard(bus);
@@ -129,91 +116,23 @@ internal static class RoomSkyTilemapsVerification
         AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
 
-        var nativeRows = new VramWriteQueue();
-        var installedRows = new VramWriteQueue();
-        new ScrollingSkyState().ProcessFrame(0x0300, false, nativeRows);
-        new ScrollingSkyState().ProcessFrame(0x0300, false, installedRows);
-        AssertEqual(4, installedRows.Entries.Count,
-            "scrolling-sky frame queues the four native row transfers");
-        var nativeRowVram = new SnesVram();
-        var installedRowVram = new SnesVram();
-        ImportedVramOracle.Drain(nativeRows, nativeRowVram, bus);
-        installedRows.DrainTo(installedRowVram, new SkyPageProvider(stock));
-        AssertTrue(nativeRowVram.ImageEquals(installedRowVram),
-            "per-frame sky rows use installed pages without ROM visual reads");
-        foreach (ushort cameraY in new ushort[] { 0x0000, 0x04f0 })
-        {
-            var nativeEdgeRows = new VramWriteQueue();
-            var installedEdgeRows = new VramWriteQueue();
-            new ScrollingSkyState().ProcessFrame(cameraY, false, nativeEdgeRows);
-            new ScrollingSkyState().ProcessFrame(cameraY, false, installedEdgeRows);
-            var nativeEdgeVram = new SnesVram();
-            var installedEdgeVram = new SnesVram();
-            ImportedVramOracle.Drain(nativeEdgeRows, nativeEdgeVram, bus);
-            installedEdgeRows.DrainTo(installedEdgeVram,
-                new SkyPageProvider(stock));
-            AssertTrue(nativeEdgeVram.ImageEquals(installedEdgeVram),
-                $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
-        }
-        foreach (ushort cameraY in new ushort[] { 0x0000, 0x0100, 0x0300, 0x04f0 })
-        {
-            var nativeOceanRows = new VramWriteQueue();
-            var installedOceanRows = new VramWriteQueue();
-            new ScrollingSkyState().ProcessFrame(cameraY, false, nativeOceanRows,
-                RoomMainCallback.ScrollingSkyOcean);
-            new ScrollingSkyState().ProcessFrame(cameraY, false, installedOceanRows,
-                RoomMainCallback.ScrollingSkyOcean);
-            VramWriteEntry wrappedRow = nativeOceanRows.Entries[0];
-            if (cameraY == 0)
-                MarkWrappedSkyRowWram(bus);
-            var nativeOceanVram = new SnesVram();
-            var installedOceanVram = new SnesVram();
-            ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
-            installedOceanRows.DrainTo(installedOceanVram,
-                new SkyPageProvider(stock));
-            AssertTrue(nativeOceanVram.ImageEquals(installedOceanVram),
-                $"ocean camera Y=${cameraY:X4} uses installed sky rows and a blank wrapped top row");
-            if (cameraY == 0)
-            {
-                AssertTrue(wrappedRow.ZeroFill, "ocean wrapped top row is queued blank");
-                AssertEqual((byte)0,
-                    installedOceanVram.Bytes[(wrappedRow.Destination.Encoded & 0x7fff) * 2],
-                    "ocean wrapped top row ignores the WRAM its native pointer names");
-            }
-        }
-
-        var editedQueue = new VramWriteQueue();
-        new ScrollingSkyState().ProcessFrame(0x0300, false, editedQueue);
-        VramWriteEntry firstRow = editedQueue.Entries[0];
-        int sourceOffset = firstRow.SourceAddress - RoomSkyTilemapFormat.FirstSourceAddress;
-        int selectedPage = sourceOffset / RoomSkyTilemapFormat.PageByteCount;
-        int selectedCell = sourceOffset % RoomSkyTilemapFormat.PageByteCount / sizeof(ushort);
+        // An edited page reaches the row the land table shows at camera Y $0300: chunk three, row zero.
+        int selectedPage = 3;
         JsonNode editedDocument = JsonNode.Parse(json[selectedPage])
             ?? throw new InvalidDataException("Scrolling-sky page JSON is empty.");
-        JsonNode editedCell = editedDocument.Required("pages").Required(0).Required("cells").Required(selectedCell);
+        JsonNode editedCell = editedDocument.Required("pages").Required(0).Required("cells").Required(0);
         editedCell["tileColumn"] = (editedCell.Required("tileColumn").GetValue<int>() + 1)
             % RoomBackgroundTilemapFormat.TileColumns;
         pages[selectedPage] = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
             RoomSkyTilemapFormat.PageByteCount);
-        var editedRowVram = new SnesVram();
-        editedQueue.DrainTo(editedRowVram,
-            new SkyPageProvider(new RoomSkyTilemapCatalog(pages)));
-        AssertTrue(editedRowVram.ReadWord(firstRow.Destination.Encoded) !=
-                nativeRowVram.ReadWord(firstRow.Destination.Encoded),
-            "editing a sky page changes the visible queued row at its native destination");
+        int shownRow = 0x0300 / 8 * SkyTilemap.Columns;
+        AssertTrue(new RoomSkyTilemapCatalog(pages).Tilemap(ScrollingSkyChunkTable.Land).Words[shownRow] !=
+                stock.Tilemap(ScrollingSkyChunkTable.Land).Words[shownRow],
+            "editing a sky page changes the row the sky shows");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
             "per-frame NMI transfers use installed art, ocean's wrapped top row is blank, and an edit reaches the queued row.");
     }
-
-    /// <summary>
-    /// Marks the bank-$7E byte the native ocean wrapped top row (camera Y 0) DMAs from, so a transfer that still read it
-    /// would be observable.
-    /// </summary>
-    [CpuBusBoundary("exact bus test: seeds the live WRAM byte the native wrapped ocean sky-row pointer names")]
-    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus) =>
-        bus.WriteByte(0x7e0000 | unchecked((ushort)(ScrollingSkyChunkDefinitions.OceanWrappedTop +
-            SnesLittleEndian.LowByte(unchecked((ushort)(0 - RoomFxRomData.ScrollingSky.UpperRowCameraOffset))) * 8)), 0x5a);
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
@@ -234,18 +153,5 @@ internal static class RoomSkyTilemapsVerification
                             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)),
                 address => $"Landing Site entry reread compiled transfer list ${address:X6}.");
         return guard;
-    }
-
-    /// <summary>Supplies queued sky-row DMA from installed pages while retaining live WRAM for wrapped rows.</summary>
-    internal sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
-        : IVramAssetProvider, IInstalledArtworkTransferSource
-    {
-        /// <summary>Rejects typed asset requests outside this source-address sky-page fixture.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
-            throw new InvalidOperationException($"Unexpected queued asset {asset}.");
-
-        /// <summary>Resolves a bank-relative sky source and exact transfer size from the installed page catalog.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount,
-            out ReadOnlyMemory<byte> data) => art.TryResolve(sourceAddress, byteCount, out data);
     }
 }

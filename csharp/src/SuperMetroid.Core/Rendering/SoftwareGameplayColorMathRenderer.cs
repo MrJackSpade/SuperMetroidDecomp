@@ -50,7 +50,7 @@ public static class SoftwareGameplayColorMathRenderer
         RoomBackgrounds rooms = layer.Gameplay.Rooms;
         var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, rooms.Bg1Source, r.Bg1CharacterWord, true);
         var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors,
-            rooms.Bg2 ?? (IBgTileSource)new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2CharacterWord, true);
+            rooms.Bg2Source ?? new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2CharacterWord, true);
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
             new VramBgTilemap(memory.Vram, subLayer.TilemapWord, new Extent16<TilemapCells>(32, checked((ushort)subLayer.MapHeightTiles))),
             subLayer.CharacterWord, false) : null;

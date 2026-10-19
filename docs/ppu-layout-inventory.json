@@ -1783,18 +1783,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Fx.RoomFxVramLayout",
-      "name": "ScrollingSkyRows",
-      "region": "Vram",
-      "offset": "$4800",
-      "count": 2080,
-      "encoding": "BG tilemap words (32-wide rows)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVram.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Gameplay.NewGamePaletteLayout",
       "name": "CeresElevatorConcealer",
       "region": "Cgram",
@@ -2349,7 +2337,6 @@
         "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/Mode7VramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/VramStore.cs"

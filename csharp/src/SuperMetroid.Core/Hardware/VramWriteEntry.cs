@@ -22,12 +22,9 @@ public readonly record struct VramWriteEntry(
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
     public VramAssetId AssetId { get; init; }
 
-    /// <summary>Whether the transfer writes zero bytes instead of reading a source.</summary>
-    public bool ZeroFill { get; init; }
-
     /// <summary>
     /// The owned buffer the transfer reads when the queue drains, in place of the WRAM its native
-    /// <see cref="SourceAddress"/> names; null for bus, asset and zero-fill transfers.
+    /// <see cref="SourceAddress"/> names; null for bus and asset transfers.
     /// </summary>
     public VramStagingBuffer? Staging { get; init; }
 

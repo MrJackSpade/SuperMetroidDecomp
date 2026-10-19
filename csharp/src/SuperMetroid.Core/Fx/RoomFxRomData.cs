@@ -269,7 +269,7 @@ public static class RoomFxRomData
         public const ushort HorizontalVelocity = 0x0050;
     }
 
-    /// <summary>Landing Site scrolling-sky table and circular tilemap layout.</summary>
+    /// <summary>Landing Site scrolling-sky band table.</summary>
     public static class ScrollingSky
     {
         /// <summary>Twenty-three eight-byte sky-band records processed by $88:ADC2.</summary>
@@ -307,18 +307,6 @@ public static class RoomFxRomData
         public const ushort WorldEndPosition = 0x0500;
         /// <summary>First gameplay scanline below the 32-pixel HUD.</summary>
         public const ushort GameplayFirstScanline = 32;
-        /// <summary>Byte stride of one 32-word BG tilemap row.</summary>
-        public const ushort TilemapRowByteCount = 0x0040;
-        /// <summary>Word count of one 32-tile BG tilemap row.</summary>
-        public const ushort TilemapHalfRowWordCount = 0x0020;
-        /// <summary>Camera Y offset selecting the upper circular tilemap row.</summary>
-        public const ushort UpperRowCameraOffset = 16;
-        /// <summary>Camera Y offset selecting the lower circular tilemap row.</summary>
-        public const ushort LowerRowCameraOffset = 240;
-        /// <summary>Mask aligning the circular tilemap position to an eight-pixel row.</summary>
-        public const ushort TilemapPositionMask = 0x01f8;
-        /// <summary>Mask aligning a sky source position within its 2048-pixel wrap.</summary>
-        public const ushort SourcePositionMask = 0x07f8;
 
 
     }

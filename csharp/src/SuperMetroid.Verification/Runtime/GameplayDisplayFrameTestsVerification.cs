@@ -75,7 +75,7 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Arm();
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 20; i++) explosion.StepFrame();
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = new ScrollingSkyState() });
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = new ScrollingSkyState(ScrollingSkyChunkTable.Land) });
         runtime.Display.GameplayHudCharacterBaseWord = KraidHudCharacterWord;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(31, 0, 31));
@@ -83,7 +83,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(ReferenceEquals(frameEnd, frame.FrameEnd) && ReferenceEquals(latched, frame.Latched),
             "a published frame keeps its own latch and frame-end inputs");
         AssertEqual(false, frame.FrameEnd.PowerBomb.IsActive, "published power bomb inputs are a value copy");
-        AssertTrue(frame.FrameEnd.ScrollingSkyHorizontalScrolls is null, "published sky table is not the live owner");
+        AssertTrue(frame.FrameEnd.ScrollingSky is null, "published sky layer is not the live owner");
         AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(frame))),
             "a published frame survives later simulation, latch and PPU memory changes");
 
@@ -143,12 +143,12 @@ internal static class GameplayDisplayFrameTestsVerification
 
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
         // HDMA reads the table during display; the mirror waits for the NMI upload.
-        var sky = new ScrollingSkyState();
+        var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = sky });
-        sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false, runtime.VramWrites);
+        sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
         MarkMainLoopWrite(runtime);
-        AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSkyHorizontalScrolls is not null,
-            "sky band table is read live during display");
+        AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
+            "sky bands are read live during display");
         AssertPending(runtime, registers => registers.Bg2Scroll.Y == before.Bg2Scroll.Y &&
             registers.Bg2MapSize == before.Bg2MapSize, "sky BG2VOFS and BG2SC");
         AssertPublished(runtime, registers => registers.Bg2Scroll.Y == SkyLayer1Y &&

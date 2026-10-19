@@ -111,7 +111,8 @@ internal static class PaletteFxInstructionCodesVerification
         ];
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             PaletteFxObject.Nothing,
             equippedItems: 0);
@@ -147,7 +148,8 @@ internal static class PaletteFxInstructionCodesVerification
         foreach ((string owner, ushort definitionPointer) in nintendoLogoEntries)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
@@ -178,7 +180,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -222,7 +225,8 @@ internal static class PaletteFxInstructionCodesVerification
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer(0, invalid), "glare color column bounds");
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -274,7 +278,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -315,7 +320,8 @@ internal static class PaletteFxInstructionCodesVerification
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(0, invalid), "gunship reveal color column bounds");
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -362,7 +368,8 @@ internal static class PaletteFxInstructionCodesVerification
         foreach ((string owner, ushort definitionPointer) in whiteoutEntries)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
@@ -390,7 +397,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -420,7 +428,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -450,7 +459,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
@@ -513,7 +523,8 @@ internal static class PaletteFxInstructionCodesVerification
                     .NavigationLightsColorsPerFrame;
 
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
                 paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -535,7 +546,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames; step++)
             paletteFx.Step(new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -555,7 +567,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(
             OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
@@ -589,7 +602,8 @@ internal static class PaletteFxInstructionCodesVerification
                  TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step <= TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames;
@@ -621,7 +635,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
@@ -680,7 +695,8 @@ internal static class PaletteFxInstructionCodesVerification
                  })
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(definition, equippedItems: 0);
             for (int step = 0;
@@ -711,7 +727,8 @@ internal static class PaletteFxInstructionCodesVerification
                 "Tourian glow resumes after the native six-byte skip");
         }
 
-        var deletionFx = new RoomPaletteFxSystem();
+        var deletionFxSession = new PaletteFxSessionState();
+        var deletionFx = new RoomPaletteFxSystem(deletionFxSession);
         deletionFx.SpawnDefinition(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, 0);
         deletionFx.SpawnDefinition(0xf795, 0);
         deletionFx.SpawnDefinition(0xf799, 0);
@@ -730,7 +747,8 @@ internal static class PaletteFxInstructionCodesVerification
         ISnesAddressSpace bus)
     {
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
@@ -765,7 +783,8 @@ internal static class PaletteFxInstructionCodesVerification
                  TourianStatueGreyPaletteFxColorToolingDefinitions.All)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step < TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion;
@@ -798,7 +817,8 @@ internal static class PaletteFxInstructionCodesVerification
         foreach (ushort definition in new ushort[] { 0xf76d, 0xf771 })
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-            var paletteFx = new RoomPaletteFxSystem();
+            var paletteFxSession = new PaletteFxSessionState();
+            var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(definition, equippedItems: 0);
             int steps = 1 +
@@ -875,7 +895,8 @@ internal static class PaletteFxInstructionCodesVerification
     /// </summary>
     private static void VerifyNorfairHeatPaletteHandshake(ISnesAddressSpace bus)
     {
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
         var samus = new SamusState { Health = 99 };
         paletteFx.SpawnDefinition(definition: 0xf761, equippedItems: 0);
@@ -897,9 +918,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
             if (frame == 16)
             {
-                AssertEqual(1, paletteFx.SamusInHeatPaletteIndex,
+                AssertEqual(1, paletteFxSession.SamusInHeatPaletteIndex,
                     "$F785 publishes its second heat phase on its own slot pass");
-                AssertEqual(0, paletteFx.PreviousSamusInHeatPaletteIndex,
+                AssertEqual(0, paletteFxSession.PreviousSamusInHeatPaletteIndex,
                     "shared heat owner has not consumed the later slot's phase in the same frame");
             }
         }
@@ -908,7 +929,7 @@ internal static class PaletteFxInstructionCodesVerification
             "retail Norfair heat owner carries quarter-units into whole damage");
         AssertEqual((ushort)0x4000, samus.LiquidPhysics.PeriodicSubDamage,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
-        AssertEqual(1, paletteFx.PreviousSamusInHeatPaletteIndex,
+        AssertEqual(1, paletteFxSession.PreviousSamusInHeatPaletteIndex,
             "shared heat owner consumes $F785 phase on following frame");
         AssertEqual(2, damageSoundCount,
             "retail Norfair heat owner publishes on frame-eight boundaries");
@@ -1552,7 +1573,8 @@ internal static class PaletteFxInstructionCodesVerification
     /// </summary>
     private static void VerifyBeaconSoundInstruction(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        var paletteFx = new RoomPaletteFxSystem();
+        var paletteFxSession = new PaletteFxSessionState();
+        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(definition: 0xf781, equippedItems: 0);
 

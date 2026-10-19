@@ -13,10 +13,12 @@ public sealed class RoomTreadmillAnimatedTilesState
     /// <summary>Treadmill animations selected by the current room FX bitset in native bit order.</summary>
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
-    /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
-    public void LoadRoom(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
+    /// <summary>Spawns one room's objects from the door-selected FX record in native bit order.</summary>
+    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="area">The room's area, which selects each bit's object.</param>
+    public RoomTreadmillAnimatedTilesState(RoomFxDefinition? fx, CartridgeDoorHeader? door, AreaId area)
     {
-        objects.Clear();
         if (fx?.Select(door) is not { } record) return;
         byte bits = record.AnimatedTileBitset;
         for (int bit = 0; bit < 8; bit++)

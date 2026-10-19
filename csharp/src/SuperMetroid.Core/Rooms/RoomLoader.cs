@@ -44,8 +44,6 @@ internal sealed class RoomLoader
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Owns the Ceres elevator shaft's room-specific startup state.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
-    /// <summary>Owns the haze effect installed by Ceres room loading.</summary>
-    private readonly CeresHazeState _ceresHaze;
     /// <summary>Receives room and player palette data during a load.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
@@ -86,28 +84,20 @@ internal sealed class RoomLoader
     private readonly ActiveRoomState _room;
     /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
-    /// <summary>Installs layer-three effects selected by the room state.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
-    /// <summary>Starts palette effects belonging to the destination room.</summary>
-    private readonly RoomPaletteFxSystem _roomPaletteFx;
-    /// <summary>Resets animated spike tiles for the destination room.</summary>
-    private readonly RoomSpikeAnimatedTilesState _roomSpikes;
-    /// <summary>Resets animated treadmill tiles for the destination room.</summary>
-    private readonly RoomTreadmillAnimatedTilesState _roomTreadmills;
-    /// <summary>Resets animated sand tiles for the destination room.</summary>
-    private readonly RoomSandAnimatedTilesState _sandAnimatedTiles;
+    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
+    private readonly RoomFxSession _roomFx;
+    /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
+    private readonly PaletteFxSessionState _paletteFxSession;
+    /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
+    private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
     /// <summary>Provides persistent event and boss bits used by room-state selectors.</summary>
     private readonly Bank80SystemState _system;
     /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
     private readonly TesterTools _tester;
-    /// <summary>Coordinates the Tourian statue room sequence on room entry.</summary>
-    private readonly TourianStatueSequence _tourianStatues;
     /// <summary>Receives the initial tile and sprite graphics uploads.</summary>
     private readonly SnesVram _vram;
     /// <summary>Queues VRAM writes that must occur at the next display boundary.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Resets Wrecked Ship's animated treadmill tiles on entry.</summary>
-    private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
 
 
     /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
@@ -117,7 +107,6 @@ internal sealed class RoomLoader
         _backgroundPhase = dependencies.BackgroundPhase;
         _backgroundScroll = dependencies.BackgroundScroll;
         _ceresElevatorShaft = dependencies.CeresElevatorShaft;
-        _ceresHaze = dependencies.CeresHaze;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
@@ -137,17 +126,13 @@ internal sealed class RoomLoader
         _beamCharge = dependencies.BeamCharge;
         _room = dependencies.Room;
         _gameplayWindows = dependencies.GameplayWindows;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
-        _roomPaletteFx = dependencies.RoomPaletteFx;
-        _roomSpikes = dependencies.RoomSpikes;
-        _roomTreadmills = dependencies.RoomTreadmills;
-        _sandAnimatedTiles = dependencies.SandAnimatedTiles;
+        _roomFx = dependencies.RoomFx;
+        _paletteFxSession = dependencies.PaletteFxSession;
+        _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _tester = dependencies.Tester;
-        _tourianStatues = dependencies.TourianStatues;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
 
     }
     /// <summary>
@@ -279,7 +264,7 @@ internal sealed class RoomLoader
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
         _player.BeginLoadAppearance(loadAppearance, NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
-        _roomPaletteFx.SpawnDefinition(
+        _room.LoadedScope.PaletteFx.SpawnDefinition(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
@@ -863,7 +848,8 @@ internal sealed class RoomLoader
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
         _hudSetup.SelectGameplayHudCharacterBase();
-        _wreckedShipTreadmill.Reset();
+        var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
+        scope.WreckedShipTreadmill = wreckedShipTreadmill;
         _maridiaElevatube.Reset(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
         _ceresElevatorShaft.Reset(
@@ -945,36 +931,40 @@ internal sealed class RoomLoader
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
         // blend, uploads the common $8A BG3 tilemap, and creates the type-owned HDMA/
         // animtile state before palette-FX objects and enemies begin running.
-        _roomLayer3Fx.Load(
+        var roomLayer3Fx = RoomLayer3FxState.ForRoom(
+            _roomFx,
             _vram,
             _cgram,
             room.State.Fx,
             door,
             _system.RandomNumber,
             room.Definition);
-        _roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
-        _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
+        scope.Layer3Fx = roomLayer3Fx;
+        roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
+        scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        _sandAnimatedTiles.LoadRoom(room.State.Fx, door,
+        scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
-        _roomSpikes.LoadRoom(room.State.Fx, door,
+        scope.SpikeTiles = new RoomSpikeAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
-        _roomTreadmills.LoadRoom(room.State.Fx, door,
+        scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
         if (_player.Samus is not null)
-            _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
+            roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
 
         // `$82:E4A9` calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The bank-$8D half must
         // be created on every shared room-load path; Landing Site bit zero replaces CGRAM
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
-        _roomPaletteFx.LoadRoom(
+        var roomPaletteFx = RoomPaletteFxSystem.ForRoom(
+            _paletteFxSession,
             room.State.Fx,
             door,
             room.AreaIndex,
             _player.Samus?.EquippedItems ?? 0,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+        scope.PaletteFx = roomPaletteFx;
 
         // A room state's library-background program runs through bank $82's command interpreter.
         // Rooms whose layer-2 scroll mode is fixed/odd rely on this list as their only BG2 source;
@@ -1023,7 +1013,7 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = plmServices,
-            RoomFx = _roomLayer3Fx,
+            RoomFx = roomLayer3Fx,
             Earthquake = plmServices,
             Enemies = plmServices,
         };
@@ -1039,7 +1029,7 @@ internal sealed class RoomLoader
         // those programs rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetupCode(door, plms);
+        _doorTransition.RunDoorSetupCode(door, plms, wreckedShipTreadmill);
         if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
             plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
@@ -1100,8 +1090,8 @@ internal sealed class RoomLoader
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             _enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects, plms);
-        _tourianStatues.Load(plms);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms);
         _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)

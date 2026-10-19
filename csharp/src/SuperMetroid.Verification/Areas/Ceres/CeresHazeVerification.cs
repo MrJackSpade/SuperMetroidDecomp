@@ -39,8 +39,7 @@ internal static class CeresHazeVerification
         foreach (bool dead in new[] { false, true })
         foreach (bool immediate in new[] { false, true })
         {
-            var haze = new CeresHazeState();
-            haze.Load(true, dead, immediate);
+            var haze = new CeresHazeState(true, dead, immediate);
             AssertEqual(immediate ? 15 : 0, haze.Intensity, "Load projects initial/completed fade state");
             if (!immediate)
             {
@@ -69,7 +68,7 @@ internal static class CeresHazeVerification
             AssertEqual(1, haze.Intensity, "Zero counter retains final table without restarting");
             AssertEqual(dead, haze.IsRed, "Selected channel is room-owned throughout the trace");
             AssertTrue(haze.Enabled, "Fade completion does not disable the object");
-            haze.Load(false, !dead, immediate);
+            haze = new CeresHazeState(false, !dead, immediate);
             haze.Step(roomFadeIn: true, roomFadeOut: true);
             AssertEqual(immediate ? 15 : 0, haze.Intensity, "Disabled projection cannot advance");
             AssertTrue(!haze.Enabled && haze.IsRed == !dead, "Reload replaces enable/channel state");

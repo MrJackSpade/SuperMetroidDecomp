@@ -100,8 +100,8 @@ internal static class NativeSnapshotImportVerification
             paletteSlot.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2));
             paletteSlot.Timer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }
-        runtime.RoomPaletteFx.samusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
-        runtime.RoomPaletteFx.previousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
+        runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
+        runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
         ushort[] initialHud = runtime.Hud.Tiles;
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);

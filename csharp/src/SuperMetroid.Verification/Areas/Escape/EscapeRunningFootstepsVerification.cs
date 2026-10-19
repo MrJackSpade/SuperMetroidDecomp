@@ -50,7 +50,7 @@ internal static class EscapeRunningFootstepsVerification
             runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequestsConstants.None with
             {
                 MotherBrainDeathStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
-            }, runtime.Plms);
+            }, runtime.Plms, runtime.RoomLayer3Fx, runtime.RoomPaletteFx);
 
             samus.Pose = pose;
             samus.InputLocked = false;

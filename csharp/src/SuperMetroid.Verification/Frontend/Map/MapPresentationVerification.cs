@@ -92,6 +92,7 @@ using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -1193,10 +1194,12 @@ internal static class MapPresentationVerification
             stockRuntime.Artwork.MapPresentation = original;
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             editedRuntime.Artwork.MapPresentation = edited;
-            stockRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
-            editedRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
-            stockRuntime.RoomPaletteFx.Step(stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedRuntime.RoomPaletteFx.Step(editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            var stockPaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+            var editedPaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+            stockPaletteFx.SpawnDefinition(definitionPointer, 0);
+            editedPaletteFx.SpawnDefinition(definitionPointer, 0);
+            stockPaletteFx.Step(stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedPaletteFx.Step(editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
                 stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
                 editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],

@@ -30,6 +30,8 @@ internal static class RoomScopeVerification
         previous.Speed = FixedVector<RoomPixels>.FromWords(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.FlareCounter = 30;
+        const int heatPhase = 3;
+        runtime.PaletteFxSession.SamusInHeatPaletteIndex = heatPhase;
         SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
         sourceShot.Position = FixedPosition<RoomPixels>.FromWords(0x0120, 0x4321, 0x0080, 0x8765);
         sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
@@ -72,6 +74,19 @@ internal static class RoomScopeVerification
             ReferenceEquals(runtime.BeamCharge, destination.Projectiles.Charge),
             "the held beam charge is the session's, shared by both rooms");
         VerificationAssert.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
+        VerificationAssert.AssertTrue(!ReferenceEquals(source.Layer3Fx, destination.Layer3Fx) &&
+            !ReferenceEquals(source.PaletteFx, destination.PaletteFx) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
+            !ReferenceEquals(source.SandTiles, destination.SandTiles) && !ReferenceEquals(source.SpikeTiles, destination.SpikeTiles) &&
+            !ReferenceEquals(source.TreadmillTiles, destination.TreadmillTiles) &&
+            !ReferenceEquals(source.WreckedShipTreadmill, destination.WreckedShipTreadmill) &&
+            !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
+            "the destination builds its own FX, animated tiles, haze and statue sequence");
+        VerificationAssert.AssertTrue(ReferenceEquals(source.Layer3Fx.FixedColors, destination.Layer3Fx.FixedColors) &&
+            ReferenceEquals(source.Layer3Fx.Fireflea, destination.Layer3Fx.Fireflea) &&
+            ReferenceEquals(runtime.RoomFx.FixedColors, destination.Layer3Fx.FixedColors),
+            "the COLDATA shadows and Fireflea state are the session's, shared by both rooms");
+        VerificationAssert.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
+            "the palette-FX heat phase survives the load on the session");
         SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
         VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0x8765), destinationShot.Position,
             "a slot's position fraction words survive the projectile-data reset; its whole words clear");
@@ -82,7 +97,7 @@ internal static class RoomScopeVerification
         VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
         VerificationAssert.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
         VerificationAssert.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
-        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system and projectile pools, keeps the held beam charge; its camera carries the fractions, ideal position, speed and previous Samus point.");
+        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, keeps the held beam charge and session FX state; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 
     /// <summary>Runs the room-scope carry-over confirmation.</summary>

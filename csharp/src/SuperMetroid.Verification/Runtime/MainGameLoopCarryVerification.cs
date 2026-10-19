@@ -26,7 +26,8 @@ internal static class MainGameLoopCarryVerification
 
         foreach (bool carry in new[] { true, false })
         {
-            var state = new RoomLayer3FxState();
+            var stateSession = new RoomFxSession();
+            var state = new RoomLayer3FxState(stateSession);
             state.earthquakeSoundTimer = NativeCountdown.Start((ushort)0);
             state.earthquakeSoundSequenceIndex = 0;
             // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2.

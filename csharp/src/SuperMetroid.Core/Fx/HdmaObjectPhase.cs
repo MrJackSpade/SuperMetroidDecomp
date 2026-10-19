@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -13,20 +14,14 @@ internal sealed class HdmaObjectPhase
 {
     /// <summary>Supplies the authored freeze gate to the shared room liquid update.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Owner of the room's liquid and layer-3 HDMA pre-instruction state.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Shared system state passed to native liquid pre-instructions.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Owner of the Tourian statues' delayed BG2 descent.</summary>
-    private readonly TourianStatueSequence _tourianStatues;
 
-    /// <summary>Connects the HDMA pre-instruction phase to its live freeze, liquid, system, and statue owners.</summary>
-    internal HdmaObjectPhase(GameplayTimeFreeze freeze, RoomLayer3FxState roomLayer3Fx, Bank80SystemState system, TourianStatueSequence tourianStatues)
+    /// <summary>Connects the HDMA pre-instruction phase to its live freeze and system owners.</summary>
+    internal HdmaObjectPhase(GameplayTimeFreeze freeze, Bank80SystemState system)
     {
         _freeze = freeze;
-        _roomLayer3Fx = roomLayer3Fx;
         _system = system;
-        _tourianStatues = tourianStatues;
     }
 
     /// <summary>
@@ -34,9 +29,9 @@ internal sealed class HdmaObjectPhase
     /// <c>GenerateRandomNumber</c>: the room liquid's shared state and the Tourian
     /// statues' BG2 delay and descent ($88:DBD7-$DCBA), whose rumble reads that RNG.
     /// </summary>
-    internal void AdvanceHdmaObjectPreInstructions(RoomPlmSystem plms)
+    internal void AdvanceHdmaObjectPreInstructions(RoomPlmSystem plms, RoomScope room)
     {
-        _roomLayer3Fx.AdvanceHdmaSharedState(_system, _freeze.TimeIsFrozen);
-        _tourianStatues.StepDescent(plms);
+        room.Layer3Fx.AdvanceHdmaSharedState(_system, _freeze.TimeIsFrozen);
+        room.TourianStatues.StepDescent(plms);
     }
 }

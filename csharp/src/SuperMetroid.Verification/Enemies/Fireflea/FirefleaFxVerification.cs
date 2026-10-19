@@ -28,7 +28,8 @@ internal static class FirefleaFxVerification
         var bus = new MutableCartridgeReadGuard(memory);
         bus.Forbid(address => address is >= 0x88B058 and < 0x88B07E,
             address => $"Fireflea FX attempted migrated definition read ${address:X6}.");
-        var fx = new RoomLayer3FxState();
+        var fxSession = new RoomFxSession();
+        var fx = new RoomLayer3FxState(fxSession);
         FixedColorState fixedColor = fx.FixedColors;
         var vram = new SnesVram();
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == (byte)RoomFxType.Fireflea && candidate.DoorPointer == 0);
@@ -37,13 +38,13 @@ internal static class FirefleaFxVerification
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
         ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        fx.PaletteBlendColors = SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendCatalog.Load(
+        fxSession.PaletteBlendColors = SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(rom)));
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         Suite(nameof(VerifyFirefleaFrozenDarkness), VerifyFirefleaFrozenDarkness);
         Suite(nameof(VerifyFirefleaUninitializedTimerWrap), VerifyFirefleaUninitializedTimerWrap);
-        fx.LoadDefinition(vram, new SnesCgram(), record, 0);
+        fx = RoomLayer3FxState.ForDefinition(fxSession, vram, new SnesCgram(), record, 0);
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fx.Fireflea.Timer.RawValue, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
@@ -64,7 +65,7 @@ internal static class FirefleaFxVerification
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
-            fx.LoadDefinition(vram, new SnesCgram(), record, 0);
+            fx = RoomLayer3FxState.ForDefinition(fxSession, vram, new SnesCgram(), record, 0);
             for (int frame = 1; frame <= 78; frame++)
             {
                 fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
@@ -81,7 +82,7 @@ internal static class FirefleaFxVerification
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
-        fx.Load(vram, new SnesCgram(), null, null, 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, vram, new SnesCgram(), null, null, 0);
         fixedColor.Red = 0x25;
         fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");

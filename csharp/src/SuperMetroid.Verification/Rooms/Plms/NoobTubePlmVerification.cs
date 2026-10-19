@@ -352,8 +352,8 @@ internal static class NoobTubePlmVerification
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var roomFx = CreateRetailFxState(rom);
-        roomFx.Load(new SnesVram(), new SnesCgram(), RoomFxDefinitions.Suffix(0x9c94), door: null,
+        var roomFxSession = CreateRetailFxSession(rom);
+        var roomFx = RoomLayer3FxState.ForRoom(roomFxSession, new SnesVram(), new SnesCgram(), RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         return roomFx;
     }

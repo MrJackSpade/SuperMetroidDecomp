@@ -34,7 +34,7 @@ internal static class RoomFxRetailInventoryVerification
         retailFxCatalogs = new();
 
     /// <summary>Creates a production layer-three FX owner bound to art extracted once from the supplied retail bus.</summary>
-    internal static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus)
+    internal static RoomFxSession CreateRetailFxSession(SuperMetroidAddressSpace bus)
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
             RoomFxPaletteBlendCatalog.Load(new MemoryStream(
@@ -266,8 +266,8 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var actual = CreateRetailFxState(bus);
-        actual.Load(
+        var actualSession = CreateRetailFxSession(bus);
+        var actual = RoomLayer3FxState.ForRoom(actualSession, 
             vram,
             cgram,
             room.State.Fx,
@@ -414,8 +414,8 @@ internal static class RoomFxRetailInventoryVerification
         ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, door: null);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        var fx = CreateRetailFxState(bus);
-        fx.Load(vram, cgram, room.State.Fx, door: null, randomNumber: 0);
+        var fxSession = CreateRetailFxSession(bus);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, vram, cgram, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -606,8 +606,8 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var fx = CreateRetailFxState(bus);
-        fx.Load(
+        var fxSession = CreateRetailFxSession(bus);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, 
             vram,
             cgram,
             room.State.Fx,
@@ -797,9 +797,10 @@ internal static class RoomFxRetailInventoryVerification
         CartridgeRoomHeader room,
         ushort doorPointer)
     {
-        var fx = CreateRetailFxState(bus);
+        var fxSession = CreateRetailFxSession(bus);
+        var fx = new RoomLayer3FxState(fxSession);
         var vram = new SnesVram();
-        fx.Load(
+        fx = RoomLayer3FxState.ForRoom(fxSession, 
             vram,
             new SnesCgram(),
             room.State.Fx,
@@ -844,21 +845,21 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
-        var fx = CreateRetailFxState(bus);
-        fx.Load(vram, cgram, visibleRoom.State.Fx, door: null, randomNumber: 0);
+        var fxSession = CreateRetailFxSession(bus);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, vram, cgram, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx.Load(vram, cgram, fx: null, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, vram, cgram, fx: null, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx.Load(vram, cgram, hiddenRoom.State.Fx, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, vram, cgram, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[

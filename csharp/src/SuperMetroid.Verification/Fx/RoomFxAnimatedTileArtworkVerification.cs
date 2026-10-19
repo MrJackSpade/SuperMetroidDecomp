@@ -175,8 +175,9 @@ internal static class RoomFxAnimatedTileArtworkVerification
             "edited treadmill pixels compile to a distinct installed NMI frame");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = changed;
-        runtime.WreckedShipTreadmill.Start(WreckedShipTreadmillDirection.Rightwards);
-        runtime.WreckedShipTreadmill.Step(areaBossDefeated: true,
+        var treadmill = new WreckedShipTreadmillAnimatedTilesState();
+        treadmill.Start(WreckedShipTreadmillDirection.Rightwards);
+        treadmill.Step(areaBossDefeated: true,
             runtime.VramWrites);
         runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
         AssertEqual(editedTreadmill.Span[0], runtime.Vram.ReadByte(

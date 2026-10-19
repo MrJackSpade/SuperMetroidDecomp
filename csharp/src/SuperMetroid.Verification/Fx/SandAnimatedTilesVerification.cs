@@ -21,7 +21,6 @@ internal static class SandAnimatedTilesVerification
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         var queue = new VramWriteQueue();
-        var sand = new RoomSandAnimatedTilesState();
         const ushort sandFxRecord = 0x9e44;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
@@ -45,7 +44,7 @@ internal static class SandAnimatedTilesVerification
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        sand.LoadRoom(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
+        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(sandFxRecord), null, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
@@ -80,7 +79,7 @@ internal static class SandAnimatedTilesVerification
                 }
             }
         }
-        sand.LoadRoom(null, null, AreaId.Maridia);
+        sand = new RoomSandAnimatedTilesState(null, null, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
         sand.Step(vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");

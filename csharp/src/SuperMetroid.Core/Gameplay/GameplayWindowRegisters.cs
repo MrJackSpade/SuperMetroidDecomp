@@ -14,15 +14,12 @@ internal sealed class GameplayWindowRegisters
     private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Supplies waterfall blend configuration for window preparation.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
 
-    /// <summary>Binds room, enemy and layer-three owners to the window-register coordinator.</summary>
-    internal GameplayWindowRegisters(RoomEnemySystem enemies, ActiveRoomState room, RoomLayer3FxState roomLayer3Fx)
+    /// <summary>Binds room and enemy owners to the window-register coordinator.</summary>
+    internal GameplayWindowRegisters(RoomEnemySystem enemies, ActiveRoomState room)
     {
         _enemies = enemies;
         _room = room;
-        _roomLayer3Fx = roomLayer3Fx;
     }
 
     /// <summary>
@@ -60,7 +57,7 @@ internal sealed class GameplayWindowRegisters
     /// projectile callbacks run. Edge and logic bytes intentionally survive; native
     /// <c>$88:8075</c> clears selection/admission and assigns TM/TS, but does not clear them.
     /// </summary>
-    internal void PrepareGameplayWindowRegisters()
+    internal void PrepareGameplayWindowRegisters(RoomScope room)
     {
         GameplayWindowRegisterCache registers = Cache;
         registers.InitializeWindowAndScreenSelection();
@@ -74,7 +71,7 @@ internal sealed class GameplayWindowRegisters
                     : SnesMainScreenLayers.Bg2));
         registers.MainScreen = mainScreen;
         if (_room.DoorTransitionMainScreenLayers is null &&
-            _roomLayer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+            room.Layer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {
             registers.MainScreen = WaterfallRoomDisplayRules.MainScreen;
             registers.Subscreen = WaterfallRoomDisplayRules.Subscreen;

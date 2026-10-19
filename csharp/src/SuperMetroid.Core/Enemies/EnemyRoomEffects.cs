@@ -32,10 +32,6 @@ internal sealed class EnemyRoomEffects
     private readonly SamusFrameState _player;
     /// <summary>Provides active level, area, FX pointer, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Loads Mother Brain's requested layer-three FX record.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
-    /// <summary>Spawns palette FX definitions published by Mother Brain's death sequence.</summary>
-    private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
     private readonly Bank80SystemState _system;
 
@@ -48,8 +44,6 @@ internal sealed class EnemyRoomEffects
         _escapeTimer = dependencies.EscapeTimer;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
-        _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
     }
 
@@ -63,15 +57,15 @@ internal sealed class EnemyRoomEffects
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx)
     {
         ApplyPendingBotwoonWallPlm(requests, plms);
         ApplyPendingSporeSpawnCeilingPlm(requests, plms);
         ApplyPendingCrocomireArenaPlms(requests, plms);
         ApplyPendingKraidPlms(requests, plms);
-        ApplyPendingMotherBrainPlms(requests, plms);
+        ApplyPendingMotherBrainPlms(requests, plms, roomLayer3Fx, roomPaletteFx);
         ApplyPendingShitroidWallPlms(requests, plms);
-        ApplyPendingChozoStatuePlms(plms);
+        ApplyPendingChozoStatuePlms(plms, roomLayer3Fx);
     }
 
     /// <summary>
@@ -180,12 +174,12 @@ internal sealed class EnemyRoomEffects
     /// owner. The enemy state publishes requests in cartridge call order; consuming them
     /// here retains the native descending-slot allocation and one-frame execution seam.
     /// </summary>
-    internal void ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
+    internal void ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx)
     {
         if (requests.MotherBrainDeathStep is { } death)
         {
             foreach (PaletteFxObject definition in death.EscapePaletteFxRequests)
-                _roomPaletteFx.SpawnDefinition(definition, _player.IntroducedSamus.EquippedItems);
+                roomPaletteFx.SpawnDefinition(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)
@@ -201,7 +195,7 @@ internal sealed class EnemyRoomEffects
             // each frame would reset its delay and prevent the acid from moving.
             RoomFxDefinition fx = _room.LoadedRoom.State.Fx
                 ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
-            _display.LayerBlendingDefaultConfig = _roomLayer3Fx.ApplyEntry(_cgram,
+            _display.LayerBlendingDefaultConfig = roomLayer3Fx.ApplyEntry(_cgram,
                 fx.Records[requests.MotherBrainFxEntry]);
         }
         if (requests.MotherBrainPlms.Count == 0)
@@ -249,9 +243,9 @@ internal sealed class EnemyRoomEffects
     /// Also runs before movement so restored states cannot collide before their pending
     /// initialization setup has installed the hand block.
     /// </summary>
-    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms)
+    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx)
     {
-        plms.ChozoStatue.BindChozoStatueContext(_enemies, _roomLayer3Fx);
+        plms.ChozoStatue.BindChozoStatueContext(_enemies, roomLayer3Fx);
         if (_room.LevelData is not null)
             _enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }

@@ -401,7 +401,7 @@ internal sealed class CeresDestructionCinematicState
         {
             if (paletteFx is null)
             {
-                paletteFx = new RoomPaletteFxSystem();
+                paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
                 paletteFx.SpawnDefinition(CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
             paletteFx.Step(cgram, paletteFxColors ?? throw new InvalidOperationException(

@@ -19,21 +19,21 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
     {
         if (runtime.AttractDemo.IsAttractDemo)
             return;
-        var room = runtime.RoomLayer3Fx.SoundRequests;
+        var room = runtime.Room.LoadedScope.Layer3Fx.SoundRequests;
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
-        var palette = runtime.RoomPaletteFx.SoundRequests;
+        var palette = runtime.Room.LoadedScope.PaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
-        var music = runtime.RoomPaletteFx.MusicRequests;
+        var music = runtime.Room.LoadedScope.PaletteFx.MusicRequests;
         while (paletteMusic < music.Count)
         {
             var request = music[paletteMusic++];

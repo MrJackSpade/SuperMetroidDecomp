@@ -47,7 +47,8 @@ internal static class PaletteFxContractTests
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
         // compiler rejects a null caller; the first step paints with the supplied colors.
         var cgram = new SnesCgram();
-        var fx = new RoomPaletteFxSystem();
+        var fxSession = new PaletteFxSessionState();
+        var fx = new RoomPaletteFxSystem(fxSession);
         fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });

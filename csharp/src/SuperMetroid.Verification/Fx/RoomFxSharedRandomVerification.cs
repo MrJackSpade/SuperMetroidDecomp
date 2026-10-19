@@ -9,9 +9,12 @@ using SuperMetroid.Core.Rooms.Doors;
 /// <summary>Checks the liquid HDMA callback's use of shared RNG across freeze and room reload boundaries.</summary>
 internal static class RoomFxSharedRandomVerification
 {
-    /// <summary>Confirms lava and acid byte swaps, frozen callback installation, and reset after leaving or reloading a liquid room.</summary>
-    internal static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
-        SnesCgram cgram, RoomLayer3FxState fx, ushort record, RoomFxType type)
+    /// <summary>
+    /// Confirms lava and acid byte swaps, frozen callback installation, and a fresh callback after leaving or reloading a
+    /// liquid room; returns the freshly loaded effect for the caller's visual checks.
+    /// </summary>
+    internal static RoomLayer3FxState VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
+        SnesCgram cgram, RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
         var system = new Bank80SystemState(0x1234);
@@ -26,11 +29,11 @@ internal static class RoomFxSharedRandomVerification
 
         // Installing the callback is instruction-list work, even when its eventual
         // pre-instruction will return early for frozen gameplay.
-        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
+        fx = LoadSyntheticRoomFx(session, bus, vram, cgram, record);
         fx.AdvanceHdmaSharedState(system, true);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx.Load(vram, cgram, null, null, 0);
+        fx = RoomLayer3FxState.ForRoom(session, vram, cgram, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceHdmaSharedState(system, false);
         fx.AdvanceHdmaSharedState(system, false);
@@ -38,9 +41,9 @@ internal static class RoomFxSharedRandomVerification
 
         // Leave the existing visual tests with a freshly loaded effect, proving
         // that reloading does not retain the previous room's callback phase.
-        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
+        fx = LoadSyntheticRoomFx(session, bus, vram, cgram, record);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(0x1234, system.RandomNumber, $"{type} reload restores initialization delay");
-        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
+        return LoadSyntheticRoomFx(session, bus, vram, cgram, record);
     }
 }

@@ -25,23 +25,23 @@ public sealed class RoomLayer3FxState
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
+    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</summary>
+    private readonly RoomFxSession _session;
+
     /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
-    public FirefleaFxState Fireflea { get; } = new();
+    public FirefleaFxState Fireflea => _session.Fireflea;
 
     /// <summary>The shared COLDATA shadows. They are session-lived, so they keep the last writer's values across rooms.</summary>
-    public FixedColorState FixedColors { get; } = new();
+    public FixedColorState FixedColors => _session.FixedColors;
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
-    [field: NonSerialized]
-    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
+    public RoomFxAnimatedTileAtlas? AnimatedTileArtwork => _session.AnimatedTileArtwork;
 
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
-    [field: NonSerialized]
-    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps { get; set; }
+    public RoomFxLayer3TilemapCatalog? Layer3Tilemaps => _session.Layer3Tilemaps;
 
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
-    [field: NonSerialized]
-    public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
+    public RoomFxPaletteBlendCatalog? PaletteBlendColors => _session.PaletteBlendColors;
     /// <summary>
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
     /// byte offsets BG3 scroll before the next velocity step.
@@ -162,25 +162,44 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
 
-    /// <summary>Clears the prior room and selects the current door's native FX record.</summary>
-    public void Load(
+    /// <summary>Builds one room's layer-3 FX from the current door's native FX record.</summary>
+    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    /// <param name="vram">VRAM receiving the cleared and selected BG3 tilemap.</param>
+    /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
+    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="randomNumber">The session random number rain reads.</param>
+    /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
+    public static RoomLayer3FxState ForRoom(
+        RoomFxSession session,
         SnesVram vram,
         SnesCgram cgram,
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        LoadCore(vram, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForRecord(session, vram, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+
+    /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
+    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    /// <param name="vram">VRAM receiving the cleared and selected BG3 tilemap.</param>
+    /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
+    /// <param name="source">The FX record's source.</param>
+    internal static RoomLayer3FxState ForRecord(RoomFxSession session, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    {
+        var fx = new RoomLayer3FxState(session);
+        fx.SelectRecord(vram, cgram, source);
+        return fx;
+    }
 
     /// <summary>
-    /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
+    /// Clears the BG3 tilemap, selects the door's FX record, and initializes the
     /// liquid and palette state shared by room effects and PLMs.
     /// </summary>
-    internal void LoadCore(SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    private void SelectRecord(SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        Reset();
 
         // Both native room-load paths clear VRAM $5880-$5FFF to $184E immediately before
         // copying the selected bank-$8A effect tilemap at $5BE0. This is not optional
@@ -786,10 +805,11 @@ public sealed class RoomLayer3FxState
             : (ushort)0;
     }
 
-    /// <summary>Clears prior-room effect state before a new door's FX record is selected.</summary>
-    private void Reset()
+    /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
+    /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
+    public RoomLayer3FxState(RoomFxSession session)
     {
-        animatedTiles.Reset();
+        _session = Ensure.NotNull(session);
         Type = RoomFxType.None;
         TargetSurface = Position16<RoomPixels>.Zero;
         YVelocity = default;
@@ -816,7 +836,6 @@ public sealed class RoomLayer3FxState
         lavaAcidBg3PreInstructionInstalled = false;
         liquidHdmaObjectsDeleted = false;
         lavaSoundTimer = NativeCountdown.Start(0);
-        soundRequests.Clear();
         EarthquakeRequest = null;
         earthquakeSoundTimer = NativeCountdown.Start(0);
         earthquakeSoundSequenceIndex = 0;

@@ -155,28 +155,28 @@ internal sealed class SuperMetroidRuntime
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
         Tester = new TesterTools(Cgram, Player, System);
-        TourianStatues = new TourianStatueSequence(new TourianStatueSequenceDependencies { Cgram = Cgram, Enemies = Enemies, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites });
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, Hud = Hud, MessageBox = MessageBox, Player = Player, RoomLayer3Fx = RoomLayer3Fx, Vram = Vram, VramWrites = VramWrites });
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Cgram = Cgram, Enemies = Enemies, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites };
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { RoomFx = RoomFx, Cgram = Cgram, Display = Display, Enemies = Enemies, Hud = Hud, MessageBox = MessageBox, Player = Player, Vram = Vram, VramWrites = VramWrites });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Enemies = Enemies, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites});
-        GameplayWindows = new GameplayWindowRegisters(Enemies, Room, RoomLayer3Fx);
+        GameplayWindows = new GameplayWindowRegisters(Enemies, Room);
         Bg2TilemapStaging = new Bg2TilemapStaging();
         Xray = new XrayReveal(BackgroundScroll, Player, Room, System, Vram, Bg2TilemapStaging);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, PhysicalController1 = PhysicalController1, Display = Display, DisplayedSprites = DisplayedSprites, Enemies = Enemies, GameplayWindows = GameplayWindows, Clock = Clock, Sprites = Sprites, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { RoomFx = RoomFx, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, PhysicalController1 = PhysicalController1, Display = Display, DisplayedSprites = DisplayedSprites, Enemies = Enemies, GameplayWindows = GameplayWindows, Clock = Clock, Sprites = Sprites, Options = Options, Player = Player, Room = Room, SuitPickup = SuitPickup, Vram = Vram, Xray = Xray, DrainQueuedVramWrites = DrainQueuedVramWrites });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
-        EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Oam = Oam, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, VramWrites = VramWrites});
-        HdmaPhase = new HdmaObjectPhase(Freeze, RoomLayer3Fx, System, TourianStatues);
-        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, System = System, WreckedShipTreadmill = WreckedShipTreadmill});
+        EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Oam = Oam, Player = Player, Room = Room, VramWrites = VramWrites});
+        HdmaPhase = new HdmaObjectPhase(Freeze, System);
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Enemies, Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, CeresHaze = CeresHaze, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Clock = Clock, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, Tester = Tester, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites});
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup, Vram = Vram, VramWrites = VramWrites});
-        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Player = Player, Room = Room, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, SuitPickup = SuitPickup, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyPhase = EnemyPhase, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, RoomPaletteFx = RoomPaletteFx, System = System });
+        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Player = Player, Room = Room, System = System, Vram = Vram, VramWrites = VramWrites});
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, SuitPickup = SuitPickup, Xray = Xray, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyPhase = EnemyPhase, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
         Tester.GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
@@ -325,8 +325,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>PPU color RAM initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>.</summary>
     public SnesCgram Cgram { get; } = new();
 
-    /// <summary>Bank-$8D palette objects selected by the active room's bank-$83 FX record.</summary>
-    public RoomPaletteFxSystem RoomPaletteFx { get; } = new();
+    /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
+    public PaletteFxSessionState PaletteFxSession { get; } = new();
 
     /// <summary>The sprite frame the main loop is building for the next NMI: OAM sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();
@@ -373,10 +373,8 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public bool PowerBombExplosionSuppressesSounds => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
-    public RoomLayer3FxState RoomLayer3Fx { get; } = new();
-    /// <summary>Persistent bank-$88 Ceres room-haze HDMA owner, activated and reset by room setup.</summary>
-    public CeresHazeState CeresHaze { get; } = new();
+    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room's layer-3 FX.</summary>
+    public RoomFxSession RoomFx { get; } = new();
 
     /// <summary>
     /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
@@ -385,19 +383,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public CeresElevatorShaftRoomMainState CeresElevatorShaft { get; } = new();
 
-    /// <summary>
-    /// Door-spawned bank-$87 animated-tile object for the Wrecked Ship entrance treadmill.
-    /// </summary>
-    public WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; } = new();
 
-    /// <summary>Bank-$87 treadmill population selected by the room FX record, rather than door ASM.</summary>
-    public RoomTreadmillAnimatedTilesState RoomTreadmills { get; } = new();
 
-    /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
-    public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
-    /// <summary>FX-selected horizontal spikes.</summary>
-    public RoomSpikeAnimatedTilesState RoomSpikes { get; internal set; } = new();
 
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
@@ -511,7 +499,7 @@ internal sealed class SuperMetroidRuntime
         scope.Projectiles.Earthquakes.BindRoomEarthquakeOwner(Enemies);
         scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion);
         Player.Samus?.Shinespark.BindProjectileOwners(scope.Projectiles, scope.BombProjectiles.PowerBombExplosion);
-        EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms);
+        EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.Layer3Fx);
     }
 
     /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and prepares the window registers.</summary>
@@ -520,7 +508,7 @@ internal sealed class SuperMetroidRuntime
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: false);
         FrameBoundary.BeginAcceptedFrame(controller1Input);
         frameRequest.AfterAcceptedNmi();
-        GameplayWindows.PrepareGameplayWindowRegisters();
+        GameplayWindows.PrepareGameplayWindowRegisters(Room.LoadedScope);
     }
 
     /// <summary>Runs the bank-$88 HDMA-object pre-instructions and the power-bomb HDMA before the main loop's RNG call.</summary>
@@ -529,7 +517,7 @@ internal sealed class SuperMetroidRuntime
         // HDMA owns shared RNG mutations before the main loop advances it. A
         // message-box NMI wait does not execute that outer-loop HDMA pass.
         if (Room.Camera is not null && !MessageBox.IsActive)
-            HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms);
+            HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms, Room.LoadedScope);
 
         // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
@@ -559,7 +547,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Runs the owners before the game-state dispatch: Ceres haze, the suit transformation, Phantoon's wave and blending, and room layer-3 FX.</summary>
     private void RunPreDispatchEffects()
     {
-        CeresHaze.Step();
+        Room.LoadedScope.CeresHaze.Step();
 
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
 
@@ -589,8 +577,8 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            RoomLayer3Fx.Step(Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
-            if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
+            Room.LoadedScope.Layer3Fx.Step(Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidInHdmaPass });
+            if (Room.LoadedScope.Layer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
                 // type $15. Apply that global side effect before the ordinary shake handler
@@ -598,9 +586,9 @@ internal sealed class SuperMetroidRuntime
                 Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
                 Enemies.Earthquake.AddTimerBits(roomFxEarthquake.TimerBits);
             }
-            if (Player.Samus is not null && RoomLayer3Fx.Type is
+            if (Player.Samus is not null && Room.LoadedScope.Layer3Fx.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Player.Samus.LiquidPhysics);
+                Room.LoadedScope.Layer3Fx.ApplyToSamusLiquidPhysics(Player.Samus.LiquidPhysics);
         }
     }
 
@@ -641,15 +629,15 @@ internal sealed class SuperMetroidRuntime
         // Door destination drawing borrows this frame path, but native state $0B
         // ($82:E737) does not call the palette-FX handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (RoomPaletteFx.HandlerEnabled && !Enemies.Elevator.ElevatorDoorTransitionActive &&
+        if (Room.LoadedScope.PaletteFx.HandlerEnabled && !Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            RoomPaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+            Room.LoadedScope.PaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.SlotTable.Slots.Count == 0 || Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
-        if (RoomPaletteFx.HandlerEnabled)
+        if (Room.LoadedScope.PaletteFx.HandlerEnabled)
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(
                 Cgram,
@@ -918,7 +906,7 @@ internal sealed class SuperMetroidRuntime
             // `$90:E0E6`: the expired countdown publishes game state $23 for the
             // dispatcher, whites the target palettes and disables palette FX.
             TimeUpRequested = true;
-            RoomPaletteFx.DisableHandler();
+            PaletteFxSession.DisableHandler();
         }
         if (runEscapeTimerHandler && EscapeTimer.IsActive)
         {
@@ -967,7 +955,7 @@ internal sealed class SuperMetroidRuntime
                 Room.ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
         }
 
-        RoomMains.RunAnimatedTilesObjectHandler();
+        RoomMains.RunAnimatedTilesObjectHandler(Room.LoadedScope);
         EscapeEffects.StepEscapeRoomEffects();
 
         // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
@@ -1066,13 +1054,13 @@ internal sealed class SuperMetroidRuntime
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
             motherBrain is { RisingHdmaActive: true },
             motherBrain?.RainbowBeamHdma.RenderSnapshot,
-            CeresHazeRenderSnapshot.Capture(CeresHaze),
+            CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
             Artwork.MapPresentation?.RoomFxPaletteBlends,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             GameplayMessageBoxRenderer.Capture(MessageBox, Artwork.HudCharacters),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
-            TourianStatues.Enabled);
+            Room.LoadedScope.TourianStatues.Enabled);
         return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites));
     }
 
@@ -1102,13 +1090,13 @@ internal sealed class SuperMetroidRuntime
         bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
         Tester.UnlockTourianEnabled = options.UnlockTourian;
         Tester.ApplyTesterInventory();
-        if (openingTourian && TourianStatues.Enabled) TourianStatues.Load(Room.LoadedScope.Plms);
+        if (openingTourian && Room.LoadedScope.TourianStatues.Enabled) Room.LoadedScope.TourianStatues.RestartForTesterUnlock(Room.LoadedScope.Plms);
         Options.PreventEscapeTimeout = options.PreventEscapeTimeout;
         Options.MapRevealMode = options.MapRevealMode;
     }
 
-    /// <summary>Room-owned native statue tile programs and HDMA descent.</summary>
-    public TourianStatueSequence TourianStatues { get; }
+    /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
+    internal TourianStatueSequenceDependencies TourianStatueDependencies { get; }
 
     /// <summary>
     /// One lag frame of the bank-$85 message routine. Its completion returns into the
@@ -1126,7 +1114,7 @@ internal sealed class SuperMetroidRuntime
         {
             // Restore_PPU's $88:84B9 runs the HDMA objects, including their RNG mutations.
             if (Room.Camera is not null)
-                HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms);
+                HdmaPhase.AdvanceHdmaObjectPreInstructions(Room.LoadedScope.Plms, Room.LoadedScope);
             if (Player.Samus is { } hdmaSamus)
                 Room.LoadedScope.BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
         }

@@ -113,7 +113,8 @@ internal static class LookupStream4Verification
         AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
         AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-        var fx = new RoomPaletteFxSystem();
+        var fxSession = new PaletteFxSessionState();
+        var fx = new RoomPaletteFxSystem(fxSession);
         var cgram = new SnesCgram();
         fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
@@ -222,7 +223,8 @@ internal static class LookupStream4Verification
             AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
             AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-            var fx = new RoomPaletteFxSystem();
+            var fxSession = new PaletteFxSessionState();
+            var fx = new RoomPaletteFxSystem(fxSession);
             var cgram = new SnesCgram();
             fx.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -310,7 +312,8 @@ internal static class LookupStream4Verification
             if (scenario == 2) document.BabyMetroidTubeLight[2][0] = Edit(document.BabyMetroidTubeLight[2][0], 1);
             var selected = Load(document);
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-            var fx = new RoomPaletteFxSystem();
+            var fxSession = new PaletteFxSessionState();
+            var fx = new RoomPaletteFxSystem(fxSession);
             var cgram = new SnesCgram();
             selected.Apply(cgram);
             foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
@@ -453,7 +456,9 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
-            var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
+                                                                 var installed = new RoomPaletteFxSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
@@ -526,7 +531,9 @@ internal static class LookupStream4Verification
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
-            var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
+                                                                 var installed = new RoomPaletteFxSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);

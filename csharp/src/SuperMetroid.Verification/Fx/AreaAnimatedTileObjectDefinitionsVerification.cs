@@ -48,10 +48,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         const ushort fxRecord = 0x9e44;
         AssertEqual(animatedTileBits, rom.ReadCartridgeByte(0x839e52), "Native fixture animation bitset");
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
-        var sand = new RoomSandAnimatedTilesState();
-        var treadmills = new RoomTreadmillAnimatedTilesState();
-        sand.LoadRoom(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
-        treadmills.LoadRoom(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
+        var sand = new RoomSandAnimatedTilesState(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
+        var treadmills = new RoomTreadmillAnimatedTilesState(RoomFxDefinitions.Suffix(fxRecord), door: null, area);
 
         AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
         AssertEqual(expectedTreadmills, treadmills.Count,

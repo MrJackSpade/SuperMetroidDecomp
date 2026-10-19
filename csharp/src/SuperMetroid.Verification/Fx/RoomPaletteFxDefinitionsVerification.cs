@@ -89,8 +89,8 @@ internal static class RoomPaletteFxDefinitionsVerification
         {
             var definition = new RoomFxRecordDefinition(null, false, 0, 0, 0,
                 0, 0, 0, 0, 0, unchecked((byte)(1 << bit)), 0, 0);
-            var system = new RoomPaletteFxSystem();
-            system.LoadDefinition(definition, (AreaId)area,
+            var systemSession = new PaletteFxSessionState();
+            var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition, (AreaId)area,
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
                 PaletteFxObjectAccess.NativeAddress(RoomPaletteFxDefinitions.GetAreaDefinition(area, bit)),
@@ -133,7 +133,8 @@ internal static class RoomPaletteFxDefinitionsVerification
         foreach (ushort pointer in pointers)
         {
             RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
-            var system = new RoomPaletteFxSystem();
+            var systemSession = new PaletteFxSessionState();
+            var system = new RoomPaletteFxSystem(systemSession);
             system.SpawnDefinition(pointer, equippedItems: 0);
             var slot = ActivePaletteFxSlot(system);
             AssertEqual(pointer, slot.Id, $"${pointer:X4} production ID");

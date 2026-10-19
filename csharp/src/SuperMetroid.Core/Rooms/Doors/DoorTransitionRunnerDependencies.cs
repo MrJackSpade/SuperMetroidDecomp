@@ -57,12 +57,8 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Room layer3 fx.</summary>
-    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
 
-    /// <summary>Wrecked ship treadmill.</summary>
-    public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 }

@@ -52,8 +52,6 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Room layer3 fx.</summary>
-    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
 
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }

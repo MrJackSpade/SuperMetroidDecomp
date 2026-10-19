@@ -25,8 +25,8 @@ internal static class SpeedBoosterPickupVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             var vram = new SnesVram();
-            RoomLayer3FxState fx = CreateRetailFxState(cartridge);
-            fx.Load(vram, new SnesCgram(), RoomFxDefinitions.Suffix(0x8600), null, 0);
+            var fxSession = CreateRetailFxSession(cartridge);
+            var fx = RoomLayer3FxState.ForRoom(fxSession, vram, new SnesCgram(), RoomFxDefinitions.Suffix(0x8600), null, 0);
             CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (chozo)

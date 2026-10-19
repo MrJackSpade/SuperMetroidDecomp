@@ -115,13 +115,13 @@ internal static class RoomFxLayer3TilemapsVerification
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);
-        var state = new RoomLayer3FxState
-        {
+        var stateSession = new RoomFxSession{
             Layer3Tilemaps = catalog,
             PaletteBlendColors = paletteColors,
         };
+        var state = new RoomLayer3FxState(stateSession);
         var vram = new SnesVram();
-        state.LoadDefinition(vram, new SnesCgram(), record, randomNumber: 0);
+        state = RoomLayer3FxState.ForDefinition(stateSession, vram, new SnesCgram(), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return vram;
     }

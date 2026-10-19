@@ -4,6 +4,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 /// <summary>Compares Tourian statue animated-object initialization with the
@@ -29,7 +31,9 @@ internal static class LookupTourianSpawnVerification
         }
         AssertEqual(4, expected.Count, "Four native calls before RTS");
 
-        var sequence = RepositoryInstallation.CreateRuntime().TourianStatues;
+        // Outside the statue room the sequence starts disabled with no objects; the spawn routine is then called alone.
+        var sequence = new TourianStatueSequence(RepositoryInstallation.CreateRuntime().TourianStatueDependencies,
+            new RoomLayer3FxState(new RoomFxSession()), new RoomPaletteFxSystem(new PaletteFxSessionState()), PlmFixtures.Unbound());
         sequence.SpawnAnimatedObjects();
         var objects = sequence.objects;
         AssertEqual(expected.Count, objects.Count, "Production spawn count");

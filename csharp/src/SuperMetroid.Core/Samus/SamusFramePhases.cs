@@ -48,8 +48,6 @@ internal sealed class SamusFramePhases
     private readonly SamusFrameState _player;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Tracks the palette effect that ends Samus's saved-game load appearance.</summary>
-    private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Supplies persistent bank-$80 state consulted by movement handlers.</summary>
     private readonly Bank80SystemState _system;
     /// <summary>Whether suit command $15's empty beta owns Samus.</summary>
@@ -78,7 +76,6 @@ internal sealed class SamusFramePhases
         _options = dependencies.Options;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
         _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { Controller1 = dependencies.Controller1, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Room = dependencies.Room });
     }
@@ -279,7 +276,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     {
         if (frame.MovementEnabled)
             RunBetaMovement(frame, samus, camera, room);
-        RunBetaTail(frame, samus, audio, room.Plms);
+        RunBetaTail(frame, samus, audio, room.Plms, room);
     }
 
     /// <summary>
@@ -1213,7 +1210,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// ($90:E738) with Draygon's escape, animation or the death sequence, the pose transitions, and periodic damage with
     /// the low-energy check.
     /// </summary>
-    private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, RoomPlmSystem plms)
+    private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, RoomPlmSystem plms, RoomScope room)
     {
         // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
         // function and before animation/pose transitions. Every fourth gameplay frame
@@ -1288,7 +1285,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
             samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, System = _system, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
-            StepSamusLoadAppearance();
+            StepSamusLoadAppearance(room);
         }
 
         _transitions.Apply(frame, samus, plms);
@@ -1320,7 +1317,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// animation and bank-$8D palette interpreter have already run earlier in this frame;
     /// this tail owns only the exact 360-call fanfare lifetime and handler restoration.
     /// </summary>
-    internal void StepSamusLoadAppearance()
+    internal void StepSamusLoadAppearance(RoomScope room)
     {
         if (!_player.LoadAppearanceActive)
             return;
@@ -1329,7 +1326,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         if (!_player.AdvanceLoadAppearance())
             return;
-        if (_player.LoadAppearancePaletteFx is { } loadAppearance && _roomPaletteFx.IsDefinitionActive(loadAppearance))
+        if (_player.LoadAppearancePaletteFx is { } loadAppearance && room.PaletteFx.IsDefinitionActive(loadAppearance))
         {
             throw new InvalidDataException(
                 $"Samus load palette FX {loadAppearance} " +

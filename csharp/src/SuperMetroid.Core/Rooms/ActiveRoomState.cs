@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -98,6 +100,12 @@ internal sealed class ActiveRoomState
 
     /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
     public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
+
+    /// <summary>The loading or loaded room's layer-3 FX, for the accepted-frame publication.</summary>
+    internal RoomLayer3FxState? Layer3Fx => View(c => c.Layer3Fx, s => s.Layer3Fx);
+
+    /// <summary>The loading or loaded room's Tourian statues, for the accepted-frame publication.</summary>
+    internal TourianStatueSequence? TourianStatues => View(c => c.TourianStatues, s => s.TourianStatues);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

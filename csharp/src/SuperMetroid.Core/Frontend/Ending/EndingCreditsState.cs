@@ -108,7 +108,7 @@ internal sealed class EndingCreditsState
     internal EndingPostShot PostShot => postShot ??
         throw new InvalidOperationException("The reward shot is not running.");
     /// <summary>Palette-object interpreter used by clouds and planet afterglow.</summary>
-    private RoomPaletteFxSystem paletteFx = new();
+    private RoomPaletteFxSystem paletteFx = new(new PaletteFxSessionState());
     /// <summary>Reloadable localized ending text presentation.</summary>
     [NonSerialized] private EndingTextPresentation? endingText;
     /// <summary>Reloadable font bytes for ending panels and staff credits.</summary>
@@ -1361,7 +1361,7 @@ internal sealed class EndingCreditsState
     /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
     private void ResetPaletteFx()
     {
-        paletteFx = new RoomPaletteFxSystem();
+        paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
     }
 
     /// <summary>Copies a range of authored ending colors into the live CGRAM destination.</summary>

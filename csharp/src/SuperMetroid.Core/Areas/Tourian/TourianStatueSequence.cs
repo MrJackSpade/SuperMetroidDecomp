@@ -40,20 +40,26 @@ public sealed class TourianStatueSequence
     /// <summary>Queues the selected bank-$87 animated tile art for VRAM transfer.</summary>
     private readonly VramWriteQueue _vramWrites;
 
-    /// <summary>Captures the room services needed to run the native tile and BG2 descent programs.</summary>
-    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies)
+    /// <summary>Builds one room's statue sequence over the session services that run its tile and BG2 descent programs.</summary>
+    /// <param name="dependencies">The session owners the sequence reads and writes.</param>
+    /// <param name="roomLayer3Fx">The room's layer-3 FX, whose earthquake sound the descent publishes.</param>
+    /// <param name="roomPaletteFx">The room's palette FX.</param>
+    /// <param name="plms">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
+    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomLayer3FxState roomLayer3Fx,
+        RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms)
     {
 
         _cgram = dependencies.Cgram;
         _enemies = dependencies.Enemies;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
-        _roomPaletteFx = dependencies.RoomPaletteFx;
+        _roomLayer3Fx = Ensure.NotNull(roomLayer3Fx);
+        _roomPaletteFx = Ensure.NotNull(roomPaletteFx);
         _system = dependencies.System;
         _tester = dependencies.Tester;
         _freeze = dependencies.Freeze;
         _vramWrites = dependencies.VramWrites;
+        Begin(Ensure.NotNull(plms));
     }
 
     /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
@@ -72,7 +78,7 @@ public sealed class TourianStatueSequence
     private int delay = -2;
     /// <summary>Accumulated positive 16.16 travel, exposed as a negative BG2 vertical offset.</summary>
     internal int descent;
-    /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
+    /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
     /// The whole word of native HDMAObject_Var1:Var0, which descends by $FFFF:C000 per
@@ -85,17 +91,27 @@ public sealed class TourianStatueSequence
     /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
-    /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
-    /// <remarks>
-    /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
-    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
-    /// </remarks>
-    public void Load(RoomPlmSystem plms)
+    /// <summary>
+    /// Restarts the room's statue sequence when the host tester opens Tourian in the room: the statues return to their
+    /// starting delay and descent, then begin as a room load would.
+    /// </summary>
+    /// <param name="plms">The room's PLM system.</param>
+    internal void RestartForTesterUnlock(RoomPlmSystem plms)
     {
         objects.Clear();
         delay = -2;
         descent = 0;
         DisplayedVerticalOffset = 0;
+        Begin(plms);
+    }
+
+    /// <summary>Begins the room's statue sequence, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
+    /// <remarks>
+    /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
+    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
+    /// </remarks>
+    private void Begin(RoomPlmSystem plms)
+    {
         Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();

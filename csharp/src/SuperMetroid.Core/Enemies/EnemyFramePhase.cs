@@ -42,8 +42,6 @@ internal sealed class EnemyFramePhase
     private readonly SamusFrameState _player;
     /// <summary>Provides active room geometry and camera and receives enemy camera requests.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Deletes room liquid HDMA objects when Mother Brain requests their removal.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Collects VRAM writes produced during the enemy pass.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -63,7 +61,6 @@ internal sealed class EnemyFramePhase
         _oam = dependencies.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _vramWrites = dependencies.VramWrites;
 
     }
@@ -111,7 +108,7 @@ internal sealed class EnemyFramePhase
         if (_room.Camera is not null && _enemies.IsLoaded)
         {
             EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms);
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
@@ -168,7 +165,7 @@ internal sealed class EnemyFramePhase
             }
             // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
             if (result.DeleteLiquidHdmaObjects)
-                _roomLayer3Fx.DeleteLiquidHdmaObjects();
+                room.Layer3Fx.DeleteLiquidHdmaObjects();
             if (result.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary

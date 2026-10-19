@@ -41,7 +41,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
         // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
         // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms, session.GameplayRuntime.Room.LoadedScope.BombProjectiles);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
         PublishDoorEntryRoomFxSounds(session.GameplayRuntime);
         // $82:E1BB sets the door/enemy pause flags, then $82:E1CA-E1D6 run the source
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's
@@ -107,7 +107,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     {
         if (source.AttractDemo.IsAttractDemo)
             return;
-        foreach (var request in source.RoomLayer3Fx.SoundRequests)
+        foreach (var request in source.Room.LoadedScope.Layer3Fx.SoundRequests)
             session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
     }

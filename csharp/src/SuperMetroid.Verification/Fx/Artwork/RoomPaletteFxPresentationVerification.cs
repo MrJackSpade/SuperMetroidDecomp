@@ -59,8 +59,10 @@ internal static class RoomPaletteFxPresentationVerification
             "Norfair presentation owns all 320 BGR555 source words");
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var native = new RoomPaletteFxSystem();
-        var installed = new RoomPaletteFxSystem();
+        var nativeSession = new PaletteFxSessionState();
+        var native = new RoomPaletteFxSystem(nativeSession);
+        var installedSession = new PaletteFxSessionState();
+        var installed = new RoomPaletteFxSystem(installedSession);
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -77,7 +79,7 @@ internal static class RoomPaletteFxPresentationVerification
             installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
-            AssertEqual(native.SamusInHeatPaletteIndex, installed.SamusInHeatPaletteIndex,
+            AssertEqual(nativeSession.SamusInHeatPaletteIndex, installedSession.SamusInHeatPaletteIndex,
                 $"installed Norfair heat phase equals native output on frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -688,8 +690,10 @@ internal static class RoomPaletteFxPresentationVerification
                 forbidden.Count, $"{definition.Suit} heat colors have distinct source bytes");
 
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
-            var native = new RoomPaletteFxSystem();
-            var installed = new RoomPaletteFxSystem();
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession);
+            var installedSession = new PaletteFxSessionState();
+            var installed = new RoomPaletteFxSystem(installedSession);
             ushort equipment = definition.Suit switch
             {
                 PaletteFxHeatSuit.Power => 0,
@@ -741,8 +745,10 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (ushort definition in shape.Definitions)
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-            var native = new RoomPaletteFxSystem();
-            var installed = new RoomPaletteFxSystem();
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession);
+            var installedSession = new PaletteFxSessionState();
+            var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -801,8 +807,10 @@ internal static class RoomPaletteFxPresentationVerification
                  })
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-            var native = new RoomPaletteFxSystem();
-            var installed = new RoomPaletteFxSystem();
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession);
+            var installedSession = new PaletteFxSessionState();
+            var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -851,8 +859,10 @@ internal static class RoomPaletteFxPresentationVerification
             "Maridia presentation owns all 112 BGR555 source words");
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var native = new RoomPaletteFxSystem();
-        var installed = new RoomPaletteFxSystem();
+        var nativeSession = new PaletteFxSessionState();
+        var native = new RoomPaletteFxSystem(nativeSession);
+        var installedSession = new PaletteFxSessionState();
+        var installed = new RoomPaletteFxSystem(installedSession);
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -960,8 +970,10 @@ internal static class RoomPaletteFxPresentationVerification
         };
         RoomPaletteFxPresentation editedHeat = RoomPaletteFxPresentation.Load(
             new MemoryStream(Json(), writable: false));
-        var stockOwner = new RoomPaletteFxSystem();
-        var editedOwner = new RoomPaletteFxSystem();
+        var stockOwnerSession = new PaletteFxSessionState();
+        var stockOwner = new RoomPaletteFxSystem(stockOwnerSession);
+        var editedOwnerSession = new PaletteFxSessionState();
+        var editedOwner = new RoomPaletteFxSystem(editedOwnerSession);
         stockOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
             equippedItems: 0);
         editedOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
@@ -974,8 +986,8 @@ internal static class RoomPaletteFxPresentationVerification
         editedOwner.Step(editedCgram, editedHeat, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),
             "editing Samus's Power Suit heat color changes visible CGRAM");
-        AssertEqual(stockOwner.SamusInHeatPaletteIndex,
-            editedOwner.SamusInHeatPaletteIndex,
+        AssertEqual(stockOwnerSession.SamusInHeatPaletteIndex,
+            editedOwnerSession.SamusInHeatPaletteIndex,
             "heat color override preserves native phase");
         AssertTrue(stockOwner.SoundRequests.SequenceEqual(editedOwner.SoundRequests),
             "heat color override preserves native sound requests");

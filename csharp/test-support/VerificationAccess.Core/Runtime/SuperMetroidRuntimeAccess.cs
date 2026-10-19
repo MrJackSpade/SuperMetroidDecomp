@@ -51,6 +51,30 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>The loaded room's bombs.</summary>
         internal SamusBombProjectileSystem BombProjectiles => self.Room.LoadedScope.BombProjectiles;
 
+        /// <summary>The loaded room's layer-3 FX.</summary>
+        internal RoomLayer3FxState RoomLayer3Fx => self.Room.LoadedScope.Layer3Fx;
+
+        /// <summary>The loaded room's palette FX.</summary>
+        internal RoomPaletteFxSystem RoomPaletteFx => self.Room.LoadedScope.PaletteFx;
+
+        /// <summary>The loaded room's Ceres haze.</summary>
+        internal CeresHazeState CeresHaze => self.Room.LoadedScope.CeresHaze;
+
+        /// <summary>The loaded room's sand tiles.</summary>
+        internal RoomSandAnimatedTilesState SandAnimatedTiles => self.Room.LoadedScope.SandTiles;
+
+        /// <summary>The loaded room's spike tiles.</summary>
+        internal RoomSpikeAnimatedTilesState RoomSpikes => self.Room.LoadedScope.SpikeTiles;
+
+        /// <summary>The loaded room's treadmill tiles.</summary>
+        internal RoomTreadmillAnimatedTilesState RoomTreadmills => self.Room.LoadedScope.TreadmillTiles;
+
+        /// <summary>The loaded room's Wrecked Ship treadmill tiles.</summary>
+        internal WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill => self.Room.LoadedScope.WreckedShipTreadmill;
+
+        /// <summary>The loaded room's Tourian statue sequence.</summary>
+        internal TourianStatueSequence TourianStatues => self.Room.LoadedScope.TourianStatues;
+
 
         /// <summary>
         /// Creates pose-$01 Samus on a supported Landing Site floor beneath world X=$0440 and

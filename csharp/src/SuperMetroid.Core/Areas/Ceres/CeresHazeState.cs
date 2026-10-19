@@ -38,7 +38,7 @@ public sealed class CeresHazeState
     /// <param name="enabled">Whether the room's setup callback spawns the Ceres haze owner.</param>
     /// <param name="ridleyIsDead">Loaded area's boss-bit result selecting red rather than blue for this owner's lifetime.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at counter 16 with published strength 15; false starts waiting at zero for the door fade-in phase.</param>
-    public void Load(bool enabled, bool ridleyIsDead, bool immediateViewport)
+    public CeresHazeState(bool enabled, bool ridleyIsDead, bool immediateViewport)
     {
         Enabled = enabled;
         IsRed = ridleyIsDead;

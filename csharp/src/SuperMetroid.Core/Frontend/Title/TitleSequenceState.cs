@@ -25,7 +25,7 @@ public sealed class TitleSequenceState
     /// <summary>Holds installed title colors and live console palette-FX changes.</summary>
     internal readonly SnesCgram cgram = new();
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
-    private RoomPaletteFxSystem consolePaletteFx = new();
+    private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>Receives title and copyright spritemaps in native drawing order.</summary>
     internal readonly OamBuffer oam = new();
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
@@ -323,7 +323,7 @@ public sealed class TitleSequenceState
     /// <summary>Restarts the slow and fast console-light palette programs at the native title seam.</summary>
     private void ResetConsolePaletteFx()
     {
-        consolePaletteFx = new RoomPaletteFxSystem();
+        consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
         consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
         consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }

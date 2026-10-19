@@ -310,8 +310,10 @@ internal static class TitleGradientVerification
         }
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
-        var native = new RoomPaletteFxSystem();
-        var installed = new RoomPaletteFxSystem();
+        var nativeSession = new PaletteFxSessionState();
+        var native = new RoomPaletteFxSystem(nativeSession);
+        var installedSession = new PaletteFxSessionState();
+        var installed = new RoomPaletteFxSystem(installedSession);
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteFxColorDefinitions.All)
         {

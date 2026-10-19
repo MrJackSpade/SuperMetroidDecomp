@@ -17,7 +17,8 @@ internal static class LookupQuakeSoundSelectionVerification
         AssertEqual((ushort)0x8000, ReadVerificationWord(rom, 0x88b256 + 4 * count), "Original reset marker");
         for (int index = 0; index <= count; index++)
         {
-            var state = new RoomLayer3FxState();
+            var stateSession = new RoomFxSession();
+            var state = new RoomLayer3FxState(stateSession);
             state.earthquakeSoundSequenceIndex = index;
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");

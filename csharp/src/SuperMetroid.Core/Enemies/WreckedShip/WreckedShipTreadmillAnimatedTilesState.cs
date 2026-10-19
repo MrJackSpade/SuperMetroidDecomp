@@ -35,17 +35,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Most recent 24-bit source published for the next NMI transfer.</summary>
     public int? LastSourceAddress { get; private set; }
 
-    /// <summary>Clears the room-owned object arrays during destination-room teardown.</summary>
-    public void Reset()
-    {
-        IsActive = false;
-        Direction = default;
-        NextFrameIndex = 0;
-        LastSourceAddress = null;
-        _waitingForAreaBoss = false;
-        _instructionTimer = NativeCountdown.Start(0);
-        _compiledMechanics = null;
-    }
 
     /// <summary>
     /// Mirrors <c>Spawn_AnimatedTilesObject</c> for object $8275 or $827B. Both lists begin

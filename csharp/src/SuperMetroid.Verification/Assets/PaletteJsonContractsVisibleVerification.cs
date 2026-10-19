@@ -33,8 +33,10 @@ internal static class PaletteJsonContractsVisibleVerification
         var replacement = ReadPaletteContract(editedTitle, json => TitlePalettePresentation.Load(json));
         var stockBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var stockFx = new RoomPaletteFxSystem();
-        var editedFx = new RoomPaletteFxSystem();
+        var stockFxSession = new PaletteFxSessionState();
+        var stockFx = new RoomPaletteFxSystem(stockFxSession);
+        var editedFxSession = new PaletteFxSessionState();
+        var editedFx = new RoomPaletteFxSystem(editedFxSession);
         foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             stockFx.SpawnDefinition(definition.DefinitionPointer, 0);

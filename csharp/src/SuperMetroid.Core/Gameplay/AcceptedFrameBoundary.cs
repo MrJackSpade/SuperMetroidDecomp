@@ -51,14 +51,12 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayOptions _options;
     /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Captures the layer-three room effect visible at the NMI boundary.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Supplies the session COLDATA shadows.</summary>
+    private readonly RoomFxSession _roomFx;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Latches the Tourian statue scene's displayed state.</summary>
-    private readonly TourianStatueSequence _tourianStatues;
     /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
     private readonly SnesVram _vram;
     /// <summary>Transfers the X-ray BG1 read at the end of the accepted publication.</summary>
@@ -82,9 +80,8 @@ internal sealed class AcceptedFrameBoundary
         _options = dependencies.Options;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
+        _roomFx = dependencies.RoomFx;
         _suitPickup = dependencies.SuitPickup;
-        _tourianStatues = dependencies.TourianStatues;
         _vram = dependencies.Vram;
         _xray = dependencies.Xray;
         _drainQueuedVramWrites = dependencies.DrainQueuedVramWrites;
@@ -147,11 +144,11 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
             _enemies.Earthquake.LastRoomShake, bg2Window.First, bg2Window.End);
-        RoomLayer3FxRenderSnapshot? roomLayer3Fx = _roomLayer3Fx.CaptureForDisplay();
+        RoomLayer3FxRenderSnapshot? roomLayer3Fx = _room.Layer3Fx?.CaptureForDisplay();
         _enemies.DisplaySources.Phantoon?.Wave.LatchDisplay();
         if (_enemies.DisplaySources.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
-        _tourianStatues.LatchDisplay();
+        _room.TourianStatues?.LatchDisplay();
         _display.Latched = new GameplayNmiDisplayLatch(
             ppu,
             _gameplayWindows.DisplayedGameplayWindowRegisters,
@@ -159,7 +156,8 @@ internal sealed class AcceptedFrameBoundary
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),
             _enemies.DisplaySources.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
-            _tourianStatues.DisplayedVerticalOffset,
+            // Before the first room there are no statues, so no descent is displayed.
+            _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
             CaptureSceneRegisters(),
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
@@ -189,8 +187,9 @@ internal sealed class AcceptedFrameBoundary
             _room.ActiveDoor?.UsesCeresElevatorMode7 == true,
             room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze,
             _display.GameplayHudCharacterBaseWord,
-            _roomLayer3Fx.Type,
-            _roomLayer3Fx.LayerBlendConfiguration,
+            // Before the first room no FX record is selected and no blending is configured.
+            _room.Layer3Fx?.Type ?? RoomFxType.None,
+            _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
             ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
             room?.Definition,
             _enemies.RoomStatus.BossId);
@@ -221,7 +220,7 @@ internal sealed class AcceptedFrameBoundary
             ? new(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue)
             : default;
         return new(
-            _roomLayer3Fx.FixedColors.Snapshot(),
+            _roomFx.FixedColors.Snapshot(),
             powerBomb,
             new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
             _enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);

@@ -620,7 +620,7 @@ public sealed class SuperMetroidGame
                 break;
             case MainLoopRandomCall.NonGameplayHdmaThenAdvance:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
-                Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, Session.GameplayRuntime.Room.LoadedScope.Plms);
+                Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case MainLoopRandomCall.AdvanceUnlessResumingWait:
                 if (!NextUpdateResumesNmiWait)

@@ -33,8 +33,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Ceres elevator shaft.</summary>
     public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
-    /// <summary>Ceres haze.</summary>
-    public required CeresHazeState CeresHaze { get; init; }
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }
@@ -93,20 +91,18 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
     public required GameplayWindowRegisters GameplayWindows { get; init; }
 
-    /// <summary>Room layer3 fx.</summary>
-    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
+    /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork each room's layer-3 FX reads.</summary>
+    public required RoomFxSession RoomFx { get; init; }
 
-    /// <summary>Room palette fx.</summary>
-    public required RoomPaletteFxSystem RoomPaletteFx { get; init; }
+    /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
+    public required PaletteFxSessionState PaletteFxSession { get; init; }
 
-    /// <summary>Room spikes.</summary>
-    public required RoomSpikeAnimatedTilesState RoomSpikes { get; init; }
+    /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
+    public required TourianStatueSequenceDependencies TourianStatueDependencies { get; init; }
 
-    /// <summary>Room treadmills.</summary>
-    public required RoomTreadmillAnimatedTilesState RoomTreadmills { get; init; }
 
-    /// <summary>Sand animated tiles.</summary>
-    public required RoomSandAnimatedTilesState SandAnimatedTiles { get; init; }
+
+
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
@@ -114,8 +110,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Tester.</summary>
     public required TesterTools Tester { get; init; }
 
-    /// <summary>Tourian statues.</summary>
-    public required TourianStatueSequence TourianStatues { get; init; }
 
     /// <summary>Vram.</summary>
     public required SnesVram Vram { get; init; }
@@ -123,7 +117,5 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
 
-    /// <summary>Wrecked ship treadmill.</summary>
-    public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
 }

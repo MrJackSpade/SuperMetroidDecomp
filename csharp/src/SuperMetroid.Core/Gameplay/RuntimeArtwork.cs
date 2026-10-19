@@ -79,8 +79,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Receives animated tile, layer-three map, and blend-color catalogs.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
+    private readonly RoomFxSession _roomFx;
     /// <summary>Destination for accepted-NMI artwork refresh transfers.</summary>
     private readonly SnesVram _vram;
     /// <summary>Pending DMA records rebound from native source addresses to installed assets.</summary>
@@ -109,7 +109,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
+        _roomFx = dependencies.RoomFx;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
     }
@@ -129,9 +129,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _hud.BindPresentation(value?.GameplayHud, _player.Samus);
             _messageBox.BindPresentation(value?.GameplayMessageTitles, value?.GameplayMessagePanels,
                 value?.GameplayMessageNotices);
-            _roomLayer3Fx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
-            _roomLayer3Fx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
-            _roomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;
+            _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
+            _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
+            _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
             _enemies.BindMapPresentation(value);
             pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;

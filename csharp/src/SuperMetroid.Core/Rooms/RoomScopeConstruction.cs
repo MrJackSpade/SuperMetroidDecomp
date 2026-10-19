@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -45,6 +49,30 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// <summary>Samus's bombs, once the teardown step has built them.</summary>
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
+    /// <summary>The layer-3 FX, once the FX step has built it.</summary>
+    public RoomLayer3FxState? Layer3Fx { get; set; }
+
+    /// <summary>The palette FX, once the FX step has built them.</summary>
+    public RoomPaletteFxSystem? PaletteFx { get; set; }
+
+    /// <summary>The Ceres haze, once the FX step has built it.</summary>
+    public CeresHazeState? CeresHaze { get; set; }
+
+    /// <summary>The sand tiles, once the FX step has built them.</summary>
+    public RoomSandAnimatedTilesState? SandTiles { get; set; }
+
+    /// <summary>The spike tiles, once the FX step has built them.</summary>
+    public RoomSpikeAnimatedTilesState? SpikeTiles { get; set; }
+
+    /// <summary>The treadmill tiles, once the FX step has built them.</summary>
+    public RoomTreadmillAnimatedTilesState? TreadmillTiles { get; set; }
+
+    /// <summary>The Wrecked Ship treadmill tiles, once the header step has built them.</summary>
+    public WreckedShipTreadmillAnimatedTilesState? WreckedShipTreadmill { get; set; }
+
+    /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>
+    public TourianStatueSequence? TourianStatues { get; set; }
+
     /// <summary>The PLM system, once the PLM population step has built it.</summary>
     public RoomPlmSystem? Plms { get; set; }
 
@@ -65,6 +93,14 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         LandingSiteEntry = LandingSiteEntry,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
+        Layer3Fx = Layer3Fx ?? throw Missing(nameof(Layer3Fx)),
+        PaletteFx = PaletteFx ?? throw Missing(nameof(PaletteFx)),
+        CeresHaze = CeresHaze ?? throw Missing(nameof(CeresHaze)),
+        SandTiles = SandTiles ?? throw Missing(nameof(SandTiles)),
+        SpikeTiles = SpikeTiles ?? throw Missing(nameof(SpikeTiles)),
+        TreadmillTiles = TreadmillTiles ?? throw Missing(nameof(TreadmillTiles)),
+        WreckedShipTreadmill = WreckedShipTreadmill ?? throw Missing(nameof(WreckedShipTreadmill)),
+        TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };

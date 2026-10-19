@@ -24,7 +24,8 @@ internal static class NorfairGlowVerification
             [(0xf785, 0x6a), (0xf789, 0x82), (0xf78d, 0xa2), (0xf791, 0xc2)];
         foreach (var stream in streams)
         {
-            var fx = new RoomPaletteFxSystem();
+            var fxSession = new PaletteFxSessionState();
+            var fx = new RoomPaletteFxSystem(fxSession);
             var colors = new SnesCgram();
             fx.SpawnDefinition(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;

@@ -610,7 +610,8 @@ internal static class RoomPlmPopulationVerification
 
         RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
         {
-            var fx = new RoomLayer3FxState();
+            var fxSession = new RoomFxSession();
+            var fx = new RoomLayer3FxState(fxSession);
             fx.ApplyCartridgeMotionWrites(baseY, targetY, velocity, timer);
             return fx;
         }

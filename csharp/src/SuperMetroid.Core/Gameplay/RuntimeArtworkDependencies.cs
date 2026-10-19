@@ -29,8 +29,8 @@ internal sealed record RuntimeArtworkDependencies
     public required SamusFrameState Player { get; init; }
 
 
-    /// <summary>Room layer3 fx.</summary>
-    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
+    /// <summary>The session that holds every room's installed FX catalogs.</summary>
+    public required RoomFxSession RoomFx { get; init; }
 
     /// <summary>Vram.</summary>
     public required SnesVram Vram { get; init; }

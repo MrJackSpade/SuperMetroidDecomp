@@ -91,9 +91,8 @@ internal static class InstalledSporesTests
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
-            RoomLayer3FxState baseline = Create(stock), replacement = Create(edited);
-            baseline.LoadDefinition(baselineVram, colors, definition, 0);
-            replacement.LoadDefinition(editedVram, editedColors, definition, 0);
+            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), baselineVram, colors, definition, 0);
+            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedVram, editedColors, definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -157,7 +156,7 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Constructs a Layer 3 FX owner using the selected installed tile, map, and palette catalogs.</summary>
-    private static RoomLayer3FxState Create(AreaMapPresentationCatalog presentation) => new()
+    private static RoomFxSession Create(AreaMapPresentationCatalog presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,

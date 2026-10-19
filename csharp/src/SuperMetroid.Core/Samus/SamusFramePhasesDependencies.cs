@@ -51,8 +51,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>Room palette fx.</summary>
-    public required RoomPaletteFxSystem RoomPaletteFx { get; init; }
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }

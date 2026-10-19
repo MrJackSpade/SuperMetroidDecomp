@@ -49,12 +49,8 @@ internal sealed class DoorTransitionRunner
     private readonly SamusFrameState _player;
     /// <summary>Holds destination room data, camera, and background streamer.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Applies room liquid state during the door HDMA pass.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Provides boss bits and advances main-loop random state.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Starts Wrecked Ship treadmill animation at a door entrance.</summary>
-    private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
 
     /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
@@ -73,9 +69,7 @@ internal sealed class DoorTransitionRunner
         _oam = _sprites.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _system = dependencies.System;
-        _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
     }
     /// <summary>
     /// Runs the setup routine named by the active bank-$83 door header after PLM creation.
@@ -87,7 +81,7 @@ internal sealed class DoorTransitionRunner
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
-    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms)
+    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -128,11 +122,11 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, plms);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, plms, wreckedShipTreadmill);
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, plms);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, plms, wreckedShipTreadmill);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
@@ -158,7 +152,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomPlmSystem plms)
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.ActiveRoom is null)
         {
@@ -166,7 +160,7 @@ internal sealed class DoorTransitionRunner
                 "Wrecked Ship treadmill door setup requires an active destination room.");
         }
 
-        _wreckedShipTreadmill.Start(direction);
+        wreckedShipTreadmill.Start(direction);
         // Both native spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's native false result here.
@@ -197,7 +191,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomScope room)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles);
+        RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles, room);
         DrawDoorTransitionActors(runEnemyProjectiles: false, room);
     }
 
@@ -207,11 +201,11 @@ internal sealed class DoorTransitionRunner
     /// runs while Samus is locked. On the entry frame it precedes the state handler, so
     /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
+    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, plms);
+        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, plms, room);
     }
 
     /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
@@ -252,13 +246,13 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
-    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled, RoomPlmSystem plms)
+    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled, RoomPlmSystem plms, RoomScope room)
     {
         if (hdmaObjectsEnabled)
         {
-            _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms);
-            if (_player.Samus is not null && _roomLayer3Fx.MovesLiquidInHdmaPass)
-                _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
+            _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms, room);
+            if (_player.Samus is not null && room.Layer3Fx.MovesLiquidInHdmaPass)
+                room.Layer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
         }
         _system.NextRandom();
     }

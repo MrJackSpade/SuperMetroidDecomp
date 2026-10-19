@@ -5,6 +5,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -44,6 +48,30 @@ internal sealed record RoomScope
 
     /// <summary>Samus's bombs, power bombs and the shared projectile cooldown in this room.</summary>
     public required SamusBombProjectileSystem BombProjectiles { get; init; }
+
+    /// <summary>The room's layer-3 FX: liquid, rain, fog and the BG3 tilemap.</summary>
+    public required RoomLayer3FxState Layer3Fx { get; init; }
+
+    /// <summary>The room's palette-FX objects.</summary>
+    public required RoomPaletteFxSystem PaletteFx { get; init; }
+
+    /// <summary>The room's Ceres haze, enabled only where the setup callback spawns it.</summary>
+    public required CeresHazeState CeresHaze { get; init; }
+
+    /// <summary>The room's sand animated tiles.</summary>
+    public required RoomSandAnimatedTilesState SandTiles { get; init; }
+
+    /// <summary>The room's horizontal-spike animated tiles.</summary>
+    public required RoomSpikeAnimatedTilesState SpikeTiles { get; init; }
+
+    /// <summary>The room's FX-selected treadmill animated tiles.</summary>
+    public required RoomTreadmillAnimatedTilesState TreadmillTiles { get; init; }
+
+    /// <summary>The Wrecked Ship entrance treadmill tiles a door's setup code may start.</summary>
+    public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
+
+    /// <summary>The room's Tourian statue tile programs and descent, enabled only in the statue room.</summary>
+    public required TourianStatueSequence TourianStatues { get; init; }
 
     /// <summary>The room's PLM population and the family owners that run it.</summary>
     public required RoomPlmSystem Plms { get; init; }

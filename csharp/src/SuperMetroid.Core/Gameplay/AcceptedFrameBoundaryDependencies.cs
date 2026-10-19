@@ -57,11 +57,9 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 
-    /// <summary>Room layer3 fx.</summary>
-    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
+    /// <summary>The session COLDATA shadows.</summary>
+    public required RoomFxSession RoomFx { get; init; }
 
-    /// <summary>Tourian statues.</summary>
-    public required TourianStatueSequence TourianStatues { get; init; }
 
     /// <summary>Vram.</summary>
     public required SnesVram Vram { get; init; }

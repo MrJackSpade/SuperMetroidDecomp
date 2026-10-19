@@ -33,22 +33,17 @@ public sealed class RoomPaletteFxSystem
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
-    /// <summary>
-    /// Heat palette phase published by the Norfair object for the next descending-slot pass. Only compared for
-    /// equality and used to select a heat program, so it is held as a plain phase number.
-    /// </summary>
-    internal int samusInHeatPaletteIndex;
-    /// <summary>Last heat palette phase applied to Samus; prevents redundant program restarts.</summary>
-    internal int previousSamusInHeatPaletteIndex;
+    /// <summary>The handler enable bit and heat palette phases, which outlive each room's slots.</summary>
+    private readonly PaletteFxSessionState _session;
+
+    /// <summary>Creates one room's eight empty palette-FX slots over the session's handler state.</summary>
+    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    public RoomPaletteFxSystem(PaletteFxSessionState session) => _session = Ensure.NotNull(session);
 
     /// <summary>
-    /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
-    /// data loading sets it; the escape timer's expiry (<c>$90:E106</c>) clears it.
+    /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler; it lives on the session.
     /// </summary>
-    public bool HandlerEnabled { get; private set; } = true;
-
-    /// <summary><c>Disable_PaletteFXObjects</c> ($8D:C4CD).</summary>
-    public void DisableHandler() => HandlerEnabled = false;
+    public bool HandlerEnabled => _session.HandlerEnabled;
 
     /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
     public IReadOnlyList<PaletteFxSoundRequest> SoundRequests => soundRequests;
@@ -79,27 +74,46 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>
-    /// Clears the old room's objects and spawns exactly the bits selected by the matching
+    /// Builds one room's palette-FX objects: exactly the bits selected by the matching
     /// sixteen-byte bank-$83 FX record.
     /// </summary>
-    public void LoadRoom(
+    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="area">The room's area, which selects each bit's object.</param>
+    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
+    /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
+    public static RoomPaletteFxSystem ForRoom(
+        PaletteFxSessionState session,
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         AreaId area,
         SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
-        LoadRoomCore(fx, door, area, equippedItems, areaMiniBossDefeated, null);
+        ForRecord(session, fx, door, area, equippedItems, areaMiniBossDefeated, null);
 
-    /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
-    internal void LoadRoomCore(RoomFxDefinition? fx, CartridgeDoorHeader? door,
+    /// <summary>Builds one room's palette-FX objects from the selected or supplied FX record's area-specific bits.</summary>
+    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    /// <param name="fx">The room state's FX definition.</param>
+    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="area">The room's area, which selects each bit's object.</param>
+    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
+    /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
+    /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
+    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxDefinition? fx, CartridgeDoorHeader? door,
         AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
-        foreach (PaletteFxSlot slot in slots)
-            slot.Clear();
-        soundRequests.Clear();
-        musicRequests.Clear();
+        var system = new RoomPaletteFxSystem(session);
+        system.SpawnRecordObjects(fx, door, area, equippedItems, areaMiniBossDefeated, suppliedDefinition);
+        return system;
+    }
 
+    /// <summary>Spawns the selected or supplied FX record's area-specific palette bits.</summary>
+    private void SpawnRecordObjects(RoomFxDefinition? fx, CartridgeDoorHeader? door,
+        AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
+        RoomFxRecordDefinition? suppliedDefinition)
+    {
         if (suppliedDefinition is null && fx is null)
             return;
         int areaIndex = AreaIds.ToIndex(area);
@@ -313,14 +327,14 @@ public sealed class RoomPaletteFxSystem
             }
         }
 
-        if (samusInHeatPaletteIndex == previousSamusInHeatPaletteIndex)
+        if (_session.SamusInHeatPaletteIndex == _session.PreviousSamusInHeatPaletteIndex)
             return;
 
-        previousSamusInHeatPaletteIndex = samusInHeatPaletteIndex;
+        _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
-            samusInHeatPaletteIndex));
+            _session.SamusInHeatPaletteIndex));
     }
 
     /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
@@ -371,7 +385,7 @@ public sealed class RoomPaletteFxSystem
                 slot.PreInstruction = PaletteFxPreInstruction.Cleared;
                 return;
             case PaletteFxCueKind.SetHeatPaletteIndex:
-                samusInHeatPaletteIndex = cue.HeatPhase;
+                _session.SamusInHeatPaletteIndex = cue.HeatPhase;
                 return;
             case PaletteFxCueKind.QueueSoundLibrary2:
                 soundRequests.Add(new PaletteFxSoundRequest(

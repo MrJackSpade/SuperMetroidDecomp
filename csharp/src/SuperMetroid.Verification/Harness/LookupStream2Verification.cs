@@ -242,7 +242,8 @@ internal static class LookupStream2Verification
             }
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
-            var actual = new RoomPaletteFxSystem();
+            var actualSession = new PaletteFxSessionState();
+            var actual = new RoomPaletteFxSystem(actualSession);
             actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);

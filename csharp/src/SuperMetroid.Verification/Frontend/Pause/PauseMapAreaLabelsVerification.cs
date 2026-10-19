@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks pause-map elevator destination labels and area headings against native OAM, pixels, and VRAM words.</summary>
 internal static class PauseMapAreaLabelsVerification
@@ -38,12 +39,14 @@ internal static class PauseMapAreaLabelsVerification
             var presentation = RetailPresentationFixture();
             labels.BindLandmarks(presentation.Landmarks);
             labels.BindSprites(presentation.Sprites);
-            var gated = new OamBuffer(); gated.BeginFrame();
+            var gated = ScreenSpritesFixtures.Blank(); gated.BeginFrame();
             labels.DrawElevatorLabels(gated, new(0, 0));
-            AssertEqual(0, gated.NextByteOffset, "undownloaded area hides destination names");
+            gated.FinishFrame();
+            AssertEqual(0, gated.LastFinalizedSpriteCount, "undownloaded area hides destination names");
             system.SetAreaMapAcquired(area == AreaId.Crateria ? AreaId.Brinstar : AreaId.Crateria);
             labels.DrawElevatorLabels(gated, new(0, 0));
-            AssertEqual(0, gated.NextByteOffset, "another area's map does not reveal these destinations");
+            gated.FinishFrame();
+            AssertEqual(0, gated.LastFinalizedSpriteCount, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
@@ -59,7 +62,7 @@ internal static class PauseMapAreaLabelsVerification
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();
             var pixels = pause.Render();
-            var oam = pause.oam;
+            var oam = pause.entries;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
             AssertTrue(oam.LowTable.Slice(start, labelBytes).SequenceEqual(native.LowTable[..labelBytes]),
@@ -90,13 +93,13 @@ internal static class PauseMapAreaLabelsVerification
             }
             AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
             pause.Step(SnesButton.R, 0); _ = pause.Render();
-            AssertLabels(pause.oam.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
+            AssertLabels(pause.entries.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.Render();
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
             _ = pause.Render();
             AssertEqual(1, pause.ScreenMode, "equipment page reached");
-            AssertTrue(pause.oam.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
+            AssertTrue(pause.entries.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
             for (int frame = 0; pause.IsPageTransitionActive; frame++)
             {
@@ -107,10 +110,10 @@ internal static class PauseMapAreaLabelsVerification
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.Render();
             AssertEqual(0, pause.ScreenMode, "map fade-in reached");
-            AssertLabels(pause.oam.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
+            AssertLabels(pause.entries.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)
             {
-                var actual = pause.oam;
+                var actual = pause.entries;
                 AssertTrue(actual.LowTable.Slice(firstByte, labelBytes).SequenceEqual(native.LowTable[..labelBytes]), $"{area} {phase} native label order/coordinates");
                 for (int sprite = 0; sprite < labelBytes / 4; sprite++)
                 {

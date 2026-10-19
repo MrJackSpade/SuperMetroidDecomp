@@ -4,6 +4,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -11,16 +12,14 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
-    /// <summary>Separate file-select PPU memory and installed background artwork.</summary>
-    internal readonly MenuPpuState ppu;
+    /// <summary>The room map's menu screen: its artwork, tilemaps, palette and sprite entries.</summary>
+    internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
     /// <summary>Installed map sprite compositions used when drawing the marker and animated arrows.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
-    /// <summary>Live menu-owned VRAM containing the installed BG1 area map, BG2 frame, and map characters; not the gameplay room's VRAM instance.</summary>
-    public SnesVram Vram => ppu.Vram;
-    /// <summary>Live menu-owned CGRAM, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
-    public SnesCgram Cgram => ppu.Cgram;
+    /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
+    public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
@@ -44,11 +43,11 @@ public sealed class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, sprites, loadInitialBackground: false);
+        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, sprites);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
-        new MenuVram(ppu.Vram).AreaMapTilemap.Load(
+        MenuTilemaps.Load(screen.Tilemaps.AreaMap,
             AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system, hidden, revealMode));
 
         LoadFrame(mapPresentation.Screens, area);
@@ -59,7 +58,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         (screens ?? throw new InvalidOperationException(
             "Room-map frame requires installed map-screen assets."))
-            .LoadTo(new MenuVram(Vram).Bg2Tilemap, MapScreenDefinitions.RoomFrame(area));
+            .LoadTo(screen.Tilemaps.Bg2, MapScreenDefinitions.RoomFrame(area));
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
@@ -69,36 +68,33 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindLandmarks(catalog?.Landmarks);
         sprites = catalog?.Sprites;
         icons.BindSprites(sprites);
-        ppu.BindMapSprites(sprites);
+        screen.BindMapSprites(sprites);
         if (catalog is not null)
-            new CgramPalettes(Cgram).LoadImageExcept(catalog.Palettes.FileSelect, FrontendPaletteLayout.MapHighlightCycle);
-        (catalog ?? throw new InvalidOperationException(
-            "Room-map graphics require installed map presentation assets."))
-            .Tiles.LoadTo(new MenuVram(Vram).MapCharacters);
+            new CgramPalettes(screen.Palette).LoadImageExcept(catalog.Palettes.FileSelect, FrontendPaletteLayout.MapHighlightCycle);
+        screen.BindMapTiles((catalog ?? throw new InvalidOperationException(
+            "Room-map graphics require installed map presentation assets.")).Tiles);
         var system = icons.MapSystem;
         var area = icons.MapArea;
-        ppu.BindWorldArtwork(catalog?.WorldArtwork);
+        screen.BindWorldArtwork(catalog?.WorldArtwork);
         LoadFrame(catalog?.Screens, area);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
-        new MenuVram(ppu.Vram).AreaMapTilemap.Load(
+        MenuTilemaps.Load(screen.Tilemaps.AreaMap,
             AreaMapTilemapBuilder.Build((catalog ?? throw new InvalidOperationException(
                 "Room-map graphics require installed map presentation assets.")).Get(area), system, hidden));
     }
 
-    /// <summary>Composes landmarks, the saved-station marker, and arrows in native OAM order without advancing animations.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: FileSelectRoomMapGraphics.PrepareIcons until #1358 moves it onto sprite entries")]
-    private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
+    /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>
+    private void PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        icons.DrawBeforeMarker(oam, scroll);
-        marker.Draw(oam, scroll, sprites);
-        icons.DrawAfterMarker(oam, scroll,
-            animations is null ? null : () => animations.DrawArrows(oam, sprites));
-        oam.FinalizeFrame();
-        return oam;
+        ScreenSprites entries = screen.Objects;
+        entries.BeginFrame();
+        icons.DrawBeforeMarker(entries, scroll);
+        marker.Draw(entries, scroll, sprites);
+        icons.DrawAfterMarker(entries, scroll,
+            animations is null ? null : () => animations.DrawArrows(entries, sprites));
+        entries.FinishFrame();
     }
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
@@ -116,14 +112,17 @@ public sealed class FileSelectRoomMapGraphics
                 layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
                     scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority));
             }
-        OamBuffer oam;
         if (marker is not null && !frameOnly)
         {
-            oam = PrepareIcons(scroll, marker, animations);
+            PrepareIcons(scroll, marker, animations);
             layers.Add(new ObjRenderLayer());
         }
-        else { oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame(); }
-        return new(PpuMemorySnapshot.CaptureFrontend(Vram, Cgram, oam, FileSelectMapRomData.ObjectSelection), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
+        else
+        {
+            screen.Objects.BeginFrame();
+            screen.Objects.FinishFrame();
+        }
+        return new(MenuScreenImage.Capture(screen), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness);
     }
 }

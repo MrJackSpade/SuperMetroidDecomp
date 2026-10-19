@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("rendering view: a bounded CGRAM colour range")]
 public readonly struct CgramPalette
 {
-    /// <summary>Underlying hardware color table to which writes must propagate.</summary>
-    private readonly SnesCgram cgram;
+    /// <summary>Underlying colour table to which writes must propagate: CGRAM or a screen palette.</summary>
+    private readonly IPaletteColors cgram;
     /// <summary>First CGRAM color slot represented by this bounded view.</summary>
     private readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
     [PpuLayoutAccess]
-    public CgramPalette(SnesCgram cgram, PpuLayoutCell cell)
+    public CgramPalette(IPaletteColors cgram, PpuLayoutCell cell)
         : this(Ensure.NotNull(cgram), Ensure.NotNull(cell).Region == PpuLayoutRegion.Cgram
             ? cell.Offset
             : throw new ArgumentException($"{cell} is not a CGRAM range.", nameof(cell)), cell.Count)
@@ -26,7 +26,7 @@ public readonly struct CgramPalette
     }
 
     /// <summary>Creates a validated subview using a parent range's CGRAM offset and color count.</summary>
-    private CgramPalette(SnesCgram cgram, int first, int count)
+    private CgramPalette(IPaletteColors cgram, int first, int count)
     {
         this.cgram = cgram;
         this.first = first;

@@ -73,17 +73,16 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
-    /// <summary>Draws authored parts or reconstructs the area's glyph sequence with the caller's palette.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: WorldMapLabelComposition.Draw until #1358 moves it onto sprite entries")]
-    internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>Places authored parts or the area's reconstructed glyph sequence as sprite entries (#1358).</summary>
+    internal void Draw(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
+        if (authored is not null) { authored.Draw(sprites, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         string text = Text(identity);
         for (int index = 0; index < text.Length; index++)
         {
             int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
-            oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
+            sprites.AddPart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
                 SnesSpritemapYByte.Create(VerticalOffset(identity, index)),
                 SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin);
         }

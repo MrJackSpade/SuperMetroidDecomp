@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 /// through its catalog's view instead.
 /// </summary>
 [PpuLayoutBoundary("rendering view: whole-CGRAM banks and rows")]
-public readonly struct CgramPalettes(SnesCgram cgram)
+public readonly struct CgramPalettes(IPaletteColors cgram)
 {
     /// <summary>Colours in a complete CGRAM image.</summary>
     public const int ColorCount = SnesPpuLayout.CgramColorCount;

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -58,7 +59,7 @@ public sealed class FileSelectMapAnimations
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
     /// <param name="cgram">Palette memory receiving the bound OBJ palette-three colors when this menu tick reaches a frame boundary.</param>
     /// <returns>True when the cycle wraps and the caller should queue MapPaletteLoop; this method does not enqueue audio itself.</returns>
-    public bool StepPalette(SnesCgram cgram) => palette.Step(cgram);
+    public bool StepPalette(IPaletteColors cgram) => palette.Step(cgram);
 
     /// <summary>Arrows advance only when their native boundary test allows them to be drawn.</summary>
     /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>
@@ -88,18 +89,18 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>Appends currently visible arrow compositions to OAM using OBJ palette three, without advancing counters or changing scroll availability.</summary>
-    /// <param name="oam">Destination sprite buffer owned by the menu frame being composed.</param>
+    /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
     /// <param name="sprites">Required installed map sprite compositions; no cartridge-art fallback is used when absent.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor with unsigned 16-bit wrapping; pause-map rendering supplies its header offset here.</param>
     /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
-    public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null, int verticalOffset = 0)
+    public void DrawArrows(ScreenSprites entries, MapSpriteCatalog? sprites = null, int verticalOffset = 0)
     {
         MapSpriteCatalog installed = sprites ?? throw new InvalidOperationException(
             "Map arrows require installed sprite definitions.");
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Base, oam, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
+            installed.Draw(arrow.Base, entries, arrow.Position + new Offset16<OamPixels>(0, unchecked((short)verticalOffset)),
                 SnesObjPalettes.Index3.PaletteBits);
         }
     }

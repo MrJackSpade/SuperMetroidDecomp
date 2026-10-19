@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -103,7 +104,7 @@ internal static class MapStationLayoutVerification
 
         static byte[] Draw(FileSelectMapIcons icons)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBeforeMarker(oam, new(0, 0)); oam.FinalizeFrame();
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); icons.DrawBeforeMarker(oam, new(0, 0)); oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }
     }

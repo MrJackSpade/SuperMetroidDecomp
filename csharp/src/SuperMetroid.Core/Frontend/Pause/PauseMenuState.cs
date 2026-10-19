@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -47,8 +48,8 @@ internal sealed class PauseMenuState
     internal readonly SnesVram vram = new();
     /// <summary>Pause-owned CGRAM image with live palette and reserve-arrow edits.</summary>
     internal readonly SnesCgram cgram = new();
-    /// <summary>OAM assembled in native map or equipment drawing order.</summary>
-    internal readonly OamBuffer oam = new();
+    /// <summary>The pause screen's sprite entries over the shared menu OBJ page (#1358).</summary>
+    internal readonly ScreenSprites entries;
     /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
     internal readonly byte[] equipmentTilemap;
     /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
@@ -119,6 +120,7 @@ internal sealed class PauseMenuState
         entry.MapPresentation.Tiles.LoadTo(pauseVram.MapCharacters);
         entry.MapPresentation.PauseTiles.LoadTo(pauseVram.InterfaceCharacters);
         entry.MapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
+        entries = new ScreenSprites(entry.MapPresentation.Sprites.Page);
         entry.MapPresentation.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         if (entry.GameplayLayer3 is not null)
@@ -270,7 +272,7 @@ internal sealed class PauseMenuState
     [PpuLayoutBoundary("codec: pause render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        PrepareRenderOam();
+        PrepareRenderSprites();
         ushort mapX = ScreenMode == 0 ? mapScrollPosition.X : (ushort)0;
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
@@ -287,34 +289,33 @@ internal sealed class PauseMenuState
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, PauseMenuLayout.ObjectSelection), layers,
+        return new(new PpuMemorySnapshot(vram.CaptureImage(), cgram.Colors, entries.Draws), layers,
             PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
     }
 
-    /// <summary>Assembles map markers or equipment sprites in their native page-specific OAM order.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: PauseMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private void PrepareRenderOam()
+    /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
+    private void PrepareRenderSprites()
     {
-        oam.BeginFrame();
+        entries.BeginFrame();
         if (ScreenMode == 0)
         {
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapScrollPosition);
-            mapArrows?.DrawArrows(oam, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(entries, mapScrollPosition);
+            mapArrows?.DrawArrows(entries, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Native pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase OAM order.
-            icons.DrawBossMarkers(oam, mapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapScrollPosition);
+            icons.DrawBossMarkers(entries, mapScrollPosition);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(entries, mapScrollPosition);
         }
         else
         {
             DrawEquipmentItemSelector();
             DrawReserveTanks();
         }
-        oam.FinalizeFrame();
+        entries.FinishFrame();
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
@@ -646,7 +647,7 @@ internal sealed class PauseMenuState
         // because custom phases may draw different compositions.
         lastSelectorCategory = selectedCategory;
         lastMapIndicatorSprite = null;
-        selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
+        selector.Draw(entries, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
     /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
@@ -724,7 +725,7 @@ internal sealed class PauseMenuState
         // and reserve tanks draw through their semantic presentation owners.
         (mapPresentation ?? throw new InvalidOperationException(
             "Menu spritemap requires installed presentation assets."))
-            .Sprites.Draw(id, oam, origin, paletteBits);
+            .Sprites.Draw(id, entries, origin, paletteBits);
     }
 
     /// <summary>Uploads the current mutable equipment page to BG1 VRAM.</summary>
@@ -924,6 +925,7 @@ internal sealed class PauseMenuState
         paletteAnimation.Bind(catalog.HighlightCycle);
         catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
         catalog.Sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
+        entries.BindArtwork(catalog.Sprites.Page);
         // Live highlights and reserve-arrow colors belong to their animation
         // owners. Replacing the static base must not reset their phase.
         new CgramPalettes(cgram).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
@@ -1092,7 +1094,7 @@ internal sealed class PauseMenuState
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))
-                .PauseReserveTanks.Draw(oam, map, index);
+                .PauseReserveTanks.Draw(entries, map, index);
         }
     }
 

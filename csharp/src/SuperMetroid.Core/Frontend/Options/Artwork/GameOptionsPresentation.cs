@@ -86,9 +86,9 @@ public sealed class GameOptionsPresentation
             ? (byte[])page.Clone()
             : throw new InvalidDataException($"Unknown options page {name}.");
 
-    /// <summary>Uploads the common BG2 background page into menu VRAM.</summary>
-    internal void LoadBackground(SnesVram vram) =>
-        new MenuVram(vram).Bg2Tilemap.Load(pages[GameOptionsPresentationDefinitions.BackgroundPage]);
+    /// <summary>Copies the common BG2 background page into the menu's BG2 tilemap.</summary>
+    internal void LoadBackground(MenuTilemaps tilemaps) =>
+        MenuTilemaps.Load(tilemaps.Bg2, pages[GameOptionsPresentationDefinitions.BackgroundPage]);
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
@@ -161,7 +161,7 @@ public sealed class GameOptionsPresentation
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
-    internal void DrawHeading(OamBuffer oam, string page, int verticalScroll)
+    internal void DrawHeading(ScreenSprites sprites, string page, int verticalScroll)
     {
         Position16<OamPixels> point = headingAnchors is null
             ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
@@ -169,16 +169,16 @@ public sealed class GameOptionsPresentation
                 : throw new InvalidDataException($"Options heading {page} is not authored.");
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<OamPixels> origin = new(checked((ushort)point.X), unchecked((ushort)(point.Y - verticalScroll)));
-        sprites[GameOptionsPresentationDefinitions.HeadingFrameName(page)].DrawOnScreen(
-            oam, origin,
+        this.sprites[GameOptionsPresentationDefinitions.HeadingFrameName(page)].Draw(
+            sprites, origin,
             PaletteBits(CursorPalette));
     }
 
-    /// <summary>Draws one frame of the missile cursor at the selected OAM position.</summary>
-    internal void DrawCursor(OamBuffer oam, int frame, Position16<OamPixels> point)
+    /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
+    internal void DrawCursor(ScreenSprites sprites, int frame, Position16<OamPixels> point)
     {
-        sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, point, PaletteBits(CursorPalette));
+        this.sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].Draw(
+            sprites, point, PaletteBits(CursorPalette));
     }
 
     /// <summary>Reads a complete options-menu JSON document and compiles validated pages, controller labels, highlights, and sprite layouts.</summary>

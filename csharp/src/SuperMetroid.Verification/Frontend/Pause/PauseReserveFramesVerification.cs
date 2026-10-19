@@ -39,7 +39,7 @@ internal static class PauseReserveFramesVerification
             AssertEqual(1, edited.StoredFrameCount, "only authored reserve frame stored");
             foreach (var frame in ReserveFrameOracle())
             {
-                var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 if (frame.Id != changed.Id)
                 {
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
@@ -55,8 +55,8 @@ internal static class PauseReserveFramesVerification
                 "each reserve role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw(new OamBuffer(), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
-        AssertThrows<IndexOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, -1), "anchor error precedes unknown visual");
+            AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), (PauseReserveTankVisual)invalid, 0), "unsupported reserve identity");
+        AssertThrows<IndexOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
@@ -89,7 +89,7 @@ internal static class PauseReserveFramesVerification
                 using var stream = new MemoryStream(); PauseReserveTankPresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
                 var edited = PauseReserveTankPresentation.Load(stream);
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
-                var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
                 edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
@@ -114,8 +114,8 @@ internal static class PauseReserveFramesVerification
         for (int index = 0; index < 6; index++)
         foreach (int occupied in new[] { 0, 127, 128 })
         {
-            var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-            for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); actual.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); }
+            var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
+            for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
             ushort x = ReadVerificationWord(rom, 0x82c1d6 + index * 2);
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);

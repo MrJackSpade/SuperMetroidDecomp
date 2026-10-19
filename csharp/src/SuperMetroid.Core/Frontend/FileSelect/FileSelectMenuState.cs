@@ -26,10 +26,8 @@ public sealed class FileSelectMenuState
     private readonly CartridgeAudioState? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
     private readonly SaveSlotStore saves;
-    /// <summary>Owns the menu's VRAM, CGRAM, and installed presentation assets.</summary>
-    internal readonly MenuPpuState ppu;
-    /// <summary>Collects border, cursor, helmets, and copy-arrow sprites for the current frame.</summary>
-    internal readonly OamBuffer oam = new();
+    /// <summary>The menu screen file select draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by native menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
@@ -59,11 +57,11 @@ public sealed class FileSelectMenuState
     {
         this.audio = audio;
         this.mapPresentation = mapPresentation;
-        ppu = new MenuPpuState(mapPresentation?.Tiles, mapPresentation?.Palettes,
-            mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
-            loadInitialBackground: mapPresentation is null);
-        if (mapPresentation is not null)
-            mapPresentation.FileSelect.LoadBackground(ppu.Vram);
+        if (mapPresentation is null)
+            throw new InvalidOperationException("File select requires installed menu presentation assets.");
+        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, mapPresentation.Sprites);
+        mapPresentation.FileSelect.LoadBackground(screen.Tilemaps);
 
         this.saves = Ensure.NotNull(saves);
         for (int slot = 0; slot < saveSlots.Length; slot++)
@@ -71,7 +69,7 @@ public sealed class FileSelectMenuState
         SelectedItem = saves.ReadSelectedSlot();
 
         BuildSaveTilemap();
-        new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
+        bg1Tilemap.CopyTo(screen.Tilemaps.Bg1);
 
         // Host-side loading above is atomic, but the native dispatches are not: indices
         // zero and two each wait for an NMI inside their dispatch before returning.
@@ -200,74 +198,44 @@ public sealed class FileSelectMenuState
     /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        PrepareRenderOam();
-        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, ScreenFade.Displayed(brightness));
+        PrepareRenderSprites();
+        return MenuRenderSnapshotCapture.Capture(screen, 0, ScreenFade.Displayed(brightness));
     }
 
-    /// <summary>Builds the current border, missile, helmet, and optional copy-arrow OBJ list from menu phase.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: FileSelectMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private void PrepareRenderOam()
+    /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
+    private void PrepareRenderSprites()
     {
-        oam.BeginFrame();
+        ScreenSprites sprites = screen.Objects;
+        sprites.BeginFrame();
         bool mainScreen = IsMainScreenPhase;
-        if (mapPresentation is not null)
-        {
-            string borderName = IsCopyPhase
-                ? FileSelectPresentationDefinitions.CopyBorder
-                : IsClearPhase
-                    ? FileSelectPresentationDefinitions.ClearBorder
-                    : FileSelectPresentationDefinitions.MainBorder;
-            mapPresentation.FileSelect.DrawBorder(oam, borderName);
-            if (ShouldDrawSelectionMissile)
-            {
-                mapPresentation.FileSelect.DrawCursor(oam, missileAnimationFrame,
-                    GetSelectionMissilePosition());
-            }
-            for (int slot = 0; mainScreen && slot < 3; slot++)
-            {
-                int frame = slot == SelectedItem && Phase is
-                        FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
-                    ? helmetAnimationFrame
-                    : 0;
-                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
-            }
-            if (Phase == FileSelectPhase.CopyConfirm)
-            {
-                (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
-                foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
-                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, y));
-            }
-            oam.FinalizeFrame();
-            return;
-        }
-        ushort border = IsCopyPhase
-            ? FileSelectLayout.CopyBorderSpritemap
+        FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "File-select sprites require installed menu presentation assets.")).FileSelect;
+        string borderName = IsCopyPhase
+            ? FileSelectPresentationDefinitions.CopyBorder
             : IsClearPhase
-                ? FileSelectLayout.ClearBorderSpritemap
-                : FileSelectLayout.NormalBorderSpritemap;
-        ushort borderX = IsClearPhase ? (ushort)124 : (ushort)128;
-        DrawMenuSpritemap(border, new(borderX, 16));
+                ? FileSelectPresentationDefinitions.ClearBorder
+                : FileSelectPresentationDefinitions.MainBorder;
+        presentation.DrawBorder(sprites, borderName);
         if (ShouldDrawSelectionMissile)
-        {
-            DrawMenuSpritemap(
-                MenuMissileAnimationDefinitions.SpritemapId(missileAnimationFrame),
-                GetSelectionMissilePosition());
-        }
+            presentation.DrawCursor(sprites, missileAnimationFrame, GetSelectionMissilePosition());
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
-            // still resident in OAM. Resetting to spritemap $2C during the fade produces
+            // still resident in OAM. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
             int frame = slot == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? helmetAnimationFrame
                 : 0;
-            DrawMenuSpritemap(
-                FileSelectHelmetAnimation.SpritemapId(Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1)),
-                new(100, FileSelectLayout.HelmetY(slot)));
+            presentation.DrawHelmet(sprites, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
         }
-        oam.FinalizeFrame();
-
+        if (Phase == FileSelectPhase.CopyConfirm)
+        {
+            (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
+            foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
+                sprites.AddPart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, y));
+        }
+        sprites.FinishFrame();
     }
 
     /// <summary>Builds the main page from decoded slots, hiding Copy and Clear when every slot is empty.</summary>
@@ -366,16 +334,6 @@ public sealed class FileSelectMenuState
     {
         throw new InvalidOperationException(
             "File-select tilemaps require installed menu presentation assets.");
-    }
-
-    /// <summary>Rejects the obsolete ROM spritemap path; file-select sprites require installed presentation assets.</summary>
-    private static void DrawMenuSpritemap(ushort spritemapId, Position16<OamPixels> position)
-    {
-        // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
-        // is doubled before following bank $82. AddOnScreenSpritemap then applies the same
-        // `$F1FF | $0E00` attribute replacement as the native r3 argument.
-        throw new InvalidOperationException(
-            "File-select sprites require installed menu presentation assets.");
     }
 
     /// <summary>
@@ -659,7 +617,7 @@ public sealed class FileSelectMenuState
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
             return;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
-        CgramPalette arrow = new FrontendPalettes(ppu.Cgram).FileCopyArrow;
+        CgramPalette arrow = new FrontendPalettes(screen.Palette).FileCopyArrow;
         int last = arrow.Count - 1;
         Bgr555 color = arrow[0];
         for (int index = 0; index < last; index++)
@@ -923,7 +881,7 @@ public sealed class FileSelectMenuState
 
     /// <summary>Copies the staged BG1 menu page into menu VRAM.</summary>
     private void UploadBg1Tilemap() =>
-        new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
+        bg1Tilemap.CopyTo(screen.Tilemaps.Bg1);
 
     /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
@@ -935,11 +893,11 @@ public sealed class FileSelectMenuState
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
         mapPresentation = catalog;
-        ppu.BindWorldArtwork(catalog.WorldArtwork);
-        ppu.BindMapTiles(catalog.Tiles);
-        ppu.BindMapSprites(catalog.Sprites);
-        ppu.BindMapPalettes(catalog.Palettes);
-        catalog.FileSelect.LoadBackground(ppu.Vram);
+        screen.BindWorldArtwork(catalog.WorldArtwork);
+        screen.BindMapTiles(catalog.Tiles);
+        screen.BindMapSprites(catalog.Sprites);
+        screen.BindMapPalettes(catalog.Palettes);
+        catalog.FileSelect.LoadBackground(screen.Tilemaps);
         RebuildInstalledPresentationPage();
         UploadBg1Tilemap();
     }

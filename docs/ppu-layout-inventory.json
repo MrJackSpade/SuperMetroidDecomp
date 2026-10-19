@@ -1485,54 +1485,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
-      "name": "AreaBackgroundTilemap",
-      "region": "Vram",
-      "offset": "$5C00",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
-      "name": "AreaMapTilemap",
-      "region": "Vram",
-      "offset": "$5000",
-      "count": 2048,
-      "encoding": "BG tilemap words (64x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
-      "name": "Bg1Tilemap",
-      "region": "Vram",
-      "offset": "$5000",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
-      "name": "Bg2Tilemap",
-      "region": "Vram",
-      "offset": "$5800",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
       "name": "MapCharacters",
       "region": "Vram",
       "offset": "$3000",
@@ -1540,7 +1492,7 @@
       "encoding": "4-bpp BG characters (map atlas)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuScreenImage.cs"
       ]
     },
     {
@@ -1552,7 +1504,7 @@
       "encoding": "4-bpp OBJ characters (map objects)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVram.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuScreenImage.cs"
       ]
     },
     {

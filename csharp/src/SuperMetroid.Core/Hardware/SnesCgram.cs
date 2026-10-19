@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// NMI later uploads their exact 512-byte image to CGRAM.
 /// </remarks>
 [PpuLayoutAccess]
-public sealed class SnesCgram
+public sealed class SnesCgram : IPaletteColors
 {
     /// <summary>The number of native palette words held by CGRAM.</summary>
     public const int ColorCount = SnesPpuLayout.CgramColorCount;

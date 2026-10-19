@@ -13,23 +13,26 @@ public sealed class MapSpriteCatalog
     internal readonly MapObjectTileArtwork characters;
     /// <summary>Retains validated compositions and the decoded indexed character atlas.</summary>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
-    /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: MapSpriteCatalog.Draw until #1358 moves it onto sprite entries")]
-    public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
+    public void LoadArtworkTo(VramRegion destination) => characters.LoadTo(destination);
+
+    /// <summary>The shared menu OBJ page the catalog's compositions draw from (#1358).</summary>
+    public SpriteArtwork Page => field ??= characters.Page();
+
+    /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor as sprite entries (#1358).</summary>
+    public void Draw(MapSpriteId id, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
     {
         var label = GetWorldLabel(id);
-        if (label is not null) { label.Draw(oam, origin, paletteBits); return; }
+        if (label is not null) { label.Draw(sprites, origin, paletteBits); return; }
         var frame = GetFrame(id);
-        if (frame is not null) { frame.DrawOnScreen(oam, origin, paletteBits); return; }
+        if (frame is not null) { frame.Draw(sprites, origin, paletteBits); return; }
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
         {
             var part = MapMarkerGeometry.Part(id, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
+            sprites.AddPart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
         }
     }
-    /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
-    public void LoadArtworkTo(VramRegion destination) => characters.LoadTo(destination);
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
     internal SpriteComposition? GetFrame(MapSpriteId id) => id switch
     {

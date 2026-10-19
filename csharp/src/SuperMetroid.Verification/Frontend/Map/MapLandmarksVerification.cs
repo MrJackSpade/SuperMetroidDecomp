@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -109,7 +110,7 @@ internal static class MapLandmarksVerification
 
         static byte[] Draw(FileSelectMapIcons icons, AreaId area)
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBossMarkers(oam, new(24, 8));
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); icons.DrawBossMarkers(oam, new(24, 8));
             if (area != AreaId.Ceres) icons.DrawAfterMarker(oam, new(24, 8));
             oam.FinalizeFrame(); return oam.LowTable.ConcatToArray(oam.HighTable);
         }

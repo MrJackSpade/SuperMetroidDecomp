@@ -101,10 +101,7 @@ public sealed class FileSelectMapMenuState
     {
         mapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);
-        areaGraphics.BindLabels(catalog?.Labels);
-        areaGraphics.BindPalettes(catalog?.Palettes);
-        areaGraphics.BindScreens(catalog?.Screens, catalog?.WorldArtwork);
-        areaGraphics.BindSprites(catalog?.Sprites);
+        areaGraphics.BindMapPresentation(catalog);
         entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
@@ -139,7 +136,7 @@ public sealed class FileSelectMapMenuState
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette(roomGraphics.Cgram)) Queue(SoundEffectLibrary3Sounds.MapPaletteLoop);
+            if (animations.StepPalette(roomGraphics.Palette)) Queue(SoundEffectLibrary3Sounds.MapPaletteLoop);
             marker.Step();
             markerDrawn = true;
         }

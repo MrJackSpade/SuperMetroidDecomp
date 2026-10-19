@@ -4,6 +4,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
@@ -68,49 +69,47 @@ public sealed class GameOverPresentation
     /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
-    /// <summary>Copies the complete game-over tilemap into VRAM, calculating stock text words when the loaded page has no edits.</summary>
-    /// <param name="destination">The menu BG1 tilemap receiving the 2048-byte transfer.</param>
-    public void LoadTilemapTo(VramRegion destination)
+    /// <summary>Copies the complete game-over tilemap into the menu's BG1 words, calculating stock text words when the loaded page has no edits.</summary>
+    /// <param name="destination">The menu BG1 tilemap words.</param>
+    internal void LoadTilemapTo(Span<ushort> destination)
     {
         if (tilemap is not null)
         {
-            destination.Load(tilemap);
+            MenuTilemaps.Load(destination, tilemap);
             return;
         }
-        Span<byte> transfer = stackalloc byte[GameOverPresentationDefinitions.TilemapByteCount];
+        Ensure.LengthEqual(destination, GameOverPresentationDefinitions.TilemapCellCount);
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            BinaryPrimitives.WriteUInt16LittleEndian(transfer.Slice(cell * sizeof(ushort)),
-                GameOverPresentationDefinitions.TilemapWord(cell));
-        destination.Load(transfer);
+            destination[cell] = GameOverPresentationDefinitions.TilemapWord(cell);
     }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
-    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
+    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="frame">Closed, middle, or open Baby frame selected by the compiled animation sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
-    public void DrawBaby(OamBuffer oam, GameOverBabyFrame frame) =>
-        sprites[GameOverPresentationDefinitions.BabyFrameName(frame)].DrawOnScreen(
-            oam, BabyAnchor,
+    public void DrawBaby(ScreenSprites screenSprites, GameOverBabyFrame frame) =>
+        sprites[GameOverPresentationDefinitions.BabyFrameName(frame)].Draw(
+            screenSprites, BabyAnchor,
             PaletteBits(BabyPaletteIndex));
 
     /// <summary>Appends the egg composition at the shared Baby anchor using the installed egg palette selector.</summary>
-    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
-    public void DrawEgg(OamBuffer oam) =>
-        sprites[GameOverPresentationDefinitions.EggFrame].DrawOnScreen(
-            oam, BabyAnchor,
+    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
+    public void DrawEgg(ScreenSprites screenSprites) =>
+        sprites[GameOverPresentationDefinitions.EggFrame].Draw(
+            screenSprites, BabyAnchor,
             PaletteBits(EggPaletteIndex));
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
-    /// <param name="oam">Current frame's mutable object buffer; this call does not finalize it.</param>
+    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
     /// <param name="frame">Zero-based looping animation frame 0-3.</param>
     /// <param name="selectNo">True draws at the No position; false draws at the Yes position.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
-    public void DrawCursor(OamBuffer oam, int frame, bool selectNo)
+    public void DrawCursor(ScreenSprites screenSprites, int frame, bool selectNo)
     {
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        sprites[GameOverPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))),
+        sprites[GameOverPresentationDefinitions.CursorFrameName(frame)].Draw(
+            screenSprites, new Position16<OamPixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))),
             PaletteBits(CursorPaletteIndex));
     }
 
@@ -118,7 +117,7 @@ public sealed class GameOverPresentation
     /// <param name="cgram">Mutable destination color memory.</param>
     /// <param name="palette">Idle or one of the three crying palettes selected by the compiled Baby sequence.</param>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    public void ApplyBabyPalette(SnesCgram cgram, GameOverBabyPalette palette)
+    public void ApplyBabyPalette(IPaletteColors cgram, GameOverBabyPalette palette)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)

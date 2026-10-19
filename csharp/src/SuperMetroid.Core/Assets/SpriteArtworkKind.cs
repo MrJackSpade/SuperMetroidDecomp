@@ -28,4 +28,6 @@ public enum SpriteArtworkKind
     GameplayObjects,
     /// <summary>The OBJ characters a frontend screen's OAM records name in its VRAM, until #1358.</summary>
     FrontendObjects,
+    /// <summary>The shared menu OBJ page: the installed map-object characters file select, options, game over and the maps draw from.</summary>
+    MenuObjects,
 }

@@ -90,7 +90,7 @@ public static class GameOverPresentationExtractor
             NoCursorY = GameOverRomData.Sprites.NoMissileY,
             BabyPalette = GameOverRomData.Sprites.BabyPalette.PaletteIndex,
             EggPalette = GameOverRomData.Sprites.EggPalette.PaletteIndex,
-            CursorPalette = MenuPpuState.ObjectPaletteBits >> 9,
+            CursorPalette = MenuRenderDefinitions.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
         return output.ToArray();

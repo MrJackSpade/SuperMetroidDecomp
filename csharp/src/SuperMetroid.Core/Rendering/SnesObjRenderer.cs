@@ -17,7 +17,7 @@ public static class SnesObjRenderer
     /// Transparent samples preserve the destination; optional palette ownership is
     /// reset and follows the winning draw part for subsequent color math.
     /// </summary>
-    public static void CompositeUnfiltered(ImmutableArray<SpriteDraw> draws, SnesCgram cgram,
+    public static void CompositeUnfiltered(ImmutableArray<SpriteDraw> draws, IPaletteColors cgram,
         Span<Rgba32> pixels, Span<byte> palettes = default, Extent16<ScreenPixels>? size = null)
     {
         Ensure.NotNull(cgram);
@@ -35,7 +35,7 @@ public static class SnesObjRenderer
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void RenderResolved(
         ImmutableArray<SpriteDraw> draws,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         ObjRasterTargets targets,
         Extent16<ScreenPixels>? size = null)
     {
@@ -66,7 +66,7 @@ public static class SnesObjRenderer
     /// Paints every draw from the back of the emission order to the front, so the earliest-emitted draw finally owns
     /// each pixel; within a draw the first part is frontmost.
     /// </summary>
-    internal static void Paint(Extent16<ScreenPixels> frame, ImmutableArray<SpriteDraw> draws, SnesCgram cgram,
+    internal static void Paint(Extent16<ScreenPixels> frame, ImmutableArray<SpriteDraw> draws, IPaletteColors cgram,
         int? selectedPriority, ObjRasterTargets targets)
     {
         if (draws.IsDefault)
@@ -76,7 +76,7 @@ public static class SnesObjRenderer
     }
 
     /// <summary>Rasterizes one whole-frame draw from its bound artwork, last part first so the first part ends in front.</summary>
-    private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw, SnesCgram cgram,
+    private static void DrawEntry(Extent16<ScreenPixels> frame, SpriteDraw draw, IPaletteColors cgram,
         int? selectedPriority, ObjRasterTargets targets)
     {
         for (int index = draw.Frame.Parts.Length - 1; index >= 0; index--)
@@ -103,7 +103,7 @@ public static class SnesObjRenderer
 
     /// <summary>Writes one opaque OBJ pixel under the caller's priority ownership mode.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Plot(int destination, byte colorIndex, byte palette, byte priority, SnesCgram cgram,
+    private static void Plot(int destination, byte colorIndex, byte palette, byte priority, IPaletteColors cgram,
         int? selectedPriority, ObjRasterTargets targets)
     {
         Span<Rgba32> output = targets.Pixels;

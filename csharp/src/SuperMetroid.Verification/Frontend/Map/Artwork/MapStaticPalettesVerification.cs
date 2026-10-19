@@ -39,7 +39,7 @@ internal static class MapStaticPalettesVerification
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
-            AssertTrue(new CgramPalettes(nativeWorld.Cgram).ImageEquals(new CgramPalettes(world.Cgram)), "named world-selection palette matches native copy programs");
+            AssertTrue(new CgramPalettes(nativeWorld.screen.Palette).ImageEquals(new CgramPalettes(world.screen.Palette)), "named world-selection palette matches native copy programs");
             AssertTrue(nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "all six stock world selections render identical pixels");
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -53,7 +53,7 @@ internal static class MapStaticPalettesVerification
         byte[] replacementBytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "static palette edit changes content identity");
-        world.BindPalettes(edited.Palettes);
+        world.BindMapPresentation(edited);
         AssertEqual(FileSelectMapRomData.AreaCount - 1, world.SelectedArea, "palette bind preserves selected world area");
         AssertTrue(!nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "world palette edit changes rendered pixels");
 
@@ -67,10 +67,10 @@ internal static class MapStaticPalettesVerification
         AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "static palette edit reaches pause-map pixels");
         using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, pause); state.Position = 0;
         pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
-        pause.BindMapPresentation(original); room.BindMapPresentation(original); world.BindPalettes(original.Palettes);
+        pause.BindMapPresentation(original); room.BindMapPresentation(original); world.BindMapPresentation(original);
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "restored pause accepts current static colors without stale edited state");
         AssertTrue(roomBefore.SequenceEqual(room.RenderBackgrounds(new(0, 0))), "room map rebind restores original colors");
-        AssertTrue(new CgramPalettes(nativeWorld.Cgram).ImageEquals(new CgramPalettes(world.Cgram)), "world rebind restores complete original colors");
+        AssertTrue(new CgramPalettes(nativeWorld.screen.Palette).ImageEquals(new CgramPalettes(world.screen.Palette)), "world rebind restores complete original colors");
 
         var entry = new FileSelectMapEntry(original.Palettes);
         var controlEntry = new FileSelectMapEntry(original.Palettes);

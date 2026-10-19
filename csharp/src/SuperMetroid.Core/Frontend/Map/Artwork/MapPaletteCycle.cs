@@ -65,7 +65,7 @@ public sealed class MapPaletteCycle
     /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A destination color index falls outside CGRAM's 256 slots.</exception>
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void Apply(SnesCgram destination, int frame, int firstColor)
+    public void Apply(IPaletteColors destination, int frame, int firstColor)
     {
         CheckFrame(frame);
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)

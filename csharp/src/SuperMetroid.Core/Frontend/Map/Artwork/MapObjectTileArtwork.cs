@@ -113,10 +113,15 @@ internal sealed class MapObjectTileArtwork
     }
 
     /// <summary>Encodes retained and calculated menu characters into the immediate VRAM transfer payload.</summary>
-    internal void LoadTo(VramRegion destination)
+    internal void LoadTo(VramRegion destination) => destination.Load(Encode());
+
+    /// <summary>The menu's OBJ characters as a sprite page (#1358): character 0 is the first map-object character.</summary>
+    internal SpriteArtwork Page() => new(new SpriteArtworkId(SpriteArtworkKind.MenuObjects), Encode());
+
+    /// <summary>Encodes retained and calculated menu characters, in OBJ name order.</summary>
+    private byte[] Encode()
     {
-        // This is the immediate transfer payload, never a retained calculated lookup.
-        Span<byte> transfer = stackalloc byte[MapSpriteFormat.ByteCount];
+        var transfer = new byte[MapSpriteFormat.ByteCount];
         int stored = 0;
         for (int tile = 0; tile < MapSpriteFormat.ByteCount / 32; tile++)
         {
@@ -132,7 +137,7 @@ internal sealed class MapObjectTileArtwork
             bool thin = MenuThinBorderArtwork.Contains(tile);
             if (!reserve && !IsHighlight(tile) && !font && !title && !lettering && !panelTile && !shoulder && !shoulderFrame && !marker && !square && !thin)
             {
-                otherCharacters.AsSpan(stored, 32).CopyTo(transfer.Slice(tile * 32, 32));
+                otherCharacters.AsSpan(stored, 32).CopyTo(transfer.AsSpan(tile * 32, 32));
                 stored += 32;
                 continue;
             }
@@ -152,6 +157,6 @@ internal sealed class MapObjectTileArtwork
                 transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;
             }
         }
-        destination.Load(transfer);
+        return transfer;
     }
 }

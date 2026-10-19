@@ -26,12 +26,11 @@ public sealed class PauseReserveTankPresentation
         return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
     }
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve visual at a strip position.</summary>
-    /// <param name="oam">The OAM buffer that receives the authored or stock sprite parts.</param>
+    /// <param name="entries">The OAM buffer that receives the authored or stock sprite parts.</param>
     /// <param name="nativeIdentity">The native bank-$82 spritemap identity selecting one of the ten visual roles.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
     /// <exception cref="InvalidDataException">The native visual identity is unknown.</exception>
-    [PpuLayoutBoundary("frontend OAM writer: PauseReserveTankPresentation.Draw until #1358 moves it onto sprite entries")]
-    public void Draw(OamBuffer oam, PauseReserveTankVisual nativeIdentity, int index)
+    public void Draw(ScreenSprites entries, PauseReserveTankVisual nativeIdentity, int index)
     {
         var anchor = Anchor(index);
         var frame = nativeIdentity switch
@@ -49,8 +48,8 @@ public sealed class PauseReserveTankPresentation
             _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
         Position16<OamPixels> origin = anchor;
-        if (frame is not null) frame.DrawOnScreen(oam, origin, objectPalette.PaletteBits);
-        else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
+        if (frame is not null) frame.Draw(entries, origin, objectPalette.PaletteBits);
+        else entries.AddPart(SnesSpritemapXWord.Create(0, false), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(objectPalette.PaletteBits),
             origin);
     }

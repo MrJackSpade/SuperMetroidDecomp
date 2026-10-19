@@ -71,12 +71,12 @@ internal static class PauseReserveTankAssetsVerification
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
         // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, palette 5, priority 3, both flips.
-        var tankOam = new OamBuffer();
-        tankOam.BeginFrame();
-        tankOam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
+        var tankParts = new ScreenSprites(edited.Sprites.Page);
+        tankParts.BeginFrame();
+        tankParts.AddPart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));
-        tankOam.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOam(tankOam, snapshot.ObjectSelection);
+        tankParts.FinishFrame();
+        PlacedSpritePart[] tank = PlacedSpritePart.Of(tankParts.Draws);
         AssertTrue(snapshot.Memory.SpriteParts()[^tank.Length..].SequenceEqual(tank),
             "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();

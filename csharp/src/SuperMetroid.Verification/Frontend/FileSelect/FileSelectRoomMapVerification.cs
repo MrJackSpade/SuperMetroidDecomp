@@ -20,6 +20,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Checks file-select room-map rendering, controls, animation, markers, and save loading against native behavior.</summary>
 internal static class FileSelectRoomMapVerification
@@ -62,7 +63,7 @@ internal static class FileSelectRoomMapVerification
                 ushort expected = explored ? (ushort)(raw & 0xfbff)
                     : downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) ? raw
                     : downloaded ? (ushort)31 : (ushort)15;
-                AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5000 + offset / 2)),
+                AssertEqual(expected, MenuScreenFixtures.Vram(graphics.screen).ReadWord((ushort)(0x5000 + offset / 2)),
                     $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
                 ushort pauseExpected = !explored && !(downloaded && map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))))
                     ? (ushort)31 : expected;
@@ -81,7 +82,7 @@ internal static class FileSelectRoomMapVerification
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
                     expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
-                AssertEqual(expected, graphics.Vram.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
+                AssertEqual(expected, MenuScreenFixtures.Vram(graphics.screen).ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
             Rgba32[] pixels = graphics.RenderBackgrounds(new(0, unchecked((ushort)-40)));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
@@ -90,7 +91,7 @@ internal static class FileSelectRoomMapVerification
             retailIcons.BindStations(RetailPresentationFixture().Stations);
             retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
             retailIcons.BindSprites(RetailPresentationFixture().Sprites);
-            var retailOam = new OamBuffer();
+            var retailOam = ScreenSpritesFixtures.Blank();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, new(0, 0));
             retailIcons.DrawAfterMarker(retailOam, new(0, 0));
@@ -203,11 +204,11 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(77, cgram.Colors[175], "palette update preserves preceding color");
         AssertEqual(88, cgram.Colors[192], "palette update preserves following color");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        OamBuffer Draw()
+        ScreenSprites Draw()
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam, sprites); oam.FinalizeFrame(); return oam;
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); animations.DrawArrows(oam, sprites); oam.FinalizeFrame(); return oam;
         }
-        OamBuffer first = Draw();
+        ScreenSprites first = Draw();
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
         AssertEqual(32, first.LowTable[0], "arrow uses cartridge X");
         AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
@@ -221,7 +222,7 @@ internal static class FileSelectRoomMapVerification
         for (int i = 0; i < 10; i++) animations.StepArrows(_ => false);
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unavailable arrows disappear");
         animations.StepArrows(direction => direction is MapScrollDirection.Left or MapScrollDirection.Right);
-        OamBuffer resumed = Draw();
+        ScreenSprites resumed = Draw();
         AssertEqual(0, ArrowPhase(0), "hidden arrow timer pauses");
         AssertEqual(1, ArrowPhase(1), "newly visible arrow owns an independent timer");
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
@@ -263,9 +264,9 @@ internal static class FileSelectRoomMapVerification
         icons.BindLandmarks(MapLandmarkLayout.Load(landmarkJson));
         icons.BindStations(MapStationLayout.Load(stationJson));
         icons.BindSprites(sprites);
-        OamBuffer Draw()
+        ScreenSprites Draw()
         {
-            var oam = new OamBuffer();
+            var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
             icons.DrawBeforeMarker(oam, new(8, 16));
             icons.DrawAfterMarker(oam, new(8, 16));
@@ -274,7 +275,7 @@ internal static class FileSelectRoomMapVerification
         }
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unexplored map hides station, live boss and destination icons");
         system.SetAreaMapAcquired(AreaId.Brinstar);
-        OamBuffer downloaded = Draw();
+        ScreenSprites downloaded = Draw();
         AssertEqual(6, downloaded.LastFinalizedSpriteCount, "download emits one boss and all five Brinstar destinations, without unvisited refill");
         AssertEqual(9, downloaded.LowTable[2], "live boss uses native marker");
         AssertEqual(0x50, downloaded.LowTable[6], "destination selects its authored spritemap");
@@ -282,13 +283,13 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(96, downloaded.LowTable[5], "destination subtracts map Y scroll");
         AssertEqual(0x30, downloaded.LowTable[7], "destination uses palette zero and retained priority");
         system.MarkExploredMapTile(AreaId.Brinstar, station.Cell);
-        OamBuffer explored = Draw();
+        ScreenSprites explored = Draw();
         AssertEqual(7, explored.LastFinalizedSpriteCount, "visited refill adds one icon to the boss and five destinations");
         AssertEqual(0x0b, explored.LowTable[6], "refill draws between boss and destination");
         AssertEqual(56, explored.LowTable[4], "refill exact scrolled X");
         AssertEqual(64, explored.LowTable[5], "refill exact scrolled Y");
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
-        OamBuffer defeated = Draw();
+        ScreenSprites defeated = Draw();
         AssertEqual(8, defeated.LastFinalizedSpriteCount, "defeated boss adds its overlay ahead of the dim marker, refill and five destinations");
         AssertEqual(0x62, defeated.LowTable[2], "defeated overlay precedes boss marker");
         AssertEqual(9, defeated.LowTable[6], "defeated boss retains marker identity");
@@ -512,7 +513,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(expectedFrames[phase], (int)marker.SpritemapId, "station marker exact animation cadence");
             bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
-            var oam = new OamBuffer();
+            var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
             marker.Draw(oam, new(24, 16), sprites);
             oam.FinalizeFrame();

@@ -260,7 +260,7 @@ public static class SnesGameplayFrameRenderer
     /// 256-entry conversion is substantially cheaper than decoding the same palette word
     /// independently for tens of thousands of background pixels.
     /// </summary>
-    internal static void ExpandCgram(SnesCgram cgram, Span<Rgba32> destination)
+    internal static void ExpandCgram(IPaletteColors cgram, Span<Rgba32> destination)
     {
         Ensure.LengthEqual<Rgba32>(destination, SnesCgram.ColorCount);
 

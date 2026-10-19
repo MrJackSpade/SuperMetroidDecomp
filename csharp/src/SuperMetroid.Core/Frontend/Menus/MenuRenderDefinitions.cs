@@ -8,4 +8,7 @@ internal static class MenuRenderDefinitions
     /// size selector zero chooses 8x8/16x16 records.
     /// </summary>
     internal const byte ObjectSelection = 0x03;
+
+    /// <summary>OBJ palette seven bits used by shared menu spritemaps.</summary>
+    internal static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
 }

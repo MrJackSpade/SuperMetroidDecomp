@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -14,8 +15,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
-    /// <summary>Owns the map's VRAM, CGRAM, and installed tile and sprite resources.</summary>
-    internal readonly MenuPpuState ppu;
+    /// <summary>The map's menu screen: its artwork, tilemaps, palette and sprite entries.</summary>
+    internal readonly MenuScreen screen;
     /// <summary>The installed area-map world colors, rebound when presentation content changes.</summary>
     [field: NonSerialized]
     [AllowNull]
@@ -58,19 +59,14 @@ public sealed class FileSelectAreaMapGraphics
         Palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
-        ppu = new MenuPpuState(mapTiles, mapPalettes, worldArtwork, mapSprites,
-            loadInitialBackground: false);
+        screen = new MenuScreen(mapTiles, mapPalettes, worldArtwork, mapSprites);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
-        new FrontendPalettes(ppu.Cgram).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
-        new FrontendPalettes(ppu.Cgram).FileSelectEntryBlackSecond.Write(0, Bgr555.Black);
+        new FrontendPalettes(screen.Palette).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
+        new FrontendPalettes(screen.Palette).FileSelectEntryBlackSecond.Write(0, Bgr555.Black);
         SelectArea(selectedArea);
     }
 
-    /// <summary>Owned menu VRAM containing installed map characters, foreground/background tilemaps, and label OBJ art; not gameplay room VRAM.</summary>
-    public SnesVram Vram => ppu.Vram;
-    /// <summary>Owned menu CGRAM used for selected-area palette loading and entry fades; rendering reads it without advancing those fades.</summary>
-    public SnesCgram Cgram => ppu.Cgram;
     /// <summary>Selected game-area identity 0..5 controlling the background, palette, and label highlight; this does not select a gameplay load station.</summary>
     public int SelectedArea { get; private set; }
 
@@ -91,52 +87,64 @@ public sealed class FileSelectAreaMapGraphics
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(new MenuVram(Vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
+            .LoadTo(screen.Tilemaps.Bg1, MapScreenDefinitions.WorldForeground);
     }
 
     /// <summary>Copies the selected area's installed background into menu BG3 tilemap VRAM.</summary>
     private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(new MenuVram(Vram).AreaBackgroundTilemap, MapScreenDefinitions.WorldBackground(selectedArea));
+            .LoadTo(screen.Tilemaps.AreaBackground, MapScreenDefinitions.WorldBackground(selectedArea));
+    }
+
+    /// <summary>
+    /// Rebinds every installed resource the area map draws, after a content change or debugger restoration, without
+    /// selecting another area or restarting its palette fade.
+    /// </summary>
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        BindLabels(catalog?.Labels);
+        BindPalettes(catalog?.Palettes);
+        BindScreens(catalog?.Screens, catalog?.WorldArtwork);
+        screen.BindMapTiles(catalog?.Tiles);
+        BindSprites(catalog?.Sprites);
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
-    internal void BindScreens(MapScreenPresentation? content, WorldMapArtwork? artwork)
+    private void BindScreens(MapScreenPresentation? content, WorldMapArtwork? artwork)
     {
         screens = content;
-        ppu.BindWorldArtwork(artwork);
+        screen.BindWorldArtwork(artwork);
         LoadForeground();
         LoadBackground((AreaId)SelectedArea);
     }
 
     /// <summary>Replaces installed area palettes and refreshes CGRAM for the current selection.</summary>
-    internal void BindPalettes(MapStaticPalettes? content)
+    private void BindPalettes(MapStaticPalettes? content)
     {
         Palettes = content;
         if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
-    /// <summary>Rebinds label OBJ art in both this owner and its menu PPU state.</summary>
-    internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(content); }
+    /// <summary>Rebinds label OBJ art in both this owner and its menu screen.</summary>
+    private void BindSprites(MapSpriteCatalog? content) { sprites = content; screen.BindMapSprites(content); }
 
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = Palettes.World(selectedArea);
-        new CgramPalettes(Cgram).LoadImage(colors);
+        new CgramPalettes(screen.Palette).LoadImage(colors);
     }
 
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
     // Owned frame: valid until this map renders again.
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: FileSelectAreaMapGraphics.PrepareLabels until #1358 moves it onto sprite entries")]
-    private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
+    private void PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        ScreenSprites entries = screen.Objects;
+        entries.BeginFrame();
         if (labels is null || sprites is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
         Draw(MapSpriteId.WorldTitle, new(128, 16), 0);
@@ -148,8 +156,7 @@ public sealed class FileSelectAreaMapGraphics
             if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area]))
                 DrawArea(area);
         }
-        oam.FinalizeFrame();
-        return oam;
+        entries.FinishFrame();
 
         void DrawArea(ushort area)
         {
@@ -159,7 +166,7 @@ public sealed class FileSelectAreaMapGraphics
 
         void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)
         {
-            sprites.Draw(id, oam, origin, palette);
+            sprites.Draw(id, entries, origin, palette);
         }
     }
 
@@ -167,9 +174,9 @@ public sealed class FileSelectAreaMapGraphics
     [PpuLayoutBoundary("codec: file-select area-map render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
     {
-        OamBuffer oam = PrepareLabels(usedStationMasks);
+        PrepareLabels(usedStationMasks);
         var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
-        return new(PpuMemorySnapshot.CaptureFrontend(Vram, Cgram, oam, FileSelectMapRomData.ObjectSelection), new RenderLayer[] {
+        return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
                 FileSelectMapRomData.AreaBackgroundCharacters, includeBackdropInColorMath ? null : foreground),

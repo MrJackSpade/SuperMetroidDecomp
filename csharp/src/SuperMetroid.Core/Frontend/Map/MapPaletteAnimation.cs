@@ -22,7 +22,7 @@ public sealed class MapPaletteAnimation
     public void Reset() { timer = 1; frame = 0; }
 
     /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
-    public bool Step(SnesCgram cgram)
+    public bool Step(IPaletteColors cgram)
     {
         if (timer == 0) return false;
         timer--;

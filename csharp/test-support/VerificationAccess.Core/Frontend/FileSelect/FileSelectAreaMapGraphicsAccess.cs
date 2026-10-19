@@ -21,14 +21,14 @@ internal static class FileSelectAreaMapGraphicsAccess
         [PpuLayoutBoundary("backend: file-select area-map software PPU composition")]
         public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
         {
-            Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(self.ppu.Cgram, 256 * 224, new Rgba32[256 * 224]);
+            Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(MenuScreenFixtures.Cgram(self.screen), 256 * 224, new Rgba32[256 * 224]);
             Rgba32[] foreground = new Rgba32[256 * 224];
             foreground.AsSpan().Clear();
-            SnesBgTilemapRenderer.Composite4BppViewport(foreground, self.ppu.Vram, self.ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
+            SnesBgTilemapRenderer.Composite4BppViewport(foreground, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
             SnesLayerCompositor.Composite(pixels, foreground);
             Rgba32[] subscreen = new Rgba32[256 * 28 * 8];
             subscreen.AsSpan().Clear();
-            SnesBgTilemapRenderer.Render2Bpp(subscreen, self.ppu.Vram, self.ppu.Cgram, new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
+            SnesBgTilemapRenderer.Render2Bpp(subscreen, MenuScreenFixtures.Vram(self.screen), MenuScreenFixtures.Cgram(self.screen), new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
             // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
             // transparent BG1 cells now retain the backdrop instead of adding BG3 to it.
             if (!includeBackdropInColorMath)

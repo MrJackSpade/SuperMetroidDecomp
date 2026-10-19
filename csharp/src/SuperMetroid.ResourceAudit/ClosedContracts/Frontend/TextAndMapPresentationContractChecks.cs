@@ -20,6 +20,7 @@ internal static class TextAndMapPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.Core.Areas.Escape.Artwork;
+            using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Frontend.Map;
@@ -33,7 +34,7 @@ internal static class TextAndMapPresentationContractChecks
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
                     EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites,
                     MapArrowPresentation arrows, MapScreenPresentation screen, SnesVram vram,
-                    OamBuffer oam, AreaId area, string unknown) {
+                    ScreenSprites objects, System.Span<ushort> tilemap, AreaId area, string unknown) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
                     escape.Get(EscapeTypewriterProgramId.Zebes);
                     escape.Get(EscapeTypewriterProgramId.None);
@@ -48,20 +49,20 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows - 1);
                     credits.GetRow(CreditsPresentationDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
-                    sprites.Draw(MapSpriteId.WorldTitle, oam, default, 0);
-                    sprites.Draw((MapSpriteId)1, oam, default, 0);
+                    sprites.Draw(MapSpriteId.WorldTitle, objects, default, 0);
+                    sprites.Draw((MapSpriteId)1, objects, default, 0);
                     sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);
                     arrows.Get((MapScrollDirection)99);
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.RoomFrame(area));
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldBackground(AreaId.Ceres));
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, unknown);
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, UnknownFactory(area));
-                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, "World.Missing");
+                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldForeground);
+                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
+                    screen.LoadTo(tilemap, MapScreenDefinitions.RoomFrame(area));
+                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldBackground(AreaId.Ceres));
+                    screen.LoadTo(tilemap, unknown);
+                    screen.LoadTo(tilemap, UnknownFactory(area));
+                    screen.LoadTo(tilemap, "World.Missing");
                 }
             }
             """;

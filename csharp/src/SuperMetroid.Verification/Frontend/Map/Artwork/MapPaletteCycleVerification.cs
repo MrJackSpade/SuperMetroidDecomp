@@ -32,8 +32,8 @@ internal static class MapPaletteCycleVerification
         var guard = NewMapDataGuard(bus, rules);
         var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
-        var arrowOam = new OamBuffer();
-        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites);
+        var arrowOam = ScreenSpritesFixtures.Blank();
+        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites); arrowOam.FinishFrame();
         ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)

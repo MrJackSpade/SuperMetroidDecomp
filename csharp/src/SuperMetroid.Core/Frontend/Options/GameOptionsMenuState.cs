@@ -13,10 +13,9 @@ public sealed class GameOptionsMenuState
 {
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Owns the options menu tilemaps, palette, and PPU registers.</summary>
-    private readonly MenuPpuState ppu;
+    /// <summary>The menu screen the options menu draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    internal readonly MenuScreen screen;
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
-    private readonly OamBuffer oam = new();
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
@@ -64,9 +63,9 @@ public sealed class GameOptionsMenuState
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites, loadInitialBackground: false);
-        mapPresentation.GameOptions.LoadBackground(ppu.Vram);
+        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, mapPresentation.Sprites);
+        mapPresentation.GameOptions.LoadBackground(screen.Tilemaps);
 
         // Separate installed page copies prevent a language toggle from mutating
         // the other language's source page.
@@ -92,11 +91,11 @@ public sealed class GameOptionsMenuState
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        ppu.BindWorldArtwork(catalog.WorldArtwork);
-        ppu.BindMapTiles(catalog.Tiles);
-        ppu.BindMapSprites(catalog.Sprites);
-        ppu.BindMapPalettes(catalog.Palettes);
-        catalog.GameOptions.LoadBackground(ppu.Vram);
+        screen.BindWorldArtwork(catalog.WorldArtwork);
+        screen.BindMapTiles(catalog.Tiles);
+        screen.BindMapSprites(catalog.Sprites);
+        screen.BindMapPalettes(catalog.Palettes);
+        catalog.GameOptions.LoadBackground(screen.Tilemaps);
         Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
         Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);
         Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage), controllerJapaneseTilemap);
@@ -249,24 +248,24 @@ public sealed class GameOptionsMenuState
     /// <summary>Captures the scrolled options page and selector without composing pixels.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        PrepareRenderOam();
-        return MenuRenderSnapshotCapture.Capture(ppu, oam,
+        PrepareRenderSprites();
+        return MenuRenderSnapshotCapture.Capture(screen,
             unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
     }
 
-    /// <summary>Draws the current page heading and animated cursor in OAM.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: GameOptionsMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private void PrepareRenderOam()
+    /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
+    private void PrepareRenderSprites()
     {
-        oam.BeginFrame();
+        ScreenSprites sprites = screen.Objects;
+        sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");
         string pageName = PresentationPageName(page);
-        content.GameOptions.DrawHeading(oam, pageName, bg1VerticalScroll);
+        content.GameOptions.DrawHeading(sprites, pageName, bg1VerticalScroll);
         (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-        content.GameOptions.DrawCursor(oam, missileFrame,
+        content.GameOptions.DrawCursor(sprites, missileFrame,
             new(authoredCursorX, authoredCursorY));
-        oam.FinalizeFrame();
+        sprites.FinishFrame();
     }
 
     /// <summary>Handles primary rows for language, subpages, start, and cancel.</summary>
@@ -475,7 +474,7 @@ public sealed class GameOptionsMenuState
             ApplyControllerLabels();
         else if (page == GameOptionsPage.Special)
             ApplySpecialPaletteBits();
-        ppu.LoadBg1(visibleTilemap);
+        MenuTilemaps.Load(screen.Tilemaps.Bg1, visibleTilemap);
     }
 
     /// <summary>Updates primary-page palette bits for the selected text language.</summary>

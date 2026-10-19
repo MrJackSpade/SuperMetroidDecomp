@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -25,7 +26,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
     internal AreaId MapArea => area;
 
     /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
-    public void DrawBossMarkers(OamBuffer oam, Position16<MapPixels> scroll)
+    public void DrawBossMarkers(ScreenSprites entries, Position16<MapPixels> scroll)
     {
         var layout = landmarks ?? throw new InvalidOperationException(
             "Map boss markers require installed landmark layout.");
@@ -52,13 +53,13 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
             remainingBits >>= 1;
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
-            Add(oam, id, position, scroll, palette);
+            Add(entries, id, position, scroll, palette);
     }
 
     /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
-    public void DrawBeforeMarker(OamBuffer oam, Position16<MapPixels> scroll)
+    public void DrawBeforeMarker(ScreenSprites entries, Position16<MapPixels> scroll)
     {
-        DrawBossMarkers(oam, scroll);
+        DrawBossMarkers(entries, scroll);
         Simple(MapStationKind.Missile, MapSpriteId.StationMissile);
         Simple(MapStationKind.Energy, MapSpriteId.StationEnergy);
         Simple(MapStationKind.Map, MapSpriteId.StationMap);
@@ -72,39 +73,39 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                     Draw(id, layout.Get(rule.Id), FileSelectMapRomData.StationMarkerPalette);
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, ushort palette) =>
-            Add(oam, id, position, scroll, palette);
+            Add(entries, id, position, scroll, palette);
     }
 
     /// <summary>Normal file select adds the gunship and downloaded elevator labels, not debug save icons.</summary>
-    public void DrawAfterMarker(OamBuffer oam, Position16<MapPixels> scroll, Action? drawArrows = null)
+    public void DrawAfterMarker(ScreenSprites entries, Position16<MapPixels> scroll, Action? drawArrows = null)
     {
         if (area == AreaId.Crateria)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(oam, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapRomData.StationMarkerPalette);
+            Add(entries, MapSpriteId.MarkerGunship, point, scroll, FileSelectMapRomData.StationMarkerPalette);
         }
         drawArrows?.Invoke();
-        DrawElevatorLabels(oam, scroll);
+        DrawElevatorLabels(entries, scroll);
     }
 
     /// <summary>$82:BB30: destination lettering is visible only after downloading this area's map.</summary>
-    public void DrawElevatorLabels(OamBuffer oam, Position16<MapPixels> scroll)
+    public void DrawElevatorLabels(ScreenSprites entries, Position16<MapPixels> scroll)
     {
         if (!system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks ?? throw new InvalidOperationException(
             "Elevator labels require installed landmark layout.");
         foreach (var label in MapLandmarkDefinitions.Elevators(area))
         {
-            Add(oam, MapLandmarkDefinitions.ElevatorSpritemap(label.Destination),
+            Add(entries, MapLandmarkDefinitions.ElevatorSpritemap(label.Destination),
                 elevatorLayout.Get(label.Id), scroll, 0);
         }
     }
     /// <summary>Converts a map-space landmark to OAM and draws it with installed sprite art.</summary>
-    private void Add(OamBuffer oam, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
+    private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(
             "Map icons require installed sprite artwork."))
-            .Draw(id, oam, (position.ToScreen(scroll)).ToOam(), palette);
+            .Draw(id, entries, (position.ToScreen(scroll)).ToOam(), palette);
     }
 }

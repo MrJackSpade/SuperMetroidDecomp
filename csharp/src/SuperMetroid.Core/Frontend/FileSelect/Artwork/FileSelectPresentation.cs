@@ -68,8 +68,8 @@ public sealed class FileSelectPresentation
     public int HelmetFrameDuration => document.HelmetFrameDuration;
 
     /// <summary>Copies the background page into the menu's BG2 VRAM tilemap.</summary>
-    internal void LoadBackground(SnesVram vram) =>
-        new MenuVram(vram).Bg2Tilemap.Write(pages[FileSelectPresentationDefinitions.BackgroundPage]);
+    internal void LoadBackground(MenuTilemaps tilemaps) =>
+        pages[FileSelectPresentationDefinitions.BackgroundPage].CopyTo(tilemaps.Bg2);
 
     /// <summary>Copies one named full page into a 1024-cell destination tilemap.</summary>
     internal void CopyPage(string name, Span<ushort> destination)
@@ -142,26 +142,26 @@ public sealed class FileSelectPresentation
             selected, "cursor");
 
     /// <summary>Draws the page's border composition at its authored OAM anchor.</summary>
-    internal void DrawBorder(OamBuffer oam, string page)
+    internal void DrawBorder(ScreenSprites screenSprites, string page)
     {
         Position16<OamPixels> anchor = document.BorderAnchors[page];
-        sprites[FileSelectPresentationDefinitions.BorderFrameName(page)].DrawOnScreen(
-            oam, anchor,
+        sprites[FileSelectPresentationDefinitions.BorderFrameName(page)].Draw(
+            screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
     }
 
     /// <summary>Draws one missile-cursor frame with the menu object palette.</summary>
-    internal void DrawCursor(OamBuffer oam, int frame, Position16<OamPixels> anchor) =>
-        sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
-            oam, anchor,
+    internal void DrawCursor(ScreenSprites screenSprites, int frame, Position16<OamPixels> anchor) =>
+        sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].Draw(
+            screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
 
     /// <summary>Draws a selected-slot helmet frame at that slot's OAM anchor.</summary>
-    internal void DrawHelmet(OamBuffer oam, int frame, int slot)
+    internal void DrawHelmet(ScreenSprites screenSprites, int frame, int slot)
     {
         Position16<OamPixels> anchor = Point(document.HelmetAnchors, slot, "helmet");
-        sprites[FileSelectPresentationDefinitions.HelmetFrameName(frame)].DrawOnScreen(
-            oam, anchor,
+        sprites[FileSelectPresentationDefinitions.HelmetFrameName(frame)].Draw(
+            screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
     }
 

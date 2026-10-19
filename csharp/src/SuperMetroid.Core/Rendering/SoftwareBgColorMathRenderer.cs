@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 internal static class SoftwareBgColorMathRenderer
 {
     /// <summary>Samples each physical scanline's 2-bpp tiles from the BG3 plane, skips transparent color zero, and applies clipped byte-channel color math.</summary>
-    internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)
+    internal static void Composite(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
         Ensure.LengthEqual(output, width * height);

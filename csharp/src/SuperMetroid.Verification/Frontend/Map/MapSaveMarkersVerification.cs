@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -174,7 +175,7 @@ internal static class MapSaveMarkersVerification
 
         byte[] Draw(FileSelectStationMarker marker)
         {
-            var oam = new OamBuffer(); oam.BeginFrame();
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
             marker.Draw(oam, new(24, 8), original.Sprites);
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);

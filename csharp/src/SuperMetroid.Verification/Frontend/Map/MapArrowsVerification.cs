@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -93,7 +94,7 @@ internal static class MapArrowsVerification
 
         byte[] Draw(FileSelectMapAnimations animation)
         {
-            var oam = new OamBuffer(); oam.BeginFrame();
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
             animation.DrawArrows(oam, original.Sprites);
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);

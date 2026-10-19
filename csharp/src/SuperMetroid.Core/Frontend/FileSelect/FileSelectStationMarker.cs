@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -59,7 +60,7 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
-    public void Draw(OamBuffer oam, Position16<MapPixels> scroll, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteCatalog? sprites = null)
+    public void Draw(ScreenSprites entries, Position16<MapPixels> scroll, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteCatalog? sprites = null)
     {
         Position16<ScreenPixels> origin = MapPosition.ToScreen(scroll);
         // $82:B6DD draws the backing behind the station marker on even animation loops.
@@ -70,7 +71,7 @@ public sealed class FileSelectStationMarker
         {
             (sprites ?? throw new InvalidOperationException(
                 "Save marker requires installed sprite artwork."))
-                .Draw(id, oam, origin.ToOam(), FileSelectMapRomData.StationMarkerPalette);
+                .Draw(id, entries, origin.ToOam(), FileSelectMapRomData.StationMarkerPalette);
         }
     }
 }

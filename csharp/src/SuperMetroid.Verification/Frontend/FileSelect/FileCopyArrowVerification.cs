@@ -39,10 +39,10 @@ internal static class FileCopyArrowVerification
                 for (int frame = 0; frame < 60 && menu.Phase != phase; frame++) menu.Step(0);
                 AssertEqual(phase, menu.Phase, "Copy arrow fixture reaches menu phase");
             }
-            OamBuffer Capture()
+            ScreenSprites Capture()
             {
                 menu.CaptureRenderSnapshot();
-                return menu.oam;
+                return menu.screen.Objects;
             }
             Until(FileSelectPhase.Main);
             for (int i = 0; i < 3; i++) Press(SnesButton.Down);
@@ -61,7 +61,7 @@ internal static class FileCopyArrowVerification
             ushort originY = ReadVerificationWord(rom, record + 4);
             int spritemap = 0x820000 | ReadVerificationWord(rom, 0x82c569 + id * 2);
             int count = ReadVerificationWord(rom, spritemap);
-            OamBuffer actual = Capture();
+            ScreenSprites actual = Capture();
             AssertEqual(noArrowCount + count, actual.LastFinalizedSpriteCount, "confirmation adds native Copy arrow sprite parts");
             var expected = new OamBuffer();
             expected.BeginFrame();
@@ -73,9 +73,8 @@ internal static class FileCopyArrowVerification
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
-            var ppu = menu.ppu;
             expected.FinalizeFrame();
-            Rgba32[] arrowPixels = SnesObjRenderer.Render(expected, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
+            Rgba32[] arrowPixels = SnesObjRenderer.Render(expected, MenuScreenFixtures.Vram(menu.screen), MenuScreenFixtures.Cgram(menu.screen), obsel: MenuRenderDefinitions.ObjectSelection);
             Rgba32[] menuPixels = menu.Render();
             int visiblePixels = 0;
             for (int pixel = 0; pixel < arrowPixels.Length; pixel++)
@@ -85,7 +84,7 @@ internal static class FileCopyArrowVerification
                     AssertEqual(arrowPixels[pixel], menuPixels[pixel], "native arrow artwork is visible in the final menu pixels");
                 }
             AssertTrue(visiblePixels > 0, "Copy arrow has nontransparent installed artwork");
-            Bgr555[] initial = ppu.Cgram.Colors.ToArray();
+            Bgr555[] initial = menu.screen.Palette.Colors.ToArray();
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
@@ -93,13 +92,13 @@ internal static class FileCopyArrowVerification
                 for (int color = 0; color < 256; color++)
                 {
                     int source = color is >= 145 and <= 151 ? 145 + (color - 145 + rotations) % 7 : color;
-                    AssertEqual(initial[source], ppu.Cgram.Colors[color], "arrow palette rotates only colors 1..7 after eight ticks then every four");
+                    AssertEqual(initial[source], menu.screen.Palette.Colors[color], "arrow palette rotates only colors 1..7 after eight ticks then every four");
                 }
             }
             // Rendering must not advance animation.
-            Bgr555[] beforeRender = ppu.Cgram.Colors.ToArray();
+            Bgr555[] beforeRender = menu.screen.Palette.Colors.ToArray();
             menu.Render(); menu.CaptureRenderSnapshot();
-            AssertTrue(beforeRender.SequenceEqual(ppu.Cgram.Colors), "render leaves palette timing alone");
+            AssertTrue(beforeRender.SequenceEqual(menu.screen.Palette.Colors), "render leaves palette timing alone");
             Press(SnesButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");

@@ -120,7 +120,7 @@ public static class GameOptionsPresentationExtractor
             HiddenCursor = new(GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY),
             SelectedPalette = GameOptionsRomData.TilePalettes.Selected,
             UnselectedPalette = GameOptionsRomData.TilePalettes.Unselected,
-            CursorPalette = MenuPpuState.ObjectPaletteBits >> 9,
+            CursorPalette = MenuRenderDefinitions.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
         return output.ToArray();

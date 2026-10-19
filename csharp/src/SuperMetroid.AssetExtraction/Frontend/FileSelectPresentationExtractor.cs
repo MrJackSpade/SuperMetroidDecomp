@@ -179,7 +179,7 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationDefinitions.ClearConfirmSourceAnchor] =
                     Point(FileSelectLayout.ClearConfirmationSourceLetterDestination),
             },
-            ObjectPalette = MenuPpuState.ObjectPaletteBits >> 9,
+            ObjectPalette = MenuRenderDefinitions.ObjectPaletteBits >> 9,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
             HelmetFrameDuration = FileSelectHelmetAnimation.FrameDuration,
         });

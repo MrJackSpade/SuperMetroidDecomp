@@ -12,10 +12,9 @@ public sealed class GameOverMenuState
 {
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
-    /// <summary>Owns the scene's VRAM, palette, and installed menu presentation state.</summary>
-    private readonly MenuPpuState ppu;
+    /// <summary>The menu screen game over draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    internal readonly MenuScreen screen;
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
-    private readonly OamBuffer oam = new();
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Native master brightness stepped once per fade update.</summary>
@@ -54,9 +53,8 @@ public sealed class GameOverMenuState
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
-            mapPresentation.WorldArtwork, mapPresentation.Sprites,
-            loadInitialBackground: false);
+        screen = new MenuScreen(mapPresentation.Tiles, mapPresentation.Palettes,
+            mapPresentation.WorldArtwork, mapPresentation.Sprites);
         LoadGameOverTilemap(mapPresentation.GameOver);
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
@@ -97,14 +95,14 @@ public sealed class GameOverMenuState
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
 
-        ppu.BindMapTiles(catalog.Tiles);
-        ppu.BindMapSprites(catalog.Sprites);
-        ppu.BindMapPalettes(catalog.Palettes);
+        screen.BindMapTiles(catalog.Tiles);
+        screen.BindMapSprites(catalog.Sprites);
+        screen.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);
         if (babyStep is int step)
         {
             GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
-            catalog.GameOver.ApplyBabyPalette(ppu.Cgram, instruction.Palette);
+            catalog.GameOver.ApplyBabyPalette(screen.Palette, instruction.Palette);
         }
     }
 
@@ -217,33 +215,32 @@ public sealed class GameOverMenuState
         }
     }
 
-    /// <summary>Copies installed BG1 game-over cells into the menu VRAM tilemap.</summary>
+    /// <summary>Copies installed BG1 game-over cells into the menu's BG1 tilemap.</summary>
     private void LoadGameOverTilemap(GameOverPresentation presentation) =>
-        presentation.LoadTilemapTo(new MenuVram(ppu.Vram).Bg1Tilemap);
+        presentation.LoadTilemapTo(screen.Tilemaps.Bg1);
 
     /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
     [PpuLayoutBoundary("codec: game-over render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        PrepareRenderOam();
+        PrepareRenderSprites();
         RenderLayer[] layers = [new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0,
             new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null), new ObjRenderLayer()];
-        return new(PpuMemorySnapshot.CaptureFrontend(ppu.Vram, ppu.Cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
-            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+        return new(MenuScreenImage.Capture(screen), layers, MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
-    /// <summary>Builds the scene's Baby, egg, and selected-answer cursor OAM from installed art.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: GameOverMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private void PrepareRenderOam()
+    /// <summary>Builds the scene's Baby, egg, and selected-answer cursor sprite entries from installed art.</summary>
+    private void PrepareRenderSprites()
     {
-        oam.BeginFrame();
+        ScreenSprites sprites = screen.Objects;
+        sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
-        content.GameOver.DrawBaby(oam, instruction.Frame);
-        content.GameOver.DrawEgg(oam);
-        content.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
-        oam.FinalizeFrame();
+        content.GameOver.DrawBaby(sprites, instruction.Frame);
+        content.GameOver.DrawEgg(sprites);
+        content.GameOver.DrawCursor(sprites, missileFrame, SelectedItem != 0);
+        sprites.FinishFrame();
     }
 
     /// <summary>Ports <c>HandleGameOverBabyMetroid</c>'s six/eight-byte instruction stream.</summary>
@@ -273,7 +270,7 @@ public sealed class GameOverMenuState
             babyInstructionTimer = NativeCountdown.Start(current.Duration);
         }
 
-        MapPresentation.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
+        MapPresentation.GameOver.ApplyBabyPalette(screen.Palette, current.Palette);
     }
 
     /// <summary>Maps a Baby animation sound marker onto the retail sound queue.</summary>

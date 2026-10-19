@@ -30,6 +30,7 @@ internal static class MapSpritesVerification
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
+        var authored = ScreenSpritesFixtures.Blank();
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, original.Sprites));
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
@@ -65,20 +66,20 @@ internal static class MapSpritesVerification
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
         {
-            installed.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, installed, new(100, 100), (ushort)(palette << 9));
-            AssertEqual((byte)112, installed.LowTable[0], "authored horizontal offset reaches OAM");
-            AssertEqual((byte)96, installed.LowTable[1], "authored vertical offset reaches OAM");
-            var attributes = new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(installed.LowTable[2], installed.LowTable[3])));
+            authored.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, authored, new(100, 100), (ushort)(palette << 9)); authored.FinishFrame();
+            AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
+            AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
+            var attributes = new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(authored.LowTable[2], authored.LowTable[3])));
             AssertEqual(50, (int)attributes.TileNumber, "authored tile region reaches OAM");
             AssertEqual(5, (int)attributes.PaletteIndex, "explicit palette overrides caller blink palette");
             AssertEqual(3, (int)attributes.Priority, "authored priority reaches OAM");
-            AssertTrue(attributes.FlipHorizontally && attributes.FlipVertically && (installed.HighTable[0] & 2) != 0,
+            AssertTrue(attributes.FlipHorizontally && attributes.FlipVertically && (authored.HighTable[0] & 2) != 0,
                 "authored flips and large size reach OAM");
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        installed.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, installed, new(0, 0), 0);
-        AssertEqual(0, installed.NextByteOffset, "authored empty visual frame is valid");
+        authored.BeginFrame(); AreaMapPresentationCatalog.Load(stock, overrides).Sprites.Draw(MapSpriteId.MarkerBoss, authored, new(0, 0), 0); authored.FinishFrame();
+        AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "missing semantic sprite frame rejected");

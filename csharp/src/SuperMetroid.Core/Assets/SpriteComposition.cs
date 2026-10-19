@@ -46,6 +46,18 @@ public sealed class SpriteComposition
         return new(name, converted.MoveToImmutable());
     }
 
+    /// <summary>Places every part as a sprite entry relative to <paramref name="origin"/> (#1358).</summary>
+    /// <param name="sprites">The screen's sprite entries.</param>
+    /// <param name="origin">Composition origin in screen-space pixels.</param>
+    /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
+    public void Draw(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
+    {
+        Ensure.NotNull(sprites);
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        foreach (var part in parts)
+            sprites.AddPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
+    }
+
     /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
     /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
     /// <param name="origin">Composition origin in screen-space pixels.</param>

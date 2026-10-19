@@ -668,7 +668,7 @@ internal static class LookupStream5Verification
             if (defeated) system.SetBossBits(area, (BossBits)1);
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(sprites);
-            var actual = new OamBuffer(); var expected = new OamBuffer();
+            var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();
             icons.DrawBossMarkers(actual, new(7, 9));
             int pointer = Root(FileSelectMapIconRomData.BossLists, area), bits = defeated ? 1 : 0;
             if (pointer != 0)
@@ -698,6 +698,7 @@ internal static class LookupStream5Verification
                         Draw((MapSpriteId)Read(pointer + i * 6 + 4), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
                 }
             }
+            actual.FinishFrame(); expected.FinishFrame();
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");

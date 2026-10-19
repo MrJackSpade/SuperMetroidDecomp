@@ -39,7 +39,7 @@ public sealed class PauseSelectorPresentation
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
     /// <summary>Draws the selected category's normalized selector composition at the item's anchor.</summary>
-    public void Draw(OamBuffer oam, PauseEquipmentCategory category, int item, int phase)
+    public void Draw(ScreenSprites entries, PauseEquipmentCategory category, int item, int phase)
     {
         var point = Anchor(category, item);
         int normalized = NormalizePhase(phase);
@@ -50,7 +50,7 @@ public sealed class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        composition.DrawOnScreen(oam, point, ObjectPalette.PaletteBits);
+        composition.Draw(entries, point, ObjectPalette.PaletteBits);
     }
     /// <summary>Loads and validates equipment-selector anchors, frames, animation, palette, and timing.</summary>
     public static PauseSelectorPresentation Load(Stream json)

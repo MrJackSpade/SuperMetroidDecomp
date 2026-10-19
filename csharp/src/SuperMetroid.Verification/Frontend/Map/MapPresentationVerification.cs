@@ -93,6 +93,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -1492,7 +1493,7 @@ internal static class MapPresentationVerification
         AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+                MenuScreenFixtures.Vram(installed.screen).ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;

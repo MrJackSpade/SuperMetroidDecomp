@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Typed view of the frontend screens' direct palette writes (#630).</summary>
 [PpuLayoutBoundary("rendering view: frontend screen palette writes")]
-public readonly struct FrontendPalettes(SnesCgram cgram)
+public readonly struct FrontendPalettes(IPaletteColors cgram)
 {
     /// <summary>The backdrop colour.</summary>
     public CgramPalette EndingBackdrop => new(cgram, FrontendPaletteLayout.EndingBackdrop);

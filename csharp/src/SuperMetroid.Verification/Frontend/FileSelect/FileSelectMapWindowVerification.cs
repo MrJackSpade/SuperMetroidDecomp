@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Checks area-map graphics and the file-select room-map transition window.</summary>
 internal static class FileSelectMapWindowVerification
@@ -118,7 +119,7 @@ internal static class FileSelectMapWindowVerification
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.Bank80SystemState(),
             SuperMetroid.Core.Rooms.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
         Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
-        graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
+        graphics.screen.Tilemaps.AreaMap[0] = 0x1234;
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
@@ -141,12 +142,12 @@ internal static class FileSelectMapWindowVerification
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             graphics.SelectArea(area);
-            AssertEqual(activeColors[area], graphics.Cgram.Colors[indices[area]], $"area {area} active map color");
+            AssertEqual(activeColors[area], graphics.screen.Palette.Colors[indices[area]], $"area {area} active map color");
             if (area != 0)
-                AssertEqual(0x4a52, graphics.Cgram.Colors[86], "switching area restores Crateria inactive color");
+                AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
             for (int offset = 0; offset < FileSelectMapRomData.TilemapBytes; offset++)
                 AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, FileSelectMapRomData.AreaBackgrounds + area * FileSelectMapRomData.TilemapBytes + offset),
-                    graphics.Vram.ReadByte(FileSelectMapRomData.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
+                    MenuScreenFixtures.Vram(graphics.screen).ReadByte(FileSelectMapRomData.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");
             Rgba32[] frame = graphics.RenderBackgrounds();
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");

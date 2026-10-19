@@ -265,12 +265,13 @@ internal static class LookupStream3Verification
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string page = original.HeadingAnchors.Keys.Single(key => GameOptionsPresentationDefinitions.HeadingFrameName(key) == name);
-            var actualOam = new OamBuffer();
+            var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, page, 3);
             var point = original.HeadingAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
+            actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual heading draw preserves exact native ordered OAM");
             AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
@@ -335,12 +336,13 @@ internal static class LookupStream3Verification
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string page = original.BorderAnchors.Keys.Single(key => FileSelectPresentationDefinitions.BorderFrameName(key) == name);
-            var actualOam = new OamBuffer();
+            var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawBorder(actualOam, page);
             var anchor = original.BorderAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(original.ObjectPalette << 9));
+            actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual file-select border draw preserves native OAM");
             AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
@@ -525,7 +527,7 @@ internal static class LookupStream3Verification
         var presentation = Load(original);
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
-            var actualOam = new OamBuffer();
+            var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             int x, y, palette;
             if (name.StartsWith("Cursor.", StringComparison.Ordinal))
@@ -543,6 +545,7 @@ internal static class LookupStream3Verification
             }
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)x, (ushort)y), (ushort)(palette << 9));
+            actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual game-over draw emits exact native ordered OAM " + name);
         }
@@ -727,15 +730,15 @@ internal static class LookupStream3Verification
 
         void Confirm(GameOverPresentation presentation)
         {
-            var vram = new SnesVram();
-            presentation.LoadTilemapTo(new VramStore(vram).All.Slice(0x1000, GameOverPresentationDefinitions.TilemapByteCount / sizeof(ushort)));
+            var words = new ushort[GameOverPresentationDefinitions.TilemapCellCount];
+            presentation.LoadTilemapTo(words);
             for (int cell = 0; cell < document.Tilemap.Length; cell++)
             {
                 MapPresentationCell source = document.Tilemap[cell];
                 ushort expected = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn,
                     source.Palette, source.Priority, (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                     (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
-                AssertEqual(expected, vram.ReadWord(0x1000 + cell), "game-over native/edited text word and VRAM placement");
+                AssertEqual(expected, words[cell], "game-over native/edited text word and placement");
             }
         }
     }
@@ -846,12 +849,13 @@ internal static class LookupStream3Verification
                     AssertEqual(pair.Value[row], presentation.CursorPosition(pair.Key, row), "options stock/edited cursor");
             foreach (var pair in document.HeadingAnchors)
             {
-                var actual = new OamBuffer();
+                var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, pair.Key, 3);
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
                     .DrawOnScreen(expected, new(checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
+                actual.FinishFrame(); expected.FinalizeFrame();
                 AssertTrue(actual.ImageEquals(expected),
                     "options stock/edited heading origin and scroll");
             }
@@ -3137,11 +3141,12 @@ internal static class LookupStream3Verification
             AssertEqual(expectedParts.PartCount, selected.PartCount, "helmet part count");
             for (int part = 0; part < expectedParts.PartCount; part++)
                 AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");
-            var actualOam = new OamBuffer();
+            var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actual.DrawHelmet(actualOam, frame, 0);
             var anchor = expected.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(expected.ObjectPalette << 9));
+            actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }

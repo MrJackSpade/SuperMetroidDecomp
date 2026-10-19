@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// <summary>Captures the shared menu compositor without retaining menu state.</summary>
 internal static class MenuRenderSnapshotCapture
 {
-    /// <summary>Captures menu VRAM, palette, and OAM with the established BG2, BG1, OBJ layer order and current brightness.</summary>
+    /// <summary>Captures the menu screen's artwork, tilemaps, palette and sprite entries with the established BG2, BG1, OBJ layer order and current brightness.</summary>
     [PpuLayoutBoundary("codec: shared menu render packet layers")]
-    internal static LayeredRenderSnapshot Capture(MenuPpuState ppu, OamBuffer oam,
-        ushort bg1VerticalScroll, byte brightness)
+    internal static LayeredRenderSnapshot Capture(MenuScreen screen, ushort bg1VerticalScroll, byte brightness)
     {
         // These menus currently compose entire BG2, BG1 and OBJ planes in that order.
         // Preserve that established path here; do not silently replace it with the
@@ -19,7 +18,6 @@ internal static class MenuRenderSnapshotCapture
             new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null),
             new ObjRenderLayer(),
         ];
-        return new(PpuMemorySnapshot.CaptureFrontend(ppu.Vram, ppu.Cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
-            MenuRenderDefinitions.ObjectSelection, brightness);
+        return new(MenuScreenImage.Capture(screen), layers, MenuRenderDefinitions.ObjectSelection, brightness);
     }
 }

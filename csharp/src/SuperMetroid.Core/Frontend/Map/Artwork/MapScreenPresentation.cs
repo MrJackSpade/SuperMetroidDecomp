@@ -12,8 +12,9 @@ public sealed class MapScreenPresentation
     private readonly Dictionary<string, byte[]> pages;
     /// <summary>Takes ownership of the compiled page buffers after load-time validation.</summary>
     private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
-    /// <summary>Copies the named, compiled 32-by-32 tilemap page into <paramref name="destination"/>.</summary>
-    public void LoadTo(VramRegion destination, string page) => destination.Load(pages[page]);
+
+    /// <summary>Copies the named page into a screen's own tilemap words (#1358).</summary>
+    internal void LoadTo(Span<ushort> destination, string page) => SuperMetroid.Core.Frontend.Menus.MenuTilemaps.Load(destination, pages[page]);
     /// <summary>Loads and validates the complete set of named map-screen pages from JSON.</summary>
     public static MapScreenPresentation Load(Stream json)
     {

@@ -21,7 +21,7 @@ internal static class PauseMenuStateAccess
         internal (int Frame, int Timer) ItemSelectorAnimationState => (self.itemSelectorAnimationFrame, self.itemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-        internal int LastRenderedSpriteCount => self.oam.LastFinalizedSpriteCount;
+        internal int LastRenderedSpriteCount => self.entries.Draws.Length;
 
         /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
         internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.lastMapIndicatorSprite;

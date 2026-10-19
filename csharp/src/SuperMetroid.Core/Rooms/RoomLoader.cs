@@ -972,7 +972,7 @@ internal sealed class RoomLoader
         var plms = new RoomPlmSystem(new PlmRoomBindings(plmRoom, plmBindings), _shotBlockVisuals);
         scope.Plms = plms;
         plms.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion);
-        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, _backgroundScroll, progress);
+        var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, progress);
         scope.Services = areaServices;
         plms.PopulationLoader.LoadRoomPopulation(plmRoom, room.State.PlmPopulation, plmBindings);
 

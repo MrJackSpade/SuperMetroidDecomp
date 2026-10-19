@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification
@@ -70,7 +71,7 @@ internal static class PauseMapArrowsVerification
                     arrowAttributes.Add((ushort)(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1])));
             }
             var pixels = pause.Render();
-            var actual = pause.oam;
+            var actual = pause.entries;
             AssertTrue(actual.LowTable[..expectedBytes].SequenceEqual(expected.LowTable[..expectedBytes]),
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;

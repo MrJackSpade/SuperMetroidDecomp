@@ -51,8 +51,8 @@ internal static class MapSpriteCasesVerification
                     bool horizontalOnly = (change with { OffsetX = part.OffsetX }) == part;
                     AssertEqual(!(worldLabel && horizontalOnly), edited.StoresComposition((MapSpriteId)role.NativeId),
                         "horizontal label edits remain positions; other authored edits retain their composition");
-                    var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-                    MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
+                    var expected = ScreenSpritesFixtures.Blank(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
+                    MenuSpriteCompiler.Compile(parts, role.Name).Draw(expected, new(100, 100), 0x600);
                     edited.Draw((MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
@@ -66,7 +66,7 @@ internal static class MapSpriteCasesVerification
             var edited = Load(frames);
             foreach (var frame in MapSpriteRoleOracle())
             {
-                var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 if (frame.NativeId != changed.NativeId)
                 {
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
@@ -81,8 +81,8 @@ internal static class MapSpriteCasesVerification
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, new OamBuffer(), new(0, 0), 0), "undefined map sprite identity fails");
-        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, new OamBuffer(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
+            AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
+        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, ScreenSpritesFixtures.Blank(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
@@ -95,7 +95,7 @@ internal static class MapSpriteCasesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
     internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
-        var native = new OamBuffer(); var installed = new OamBuffer();
+        var native = new OamBuffer(); var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())
         {
             int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -105,16 +105,16 @@ internal static class MapSpriteCasesVerification
             for (int palette = 0; palette < 8; palette++)
             foreach (int occupied in new[] { 0, 127, 128 })
             {
-                native.BeginFrame(); installed.BeginFrame();
+                native = new OamBuffer(); native.BeginFrame(); installed.BeginFrame();
                 for (int index = 0; index < occupied; index++)
                 {
-                    native.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
-                    installed.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56);
+                    native.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
+                    installed.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56);
                 }
                 DrawImportedSpritemap(bus, native, pointer, new(x, y), (ushort)(palette << 9));
                 catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
-                AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
+                AssertEqual(native.LastFinalizedSpriteCount, installed.LastFinalizedSpriteCount, "map sprite count/capacity matches native");
                 AssertTrue(native.ImageEquals(installed),
                     $"{frame.Name} preserves native order, coordinates, attributes and clipping");
             }

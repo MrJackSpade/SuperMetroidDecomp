@@ -22,7 +22,6 @@ internal sealed class RoomEnemyRuntimeServices(
     SamusFrameState player,
     RoomPlmSystem plms,
     GameplayDisplayState display,
-    BackgroundScrollState backgroundScroll,
     RoomAreaProgress progress) : IRoomEnemyServices,
     IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
     IMotherBrainRoomEffects, IRoomPlmPresence

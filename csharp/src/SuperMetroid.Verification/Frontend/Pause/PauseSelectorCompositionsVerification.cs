@@ -42,7 +42,7 @@ internal static class PauseSelectorCompositionsVerification
                     var edited = PauseSelectorPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
                         document with { Frames = frames }, ArtworkJson.Options)));
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
-                    var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                    var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
                     MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.ObjectPalette.PaletteBits);
                     edited.Draw(actual, category, 0, 0);
@@ -73,7 +73,7 @@ internal static class PauseSelectorCompositionsVerification
                 string name = category switch { PauseEquipmentCategory.Reserves => source.Reserve, PauseEquipmentCategory.Beams => source.Beam, _ => source.Equipment };
                 var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
                 var anchor = edited.Anchor(category, 0);
-                var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
+                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 composition.DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.ObjectPalette.PaletteBits);
                 edited.Draw(actual, category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
@@ -82,7 +82,7 @@ internal static class PauseSelectorCompositionsVerification
                 AssertEqual(source.DurationTicks, edited.Duration(phase), "composition edit leaves phase timing unchanged");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, 0, -1), "negative composition phase");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), 0, 0, -1), "negative composition phase");
     }
 
     /// <summary>Compares each group's 14 phases with native OAM at several preoccupied-buffer sizes.</summary>
@@ -101,8 +101,8 @@ internal static class PauseSelectorCompositionsVerification
             {
                 int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadCartridgeByte(program + phase * 3 + 2);
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
-                var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
-                for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); actual.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); }
+                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
+                for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<OamPixels>(12, 34), 56); }
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 selector.Draw(actual, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();

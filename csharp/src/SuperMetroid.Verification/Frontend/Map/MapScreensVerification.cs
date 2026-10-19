@@ -16,6 +16,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -33,8 +34,8 @@ internal static class MapScreensVerification
         {
             var native = World(bus, original, index);
             var installed = World(guard, original, index);
-            byte[] usedNativeVram = native.Vram.Bytes.ToArray();
-            AssertTrue(usedNativeVram.SequenceEqual(installed.Vram.Bytes),
+            byte[] usedNativeVram = MenuScreenFixtures.Vram(native.screen).Bytes.ToArray();
+            AssertTrue(usedNativeVram.SequenceEqual(MenuScreenFixtures.Vram(installed.screen).Bytes),
                 "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
                 AssertTrue(native.RenderBackgrounds(backdropMath).SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
@@ -45,7 +46,7 @@ internal static class MapScreensVerification
             var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original);
             var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original);
-            AssertTrue(nativeRoom.Vram.ImageEquals(installedRoom.Vram), "stock resolved frame/footer/area label matches full native VRAM");
+            AssertTrue(MenuScreenFixtures.Vram(nativeRoom.screen).ImageEquals(MenuScreenFixtures.Vram(installedRoom.screen)), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
@@ -82,7 +83,7 @@ internal static class MapScreensVerification
         AssertTrue(!roomBefore.RenderFrameOnly().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
-        worldAfter.BindScreens(original.Screens, original.WorldArtwork);
+        worldAfter.BindMapPresentation(original);
         AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
         Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(original, edited));
         // Test each PNG independently: a combined edit must not mask a disconnected resource.
@@ -102,7 +103,7 @@ internal static class MapScreensVerification
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
             AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "each world PNG edit reaches composed world pixels independently");
-            changedWorld.BindScreens(original.Screens, original.WorldArtwork);
+            changedWorld.BindMapPresentation(original);
             AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");

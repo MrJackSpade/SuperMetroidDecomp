@@ -115,25 +115,22 @@ public sealed class Bank80SystemState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
     } = SaveLoadingGameStates.MainGame;
 
-    /// <summary>The game's power-on random-number seed, <c>$0061</c>.</summary>
-    private const ushort PowerOnRandomSeed = 97;
-
-    /// <summary>
-    /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
-    /// </summary>
+    /// <summary>Creates the bank-$80 state over its own random-number word, with the game's power-on seed.</summary>
     public Bank80SystemState()
-        : this(PowerOnRandomSeed)
+        : this(new CartridgeRandom())
     {
     }
 
-    /// <summary>
-    /// Creates state with a chosen RNG seed. The overload exists primarily so all 65,536
-    /// input states can be checked against the original algorithm.
-    /// </summary>
+    /// <summary>Creates the bank-$80 state over its own random-number word with a chosen seed.</summary>
+    /// <param name="randomNumberSeed">The starting word, 0 through 65535.</param>
     public Bank80SystemState(int randomNumberSeed)
+        : this(new CartridgeRandom(randomNumberSeed))
     {
-        RandomState = new SharedRandomState(randomNumberSeed);
     }
+
+    /// <summary>Creates the bank-$80 state over the session's random-number word.</summary>
+    /// <param name="random">The session's random-number word, which this state reads and advances.</param>
+    public Bank80SystemState(CartridgeRandom random) => Random = Ensure.NotNull(random);
 
     /// <summary>
     /// Carry flag inside every <c>MainGameLoop</c> iteration ($82:8948). The loop brackets
@@ -194,11 +191,14 @@ public sealed class Bank80SystemState
         SavedLoadingGameState = mirror.LoadingGameState;
     }
 
+    /// <summary>The session's random-number word, WRAM <c>$05E5</c>.</summary>
+    public CartridgeRandom Random { get; }
+
     /// <summary>The shared RNG state, corresponding to WRAM <c>$05E5</c>.</summary>
-    public SharedRandomState RandomState { get; private set; }
+    public SharedRandomState RandomState => Random.State;
 
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
-    public int RandomNumber => RandomState.Value;
+    public int RandomNumber => Random.Read();
 
     /// <summary>
     /// Performs a direct write to the shared RNG word at WRAM <c>$05E5</c>. Most callers
@@ -210,10 +210,10 @@ public sealed class Bank80SystemState
     /// $A3:A325 both execute <c>STA $05E5</c> with <c>$000B</c>, so later unrelated random
     /// consumers must observe the replacement seed as well.
     /// </remarks>
-    public void SetRandomNumber(int value) => RandomState = new SharedRandomState(value);
+    public void SetRandomNumber(int value) => Random.Seed(value);
 
     /// <summary>Stores the shared RNG state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
-    internal void SwapRandomBytes() => RandomState = RandomState.WithBytesSwapped();
+    internal void SwapRandomBytes() => Random.SwapBytes();
 
     /// <summary>
     /// Most recently calculated held input, corresponding to WRAM <c>$05D9</c>.
@@ -253,23 +253,12 @@ public sealed class Bank80SystemState
     public SnesButton TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
-    /// Diagnostic-only observer of each <see cref="NextRandom"/> call, used by movie-replay
-    /// tracing to attribute RNG consumers. Never part of gameplay state.
-    /// </summary>
-    [field: NonSerialized] internal Action? RandomCallObserver { get; set; }
-
-    /// <summary>
     /// Advances the shared RNG word at <c>$7E:05E5</c> exactly as <c>$80:8111</c>
     /// does, preserving the two byte-multiply results, high-byte addition carry,
     /// and final 16-bit wrapping addition. Every caller observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="RandomState"/>.</returns>
-    public int NextRandom()
-    {
-        RandomCallObserver?.Invoke();
-        RandomState = RandomState.Next();
-        return RandomState.Value;
-    }
+    public int NextRandom() => Random.Generate();
 
     /// <summary>
     /// Ports <c>$80:8146</c>, which turns stable held buttons into delayed input suitable

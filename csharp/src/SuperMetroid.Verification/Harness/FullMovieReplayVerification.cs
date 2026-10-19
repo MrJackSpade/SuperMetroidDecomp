@@ -159,7 +159,7 @@ internal static class FullMovieReplayVerification
             excludedBefore = step.ExcludedNmiAfter;
             loaderProgress.Expect(step.DoorLoaderCompletedEnemySlots);
             if (update >= traceFromUpdate && game.RuntimeForVerification is { } tracedRuntime)
-                tracedRuntime.System.RandomCallObserver = () => Console.WriteLine(
+                tracedRuntime.System.Random.CallObserver = () => Console.WriteLine(
                     "  rng call: " + string.Join(" <- ", new System.Diagnostics.StackTrace(2)
                         .GetFrames().Take(4).Select(frame => frame.GetMethod()?.Name)));
             // The last controller read of an eliminated music wait is still input the

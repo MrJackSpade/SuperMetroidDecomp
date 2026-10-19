@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Samus atmospheric animation timers and lava/acid damage rates against bank 90.</summary>
 internal static class SamusAtmosphericAnimationDefinitionsVerification
@@ -151,7 +152,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,
             acid: fxType == RoomFxType.Acid);
-        samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
+        samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
         AssertEqual(expected.SubDamage, samus.LiquidPhysics.PeriodicSubDamage,
             $"production {fxType} fractional damage accumulation");
         AssertEqual(expected.WholeDamage, samus.LiquidPhysics.PeriodicDamage,

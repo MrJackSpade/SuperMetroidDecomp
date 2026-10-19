@@ -19,6 +19,7 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
@@ -201,7 +202,8 @@ internal static class ProjectileTrailArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
-        var runtime = CreateRetailRuntimeFixture();
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Freeze.GameplayTimeFrozen = true;
@@ -209,8 +211,8 @@ internal static class ProjectileTrailArtworkVerification
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
+        game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);
         // Run the gameplay actor draw pass into a fresh OAM frame and capture its low table.

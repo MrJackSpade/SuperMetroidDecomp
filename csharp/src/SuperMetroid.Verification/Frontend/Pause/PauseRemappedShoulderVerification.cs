@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that the pause menu reads physical buttons whatever the gameplay bindings are.</summary>
 internal static class PauseRemappedShoulderVerification
@@ -26,7 +27,8 @@ internal static class PauseRemappedShoulderVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach ((SnesButton held, bool opensEquipment) in new[] { (SnesButton.R, true), (SnesButton.L, false) })
         {
-            var runtime = CreateRetailRuntimeFixture();
+            var random = new CartridgeRandom();
+            var runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -34,8 +36,8 @@ internal static class PauseRemappedShoulderVerification
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
-            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore()) { GameState = SuperMetroidGameState.PausedB };
-            game.Session.runtime = runtime;
+            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random) { GameState = SuperMetroidGameState.PausedB };
+            game.AdoptRuntime(runtime);
             game.Session.pauseMenu = pause;
             long sequence = 0;
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)

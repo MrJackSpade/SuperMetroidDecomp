@@ -11,6 +11,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.DesktopVerification.Diagnostics;
 
@@ -103,15 +104,16 @@ public static class GitHubErrorReporterSmokeTest
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: colors);
+        var random = new CartridgeRandom();
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: colors, random: random);
         var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
         samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        game.Session.runtime = runtime;
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        game.AdoptRuntime(runtime);
         string before = game.CaptureGameplayFailureContext();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
         string after = game.CaptureGameplayFailureContext();

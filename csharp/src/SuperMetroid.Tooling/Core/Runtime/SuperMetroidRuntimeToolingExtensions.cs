@@ -12,16 +12,20 @@ internal static class SuperMetroidRuntimeToolingExtensions
     extension(SuperMetroidRuntime)
     {
         /// <summary>
-        /// Creates a bare frame-steppable runtime with its own frame clock and Mode 7 queue residue; only the initial
+        /// Creates a bare frame-steppable runtime with its own frame clock and Mode 7 queue residue, over the supplied
+        /// session's random-number word or, without one, a word of its own; only the initial
         /// palette is bound, and the caller binds whatever catalogs it exercises.
         /// </summary>
         /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime (#633).</param>
         /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
+        /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
-            SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null) =>
+            SuperMetroid.Core.Assets.GameplayBasePaletteCatalog? initialPaletteArt = null,
+            SuperMetroid.Core.Progression.CartridgeRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt },
-                new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue());
+                new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue(),
+                random ?? new SuperMetroid.Core.Progression.CartridgeRandom());
     }
 
     /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks that grapple draws bind the currently installed grapple artwork, including after a debugger-state restore.</summary>
@@ -21,7 +22,8 @@ internal static class GrappleTileBindingVerification
     /// </summary>
     internal static void VerifyGrappleTileBinding(GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
-        var runtime = CreateRetailRuntimeFixture();
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var samus = runtime.Player.IntroducedSamus;
@@ -34,8 +36,8 @@ internal static class GrappleTileBindingVerification
         // A connected rope with on-screen endpoint, so the beam's draws exist to bind.
         samus.Grapple.RopeLength = 32;
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
+        game.AdoptRuntime(runtime);
         game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
         AssertBoundTo(runtime, stock, "Actual actor pass binds the installed grapple tiles");
 

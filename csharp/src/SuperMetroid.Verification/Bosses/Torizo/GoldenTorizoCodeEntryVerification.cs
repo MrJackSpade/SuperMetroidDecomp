@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the Golden Torizo room-entry code and its queued beam artwork.</summary>
 internal static class GoldenTorizoCodeEntryVerification
@@ -21,7 +22,7 @@ internal static class GoldenTorizoCodeEntryVerification
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.
         var installation = RepositoryInstallation.Installation;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false, SuperMetroidGameHostServices.Default);
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false, SuperMetroidGameHostServices.Default, new CartridgeRandom());
         PrepareRomFreeBindings(installation)(game, false);
         game.InitializeDirectRoomVerification();
         var runtime = game.GameplayRuntimeForVerification;

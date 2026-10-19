@@ -25,6 +25,7 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks editable charge-flare offsets against native OAM placement and the production rendering paths.</summary>
 internal static class ChargeFlarePlacementVerification
@@ -162,7 +163,8 @@ internal static class ChargeFlarePlacementVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
-        var runtime = CreateRetailRuntimeFixture();
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -170,8 +172,8 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
+        game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)

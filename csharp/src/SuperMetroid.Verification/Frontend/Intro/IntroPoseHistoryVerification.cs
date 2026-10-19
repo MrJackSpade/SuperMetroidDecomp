@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Samus pose history publication during intro flashback and discovery.</summary>
 internal static class IntroPoseHistoryVerification
@@ -27,16 +28,17 @@ internal static class IntroPoseHistoryVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         var history = samus.PoseHistory;
+        var random = new CartridgeRandom();
         history.PreviousPose = samus.Pose;
         history.PreviousDirectionAndMovement = 4;
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
         history.LastDifferentDirectionAndMovement = 0x0308;
-        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0, random);
         AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "idle intro frame does not shift history");
         AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
         AssertEqual(4, history.PreviousDirectionAndMovement, "idle intro retains previous metadata");
-        IntroSamusDemoMovement.StepGroundedLeft(room, samus, SnesButton.Left, SnesButton.Left, 1);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, SnesButton.Left, SnesButton.Left, 1, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, history.LastDifferentPose, "intro run transition shifts prior pose");
         AssertEqual(4, history.LastDifferentDirectionAndMovement, "intro run transition shifts prior metadata");
@@ -45,7 +47,7 @@ internal static class IntroPoseHistoryVerification
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
         history.LastDifferentDirectionAndMovement = 0x0308;
-        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2);
+        IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro release fixture retains running during deceleration");
         AssertEqual(samus.Pose, history.LastDifferentPose, "intro same-pose fallback shifts history");
         AssertEqual(0x0104, history.LastDifferentDirectionAndMovement, "intro same-pose fallback shifts running metadata");

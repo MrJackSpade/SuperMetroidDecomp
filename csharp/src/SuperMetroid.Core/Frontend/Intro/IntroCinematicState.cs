@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -49,6 +50,9 @@ public sealed class IntroCinematicState
             sheets.CinematicObjectCharacters.Transfer.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
         projectilePages = new ProjectileObjectPages(page, beams, trails);
     }
+    /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
+    public required CartridgeRandom Random { get; init; }
+
     /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
     public SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; init; }
 
@@ -798,7 +802,7 @@ public sealed class IntroCinematicState
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
-        babyDiscovery = new IntroBabyDiscoveryState(audio, flashbackSamus
+        babyDiscovery = new IntroBabyDiscoveryState(Random, audio, flashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
         babyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(vram);
 
@@ -1066,7 +1070,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
-                flashbackDemoInput.NewlyPressed, NmiFrameWord(elapsedUpdates));
+                flashbackDemoInput.NewlyPressed, NmiFrameWord(elapsedUpdates), Random);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
@@ -1095,7 +1099,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates) });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates), Random = Random });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode

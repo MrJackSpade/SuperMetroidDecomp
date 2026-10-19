@@ -1282,7 +1282,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, System = _system, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance(room);
         }
 

@@ -210,7 +210,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             // rebuilt from SRAM, so only the live RNG word survives.
             session.gameOver = null;
             session.loadingExistingSave = true;
-            session.ReleaseRuntimePreservingRandom();
+            session.ReleaseRuntime();
             session.GameState = SuperMetroidGameState.SetUpNewGame;
         }
         else if (session.gameOver.ContinueRequested)
@@ -257,7 +257,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             {
                 // Menu construction consumes only save/map data. A dead runtime
                 // must not keep publishing gameplay audio during map selection.
-                session.ReleaseRuntimePreservingRandom();
+                session.ReleaseRuntime();
                 session.fileSelectMap = new FileSelectMapMenuState(session.audio, mapSlot, controllerInput, session.Artwork.MapPresentation);
             }
             else session.fileSelectMap.Step(controllerInput);
@@ -319,6 +319,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
 session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
             session.Artwork.BeamArtwork, session.Artwork.SamusBodyArt, japaneseText)
         {
+            Random = session.Random,
             Mode7QueueResidue = session.mode7QueueResidue,
             ProjectileCompositions = session.Artwork.ProjectileCompositions,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,

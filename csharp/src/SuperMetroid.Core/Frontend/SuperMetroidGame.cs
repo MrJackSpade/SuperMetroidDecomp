@@ -158,7 +158,7 @@ public sealed class SuperMetroidGame
     public SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null)
-        : this(saves, gameOptions, renderGameplayFrames: true, SuperMetroidGameHostServices.Default)
+        : this(saves, gameOptions, renderGameplayFrames: true, SuperMetroidGameHostServices.Default, new CartridgeRandom())
     {
     }
 
@@ -175,13 +175,15 @@ public sealed class SuperMetroidGame
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies; replay verification supplies recorded evidence here.</param>
+    /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions,
         bool renderGameplayFrames,
-        SuperMetroidGameHostServices hostServices)
+        SuperMetroidGameHostServices hostServices,
+        CartridgeRandom random)
     {
-        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames, hostServices);
+        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames, hostServices, random);
     }
 
     /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
@@ -610,13 +612,12 @@ public sealed class SuperMetroidGame
             case MainLoopRandomCall.Reseed:
                 // Only the reset vector reseeds. A continued save must keep the word
                 // produced by gameplay and the game-over/file-map waiting frames.
-                Session.menuRandom = new Bank80SystemState();
+                Session.Random.SeedPowerOn();
                 Session.frameClock.Reset();
                 Session.menuLayer1.Reset();
                 // State zero is itself dispatched by MainGameLoop after its first
                 // GenerateRandomNumber call; it is not the reset vector's seed store.
-                Session.menuRandom.NextRandom();
-                Session.runtime?.System.SetRandomNumber(Session.menuRandom.RandomNumber);
+                Session.Random.Generate();
                 break;
             case MainLoopRandomCall.NonGameplayHdmaThenAdvance:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
@@ -624,10 +625,10 @@ public sealed class SuperMetroidGame
                 break;
             case MainLoopRandomCall.AdvanceUnlessResumingWait:
                 if (!NextUpdateResumesNmiWait)
-                    Session.FrontendRandomOwner.NextRandom();
+                    Session.Random.Generate();
                 break;
             case MainLoopRandomCall.Advance:
-                Session.FrontendRandomOwner.NextRandom();
+                Session.Random.Generate();
                 break;
             case MainLoopRandomCall.RuntimeOwned:
                 break;

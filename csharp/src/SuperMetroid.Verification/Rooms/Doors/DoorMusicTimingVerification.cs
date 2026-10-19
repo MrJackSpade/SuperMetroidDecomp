@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks room music dispatch timing during a retail Parlor-to-Landing-Site door transition.</summary>
 internal static class DoorMusicTimingVerification
@@ -23,7 +24,8 @@ internal static class DoorMusicTimingVerification
     internal static void VerifyDoorMusicTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -51,8 +53,8 @@ internal static class DoorMusicTimingVerification
         samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance });
-        game.Session.runtime = runtime;
+            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance }, random: random);
+        game.AdoptRuntime(runtime);
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         var audio = game.Session.audio;

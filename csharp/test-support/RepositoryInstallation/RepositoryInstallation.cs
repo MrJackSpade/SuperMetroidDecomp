@@ -61,9 +61,10 @@ internal static class RepositoryInstallation
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
-        MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
+        MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false,
+        SuperMetroid.Core.Progression.CartridgeRandom? random = null)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes(), random);
         BindRuntime(runtime);
         return runtime;
     }

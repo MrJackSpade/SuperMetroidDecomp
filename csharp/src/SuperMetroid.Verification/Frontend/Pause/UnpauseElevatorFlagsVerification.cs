@@ -10,6 +10,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks that unpausing disarms elevator pseudo-door contact before gameplay resumes.</summary>
 internal static class UnpauseElevatorFlagsVerification
@@ -22,13 +24,14 @@ internal static class UnpauseElevatorFlagsVerification
     internal static void VerifyUnpauseElevatorFlags()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        var random = new CartridgeRandom();
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        game.AdoptRuntime(runtime);
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();

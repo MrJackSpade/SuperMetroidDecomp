@@ -36,10 +36,12 @@ internal sealed class FrontendSession
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited; verification hosts may skip them.</param>
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
+    /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames,
-        SuperMetroidGameHostServices hostServices)
+        SuperMetroidGameHostServices hostServices, CartridgeRandom random)
     {
         HostServices = Ensure.NotNull(hostServices);
+        Random = Ensure.NotNull(random);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         display = new FrontendDisplay(renderGameplayFrames);
         this.saves = Ensure.NotNull(saves);
@@ -337,7 +339,6 @@ internal sealed class FrontendSession
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
     internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
-        int incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
             menuLayer1.RetainFrom(runtime);
         bool attract = purpose == GameplayRuntimePurpose.AttractDemo;
@@ -345,7 +346,7 @@ internal sealed class FrontendSession
         {
             Purpose = purpose,
             Overrides = ConfiguredOptions.RuntimeOverrides(attract),
-            IncomingRandom = incomingRandom,
+            Random = Random,
             MainGameLoopCarry = bootMainLoopCarry,
             Layer1 = menuLayer1,
             Artwork = Artwork,
@@ -556,15 +557,11 @@ internal sealed class FrontendSession
     internal bool waitingForDownwardsElevator;
     /// <summary>Countdown before a downward elevator resumes destination loading.</summary>
     internal int downwardsElevatorDelayTimer;
-    /// <summary>Cartridge RNG owner before a gameplay room exists or after runtime release.</summary>
-    internal Bank80SystemState? menuRandom;
-    /// <summary>Uses gameplay RNG when live and otherwise retains the frontend RNG word.</summary>
-    internal Bank80SystemState FrontendRandomOwner =>
-        runtime?.System ?? (menuRandom ??= new Bank80SystemState());
-    /// <summary>Transfers RNG and the layer-one position back to the frontend before dropping gameplay state.</summary>
-    internal void ReleaseRuntimePreservingRandom()
+    /// <summary>The session's random-number word, which the frontend and every gameplay runtime share.</summary>
+    internal CartridgeRandom Random { get; }
+    /// <summary>Transfers the layer-one position back to the frontend before dropping gameplay state.</summary>
+    internal void ReleaseRuntime()
     {
-        (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);
         // File-map selection may release when no runtime was ever created.
         if (runtime is not null)
             menuLayer1.RetainFrom(runtime);

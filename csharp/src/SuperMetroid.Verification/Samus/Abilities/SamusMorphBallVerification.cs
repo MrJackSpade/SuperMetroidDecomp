@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Constructed cartridge checks for ball movement, bombs, blast reactions, and tight passages.</summary>
 internal static class SamusMorphBallVerification
@@ -164,7 +165,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 0),
     // The compiled retail transition is 03,03,F9: six animation ticks
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
         "F9 selects no-spring grounded endpoint");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "grounded F9 endpoint applies");
@@ -491,7 +492,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSpeed = airborneEntry.Kinematics.YSpeed.WithFraction(1);
     for (int tick = 0; tick < 6; tick++)
-        airborneEntry.Presentation.AnimateNoFx(new SamusAnimationStep());
+        airborneEntry.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires airborneEntry.PendingTransitionalPose.")),
         "F9 nonzero Y subspeed selects airborne endpoint");
 
@@ -510,7 +511,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
 floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
-        spring.Presentation.AnimateNoFx(new SamusAnimationStep());
+        spring.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires spring.PendingTransitionalPose.")),
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(spring.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "Spring Ball F9 applies");

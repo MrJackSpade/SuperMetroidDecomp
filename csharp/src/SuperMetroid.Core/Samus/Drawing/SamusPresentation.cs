@@ -182,8 +182,8 @@ internal sealed class SamusPresentation
         // consumes independently of its current top-boundary submersion check.
         _samus.LiquidPhysics.PrepareAnimationFrame(
             _samus,
+            step.Random,
             checked((ushort)step.NmiFrameCounter),
-            step.System,
             step.BeginLiquidSoundRequestFrame);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is

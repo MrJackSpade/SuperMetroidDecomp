@@ -23,7 +23,8 @@ internal static class DoorAnimatedTilesVerification
     internal static void VerifyDoorAnimatedTiles()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -47,8 +48,8 @@ internal static class DoorAnimatedTilesVerification
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
 
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        game.AdoptRuntime(runtime);
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         int handlerFrames = 0;

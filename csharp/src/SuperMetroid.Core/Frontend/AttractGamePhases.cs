@@ -111,7 +111,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                         session.demoScene = 0;
                     }
                 }
-                session.ReleaseRuntimePreservingRandom();
+                session.ReleaseRuntime();
                 session.display.PublishBlack();
                 session.GameState = SuperMetroidGameState.TransitionFromDemoB;
                 break;

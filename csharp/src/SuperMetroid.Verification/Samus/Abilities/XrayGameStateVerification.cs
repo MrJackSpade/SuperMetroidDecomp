@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Confirms X-ray admission reads the live game state (#1335).</summary>
 internal static class XrayGameStateVerification
@@ -28,7 +29,8 @@ internal static class XrayGameStateVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateWithXraySelected()
         {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
+            var random = new CartridgeRandom();
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -42,8 +44,8 @@ internal static class XrayGameStateVerification
             samus.Position = samus.Position.WithWhole(new(128, 139));
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-            game.Session.runtime = runtime;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            game.AdoptRuntime(runtime);
             game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(0);

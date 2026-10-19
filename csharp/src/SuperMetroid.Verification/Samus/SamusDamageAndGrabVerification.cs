@@ -19,6 +19,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>
 internal static class SamusDamageAndGrabVerification
@@ -128,7 +129,7 @@ internal static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        right.Presentation.AnimateNoFx(new SamusAnimationStep());
+        right.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
@@ -169,7 +170,7 @@ level, right, unchecked((ushort)(frame + 1))),
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
-        right.Presentation.AnimateNoFx(new SamusAnimationStep());
+        right.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
     AssertTrue(right.PoseTransitions.ApplyPendingVerifiedAnimationTransition(),
@@ -193,7 +194,7 @@ level, right, unchecked((ushort)(frame + 1))),
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
-        left.Presentation.AnimateNoFx(new SamusAnimationStep());
+        left.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(left.PoseTransitions.ApplyPendingVerifiedAnimationTransition(),

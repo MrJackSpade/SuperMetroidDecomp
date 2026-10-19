@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -24,7 +25,8 @@ internal static class IntroSamusDemoMovement
         SamusState samus,
         SnesButton heldInput,
         SnesButton newlyPressedInput,
-        int nmiFrameCounter)
+        int nmiFrameCounter,
+        CartridgeRandom random)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
             samus.Pose,
@@ -77,7 +79,7 @@ internal static class IntroSamusDemoMovement
                 $"SR388 intro demo reached invalid grounded-left pose ${(int)poseAtFrameStart:X2}.");
         }
 
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = nmiFrameCounter });
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = nmiFrameCounter, Random = random });
 
         // Native pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic

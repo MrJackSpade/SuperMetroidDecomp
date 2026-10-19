@@ -35,7 +35,8 @@ internal static class DraygonTilemapProductionVerification
         var assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
-        var random = new Bank80SystemState(0x1234);
+        var random = new Bank80SystemState();
+        random.SetRandomNumber(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 64)),
             Pose = SamusPoseId.FacingRightNormalPose };
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();

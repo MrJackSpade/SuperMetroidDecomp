@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Focused PLM terrain and Samus posture transition checks over constructed cartridge data.</summary>
 internal static class PlmsAndPostureVerification
@@ -283,7 +284,7 @@ level, SamusPoseId.CrouchingTransitionRightPose, nmiFrameCounter: 0),
     AssertEqual(48, sunkSamus.Position.Y.Whole, "command seven clips its crouch descent at the floor");
 
     for (int tick = 0; tick < 3; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
     samus.HorizontalSpeed.HasRunningMomentum = true;
@@ -308,7 +309,7 @@ level, SamusPoseId.StandingTransitionRightPose, nmiFrameCounter: 1),
     samus.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes standing transition radius");
     for (int tick = 0; tick < 3; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
 
@@ -334,7 +335,7 @@ level, aimedCrouchTransitions[index], unchecked((ushort)index)),
         SamusPostureMovement.StepCrouchStandTransition(
 level, aimedSamus, unchecked((ushort)index));
         for (int tick = 0; tick < 3; tick++)
-            aimedSamus.Presentation.AnimateNoFx(new SamusAnimationStep());
+            aimedSamus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
         AssertTrue(aimedSamus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
@@ -354,7 +355,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index)),
         aimedSamus.PoseMetadata.RefreshCollisionRadii();
         AssertEqual(21, aimedSamus.Kinematics.Radius.Y, "aimed stand next alpha radius");
         for (int tick = 0; tick < 3; tick++)
-            aimedSamus.Presentation.AnimateNoFx(new SamusAnimationStep());
+            aimedSamus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
         AssertTrue(aimedSamus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
     }

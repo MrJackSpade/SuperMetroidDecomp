@@ -19,8 +19,8 @@ public sealed record SamusAnimationStep
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>System.</summary>
-    public Bank80SystemState? System { get; init; } = null;
+    /// <summary>The session's random-number word, which Samus's liquid effects draw air bubbles from.</summary>
+    public required CartridgeRandom Random { get; init; }
 
     /// <summary>Begin liquid sound request frame.</summary>
     public bool BeginLiquidSoundRequestFrame { get; init; } = true;

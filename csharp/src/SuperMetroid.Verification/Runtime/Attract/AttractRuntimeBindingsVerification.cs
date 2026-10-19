@@ -44,7 +44,7 @@ internal static class AttractRuntimeBindingsVerification
         var demo = game.GameplayRuntimeForVerification;
         AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
         AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
-        AssertTrue(ReferenceEquals(enemyArtwork, demo.Enemies.TileArtwork), "attract runtime binds installed enemy artwork");
+        AssertTrue(ReferenceEquals(enemyArtwork, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,
             "attract runtime ignores host cheats");
@@ -54,7 +54,21 @@ internal static class AttractRuntimeBindingsVerification
         AssertTrue(selected.Cgram.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
         AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,
             "selected runtime retains host options");
-        Console.WriteLine("Attract runtime bindings: missing-palette failure reproduced; shared construction loads installed colors/artwork without ROM, preserves RNG, and isolates demo options.");
+
+        // #1330: one random-number word per session. Each runtime reads and advances the session's instance, so a
+        // release to the menu and a recreation keep the exact word with no copy.
+        AssertTrue(ReferenceEquals(game.Session.Random, demo.System.Random) && ReferenceEquals(game.Session.Random, selected.System.Random),
+            "every runtime shares the session's random-number word");
+        selected.System.NextRandom();
+        int beforeRelease = game.Session.Random.Read();
+        game.Session.ReleaseRuntime();
+        AssertEqual(beforeRelease, game.DispatcherRandomNumber, "release keeps the word gameplay advanced");
+        int menuFrame = game.Session.Random.Generate();
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
+        AssertTrue(ReferenceEquals(game.Session.Random, game.GameplayRuntimeForVerification.System.Random),
+            "a recreated runtime shares the session's word");
+        AssertEqual(menuFrame, game.GameplayRuntimeForVerification.System.RandomNumber, "a recreated runtime starts from the menu's word");
+        Console.WriteLine("Attract runtime bindings: missing-palette failure reproduced; shared construction loads installed colors/artwork without ROM, shares the session's RNG word across runtimes, and isolates demo options.");
     }
 
     /// <summary>Runs the focused attract runtime binding verification command.</summary>

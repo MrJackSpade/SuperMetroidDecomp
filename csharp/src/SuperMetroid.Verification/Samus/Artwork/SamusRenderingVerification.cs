@@ -21,6 +21,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Verifies Samus body, arm cannon, visor, and hurt palette rendering with cartridge-shaped fixtures.</summary>
 internal static class SamusRenderingVerification
@@ -70,14 +71,14 @@ internal static void VerifySamusRenderingSlice()
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
-    samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+    samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
@@ -85,11 +86,11 @@ internal static void VerifySamusRenderingSlice()
     samus.Health = 29;
     samus.Presentation.InitializeAnimation();
     for (int tick = 0; tick < 40; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
 
     // Pose $FD overreads the native pointer table and selects $91:0302, a mutable

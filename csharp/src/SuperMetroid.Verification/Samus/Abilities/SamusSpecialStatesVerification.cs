@@ -18,6 +18,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
@@ -185,7 +186,7 @@ internal static void VerifySamusCrystalFlash()
         AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = chord });
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
@@ -253,7 +254,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash HDMA cleanup clears phase");
     AssertEqual(0, crystalWindow.Status,
         "Crystal Flash HDMA cleanup clears shared status");
-    samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = chord });
+    samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");
 
@@ -288,12 +289,12 @@ internal static void VerifySamusCrystalFlash()
 
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
-    samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = chord });
+    samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     int finishFrames = 0;
     while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = chord });
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
         "Crystal Flash ROM finish command publishes standing right");
@@ -436,7 +437,7 @@ internal static void VerifySamusXray()
     AssertEqual(2, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
-    standing.Presentation.AnimateNoFx(new SamusAnimationStep());
+    standing.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
@@ -541,7 +542,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.StepMovement(standing) is null,
         "X-ray movement is RTS during type-E turn");
     for (int tick = 0; tick < 5; tick++)
-        standing.Presentation.AnimateNoFx(new SamusAnimationStep());
+        standing.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(standing, 0);

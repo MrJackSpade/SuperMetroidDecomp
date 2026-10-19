@@ -61,6 +61,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -3026,7 +3027,7 @@ internal static class LookupStream3Verification
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles);
+                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
@@ -3238,7 +3239,7 @@ internal static class LookupStream3Verification
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles);
+                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads all four calculated background pages");
@@ -3375,7 +3376,7 @@ internal static class LookupStream3Verification
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
-                beamArtwork: installation.LoadProjectiles().BeamTiles);
+                beamArtwork: installation.LoadProjectiles().BeamTiles) { Random = new CartridgeRandom() };
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads calculated portrait map");

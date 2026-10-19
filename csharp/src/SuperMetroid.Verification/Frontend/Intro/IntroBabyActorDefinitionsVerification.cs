@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Retail comparison and ROM-read boundary for intro Baby actor definitions, discovery instructions and demo input.</summary>
 internal static class IntroBabyActorDefinitionsVerification
@@ -66,11 +67,11 @@ internal static class IntroBabyActorDefinitionsVerification
 
         var guarded = NewIntroBabyActorDefinitionGuard(retail);
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
-        var discovery = new IntroBabyDiscoveryState(
+        var discovery = new IntroBabyDiscoveryState(new CartridgeRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var reference = new IntroBabyDiscoveryState(
+        var reference = new IntroBabyDiscoveryState(new CartridgeRandom(), 
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {

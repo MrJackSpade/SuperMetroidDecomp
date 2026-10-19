@@ -17,6 +17,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -138,6 +139,7 @@ internal static class InstalledFixtures
         var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamArtwork ?? Projectiles.BeamTiles, samusBodyArtwork ?? SamusBody)
         {
+            Random = new CartridgeRandom(),
             ProjectileCompositions = Projectiles.Catalog,
             ProjectileFrameBindings = Projectiles.FrameBindings,
             TrailArtwork = Projectiles.Trails,
@@ -192,11 +194,14 @@ internal static class InstalledFixtures
     /// <param name="gameOptions">The host options, or <see langword="null"/> for defaults.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
+    /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true,
-        SuperMetroidGameHostServices? hostServices = null)
+        SuperMetroidGameHostServices? hostServices = null, CartridgeRandom? random = null)
     {
-        var game = new SuperMetroidGame(saves, gameOptions, renderGameplayFrames, hostServices ?? SuperMetroidGameHostServices.Default);
+        // A fixture game without a supplied word is a session of its own.
+        var game = new SuperMetroidGame(saves, gameOptions, renderGameplayFrames, hostServices ?? SuperMetroidGameHostServices.Default,
+            random ?? new CartridgeRandom());
         gameBindings.Value(game);
         return game;
     }

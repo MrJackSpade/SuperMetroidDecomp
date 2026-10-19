@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Reproduces special Rinka placement during the door scroll into Mother Brain's room.</summary>
 internal static class MotherBrainRinkaDoorSpawnVerification
@@ -26,7 +27,8 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     internal static void VerifyMotherBrainRinkaDoorSpawn()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -38,8 +40,8 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c) });
-        game.Session.runtime = runtime;
+            hostServices: SuperMetroidGameHostServices.Default with { DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c) }, random: random);
+        game.AdoptRuntime(runtime);
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
 
         var level = runtime.Room.LoadedLevelData;

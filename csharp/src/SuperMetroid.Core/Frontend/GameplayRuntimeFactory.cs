@@ -10,9 +10,8 @@ namespace SuperMetroid.Core.Frontend;
 internal static class GameplayRuntimeFactory
 {
     /// <summary>
-    /// Constructs a runtime and performs the start handoff in the cartridge's order: the incoming random number (before
-    /// room initialization, so random-consuming enemies see it), the boot carry, the menu's layer-1 position, then the
-    /// artwork, then a selected game's menu choices.
+    /// Constructs a runtime over the session's random-number word and performs the start handoff in the cartridge's
+    /// order: the boot carry, the menu's layer-1 position, then the artwork, then a selected game's menu choices.
     /// </summary>
     /// <param name="start">The handoff; a selected game must carry its options and an attract demo must not.</param>
     /// <returns>The bound runtime, with no room selected.</returns>
@@ -22,9 +21,8 @@ internal static class GameplayRuntimeFactory
         if ((start.Purpose == GameplayRuntimePurpose.SelectedGame) != (start.Selected is not null))
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
-        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, start.Clock, start.Mode7QueueResidue);
-        // Runtime allocation is a managed ownership change, not Vector_RESET.
-        runtime.System.SetRandomNumber(start.IncomingRandom);
+        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, start.Clock, start.Mode7QueueResidue,
+            start.Random);
         runtime.System.MainGameLoopCarry = start.MainGameLoopCarry;
         start.Layer1.PublishTo(runtime);
         runtime.BindArtwork(start.Artwork, previous: null);

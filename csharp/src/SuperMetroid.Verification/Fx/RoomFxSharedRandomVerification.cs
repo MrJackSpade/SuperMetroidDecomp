@@ -17,7 +17,8 @@ internal static class RoomFxSharedRandomVerification
         SnesCgram cgram, RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
-        var system = new Bank80SystemState(0x1234);
+        var system = new Bank80SystemState();
+        system.SetRandomNumber(0x1234);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(0x1234, system.RandomNumber, $"{type} first pass installs callback without executing it");
         fx.AdvanceHdmaSharedState(system, true);

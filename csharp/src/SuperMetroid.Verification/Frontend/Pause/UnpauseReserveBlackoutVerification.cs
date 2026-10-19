@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the zero-health auto-reserve transition during unpause and the black screen retained for a later pause.</summary>
 internal static class UnpauseReserveBlackoutVerification
@@ -27,14 +28,15 @@ internal static class UnpauseReserveBlackoutVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
+            var random = new CartridgeRandom();
+            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             runtime.Player.IntroducedSamus.InputLocked = false;
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-            game.Session.runtime = runtime;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            game.AdoptRuntime(runtime);
             game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             return (game, runtime);
         }

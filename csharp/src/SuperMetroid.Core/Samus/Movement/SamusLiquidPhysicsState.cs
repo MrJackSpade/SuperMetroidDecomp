@@ -27,8 +27,6 @@ public sealed class SamusLiquidPhysicsState
     private readonly List<SamusSoundRequest> _soundRequests = [];
     /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
-    /// <summary>Fallback RNG for standalone animation calls that have no shared bank-$80 owner.</summary>
-    private readonly Bank80SystemState _standaloneRandom = new();
 
     /// <summary>
     /// Exclusive FX dispatcher identity stored at WRAM <c>$196E</c>. Values two and four
@@ -269,8 +267,8 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public void PrepareAnimationFrame(
         SamusState samus,
+        CartridgeRandom random,
         int nmiFrameCounter = 0,
-        Bank80SystemState? system = null,
         bool beginSoundRequestFrame = true)
     {
         Ensure.NotNull(samus);
@@ -311,7 +309,7 @@ public sealed class SamusLiquidPhysicsState
                 samus,
                 top,
                 nmiFrameCounter,
-                system ?? _standaloneRandom);
+                random);
 
             // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
             // buffer in Spawn_AirBubbles after all particle/audio side effects have run.
@@ -377,7 +375,7 @@ public sealed class SamusLiquidPhysicsState
                 samus,
                 top,
                 nmiFrameCounter,
-                system ?? _standaloneRandom);
+                random);
         }
     }
 
@@ -655,7 +653,7 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         ushort top,
         int nmiFrameCounter,
-        Bank80SystemState system)
+        CartridgeRandom random)
     {
         ushort mouthY = unchecked((ushort)(top - 24));
         if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
@@ -668,8 +666,8 @@ public sealed class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(
             2, type: 5, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
-        int random = system.NextRandom();
-        QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 15 : 17)), maximumQueued: 6);
+        int sample = random.Generate();
+        QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((sample & 1) != 0 ? 15 : 17)), maximumQueued: 6);
     }
 
     /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>

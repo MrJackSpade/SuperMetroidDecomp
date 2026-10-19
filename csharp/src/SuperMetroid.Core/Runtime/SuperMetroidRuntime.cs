@@ -140,10 +140,12 @@ internal sealed class SuperMetroidRuntime
     /// <param name="artwork">The installed catalogs; their initial palette is loaded into CGRAM during construction, and <see cref="BindArtwork"/> binds the rest.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
+    /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue)
+        FrameClock clock, SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue, CartridgeRandom random)
     {
         Ensure.NotNull(artwork);
+        System = new Bank80SystemState(random);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
         Room = new ActiveRoomState();
@@ -284,8 +286,8 @@ internal sealed class SuperMetroidRuntime
         return requested;
     }
 
-    /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
-    public Bank80SystemState System { get; } = new();
+    /// <summary>Bank-$80 shared random/event/input-filter state, over the session's random-number word.</summary>
+    public Bank80SystemState System { get; }
 
     /// <summary>Gameplay clock mirrored at WRAM $09DA-$09E1 and in each SRAM slot.</summary>
     public GameTimeState GameTime { get; } = new();

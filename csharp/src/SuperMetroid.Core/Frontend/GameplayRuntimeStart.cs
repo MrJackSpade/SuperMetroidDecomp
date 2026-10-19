@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -13,8 +14,8 @@ internal sealed record GameplayRuntimeStart
     /// <summary>The host's tester conveniences; an attract demo's are <see cref="HostGameplayOverrides.None"/>.</summary>
     public required HostGameplayOverrides Overrides { get; init; }
 
-    /// <summary>The random number the outgoing owner held, published before room initialization.</summary>
-    public required int IncomingRandom { get; init; }
+    /// <summary>The session's random-number word, which the runtime's system state reads and advances.</summary>
+    public required CartridgeRandom Random { get; init; }
 
     /// <summary>The boot-time main-loop carry the session captured at power-on.</summary>
     public required bool MainGameLoopCarry { get; init; }

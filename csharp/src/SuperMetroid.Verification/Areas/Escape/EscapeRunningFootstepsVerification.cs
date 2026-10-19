@@ -13,6 +13,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the escape-timer handoff from drained Samus to running animation.</summary>
 internal static class EscapeRunningFootstepsVerification
@@ -62,7 +63,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.Drained.StepGetUpHandler(samus, (SnesButton.Up | SnesButton.A));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = (SnesButton.Up | SnesButton.A) });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = (SnesButton.Up | SnesButton.A) });
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual((ushort)9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");

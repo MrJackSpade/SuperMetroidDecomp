@@ -21,6 +21,7 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that one Ki-Hunter spit requests one sound and cannot prolong a door sound wait.</summary>
 internal static class KiHunterSpitAudioVerification
@@ -34,7 +35,8 @@ internal static class KiHunterSpitAudioVerification
         AssertSequenceEqual(nativeQueueCall, Enumerable.Range(0, nativeQueueCall.Length)
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
             "retail spit instruction loads $4C and calls QueueSfx2_Max6 once");
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        var random = new CartridgeRandom();
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -54,7 +56,7 @@ internal static class KiHunterSpitAudioVerification
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance });
+            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance }, random: random);
         game.EnterMainGameplay(runtime);
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
         int requests = 0, starts = 0;

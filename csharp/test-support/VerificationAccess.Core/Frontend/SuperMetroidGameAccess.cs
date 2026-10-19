@@ -38,7 +38,7 @@ internal static class SuperMetroidGameAccess
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
-        internal int DispatcherRandomNumber => self.Session.FrontendRandomOwner.RandomNumber;
+        internal int DispatcherRandomNumber => self.Session.Random.Read();
 
         /// <summary>
         /// Initialize the ordinary gameplay runtime for a friend verifier that
@@ -59,6 +59,21 @@ internal static class SuperMetroidGameAccess
         }
 
         /// <summary>
+        /// Installs a prepared runtime as the session's live runtime. A session has one random-number word (#1330), so
+        /// the runtime must be built over the game's word.
+        /// </summary>
+        /// <param name="runtime">A runtime built over <c>Session.Random</c>.</param>
+        /// <exception cref="InvalidOperationException">The runtime was built over a different word.</exception>
+        internal void AdoptRuntime(SuperMetroidRuntime runtime)
+        {
+            Ensure.NotNull(runtime);
+            if (!ReferenceEquals(runtime.System.Random, self.Session.Random))
+                throw new InvalidOperationException(
+                    "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
+            self.Session.runtime = runtime;
+        }
+
+        /// <summary>
         /// Adopts a prepared runtime as the live game, establishing the dispatcher state a production gameplay entry
         /// does: the room whose music is already queued and the main-gameplay state.
         /// </summary>
@@ -70,7 +85,7 @@ internal static class SuperMetroidGameAccess
             if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
             CartridgeRoomState roomState = runtime.Room.LoadedRoom.State;
-            self.Session.runtime = runtime;
+            self.AdoptRuntime(runtime);
             self.Session.lastAudioRoomState = roomState;
             self.GameState = SuperMetroidGameState.MainGameplay;
         }

@@ -13,6 +13,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the door-entry library-one cancel against the configured shot button.</summary>
 internal static class DoorEntryShotBindingVerification
@@ -33,15 +34,16 @@ internal static class DoorEntryShotBindingVerification
         };
         foreach ((SnesButton held, bool cancels) in new[] { (SnesButton.X, true), (SnesButton.Y, false) })
         {
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+            var random = new CartridgeRandom();
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Options.ControllerBindings = lowc;
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = true;
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-            game.Session.runtime = runtime;
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            game.AdoptRuntime(runtime);
             game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
 

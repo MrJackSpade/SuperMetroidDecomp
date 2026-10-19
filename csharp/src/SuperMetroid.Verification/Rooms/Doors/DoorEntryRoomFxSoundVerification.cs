@@ -15,6 +15,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks room-FX sound ordering on the Rising Tide door entry frame.</summary>
 internal static class DoorEntryRoomFxSoundVerification
@@ -33,21 +34,22 @@ internal static class DoorEntryRoomFxSoundVerification
             .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
             .First(door =>
             {
-                var candidate = LoadRisingTide(door);
+                var candidate = LoadRisingTide(door, new CartridgeRandom());
                 for (int frame = 0; frame < 4; frame++)
                     candidate.StepFrame(0);
                 return candidate.RoomLayer3Fx.EarthquakeRequest.HasValue;
             });
-        var runtime = LoadRisingTide(entry);
+        var random = new CartridgeRandom();
+        var runtime = LoadRisingTide(entry, random);
         var samus = runtime.Player.IntroducedSamus;
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-        game.Session.runtime = runtime;
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        game.AdoptRuntime(runtime);
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
-        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
+        SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door, CartridgeRandom random)
         {
-            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+            var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();

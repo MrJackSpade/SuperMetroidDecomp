@@ -14,6 +14,7 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
@@ -422,7 +423,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Runs production Samus animation and commits any verified pose transition.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
-        actor.Samus.Presentation.AnimateNoFx(new SamusAnimationStep { NmiFrameCounter = frame });
+        actor.Samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = frame });
         if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition()) actor.Samus.CommitPoseHistory();
     }
 

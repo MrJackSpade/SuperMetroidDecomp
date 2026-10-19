@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled Samus splash, running foot-contact, and Crateria weather policies against cartridge tables and live owners.</summary>
 internal static class SamusAtmosphericEffectDefinitionsVerification
@@ -113,7 +114,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
             samus.Presentation.InitializeAnimation(frame);
             AdvanceToFootContactTick(samus);
-            samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
+            samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
 
             SamusAtmosphericEffectType expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
                 ? SamusAtmosphericEffectType.FootstepSplash
@@ -145,7 +146,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             runner.Presentation.InitializeAnimation(initialFrame: 2);
             AdvanceToFootContactTick(runner);
-            runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
+            runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
             AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production Crateria running policy ${room:X2}");
@@ -178,7 +179,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer.RawValue > 1)
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep());
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     }
 
     /// <summary>Forbids production reads of migrated splash, foot-contact, and both Crateria policy tables.</summary>

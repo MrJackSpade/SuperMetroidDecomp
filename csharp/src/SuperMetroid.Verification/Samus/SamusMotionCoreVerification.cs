@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Samus pose-input matching, horizontal speed, and external displacement arithmetic.</summary>
 internal static class SamusMotionCoreVerification
@@ -174,11 +175,11 @@ internal static void VerifySamusHorizontalSpeed()
         controllerInput: SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 

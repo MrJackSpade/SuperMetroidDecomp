@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Spring Ball equipment changes and airborne jumps through the real pause teardown.</summary>
 internal static class SpringBallEquipmentJumpVerification
@@ -24,7 +25,7 @@ internal static class SpringBallEquipmentJumpVerification
         foreach (bool left in new[] { false, true })
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false, SuperMetroidGameHostServices.Default);
+            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false, SuperMetroidGameHostServices.Default, new CartridgeRandom());
             PrepareRomFreeBindings(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;

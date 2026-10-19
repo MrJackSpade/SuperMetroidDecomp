@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
@@ -80,6 +81,7 @@ internal static class GenericSpriteArtworkVerification
             characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
             samusBodyArtwork: body)
         {
+            Random = new CartridgeRandom(),
             NarrationPresentation = maps.IntroNarration,
             TrailArtwork = projectiles.Trails,
             ProjectileCompositions = projectiles.Catalog,

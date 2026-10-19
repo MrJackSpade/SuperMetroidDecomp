@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -26,15 +27,21 @@ internal sealed class IntroBabyDiscoveryState
     internal readonly List<IntroEggParticle> eggParticles = [];
     /// <summary>Drops emitted as the baby rises past the hatch scanline.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
+    /// <summary>The session's random-number word, which the demo's Samus animation draws from.</summary>
+    private readonly CartridgeRandom random;
     /// <summary>The egg actor whose list pointer controls the hatch sequence.</summary>
     internal readonly IntroDiscoverySprite egg;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
     internal readonly IntroDiscoverySprite confusedBaby;
 
     /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
-    public IntroBabyDiscoveryState(CartridgeAudioState? audio = null,
+    /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
+    /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
+    /// <param name="existingSamus">The flashback's Samus the scene carries on with, or null for a new one.</param>
+    public IntroBabyDiscoveryState(CartridgeRandom random, CartridgeAudioState? audio = null,
         SamusState? existingSamus = null)
     {
+        this.random = Ensure.NotNull(random);
 
         this.audio = audio;
 
@@ -115,7 +122,8 @@ internal sealed class IntroBabyDiscoveryState
                     Samus,
                     demo.Held,
                     demo.NewlyPressed,
-                    nmiFrameCounter);
+                    nmiFrameCounter,
+                    random);
             }
         }
 

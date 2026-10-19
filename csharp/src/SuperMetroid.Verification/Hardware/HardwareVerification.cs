@@ -36,7 +36,8 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
 {
     for (int seed = ushort.MinValue; seed <= ushort.MaxValue; seed++)
     {
-        var state = new Bank80SystemState((ushort)seed);
+        var state = new Bank80SystemState();
+        state.SetRandomNumber((ushort)seed);
         ushort expected = ReferenceNextRandom((ushort)seed);
         int actual = state.NextRandom();
         AssertEqual(expected, actual, $"RNG seed ${seed:X4}");

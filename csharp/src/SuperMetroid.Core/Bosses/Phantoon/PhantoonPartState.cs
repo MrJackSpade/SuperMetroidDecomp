@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
@@ -25,6 +27,12 @@ public sealed class PhantoonPartState
 
     /// <summary>The word holding a part's function, the eye's fade-complete flag or rage wave count, the tentacles' explosion index or the mouth's wavy phase delta.</summary>
     private int _wordF;
+
+    /// <summary>The first spawn-parameter word: the eye's wave mode, the tentacles' requested wave mode or the mouth's blending control.</summary>
+    private int _parameterOne;
+
+    /// <summary>The second spawn-parameter word: the body's flame-rain request, the tentacles' hit reaction or the mouth's shot pattern.</summary>
+    private int _parameterTwo;
 
     /// <summary>The body's next starting flame, 0 through 7.</summary>
     public int StartingFlameIndex { get => _wordA; internal set => _wordA = Word(value); }
@@ -121,6 +129,54 @@ public sealed class PhantoonPartState
     /// <summary>The mouth's wavy-distortion phase step per update.</summary>
     public int WavyPhaseDelta { get => _wordF; internal set => _wordF = Word(value); }
 
+    /// <summary>
+    /// The eye's wavy-distortion mode, which the wave owner reads every pass: zero ends the channel and lets the body
+    /// synchronize BG2 scrolling; bit zero of a nonzero mode selects the long cycle.
+    /// </summary>
+    public int WaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
+
+    /// <summary>The tentacles' record of the wave mode last requested for the intro or the death fade; nothing reads it back.</summary>
+    public int RequestedWaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
+
+    /// <summary>
+    /// The mouth's blending control: its low byte zero or the delete control hides Phantoon's layer, and the delete
+    /// control also removes the blending owner.
+    /// </summary>
+    public int BlendingControl { get => _parameterOne; internal set => _parameterOne = Word(value); }
+
+    /// <summary>Whether the body takes the flame-rain branch when the eye-close program picks the next pattern.</summary>
+    public bool FlameRainRequested { get => _parameterTwo != 0; internal set => _parameterTwo = value ? 1 : 0; }
+
+    /// <summary>
+    /// The tentacles' hit-reaction marker, one or two, which no reader consumes. The cartridge keeps
+    /// <see cref="HurtFlashShown"/> in the same word, so setting the marker also clears that flag.
+    /// </summary>
+    public int HitReaction
+    {
+        get => _parameterTwo;
+        internal set
+        {
+            _parameterTwo = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+            HurtFlashShown = false;
+        }
+    }
+
+    /// <summary>Whether the hurt flash has painted the body white since the health palette was last restored.</summary>
+    public bool HurtFlashShown { get; internal set; }
+
+    /// <summary>The mouth's shot pattern, 0 through 7, drawn when a vulnerable shot lands; the death sequence writes one.</summary>
+    public int ShotPattern { get => _parameterTwo; internal set => _parameterTwo = Word(value); }
+
+    /// <summary>
+    /// Installs the part's spawn parameters, which the part's words hold until a phase overwrites them. Retail parts are
+    /// numbered one through three, so no part starts with its hurt flash shown.
+    /// </summary>
+    internal void InstallSpawnParameters(RoomEnemyPopulationRecord population)
+    {
+        _parameterOne = population.Parameter1;
+        _parameterTwo = population.Parameter2;
+    }
+
     /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>
     internal void ClearWithRecord()
     {
@@ -130,6 +186,9 @@ public sealed class PhantoonPartState
         _wordD = 0;
         _wordE = 0;
         _wordF = 0;
+        _parameterOne = 0;
+        _parameterTwo = 0;
+        HurtFlashShown = false;
     }
 
     /// <summary>Checks that <paramref name="value"/> fits the cartridge's sixteen-bit record word.</summary>

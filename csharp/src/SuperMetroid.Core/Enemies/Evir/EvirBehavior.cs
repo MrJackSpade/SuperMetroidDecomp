@@ -76,7 +76,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new EvirEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        if (slot.Parameter1 != 0)
+        if (slot.Spawn.Population.Parameter1 != 0)
         {
             // The second record is not a second creature. Its nonzero parameter selects the
             // arms role, which always reads facing and position from the immediately prior
@@ -91,7 +91,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // Parameter two's low byte selects the body's record in the shared linear-speed
             // table, whose positive half is the downward velocity and negative half the upward
             // one. The high byte is the steady-state number of frames between direction changes.
-            int speedRecord = SnesLittleEndian.LowByte(slot.Parameter2);
+            int speedRecord = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
             ushort speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
             (short downWhole, ushort downFraction) = EnemyMath.ReadLinearEnemySpeed(speedOffset);
             state.DownVelocity = SnesSignedSixteenSixteen.FromParts(downWhole, downFraction);
@@ -122,7 +122,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot enemy = _slotTable._slots[source.SlotIndex];
             ushort value = source.Field switch
             {
-                EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Parameter2),
+                EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
                 EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
@@ -168,7 +168,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Evir body/arms function {state.Function} is not translated.");
         }
 
-        if (slot.Parameter1 != 0)
+        if (slot.Spawn.Population.Parameter1 != 0)
         {
             PositionEvirArms(slot, state);
             return;
@@ -194,7 +194,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementTimer = step.Remaining;
         if (step.IsNegative)
         {
-            state.MovementTimer = NativeCountdown.Start(SnesLittleEndian.HighByte(slot.Parameter2));
+            state.MovementTimer = NativeCountdown.Start(SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2));
             state.MovingDown = !state.MovingDown;
         }
     }
@@ -593,7 +593,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
-                                                     enemy.Parameter1 == 0 &&
+                                                     enemy.Spawn.Population.Parameter1 == 0 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
         {
             AfterCommon = (c, _) => ResolveEvirCombatAfterCommon(c.Enemy),
@@ -604,7 +604,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RegisterEvirTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
-                               slot.Parameter1 == 0 &&
+                               slot.Spawn.Population.Parameter1 == 0 &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.EvirTouch,
             context =>
             {

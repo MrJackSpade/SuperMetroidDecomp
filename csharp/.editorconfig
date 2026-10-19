@@ -100,6 +100,9 @@ dotnet_diagnostic.SME6392.severity = error
 # #1315: outside the enemy-owning modules, species are reached through the enemy system's capability interfaces.
 dotnet_diagnostic.SME6407.severity = error
 
+# #1325: enemy families own typed state; the common enemy slot declares no multipurpose words.
+dotnet_diagnostic.SME6408.severity = error
+
 # Owner decision (2026-10-17): the SME code-quality rules apply only to SuperMetroid.Core and
 # SuperMetroid.AssetExtraction. Core is what the Godot port carries over and AssetExtraction is the ROM import pipeline
 # it keeps; every other project (hosts, verification suites, audits, tooling, test support and fixtures) is dropped or
@@ -162,6 +165,7 @@ dotnet_diagnostic.SME6404.severity = none
 dotnet_diagnostic.SME6405.severity = none
 dotnet_diagnostic.SME6406.severity = none
 dotnet_diagnostic.SME6407.severity = none
+dotnet_diagnostic.SME6408.severity = none
 
 [{test-support,test-fixtures,tools}/**.cs]
 dotnet_diagnostic.SME6201.severity = none
@@ -220,3 +224,4 @@ dotnet_diagnostic.SME6404.severity = none
 dotnet_diagnostic.SME6405.severity = none
 dotnet_diagnostic.SME6406.severity = none
 dotnet_diagnostic.SME6407.severity = none
+dotnet_diagnostic.SME6408.severity = none

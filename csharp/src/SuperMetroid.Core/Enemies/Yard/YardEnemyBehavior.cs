@@ -86,7 +86,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Yard initialization direction ${direction:X4} exceeds its eight ROM entries.");
         }
-        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
+        int speedIndex = slot.Spawn.Population.Parameter1;
+        ValidateYardSpeedIndex(checked((ushort)speedIndex));
 
         var state = new YardEnemyState
         {
@@ -97,7 +98,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             // must retain the cartridge's zero-initialized attachment direction.
             Direction = 0,
             Behavior = YardBehavior.NormalCrawling,
-            IdleCrawlingSpeedIndex = slot.Parameter1,
+            IdleCrawlingSpeedIndex = speedIndex,
+            CrawlingSpeedIndex = speedIndex,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -109,17 +111,17 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
-        SetYardCrawlingVelocities(slot, state, direction);
+        SetYardCrawlingVelocities(state, direction);
     }
 
     /// <summary>
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, int direction)
+    internal static void SetYardCrawlingVelocities(YardEnemyState state, int direction)
     {
-        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
-        ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
+        ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
+        ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
@@ -458,7 +460,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             state.Behavior = YardBehavior.AggressiveCrawling;
-            slot.Parameter1 = 8;
+            state.CrawlingSpeedIndex = 8;
             MakeYardFaceSamusHorizontally(slot, state, samus);
             SetYardAirborneLists(slot, state);
         }
@@ -469,7 +471,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | checked((byte)state.AirborneFacingDirection)));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
-        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingVelocity);
+        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingSpeedIndex, state.CrawlingVelocity);
         slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
@@ -519,7 +521,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
-        SetYardCrawlingVelocities(slot, state, state.Direction);
+        SetYardCrawlingVelocities(state, state.Direction);
         state.MovementFunction = definition.MovementFunction;
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
@@ -601,7 +603,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         _collision.ResolveNormalEnemyTouch(slot, samus);
-        slot.Parameter1 = checked((ushort)state.IdleCrawlingSpeedIndex);
+        state.CrawlingSpeedIndex = state.IdleCrawlingSpeedIndex;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(slot, state);
         state.Behavior = YardBehavior.NormalCrawling;

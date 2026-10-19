@@ -26,8 +26,8 @@ internal static class ChootBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ChootFrameToolingDefinitions.Bank });
-        slot.Parameter1 = 1;
-        slot.Parameter2 = 0;
+        slot.SetSpawnParameter1(1);
+        slot.SetSpawnParameter2(0);
         slot.Position = slot.Position.WithWhole(new(256, 256));
         enemies.ChootBehavior.InitializeChoot(slot);
         ChootEnemyState state = enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0].");

@@ -26,7 +26,7 @@ internal static class PhantoonWaveVerification
         wave.Begin(PhantoonWaveRomData.IntroMode);
         AssertTrue(!wave.Active, "wave spawn waits for HDMA setup");
         wave.Step(boss);
-        AssertEqual(2, boss.Eye.Parameter1, "HDMA setup copies pending mode to eye");
+        AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "HDMA setup copies pending mode to eye");
         AssertEqual(65534, wave.Phase, "native setup-only phase");
         AssertTrue(wave.ScrollCycle.All(word => word == 0), "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8.
@@ -47,7 +47,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertTrue(wave.ScrollCycle.SequenceEqual(restored.ScrollCycle), "wave data survives exact debugger state");
         AssertTrue(savedDisplay.SequenceEqual(restored.DisplayedScrolls), "latched wave survives debugger state");
-        boss.Eye.Parameter1 = 0;
+        boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
         var retained = wave.ScrollCycle.ToArray();
         wave.Step(boss);
         AssertTrue(!wave.Active && retained.SequenceEqual(wave.ScrollCycle), "native deletion retains data");
@@ -97,7 +97,7 @@ internal static class PhantoonWaveVerification
     {
         var blend = boss.Blending;
         boss.SemiTransparent = true;
-        boss.Mouth.Parameter1 = PhantoonBlendingRomData.DeleteControl;
+        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.DeleteControl;
         for (int i = 0; i < PhantoonBlendingRomData.SetupCalls; i++)
         {
             blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
@@ -108,15 +108,15 @@ internal static class PhantoonWaveVerification
         blend.LatchDisplay(mosaicBlockSize: 5);
         boss.MosaicBlockSize = 6;
         boss.SemiTransparent = false;
-        boss.Mouth.Parameter1 = 0x8001;
+        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0x8001;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
         AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
-        boss.Mouth.Parameter1 = 0x8000;
+        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0x8000;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "zero low byte hides body");
-        boss.Mouth.Parameter1 = 0xffff;
+        boss.Parts[boss.Mouth.SlotIndex].BlendingControl = 0xffff;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
         boss.SemiTransparent = true;

@@ -82,7 +82,7 @@ internal static class YardTrajectoriesVerification
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
-            ushort speed = ReadNativeYardCrawlSpeed(bus, actor.Parameter1);
+            ushort speed = ReadNativeYardCrawlSpeed(bus, state.CrawlingSpeedIndex);
             AssertEqual(facing == 0 ? unchecked((ushort)-speed) : speed, state.CrawlingVelocity.X.RawValue,
                 $"landed Yard direction {direction}, facing {facing}: native X reset");
             AssertEqual(speed, state.CrawlingVelocity.Y.RawValue, "landed Yard probes downward");

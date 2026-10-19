@@ -20,8 +20,8 @@ internal static class BlueBrinstarFaceBlockOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });
-        slot.Parameter1 = 64;
-        slot.Parameter2 = 0;
+        slot.SetSpawnParameter1(64);
+        slot.SetSpawnParameter2(0);
         slot.Position = slot.Position.WithWhole(new(256, 256));
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]

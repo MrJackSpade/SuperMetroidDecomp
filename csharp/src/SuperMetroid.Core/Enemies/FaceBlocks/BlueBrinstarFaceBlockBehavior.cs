@@ -91,10 +91,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             InstallBlueBrinstarFaceBlockPaletteHook(slot);
         _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
 
-        // Native keeps only parameter two bit zero and moves it to the sign bit. This looks
+        // Native keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
-        // *different* from this marker, so zero means left and $8000 means right.
-        slot.Parameter2 = (slot.Parameter2 & 1) != 0 ? (ushort)32768 : (ushort)0;
+        // *different* from this marker.
+        state.FacesRight = (slot.Spawn.Population.Parameter2 & 1) != 0;
         state.Activated = false;
         state.LastHorizontalDelta = 0;
     }
@@ -116,7 +116,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         ushort verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Parameter1)
+        if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Spawn.Population.Parameter1)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
@@ -124,14 +124,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // is preserved rather than collapsing the two comparisons into host geometry.
         ushort horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         state.LastHorizontalDelta = horizontalDelta;
-        if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Parameter1)
+        if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Spawn.Population.Parameter1)
             return;
 
-        ushort horizontalSign = unchecked((ushort)(horizontalDelta & EnemyWordMasks.SignBit));
-        if (horizontalSign == slot.Parameter2)
+        bool samusToTheLeft = (horizontalDelta & EnemyWordMasks.SignBit) != 0;
+        if (samusToTheLeft == state.FacesRight)
             return;
 
-        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(horizontalSign != 0
+        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(samusToTheLeft
             ? BlueBrinstarFaceBlockProgram.SamusLeft
             : BlueBrinstarFaceBlockProgram.SamusRight);
         slot.InstructionTimer = NativeCountdown.Start(1);

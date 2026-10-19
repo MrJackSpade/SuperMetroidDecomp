@@ -40,10 +40,17 @@ public sealed class PowampEnemyState
     /// <summary>The main-AI behaviour; balloons keep the no-op, and none once a kill has emptied the record.</summary>
     public PowampEnemyFunction? Function { get; internal set; }
 
+    /// <summary>
+    /// Whether touch and shot AI are refused (parameter two is nonzero): set for a body once a lethal shot starts its
+    /// death, and from spawn for a balloon, whose parameter two is its grapple travel distance.
+    /// </summary>
+    public bool RefusesContact { get; internal set; }
+
     /// <summary>Empties every value, when a kill empties the half's common record.</summary>
     internal void ClearWithRecord()
     {
         IsBalloon = false;
+        RefusesContact = false;
         YVelocity = SnesSignedSixteenSixteen.Zero;
         BalloonSpawn = Position16<RoomPixels>.Zero;
         WiggleIndex = 0;

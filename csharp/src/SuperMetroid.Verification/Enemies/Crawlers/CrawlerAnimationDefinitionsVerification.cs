@@ -65,7 +65,7 @@ internal static class CrawlerAnimationDefinitionsVerification
                 slot.CurrentInstruction = (ushort)(orientation ^ 1);
                 slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(orientation));
             }
-            slot.Parameter1 = 0;
+            slot.SetSpawnParameter1(0);
             if (family == CrawlerAnimationFamily.HZoomer)
             {
                 new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);
@@ -88,8 +88,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Parameter2 = speciesOffset;
-            var state = new CrawlerEnemyState();
+            var state = new CrawlerEnemyState { SurfaceTableOffset = speciesOffset };
 
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffff));
             setHorizontal(slot, state);

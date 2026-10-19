@@ -72,7 +72,7 @@ internal static class ShutterBehaviorVerification
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ShutterFrameToolingDefinitions.Bank });
         slot.CurrentInstruction = 0;
-        slot.Parameter1 = 2;
+        slot.SetSpawnParameter1(2);
         return slot;
     }
 
@@ -161,14 +161,14 @@ internal static class ShutterBehaviorVerification
     {
         var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         var state = new GrowingShutterEnemyState(slot);
-        slot.Parameter1 = 2;
+        state.ActivationTimer = NativeCountdown.FromRaw(2);
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(NativeCountdown.Start(1), state.ActivationTimer, "the first call counts the wait down by one");
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its second call");
         AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait activates on its third call");
         AssertEqual(NativeCountdown.Start(0), state.ActivationTimer, "activation leaves the wait expired");
         AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "an expired wait activates again rather than wrapping");
-        AssertEqual(0, slot.Parameter1, "an expired wait stays zero in parameter 1");
+        AssertEqual(0, state.ActivationTimer.RawValue, "an expired wait stays zero");
     }
 
     /// <summary>
@@ -203,7 +203,7 @@ internal static class ShutterBehaviorVerification
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             slot.CurrentInstruction = SnesLittleEndian.Word(0, primaryDirection);
-            slot.Parameter1 = SnesLittleEndian.Word(0, travelDistance);
+            slot.SetSpawnParameter1(SnesLittleEndian.Word(0, travelDistance));
             ShuttersBehavior.InitializeHorizontalShutter(slot);
             HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the horizontal shutter state.");
@@ -249,7 +249,7 @@ internal static class ShutterBehaviorVerification
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             slot.CurrentInstruction = SnesLittleEndian.Word(speedIndex, primaryDirection);
-            slot.Parameter1 = SnesLittleEndian.Word(0, travelDistance);
+            slot.SetSpawnParameter1(SnesLittleEndian.Word(0, travelDistance));
             ShuttersBehavior.InitializeVerticalShutter(slot);
             VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");

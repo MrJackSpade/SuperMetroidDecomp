@@ -81,9 +81,16 @@ public sealed class ShitroidEnemyState
     /// <summary>Mutable target palette storage used by encounter palette updates.</summary>
     internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 
+    /// <summary>
+    /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while
+    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
+    /// </summary>
+    public bool ReactsToSamus { get; internal set; }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
+        ReactsToSamus = false;
         Function = null;
         Velocity = default;
         PalettePhase = 0;

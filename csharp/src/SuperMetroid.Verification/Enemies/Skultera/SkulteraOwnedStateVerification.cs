@@ -20,9 +20,9 @@ internal static class SkulteraOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
         const int speedRecord = 3;
-        slot.Parameter1 = speedRecord;
-        slot.Parameter2 = SnesLittleEndian.Word(20, 10);
-        enemies.SkulteraBehavior.InitializeSkultera(slot);
+        slot.SetSpawnParameter1(speedRecord);
+        slot.SetSpawnParameter2(SnesLittleEndian.Word(20, 10));
+        SkulteraBehavior.InitializeSkultera(slot);
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 

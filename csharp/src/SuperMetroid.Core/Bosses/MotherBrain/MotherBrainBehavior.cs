@@ -889,7 +889,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Mother Brain's effect programs.</summary>
-    private void ApplyMotherBrainEffectCue(RoomEnemyProjectileSlot projectile, SamusState? samus, MotherBrainEffectCue cue)
+    private void ApplyMotherBrainEffectCue(RoomEnemyProjectileSlot projectile, MotherBrainEffectCue cue)
     {
         switch (cue.Kind)
         {
@@ -1026,7 +1026,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             PinMotherBrainEscapeSubtitle(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
 
-        table.RegisterCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
@@ -2253,7 +2253,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>
     internal void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
-        int tubeIndex = tube.Parameter1 / 2;
+        int tubeIndex = tube.Spawn.Population.Parameter1 / 2;
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
         _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
         tube.Radius = new(xRadius, yRadius);
@@ -2263,6 +2263,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
             FloorY = floor,
+            FallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Spawn.Population.Parameter2)),
         };
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }
@@ -2281,9 +2282,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 FallMotherBrainTube(tube, mainTube: false);
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
-                // The main tube's fall delay counts down in parameter two and expires when it passes zero.
-                NativeWordCounterStep fallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Parameter2)).Decrement();
-                tube.Parameter2 = fallDelay.Remaining.RawValue;
+                // The main tube's fall delay expires when it passes zero.
+                NativeWordCounterStep fallDelay = tubeState.FallDelay.Decrement();
+                tubeState.FallDelay = fallDelay.Remaining;
                 if (fallDelay.IsNonNegative)
                     return;
                 tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;

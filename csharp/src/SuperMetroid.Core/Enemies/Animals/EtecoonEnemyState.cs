@@ -22,11 +22,64 @@ public sealed class EtecoonEnemyState
     /// <summary>Bank-$A7 function address; none once a kill has emptied the record.</summary>
     public EtecoonAiFunction? Function { get; internal set; }
 
+    /// <summary>
+    /// The authored route, parameter two's low byte: zero runs left and one right to the teaching start, two starts
+    /// teaching at once and loops its hops; bit one also allows the long run.
+    /// </summary>
+    public int Route
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>The updates an earthquake still suspends the Etecoon for, 0 through 255 (parameter two's high byte).</summary>
+    public int QuakePauseFrames
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>Whether the Etecoon is heading right (parameter one's low byte is nonzero).</summary>
+    public bool HeadingRight { get; internal set; }
+
+    /// <summary>Teaching hops taken since the counter was last cleared, 0 through 255 (parameter one's high byte).</summary>
+    public int TeachingHops
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>
+    /// Whether parameter one's word is nonzero, the cartridge's test for heading right: a hop count left in the high
+    /// byte also passes it.
+    /// </summary>
+    internal bool HeadsRightOrCountsHops => HeadingRight || TeachingHops != 0;
+
+    /// <summary>Stores a heading the way the cartridge stores the whole parameter word, which also clears the hop count.</summary>
+    internal void Head(bool right)
+    {
+        HeadingRight = right;
+        TeachingHops = 0;
+    }
+
+    /// <summary>Installs the authored route and heading from the spawn parameters.</summary>
+    internal void InstallSpawnParameters(RoomEnemyPopulationRecord population)
+    {
+        HeadingRight = SnesLittleEndian.LowByte(population.Parameter1) != 0;
+        TeachingHops = SnesLittleEndian.HighByte(population.Parameter1);
+        Route = SnesLittleEndian.LowByte(population.Parameter2);
+        QuakePauseFrames = SnesLittleEndian.HighByte(population.Parameter2);
+    }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Velocity = FixedVector<RoomPixels>.Zero;
         FunctionTimer = NativeCountdown.Start(0);
         Function = null;
+        Route = 0;
+        QuakePauseFrames = 0;
+        HeadingRight = false;
+        TeachingHops = 0;
     }
 }

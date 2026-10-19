@@ -18,11 +18,11 @@ internal static class DragonOwnedStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
-        enemies.DragonBehavior.InitializeDragon(body);
+        DragonBehavior.InitializeDragon(body);
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
-        wing.Parameter1 = 1;
-        enemies.DragonBehavior.InitializeDragon(wing);
+        wing.SetSpawnParameter1(1);
+        DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("The Dragon body has no state.");
         DragonEnemyState wingState = enemies.DragonStates[1] ?? throw new InvalidOperationException("The Dragon wing has no state.");
         AssertTrue(!bodyState.IsWing && wingState.IsWing, "parameter one selects the wing");

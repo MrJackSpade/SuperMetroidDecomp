@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = cgram;
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
-            statue.Parameter2 = variant;
+            statue.SetSpawnParameter2(variant);
             initialize(enemies, statue);
             for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
                 AssertEqual(resolve(color),

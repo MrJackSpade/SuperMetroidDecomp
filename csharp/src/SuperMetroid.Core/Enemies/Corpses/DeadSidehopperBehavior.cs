@@ -102,7 +102,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
             throw new InvalidDataException($"Dead sidehopper slot {slot.SlotIndex} was initialized twice.");
 
-        switch (slot.Parameter1)
+        switch (slot.Spawn.Population.Parameter1)
         {
             case 0:
                 InitializeShitroidVictimSidehopper(slot);
@@ -112,7 +112,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper parameter 1 ${slot.Parameter1:X4} is not authored by retail AI.");
+                    $"Dead sidehopper parameter 1 ${slot.Spawn.Population.Parameter1:X4} is not authored by retail AI.");
         }
     }
 

@@ -64,7 +64,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AnimationState = PipeBugAnimationSelector.None;
         state.InstalledAnimationState = PipeBugAnimationSelector.None;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
-            strong: slot.Parameter1 != 0,
+            strong: slot.Spawn.Population.Parameter1 != 0,
             PipeBugAnimationSelector.None));
     }
 
@@ -74,7 +74,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = SnesLittleEndian.HighByte(slot.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
+        state.LinearSpeedTableOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
         state.FormationCounter = 0;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -90,13 +90,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Parameter1 != 0
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Spawn.Population.Parameter1 != 0
             ? PipeBugProgram.GeegaFlyingLeft
             : PipeBugProgram.GeegaFlyingRight);
 
         // Parameter two is a logical entry index. Each common linear-speed record is eight
         // bytes: positive fraction/whole followed by its separately authored negative pair.
-        ushort speedOffset = unchecked((ushort)(slot.Parameter2 * 8));
+        ushort speedOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
         state.PositiveVelocity = ReadPipeBugLinearVelocity(speedOffset);
         state.NegativeVelocity = ReadPipeBugLinearVelocity(unchecked((ushort)(speedOffset + 4)));
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
@@ -295,7 +295,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimationState = state.AnimationState;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
-            strong: slot.Parameter1 != 0,
+            strong: slot.Spawn.Population.Parameter1 != 0,
             state.AnimationState));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -307,7 +307,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Only the first record has a nonzero low parameter byte. It is the formation
         // controller and may arm itself only while all four following physical records are
         // still at the dormant function. The native code addresses them at +$40 increments.
-        if ((SnesLittleEndian.LowByte(slot.Parameter2)) == 0)
+        if ((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
         if (formation.All(member =>
@@ -323,7 +323,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState leaderState,
         SamusState samus)
     {
-        ushort triggerWidth = unchecked((byte)leader.Parameter2);
+        ushort triggerWidth = unchecked((byte)leader.Spawn.Population.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
             unchecked((short)(leader.Position.Y.Whole - samus.Position.Y.Whole)) < 0)
         {
@@ -471,7 +471,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         short deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
-        bool inFront = slot.Parameter1 != 0
+        bool inFront = slot.Spawn.Population.Parameter1 != 0
             ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
         if (!inFront ||
@@ -493,7 +493,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        if (slot.Parameter1 != 0)
+        if (slot.Spawn.Population.Parameter1 != 0)
         {
             state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingLeft);
             state.Function = PipeBugEnemyFunction.YellowFlyLeft;
@@ -597,7 +597,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Parameter1 != 0
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Spawn.Population.Parameter1 != 0
             ? PipeBugProgram.GeegaFlyingLeft
             : PipeBugProgram.GeegaFlyingRight);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);

@@ -101,6 +101,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             DrainAccumulator = 0,
             Function = MetroidAiFunction.Homing,
+            IceDamageToFreeze = slot.Spawn.Population.Parameter2,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
@@ -354,14 +355,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (new SamusProjectileTypeWord(collisionProjectileType).BeamCombination.HasIce)
         {
             slot.FlashTimer = NativeCountdown.Start(4);
-            if (collisionProjectileDamage >= slot.Parameter2)
+            if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
-                slot.Parameter2 = 0;
+                state.IceDamageToFreeze = 0;
                 slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
                 slot.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
-            slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - collisionProjectileDamage));
+            state.IceDamageToFreeze -= collisionProjectileDamage;
         }
 
         LastMetroidSoundEffectLibrary2 = EnemySoundEffectDefinitions.MetroidRecoilSoundEffect;

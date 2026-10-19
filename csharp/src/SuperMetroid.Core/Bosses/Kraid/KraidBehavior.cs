@@ -1867,7 +1867,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         (ushort xFraction, ushort xWhole, ushort yFraction, ushort yWhole) =
             KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailVelocity = FixedVector<RoomPixels>.FromWords(xWhole, xFraction, yWhole, yFraction);
-        nail.Parameter1 = 1;
+        part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         nail.InstructionTimer = NativeCountdown.Start(1);

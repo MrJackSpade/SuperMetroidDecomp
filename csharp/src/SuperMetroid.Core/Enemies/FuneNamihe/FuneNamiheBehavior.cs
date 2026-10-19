@@ -72,13 +72,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = slot.Parameter1 & FuneNamiheParameterMasks.VariantBits,
-            YProximity = SnesLittleEndian.HighByte(slot.Parameter2),
-            CooldownTime = SnesLittleEndian.HighByte(slot.Parameter1),
+            VariantIndex = slot.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.VariantBits,
+            YProximity = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2),
+            CooldownTime = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1),
             CooldownTimer = 0,
             // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
             // code does not mask to a single direction flag before making this decision.
-            FacingRight = (slot.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0,
+            FacingRight = (slot.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0,
         };
 
         // Species is encoded in the population parameter rather than inferred from the
@@ -260,10 +260,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer tests the actor parameter's species nibble, not the projectile
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
-        if ((source.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
+        if ((source.Spawn.Population.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
-        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Parameter2));
+        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));
         projectile.Velocity = new(new SnesSignedEightEight(velocities.Right), new SnesSignedEightEight(velocities.Left));
     }
 

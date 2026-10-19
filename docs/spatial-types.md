@@ -123,11 +123,11 @@ the wrapped value (collision and PLM grid probes).
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
   JSON document record itself) — through one named codec operation, and those declarations carry
   `[SpatialComponents("reason")]`.
-- An enemy family whose state still lives in the common slot's multipurpose variable words exposes one typed
-  property whose getter and setter compose and split those words. That is scaffolding: the destination is
-  per-family typed state that stores the spatial value directly, and no new family is written against slot
-  words. Per-slot arrays that hold both axes store the typed value (one array, shared by the enemy system and
-  the family).
+- Enemy family state owns typed storage (#1325). The common enemy slot has no multipurpose words
+  (`VariableA`-`F`, `Parameter1`/`2`; SME6408 blocks them): a family stores each value it keeps, spatial values
+  included, as a typed field of its own state, and reads its authored spawn parameters from the slot's spawn
+  record. The cartridge's words exist only where a native snapshot is translated into that state. Per-slot
+  arrays that hold both axes store the typed value (one array, shared by the enemy system and the family).
 - Debugger states restore only the current build's layout: changing a field to a spatial type makes older
   states unloadable rather than converting them. Save states are not first-class; never keep primitive pairs
   in owned logic for state compatibility.

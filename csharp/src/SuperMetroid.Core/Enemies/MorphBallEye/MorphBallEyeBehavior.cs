@@ -62,17 +62,17 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        if (unchecked((short)slot.Parameter2) >= 0)
+        if (unchecked((short)slot.Spawn.Population.Parameter2) >= 0)
         {
             // Parameter one bit zero is a fixed mounting direction, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((slot.Parameter1 & 1) == 0
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((slot.Spawn.Population.Parameter1 & 1) == 0
                 ? MorphBallEyeProgram.FacingRightClosed
                 : MorphBallEyeProgram.FacingLeftClosed);
             return;
         }
 
-        int mountDirection = slot.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
+        int mountDirection = slot.Spawn.Population.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
         var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
         slot.Position += new Offset16<RoomPixels>(unchecked((short)(mount.X)), unchecked((short)(mount.Y)));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
@@ -131,7 +131,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
         eye.InstructionTimer = NativeCountdown.Start(1);
-        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
+        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Spawn.Population.Parameter1 & 1) == 0
             ? MorphBallEyeProgram.FacingRightActivating
             : MorphBallEyeProgram.FacingLeftActivating);
         state.Function = MorphBallEyeAiFunction.Activating;
@@ -172,7 +172,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EyeDeactivationSound);
             state.IsActivated = false;
             state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Spawn.Population.Parameter1 & 1) == 0
                 ? MorphBallEyeProgram.FacingRightDeactivating
                 : MorphBallEyeProgram.FacingLeftDeactivating);
             state.Function = MorphBallEyeAiFunction.Deactivating;
@@ -318,7 +318,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         int index = MorphBallEyeBeam.BodySlotIndex;
         if ((uint)index >= _slotTable._slots.Length ||
             _slotTable._slots[index].EnemyDefinitionPointer != EnemyDefinitionId.Eye ||
-            unchecked((short)_slotTable._slots[index].Parameter2) < 0)
+            unchecked((short)_slotTable._slots[index].Spawn.Population.Parameter2) < 0)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye HDMA object lost its body in enemy slot {index}.");

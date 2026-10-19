@@ -1182,7 +1182,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
         .Where(slot => slot.EnemyDefinitionPointer == ceresDoorDefinitionPointer &&
-            slot.Parameter1 is 5 or 6)
+            slot.Spawn.Population.Parameter1 is 5 or 6)
         .ToArray();
     AssertEqual(2, mode7Walls.Length,
         "Ceres Ridley spawns both native Mode-7 wall actors");

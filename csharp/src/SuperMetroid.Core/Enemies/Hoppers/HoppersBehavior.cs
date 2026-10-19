@@ -77,7 +77,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             ReadyToHop = false,
             Variant = slot.Definition.VariantIndex,
-            UpsideDown = slot.Parameter1 != 0,
+            UpsideDown = slot.Spawn.Population.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -124,7 +124,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
             state.Function = ShitroidAiFunction.Dormant;
         }
-        slot.Parameter2 = 0;
+        state.ReactsToSamus = false;
         _shitroid = state;
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -246,7 +246,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
-                    slot.Parameter2 = 1;
+                    state.ReactsToSamus = true;
                     SetShitroidScrollPair(RoomScrollState.Blue);
                     QueueShitroidWallPlms(PlmHeaderId.ClearBabyMetroidInvisibleWall);
                 }
@@ -370,7 +370,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     target.Drained.Release(target);
-                    slot.Parameter2 = 1;
+                    state.ReactsToSamus = true;
                     state.Function = ShitroidAiFunction.ReleasedFollow;
                     FollowReleasedSamus(slot, state, target);
                 }
@@ -439,7 +439,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
-        slot.Parameter2 = 0;
+        state.ReactsToSamus = false;
         state.StateTimer = NativeCountdown.Start(320);
     }
 
@@ -681,7 +681,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        if (slot.Parameter2 == 0)
+        if (!state.ReactsToSamus)
             return;
 
         BreakReleasedShitroidFollow(state);
@@ -711,7 +711,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
                 state.PaletteDelay = 1;
-                slot.Parameter2 = 0;
+                state.ReactsToSamus = false;
                 state.Velocity = default;
                 state.Function = ShitroidAiFunction.BeginDrainingSamus;
             }
@@ -729,7 +729,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileSlot slotZeroProjectile)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        if (slot.Parameter2 == 0)
+        if (!state.ReactsToSamus)
             return;
 
         BreakReleasedShitroidFollow(state);
@@ -751,7 +751,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveShitroidPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        if (slot.Parameter2 != 0)
+        if (state.ReactsToSamus)
             BreakReleasedShitroidFollow(state);
 
         // The private reaction tail-calls main AI. Preserve the extra state/movement/palette

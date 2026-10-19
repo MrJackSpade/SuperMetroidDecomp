@@ -59,6 +59,8 @@ public sealed class YardEnemyState
     public bool TurnTransitionDisabled { get; internal set; }
     /// <summary>Native extension offset $0C: saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
     public int IdleCrawlingSpeedIndex { get; internal set; }
+    /// <summary>The live crawl-speed index (parameter one): the population's, or 8 while crawling aggressively after a landing.</summary>
+    public int CrawlingSpeedIndex { get; internal set; }
     /// <summary>Native extension offset $0E: live surface orientation index 0..7, ordered right/up, right/down, left/up, left/down, upside-down/left, upside-down/right, upright/left, upright/right; only direction instructions or turns publish it.</summary>
     public int Direction { get; internal set; }
     /// <summary>Native extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>

@@ -102,7 +102,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
-        slot.Parameter1 = parameter;
+        slot.SetSpawnParameter1(parameter);
         return (enemies, slot);
     }
 

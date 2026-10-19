@@ -48,20 +48,20 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
-        int speedTableIndex = SnesLittleEndian.LowByte(slot.Parameter2) * 8;
-        if ((slot.Parameter1 & 1) == 0)
+        int speedTableIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2) * 8;
+        if ((slot.Spawn.Population.Parameter1 & 1) == 0)
             speedTableIndex += 4;
         state.SpeedTableIndex = speedTableIndex;
         (short angularWhole, ushort angularFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
         state.AngularSpeed = SnesSignedSixteenSixteen.FromParts(angularWhole, angularFraction);
 
-        byte radiusIndex = SnesLittleEndian.HighByte(slot.Parameter2);
+        byte radiusIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
 
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = SnesAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Parameter1))));
+            state.Angle = SnesAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1))));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI

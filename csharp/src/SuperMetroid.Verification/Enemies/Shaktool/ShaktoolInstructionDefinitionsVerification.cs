@@ -149,7 +149,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xaa });
-            slot.Parameter2 = unchecked((ushort)(index * 2));
+            slot.SetSpawnParameter2(unchecked((ushort)(index * 2)));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
         }

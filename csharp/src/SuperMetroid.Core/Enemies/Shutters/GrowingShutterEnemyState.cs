@@ -5,15 +5,14 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <summary>
 /// The state of a growing shutter: its behaviour, the four independently positioned 16-pixel growth sections' origins,
 /// its growth level and its extended movement state. The values the cartridge keeps in the enemy's common record are
-/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the activation wait stays in the slot's
-/// population parameter.
+/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
     /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
     private const short SectionOriginSpacing = 8;
 
-    /// <summary>The shutter's slot, whose position and first population parameter the state reads.</summary>
+    /// <summary>The shutter's slot, whose position the state reads.</summary>
     private readonly RoomEnemySlot _slot;
 
     /// <summary>Creates the state for a room-owned shutter slot.</summary>
@@ -28,14 +27,24 @@ public sealed class GrowingShutterEnemyState
     /// </summary>
     public GrowingShutterFunction? Function { get; internal set; }
 
+    /// <summary>The authored activation word, parameter one: a timer-mode wait or a proximity-mode distance.</summary>
+    private int _activationWord;
+
     /// <summary>
-    /// The timer-mode activation wait held in parameter 1: tested for expiry before each decrement, so a wait of N
-    /// activates on call N + 1 and an expired wait stays expired instead of wrapping.
+    /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1
+    /// and an expired wait stays expired instead of wrapping.
     /// </summary>
     public NativeCountdown ActivationTimer
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_slot.Parameter1));
-        internal set => _slot.Parameter1 = value.RawValue;
+        get => NativeCountdown.FromRaw(checked((ushort)_activationWord));
+        internal set => _activationWord = value.RawValue;
+    }
+
+    /// <summary>The proximity-mode distance in pixels: the shutter activates once Samus is horizontally within it.</summary>
+    public int ActivationDistance
+    {
+        get => _activationWord;
+        internal set => _activationWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -107,6 +116,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
     internal void ClearWithRecord()
     {
+        _activationWord = 0;
         Function = null;
         GrowthLevel0Origin = GrowthLevel1Origin = GrowthLevel2Origin = GrowthLevel3Origin = Position16<RoomPixels>.Zero;
         GrowthLevel = 0;

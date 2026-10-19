@@ -22,5 +22,12 @@ public sealed class ChozoStatueState
     {
         CarryRecord = 0;
         PreInstruction = null;
+        HandTriggered = false;
     }
+
+    /// <summary>Whether this is the Wrecked Ship statue (parameter two zero) rather than Lower Norfair's (two).</summary>
+    public bool IsWreckedShip { get; internal set; }
+
+    /// <summary>Whether Samus has triggered the statue's hand (parameter one), which its waiting phase wakes on.</summary>
+    public bool HandTriggered { get; internal set; }
 }

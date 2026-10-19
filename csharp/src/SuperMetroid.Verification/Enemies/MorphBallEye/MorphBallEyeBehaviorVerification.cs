@@ -111,8 +111,8 @@ internal static class MorphBallEyeBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank });
-        slot.Parameter1 = parameter1;
-        slot.Parameter2 = parameter2;
+        slot.SetSpawnParameter1(parameter1);
+        slot.SetSpawnParameter2(parameter2);
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);
         return (enemies, slot, enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The eye has no state."));
     }

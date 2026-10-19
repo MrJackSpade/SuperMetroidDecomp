@@ -61,7 +61,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // init0's low byte is a logical speed-table index; the cartridge multiplies it by
         // eight (its byte offset, at most 2040) before reading the table. Retail values
         // include 64, selecting its final NTSC entry.
-        int speedTableOffset = SnesLittleEndian.LowByte(slot.Parameter1) * KzanFallingSpeedTableStride;
+        int speedTableOffset = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1) * KzanFallingSpeedTableStride;
         state.FallingYSpeedTableIndex = speedTableOffset;
         (short initialWhole, ushort initialFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableOffset));
         state.InitialFallingSpeed = SnesSignedSixteenSixteen.FromParts(initialWhole, initialFraction);
@@ -70,9 +70,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, SnesLittleEndian.HighByte(slot.Parameter2));
+        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2));
         state.RisingTarget = spawn;
-        state.FallWaitTimerResetValue = SnesLittleEndian.LowByte(slot.Parameter2);
+        state.FallWaitTimerResetValue = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
         state.FallWaitTimer = NativeCountdown.Start(state.FallWaitTimerResetValue);
     }
 
@@ -134,7 +134,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FallWaitTimer = NativeCountdown.Start(state.FallWaitTimerResetValue);
-        state.FallingYSpeedTableIndex = SnesLittleEndian.LowByte(slot.Parameter1) * KzanFallingSpeedTableStride;
+        state.FallingYSpeedTableIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1) * KzanFallingSpeedTableStride;
         state.Function = KzanEnemyFunction.Falling;
     }
 

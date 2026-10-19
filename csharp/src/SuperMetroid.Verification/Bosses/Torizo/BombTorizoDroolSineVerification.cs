@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNeckSineVer
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -74,7 +75,7 @@ internal static class BombTorizoDroolSineVerification
 
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
-        torizo.Parameter1 = parameter1;
+        enemies.BombTorizoBehavior.BindFixtureState(torizo, parameter1);
 
         spawn(enemies, torizo);
 

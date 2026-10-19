@@ -30,9 +30,13 @@ internal sealed class MotherBrainFallingTubeState
         internal set => field = Ensure.BetweenInclusive(0, 3, value);
     }
 
+    /// <summary>The main tube's wait before it falls (parameter two), counted down past zero.</summary>
+    public NativeCountdown FallDelay { get; internal set; }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
+        FallDelay = NativeCountdown.Start(0);
         Function = null;
         FloorY = 0;
         FallSpeed = default;

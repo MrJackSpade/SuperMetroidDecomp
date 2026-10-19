@@ -149,7 +149,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, SnesButton controllerInput)
     {
         bool isGolden = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
-        var state = new TorizoEnemyState(torizo, isGolden);
+        var state = new TorizoEnemyState(torizo, isGolden)
+        {
+            Posture = TorizoParameterFlagCodec.PostureOf(torizo.Spawn.Population.Parameter1),
+            PostureParameterLowBits = TorizoParameterFlagCodec.PostureLowBitsOf(torizo.Spawn.Population.Parameter1),
+            Behavior = TorizoParameterFlagCodec.BehaviorOf(torizo.Spawn.Population.Parameter2),
+        };
         _torizoState = state;
 
         // Boss bit four is shared by the Bomb and Golden Torizo encounters, but it is stored
@@ -591,7 +596,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
-    internal static void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
+    internal void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
             return;
@@ -629,23 +634,23 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Torizo's posture bits from its enemy parameter 1.</summary>
-    private static TorizoPostureFlags Posture(RoomEnemySlot torizo) => (TorizoPostureFlags)torizo.Parameter1 & TorizoPostureFlags.All;
+    private TorizoPostureFlags Posture(RoomEnemySlot torizo) => RequireBombTorizoState(torizo).Posture;
 
     /// <summary>Whether Torizo faces right.</summary>
-    private static bool FacesRight(RoomEnemySlot torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
+    private bool FacesRight(RoomEnemySlot torizo) => Posture(torizo).HasFlag(TorizoPostureFlags.FacingRight);
 
     /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
-    private static void SetPosture(RoomEnemySlot torizo, TorizoPostureFlags posture) =>
-        torizo.Parameter1 = (((TorizoPostureFlags)torizo.Parameter1 & ~TorizoPostureFlags.All) | posture).ToNativeWord();
+    private void SetPosture(RoomEnemySlot torizo, TorizoPostureFlags posture) =>
+        RequireBombTorizoState(torizo).Posture = posture;
 
     /// <summary>Whether Torizo has latched <paramref name="flag"/>.</summary>
-    private static bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => ((TorizoBehaviorFlags)torizo.Parameter2).HasFlag(flag);
+    private bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => RequireBombTorizoState(torizo).Behavior.HasFlag(flag);
 
     /// <summary>Latches <paramref name="flags"/>.</summary>
-    private static void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => torizo.Parameter2 = ((TorizoBehaviorFlags)torizo.Parameter2 | flags).ToNativeWord();
+    private void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => RequireBombTorizoState(torizo).Behavior |= flags;
 
     /// <summary>Clears <paramref name="flags"/>.</summary>
-    private static void ClearBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => torizo.Parameter2 = ((TorizoBehaviorFlags)torizo.Parameter2 & ~flags).ToNativeWord();
+    private void ClearBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => RequireBombTorizoState(torizo).Behavior &= ~flags;
 
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
     private void PlayTorizoSound(SoundEffectId sound)
@@ -1268,7 +1273,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
-    private static AnimationProgramCursor<TorizoBodyProgram>? SelectGoldenTorizoMorphBallBranch(
+    private AnimationProgramCursor<TorizoBodyProgram>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -1340,7 +1345,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
-    private static AnimationProgramCursor<TorizoBodyProgram>? SelectGoldenTorizoRepeatedJump(
+    private AnimationProgramCursor<TorizoBodyProgram>? SelectGoldenTorizoRepeatedJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -1388,7 +1393,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets the facing-dependent forward leap velocity and restarts its instruction timer.</summary>
-    private static void StartGoldenTorizoForwardJump(
+    private void StartGoldenTorizoForwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
@@ -1399,7 +1404,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
-    private static void StartGoldenTorizoBackwardJump(
+    private void StartGoldenTorizoBackwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
@@ -1447,7 +1452,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Saves the next instruction and branches when Samus is within 56 pixels behind the statue.</summary>
-    private static AnimationProgramCursor<TorizoBodyProgram>? SelectBombTorizoCloseBehindBranch(
+    private AnimationProgramCursor<TorizoBodyProgram>? SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -1463,7 +1468,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
-    private static AnimationProgramCursor<TorizoBodyProgram>? SelectBombTorizoCloseFrontJump(
+    private AnimationProgramCursor<TorizoBodyProgram>? SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -1488,27 +1493,25 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Compares the facing bit with Samus-X minus enemy-X for walking branches; the
     /// cartridge's other facing helper deliberately uses the inverse subtraction.
     /// </summary>
-    private static bool BombTorizoParameterMatchesSamusDelta(
+    private bool BombTorizoParameterMatchesSamusDelta(
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // Instructions $C470/$C4E5/$C567 compare the facing bit against SamusX-enemyX.
+        // Instructions $C470/$C4E5/$C567 compare the facing bit against the sign of SamusX-enemyX.
         // Keep that subtraction direction explicit: Torizo_Func_12 below deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
         // reverses one family of ROM branches.
-        return (((short)torizo.Parameter1 ^ unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) &
-            short.MinValue) == 0;
+        return FacesRight(torizo) == unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)) < 0;
     }
 
     /// <summary>Tests the native parameter-one XOR enemy-X minus Samus-X sign used by attack branches.</summary>
-    internal static bool BombTorizoFunction12IsNonNegative(
+    internal bool BombTorizoFunction12IsNonNegative(
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // $AA:C58B calls Torizo_Func_12, whose operand is parameter1 XOR
-        // (enemyX-SamusX), rather than the SamusX-enemyX test used by the walkers.
-        return (((short)torizo.Parameter1 ^ unchecked((short)(torizo.Position.X.Whole - samus.Position.X.Whole))) &
-            short.MinValue) == 0;
+        // $AA:C58B calls Torizo_Func_12, whose operand is the facing bit XOR the sign of
+        // enemyX-SamusX, rather than the SamusX-enemyX test used by the walkers.
+        return FacesRight(torizo) == unchecked((short)(torizo.Position.X.Whole - samus.Position.X.Whole)) < 0;
     }
     /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
@@ -1749,12 +1752,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
         projectile.Variable1 = TorizoMotionDefinitions.EggHatchTimer;
-        projectile.Variable0 = checked((ushort)torizo.Parameter1);
+        TorizoEnemyState state = RequireBombTorizoState(torizo);
+        projectile.Variable0 = TorizoParameterFlagCodec.ToParameterWord(state.Posture, state.PostureParameterLowBits);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
             TorizoRandomizedProjectileDefinitions.GoldenEgg(
-                movingRight: unchecked((short)torizo.Parameter1) < 0));
+                movingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight)));
     }
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent program.</summary>

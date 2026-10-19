@@ -73,7 +73,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CorpseSidehopper, slot.Definition);
-        slot.Parameter1 = parameter1;
+        slot.SetSpawnParameter1(parameter1);
 
         initialize(slot);
 

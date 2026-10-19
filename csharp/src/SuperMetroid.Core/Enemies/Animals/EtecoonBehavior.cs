@@ -93,6 +93,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
         var state = new EtecoonEnemyState();
+        state.InstallSpawnParameters(slot.Spawn.Population);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the
@@ -114,11 +115,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        // The high byte of parameter two doubles as a native 128-frame quake suspension.
-        // Its low byte is the actor's permanent route (zero, one, or two) and must survive.
-        if ((SnesLittleEndian.HighByteInPlace(slot.Parameter2)) != 0)
+        // An earthquake suspends the Etecoon for 128 updates; its route is kept.
+        if (state.QuakePauseFrames != 0)
         {
-            slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - 256));
+            state.QuakePauseFrames--;
             return;
         }
 
@@ -219,7 +219,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EtecoonIsWithinY(slot, samus, EtecoonActivationYDistance))
             return;
 
-        if ((slot.Parameter2 & 3) == 0)
+        if ((state.Route & 3) == 0)
             LastEtecoonSoundEffect = EtecoonWakeSound;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = NativeCountdown.Start(256);
@@ -261,12 +261,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (unchecked((short)(direction - 5)) < 0)
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
-                    slot.Parameter1 = 0;
+                    state.Head(right: false);
                 }
                 else
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookLeftAtSamusAndRunRight);
-                    slot.Parameter1 = 1;
+                    state.Head(right: true);
                 }
                 state.FunctionTimer = NativeCountdown.Start(32);
                 state.Function = EtecoonAiFunction.FaceSamusPause;
@@ -295,7 +295,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = NativeCountdown.Start(1);
-        if (slot.Parameter1 != 0)
+        if (state.HeadsRightOrCountsHops)
         {
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
             state.Function = EtecoonAiFunction.RunRightToWall;
@@ -320,7 +320,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         state.Function = EtecoonAiFunction.RunRightToWall;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
-        slot.Parameter1 = 1;
+        state.Head(right: true);
     }
 
     /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
@@ -349,18 +349,18 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        PauseEtecoonForEarthquake(slot);
+        PauseEtecoonForEarthquake(slot, state);
         if (MoveEtecoonHorizontally(slot, state, level))
         {
-            if (slot.Parameter1 != 0)
+            if (state.HeadsRightOrCountsHops)
             {
                 InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeftEligible);
-                slot.Parameter1 = 0;
+                state.Head(right: false);
             }
             else
             {
                 InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRightEligible);
-                slot.Parameter1 = 1;
+                state.Head(right: true);
             }
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = NativeCountdown.Start(8);
@@ -375,7 +375,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEtecoonInstruction(
             slot,
             state,
-            slot.Parameter1 != 0
+            state.HeadsRightOrCountsHops
                 ? EtecoonProgram.HoppingFacingLeft
                 : EtecoonProgram.HoppingFacingRight);
         state.FunctionTimer = NativeCountdown.Start(11);
@@ -386,11 +386,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Waits eight calls at a wall, then launches in the stored opposite direction.</summary>
     private void RunEtecoonWallPause(RoomEnemySlot slot, EtecoonEnemyState state)
     {
-        PauseEtecoonForEarthquake(slot);
+        PauseEtecoonForEarthquake(slot, state);
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        if (slot.Parameter1 != 0)
+        if (state.HeadsRightOrCountsHops)
         {
             InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
@@ -413,7 +413,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
-        switch ((byte)slot.Parameter2)
+        switch (state.Route)
         {
             case 0:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
@@ -432,7 +432,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon route {(byte)slot.Parameter2} exceeds the retail three-entry table.");
+                    $"Etecoon route {state.Route} exceeds the retail three-entry table.");
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -536,7 +536,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        PauseEtecoonForEarthquake(slot);
+        PauseEtecoonForEarthquake(slot, state);
         if (!MoveEtecoonVertically(slot, state, samus, level))
             return;
 
@@ -544,7 +544,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.FunctionTimer = NativeCountdown.Start(11);
             InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
-            state.Function = (slot.Parameter2 & 2) != 0 &&
+            state.Function = (state.Route & 2) != 0 &&
                 unchecked((short)(slot.Position.X.Whole - EtecoonLongRunMaximumX)) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
                     : EtecoonAiFunction.IdleBetweenTeachingJumps;
@@ -562,22 +562,22 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonEnemyState state,
         SamusState samus)
     {
-        PauseEtecoonForEarthquake(slot);
+        PauseEtecoonForEarthquake(slot, state);
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        // Parameter one's high byte counts four teaching hops. Native then clears only
-        // that byte, preserving the low-byte facing selector used by the airborne states.
-        slot.Parameter1 = unchecked((ushort)(slot.Parameter1 + 256));
-        bool fewerThanFourTeachingJumps =
-            unchecked((short)((SnesLittleEndian.HighByteInPlace(slot.Parameter1)) - 1024)) < 0;
+        // Four teaching hops are counted. Native then clears only the count, keeping the
+        // heading used by the airborne states. The count compares as the signed word the
+        // cartridge subtracts from, so it wraps exactly as the high byte does.
+        state.TeachingHops = SnesLittleEndian.LowByte(state.TeachingHops + 1);
+        bool fewerThanFourTeachingJumps = unchecked((short)(state.TeachingHops * 256 - 1024)) < 0;
         if (!fewerThanFourTeachingJumps)
         {
-            // `$A7:EDFD` clears the completed high-byte counter before testing route two.
+            // `$A7:EDFD` clears the completed counter before testing route two.
             // Route two therefore loops in groups of four rather than overflowing forever.
-            slot.Parameter1 = (byte)slot.Parameter1;
+            state.TeachingHops = 0;
         }
-        if (fewerThanFourTeachingJumps || (slot.Parameter2 & 2) != 0)
+        if (fewerThanFourTeachingJumps || (state.Route & 2) != 0)
         {
             state.Function = EtecoonAiFunction.TeachingJump;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
@@ -600,7 +600,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonEnemyState state,
         SamusState samus)
     {
-        PauseEtecoonForEarthquake(slot);
+        PauseEtecoonForEarthquake(slot, state);
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
@@ -653,12 +653,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>Etecoon_Func_1</c>'s quake-owned parameter and timer writes.</summary>
-    private void PauseEtecoonForEarthquake(RoomEnemySlot slot)
+    private void PauseEtecoonForEarthquake(RoomEnemySlot slot, EtecoonEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsZero)
             return;
 
-        slot.Parameter2 = unchecked((ushort)((byte)slot.Parameter2 | EtecoonParameterMasks.QuakePausedBit));
+        state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;
         slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 128)));
     }
 

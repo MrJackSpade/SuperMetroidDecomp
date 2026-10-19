@@ -60,7 +60,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
-    internal void InitializeDragon(RoomEnemySlot slot)
+    internal static void InitializeDragon(RoomEnemySlot slot)
     {
         DragonEnemyState state = CreateDragonState(slot);
         state.AnimationFinished = false;
@@ -291,8 +291,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
         RoomEnemySlot wing = _slotTable._slots[body.SlotIndex + 1];
-        if (body.Parameter1 != 0 || wing.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
-            wing.Parameter1 == 0)
+        if (body.Spawn.Population.Parameter1 != 0 || wing.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
+            wing.Spawn.Population.Parameter1 == 0)
         {
             throw new InvalidDataException(
                 $"Dragon body slot {body.SlotIndex} is not followed by its retail wing record.");
@@ -303,7 +303,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates one Dragon slot's state, selecting body or wing from population parameter one.</summary>
     private static DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
-        var state = new DragonEnemyState { IsWing = slot.Parameter1 != 0 };
+        var state = new DragonEnemyState { IsWing = slot.Spawn.Population.Parameter1 != 0 };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
@@ -333,7 +333,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Dragon's initialization AI.</summary>
-    internal void RunDragonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunDragonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeDragon(slot);
     }

@@ -29,10 +29,17 @@ public sealed class BlueBrinstarFaceBlockEnemyState
         internal set => field = unchecked((short)value);
     }
 
+    /// <summary>
+    /// Whether the face looks right (parameter two's bit zero). Activation needs Samus on the side opposite the one
+    /// this names, so a face looking right wakes for Samus to its left.
+    /// </summary>
+    public bool FacesRight { get; internal set; }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record: not activated, no distance.</summary>
     internal void ClearWithRecord()
     {
         Activated = false;
         LastHorizontalDelta = 0;
+        FacesRight = false;
     }
 }

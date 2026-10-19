@@ -135,7 +135,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
-        state.DirectionTableByteOffset = unchecked((ushort)(slot.Parameter1 * 2));
+        state.DirectionTableByteOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1 * 2));
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
@@ -150,7 +150,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         {
             if (samus is null)
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
-            slot.Position = slot.Position.WithWholeY(checked((ushort)slot.Parameter2));
+            slot.Position = slot.Position.WithWholeY(checked((ushort)slot.Spawn.Population.Parameter2));
             PinSamusToElevator(slot, samus);
             _arrivalPlacementSlot = slot.SlotIndex;
         }

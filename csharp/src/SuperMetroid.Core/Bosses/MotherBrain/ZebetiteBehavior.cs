@@ -96,7 +96,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
-        var state = new ZebetiteEnemyState(slot);
+        var state = new ZebetiteEnemyState(slot.Spawn.Population);
         slot.SetSpeciesState(state, () =>
         {
             state.ClearWithRecord();
@@ -167,7 +167,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(linkedHalf: true);
-            secondary.Parameter2 = slot.NativeIndex;
+            RequireZebetiteState(secondary).LinkedNativeIndex = slot.NativeIndex;
             state.LinkedNativeIndex = secondary.NativeIndex;
         }
 
@@ -215,7 +215,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the shared two-color cycle using physical slot zero's native counter when no fade suppresses it.</summary>
     internal void CycleZebetitePalette(RoomEnemySlot slot)
     {
-        if (PaletteChangeNumber != 0 || slot.Parameter1 != 0)
+        if (PaletteChangeNumber != 0 || RequireZebetiteState(slot).IsSecondaryHalf)
             return;
 
         int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
@@ -269,7 +269,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = checked((ushort)struck.Parameter2);
+        ushort linkedIndex = checked((ushort)RequireZebetiteState(struck).LinkedNativeIndex);
         if (linkedIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize ||
             linkedIndex % RoomEnemySystem.NativeSlotSize != 0)
         {

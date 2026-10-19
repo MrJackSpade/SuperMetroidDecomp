@@ -55,7 +55,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
     {
-        var state = new PowampEnemyState { IsBalloon = slot.Parameter1 != 0 };
+        var state = new PowampEnemyState
+        {
+            IsBalloon = slot.Spawn.Population.Parameter1 != 0,
+            RefusesContact = slot.Spawn.Population.Parameter2 != 0,
+        };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer forces animation processing for both halves and clears the
@@ -80,7 +84,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BalloonSpawn = slot.Position.Whole;
         state.Function = PowampEnemyFunction.BalloonNoOp;
         SetPowampProgram(slot, state, PowampProgram.BalloonDeflated);
-        state.BalloonGrappleTravelDistance = slot.Parameter2;
+        state.BalloonGrappleTravelDistance = slot.Spawn.Population.Parameter2;
     }
 
     /// <summary>Ports <c>MainAI_Powamp</c> and every body function it dispatches.</summary>
@@ -371,9 +375,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (body.Health == 0)
         {
-            RequirePowampState(body).Function = PowampEnemyFunction.FatalDamage;
-            // init1 becomes the native one-word guard that rejects further touch/shot AI.
-            body.Parameter2 = 1;
+            PowampEnemyState bodyState = RequirePowampState(body);
+            bodyState.Function = PowampEnemyFunction.FatalDamage;
+            bodyState.RefusesContact = true;
         }
     }
 
@@ -488,7 +492,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.SlotIndex == 0)
             throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
         RoomEnemySlot balloon = _slotTable._slots[body.SlotIndex - 1];
-        if (balloon.EnemyDefinitionPointer != EnemyDefinitionId.Powamp || balloon.Parameter1 == 0)
+        if (balloon.EnemyDefinitionPointer != EnemyDefinitionId.Powamp || balloon.Spawn.Population.Parameter1 == 0)
         {
             throw new InvalidDataException(
                 $"Powamp body slot {body.SlotIndex} is not preceded by its balloon half.");
@@ -554,7 +558,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = (enemy, _) =>
             {
-                if (enemy.Parameter1 == 0)
+                if (enemy.Spawn.Population.Parameter1 == 0)
                     ResolvePowampPowerBombAfterCommon(enemy);
             },
         });
@@ -566,10 +570,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.PowampShot)
         {
-            // Powamp writes one to body init1 as soon as a lethal shot starts its private 32-frame death. Later
+            // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
             // overlaps return before common shot AI, so they must not consume or explode the projectile while the
             // body is still visibly deflating.
-            SkipsEnemy = enemy => enemy.Parameter2 != 0,
+            SkipsEnemy = enemy => RequirePowampState(enemy).RefusesContact,
             ExemptFromGenericDeath = true,
             AfterCommon = (c, _) => ResolvePowampShotAfterCommon(c.Enemy),
         });
@@ -578,13 +582,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies touch behavior only to the body before its fatal-shot state begins.</summary>
     internal void RegisterPowampTouch(EnemySharedReactions table)
     {
-        // init1 is zero only for the body before fatal shot damage. Balloons are normally absent from the
+        // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
         // interactive list because population property $0400 excludes them, but retain the handler's literal guard.
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PowampTouch,
             context =>
             {
-                if (context.Slot.Parameter2 == 0)
+                if (!RequirePowampState(context.Slot).RefusesContact)
                     ResolvePowampTouch(context.Slot, context.Samus);
             });
     }

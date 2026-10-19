@@ -48,20 +48,20 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
-        int initialState = SnesLittleEndian.LowByte(slot.Parameter1);
-        int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Parameter1);
-        int speedIndex = SnesLittleEndian.LowByte(slot.Parameter2);
-        int distanceIndex = SnesLittleEndian.HighByte(slot.Parameter2);
+        int initialState = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
+        int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        int speedIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+        int distanceIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         if (initialState >= 5)
         {
             throw new InvalidDataException(
-                $"Owtch parameter one ${slot.Parameter1:X4} selects state {initialState}, " +
+                $"Owtch parameter one ${slot.Spawn.Population.Parameter1:X4} selects state {initialState}, " +
                 "outside its five-entry main-AI table.");
         }
         if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
-                $"Owtch parameter two ${slot.Parameter2:X4} selects linear-speed " +
+                $"Owtch parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
         ushort undergroundTimer =
@@ -128,7 +128,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = NativeCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
-                        SnesLittleEndian.HighByte(slot.Parameter1)));
+                        SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1)));
                 }
                 return;
 

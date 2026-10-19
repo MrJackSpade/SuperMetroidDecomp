@@ -21,8 +21,8 @@ internal static class BullMovementDefinitionsVerification
         for (ushort interval = 0; interval < 13; interval++)
         for (ushort speed = 0; speed < 8; speed++)
         {
-            slot.Parameter1 = interval;
-            slot.Parameter2 = speed;
+            slot.SetSpawnParameter1(interval);
+            slot.SetSpawnParameter2(speed);
             initialize(slot); // No loaded cartridge bus; exercises the real initializer.
             var state = enemies.BullStates[0];
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), (state ?? throw new InvalidOperationException("Verification requires state.")).AccelerationIntervalTimerReset, "Bull compiled acceleration");

@@ -61,16 +61,16 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
-        if (slot.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
+        if (slot.Spawn.Population.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
-                $"Stoke speed parameter ${slot.Parameter2:X4} exceeds the NTSC common " +
+                $"Stoke speed parameter ${slot.Spawn.Population.Parameter2:X4} exceeds the NTSC common " +
                 $"speed table's ${EnemyLinearSpeedDefinitions.RecordCount - 1:X2} maximum index.");
         }
 
         // The parameter is an entry number. ASL three times converts it to the byte offset
         // of {positive whole, positive fraction, negative whole, negative fraction}.
-        int speedOffset = slot.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
+        int speedOffset = slot.Spawn.Population.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedOffset);
         var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
         var state = new StokeEnemyState
@@ -78,7 +78,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
             LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Function = StokeAiFunction.MovingLeft,
-            Direction = (StokeDirection)slot.Parameter1,
+            Direction = (StokeDirection)slot.Spawn.Population.Parameter1,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -87,7 +87,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // restores the transient empty map, and the first instruction tick supplies art.
         slot.Frame = EnemyFrameId.Empty;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
-        if (slot.Parameter1 != 0)
+        if (slot.Spawn.Population.Parameter1 != 0)
         {
             SetStokeProgram(slot, state, StokeProgram.MovingRight);
             state.Function = StokeAiFunction.MovingRight;

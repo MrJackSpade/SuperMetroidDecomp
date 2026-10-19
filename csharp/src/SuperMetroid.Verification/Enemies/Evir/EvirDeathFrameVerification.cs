@@ -32,9 +32,9 @@ internal static class EvirDeathFrameVerification
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
             slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision));
-            slot.Parameter1 = index == 7 ? (ushort)1 : (ushort)0;
+            slot.SetSpawnParameter1(index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at speed record 8, one of the two records retail Evirs use.
-            if (index == 6) slot.Parameter2 = 8;
+            if (index == 6) slot.SetSpawnParameter2(8);
             if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
         }
         var body = enemies.SlotTable.Slots[6];

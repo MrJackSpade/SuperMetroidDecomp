@@ -104,10 +104,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
-        if ((statue.Parameter2 & 1) != 0 || statue.Parameter2 > 2)
+        int variant = statue.Spawn.Population.Parameter2;
+        if ((variant & 1) != 0 || variant > 2)
         {
             throw new InvalidDataException(
-                $"Chozo statue parameter two ${statue.Parameter2:X4} is outside its two-entry ROM table.");
+                $"Chozo statue parameter two ${variant:X4} is outside its two-entry ROM table.");
         }
 
         // The original ORs $2000, $0800, and the otherwise unnamed high bit. Keep $8000 raw:
@@ -119,12 +120,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Frame = EnemyFrameId.Empty;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
-        statue.Parameter1 = 0;
         statue.PaletteIndex = 0;
 
         var state = new ChozoStatueState
         {
             PreInstruction = ChozoStatuePreInstruction.Idle,
+            IsWreckedShip = variant == 0,
+            HandTriggered = false,
         };
         statue.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -133,7 +135,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // explicitly so malformed/debug populations expose the same cross-slot behavior.
         _slotTable._slots[0].Layer = 0;
 
-        if (statue.Parameter2 == 0)
+        if (state.IsWreckedShip)
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
             LoadChozoStatuePalette(wreckedShip: true);
@@ -170,8 +172,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
-        int triggerBlockX = statue.Parameter2 == 0 ? ChozoStatuePlmRomData.WreckedShipHandBlock.X : ChozoStatuePlmRomData.LowerNorfairTriggerX;
-        int triggerBlockY = statue.Parameter2 == 0 ? ChozoStatuePlmRomData.WreckedShipHandBlock.Y : ChozoStatuePlmRomData.LowerNorfairTriggerY;
+        ChozoStatueState state = RequireChozoStatueState(statue);
+        int triggerBlockX = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.X : ChozoStatuePlmRomData.LowerNorfairTriggerX;
+        int triggerBlockY = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.Y : ChozoStatuePlmRomData.LowerNorfairTriggerY;
         int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
@@ -180,9 +183,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         level.SetForegroundEntry(
             triggerBlockIndex,
             triggerBlock.PackedWord.VisualWord);
-        statue.Parameter1 = 1;
+        state.HandTriggered = true;
         SetChozoStatueSamusControls(enabled: false);
-        if (statue.Parameter2 != 0)
+        if (!state.IsWreckedShip)
         {
             // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
             _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
@@ -216,7 +219,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger:
-                if (statue.Parameter1 != 0)
+                if (state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);
@@ -224,7 +227,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
-                if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && statue.Parameter1 != 0)
+                if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);

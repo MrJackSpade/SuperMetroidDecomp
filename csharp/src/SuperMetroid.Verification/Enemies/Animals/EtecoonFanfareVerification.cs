@@ -29,7 +29,7 @@ internal static class EtecoonFanfareVerification
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
             slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x0c00));
-            slot.Parameter2 = (ushort)index;
+            slot.SetSpawnParameter2((ushort)index);
             EtecoonBehavior.InitializeEtecoon(slot);
         }
         var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };

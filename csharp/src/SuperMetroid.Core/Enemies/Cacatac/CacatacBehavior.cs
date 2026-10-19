@@ -58,29 +58,29 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
-        var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Parameter1);
-        int distanceIndex = SnesLittleEndian.LowByte(slot.Parameter2);
-        int speedIndex = SnesLittleEndian.HighByte(slot.Parameter2);
+        var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
+        int distanceIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+        int speedIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         if (!Enum.IsDefined(direction))
         {
             throw new InvalidDataException(
-                $"Cacatac parameter one ${slot.Parameter1:X4} selects direction " +
+                $"Cacatac parameter one ${slot.Spawn.Population.Parameter1:X4} selects direction " +
                 $"{(ushort)direction}, outside its three-word function table.");
         }
         if (distanceIndex >= 6)
         {
             throw new InvalidDataException(
-                $"Cacatac parameter two ${slot.Parameter2:X4} selects travel-distance " +
+                $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects travel-distance " +
                 $"index {distanceIndex}, outside its six-word table.");
         }
         if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
-                $"Cacatac parameter two ${slot.Parameter2:X4} selects linear-speed " +
+                $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
 
-        bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
+        bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1)) != 0;
         slot.Frame = EnemyFrameId.Empty;
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacMovementDefinitions.TravelDistance((byte)distanceIndex)), 0);

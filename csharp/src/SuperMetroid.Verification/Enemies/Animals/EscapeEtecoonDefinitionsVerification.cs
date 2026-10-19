@@ -61,7 +61,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Parameter1 = parameter;
+            slot.SetSpawnParameter1(parameter);
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
             slot.Bind(EnemyDefinitionId.EtecoonEscape, slot.Definition);
             enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(slot);
@@ -155,7 +155,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
         etecoon.Bind(etecoon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb3 });
-        etecoon.Parameter1 = 0;
+        etecoon.SetSpawnParameter1(0);
         enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
         return enemies;
     }

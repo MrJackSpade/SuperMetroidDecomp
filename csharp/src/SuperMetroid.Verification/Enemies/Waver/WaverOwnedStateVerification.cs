@@ -18,7 +18,7 @@ internal static class WaverOwnedStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
-        slot.Parameter1 = 1;
+        slot.SetSpawnParameter1(1);
         WaverBehavior.InitializeWaver(slot);
         WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");
         AssertEqual(SnesSignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");

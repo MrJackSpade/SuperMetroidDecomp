@@ -110,7 +110,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
+        enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);
 
         spawn(enemies, torizo);
 

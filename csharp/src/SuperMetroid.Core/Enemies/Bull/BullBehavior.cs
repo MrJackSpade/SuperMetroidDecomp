@@ -40,13 +40,13 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // These are definition selectors, not live timers or editable presentation data.
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
-        var intervals = BullMovementDefinitions.Intervals(checked((ushort)slot.Parameter1));
+        var intervals = BullMovementDefinitions.Intervals(checked((ushort)slot.Spawn.Population.Parameter1));
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
         state.AccelerationIntervalTimer = NativeCountdown.Start(state.AccelerationIntervalTimerReset);
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = NativeCountdown.Start(BullMovementDelayFrames);
         state.Function = BullEnemyFunction.MovementDelay;
-        state.MaxSpeed = BullMovementDefinitions.MaximumSpeed(checked((ushort)slot.Parameter2));
+        state.MaxSpeed = BullMovementDefinitions.MaximumSpeed(checked((ushort)slot.Spawn.Population.Parameter2));
     }
 
     /// <summary>Ports <c>MainAI_Bull</c> and all four indirect function targets.</summary>

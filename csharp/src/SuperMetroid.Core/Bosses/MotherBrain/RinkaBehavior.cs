@@ -481,7 +481,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;
+    private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Spawn.Population.Parameter1 != 0;
 
     /// <summary>Requires an initialized per-slot Rinka state before running its lifecycle.</summary>
     private static RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>

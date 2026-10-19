@@ -14,11 +14,11 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(slot, common);
 
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
-    internal void InitializeAtomic(RoomEnemySlot slot)
+    internal static void InitializeAtomic(RoomEnemySlot slot)
     {
         var state = new AtomicEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -26,13 +26,13 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Parameter1)));
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.
         // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
         // the negative pair from a C# integer after the fact.
-        ushort speedTableOffset = unchecked((ushort)(slot.Parameter2 * 8));
+        ushort speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
         (short positiveWhole, ushort positiveFraction) =
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         (short negativeWhole, ushort negativeFraction) =
@@ -126,7 +126,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Atomic's initialization AI.</summary>
-    internal void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeAtomic(slot);
     }

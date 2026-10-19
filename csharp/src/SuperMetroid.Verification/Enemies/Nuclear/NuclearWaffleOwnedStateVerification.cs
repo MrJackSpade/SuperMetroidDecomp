@@ -18,8 +18,8 @@ internal static class NuclearWaffleOwnedStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
-        slot.Parameter1 = SnesLittleEndian.Word(24, 32);
-        slot.Parameter2 = SnesLittleEndian.Word(1, 6);
+        slot.SetSpawnParameter1(SnesLittleEndian.Word(24, 32));
+        slot.SetSpawnParameter2(SnesLittleEndian.Word(1, 6));
         slot.Position = slot.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");

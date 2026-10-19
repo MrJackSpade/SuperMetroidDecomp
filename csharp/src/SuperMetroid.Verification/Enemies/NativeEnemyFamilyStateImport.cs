@@ -437,7 +437,7 @@ internal static class NativeEnemyFamilyStateImport
             segment.TargetAngle = SnesAngle.FromRaw(words.A);
             segment.OrbitAngle = SnesAngle.FromRaw(words.B);
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
-            ImportShaktoolOrientation(segment, slot.Parameter2 >> 1, words.D);
+            ImportShaktoolOrientation(segment, slot.Spawn.Population.Parameter2 >> 1, words.D);
             segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
             segment.PreInstruction = words.F == 0 ? null : (ShaktoolPreInstruction)words.F;
         }
@@ -497,7 +497,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             holtz.Velocity = new(new SnesSignedEightEight(words.D), new SnesSignedEightEight(words.C));
             holtz.Function = words.F == 0 ? null : (LowerNorfairRioEnemyFunction)words.F;
-            holtz.IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+            holtz.IsFollower = (slot.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
         }
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {

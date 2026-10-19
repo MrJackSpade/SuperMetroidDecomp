@@ -73,7 +73,7 @@ internal static class LowerNorfairHandVerification
             rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
-        AssertEqual((ushort)1, runtime.Enemies.SlotTable.Slots[0].Parameter1, "hand wakes statue");
+        AssertTrue((runtime.Enemies.SlotTable.Slots[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).HandTriggered, "hand wakes statue");
         AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
         ushort startingAcidY = runtime.RoomLayer3Fx.BaseY.Whole;
         bool sawAcidDrain = false;

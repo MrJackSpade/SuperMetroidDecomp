@@ -52,8 +52,8 @@ internal static class RipperBehaviorVerification
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
             slot.CurrentInstruction = 1;
-            slot.Parameter1 = 0;
-            slot.Parameter2 = ushort.MaxValue;
+            slot.SetSpawnParameter1(0);
+            slot.SetSpawnParameter2(ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
@@ -63,8 +63,8 @@ internal static class RipperBehaviorVerification
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
             slot.CurrentInstruction = 1;
-            slot.Parameter1 = 0;
-            slot.Parameter2 = ushort.MaxValue;
+            slot.SetSpawnParameter1(0);
+            slot.SetSpawnParameter2(ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);
             enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.GRipperMovingRight, RipperProgram.GRipperMovingLeft);
             VerifyInstalledLoop(enemies, slot, RipperProgram.GRipperMovingLeft, "GRipper left reversal");
@@ -74,8 +74,8 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper2);
-            slot.Parameter1 = 1;
-            slot.Parameter2 = initialDirection;
+            slot.SetSpawnParameter1(1);
+            slot.SetSpawnParameter2(initialDirection);
             enemies.RipperBehavior.InitializeRipper2(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
@@ -84,8 +84,8 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper);
-            slot.Parameter1 = 1;
-            slot.Parameter2 = initialDirection;
+            slot.SetSpawnParameter1(1);
+            slot.SetSpawnParameter2(initialDirection);
             enemies.RipperBehavior.InitializeRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }

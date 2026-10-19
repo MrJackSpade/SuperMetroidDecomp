@@ -178,18 +178,6 @@ public sealed class RoomEnemySlot
 
     /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
     internal int HurtFlashFrames => HurtAiTime == 0 ? 4 : HurtAiTime;
-    /// <summary>Enemy.init0 at +$3C: mutable first actor-specific parameter initialized from the room population record.</summary>
-    public int Parameter1
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>Enemy.init1 at +$3E: mutable second actor-specific parameter initialized from the room population record.</summary>
-    public int Parameter2
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
     /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
     public Offset16<RoomPixels> SpawnOffset { get; internal set; }
 
@@ -218,7 +206,6 @@ public sealed class RoomEnemySlot
         ShakeTimer = NativeCountdown.Start(0);
         InvincibilityTimer = NativeCountdown.Start(0);
         HurtAiTime = 0;
-        Parameter1 = Parameter2 = 0;
         SpawnOffset = Offset16<RoomPixels>.Zero;
         foreach (Action clearWithRecord in _clearWithRecord.Values)
             clearWithRecord();

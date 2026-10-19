@@ -21,8 +21,8 @@ internal static class FirefleaBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank });
-        slot.Parameter1 = 0;
-        slot.Parameter2 = 0;
+        slot.SetSpawnParameter1(0);
+        slot.SetSpawnParameter2(0);
         enemies.FirefleaBehavior.InitializeFireflea(slot);
         AssertEqual(AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop), (enemies.SlotTable.Slots[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Program,
             "Fireflea initializer animation");
@@ -49,8 +49,8 @@ internal static class FirefleaBehaviorVerification
             var enemies = new RoomEnemySystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
-            slot.Parameter1 = 0;
-            slot.Parameter2 = 0;
+            slot.SetSpawnParameter1(0);
+            slot.SetSpawnParameter2(0);
             slot.Position = slot.Position.WithWhole(new(128, 4));
             enemies.FirefleaBehavior.InitializeFireflea(slot);
             FirefleaEnemyState state = FirefleaBehavior.RequireFirefleaState(slot);

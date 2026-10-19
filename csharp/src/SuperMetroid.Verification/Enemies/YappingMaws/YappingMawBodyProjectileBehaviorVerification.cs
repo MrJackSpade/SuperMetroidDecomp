@@ -25,8 +25,8 @@ internal static class YappingMawBodyProjectileBehaviorVerification
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
             owner.Bind(owner.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });
-            owner.Parameter1 = 128;
-            owner.Parameter2 = facing;
+            owner.SetSpawnParameter1(128);
+            owner.SetSpawnParameter2(facing);
             enemies.YappingMawBehavior.InitializeYappingMaw(owner);
             RoomEnemyProjectileSlot[] links = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)];
             AssertEqual(4, links.Length, $"facing {facing} spawns four body links");

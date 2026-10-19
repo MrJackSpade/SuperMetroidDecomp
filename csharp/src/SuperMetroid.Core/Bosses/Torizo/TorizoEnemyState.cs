@@ -22,6 +22,22 @@ public sealed class TorizoEnemyState
 
     /// <summary>The owning room enemy body slot, whose common position, health, properties, and instruction state this extension supplements.</summary>
     public RoomEnemySlot Slot { get; }
+
+    /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
+    internal TorizoPostureFlags Posture { get; set; }
+
+    /// <summary>
+    /// The authored low thirteen bits of parameter one, kept beside the posture: a launched egg carries them with the
+    /// posture.
+    /// </summary>
+    internal int PostureParameterLowBits
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, TorizoParameterFlagCodec.PostureLowBitsMask, value);
+    }
+
+    /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
+    internal TorizoBehaviorFlags Behavior { get; set; }
     /// <summary>Whether the owning definition is Golden Torizo ($EF7F), rather than Bomb Torizo ($EEFF); fixed at initialization.</summary>
     public bool IsGolden { get; }
 

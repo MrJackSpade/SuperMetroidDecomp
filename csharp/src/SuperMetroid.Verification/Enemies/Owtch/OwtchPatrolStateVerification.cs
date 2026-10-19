@@ -74,8 +74,8 @@ internal static class OwtchPatrolStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
-        slot.Parameter1 = (ushort)behavior;
-        slot.Parameter2 = 0;
+        slot.SetSpawnParameter1((ushort)behavior);
+        slot.SetSpawnParameter2(0);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
         OwtchBehavior.InitializeOwtch(slot);
         return (enemies, slot, OwtchBehavior.RequireOwtchState(slot));

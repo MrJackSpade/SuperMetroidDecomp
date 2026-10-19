@@ -16,7 +16,7 @@ internal static class ZebetiteRecordStateVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new ZebetiteEnemyState(slot);
+        var state = new ZebetiteEnemyState(slot.Spawn.Population);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<ZebetiteAiFunction>()[^1];
         state.Generation = 1;

@@ -20,12 +20,12 @@ internal static class PlatformOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Tripper, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
-        slot.Parameter1 = (ushort)PlatformHorizontalMovement.Left;
+        slot.SetSpawnParameter1((ushort)PlatformHorizontalMovement.Left);
         const int speedRecord = 5;
         const int accelerationCap = 3;
-        slot.Parameter2 = SnesLittleEndian.Word(speedRecord, accelerationCap);
+        slot.SetSpawnParameter2(SnesLittleEndian.Word(speedRecord, accelerationCap));
         slot.Position = slot.Position.WithWholeY(ushort.MaxValue);
-        enemies.PlatformsBehavior.InitializePlatform(slot);
+        PlatformsBehavior.InitializePlatform(slot);
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 

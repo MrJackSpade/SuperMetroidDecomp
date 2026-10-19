@@ -29,7 +29,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
-        var state = new GrowingShutterEnemyState(slot);
+        var state = new GrowingShutterEnemyState(slot)
+        {
+            ActivationDistance = slot.Spawn.Population.Parameter1,
+        };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer consumes init0 and the low extra-property word as a two-bit table
@@ -42,7 +45,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(checked((ushort)slot.Parameter2));
+        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(checked((ushort)slot.Spawn.Population.Parameter2));
         state.GrowthSpeed = SnesSignedSixteenSixteen.FromParts(growthWhole, growthFraction);
 
         slot.ExtraProperties = default;
@@ -75,14 +78,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             case GrowingShutterFunction.WaitToGrowDownForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
-                if (IsSamusWithinShutterHorizontalDistance(slot, samus, slot.Parameter1))
+                if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, growsUp: false, camera);
                 return;
 
             case GrowingShutterFunction.WaitToGrowUpForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
-                if (IsSamusWithinShutterHorizontalDistance(slot, samus, slot.Parameter1))
+                if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, growsUp: true, camera);
                 return;
 
@@ -254,16 +257,16 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
         state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
-        state.TriggerMode = unchecked((byte)slot.Parameter1);
+        state.TriggerMode = unchecked((byte)slot.Spawn.Population.Parameter1);
         state.InitialFunctionTableOffset = state.TriggerMode * 2;
         if (state.InitialFunctionTableOffset > 8)
         {
             throw new InvalidDataException(
                 $"Horizontal shutter trigger mode {state.TriggerMode} exceeds its five-entry ROM table.");
         }
-        state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
-        state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
+        state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
+        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(checked((short)state.TravelDistance), 0);
@@ -819,16 +822,16 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
         state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 
-        state.TriggerMode = unchecked((byte)slot.Parameter1);
+        state.TriggerMode = unchecked((byte)slot.Spawn.Population.Parameter1);
         state.InitialFunctionTableOffset = state.TriggerMode * 2;
         if (state.InitialFunctionTableOffset > 8)
         {
             throw new InvalidDataException(
                 $"Vertical shutter trigger mode {state.TriggerMode} exceeds its five-entry ROM table.");
         }
-        state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
-        state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
+        state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
+        state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
+        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(0, checked((short)state.TravelDistance));

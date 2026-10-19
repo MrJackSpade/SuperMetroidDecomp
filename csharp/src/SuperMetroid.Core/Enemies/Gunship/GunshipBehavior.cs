@@ -146,7 +146,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(slot.Parameter2 != 0
+        _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(slot.Spawn.Population.Parameter2 != 0
             ? GunshipProgram.BottomEntrancePad
             : GunshipProgram.BottomHull);
 
@@ -159,7 +159,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.VramTilesIndex = _slotTable._slots[slot.SlotIndex - 1].VramTilesIndex;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
 
-        if (slot.Parameter2 != 0)
+        if (slot.Spawn.Population.Parameter2 != 0)
         {
             // For slot two, the equally strange +61 indexed read aliases slot zero's +$06
             // Y-position word. The opening pad sits one pixel above the top hull origin.

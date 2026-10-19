@@ -120,10 +120,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native range check accidentally accepts parameter three even though the
         // pointer table has only three entries; retail populations use zero/one, and the
         // overrun into code at $CC36 fails loudly in the animation selection.
-        if (unchecked((short)slot.Parameter1) < 0 || slot.Parameter1 >= 4)
-            slot.Parameter1 = 0;
+        int animation = slot.Spawn.Population.Parameter1;
+        if (unchecked((short)animation) < 0 || animation >= 4)
+            animation = 0;
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
-            WorkRobotInitializationDefinitions.InitialProgram(slot.Parameter1));
+            WorkRobotInitializationDefinitions.InitialProgram(animation));
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);

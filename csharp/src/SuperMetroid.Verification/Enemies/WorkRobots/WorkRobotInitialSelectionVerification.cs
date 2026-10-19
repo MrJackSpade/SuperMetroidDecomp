@@ -25,7 +25,8 @@ internal static class WorkRobotInitialSelectionVerification
                 NativeEnemyProgramOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
             var system = new RoomEnemySystem();
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            slot.SetSpawnParameter1(parameter);
             var state = new WorkRobotEnemyState();
             system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, state);
             AssertEqual(AnimationProgramCursor<WorkRobotProgram>.Start(expected), state.Program,
@@ -35,7 +36,8 @@ internal static class WorkRobotInitialSelectionVerification
             "Work Robot selector three overruns the table into code");
         {
             var system = new RoomEnemySystem();
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = 3 };
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            slot.SetSpawnParameter1(3);
             AssertThrows<InvalidDataException>(() => system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, new WorkRobotEnemyState()),
                 "Work Robot production initializer rejects the overrun selector");
         }

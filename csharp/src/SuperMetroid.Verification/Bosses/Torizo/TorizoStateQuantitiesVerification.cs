@@ -19,6 +19,7 @@ internal static class TorizoStateQuantitiesVerification
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new TorizoEnemyState(slot, isGolden: true);
+        enemies.BombTorizoBehavior._torizoState = state;
         var inputs = new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 };
         void Apply(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state, inputs, new TorizoCue(kind),
@@ -49,19 +50,19 @@ internal static class TorizoStateQuantitiesVerification
         AssertEqual((short)24, jump.Y.SignedRawValue, "the jump acceleration adds to the vertical velocity across zero");
 
         const int lowParameterBits = 4660;
-        slot.Parameter1 = lowParameterBits;
+        state.PostureParameterLowBits = lowParameterBits;
         Apply(TorizoCueKind.SteppedRightWithLeftFoot);
         AssertEqual(lowParameterBits + (TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward).ToNativeWord(),
-            (int)slot.Parameter1, "a stepping cue replaces the posture bits and keeps parameter 1's low bits");
+            TorizoParameterFlagCodec.ToParameterWord(state.Posture, state.PostureParameterLowBits), "a stepping cue replaces the posture bits and keeps parameter 1's low bits");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(lowParameterBits + TorizoPostureFlags.All.ToNativeWord(), (int)slot.Parameter1,
+        AssertEqual(lowParameterBits + TorizoPostureFlags.All.ToNativeWord(), TorizoParameterFlagCodec.ToParameterWord(state.Posture, state.PostureParameterLowBits),
             "the turning cue adds its posture bit alone");
 
-        slot.Parameter2 = (TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp).ToNativeWord();
+        state.Behavior = TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp;
         Apply(TorizoCueKind.UnmarkStunned);
-        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, (TorizoBehaviorFlags)slot.Parameter2, "clearing the stun keeps the other latches");
+        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "clearing the stun keeps the other latches");
         Apply(TorizoCueKind.MarkFaceBlownUp);
-        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, (TorizoBehaviorFlags)slot.Parameter2, "setting a held latch leaves the word unchanged");
+        AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "setting a held latch leaves the word unchanged");
 
         Console.WriteLine("Torizo state quantities: count wraps, animation lock, jump acceleration and parameter flag words pass.");
     }

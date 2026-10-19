@@ -122,7 +122,8 @@ internal static class EnemyRomTablePointersVerification
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._cgram = new SnesCgram();
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            slot.SetSpawnParameter1(parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
@@ -137,9 +138,9 @@ internal static class EnemyRomTablePointersVerification
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
-                Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
+            system.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0, isGolden: true);
             system.BombTorizoBehavior.SpawnGoldenTorizoSuperMissile(torizo);
             RoomEnemyProjectileSlot projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);

@@ -64,10 +64,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 ? EnemyDefinitionId.Kamer2
                 : EnemyDefinitionId.Tripper, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
-            slot.Parameter1 = (ushort)testCase.Direction;
-            slot.Parameter2 = 0x0101;
+            slot.SetSpawnParameter1((ushort)testCase.Direction);
+            slot.SetSpawnParameter2(0x0101);
             slot.Position = slot.Position.WithWholeY(0x0100);
-            enemies.PlatformsBehavior.InitializePlatform(slot);
+            PlatformsBehavior.InitializePlatform(slot);
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformProgram expectedInitial = testCase.IsKamer

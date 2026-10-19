@@ -40,7 +40,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             enemies.Presentation._vram = new SnesVram();
             enemies.Presentation._cgram = new SnesCgram();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Parameter1 = variant;
+            slot.SetSpawnParameter1(variant);
 
             slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);

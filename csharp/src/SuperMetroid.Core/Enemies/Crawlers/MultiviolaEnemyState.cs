@@ -15,6 +15,28 @@ public sealed class MultiviolaEnemyState
     /// <summary>Signed 16.16 velocity in room pixels per update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Empties the value the cartridge keeps in the enemy's common record: no velocity.</summary>
-    internal void ClearWithRecord() => Velocity = FixedVector<RoomPixels>.Zero;
+    /// <summary>
+    /// The flight heading as the cartridge's byte-angle word (parameter one), reflected by exclusive-or at each wall or
+    /// floor; its velocity is rebuilt from it every update.
+    /// </summary>
+    public int Heading
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>The flight speed, parameter two's low byte, multiplied with the heading's sine and cosine.</summary>
+    public int Speed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no velocity, heading or speed.</summary>
+    internal void ClearWithRecord()
+    {
+        Velocity = FixedVector<RoomPixels>.Zero;
+        Heading = 0;
+        Speed = 0;
+    }
 }

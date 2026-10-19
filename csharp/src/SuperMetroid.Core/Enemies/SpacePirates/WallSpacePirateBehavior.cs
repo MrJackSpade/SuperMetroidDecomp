@@ -66,7 +66,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        var flags = (WallSpacePirateParameterFlags)slot.Parameter1;
+        var flags = (WallSpacePirateParameterFlags)slot.Spawn.Population.Parameter1;
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
         bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0;
 
@@ -185,10 +185,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
                 state.WallJumpArcAngle.TableIndex,
-                (ushort)(slot.Parameter2 >> 1)))));
+                (ushort)(slot.Spawn.Population.Parameter2 >> 1)))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.TableIndex, (ushort)(slot.Parameter2 >> 2)))));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.TableIndex, (ushort)(slot.Spawn.Population.Parameter2 >> 2)))));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
@@ -276,10 +276,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         bool jumpingRight)
     {
-        int signedSpan = jumpingRight ? slot.Parameter2 : -slot.Parameter2;
+        int signedSpan = jumpingRight ? slot.Spawn.Population.Parameter2 : -slot.Spawn.Population.Parameter2;
         int signedHalfSpan = jumpingRight
-            ? slot.Parameter2 >> 1
-            : -(slot.Parameter2 >> 1);
+            ? slot.Spawn.Population.Parameter2 >> 1
+            : -(slot.Spawn.Population.Parameter2 >> 1);
         state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),

@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite palette-change gate remains an engine-owned condition");
         selected.ZebetiteBehavior.PaletteChangeNumber = 0;
-        selected.SlotTable.Slots[0].Parameter1 = 1;
+        (selected.SlotTable.Slots[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
@@ -129,7 +129,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = cgram;
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
-            var primary = new ZebetiteEnemyState(primarySlot);
+            var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
             return (enemies, cgram);
         }

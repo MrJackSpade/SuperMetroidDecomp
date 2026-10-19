@@ -1073,20 +1073,22 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        Func<RoomEnemySlot, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
-        Action<RoomEnemySlot, YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
+        Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
+        Action<YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState();
+        int speedParameter = 0;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
             AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
             AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Native calculated speed ramp");
-            slot.Parameter1 = parameter;
+            speedParameter = parameter;
+            yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
                 slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
-                EightEightVector<RoomPixels> velocity = reset(slot, default);
+                EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,
@@ -1094,7 +1096,7 @@ internal static class LookupStream2Verification
             }
             for (ushort direction = 0; direction < 8; direction++)
             {
-                setYard(slot, yard, direction);
+                setYard(yard, direction);
                 int nativeDirection = 0xa3cd82 + direction * 8;
                 AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeDirection)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 2)))),
                     yard.CrawlingVelocity.X.RawValue, "Actual Yard reset X magnitude");
@@ -1309,7 +1311,7 @@ internal static class LookupStream2Verification
             {
                 var slot = enemies.SlotTable.Slots[member];
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
-                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
+                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(64);
                 PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));

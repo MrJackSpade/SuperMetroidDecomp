@@ -95,13 +95,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer);
-        if ((slot.Parameter1 & 1) != 0 || slot.Parameter1 / 2 >= profile.Variants.Length)
+        if ((slot.Spawn.Population.Parameter1 & 1) != 0 || slot.Spawn.Population.Parameter1 / 2 >= profile.Variants.Length)
         {
             throw new InvalidDataException(
-                $"Dead {profile.Species} parameter 1 ${slot.Parameter1:X4} has no retail variant.");
+                $"Dead {profile.Species} parameter 1 ${slot.Spawn.Population.Parameter1:X4} has no retail variant.");
         }
 
-        int variantIndex = slot.Parameter1 / 2;
+        int variantIndex = slot.Spawn.Population.Parameter1 / 2;
         DeadTourianCorpseVariant variant = profile.Variants[variantIndex];
         DeadTourianCorpseDefinition definition =
             DeadTourianCorpseDefinitions.For(profile.Species, variantIndex);

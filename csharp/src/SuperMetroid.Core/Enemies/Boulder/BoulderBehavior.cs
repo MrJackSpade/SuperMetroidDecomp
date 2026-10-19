@@ -76,7 +76,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
-        byte initialYOffset = SnesLittleEndian.HighByte(slot.Parameter2);
+        byte initialYOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         if (initialYOffset == 0)
         {
             // A zero high byte is not “no offset.” Native substitutes one pixel and sets
@@ -86,13 +86,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
-        state.HorizontalTriggerLimit = unchecked((short)-(byte)slot.Parameter2);
+        state.HorizontalTriggerLimit = unchecked((short)-(byte)slot.Spawn.Population.Parameter2);
 
         // The population record's initialization parameter was copied to current_instruction
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
         // trigger threshold, then starts the real rolling animation in its place.
         state.VerticalTriggerLimit = unchecked((byte)slot.CurrentInstruction);
-        state.DirectionSelector = SnesLittleEndian.HighByte(slot.Parameter1);
+        state.DirectionSelector = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         if (state.DirectionSelector == 0)
         {
             state.HorizontalTriggerLimit = unchecked((short)-state.HorizontalTriggerLimit);
@@ -103,7 +103,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
         }
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, (byte)slot.Parameter1 == 0 ? (short)2 : (short)5);
+        state.VerticalCompensation = new Offset16<RoomPixels>(0, (byte)slot.Spawn.Population.Parameter1 == 0 ? (short)2 : (short)5);
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>

@@ -63,8 +63,8 @@ internal static class DragonBehaviorVerification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[bodySlot + part];
                 slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
                 slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
-                slot.Parameter1 = (ushort)part;
-                enemies.DragonBehavior.InitializeDragon(slot);
+                slot.SetSpawnParameter1((ushort)part);
+                DragonBehavior.InitializeDragon(slot);
             }
         }
         foreach (int bodySlot in new[] { 0, 2 })
@@ -90,8 +90,8 @@ internal static class DragonBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
-        slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0;
-        enemies.DragonBehavior.InitializeDragon(slot);
+        slot.SetSpawnParameter1(selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0);
+        DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");
         state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         state.RequestedInstructionListIndex = selector;

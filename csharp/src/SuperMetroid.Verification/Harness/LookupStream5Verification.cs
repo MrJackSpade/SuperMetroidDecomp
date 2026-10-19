@@ -262,7 +262,7 @@ internal static class LookupStream5Verification
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext._enemyFrameNmiFrameCounter = (ushort)(bucket << 1);
-            body.Position = body.Position.WithWhole(new(128, 96)); state.Parts[body.SlotIndex].FunctionTimer = 1; body.Parameter2 = 1;
+            body.Position = body.Position.WithWhole(new(128, 96)); state.Parts[body.SlotIndex].FunctionTimer = 1; state.Parts[body.SlotIndex].FlameRainRequested = true;
             begin(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, state.Parts[eye.SlotIndex].ClosedTimer, "Native first-round closed-eye duration");
@@ -283,7 +283,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonAiFunction.NoOperation, state.Parts[body.SlotIndex].Function, "Selected duration stops moving phase");
             AssertEqual(PhantoonPartProgram.EyeOpen, state.PartProgram(eye).Program, "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "Eye-opening program executes on next instruction step");
-            AssertEqual((ushort)0, body.Parameter2, "Opening clears flame-rain trigger");
+            AssertEqual(false, state.Parts[body.SlotIndex].FlameRainRequested, "Opening clears flame-rain trigger");
             AssertEqual((ushort)1, state.Parts[mouth.SlotIndex].CasualFlameHold, "Casual hold still advances on every movement call");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
@@ -438,7 +438,7 @@ internal static class LookupStream5Verification
                 AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PartProgram(body).Program, "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PartProgram(eye).Program, "Native close/reselect eye handoff");
                 AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Expiration removes open-eye collision");
-                AssertEqual((ushort)1, body.Parameter2, "Unhit expiration requests next rain branch");
+                AssertEqual(true, state.Parts[body.SlotIndex].FlameRainRequested, "Unhit expiration requests next rain branch");
             }
         }
         AssertEqual(210, ticks, "All three actual exposure lengths and both expiry branches");
@@ -1092,7 +1092,7 @@ internal static class LookupStream5Verification
             AssertEqual(expected, PhantoonPatternDefinitions.ShotEyeMarkers[bucket], "Exact retained native RNG bucket");
             shot(body, state, 0x100, 1);
             AssertEqual((ushort)expected, state.Parts[state.Eye.SlotIndex].ShotMarker, "Actual exposed eye marker");
-            AssertEqual((ushort)bucket, state.Mouth.Parameter2, "Actual selected RNG pattern");
+            AssertEqual((ushort)bucket, state.Parts[state.Mouth.SlotIndex].ShotPattern, "Actual selected RNG pattern");
             AssertEqual((ushort)16, state.Parts[body.SlotIndex].FunctionTimer, "Actual shot window");
             AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
         }
@@ -1253,7 +1253,7 @@ internal static class LookupStream5Verification
                 var enemies = new RoomEnemySystem();
                 var slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
-                slot.Parameter2 = (ushort)(0x8000 | direction);
+                slot.SetSpawnParameter2((ushort)(0x8000 | direction));
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
@@ -1992,7 +1992,7 @@ internal static class LookupStream5Verification
                 var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
                 system.Presentation._cgram = cgram;
-                var slot = system.SlotTable.Slots[0]; slot.Parameter1 = variant;
+                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = variant == 3 ? CeresDoorVisualRomData.NormalTargetColor : CeresDoorVisualRomData.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), cgram.Colors[destination + color], "Actual normal/target initializer copy");
@@ -2058,7 +2058,7 @@ internal static class LookupStream5Verification
                 var system = new RoomEnemySystem { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
                 system.Presentation._cgram = cgram;
-                var slot = system.SlotTable.Slots[0]; slot.Parameter1 = variant;
+                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = CeresDoorVisualRomData.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), cgram.Colors[destination + color], "Actual escape initializer copy");

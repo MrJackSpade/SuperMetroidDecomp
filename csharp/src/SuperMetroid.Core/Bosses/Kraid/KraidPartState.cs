@@ -29,6 +29,9 @@ public sealed class KraidPartState
     /// </summary>
     public bool AlternateSpawn { get; internal set; }
 
+    /// <summary>Whether this fingernail has launched at least once (its parameter one); the cartridge sets it and nothing reads it back.</summary>
+    public bool NailLaunched { get; internal set; }
+
     /// <summary>The function word.</summary>
     private int _functionWord;
 

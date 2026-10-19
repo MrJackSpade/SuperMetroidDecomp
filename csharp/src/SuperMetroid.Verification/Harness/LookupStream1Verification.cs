@@ -295,7 +295,7 @@ internal static class LookupStream1Verification
             var balloon = enemies.SlotTable.Slots[0];
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
             balloon.Bind(balloon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
-            balloon.Parameter1 = 1;
+            balloon.SetSpawnParameter1(1);
             initialize(balloon);
             var body = enemies.SlotTable.Slots[1];
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);

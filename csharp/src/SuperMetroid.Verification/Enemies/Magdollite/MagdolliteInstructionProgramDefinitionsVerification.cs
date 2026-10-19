@@ -139,8 +139,8 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 RoomEnemySlot member = enemies.SlotTable.Slots[index];
                 member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.Bind(member.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
-                member.Parameter1 = (ushort)index;
-                member.Parameter2 = 0;
+                member.SetSpawnParameter1((ushort)index);
+                member.SetSpawnParameter2(0);
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
                 initialize(member, null);
             }

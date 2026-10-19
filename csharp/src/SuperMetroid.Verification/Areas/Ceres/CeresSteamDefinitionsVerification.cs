@@ -37,7 +37,7 @@ internal static class CeresSteamDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x001f);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Parameter1 = (ushort)variant;
+            slot.SetSpawnParameter1((ushort)variant);
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 

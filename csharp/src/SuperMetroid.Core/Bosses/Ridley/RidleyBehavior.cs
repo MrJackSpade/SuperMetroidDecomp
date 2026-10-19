@@ -189,9 +189,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 EnemyProperties.Invisible);
             return;
         }
-
-        slot.Parameter1 = 0;
-        slot.Parameter2 = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -1482,7 +1479,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyEnemyState state)
     {
         RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
-            checked((ushort)fragment.Parameter1), "Ridley explosion part");
+            checked((ushort)fragment.Spawn.Population.Parameter1), "Ridley explosion part");
 
         fragment.InstructionTimer = NativeCountdown.Start(1);
         fragment.Timer = NativeCountdown.Start(0);
@@ -1492,7 +1489,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = NativeCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Parameter1)).Lifetime),
+            Lifetime = NativeCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Spawn.Population.Parameter1)).Lifetime),
             Velocity = new(new SnesSignedEightEight(unchecked((short)random) < 0
                 ? unchecked((ushort)-horizontalMagnitude)
                 : horizontalMagnitude), default),

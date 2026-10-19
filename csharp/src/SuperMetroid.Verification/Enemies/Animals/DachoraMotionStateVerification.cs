@@ -95,7 +95,7 @@ internal static class DachoraMotionStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-        slot.Parameter1 = parameter;
+        slot.SetSpawnParameter1(parameter);
         slot.Radius = new(8, 8);
         DachoraBehavior.InitializeDachora(slot);
         return (enemies, slot, DachoraBehavior.RequireDachoraState(slot));

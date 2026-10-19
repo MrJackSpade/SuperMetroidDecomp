@@ -73,7 +73,7 @@ internal static class YardDirectionDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
-            slot.Parameter1 = 0;
+            slot.SetSpawnParameter1(0);
             slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x4000));
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
@@ -110,7 +110,7 @@ internal static class YardDirectionDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
-            slot.Parameter1 = 0;
+            slot.SetSpawnParameter1(0);
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));

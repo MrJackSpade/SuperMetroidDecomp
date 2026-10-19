@@ -37,13 +37,17 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
-        var state = new MultiviolaEnemyState();
+        var state = new MultiviolaEnemyState
+        {
+            Heading = slot.Spawn.Population.Parameter1,
+            Speed = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2),
+        };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
         // immediately after room load should match $0FAC-$0FB2 before the first frame.
-        CalculateMultiviolaVelocityMagnitudes(slot, state);
+        CalculateMultiviolaVelocityMagnitudes(state);
         state.Program = AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying);
     }
 
@@ -62,9 +66,9 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The two magnitudes are always rebuilt from the current reflected angle. Native
         // code therefore stores the attempted velocity for this frame, not a persistent
         // direction vector that can simply be negated after collision.
-        CalculateMultiviolaVelocityMagnitudes(slot, state);
+        CalculateMultiviolaVelocityMagnitudes(state);
 
-        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
+        if ((unchecked((ushort)(state.Heading + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
         {
             NativeMultiviolaNegate(ref state, horizontal: true);
         }
@@ -78,33 +82,30 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             // Reflect across a vertical surface. As in retail, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
             // components instead of bouncing diagonally in a single host update.
-            slot.Parameter1 ^= MultiviolaHorizontalReflection;
+            state.Heading ^= MultiviolaHorizontalReflection;
             return;
         }
 
-        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
+        if ((unchecked((ushort)(state.Heading + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
             NativeMultiviolaNegate(ref state, horizontal: false);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
-            slot.Parameter1 ^= MultiviolaVerticalReflection;
+            state.Heading ^= MultiviolaVerticalReflection;
     }
 
     /// <summary>
-    /// Recreates $A0:B643's unsigned |cos|/|sin| products. Only parameter two's low byte is
-    /// copied into the native magnitude word; its high byte is intentionally ignored.
+    /// Recreates $A0:B643's unsigned |cos|/|sin| products of the heading and speed.
     /// </summary>
-    private static void CalculateMultiviolaVelocityMagnitudes(
-        RoomEnemySlot slot,
-        MultiviolaEnemyState state)
+    private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
-        ushort magnitude = (ushort)(SnesLittleEndian.LowByte(slot.Parameter2));
+        ushort magnitude = checked((ushort)state.Speed);
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked((ushort)slot.Parameter1),
+            checked((ushort)state.Heading),
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked((ushort)slot.Parameter1),
+            checked((ushort)state.Heading),
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(

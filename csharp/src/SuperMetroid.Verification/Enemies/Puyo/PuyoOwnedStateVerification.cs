@@ -33,7 +33,7 @@ internal static class PuyoOwnedStateVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
-        slot.Parameter1 = 5;
+        slot.SetSpawnParameter1(5);
         PuyoBehavior.InitializePuyo(slot);
         PuyoEnemyState state = enemies.PuyoStates[0]
             ?? throw new InvalidOperationException("The initialized Puyo has no state.");

@@ -118,10 +118,10 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         body.Health = unchecked((ushort)(2 * 312 + 1));
         body.FlashTimer = NativeCountdown.Start(8);
-        tentacles.Parameter2 = 0x0101;
+        state.Parts[tentacles.SlotIndex].HitReaction = 1; state.Parts[tentacles.SlotIndex].HurtFlashShown = true;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertBodyBand(2, "Phantoon live hurt restore");
-        AssertEqual((ushort)0x0001, tentacles.Parameter2,
+        AssertTrue(state.Parts[tentacles.SlotIndex].HitReaction == 1 && !state.Parts[tentacles.SlotIndex].HurtFlashShown,
             "Phantoon hurt restore clears only the flash-latch byte");
 
         state.Parts[eye.SlotIndex].FadeNumerator = 1;

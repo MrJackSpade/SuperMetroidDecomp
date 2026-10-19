@@ -61,7 +61,7 @@ internal static class DragonAnimationDefinitionsVerification
         {
             var requested = (DragonAnimationSelector)index;
             var slot = NewDragonAnimationSlot(0);
-            DragonEnemyState state = NewDragonAnimationState(slot);
+            DragonEnemyState state = NewDragonAnimationState();
             state.RequestedInstructionListIndex = requested;
             state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
             DragonBehavior.InstallDragonInstructionList(slot, state);
@@ -79,15 +79,15 @@ internal static class DragonAnimationDefinitionsVerification
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
-        body.Parameter1 = 0;
-        wing.Parameter1 = 1;
+        body.SetSpawnParameter1(0);
+        wing.SetSpawnParameter1(1);
         wing.Position = wing.Position.WithWholeX(0x0100);
         body.Position = body.Position.WithWholeX(0x0100);
         wing.Position = wing.Position.WithWholeY(0x0100);
         body.Position = body.Position.WithWholeY(0x0100);
 
-        enemies.DragonBehavior.InitializeDragon(body);
-        enemies.DragonBehavior.InitializeDragon(wing);
+        DragonBehavior.InitializeDragon(body);
+        DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
         DragonEnemyState wingState = (enemies.DragonStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[1]."));
         var samus = new SamusState
@@ -136,7 +136,7 @@ internal static class DragonAnimationDefinitionsVerification
     };
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
-    private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) => new();
+    private static DragonEnemyState NewDragonAnimationState() => new();
 
     /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(

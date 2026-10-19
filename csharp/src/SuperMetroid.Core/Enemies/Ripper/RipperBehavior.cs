@@ -61,8 +61,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is native and becomes
         // visible again when the direction reverses on the next pass.
-        state.MinimumXPosition = slot.Parameter1;
-        state.MaximumXPosition = slot.Parameter2;
+        state.MinimumXPosition = slot.Spawn.Population.Parameter1;
+        state.MaximumXPosition = slot.Spawn.Population.Parameter2;
     }
 
     /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
@@ -98,13 +98,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeRipper2(RoomEnemySlot slot)
     {
         RipperEnemyState state = CreateRipperState(slot);
-        state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
+        state.SpeedTableByteOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1 * 8));
 
         // Ripper II's list labels appear inverted relative to the displayed shared maps.
         // Keep the native list names instead of normalizing them: init1 zero uses the
         // negative speed pair with the moving-right list, while nonzero uses positive speed
         // with the moving-left list.
-        bool movingPositive = slot.Parameter2 != 0;
+        bool movingPositive = slot.Spawn.Population.Parameter2 != 0;
         LoadRipperVelocity(state, movingPositive);
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
@@ -130,7 +130,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // chooses the positive table pair and the right-facing list; zero chooses the
         // negative pair and left-facing list. Unlike a reversal, initialization keeps the
         // population's instruction timer.
-        bool movingRight = slot.Parameter2 != 0;
+        bool movingRight = slot.Spawn.Population.Parameter2 != 0;
         _extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
 
@@ -139,7 +139,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         //   +4 negated pixel velocity, +6 negated subpixel velocity.
         // The state retains the byte offset because the reversal routine reuses it.
         RipperEnemyState state = CreateRipperState(slot);
-        state.SpeedTableByteOffset = unchecked((ushort)(slot.Parameter1 * 8));
+        state.SpeedTableByteOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1 * 8));
         LoadRipperVelocity(state, movingRight);
     }
 

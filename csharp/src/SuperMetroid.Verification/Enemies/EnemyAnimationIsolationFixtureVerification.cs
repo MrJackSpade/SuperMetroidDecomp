@@ -95,8 +95,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             {
                 // Choose valid nonzero bounce-height and multiplier indexes; these are
                 // fixture inputs, not authored animation/gameplay tuning.
-                Actor.Parameter1 = (3 << 8) | 2;
-                Actor.Parameter2 = Actor.Position.Y.Whole;
+                Actor.SetSpawnParameter1((3 << 8) | 2);
+                Actor.SetSpawnParameter2(Actor.Position.Y.Whole);
                 new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
             }
         }
@@ -119,7 +119,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         }
 
         /// <summary>Starts Golden Torizo's compiled death sequence after its orb attack.</summary>
-        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
+        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(Enemies.BombTorizoBehavior.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
 
         /// <summary>Advances the fixture's deterministic RNG and records each consumption.</summary>
         private ushort NextRandom()

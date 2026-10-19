@@ -149,10 +149,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeCeresDoor(RoomEnemySlot slot)
     {
         // Native Enemy.init0 ($0FB4) is populated from the record's parameter-one word and
-        // remains mutable after load. RoomEnemySlot.Parameter1 is that exact WRAM field.
+        // remains mutable after load. RoomEnemySlot.Spawn.Population.Parameter1 is that exact WRAM field.
         // The earlier population "init" word seeds Enemy.instList before initialization;
         // it is not the variant despite its host-side historical name.
-        ushort variant = checked((ushort)slot.Parameter1);
+        ushort variant = checked((ushort)slot.Spawn.Population.Parameter1);
 
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);

@@ -73,13 +73,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
-        if (slot.Parameter1 > (ushort)MagdollitePart.TrackingOverlay)
+        if (slot.Spawn.Population.Parameter1 > (ushort)MagdollitePart.TrackingOverlay)
         {
             throw new InvalidDataException(
-                $"Magdollite slot {slot.SlotIndex} has invalid part parameter ${slot.Parameter1:X4}.");
+                $"Magdollite slot {slot.SlotIndex} has invalid part parameter ${slot.Spawn.Population.Parameter1:X4}.");
         }
 
-        var state = new MagdolliteEnemyState((MagdollitePart)slot.Parameter1);
+        var state = new MagdolliteEnemyState((MagdollitePart)slot.Spawn.Population.Parameter1);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         switch (state.Part)
@@ -99,7 +99,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The table stores +whole,+fraction,-whole,-fraction. Reading both signed records
         // retains retail's independently encoded negative fraction rather than negating a
         // host 32-bit value and accidentally repairing a possible ROM rounding quirk.
-        int speedOffset = SnesLittleEndian.HighByte(slot.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
+        int speedOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
         (short positiveWhole, ushort positiveFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
         (short negativeWhole, ushort negativeFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
         state.DownwardVelocity = SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction);
@@ -237,7 +237,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         overlayState.AttackTimer = NativeCountdown.Start(0);
-        ushort range = unchecked((byte)head.Parameter2);
+        ushort range = unchecked((byte)head.Spawn.Population.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
@@ -518,16 +518,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
     {
-        int headIndex = member.SlotIndex - checked((int)member.Parameter1);
+        int headIndex = member.SlotIndex - checked((int)member.Spawn.Population.Parameter1);
         if (headIndex < 0 || headIndex + 2 >= RoomEnemySystem.MaximumEnemyCount)
             throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
 
         RoomEnemySlot head = _slotTable._slots[headIndex];
         RoomEnemySlot body = _slotTable._slots[headIndex + 1];
         RoomEnemySlot overlay = _slotTable._slots[headIndex + 2];
-        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || head.Parameter1 != 0 ||
-            body.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || body.Parameter1 != 1 ||
-            overlay.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || overlay.Parameter1 != 2)
+        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || head.Spawn.Population.Parameter1 != 0 ||
+            body.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || body.Spawn.Population.Parameter1 != 1 ||
+            overlay.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || overlay.Spawn.Population.Parameter1 != 2)
         {
             throw new InvalidDataException(
                 $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered 0/1/2 composite.");
@@ -715,12 +715,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MagdolliteLava);
 
-        table.RegisterCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
     }
 
     /// <summary>Carries out one cue of the thrown lava's programs.</summary>
-    private void ApplyMagdolliteLavaCue(RoomEnemyProjectileSlot projectile, SamusState? samus, MagdolliteLavaCue cue)
+    private void ApplyMagdolliteLavaCue(RoomEnemyProjectileSlot projectile, MagdolliteLavaCue cue)
     {
         switch (cue.Kind)
         {

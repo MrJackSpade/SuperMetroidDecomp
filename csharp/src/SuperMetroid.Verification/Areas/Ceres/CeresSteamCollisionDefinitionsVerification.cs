@@ -34,7 +34,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             { Bank = CeresSteamCollisionDefinitions.Bank });
-            slot.Parameter1 = (ushort)variant;
+            slot.SetSpawnParameter1((ushort)variant);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];

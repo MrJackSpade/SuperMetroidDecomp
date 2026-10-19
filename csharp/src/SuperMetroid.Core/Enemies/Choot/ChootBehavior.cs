@@ -39,7 +39,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
-        ushort patternIndex = SnesLittleEndian.HighByte(slot.Parameter1);
+        ushort patternIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
         state.FallingPath = pattern.FallingPatternPointer;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
@@ -47,7 +47,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
         ushort jumpHeight = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Parameter1)) * state.FallingPatternYDistance));
+            (SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * state.FallingPatternYDistance));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
             state.SpawnPosition.Y - jumpHeight)));
@@ -98,7 +98,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;
 
-        state.JumpDelayTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
+        state.JumpDelayTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
@@ -134,7 +134,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
         state.FallingPatternLoopCounter = NativeCountdown.FromRaw(unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Parameter1)) - 1)));
+            (SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) - 1)));
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }

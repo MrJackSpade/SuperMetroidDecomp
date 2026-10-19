@@ -25,7 +25,7 @@ internal static class PowampBehaviorVerification
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Bind(balloon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank });
-        balloon.Parameter1 = 1;
+        balloon.SetSpawnParameter1(1);
         enemies.PowampBehavior.InitializePowamp(balloon);
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);

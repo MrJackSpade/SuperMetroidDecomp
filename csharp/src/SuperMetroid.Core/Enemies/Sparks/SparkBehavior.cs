@@ -69,9 +69,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native masks the selector to two bits, but both tables contain only three authored
         // words. The compiled definition preserves selector three's two adjacent-code reads;
         // a later main pass still reports its exact nonsensical function if selected.
-        SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(checked((ushort)slot.Parameter1));
+        SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(checked((ushort)slot.Spawn.Population.Parameter1));
         state.Function = definition.Function;
-        state.BaseFunctionTime = slot.Parameter2;
+        state.BaseFunctionTime = slot.Spawn.Population.Parameter2;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.InstructionTimer = NativeCountdown.Start(1);

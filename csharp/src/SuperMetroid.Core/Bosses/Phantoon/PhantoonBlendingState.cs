@@ -33,12 +33,12 @@ public sealed class PhantoonBlendingState
         if (_setupCalls < PhantoonBlendingRomData.SetupCalls) { _setupCalls++; return; }
         if (boss.SemiTransparent)
             Configuration = LayerBlendingConfiguration.PhantoonSemiTransparent;
-        else if ((byte)boss.Mouth.Parameter1 is 0 or PhantoonBlendingRomData.DeleteControl)
+        else if ((byte)boss.Parts[boss.Mouth.SlotIndex].BlendingControl is 0 or PhantoonBlendingRomData.DeleteControl)
         {
             Configuration = LayerBlendingConfiguration.PhantoonHidden;
             // The pre-instruction advances sleep to delete with timer one, so the
             // instruction handler removes this owner on this same call.
-            _deleted = (byte)boss.Mouth.Parameter1 == PhantoonBlendingRomData.DeleteControl;
+            _deleted = (byte)boss.Parts[boss.Mouth.SlotIndex].BlendingControl == PhantoonBlendingRomData.DeleteControl;
         }
     }
 

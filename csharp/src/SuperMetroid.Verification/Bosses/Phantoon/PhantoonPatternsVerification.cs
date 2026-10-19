@@ -107,7 +107,7 @@ internal static class PhantoonPatternsVerification
             shotState.Parts[shotState.Tentacles.SlotIndex].RoundDamage = 0;
             shot(shotBody, shotState, 0x100, 1);
             AssertEqual((ushort)rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.Parts[shotState.Eye.SlotIndex].ShotMarker, "Real shot exact eye marker without bus");
-            AssertEqual((ushort)(raw & 7), shotState.Mouth.Parameter2, "Real shot retains selected pattern");
+            AssertEqual((ushort)(raw & 7), shotState.Parts[shotState.Mouth.SlotIndex].ShotPattern, "Real shot retains selected pattern");
             AssertEqual((ushort)16, shotState.Parts[shotBody.SlotIndex].FunctionTimer, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }

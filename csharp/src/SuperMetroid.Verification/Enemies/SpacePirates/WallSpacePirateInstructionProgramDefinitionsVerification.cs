@@ -181,7 +181,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
-            slot.Parameter2 = 0x0080;
+            slot.SetSpawnParameter2(0x0080);
             WallSpacePirateBehavior.InitializeWallSpacePirate(slot);
             var samus = new SamusState
             {

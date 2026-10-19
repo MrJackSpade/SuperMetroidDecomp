@@ -38,8 +38,8 @@ internal static class SparkMovementDefinitionsVerification
             AssertEqual(nativeList, list, $"Spark list selector {selector}");
             AssertEqual(nativeFunction, definition.Function, $"Spark function selector {selector}");
 
-            slot.Parameter1 = selector;
-            slot.Parameter2 = 5;
+            slot.SetSpawnParameter1(selector);
+            slot.SetSpawnParameter2(5);
             enemies.SparkBehavior.InitializeSpark(slot);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
             AssertEqual(definition.Program is { } started ? AnimationProgramCursor<SparkProgram>.Start(started) : (AnimationProgramCursor<SparkProgram>?)null,

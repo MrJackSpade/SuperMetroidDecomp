@@ -138,9 +138,13 @@ public sealed class DachoraEnemyState
     /// <summary>The bank-$A7 indirect main-AI behaviour; none once a kill has emptied the record.</summary>
     public DachoraAiFunction? Function { get; internal set; }
 
+    /// <summary>Whether the Dachora faces right (parameter one is nonzero); a wall or the ceiling turns it.</summary>
+    public bool FacingRight { get; internal set; }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
+        FacingRight = false;
         _speedWholeOrPhaseTime = 0;
         _speedFraction = 0;
         _accelerationWhole = 0;

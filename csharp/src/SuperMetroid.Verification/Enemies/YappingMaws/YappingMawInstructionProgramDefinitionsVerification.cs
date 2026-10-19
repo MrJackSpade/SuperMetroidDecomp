@@ -95,8 +95,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             slot.Position = slot.Position.WithWhole(new(128, 128));
-            slot.Parameter1 = 128;
-            slot.Parameter2 = parameter2;
+            slot.SetSpawnParameter1(128);
+            slot.SetSpawnParameter2(parameter2);
             enemies.YappingMawBehavior.InitializeYappingMaw(slot);
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
@@ -165,8 +165,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        slot.Parameter1 = checked((ushort)activationDistance);
-        slot.Parameter2 = 1;
+        slot.SetSpawnParameter1(checked((ushort)activationDistance));
+        slot.SetSpawnParameter2(1);
         enemies.YappingMawBehavior.InitializeYappingMaw(slot);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return (enemies, slot, state);

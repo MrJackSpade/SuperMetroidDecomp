@@ -51,12 +51,12 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
     {
-        int multiplierIndex = SnesLittleEndian.LowByte(slot.Parameter1);
-        int jumpHeightIndex = SnesLittleEndian.HighByte(slot.Parameter1);
+        int multiplierIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
+        int jumpHeightIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         if (multiplierIndex >= 8 || jumpHeightIndex >= 9)
         {
             throw new InvalidDataException(
-                $"Boyon parameter one ${slot.Parameter1:X4} indexes beyond its " +
+                $"Boyon parameter one ${slot.Spawn.Population.Parameter1:X4} indexes beyond its " +
                 "eight multipliers or nine jump heights.");
         }
 
@@ -209,7 +209,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _ = state; // Retains a symmetric family-helper signature for debugger inspection.
         int distance = Math.Abs((int)unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
-        return EnemyMath.IsNegative16(distance - slot.Parameter2);
+        return EnemyMath.IsNegative16(distance - slot.Spawn.Population.Parameter2);
     }
 
     /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>

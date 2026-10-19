@@ -58,11 +58,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerAnimationFamily animationFamily,
         ushort? speciesInstructionOffset = null)
     {
-        var state = new CrawlerEnemyState();
+        var state = new CrawlerEnemyState
+        {
+            SpeedParameter = slot.Spawn.Population.Parameter1,
+            SurfaceTableOffset = speciesInstructionOffset ?? slot.Spawn.Population.Parameter2,
+        };
         Bind(slot, state);
-
-        if (speciesInstructionOffset is ushort offset)
-            slot.Parameter2 = offset;
 
         // The population initialization parameter is an orientation index, not an
         // instruction pointer. Masking to two bits before selector lookup is native.
@@ -76,22 +77,25 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
-        state.Velocity = ResetCrawlerVelocitiesFromProperties(slot, state.Velocity);
+        state.Velocity = ResetCrawlerVelocitiesFromProperties(slot, state.SpeedParameter, state.Velocity);
     }
 
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
+    /// <param name="slot">The crawling enemy, whose property bits sign the velocity.</param>
+    /// <param name="speedParameter">The crawl speed selector: a speed-table index or the preserve-velocity selector.</param>
+    /// <param name="velocity">The velocity kept when the selector preserves it.</param>
     /// <returns>The reset velocity: <paramref name="velocity"/> or the parameter's speed on both axes, signed by the properties.</returns>
     internal static EightEightVector<RoomPixels> ResetCrawlerVelocitiesFromProperties(
-        RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
+        RoomEnemySlot slot, int speedParameter, EightEightVector<RoomPixels> velocity)
     {
-        if (slot.Parameter1 != CrawlerSpeedDefinitions.PreserveVelocity)
+        if (speedParameter != CrawlerSpeedDefinitions.PreserveVelocity)
         {
-            if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
+            if (speedParameter >= CrawlerSpeedDefinitions.Count)
             {
                 throw new InvalidDataException(
-                    $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
+                    $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
             }
-            ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
+            ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
             velocity = new(new SnesSignedEightEight(speed), new SnesSignedEightEight(speed));
         }
 
@@ -112,15 +116,18 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {
-        if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
+        int speedParameter = slot.Spawn.Population.Parameter1;
+        if (speedParameter >= CrawlerSpeedDefinitions.Count)
         {
             throw new InvalidDataException(
-                $"HZoomer speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
+                $"HZoomer speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
         }
 
         var state = new CrawlerEnemyState
         {
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
+            SpeedParameter = speedParameter,
+            SurfaceTableOffset = slot.Spawn.Population.Parameter2,
         };
         Bind(slot, state);
         var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
@@ -128,7 +135,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
+        ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
         switch (slot.Properties.FamilyData & 3)
         {
@@ -403,7 +410,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             // Parameter $FF is the native "choose default speed after first landing" path.
-            if (slot.Parameter1 == 255)
+            if (state.SpeedParameter == 255)
             {
                 state.Velocity = new EightEightVector<RoomPixels>(128, 128);
             }
@@ -456,15 +463,15 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)
     {
-        // Parameter two is already a byte offset into six-word species tables. Retail
+        // The offset is already a byte offset into six-word species tables. Retail
         // Zoomers use zero; preserving byte addressing is required for the shared families.
-        if ((slot.Parameter2 & 1) != 0 || slot.Parameter2 > 10)
+        if ((state.SurfaceTableOffset & 1) != 0 || state.SurfaceTableOffset > 10)
         {
             throw new InvalidDataException(
-                $"Crawler instruction-table offset ${slot.Parameter2:X4} is invalid.");
+                $"Crawler instruction-table offset ${state.SurfaceTableOffset:X4} is invalid.");
         }
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
-            checked((ushort)slot.Parameter2), orientation));
+            checked((ushort)state.SurfaceTableOffset), orientation));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }

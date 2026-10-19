@@ -28,7 +28,7 @@ internal static class GrowingShutterDefinitionsVerification
                 {
                     slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(selector >> 1)));
                     slot.CurrentInstruction = (ushort)(selector & 1);
-                    slot.Parameter2 = (ushort)((high << 8) | speed);
+                    slot.SetSpawnParameter2((ushort)((high << 8) | speed));
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
                     initialize(slot);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));

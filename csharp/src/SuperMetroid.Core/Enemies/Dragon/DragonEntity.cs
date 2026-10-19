@@ -8,7 +8,7 @@ internal sealed class DragonEntity(DragonBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunDragonInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => DragonBehavior.RunDragonInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDragonMainAi;

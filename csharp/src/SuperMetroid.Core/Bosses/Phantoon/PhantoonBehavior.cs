@@ -102,17 +102,17 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = RequirePhantoonState(part);
-        PhantoonPartProgram program = part.Parameter2 switch
+        PhantoonPartProgram program = part.Spawn.Population.Parameter2 switch
         {
             1 => PhantoonPartProgram.EyeClosed,
             2 => PhantoonPartProgram.Tentacles,
             3 => PhantoonPartProgram.MouthInitial,
             _ => throw new InvalidDataException(
-                $"Phantoon part slot {part.SlotIndex} has invalid part index ${part.Parameter2:X4}."),
+                $"Phantoon part slot {part.SlotIndex} has invalid part index ${part.Spawn.Population.Parameter2:X4}."),
         };
         InitializePhantoonPart(part, program);
 
-        switch (part.Parameter2)
+        switch (part.Spawn.Population.Parameter2)
         {
             case 1:
                 state.Eye = part;
@@ -138,6 +138,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.VramTilesIndex = state.Body.VramTilesIndex;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
         PhantoonPartState words = state.Parts[part.SlotIndex];
+        words.InstallSpawnParameters(part.Spawn.Population);
         part.SetSpeciesState(words, words.ClearWithRecord);
         state.Parts[part.SlotIndex].Function = PhantoonAiFunction.SpawnStartingFlames;
 
@@ -145,7 +146,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // owns the casual-flame pattern index/control words used much later in the fight.
         if (_slotTable._slots.Length > 3)
         {
-            _slotTable._slots[3].Parameter1 = 0;
+            state.Parts[3].BlendingControl = 0;
             state.Parts[3].CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
         }
     }
@@ -278,7 +279,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
-        if (state.Eye.Parameter1 == 0)
+        if (state.Parts[state.Eye.SlotIndex].WaveMode == 0)
         {
             state.Bg2Scroll = new(
                 unchecked((ushort)(camera.X - body.Position.X.Whole + 40)),
@@ -331,14 +332,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Parts[body.SlotIndex].StartingFlamesActive = false;
         state.SemiTransparent = true;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WavyFadeIn;
-        state.Mouth.Parameter1 = PhantoonBlendingRomData.WavyFadeInControl;
+        state.Parts[state.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.WavyFadeInControl;
         state.Parts[body.SlotIndex].FunctionTimer = 120;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonIntroMaximumAmplitude;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         state.MusicRequest = MusicCommand.SelectTrack(5);
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonWavyPhaseDelta;
-        state.Tentacles.Parameter1 = PhantoonWaveRomData.IntroMode;
+        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.IntroMode;
         state.Wave.Begin(PhantoonWaveRomData.IntroMode);
     }
 
@@ -354,7 +355,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 PhantoonIntroMaximumAmplitude))
         {
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.PickFirstRoundPattern;
-            state.Mouth.Parameter1 = 1;
+            state.Parts[state.Mouth.SlotIndex].BlendingControl = 1;
             state.Parts[body.SlotIndex].FunctionTimer = 30;
             return;
         }
@@ -372,7 +373,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         RoomEnemySlot eye = state.Eye;
-        eye.Parameter1 = 0;
+        state.Parts[eye.SlotIndex].WaveMode = 0;
         state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext._enemyFrameNmiFrameCounter >> 1) & 3];
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.Parts[body.SlotIndex].SpeedFraction = 0;
@@ -408,7 +409,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.NoOperation;
         InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeOpen);
-        body.Parameter2 = 0;
+        state.Parts[body.SlotIndex].FlameRainRequested = false;
         SpawnPhantoonSpiralFlames(body);
     }
 
@@ -940,7 +941,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health == 0)
         {
             state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;
-            state.Tentacles.Parameter2 = 1;
+            state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
             BeginPhantoonDeathSequence(body, state);
             return;
@@ -976,7 +977,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Parts[body.SlotIndex].FunctionTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, enraged: false);
-                state.Tentacles.Parameter2 = 2;
+                state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
                 return;
             }
 
@@ -984,8 +985,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 ushort random = unchecked((ushort)(_room.Random.Generate() & 7));
                 state.Parts[state.Eye.SlotIndex].ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
-                state.Mouth.Parameter2 = random;
-                state.Tentacles.Parameter2 = 1;
+                state.Parts[state.Mouth.SlotIndex].ShotPattern = random;
+                state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
                 if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
                 {
                     state.Parts[state.Tentacles.SlotIndex].SwoopRequested = true;
@@ -999,7 +1000,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native writes this otherwise-unused marker even when a valid damaging shot lands
         // outside the three reaction states. Retain it because the four records are exposed
         // to the debugger and later reverse-engineering may identify another consumer.
-        state.Tentacles.Parameter2 = 2;
+        state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
     }
 
     /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
@@ -1021,7 +1022,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        tentacles.Parameter2 = 2;
+        state.Parts[tentacles.SlotIndex].HitReaction = 2;
     }
 
     /// <summary>Switches from combat to the fatal swoop and death phases.</summary>
@@ -1038,28 +1039,27 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         state.Wave.InitializeDeathScroll(state.Bg2Scroll.X);
         state.SemiTransparent = true;
-        state.Mouth.Parameter2 = 1;
+        state.Parts[state.Mouth.SlotIndex].ShotPattern = 1;
     }
 
     /// <summary>Ports Phantoon's palette-only hurt AI at $A7:DD3F.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
-        RoomEnemySlot tentacles = state.Tentacles;
+        PhantoonPartState tentacles = state.Parts[state.Tentacles.SlotIndex];
         bool restoreHealthPalette = body.FlashTimer.RawValue == 8 ||
-            (body.FrameCounter & 2) == 0 && (SnesLittleEndian.HighByteInPlace(tentacles.Parameter2)) != 0;
+            (body.FrameCounter & 2) == 0 && tentacles.HurtFlashShown;
         if (restoreHealthPalette)
         {
             CopyPhantoonHealthPalette(body);
-            tentacles.Parameter2 = SnesLittleEndian.LowByte(tentacles.Parameter2);
+            tentacles.HurtFlashShown = false;
             return;
         }
 
-        if ((body.FrameCounter & 2) == 0 || (SnesLittleEndian.HighByteInPlace(tentacles.Parameter2)) != 0)
+        if ((body.FrameCounter & 2) == 0 || tentacles.HurtFlashShown)
             return;
 
         _presentation.BossPalettes.PhantoonBody.Fill(Bgr555.White);
-        tentacles.Parameter2 = SnesLittleEndian.Word(
-            SnesLittleEndian.LowByte(tentacles.Parameter2), (byte)(SnesLittleEndian.HighByte(tentacles.Parameter2) | 1));
+        tentacles.HurtFlashShown = true;
     }
 
     /// <summary>Copies the selected health colors into the visible body palette.</summary>
@@ -1095,7 +1095,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain
                 // branch after the eye-close list invokes its $D076 callback.
-                body.Parameter2 = 1;
+                state.Parts[body.SlotIndex].FlameRainRequested = true;
                 return;
             }
 
@@ -1181,7 +1181,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
         state.Parts[body.SlotIndex].SpeedWhole = 1;
         state.Parts[body.SlotIndex].SpeedFraction = 0;
-        body.Parameter2 = 0;
+        state.Parts[body.SlotIndex].FlameRainRequested = false;
 
         // The native call deliberately installs a pattern function which is immediately
         // overwritten with the fade-in function. Its timer, direction, and movement-side
@@ -1239,7 +1239,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
         {
             state.Parts[state.Tentacles.SlotIndex].SwoopRequested = false;
-            body.Parameter2 = 1;
+            state.Parts[body.SlotIndex].FlameRainRequested = true;
             BeginPhantoonSwoop(body, state);
             return;
         }
@@ -1621,7 +1621,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Parts[mouth.SlotIndex].WaveAmplitude = 0;
         state.Parts[mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[mouth.SlotIndex].WavyPhaseDelta = PhantoonWavyPhaseDelta;
-        state.Tentacles.Parameter1 = PhantoonWaveRomData.DeathMode;
+        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveRomData.DeathMode;
         state.Wave.Begin(PhantoonWaveRomData.DeathMode);
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeOut;
         state.Parts[state.Eye.SlotIndex].MosaicRegister = PhantoonDeathDefinitions.InitialMosaicRegister;
@@ -1686,9 +1686,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state)
     {
         state.MosaicBlockSize = 1;
-        state.Eye.Parameter1 = 0;
+        state.Parts[state.Eye.SlotIndex].WaveMode = 0;
         state.SemiTransparent = false;
-        state.Mouth.Parameter1 = PhantoonBlendingRomData.DeleteControlWord;
+        state.Parts[state.Mouth.SlotIndex].BlendingControl = PhantoonBlendingRomData.DeleteControlWord;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Dead;
         state.Parts[body.SlotIndex].FunctionTimer = 60;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
@@ -1870,10 +1870,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Parts[eye.SlotIndex].FigureEightReversed = false;
         }
 
-        state.Parts[body.SlotIndex].Function = body.Parameter2 != 0
+        state.Parts[body.SlotIndex].Function = state.Parts[body.SlotIndex].FlameRainRequested
             ? PhantoonAiFunction.FadeOutBeforeFirstFlameRain
             : PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-        if (body.Parameter2 != 0)
+        if (state.Parts[body.SlotIndex].FlameRainRequested)
             state.Parts[eye.SlotIndex].FadeComplete = false;
     }
 

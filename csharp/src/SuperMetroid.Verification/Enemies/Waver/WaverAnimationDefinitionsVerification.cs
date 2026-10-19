@@ -58,7 +58,7 @@ internal static class WaverAnimationDefinitionsVerification
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
-            slot.Parameter1 = parameter;
+            slot.SetSpawnParameter1(parameter);
             WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;
             AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).RequestedInstructionListIndex,

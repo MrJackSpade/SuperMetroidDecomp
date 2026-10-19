@@ -55,7 +55,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             AnimationSignal = false,
             FollowerVisible = false,
-            IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0,
+            IsFollower = (slot.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -307,7 +307,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
-            (parent.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
+            (parent.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in slot {follower.SlotIndex} must immediately " +

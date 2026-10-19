@@ -58,7 +58,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = NativeCountdown.FromRaw(checked((ushort)slot.Parameter1));
+        state.HitCounter = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1));
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
@@ -147,13 +147,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             RunKagoBugFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Falling);
 
-        table.RegisterCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
         // A shot bug runs its typed shot program, the list its definition names.
         table.RegisterShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
     }
 
     /// <summary>Carries out one cue of the bugs' programs.</summary>
-    private void ApplyKagoBugCue(RoomEnemyProjectileSlot projectile, SamusState? samus, KagoBugProjectileCue cue)
+    private void ApplyKagoBugCue(RoomEnemyProjectileSlot projectile, KagoBugProjectileCue cue)
     {
         switch (cue.Kind)
         {

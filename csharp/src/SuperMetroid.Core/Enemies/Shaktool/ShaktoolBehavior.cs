@@ -49,20 +49,20 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
-        if ((slot.Parameter2 & 1) != 0 || slot.Parameter2 > 12)
+        if ((slot.Spawn.Population.Parameter2 & 1) != 0 || slot.Spawn.Population.Parameter2 > 12)
         {
             throw new InvalidDataException(
-                $"Shaktool parameter two ${slot.Parameter2:X4} is not an even index 0..12.");
+                $"Shaktool parameter two ${slot.Spawn.Population.Parameter2:X4} is not an even index 0..12.");
         }
 
-        int segmentIndex = slot.Parameter2 >> 1;
+        int segmentIndex = slot.Spawn.Population.Parameter2 >> 1;
         ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(segmentIndex);
         var state = new ShaktoolSegmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The population's first parameter holds the chain's initial motion flags; the chain then writes its flags
         // to every segment together.
-        state.MotionFlags = (ShaktoolMotionFlags)slot.Parameter1;
+        state.MotionFlags = (ShaktoolMotionFlags)slot.Spawn.Population.Parameter1;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.TargetAngle = SnesAngle.Zero;
@@ -370,7 +370,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The slot of the chain's first segment, which must be one of the room's enemy slots.</summary>
     private RoomEnemySlot OwnerSlot(ShaktoolSegmentState state)
     {
-        if (state.OwnerSlotIndex < 0 || state.OwnerSlotIndex >= RoomEnemySystem.MaximumEnemyCount)
+        if (state.OwnerSlotIndex is < 0 or >= RoomEnemySystem.MaximumEnemyCount)
             throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
         return _slotTable._slots[state.OwnerSlotIndex];
     }

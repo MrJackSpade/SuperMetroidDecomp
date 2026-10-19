@@ -190,7 +190,7 @@ internal static class DeadTourianCorpseArtworkVerification
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Parameter1 = parameter;
+        slot.SetSpawnParameter1(parameter);
         new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper)(slot);
         return enemies.Room.Staging;
     }
@@ -205,7 +205,7 @@ internal static class DeadTourianCorpseArtworkVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
-        slot.Parameter1 = checked((ushort)(variant * 2));
+        slot.SetSpawnParameter1(checked((ushort)(variant * 2)));
         new Action<RoomEnemySlot>(enemies.DeadTourianBehavior.InitializeDeadTourianCorpse)(slot);
         return enemies.Room.Staging;
     }

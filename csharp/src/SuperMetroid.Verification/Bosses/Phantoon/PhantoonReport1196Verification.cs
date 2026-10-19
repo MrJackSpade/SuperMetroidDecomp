@@ -66,7 +66,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.ScrollCycle.CountDistinct() > 1, "fixture retains a used introductory wave");
-        boss.Eye.Parameter1 = 0;
+        boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;

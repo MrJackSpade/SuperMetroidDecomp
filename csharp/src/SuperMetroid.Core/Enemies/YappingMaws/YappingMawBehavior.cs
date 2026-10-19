@@ -91,13 +91,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Function = YappingMawAiFunction.WaitingForSamus,
             Origin = slot.Position.Whole,
-            ActivationDistance = slot.Parameter1,
+            ActivationDistance = slot.Spawn.Population.Parameter1,
             RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
             OriginalPalette = SnesObjAttributeWord.FromPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits),
         };
         slot.SetSpeciesState(state);
 
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Parameter2 == 0
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Spawn.Population.Parameter2 == 0
             ? YappingMawProgram.AttackingDown
             : YappingMawProgram.AttackingUp);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -121,7 +121,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.YappingMawBody,
                 unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
             body.Position = body.Position.WithWhole(slot.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Parameter2 == 0
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Spawn.Population.Parameter2 == 0
                 ? YappingMawBodyProjectileProgram.FacingDown
                 : YappingMawBodyProjectileProgram.FacingUp));
             state.BodyProjectiles[parameter] = body;
@@ -130,8 +130,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
         // returned native index is represented by the retained physical slot reference.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
-            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.Parameter2 == 0 ? -8 : 8)))),
-            slot.Parameter2 == 0
+            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.Spawn.Population.Parameter2 == 0 ? -8 : 8)))),
+            slot.Spawn.Population.Parameter2 == 0
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
             unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
@@ -321,7 +321,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // art. Preserve parameter-zero's early-return quirk: on its shared-list branches it
         // skips the final held-Samus placement on this one transition frame.
         bool skipHeldPlacement = false;
-        if (slot.Parameter2 != 0)
+        if (slot.Spawn.Population.Parameter2 != 0)
         {
             state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionIndex switch
             {

@@ -367,7 +367,7 @@ internal static class FrontendRomFreeVerification
                             (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.Stunned0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            boss.Parameter2 = (ushort)((TorizoBehaviorFlags)boss.Parameter2 | TorizoBehaviorFlags.Stunned);
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior |= TorizoBehaviorFlags.Stunned;
                             (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }
@@ -629,7 +629,7 @@ internal static class FrontendRomFreeVerification
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
                      (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).AnimationLocked == false &&
-                     ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & (ushort)TorizoBehaviorFlags.Stunned) == 0)
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior.HasFlag(TorizoBehaviorFlags.Stunned) == false)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
                 golden.ForcedGoldenLeftTurnStart is not null &&

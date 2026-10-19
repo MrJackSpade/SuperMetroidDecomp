@@ -21,8 +21,8 @@ internal static class StokeOwnedStateVerification
         for (int record = 0; record < EnemyLinearSpeedDefinitions.RecordCount; record++)
         {
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
-            slot.Parameter1 = (ushort)StokeDirection.Right;
-            slot.Parameter2 = (ushort)record;
+            slot.SetSpawnParameter1((ushort)StokeDirection.Right);
+            slot.SetSpawnParameter2((ushort)record);
             StokeBehavior.InitializeStoke(slot);
             state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
             (short rightWhole, ushort rightFraction) = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize);

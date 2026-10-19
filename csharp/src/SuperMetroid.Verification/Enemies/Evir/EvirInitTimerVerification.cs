@@ -23,16 +23,16 @@ internal static class EvirInitTimerVerification
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
         {
-            if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Evir || slot.Parameter1 != 0)
+            if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Evir || slot.Spawn.Population.Parameter1 != 0)
                 continue;
-            int speedOffset = (byte)slot.Parameter2 * 8;
+            int speedOffset = (byte)slot.Spawn.Population.Parameter2 * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
             RoomEnemySlot aliased = runtime.Enemies.SlotTable.Slots[relative / 0x40];
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {
                 0x1f => checked((ushort)aliased.PaletteIndex),
-                0x3f => checked((ushort)aliased.Parameter2),
+                0x3f => checked((ushort)aliased.Spawn.Population.Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,

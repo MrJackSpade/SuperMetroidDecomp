@@ -84,8 +84,8 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
-        slot.Parameter1 = unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0)));
-        slot.Parameter2 = 0;
+        slot.SetSpawnParameter1(unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
+        slot.SetSpawnParameter2(0);
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.InstructionTimer = NativeCountdown.Start(1);
 

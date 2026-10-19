@@ -54,7 +54,7 @@ internal static class HopperAnimationDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definitions[variant], slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = variant });
-            slot.Parameter1 = upsideDown ? (ushort)1 : (ushort)0;
+            slot.SetSpawnParameter1(upsideDown ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             HopperProgram landed = HopperAnimationDefinitions.Program(variant, upsideDown, jumping: false);

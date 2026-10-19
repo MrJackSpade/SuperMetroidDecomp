@@ -158,8 +158,6 @@ internal sealed class CeresRidleyBehavior
         // $A6:A10B-A12E clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.Parameter1 = 0;
-        slot.Parameter2 = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 

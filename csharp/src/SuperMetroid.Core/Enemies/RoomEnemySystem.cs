@@ -1044,8 +1044,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;
-        slot.Parameter1 = checked((ushort)population.Parameter1);
-        slot.Parameter2 = checked((ushort)population.Parameter2);
         slot.Timer = NativeCountdown.Start(0);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.FrameCounter = 0;

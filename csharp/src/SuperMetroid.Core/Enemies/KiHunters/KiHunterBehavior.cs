@@ -123,7 +123,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter bit 15 selects the permanently ground-bound form used by two red
         // Ki-Hunters. Its following wing record starts deleted and the body skips every
         // later detachment side effect.
-        if ((body.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
+        if ((body.Spawn.Population.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
         {
             state.HasLostWings = true;
             state.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
@@ -143,7 +143,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.PaletteIndex = body.PaletteIndex;
         wings.VramTilesIndex = body.VramTilesIndex;
-        if ((body.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
+        if ((body.Spawn.Population.Parameter1 & KiHunterMotionDefinitions.WinglessParameterBit) != 0)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
     }
 
@@ -580,7 +580,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (body.Health <= wings.Parameter1)
+        if (body.Health <= wings.Spawn.Population.Parameter1)
         {
             if (!bodyState.HasLostWings)
             {

@@ -29,6 +29,28 @@ public sealed class CrawlerEnemyState
     {
         Velocity = default;
         Function = null;
+        SpeedParameter = 0;
+        SurfaceTableOffset = 0;
+    }
+
+    /// <summary>
+    /// The authored crawl speed, parameter one: an index into the speed table, the preserve-velocity selector, or 255
+    /// for the default speed after the first landing.
+    /// </summary>
+    public int SpeedParameter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>
+    /// The species' byte offset into the six-word surface-program tables (parameter two): the species wrapper's offset,
+    /// or the authored one when the wrapper gives none.
+    /// </summary>
+    public int SurfaceTableOffset
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -55,10 +77,7 @@ public sealed class CrawlerEnemyState
     /// </summary>
     public int ConsecutiveTurnCounter
     {
-        get => _consecutiveTurnCounter;
-        internal set => _consecutiveTurnCounter = checked((ushort)value);
+        get;
+        internal set => field = checked((ushort)value);
     }
-
-    /// <summary>Backing count for <see cref="ConsecutiveTurnCounter"/>, always a valid word value.</summary>
-    private int _consecutiveTurnCounter;
 }

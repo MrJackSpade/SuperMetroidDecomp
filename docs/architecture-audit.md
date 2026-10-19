@@ -159,6 +159,10 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
 `*Behavior` or `*Encounter` property.
 
+**SME6408** keeps enemy state out of generic slot words. `RoomEnemySlot` declares no multipurpose word
+(`VariableA`-`F`, `Parameter1`/`2` or another lettered variable or numbered parameter): each family owns its state as
+typed fields, and authored spawn parameters are read from the slot's spawn record.
+
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
 `csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
 equal the map's lists; production projects reference only production projects; and no build or tool output sits in

@@ -87,7 +87,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Dachora</c> at <c>$A7:F4DD</c>.</summary>
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
-        var state = new DachoraEnemyState();
+        var state = new DachoraEnemyState
+        {
+            FacingRight = slot.Spawn.Population.Parameter1 != 0,
+        };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
@@ -97,7 +100,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        short direction = unchecked((short)slot.Parameter1);
+        short direction = unchecked((short)slot.Spawn.Population.Parameter1);
         if (direction < 0)
         {
             // A negative direction identifies an echo. Its low bit selects the same facing
@@ -182,7 +185,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDachoraInstruction(
             slot,
             state,
-            slot.Parameter1 != 0
+            state.FacingRight
                 ? DachoraProgram.BlinkRight
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
@@ -200,10 +203,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDachoraInstruction(
             slot,
             state,
-            slot.Parameter1 != 0
+            state.FacingRight
                 ? DachoraProgram.RunningRight
                 : DachoraProgram.RunningLeft);
-        state.Function = slot.Parameter1 != 0
+        state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
         state.SetPaletteCycle(frame: 0, ticks: 1);
@@ -229,7 +232,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDachoraInstruction(slot, state, DachoraProgram.RunningRight);
         state.Function = DachoraAiFunction.RunningRight;
         state.SetPaletteCycle(frame: 0, ticks: 1);
-        slot.Parameter1 = 1;
+        state.FacingRight = true;
         state.Speed = SnesSignedSixteenSixteen.Zero;
         LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
     }
@@ -246,7 +249,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             LastDachoraSoundEffect = DachoraWallImpactSound;
             InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
-            slot.Parameter1 = 0;
+            state.FacingRight = false;
             state.Speed = SnesSignedSixteenSixteen.Zero;
             state.SetPaletteCycle(frame: 0, ticks: 0);
             LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
@@ -344,7 +347,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
 
-        DachoraProgram echoList = slot.Parameter1 != 0
+        DachoraProgram echoList = state.FacingRight
             ? DachoraProgram.EchoRight
             : DachoraProgram.EchoLeft;
         foreach (RoomEnemySlot echo in echoes)
@@ -374,15 +377,15 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Ceiling impact reverses the facing bit before the fall, a visible retail quirk.
-        if (slot.Parameter1 == 0)
+        if (!state.FacingRight)
         {
             InstallDachoraInstruction(slot, state, DachoraProgram.FallingRight);
-            slot.Parameter1 = 1;
+            state.FacingRight = true;
         }
         else
         {
             InstallDachoraInstruction(slot, state, DachoraProgram.FallingLeft);
-            slot.Parameter1 = 0;
+            state.FacingRight = false;
         }
         state.Function = DachoraAiFunction.Falling;
         state.Speed = SnesSignedSixteenSixteen.Zero;
@@ -413,10 +416,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDachoraInstruction(
             slot,
             state,
-            slot.Parameter1 != 0
+            state.FacingRight
                 ? DachoraProgram.RunningRight
                 : DachoraProgram.RunningLeft);
-        state.Function = slot.Parameter1 != 0
+        state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
         state.Speed = SnesSignedSixteenSixteen.Zero;

@@ -59,9 +59,20 @@ public sealed class MetroidEnemyState
         return borrowed;
     }
 
+    /// <summary>
+    /// The ice damage the Metroid still absorbs before freezing (parameter two), from the authored value; a shot that
+    /// reaches it freezes the Metroid and empties it.
+    /// </summary>
+    public int IceDamageToFreeze
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
+        IceDamageToFreeze = 0;
         Velocity = FixedVector<RoomPixels>.Zero;
         EscapeTimer = NativeCountdown.Start(0);
         Function = default;

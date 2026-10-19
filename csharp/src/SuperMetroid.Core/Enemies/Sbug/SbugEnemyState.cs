@@ -44,19 +44,19 @@ public sealed class SbugEnemyState
     public NativeCountdown MovementTimer { get; internal set; }
 
     /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
-    public int Speed => SnesLittleEndian.LowByte(_slot.Parameter1);
+    public int Speed => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter1);
 
     /// <summary>
     /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
     /// </summary>
-    public SnesAngle InitialAngle => SnesAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Parameter1));
+    public SnesAngle InitialAngle => SnesAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter1));
 
     /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
-    public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Parameter2);
+    public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter2);
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
-        ClosedNativeWords.Decode<SbugActivationBehavior>(SnesLittleEndian.HighByte(_slot.Parameter2), "Sbug activation behavior");
+        ClosedNativeWords.Decode<SbugActivationBehavior>(SnesLittleEndian.HighByte(_slot.Spawn.Population.Parameter2), "Sbug activation behavior");
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public SbugVelocityWords ForwardXVelocity { get; internal set; }

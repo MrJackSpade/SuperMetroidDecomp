@@ -52,7 +52,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.Bind(follower.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = NorfairLavaJumperFrameToolingDefinitions.Bank });
-        follower.Parameter1 = 32768;
+        follower.SetSpawnParameter1(32768);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[1].");

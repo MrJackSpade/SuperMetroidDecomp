@@ -52,7 +52,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Ports <c>InitAI_Skultera</c> at <c>$A3:90B5</c>.</summary>
-    internal void InitializeSkultera(RoomEnemySlot slot)
+    internal static void InitializeSkultera(RoomEnemySlot slot)
     {
         var state = new SkulteraEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -62,7 +62,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         // magnitude stores adjacent {right whole, right fraction, left whole, left fraction}
         // words. Keep the byte offset visible; treating it as an array index is a common
         // source of subtly wrong half-pixel speeds in ports of this AI.
-        bool startsLeft = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
+        bool startsLeft = (SnesLittleEndian.HighByteInPlace(slot.Spawn.Population.Parameter1)) != 0;
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
             ? SkulteraProgram.SwimmingLeft
             : SkulteraProgram.SwimmingRight);
@@ -70,7 +70,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter1)) * 8));
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) * 8));
         (short rightWhole, ushort rightFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightVelocity = SnesSignedSixteenSixteen.FromParts(rightWhole, rightFraction);
         (short leftWhole, ushort leftFraction) = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
@@ -78,8 +78,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes negative only when a turn negates it.
-        state.Radius = SnesLittleEndian.LowByte(slot.Parameter2);
-        state.AngleDelta = SnesLittleEndian.HighByte(slot.Parameter2);
+        state.Radius = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
+        state.AngleDelta = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         state.Angle = SnesAngle.Zero;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;
@@ -202,7 +202,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
 
     /// <summary>Ports Skultera's initialization AI.</summary>
-    internal void RunSkulteraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunSkulteraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeSkultera(slot);
     }

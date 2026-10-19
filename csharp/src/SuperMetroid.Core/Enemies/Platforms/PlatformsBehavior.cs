@@ -51,7 +51,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
     /// <summary>Ports the two entry points and common initializer at $A3:9C9F-$9D15.</summary>
-    internal void InitializePlatform(RoomEnemySlot slot)
+    internal static void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState();
@@ -61,14 +61,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Main AI dispatches the complete word through a two-entry table. Initialization's
         // art branch merely tests zero/nonzero, so preserve a corrupt value here and let the
         // typed dispatcher reject it instead of silently normalizing it to index one.
-        state.XMovement = (PlatformHorizontalMovement)slot.Parameter1;
+        state.XMovement = (PlatformHorizontalMovement)slot.Spawn.Population.Parameter1;
 
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformAnimationDefinitions.SelectProgram(
             isKamer, verticallyMoving: false, state.XMovement));
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
-        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2)) * 8));
         (short rightWhole, ushort rightFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         state.RightSpeed = SnesSignedSixteenSixteen.FromParts(rightWhole, rightFraction);
         (short leftWhole, ushort leftFraction) = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
@@ -80,7 +80,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = SnesLittleEndian.HighByte(slot.Parameter2);
+        state.MaximumYSpeedTableIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>
@@ -356,7 +356,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Platforms's initialization AI.</summary>
-    internal void RunPlatformsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunPlatformsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializePlatform(slot);
     }

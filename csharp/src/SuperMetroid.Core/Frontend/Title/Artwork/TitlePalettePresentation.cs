@@ -45,7 +45,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
     /// <param name="destination">Color memory whose full initial palette is replaced; ambient animation and skip-only replacements are applied separately by the title state.</param>
     /// <exception cref="ArgumentNullException"><paramref name="destination"/> is null.</exception>
-    public void Apply(SnesCgram destination)
+    public void Apply(IPaletteColors destination)
     {
         Ensure.NotNull(destination);
         new CgramPalettes(destination).LoadImage(colors);

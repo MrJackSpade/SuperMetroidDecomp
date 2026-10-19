@@ -38,12 +38,16 @@ public sealed class TitleGraphicsPresentation
     /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
-    /// <summary>Draws one title composition from installed composition data.</summary>
-    public void DrawSprite(TitleSprite sprite, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>The title OBJ page the compositions draw from: the OBJ sheet as the title uploads it (#1358).</summary>
+    public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
+        objectCharacters.AsSpan(0, Math.Min(TitleSequenceRomData.Vram.ObjectCharacterByteCount, objectCharacters.Length)));
+
+    /// <summary>Places one title composition from installed composition data as sprite entries.</summary>
+    public void DrawSprite(TitleSprite sprite, ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (!sprites.TryGetValue(sprite, out SpriteComposition? composition))
+        if (!this.sprites.TryGetValue(sprite, out SpriteComposition? composition))
             throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
-        composition.DrawOnScreen(oam, origin, paletteBits);
+        composition.Draw(sprites, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the editable title graphics and map assets.</summary>

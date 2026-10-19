@@ -137,7 +137,7 @@ internal static class TitleGradientVerification
         // scene owners require installed graphics rather than a ROM-backed draw path.
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
-            var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
+            var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
             int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]));
             ushort Word(int at) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1)));
             int count = Word(address);
@@ -149,6 +149,7 @@ internal static class TitleGradientVerification
                     new Position16<OamPixels>(128, 112));
             }
             presentation.DrawSprite(frame.Sprite, installedOam, new(128, 112), 0);
+            nativeOam.FinalizeFrame(); installedOam.FinishFrame();
             AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);

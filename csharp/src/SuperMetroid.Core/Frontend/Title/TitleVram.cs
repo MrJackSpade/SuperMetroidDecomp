@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>Typed view of the title screen's VRAM (#630).</summary>
+/// <summary>Typed view of the title screen's composed memory image (#630, #1358).</summary>
 [PpuLayoutBoundary("rendering view: title screen VRAM")]
 public readonly struct TitleVram(SnesVram vram)
 {

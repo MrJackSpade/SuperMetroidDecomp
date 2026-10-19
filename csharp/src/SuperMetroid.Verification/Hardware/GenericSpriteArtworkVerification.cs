@@ -58,25 +58,25 @@ internal static class GenericSpriteArtworkVerification
             title.activeSprite = frame.Sprite;
             title.activeOrigin = new(x, y);
             title.activeObjectPalette = palette;
-            title.PrepareRenderOam();
-            expected.BeginFrame();
+            title.PrepareRenderSprites();
+            expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]), new(x, y), palette);
             expected.FinalizeFrame();
-            EqualOam(expected, title.oam, "title composition/coordinate/palette parity");
+            EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");
             titleCases++;
         }
         title.activeSprite = null;
         title.Phase = TitleSequencePhase.TitleScreen;
-        title.PrepareRenderOam();
-        expected.BeginFrame();
+        title.PrepareRenderSprites();
+        expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank,
                 TitleSequenceRomData.Sprites.NintendoCopyright),
             new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();
-        EqualOam(expected, title.oam, "title copyright owner parity");
+        EqualSprites(expected, title.objects, "title copyright owner parity");
 
         var intro = new IntroCinematicState(introFont: maps.IntroFont,
             characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
@@ -93,7 +93,7 @@ internal static class GenericSpriteArtworkVerification
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
         PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageOam().Draws);
         expected = new OamBuffer();
-        expected.BeginFrame();
+        expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
             new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
@@ -164,6 +164,12 @@ internal static class GenericSpriteArtworkVerification
         Console.WriteLine($"Generic sprite artwork: {titleCases} title cases, copyright/caret/Mother Brain/explosion owners and {wrapCases} origin-wrap cases pass without a runtime cartridge.");
 
         static void EqualOam(OamBuffer expected, OamBuffer actual, string context)
+        {
+            AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
+            AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
+        }
+
+        static void EqualSprites(OamBuffer expected, ScreenSprites actual, string context)
         {
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
             AssertTrue(expected.ImageEquals(actual), context + " packed bytes");

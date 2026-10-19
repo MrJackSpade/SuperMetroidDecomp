@@ -144,7 +144,7 @@ public sealed class RoomPaletteFxSystem
     /// presentation on every step. Construction creates only serializable program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
-    public void Step(SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
+    public void Step(IPaletteColors cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
         SamusPowerBombExplosionState? powerBomb = null)
     {
         Ensure.NotNull(cgram);
@@ -340,7 +340,7 @@ public sealed class RoomPaletteFxSystem
 
     /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
     private void ExecuteProgram(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot)
     {
@@ -403,7 +403,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Writes one timed colour record to CGRAM from the slot's colour index, skipping the entries its layout skips.</summary>
     [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
     private static void WritePaletteRecord(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
         PaletteFxFrame frame)

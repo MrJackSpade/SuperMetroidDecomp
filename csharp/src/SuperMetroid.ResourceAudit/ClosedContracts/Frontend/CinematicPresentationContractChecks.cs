@@ -34,12 +34,13 @@ internal static class CinematicPresentationContractChecks
                     IntroMotherBrainExplosionSpritePresentation explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
                     EscapeTimer countdown, SnesVram vram, SnesCgram cgram, OamBuffer oam,
-                    SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork) {
+                    SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork,
+                    SuperMetroid.Core.Assets.ScreenSprites titleSprites) {
                     palette.Apply(cgram);
                     gradient.Resolve(ushort.MaxValue);
-                    title.DrawSprite(TitleSprite.SuperMetroidLogo, oam, default, 0);
-                    title.DrawSprite((TitleSprite)(-1), oam, default, 0);
-                    title.DrawSprite((TitleSprite)31, oam, default, 0);
+                    title.DrawSprite(TitleSprite.SuperMetroidLogo, titleSprites, default, 0);
+                    title.DrawSprite((TitleSprite)(-1), titleSprites, default, 0);
+                    title.DrawSprite((TitleSprite)31, titleSprites, default, 0);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(IntroCaretSpriteDefinitions.Still, oam, default, 0);

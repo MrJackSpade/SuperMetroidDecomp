@@ -30,4 +30,6 @@ public enum SpriteArtworkKind
     FrontendObjects,
     /// <summary>The shared menu OBJ page: the installed map-object characters file select, options, game over and the maps draw from.</summary>
     MenuObjects,
+    /// <summary>The title OBJ page: the installed title object sheet the title and copyright compositions draw from.</summary>
+    TitleObjects,
 }

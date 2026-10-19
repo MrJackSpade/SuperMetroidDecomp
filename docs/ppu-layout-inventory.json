@@ -1588,7 +1588,8 @@
       "encoding": "Mode 7 8-bpp pixels (u8, VRAM high bytes)",
       "aliasOf": "Mode7VramLayout.Characters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVram.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVram.cs",
+        "csharp/src/SuperMetroid.Verification/Frontend/Title/TitleScreenPublicationVerification.cs"
       ]
     },
     {

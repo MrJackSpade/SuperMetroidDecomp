@@ -22,18 +22,16 @@ public sealed class TitleSequenceState
 {
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Holds interleaved Mode 7 background and OBJ character data for title rendering.</summary>
-    private readonly SnesVram vram = new();
-    /// <summary>Holds installed title colors and live console palette-FX changes.</summary>
-    internal readonly SnesCgram cgram = new();
+    /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
+    internal readonly ScreenPalette palette = new();
+    /// <summary>The composed memory image of the bound artwork and shown Baby Metroid page, until either changes.</summary>
+    [NonSerialized] private byte[]? image;
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
-    /// <summary>Receives title and copyright spritemaps in native drawing order.</summary>
-    internal readonly OamBuffer oam = new();
+    /// <summary>The title and copyright sprite entries in native drawing order, over the title OBJ page (#1358).</summary>
+    internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Extracted source pages copied into Mode 7 VRAM for Baby Metroid animation.</summary>
-    private readonly byte[] babyMetroidCharacters;
     /// <summary>Host-selected scanline gradient rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
     /// <summary>Host-selected title palette rebound after debugger-state restoration.</summary>
@@ -105,28 +103,16 @@ public sealed class TitleSequenceState
                 MusicCommand.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
         }
 
-        // `$8B:9B87` expands these four independent streams to bank-$7F. Recreate the
-        // subsequent DMA destinations rather than keeping an invented host texture format.
-        byte[] mode7Characters = titleGraphicsPresentation.Mode7Characters.ToArray();
-        byte[] mode7Map = titleGraphicsPresentation.Mode7Map.ToArray();
-        byte[] objectCharacters = titleGraphicsPresentation.ObjectCharacters.ToArray();
-        babyMetroidCharacters = titleGraphicsPresentation.BabyCharacters.ToArray();
-
-        LoadMode7InterleavedVram(mode7Characters, mode7Map);
-        new TitleVram(vram).ObjectCharacters.Load(
-            objectCharacters.AsSpan(
-                0,
-                Math.Min(
-                    TitleSequenceRomData.Vram.ObjectCharacterByteCount,
-                    objectCharacters.Length)));
-        titlePalettePresentation.Apply(cgram);
+        // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
+        // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
+        objects = new ScreenSprites(this.titleGraphicsPresentation.ObjectPage);
+        titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 
         // The Year object's pre-instruction forces full brightness on the first
         // processing frame; its position and palette come from the native definition.
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceRomData.TextSequences.Year);
-        UpdateBabyMetroidCharacterFrame();
     }
 
     /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
@@ -161,8 +147,13 @@ public sealed class TitleSequenceState
         titleGradientPresentation = presentation;
 
     /// <summary>Rebinds installed sprite compositions after debugger-state restoration.</summary>
-    internal void BindTitleGraphics(TitleGraphicsPresentation? presentation) =>
+    internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
+    {
         titleGraphicsPresentation = presentation;
+        image = null;
+        if (presentation is not null)
+            objects.BindArtwork(presentation.ObjectPage);
+    }
 
     /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
@@ -174,7 +165,7 @@ public sealed class TitleSequenceState
         if (Phase is TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            new FrontendPalettes(cgram).WriteTitleCopyright(
+            new FrontendPalettes(palette).WriteTitleCopyright(
                 presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
                 presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         }
@@ -314,7 +305,7 @@ public sealed class TitleSequenceState
         StepBabyMetroidAnimation();
         // The title calls the same bank-$8D interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.Step(cgram, titlePalettePresentation ?? throw new InvalidOperationException(
+        consolePaletteFx.Step(palette, titlePalettePresentation ?? throw new InvalidOperationException(
                 "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
@@ -337,9 +328,12 @@ public sealed class TitleSequenceState
     /// </summary>
     public Mode7ObjRenderSnapshot CaptureRenderSnapshot()
     {
-        PrepareRenderOam();
+        PrepareRenderSprites();
         short scale = unchecked((short)zoom);
-        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector),
+        TitleGraphicsPresentation artwork = titleGraphicsPresentation
+            ?? throw new InvalidOperationException("Title rendering requires installed title artwork.");
+        image ??= TitleScreenImage.Compose(artwork, TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
+        return new(new PpuMemorySnapshot(image, palette.Colors, objects.Draws),
             mode7BackgroundEnabled
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
@@ -357,30 +351,29 @@ public sealed class TitleSequenceState
         return titleGradientPresentation.Resolve((ushort)zoom);
     }
 
-    /// <summary>Draws the active title spritemap and stage-dependent copyright into finalized OAM.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: TitleSequenceState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    internal void PrepareRenderOam()
+    /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>
+    internal void PrepareRenderSprites()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
-        oam.BeginFrame();
+        objects.BeginFrame();
         if (activeSprite is { } sprite)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            artwork.DrawSprite(sprite, oam,
+            artwork.DrawSprite(sprite, objects,
                 activeOrigin.ToOam(), activeObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            artwork.DrawSprite(TitleSprite.NintendoCopyright, oam,
+            artwork.DrawSprite(TitleSprite.NintendoCopyright, objects,
                 TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 
-        oam.FinalizeFrame();
+        objects.FinishFrame();
     }
 
     /// <summary>Advances the running title card's timed frames and runs its scene or delete commands.</summary>
@@ -462,7 +455,7 @@ public sealed class TitleSequenceState
         gradientEnabled = true;
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
-        new FrontendPalettes(cgram).WriteTitleCopyright(
+        new FrontendPalettes(palette).WriteTitleCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         activeSprite = TitleSprite.SuperMetroidLogo;
@@ -482,26 +475,6 @@ public sealed class TitleSequenceState
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
-    /// <summary>Recreates the title's high-byte character DMA, low-byte fill, and map transfer in Mode 7 VRAM.</summary>
-    private void LoadMode7InterleavedVram(byte[] characterBytes, byte[] mapBytes)
-    {
-        if (characterBytes.Length < TitleSequenceRomData.Vram.Mode7CharacterByteCount)
-            throw new InvalidDataException("Title Mode 7 character stream is shorter than its $4000-byte DMA.");
-        if (mapBytes.Length < TitleSequenceRomData.Vram.Mode7MapByteCount)
-            throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
-
-        // DMA mode zero to $2119 writes only high bytes and increments VMADD afterward.
-        // The following $2118 fill and map DMA populate the corresponding low bytes.
-        var mode7 = new Mode7Vram(vram);
-        mode7.FillMap(
-            TitleSequenceRomData.Vram.Mode7InitialMapByte,
-            TitleSequenceRomData.Vram.Mode7CharacterByteCount);
-        mode7.LoadCharacters(
-            characterBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7CharacterByteCount));
-        mode7.LoadMap(
-            mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
-    }
-
     /// <summary>Advances the Baby Metroid page cycle when its authored frame duration expires.</summary>
     private void StepBabyMetroidAnimation()
     {
@@ -510,22 +483,8 @@ public sealed class TitleSequenceState
 
         babyFrame = (babyFrame + 1) % TitleSequenceRomData.Vram.BabyAnimationSourcePages.Length;
         babyFrameTimer = TitleSequenceRomData.Timing.BabyFrameDuration;
-        UpdateBabyMetroidCharacterFrame();
-    }
-
-    /// <summary>Uploads the selected Baby Metroid source page to Mode 7 character destination $3800.</summary>
-    private void UpdateBabyMetroidCharacterFrame()
-    {
-        // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word
-        // `$3800`, high byte only. Each page is exactly $100 bytes / four characters.
-        int sourcePage = TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame];
-        int source = sourcePage * TitleSequenceRomData.Vram.BabyCharacterPageByteCount;
-        if (babyMetroidCharacters.Length <
-            source + TitleSequenceRomData.Vram.BabyCharacterPageByteCount)
-            throw new InvalidDataException("Title baby-Metroid stream is missing an animation page.");
-
-        new TitleVram(vram).LoadBabyMetroidPage(
-            babyMetroidCharacters.AsSpan(source, TitleSequenceRomData.Vram.BabyCharacterPageByteCount));
+        // The instruction list uploads the next source page; the capture shows it.
+        image = null;
     }
 
     /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>

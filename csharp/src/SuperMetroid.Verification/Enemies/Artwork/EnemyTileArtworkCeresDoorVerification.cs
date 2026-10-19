@@ -79,12 +79,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
                 $"Ceres-door Mode-7 transfer {frame} terminator");
             byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                 CeresDoorVisualRomData.Mode7FrameByteCount);
-            var nativeVram = new SnesVram();
-            var installedVram = new SnesVram();
-            nativeVram.LoadMode7MapBytes(nativeFrame,
-                CeresDoorVisualRomData.Mode7DestinationWord);
-            visual.LoadMode7DoorFrame(installedVram, frame);
-            AssertTrue(nativeVram.ImageEquals(installedVram),
+            AssertTrue(nativeFrame.SequenceEqual(visual.Mode7DoorFrame(frame)),
                 $"installed Ceres-door Mode-7 frame {frame} matches native transfer");
         }
 
@@ -133,11 +128,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertTrue(editedCgram.Colors[CeresDoorVisualRomData.AnimationTargetColor] !=
             stockAnimationCgram.Colors[CeresDoorVisualRomData.AnimationTargetColor],
             "Ceres-door animation override changes the live selected frame");
-        var editedMode7 = new SnesVram();
-        var stockMode7 = new SnesVram();
-        edited.LoadMode7DoorFrame(editedMode7, 0);
-        visual.LoadMode7DoorFrame(stockMode7, 0);
-        AssertTrue(!editedMode7.ImageEquals(stockMode7),
+        AssertTrue(!edited.Mode7DoorFrame(0).SequenceEqual(visual.Mode7DoorFrame(0)),
             "Ceres-door Mode-7 frame override changes the live tilemap");
     }
 }

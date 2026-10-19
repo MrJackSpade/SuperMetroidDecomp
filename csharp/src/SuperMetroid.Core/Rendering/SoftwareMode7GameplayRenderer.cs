@@ -15,7 +15,7 @@ internal static class SoftwareMode7GameplayRenderer
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(memory.Cgram, width * height, outputBuffer);
         Mode7RenderRegisters m = layer.Registers;
         Rgba32[] mode7 = scratch.Colors(width * height);
-        SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram, m);
+        SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram, m, layer.Map);
         // Resolve the winning OAM record once, before choosing its layer priority.
         ResolvedObjFrame objects = scratch.ResolveObjects(memory);
         int floorStart = layer.Floor?.FirstScanline ?? height;

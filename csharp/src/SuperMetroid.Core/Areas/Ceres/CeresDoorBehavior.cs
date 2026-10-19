@@ -327,7 +327,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        SelectedCeresDoorVisual.LoadMode7DoorFrame(_presentation.Vram, (frame & 2) >> 1);
+        _room.Services.DrawMode7Map(CeresDoorVisualRomData.Mode7DestinationWord, SelectedCeresDoorVisual.Mode7DoorFrame((frame & 2) >> 1));
 
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;

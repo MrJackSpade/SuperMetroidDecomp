@@ -16,9 +16,10 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="Bg1Overlay">Words a room actor wrote over BG1, or null.</param>
 /// <param name="Sky">The scrolling sky's rows on BG2 when the room has no layer-2 plane, or null (#1347).</param>
 /// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
+/// <param name="Mode7">The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Plane Bg3,
     RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
-    RoomTilemapOverlay? Bg2Overlay = null)
+    RoomTilemapOverlay? Bg2Overlay = null, Mode7MapSnapshot? Mode7 = null)
 {
     /// <summary>The BG1 this frame shows, as a renderer samples it: door source, then overlay, then level data.</summary>
     public IBgTileSource Bg1Source => new Bg1Composite(this);

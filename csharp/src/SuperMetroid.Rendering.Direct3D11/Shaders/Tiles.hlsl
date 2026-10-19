@@ -28,9 +28,10 @@ StructuredBuffer<uint> BgLayers : register(t2);
 StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows, or
 // the BG3 plane. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
-static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceBg2Overlay = 256;
+static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
+static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -253,7 +254,12 @@ void Main(uint3 id : SV_DispatchThreadID)
         if (transparentOutside && Reserved27 != 2) return;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
         // Policy 0: transparent overflow; 1: character zero; 2: ten-bit map wrap.
-        uint character = outside && FillCharacterZero == 1 ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
+        uint cell = (wrappedY >> 3) * 128 + (wrappedX >> 3);
+        // A Ceres room's map lives in the room buffer, four tile numbers per word (Mode7Map); others in VRAM low bytes.
+        uint mapped = RoomSource == RoomSourceMode7Map
+            ? (RoomLevels[RoomLevels[RoomMode7MapWord] + (cell >> 2)] >> ((cell & 3) * 8)) & 255
+            : ReadByte(cell * 2);
+        uint character = outside && FillCharacterZero == 1 ? 0 : mapped;
         uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
         if (transparentOutside) color = 0;
         if (Reserved27 == 2)

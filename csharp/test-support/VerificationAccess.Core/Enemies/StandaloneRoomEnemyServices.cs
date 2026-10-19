@@ -5,6 +5,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// Room enemy services for hosts that do not model every cartridge subsystem — focused fixtures and
@@ -21,6 +22,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 
     /// <summary>The installed target of words written over BG2, or null when the host provides none.</summary>
     private readonly Action<int, ushort[]>? bg2Overlay;
+
+    /// <summary>The installed Mode 7 map, or null when the host provides none.</summary>
+    private readonly Mode7Map? mode7Map;
 
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
     public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
@@ -58,6 +62,13 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <inheritdoc />
     public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
         (bg1Overlay ?? throw Unavailable.Missing("write words over BG1"))(firstWord, words.ToArray());
+
+    /// <summary>Installs the Mode 7 map the Ceres door and Ridley's getaway write.</summary>
+    public Mode7Map Mode7Map { init => mode7Map = Ensure.NotNull(value); }
+
+    /// <inheritdoc />
+    public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
+        (mode7Map ?? throw Unavailable.Missing("write the room's Mode 7 map")).Write(firstCell, tiles);
 
     /// <summary>Installs the target of words written over BG2, which the Zebes escape typewriter writes.</summary>
     public Action<int, ushort[]> DrawBg2OverlayWords { init => bg2Overlay = Ensure.NotNull(value); }

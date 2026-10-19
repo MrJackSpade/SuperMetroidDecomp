@@ -1617,13 +1617,13 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>
-    /// Replays one compiled $80:8B4F Mode-7 transfer list synchronously and queues its native
-    /// descriptors. Its source bytes are immutable cartridge definitions, so gameplay needs no
-    /// bank-$A6 read.
+    /// Writes one compiled $80:8B4F Mode-7 transfer list into the room's Mode 7 map (#1349) and queues its native
+    /// descriptors. Its source bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
     /// </summary>
     private void ApplyMode7TransferList(CeresMode7TransferList pointer, ref Mode7TransferQueue queue)
     {
-        CeresMode7TransferDefinitions.ApplyTo(_presentation.Vram, pointer);
+        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
+            _room.Services.DrawMode7Map(transfer.DestinationWord, [.. transfer.TileNumbers]);
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
         {
             queue.QueueVramTilemapTransfer(

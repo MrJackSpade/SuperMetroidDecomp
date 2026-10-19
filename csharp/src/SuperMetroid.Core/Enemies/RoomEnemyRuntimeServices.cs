@@ -79,6 +79,11 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <inheritdoc />
     public void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) => room.LoadedScope.DrawBg2Overlay(firstWord, words);
 
+    /// <inheritdoc />
+    public void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles) =>
+        (room.LoadedScope.Mode7Map ?? throw new InvalidOperationException("Only a Ceres room has a Mode 7 map to write."))
+            .Write(firstCell, tiles);
+
     /// <summary>Writes the room's BG2 scroll registers through the background owner.</summary>
     public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => backgroundScroll.SetBg2ScrollRegisters(scroll);
 

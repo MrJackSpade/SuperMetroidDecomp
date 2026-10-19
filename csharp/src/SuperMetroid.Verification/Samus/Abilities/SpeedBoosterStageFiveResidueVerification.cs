@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Confirms running-cadence stage five reads the Mode 7 queue residue the Ceres getaway leaves (#1338).</summary>
 internal static class SpeedBoosterStageFiveResidueVerification
@@ -39,7 +40,12 @@ internal static class SpeedBoosterStageFiveResidueVerification
                 "stage five reads boot-cleared queue bytes before any Ceres getaway");
         }
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        // The getaway writes its transfer lists into the room's Mode 7 map (#1349).
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
+            {
+                Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default),
+            })
         {
             Presentation = { CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))) },
         };

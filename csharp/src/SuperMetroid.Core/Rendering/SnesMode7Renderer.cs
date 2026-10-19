@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -27,7 +28,16 @@ public static class SnesMode7Renderer
     /// backdrop and avoid a second full-frame raster plus copy.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null)
+    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null) =>
+        CompositeViewport(output, vram, cgram, registers, map: null, size);
+
+    /// <summary>
+    /// Projects Mode 7 over caller-owned storage with tile numbers from <paramref name="map"/> (#1349), or from VRAM's
+    /// map plane when a frontend scene's map lives there.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers,
+        Mode7MapSnapshot? map, Extent16<ScreenPixels>? size = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -82,6 +92,7 @@ public static class SnesMode7Renderer
                 int pixelY = wrappedY & 7;
                 int character = outside && !registers.WrapOutsideMap
                     ? 0
+                    : map is not null ? map.TileAt(new Position16<TilemapCells>((ushort)(wrappedX >> 3), (ushort)(wrappedY >> 3)))
                     : vramBytes[((wrappedY >> 3) * MapWidthInTiles + (wrappedX >> 3)) * 2];
 
                 // Each 8-bpp Mode 7 character consumes 64 VRAM words. Its color indexes

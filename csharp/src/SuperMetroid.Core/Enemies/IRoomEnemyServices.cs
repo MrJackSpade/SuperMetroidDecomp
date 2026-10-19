@@ -30,4 +30,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
 
     /// <summary>Writes tilemap words over the room's BG2 from tilemap word <paramref name="firstWord"/> (#1348).</summary>
     void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words);
+
+    /// <summary>Writes tile numbers into the room's Mode 7 map from cell <paramref name="firstCell"/> (#1349).</summary>
+    void DrawMode7Map(int firstCell, ReadOnlySpan<byte> tiles);
 }

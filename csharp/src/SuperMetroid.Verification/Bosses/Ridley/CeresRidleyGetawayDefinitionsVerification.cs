@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -46,8 +47,10 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             int cursor = 0xa60000 | (ushort)pointer;
             var expectedVram = new byte[SnesVram.ByteCount];
             Array.Fill(expectedVram, (byte)0x5a);
-            var actualVram = new SnesVram();
-            actualVram.LoadBytes(0, expectedVram);
+            var seed = new byte[Mode7Map.Cells];
+            for (int cell = 0; cell < seed.Length; cell++)
+                seed[cell] = expectedVram[cell * 2];
+            var actual = new Mode7Map(seed, default);
             foreach (CeresMode7Transfer transfer in compiled)
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),
@@ -73,9 +76,14 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             }
             AssertEqual((byte)0, rom.ReadCartridgeByte(cursor),
                 "Ceres Mode 7 compiled list reaches native terminator");
-            CeresMode7TransferDefinitions.ApplyTo(actualVram, pointer);
-            AssertTrue(actualVram.Bytes.SequenceEqual(expectedVram),
-                "Ceres Mode 7 compiled list preserves low-byte-only VRAM effects and ordering");
+            // Ridley writes each transfer into the room's Mode 7 map, in list order (#1349).
+            foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
+                actual.Write(transfer.DestinationWord, [.. transfer.TileNumbers]);
+            ReadOnlySpan<byte> cells = actual.Publish().Cells;
+            bool matches = true;
+            for (int cell = 0; cell < cells.Length; cell++)
+                matches &= cells[cell] == expectedVram[cell * 2];
+            AssertTrue(matches, "Ceres Mode 7 compiled list writes its map cells in order");
         }
         AssertThrows<InvalidDataException>(() =>
             CeresMode7TransferDefinitions.Get((CeresMode7TransferList)0xffff),

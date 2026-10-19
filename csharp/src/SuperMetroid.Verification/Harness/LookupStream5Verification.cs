@@ -337,8 +337,8 @@ internal static class LookupStream5Verification
             CheckPlatformActor(edited, changed);
             CheckHash(edited, changed);
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), -1), "Platform lower frame domain");
-        AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), 2), "Platform upper frame domain");
+        AssertThrows<IndexOutOfRangeException>(() => stock.Mode7DoorFrame(-1), "Platform lower frame domain");
+        AssertThrows<IndexOutOfRangeException>(() => stock.Mode7DoorFrame(2), "Platform upper frame domain");
         AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
         AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
         Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");

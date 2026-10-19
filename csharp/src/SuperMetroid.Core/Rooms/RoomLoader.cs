@@ -868,6 +868,8 @@ internal sealed class RoomLoader
             : null;
 
         assets.LoadGraphics(_vram, _cgram);
+        // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
+        scope.Mode7Map = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
         // replaces OBJ palette zero with `kCommonSpritesPalette1` before enemy setup;

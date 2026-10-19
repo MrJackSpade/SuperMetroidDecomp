@@ -348,7 +348,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // Clipping is in physical scanlines. Never translate the projection origin
         // to the start of the band: that changes the matrix/scroll relationship.
         int floorStart = layer.Floor?.FirstScanline ?? 224;
-        DispatchMode7(layer.Registers, layer.HudScanlines, floorStart);
+        DispatchMode7(layer.Registers, layer.HudScanlines, floorStart, roomMap: true);
         DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { FirstScanline = (uint)layer.HudScanlines, EndScanline = (uint)floorStart });
         if (layer.Floor is { } floor)
         {
@@ -497,19 +497,21 @@ public sealed class D3D11FrameRenderer : IDisposable
         };
         RoomBackgroundLayer? floor = null;
         Layer3Plane? bg3 = rooms?.Bg3;
+        Mode7MapSnapshot? mode7Map = null;
         foreach (RenderLayer layer in scene.Layers)
         {
             if (layer is Mode7GameplayRenderLayer mode7)
             {
                 floor = mode7.Floor?.Room ?? floor;
                 bg3 = SameBg3(bg3, mode7.Hud);
+                mode7Map = mode7.Map;
             }
             else if (layer is Bg2BppColorMathRenderLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
             else if (layer is GameplayColorMathRenderLayer { Subscreen: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
         }
-        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3, rooms?.Bg2Overlay))
+        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3, rooms?.Bg2Overlay, mode7Map))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
@@ -603,12 +605,14 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>Uploads signed Mode 7 matrix, center, scroll, overflow, and optional color math.</summary>
     private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
-        bool subtractObj = false, bool addBg1 = false)
+        bool subtractObj = false, bool addBg1 = false, bool roomMap = false)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
+        // A Ceres room's map comes from the room buffer (#1349); frontend scenes keep theirs in VRAM.
+        if (roomMap) data[14] = (int)D3D11RoomSource.Mode7Map;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.Center.X; data[21] = registers.Center.Y;

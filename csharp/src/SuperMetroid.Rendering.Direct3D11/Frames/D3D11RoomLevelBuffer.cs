@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
+using System.Buffers.Binary;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -23,7 +24,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlaneSlots = 3;
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
     /// the BG3 plane and the BG2 overlay.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 5;
+    private const int HeaderWords = PlaneSlots * RecordWords + 6;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
@@ -34,6 +35,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int Bg3Word = SkyWord + 1;
     /// <summary>Header word of the BG2 overlay's first word, or zero without one (#1348).</summary>
     private const int Bg2OverlayWord = Bg3Word + 1;
+    /// <summary>Header word of the Mode 7 map's first word, or zero without one (#1349); four tile numbers per word.</summary>
+    private const int Mode7MapWord = Bg2OverlayWord + 1;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
     private const uint SkyRowHidden = uint.MaxValue;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
@@ -43,7 +46,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private readonly ID3D11Device device;
     /// <summary>What the last <see cref="Pack"/> packed, so an unchanged frame skips the upload.</summary>
     private (RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomTilemapOverlay? Overlay, SkyTilemap? Sky,
-        Layer3Plane? Bg3, RoomTilemapOverlay? Bg2Overlay)? packed;
+        Layer3Plane? Bg3, RoomTilemapOverlay? Bg2Overlay, Mode7MapSnapshot? Mode7)? packed;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -67,12 +70,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <param name="sky">The scrolling sky's rows on BG2, or null.</param>
     /// <param name="bg3">The HUD and room effect plane on BG3, or null.</param>
     /// <param name="bg2Overlay">Words written over BG2, or null.</param>
+    /// <param name="mode7">A Ceres room's Mode 7 map, or null.</param>
     internal bool Pack(RoomBackgroundLayer? bg1, RoomBackgroundLayer? bg2, RoomDoorBackground? door, RoomTilemapOverlay? overlay,
-        SkyTilemap? sky, Layer3Plane? bg3, RoomTilemapOverlay? bg2Overlay)
+        SkyTilemap? sky, Layer3Plane? bg3, RoomTilemapOverlay? bg2Overlay, Mode7MapSnapshot? mode7)
     {
-        var frame = (bg1, bg2, door, overlay, sky, bg3, bg2Overlay);
+        var frame = (bg1, bg2, door, overlay, sky, bg3, bg2Overlay, mode7);
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
-        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null))
+        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -100,6 +104,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int bg2OverlayOffset = bg2Overlay is null ? 0 : words;
         if (bg2Overlay is not null)
             words += RoomTilemapOverlay.WordCount;
+        int mode7Offset = mode7 is null ? 0 : words;
+        if (mode7 is not null)
+            words += Mode7Map.Cells / sizeof(uint);
         if (words > Upload.Length)
         {
             Dispose();
@@ -142,6 +149,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             for (int word = 0; word < Layer3Plane.Rows * Layer3Plane.Columns; word++)
                 upload[bg3Offset + word] = bg3.Words[word];
         upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
+        upload[Mode7MapWord] = (uint)mode7Offset;
+        if (mode7 is not null)
+        {
+            ReadOnlySpan<byte> cells = mode7.Cells;
+            for (int word = 0; word < Mode7Map.Cells / sizeof(uint); word++)
+                upload[mode7Offset + word] = BinaryPrimitives.ReadUInt32LittleEndian(cells[(word * sizeof(uint))..]);
+        }
         if (bg2Overlay is not null)
             for (int word = 0; word < RoomTilemapOverlay.WordCount; word++)
                 upload[bg2OverlayOffset + word] = unchecked((uint)bg2Overlay.Words[word]);

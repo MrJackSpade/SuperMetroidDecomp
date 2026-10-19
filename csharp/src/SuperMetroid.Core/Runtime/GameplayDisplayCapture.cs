@@ -271,7 +271,8 @@ public static class GameplayDisplayCapture
                     unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),
                     unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
         }
-        var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched),
+        var layer = new Mode7GameplayRenderLayer(registers, Bg3(latched), (latched.Rooms?.Mode7
+                ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")),
             GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
         return new(frame.Memory, new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }

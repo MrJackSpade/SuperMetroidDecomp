@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -101,6 +102,28 @@ public sealed class CartridgeRoomAssets
             characterArt.Get(tileset.CharacterAddress).Transfer.ToArray(),
             paletteArt.Get(tileset.PaletteAddress).Transfer.ToArray(),
             tileset);
+    }
+
+    /// <summary>
+    /// The Mode 7 map a Ceres room shows (#1349): Mode 7 reads its 128 by 128 tile numbers from the low byte of each of
+    /// the first $4000 VRAM words, which the room's two character uploads fill, the area tileset over the CRE.
+    /// </summary>
+    [PpuLayoutBoundary("codec: the Mode 7 map shares VRAM words with the room tileset's character upload")]
+    public Mode7Map CreateMode7Map()
+    {
+        var words = new byte[Mode7Map.Cells * 2];
+        CopyAt(CreCharacters, RoomGraphicsLayout.CommonRoomElementCharacters.Offset * 2);
+        CopyAt(RoomCharacters, RoomGraphicsLayout.AreaCharacters.Offset * 2);
+        var cells = new byte[Mode7Map.Cells];
+        for (int cell = 0; cell < cells.Length; cell++)
+            cells[cell] = words[cell * 2];
+        return new Mode7Map(cells, Tileset);
+
+        void CopyAt(byte[] source, int byteOffset)
+        {
+            int length = Math.Min(source.Length, words.Length - byteOffset);
+            source.AsSpan(0, length).CopyTo(words.AsSpan(byteOffset));
+        }
     }
 
     /// <summary>Installs the room's two character regions and its first 128 CGRAM colors.</summary>

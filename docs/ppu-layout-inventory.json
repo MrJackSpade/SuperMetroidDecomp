@@ -2327,6 +2327,7 @@
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs"
       ]
@@ -2352,6 +2353,7 @@
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/RoomArtworkRenderParityVerification.cs"

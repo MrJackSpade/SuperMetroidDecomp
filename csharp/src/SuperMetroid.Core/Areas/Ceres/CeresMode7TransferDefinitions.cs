@@ -186,13 +186,4 @@ public static class CeresMode7TransferDefinitions
                 : column == 13 ? (byte)0x7d : column == 14 ? (byte)0x83 : (byte)0x2d;
         throw new InvalidOperationException("Unknown wing row.");
     }
-    /// <summary>Replays direct calculated tiles as native $2118 low-byte writes, preserving high bytes and list order.</summary>
-    public static void ApplyTo(SnesVram vram, CeresMode7TransferList pointer)
-    {
-        Ensure.NotNull(vram);
-        var mode7 = new Mode7Vram(vram);
-        foreach (CeresMode7Transfer transfer in Get(pointer))
-            for (int index = 0; index < transfer.TileNumbers.Count; index++)
-                mode7.FillMap(transfer.TileNumbers[index], 1, transfer.DestinationWord + index);
-    }
 }

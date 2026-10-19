@@ -731,17 +731,19 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
     SeedCeresElevatorPlatformTransfers(bus, light, dark);
 
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
+    // The platform frames are written into the room's Mode 7 map (#1349).
+    var map = new Mode7Map(new byte[Mode7Map.Cells], default);
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map }) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
-        AssertEqual(light[index], vram.ReadByte((0x060e + index) * 2),
+        AssertEqual(light[index], map.Publish().Cells[0x060e + index],
             "Ceres elevator landed platform light map frame");
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
-        AssertEqual(dark[index], vram.ReadByte((0x060e + index) * 2),
+        AssertEqual(dark[index], map.Publish().Cells[0x060e + index],
             "Ceres elevator landed platform dark map frame");
 
     Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");
@@ -884,7 +886,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
     RoomTilemapOverlay ceresOverlay = RoomTilemapOverlay.Empty;
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, DrawBg1OverlayWords = (firstWord, words) => ceresOverlay = ceresOverlay.With(firstWord, words) })
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, DrawBg1OverlayWords = (firstWord, words) => ceresOverlay = ceresOverlay.With(firstWord, words), Mode7Map = new Mode7Map(new byte[Mode7Map.Cells], default) })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {

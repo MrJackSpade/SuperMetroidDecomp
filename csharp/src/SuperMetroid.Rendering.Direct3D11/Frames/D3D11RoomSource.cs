@@ -13,4 +13,6 @@ internal enum D3D11RoomSource : uint
     Sky = 3,
     /// <summary>The BG3 plane: the HUD and the room effect (#1348).</summary>
     Bg3 = 4,
+    /// <summary>A Ceres room's Mode 7 map (#1349).</summary>
+    Mode7Map = 5,
 }

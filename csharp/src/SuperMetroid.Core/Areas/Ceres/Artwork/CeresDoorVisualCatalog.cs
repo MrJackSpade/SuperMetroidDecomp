@@ -164,13 +164,12 @@ public sealed class CeresDoorVisualCatalog
         return platformEdits.TryGetValue(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, out byte edit) ? edit : stock;
     }
 
-    /// <summary>Writes selected light/dark platform frame 0 or 1 as four eight-bit Mode 7 map-lane cells at VRAM word $060E, preserving the native $A6:F918/$F91C strip width.</summary>
-    public void LoadMode7DoorFrame(SnesVram vram, int frame)
+    /// <summary>The selected light/dark platform frame 0 or 1: the four Mode 7 map cells the native $A6:F918/$F91C strip writes.</summary>
+    public byte[] Mode7DoorFrame(int frame)
     {
-        Ensure.NotNull(vram);
-        Span<byte> transfer = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
-        for (int index = 0; index < transfer.Length; index++) transfer[index] = PlatformTile(frame, index);
-        new Mode7Vram(vram).LoadMap(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
+        var tiles = new byte[CeresDoorVisualRomData.Mode7FrameByteCount];
+        for (int index = 0; index < tiles.Length; index++) tiles[index] = PlatformTile(frame, index);
+        return tiles;
     }
 
     /// <summary>Validates exactly two four-cell Mode 7 strips and converts their character selectors to bytes.</summary>

@@ -247,7 +247,8 @@ internal sealed class AcceptedFrameBoundary
             CaptureLayer3Plane(),
             _room.DoorSourceBackground,
             scope.Bg1Overlay,
-            Bg2Overlay: scope.Bg2Overlay);
+            Bg2Overlay: scope.Bg2Overlay,
+            Mode7: scope.Mode7Map?.Publish());
     }
 
     /// <summary>

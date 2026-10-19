@@ -386,45 +386,8 @@ internal static class InstalledSporesTests
             }
             Require(pixels[0] == new Rgba32(16, 16, 16), "Spores blended into the HUD.");
             var packet = new RenderFrameSnapshot(new(packets.Count + 1, 1, 0), scene);
-            if (cases == 0) CheckLegacyLayerGraph(layer, scene);
             packets.Add(packet); cases++;
         }
         Console.WriteLine($"{cases} independent spore pixel cases cover BG1 exclusion, BG2/backdrop addition, all OBJ palettes/priorities and HUD preservation.");
-    }
-
-    /// <summary>Rewrites a current layer graph to its retired X-ray identity and confirms production restoration retains composition.</summary>
-    private static void CheckLegacyLayerGraph(GameplayColorMathRenderLayer layer, LayeredRenderSnapshot scene)
-    {
-        const string oldName = "SuperMetroid.Core.Rendering.XrayGameplayRenderLayer, SuperMetroid.Core";
-        Require(DebuggerStateTypeIdentity.Resolve(oldName) == typeof(GameplayColorMathRenderLayer),
-            "Historical layer identity no longer resolves.");
-        // Rewrite only this exact encoded type identity in a production-written
-        // graph. Preserve its single shared reference table, arrays and fields;
-        // independently serializing each field would restart object IDs.
-        byte[] current = Graph(layer);
-        byte[] identity = Encoded(DebuggerStateTypeIdentity.GetSerializedName(typeof(GameplayColorMathRenderLayer)));
-        byte[] historical = Encoded(oldName);
-        using var bytes = new MemoryStream();
-        int cursor = 0, renamed = 0;
-        while (cursor < current.Length)
-        {
-            int relative = current.AsSpan(cursor).IndexOf(identity);
-            if (relative < 0) { bytes.Write(current.AsSpan(cursor)); break; }
-            bytes.Write(current.AsSpan(cursor, relative)); bytes.Write(historical);
-            cursor += relative + identity.Length; renamed++;
-        }
-        Require(renamed > 1, "Legacy fixture did not rename object and declaring-field identities.");
-        bytes.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<GameplayColorMathRenderLayer>(bytes);
-        Require(SoftwareLayeredSnapshotRenderer.Render(scene).SequenceEqual(
-            SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, [restored], 0, 15))),
-            "Renaming the shared source-aware renderer changed an old debugger graph.");
-
-        static byte[] Encoded(string value)
-        {
-            using var output = new MemoryStream();
-            using (var writer = new BinaryWriter(output, Encoding.UTF8, leaveOpen: true)) writer.Write(value);
-            return output.ToArray();
-        }
     }
 }

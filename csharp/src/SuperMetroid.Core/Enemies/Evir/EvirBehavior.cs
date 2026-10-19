@@ -93,11 +93,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // one. The high byte is the steady-state number of frames between direction changes.
             int speedRecord = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
             ushort speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
-            (short downWhole, ushort downFraction) = EnemyMath.ReadLinearEnemySpeed(speedOffset);
-            state.DownVelocity = SnesSignedSixteenSixteen.FromParts(downWhole, downFraction);
-            (short upWhole, ushort upFraction) = EnemyMath.ReadLinearEnemySpeed(
+            SnesSignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
+            state.DownVelocity = down;
+            SnesSignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(
                 checked((ushort)(speedOffset + EnemyLinearSpeedDefinitions.RecordSize / 2)));
-            state.UpVelocity = SnesSignedSixteenSixteen.FromParts(upWhole, upFraction);
+            state.UpVelocity = up;
             state.MovementTimer = ReadFirstHalfCycle(speedRecord);
         }
 
@@ -320,15 +320,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole))));
         byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - EnemyByteAngleDefinitions.QuarterTurn));
-        (short xWhole, ushort xFraction) = EnemyMath.ReadEightBitCosineFixedProduct(
+        SnesSignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
-        (short yWhole, ushort yFraction) = EnemyMath.ReadEightBitNegativeSineFixedProduct(
+        SnesSignedSixteenSixteen y = EnemyMath.ReadEightBitNegativeSineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
         state.ProjectileVelocity = new FixedVector<RoomPixels>(
-            SnesSignedSixteenSixteen.FromParts(xWhole, xFraction),
-            SnesSignedSixteenSixteen.FromParts(yWhole, yFraction));
+            x,
+            y);
         RequestEvirInstruction(
             projectile,
             state,

@@ -626,8 +626,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
     private static SnesSignedSixteenSixteen ReadPipeBugLinearVelocity(ushort byteOffset)
     {
-        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(byteOffset);
-        return SnesSignedSixteenSixteen.FromParts(whole, fraction);
+        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        return speed;
     }
 
     /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>

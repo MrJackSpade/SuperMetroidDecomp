@@ -676,11 +676,11 @@ internal static class EnemyTrigonometryVerification
         }
 
         var pixel = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitSineProduct);
-        var fixedProduct = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitSineFixedProduct);
+        var fixedProduct = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitSineFixedProduct);
         var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);
         var negative = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitNegativeSineProduct);
-        var fixedCosine = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitCosineFixedProduct);
-        var fixedNegative = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitNegativeSineFixedProduct);
+        var fixedCosine = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitCosineFixedProduct);
+        var fixedNegative = new Func<ushort, ushort, SnesSignedSixteenSixteen>(EnemyMath.ReadEightBitNegativeSineFixedProduct);
         var sbugSigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateSignedSbugComponent);
         var sbugUnsigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateUnsignedSbugMagnitude);
         var unsigned = new Func<ushort, ushort, ushort, int>(EnemyMath.ReadUnsignedSineMagnitudeProduct);
@@ -698,7 +698,7 @@ internal static class EnemyTrigonometryVerification
             // production helpers. The fractional negation deliberately has no carry.
             ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
             int product = bytes[angle & 127] * radius;
-            var expected = ((short)(angle < 128 ? SnesEightEight.WholeOf(product) : -SnesEightEight.WholeOf(product)),
+            var expected = SnesSignedSixteenSixteen.FromParts((short)(angle < 128 ? SnesEightEight.WholeOf(product) : -SnesEightEight.WholeOf(product)),
                 unchecked((ushort)(angle < 128 ? SnesSixteenSixteen.FromEightEight(product) : -SnesSixteenSixteen.FromEightEight(product))));
             if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
                 cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
@@ -713,7 +713,7 @@ internal static class EnemyTrigonometryVerification
                 var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                 var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
                 uint magnitude = (uint)words[shiftedAngle & 127] * (uint)radius;
-                if (fixedActual != (whole, fraction) || signedActual != new SbugVelocityWords(unchecked((ushort)whole), fraction) ||
+                if (fixedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) || signedActual != new SbugVelocityWords(unchecked((ushort)whole), fraction) ||
                     unsignedActual.RawFixed != magnitude)
                     throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
             }

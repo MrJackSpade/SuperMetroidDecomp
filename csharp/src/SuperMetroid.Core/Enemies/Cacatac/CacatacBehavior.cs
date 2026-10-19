@@ -90,8 +90,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
         var state = new CacatacEnemyState
         {
-            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
-            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
+            RightVelocity = right,
+            LeftVelocity = left,
             Direction = direction,
             Function = direction switch
             {

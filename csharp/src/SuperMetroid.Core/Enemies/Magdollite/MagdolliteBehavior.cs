@@ -100,10 +100,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // retains retail's independently encoded negative fraction rather than negating a
         // host 32-bit value and accidentally repairing a possible ROM rounding quirk.
         int speedOffset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2) * EnemyLinearSpeedDefinitions.RecordSize;
-        (short positiveWhole, ushort positiveFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
-        (short negativeWhole, ushort negativeFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
-        state.DownwardVelocity = SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction);
-        state.UpwardVelocity = SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction);
+        SnesSignedSixteenSixteen positive = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedOffset));
+        SnesSignedSixteenSixteen negative = EnemyMath.ReadLinearEnemySpeed(checked((ushort)(speedOffset + 4)));
+        state.DownwardVelocity = positive;
+        state.UpwardVelocity = negative;
 
         // Every one of the three initializers installs the same global graphics-drawn hook.
         // Retail's last Magdollite record therefore resets this clock to eight and selects

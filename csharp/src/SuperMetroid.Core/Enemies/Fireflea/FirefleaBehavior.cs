@@ -52,8 +52,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((slot.Spawn.Population.Parameter1 & 1) == 0)
             speedTableIndex += 4;
         state.SpeedTableIndex = speedTableIndex;
-        (short angularWhole, ushort angularFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
-        state.AngularSpeed = SnesSignedSixteenSixteen.FromParts(angularWhole, angularFraction);
+        state.AngularSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
 
         byte radiusIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
@@ -91,12 +90,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        (short wholeSpeed, ushort fractionalSpeed) =
-            EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.SpeedTableIndex));
-        uint fixedY = slot.Position.Y.RawValue;
-        int displacement = (SnesSixteenSixteen.FromWhole(wholeSpeed)) | fractionalSpeed;
-        fixedY = unchecked(fixedY + (uint)displacement);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
+        slot.Position = slot.Position.AdvanceY(EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.SpeedTableIndex)));
 
         // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before XOR

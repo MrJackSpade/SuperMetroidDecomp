@@ -45,8 +45,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(checked((ushort)slot.Spawn.Population.Parameter2));
-        state.GrowthSpeed = SnesSignedSixteenSixteen.FromParts(growthWhole, growthFraction);
+        state.GrowthSpeed = GrowingShutterDefinitions.Speed(checked((ushort)slot.Spawn.Population.Parameter2));
 
         slot.ExtraProperties = default;
         InstallGrowingShutterProgram(
@@ -559,8 +558,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reads one signed 16.16 velocity from the common linear-speed table at <paramref name="byteOffset"/>.</summary>
     private static SnesSignedSixteenSixteen ReadShutterLinearSpeed(int byteOffset)
     {
-        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
-        return SnesSignedSixteenSixteen.FromParts(whole, fraction);
+        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
+        return speed;
     }
 
     /// <summary>

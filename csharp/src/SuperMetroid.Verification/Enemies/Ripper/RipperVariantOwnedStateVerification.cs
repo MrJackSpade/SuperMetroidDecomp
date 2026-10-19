@@ -25,12 +25,12 @@ internal static class RipperVariantOwnedStateVerification
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
-        (short negativeWhole, ushort negativeFraction) = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
-        (short positiveWhole, ushort positiveFraction) = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SnesSignedSixteenSixteen negative = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        SnesSignedSixteenSixteen positive = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
         AssertEqual(speedRecord * EnemyLinearSpeedDefinitions.RecordSize, state.SpeedTableByteOffset, "the speed record's byte offset");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction), state.XVelocity, "the negative half is loaded");
+        AssertEqual(negative, state.XVelocity, "the negative half is loaded");
         enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction), state.XVelocity, "a reversal loads the positive half");
+        AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
 
         slot.Clear();
         AssertEqual((SnesSignedSixteenSixteen.Zero, 0), (state.XVelocity, state.SpeedTableByteOffset), "a kill empties the velocity and record");

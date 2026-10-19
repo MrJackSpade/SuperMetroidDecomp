@@ -26,12 +26,11 @@ public static class GrowingShutterDefinitions
     /// VerifyCompiledGrowingShutters covers all 24 values through the real initializer,
     /// every high byte, all four dispatch selectors, and the invalid index boundary.
     /// </remarks>
-    public static (short Whole, ushort Fraction) Speed(ushort parameter)
+    public static SnesSignedSixteenSixteen Speed(ushort parameter)
     {
         int index = (byte)parameter;
         if (index >= 24)
             throw new InvalidDataException($"Growing shutter speed index {index} exceeds its 24-entry definition.");
-        int value = (index + 1) * 0x1000;
-        return ((short)(value >> 16), (ushort)value);
+        return SnesSignedSixteenSixteen.FromRaw((index + 1) * 0x1000);
     }
 }

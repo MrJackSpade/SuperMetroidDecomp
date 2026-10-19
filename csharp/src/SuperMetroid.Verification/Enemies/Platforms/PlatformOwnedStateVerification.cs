@@ -29,10 +29,10 @@ internal static class PlatformOwnedStateVerification
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 
-        (short rightWhole, ushort rightFraction) = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        (short leftWhole, ushort leftFraction) = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(rightWhole, rightFraction), state.RightSpeed, "rightward speed is the record's positive half");
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(leftWhole, leftFraction), state.LeftSpeed, "leftward speed is the record's negative half");
+        SnesSignedSixteenSixteen right = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
+        SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
+        AssertEqual(right, state.RightSpeed, "rightward speed is the record's positive half");
+        AssertEqual(left, state.LeftSpeed, "leftward speed is the record's negative half");
         AssertEqual((ushort)0, state.RestingHeight.Y, "one pixel below the last row wraps to the top row");
         AssertEqual(accelerationCap, state.MaximumYSpeedTableIndex, "the acceleration cap is parameter two's high byte");
 

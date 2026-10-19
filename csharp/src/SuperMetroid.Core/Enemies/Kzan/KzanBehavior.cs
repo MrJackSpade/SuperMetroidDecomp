@@ -63,8 +63,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // include 64, selecting its final NTSC entry.
         int speedTableOffset = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1) * KzanFallingSpeedTableStride;
         state.FallingYSpeedTableIndex = speedTableOffset;
-        (short initialWhole, ushort initialFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableOffset));
-        state.InitialFallingSpeed = SnesSignedSixteenSixteen.FromParts(initialWhole, initialFraction);
+        state.InitialFallingSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableOffset));
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
@@ -145,9 +144,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         state.PreviousPosition = slot.Position.Whole;
-        (short wholeSpeed, ushort fractionalSpeed) =
-            EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.FallingYSpeedTableIndex));
-        AddKzanY(slot, wholeSpeed, fractionalSpeed);
+        slot.Position = slot.Position.AdvanceY(EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.FallingYSpeedTableIndex)));
 
         // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
         // keeps: coordinates near the room's edge retain the same cartridge behavior.
@@ -194,18 +191,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
-    }
-
-    /// <summary>Adds the native <c>[$14].[$12]</c> split pair to enemy Y.</summary>
-    private static void AddKzanY(
-        RoomEnemySlot slot,
-        short wholeSpeed,
-        ushort fractionalSpeed)
-    {
-        uint fractionalSum = (uint)slot.Position.Y.Fraction + fractionalSpeed;
-        slot.Position = slot.Position.WithFractionY(unchecked((ushort)fractionalSum));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            slot.Position.Y.Whole + wholeSpeed + (fractionalSum > ushort.MaxValue ? 1 : 0))));
     }
 
     /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>

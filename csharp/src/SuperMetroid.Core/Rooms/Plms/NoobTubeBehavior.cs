@@ -144,10 +144,7 @@ internal sealed class NoobTubeBehavior
                 return;
 
             case EnemyProjectilePreInstruction.NoobTubeShardFlying:
-                (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
-                    checked((ushort)projectile.Variable1),
-                    checked((ushort)projectile.Variable0),
-                    projectile.Velocity.X.RawValue);
+                AdvanceNoobTubeShardX(projectile, projectile.Velocity.X.RawValue);
                 projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
                 EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
@@ -175,6 +172,15 @@ internal sealed class NoobTubeBehavior
         }
     }
 
+    /// <summary>Advances the shard's separate 16.16 horizontal position, kept in its projectile variables one and zero.</summary>
+    private static void AdvanceNoobTubeShardX(RoomEnemyProjectileSlot projectile, ushort velocity)
+    {
+        SnesFixedPosition x = EnemyMath.AddEightBitVelocity(
+            new SnesFixedPosition(checked((ushort)projectile.Variable1), checked((ushort)projectile.Variable0)), velocity);
+        projectile.Variable1 = x.Whole;
+        projectile.Variable0 = x.Fraction;
+    }
+
     /// <summary>Uses the native sine table to advance the projectile's separate horizontal word and fraction, then steps its angle.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
@@ -183,10 +189,7 @@ internal sealed class NoobTubeBehavior
         // The native even table offset ORs in a quarter turn: the angle's bit 6.
         short sine = EnemyTrigonometryTables.SignedSine(unchecked((byte)((projectile.Velocity.X.RawValue >> 1) | 64)));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
-        (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
-            checked((ushort)projectile.Variable1),
-            checked((ushort)projectile.Variable0),
-            horizontalVelocity);
+        AdvanceNoobTubeShardX(projectile, horizontalVelocity);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 

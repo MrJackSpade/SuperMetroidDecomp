@@ -75,8 +75,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
         var state = new StokeEnemyState
         {
-            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
-            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
+            RightVelocity = right,
+            LeftVelocity = left,
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Spawn.Population.Parameter1,
         };

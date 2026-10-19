@@ -33,12 +33,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
         // the negative pair from a C# integer after the fact.
         ushort speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
-        (short positiveWhole, ushort positiveFraction) =
+        SnesSignedSixteenSixteen positive =
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        (short negativeWhole, ushort negativeFraction) =
+        SnesSignedSixteenSixteen negative =
             EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.Speed = SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction);
-        state.NegativeSpeed = SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction);
+        state.Speed = positive;
+        state.NegativeSpeed = negative;
     }
 
     /// <summary>

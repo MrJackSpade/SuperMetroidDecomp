@@ -78,8 +78,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
         var state = new OwtchEnemyState
         {
-            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
-            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
+            RightVelocity = right,
+            LeftVelocity = left,
             Behavior = (OwtchBehaviorState)initialState,
             BurialDepth = 0,
             UndergroundTimer = NativeCountdown.FromRaw(undergroundTimer),

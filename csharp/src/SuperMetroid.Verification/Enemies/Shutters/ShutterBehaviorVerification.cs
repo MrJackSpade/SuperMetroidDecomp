@@ -179,8 +179,10 @@ internal static class ShutterBehaviorVerification
     {
         for (int index = 0; index < GrowingShutterSpeedRecordCount; index++)
         {
-            (short whole, ushort fraction) = GrowingShutterDefinitions.Speed((ushort)index);
-            SnesSignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(SnesSignedSixteenSixteen.FromParts(whole, fraction));
+            SnesSignedSixteenSixteen speed = GrowingShutterDefinitions.Speed((ushort)index);
+            short whole = speed.WholePixels;
+            ushort fraction = speed.Fraction;
+            SnesSignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(speed);
             AssertEqual(unchecked((short)(-whole - (fraction == 0 ? 0 : 1))), upward.WholePixels, $"growth speed {index}: upward whole pixels borrow for a nonzero fraction");
             AssertEqual(unchecked((ushort)-fraction), upward.Fraction, $"growth speed {index}: upward fraction is the negated fraction word");
         }
@@ -256,11 +258,11 @@ internal static class ShutterBehaviorVerification
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedLowerY), state.LowerEndpoint, $"{context}: lower endpoint");
-            (short downWhole, ushort downFraction) = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
-            (short upWhole, ushort upFraction) = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(downWhole, downFraction), state.DownVelocity,
+            SnesSignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
+            SnesSignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
+            AssertEqual(down, state.DownVelocity,
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(upWhole, upFraction), state.UpVelocity,
+            AssertEqual(up, state.UpVelocity,
                 $"{context}: upward velocity is the speed record's second entry");
         }
     }

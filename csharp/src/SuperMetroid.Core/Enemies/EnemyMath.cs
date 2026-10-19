@@ -53,17 +53,9 @@ internal static class EnemyMath
         };
     }
 
-    /// <summary>Adds one signed 8.8 velocity to a wrapped 16.16 position pair.</summary>
-    internal static (ushort Position, ushort Subposition) AddEightBitVelocity(
-        ushort position,
-        ushort subposition,
-        ushort velocity)
-    {
-        SnesFixedPosition result = new SnesSignedEightEight(velocity)
-            .ToSixteenSixteenDelta()
-            .AddTo(position, subposition);
-        return (result.Whole, result.Fraction);
-    }
+    /// <summary>Adds one signed 8.8 velocity to a wrapped 16.16 position.</summary>
+    internal static SnesFixedPosition AddEightBitVelocity(SnesFixedPosition position, ushort velocity) =>
+        new SnesSignedEightEight(velocity).ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
 
     /// <summary>
     /// Sign-extends one native 8.8 velocity and shifts it into the signed 16.16 displacement
@@ -97,7 +89,7 @@ internal static class EnemyMath
     /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
     /// positive/negative half selector used by several enemy parameter formats.
     /// </summary>
-    internal static (short Whole, ushort Fraction) ReadLinearEnemySpeed(ushort byteOffset) =>
+    internal static SnesSignedSixteenSixteen ReadLinearEnemySpeed(ushort byteOffset) =>
         EnemyLinearSpeedDefinitions.Read(byteOffset);
 
     /// <summary>
@@ -150,7 +142,7 @@ internal static class EnemyMath
     /// multiplier, including its independent whole/fraction negation bug. Evir needs both
     /// words for projectile motion; callers that only need pixels use the helpers above.
     /// </summary>
-    internal static (short Whole, ushort Fraction) ReadEightBitSineFixedProduct(
+    internal static SnesSignedSixteenSixteen ReadEightBitSineFixedProduct(
         ushort angle,
         ushort radius)
     {
@@ -166,11 +158,11 @@ internal static class EnemyMath
             whole = unchecked((ushort)(~whole + 1));
             fraction = unchecked((ushort)(~fraction + 1));
         }
-        return (unchecked((short)whole), fraction);
+        return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
     }
 
     /// <summary>Rotates the native fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
-    internal static (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
+    internal static SnesSignedSixteenSixteen ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
         ReadEightBitSineFixedProduct(
@@ -178,7 +170,7 @@ internal static class EnemyMath
             radius);
 
     /// <summary>Rotates the native fixed sine multiplication by a half turn to obtain negative sine.</summary>
-    internal static (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
+    internal static SnesSignedSixteenSixteen ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>
         ReadEightBitSineFixedProduct(

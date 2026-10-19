@@ -49,10 +49,10 @@ internal static class AtomicMovementDefinitionsVerification
                 $"Atomic initializer animation {selector}");
 
             ushort speedOffset = (ushort)(slot.Spawn.Population.Parameter2 * 8);
-            (short positiveWhole, ushort positiveFraction) = EnemyLinearSpeedDefinitions.Read(speedOffset);
-            (short negativeWhole, ushort negativeFraction) = EnemyLinearSpeedDefinitions.Read((ushort)(speedOffset + 4));
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction), state.Speed, $"Atomic positive speed {selector}");
-            AssertEqual(SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction), state.NegativeSpeed, $"Atomic negative speed {selector}");
+            SnesSignedSixteenSixteen positive = EnemyLinearSpeedDefinitions.Read(speedOffset);
+            SnesSignedSixteenSixteen negative = EnemyLinearSpeedDefinitions.Read((ushort)(speedOffset + 4));
+            AssertEqual(positive, state.Speed, $"Atomic positive speed {selector}");
+            AssertEqual(negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameToolingDefinitions.Spritemap),

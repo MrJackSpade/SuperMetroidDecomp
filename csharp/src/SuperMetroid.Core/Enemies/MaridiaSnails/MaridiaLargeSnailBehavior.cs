@@ -310,7 +310,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomLevelData level)
     {
         ushort byteOffset = state.MovingLeft ? (ushort)132 : (ushort)128;
-        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(byteOffset);
+        SnesSignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(byteOffset);
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
@@ -318,10 +318,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // Native temporarily extends the whole-pixel move sixteen pixels toward Samus,
             // performs collision, then retracts the center. Net velocity remains the table
             // speed while wall clipping naturally transfers the lost distance to Samus.
-            whole = unchecked((short)(whole + (state.MovingLeft ? -16 : 16)));
+            speed = speed.WithWholePixels(unchecked((short)(speed.WholePixels + (state.MovingLeft ? -16 : 16))));
         }
 
-        int displacement = unchecked((SnesSixteenSixteen.FromWhole(whole)) | fraction);
+        int displacement = speed.RawValue;
         bool collided = _terrain.MoveEnemyHorizontallyTreatingSlopesAsWalls(
             level,
             slot,

@@ -92,7 +92,7 @@ internal static class GrowingShutterDefinitionsVerification
                 if (fractional)
                     AssertEqual(native, speed.Fraction, "growing shutter native unsigned fraction and high-byte aliases");
                 else
-                    AssertEqual(unchecked((short)native), speed.Whole, "growing shutter native signed whole word and high-byte aliases");
+                    AssertEqual(unchecked((short)native), speed.WholePixels, "growing shutter native signed whole word and high-byte aliases");
             }
         }
         for (int high = 0; high < 256; high++)

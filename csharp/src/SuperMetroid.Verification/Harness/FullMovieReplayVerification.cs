@@ -43,19 +43,19 @@ internal static class FullMovieReplayVerification
     internal const string LowcPlaythroughMovieSha256 = "77BA6E6E58A4C416FD070A6B61AF942D661E675D2D32C82F85E8DE17C6991F7C";
 
     /// <summary>Checks the 100% power-on playthrough against its converted input trace and WRAM checkpoints.</summary>
-    internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
-            traceDirectory, traceFromUpdate);
+            traceDirectory, traceFromUpdate, video: video);
 
     /// <summary>
     /// The 13% Speed Booster lsnes TAS, captured on bsnes v085. Its intro updates also check the
     /// phase handoffs and Samus milestones of <see cref="LowPercentIntroReplayChecks"/>.
     /// </summary>
-    internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
-            traceDirectory, traceFromUpdate, new LowPercentIntroReplayChecks().Compare);
+            traceDirectory, traceFromUpdate, new LowPercentIntroReplayChecks().Compare, video);
 
     /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
     internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
@@ -88,11 +88,12 @@ internal static class FullMovieReplayVerification
     /// divergence can be read field by field. Comparison and failure are unchanged.
     /// </param>
     /// <param name="movieChecks">This movie's own comparisons after each checkpointed update, reported with the shared ones.</param>
+    /// <param name="video">When supplied, records every update's picture and sound.</param>
     private static void VerifyPlaythroughMovie(ReplayMovie movie, string traceDirectory, int? traceFromUpdate,
-        MovieUpdateChecks? movieChecks = null)
+        MovieUpdateChecks? movieChecks = null, MovieReplayVideo? video = null)
     {
         using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
-        int uncheckpointedUpdates = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate, checkpoints.Updates.Count, movieChecks).UncheckpointedUpdates;
+        int uncheckpointedUpdates = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate, checkpoints.Updates.Count, movieChecks, video).UncheckpointedUpdates;
         checkpoints.AssertExhausted();
         Console.WriteLine($"{movie.Name} movie replay: {checkpoints.Updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match" +
             (uncheckpointedUpdates == 0 ? "." : $"; {uncheckpointedUpdates} boot-entering dispatches have no native checkpoint of their own."));
@@ -105,9 +106,11 @@ internal static class FullMovieReplayVerification
     /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
     internal static (SuperMetroidGame Game, NativeCheckpointMemory Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
         ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate,
-        MovieUpdateChecks? movieChecks = null)
+        MovieUpdateChecks? movieChecks = null, MovieReplayVideo? video = null)
     {
         var updates = checkpoints.Updates;
+        if (video is not null && movie.Snapshot is not null)
+            throw new NotSupportedException("Video export covers power-on movies only.");
 
         NativeCheckpointMemory memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
             "The converted replay has no native checkpoint before its first update.");
@@ -122,7 +125,14 @@ internal static class FullMovieReplayVerification
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             game = CreateRetailGameFixture(SuperMetroid.Core.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-                renderGameplayFrames: false);
+                renderGameplayFrames: video is not null);
+            video?.Attach(game);
+        }
+        // Recording presents each update exactly as the host does; otherwise frames are not rasterized.
+        void Advance(SnesButton input)
+        {
+            if (video is null) game.Step(input);
+            else video.Step(game, input);
         }
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
@@ -161,7 +171,7 @@ internal static class FullMovieReplayVerification
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
             try
             {
-                game.Step(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
+                Advance(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
             }
             catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or InvalidDataException)
             {
@@ -195,7 +205,7 @@ internal static class FullMovieReplayVerification
                 // so they read the session's SPC model frame by frame.
                 soundAcknowledgements.Expect(null);
                 for (; frame < boxFrameLimit && game.GameplayRuntimeForVerification.MessageBox.IsActive; frame++)
-                    game.Step(SnesButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
+                    Advance(SnesButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
                     if (game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)
@@ -228,7 +238,8 @@ internal static class FullMovieReplayVerification
             bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
             if (consoleReset)
             {
-                game = CreateRetailGameFixture(game.Saves, renderGameplayFrames: false);
+                game = CreateRetailGameFixture(game.Saves, renderGameplayFrames: video is not null);
+                video?.Attach(game);
                 game.DoorMusicUploadNmis = uploadNmis;
                 game.Session.DoorLoaderProgress = loaderProgress;
                 game.SoundAcknowledgements = soundAcknowledgements;
@@ -494,7 +505,27 @@ internal static class FullMovieReplayVerification
     [VerificationCommand("--full-playthrough-movie", "fullTraceDirectory")]
     internal static int FullPlaythroughMovieCommand(string fullTraceDirectory)
     {
-     VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; 
+     VerifyFullPlaythroughMovie(fullTraceDirectory); return 0;
+    }
+
+    /// <summary>Replays and verifies the 13% movie while recording the port's picture and sound to an MP4.</summary>
+    [VerificationCommand("--export-lsmv-playthrough-video", "lowTraceDirectory", "outputPath")]
+    internal static int LsmvPlaythroughVideoCommand(string lowTraceDirectory, string outputPath)
+    {
+        using var video = new MovieReplayVideo(outputPath);
+        VerifyLowPercentPlaythroughMovie(lowTraceDirectory, video: video);
+        video.Complete();
+        return 0;
+    }
+
+    /// <summary>Replays and verifies the 100% movie while recording the port's picture and sound to an MP4.</summary>
+    [VerificationCommand("--export-full-playthrough-video", "fullTraceDirectory", "outputPath")]
+    internal static int FullPlaythroughVideoCommand(string fullTraceDirectory, string outputPath)
+    {
+        using var video = new MovieReplayVideo(outputPath);
+        VerifyFullPlaythroughMovie(fullTraceDirectory, video: video);
+        video.Complete();
+        return 0;
     }
 
     /// <summary>Runs the issue 1275 power-on Samus recording against its native trace.</summary>

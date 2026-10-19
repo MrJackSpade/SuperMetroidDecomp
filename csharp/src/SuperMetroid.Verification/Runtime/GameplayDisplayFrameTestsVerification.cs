@@ -16,6 +16,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -228,7 +229,7 @@ internal static class GameplayDisplayFrameTestsVerification
         GameplayNmiDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
         AssertTrue(!arena.Scene.CeresElevatorMode7 && arena.SamusMode7Transform is null,
             "door setup $8F:E513 clears BGMODE with its Mode 7 matrix");
-        AssertTrue(!arena.Scene.UsesCeresRidleyCharacterBase, "room setup BG12NBA waits for the NMI");
+        AssertTrue(arena.Rooms?.Characters != RoomBackgroundCharacters.ObjectCharacterPage, "room setup BG12NBA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(GameplayRenderDefinitions.CeresCharacterWord, Registers(runtime).Bg1CharacterWord,
             "the accepted NMI publishes the Ceres Ridley BG12NBA");

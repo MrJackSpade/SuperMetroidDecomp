@@ -19,9 +19,11 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
 /// <param name="Mode7">The Mode 7 map a Ceres room shows, or null outside Ceres (#1349).</param>
 /// <param name="BossBg2">A boss body's tilemap on BG2 while the boss owns BG2, or null (#1352).</param>
+/// <param name="Characters">Which character page BG1 and BG2 draw from (#1357).</param>
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Plane Bg3,
     RoomDoorBackground? DoorSource = null, RoomTilemapOverlay? Bg1Overlay = null, SkyTilemap? Sky = null,
-    RoomTilemapOverlay? Bg2Overlay = null, Mode7MapSnapshot? Mode7 = null, BossBg2Tilemap? BossBg2 = null)
+    RoomTilemapOverlay? Bg2Overlay = null, Mode7MapSnapshot? Mode7 = null, BossBg2Tilemap? BossBg2 = null,
+    RoomBackgroundCharacters Characters = RoomBackgroundCharacters.Tileset)
 {
     /// <summary>The BG1 this frame shows, as a renderer samples it: door source, then overlay, then level data.</summary>
     public IBgTileSource Bg1Source => new Bg1Composite(this);

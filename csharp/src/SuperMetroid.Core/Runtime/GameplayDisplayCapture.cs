@@ -119,7 +119,8 @@ public static class GameplayDisplayCapture
         (int First, int End) bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? (32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
-        ushort character = scene.UsesCeresRidleyCharacterBase ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
+        ushort character = latched.Rooms?.Characters == RoomBackgroundCharacters.ObjectCharacterPage
+            ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
         GameplayWindowRegisterSnapshot displayedWindows = latched.Windows;
         SnesMainScreenLayers displayedMainScreen =
             displayedWindows.MainScreen & TmLayerBits;

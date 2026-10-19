@@ -185,8 +185,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// Room-level register shadows uploaded by <c>$80:91EE</c>: BGMODE (Ceres elevator Mode 7),
-    /// BG12NBA (setup ASM <c>$8F:C97B</c> selects word $6000 for the Ceres Ridley arena), BG34NBA,
+    /// Room-level register shadows uploaded by <c>$80:91EE</c>: BGMODE (Ceres elevator Mode 7), BG34NBA,
     /// the layer-blending selectors behind TM/TS/CGWSEL/CGADSUB (<c>$88:8000</c>), and the sky's
     /// BG2SC and BG2VOFS mirror (<c>$88:AFB2</c>).
     /// </summary>
@@ -195,7 +194,6 @@ internal sealed class AcceptedFrameBoundary
         var room = _room.ActiveRoom;
         return new(
             _room.ActiveDoor?.UsesCeresElevatorMode7 == true,
-            room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze,
             _display.GameplayHudCharacterBaseWord,
             // Before the first room no FX record is selected and no blending is configured.
             _room.Layer3Fx?.Type ?? RoomFxType.None,
@@ -249,7 +247,11 @@ internal sealed class AcceptedFrameBoundary
             _room.DoorSourceBackground,
             scope.Bg1Overlay,
             Bg2Overlay: scope.Bg2Overlay,
-            Mode7: scope.Mode7Map?.Publish());
+            Mode7: scope.Mode7Map?.Publish(),
+            // Setup ASM $8F:C97B points the Ceres Ridley arena's BG1 and BG2 at the object character page (#1357).
+            Characters: _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze
+                ? RoomBackgroundCharacters.ObjectCharacterPage
+                : RoomBackgroundCharacters.Tileset);
     }
 
     /// <summary>

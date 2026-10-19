@@ -66,7 +66,7 @@ internal sealed class GameplayDisplayState
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     private static GameplayNmiDisplayLatch InitialLatch => new(
         default, default, null, null, null, null, 0,
-        new GameplayLatchedSceneRegisters(false, false, GameplayVramLayout.HudCharacterWord, default,
+        new GameplayLatchedSceneRegisters(false, GameplayVramLayout.HudCharacterWord, default,
             LayerBlendingConfiguration.Unconfigured, null, null, 0),
         default, default, null, null);
 

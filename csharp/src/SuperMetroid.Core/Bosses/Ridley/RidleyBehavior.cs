@@ -1059,7 +1059,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         short distance = unchecked((short)(position - target));
         if (distance == 0) return velocityWord;
         ushort step = (ushort)Math.Max(1, Math.Abs((int)distance) / divisor);
-        bool carry = position >= target;
+        bool carry = SnesCarry.AfterCompare(position, target);
         ushort velocity = velocityWord;
 
         // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
@@ -1093,18 +1093,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
         return velocity;
 
-        void Add(ushort operand)
-        {
-            int result = velocity + operand + (carry ? 1 : 0);
-            velocity = unchecked((ushort)result);
-            carry = result > ushort.MaxValue;
-        }
-        void Subtract(ushort operand)
-        {
-            int result = velocity - operand - (carry ? 0 : 1);
-            velocity = unchecked((ushort)result);
-            carry = result >= 0;
-        }
+        void Add(ushort operand) => velocity = SnesCarry.AddWithCarry(velocity, operand, ref carry);
+        void Subtract(ushort operand) => velocity = SnesCarry.SubtractWithBorrow(velocity, operand, ref carry);
     }
 
     /// <summary>Selects three damage-color rows at 9000, 5400, and 1800 health.</summary>

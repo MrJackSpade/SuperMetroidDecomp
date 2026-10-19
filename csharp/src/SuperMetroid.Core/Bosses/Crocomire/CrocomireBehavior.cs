@@ -2069,15 +2069,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         int adjustedY = death.AdjustedDestinationY;
         int currentY = adjustedY;
-        int fraction = 0;
+        ushort fraction = 0;
         while (line < output.Length &&
                adjustedY < death.MaximumAdjustedDestinationY)
         {
             output[line++] = unchecked((ushort)(
                 CrocomireBg2Scroll.Y + adjustedY - currentY));
-            int sum = fraction + death.DistortionStep;
-            bool carry = sum > ushort.MaxValue;
-            fraction = SnesSixteenSixteen.FractionOf(sum);
+            bool carry = false;
+            fraction = SnesCarry.AddWithCarry(fraction, checked((ushort)death.DistortionStep), ref carry);
             if (!carry)
                 adjustedY++;
             currentY++;

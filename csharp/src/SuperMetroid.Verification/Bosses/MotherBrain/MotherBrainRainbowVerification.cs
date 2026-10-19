@@ -45,7 +45,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     AssertEqual(0x01aa, samus.Kinematics.Position.X.Fraction, "rainbow fall preserves X low sub-byte");
     AssertEqual(101, samus.Position.Y.Whole, "rainbow fall Y fractional carry");
     AssertEqual(0x08bb, samus.Kinematics.Position.Y.Fraction, "rainbow fall preserves Y low sub-byte");
-    AssertTrue(!first.NativeCarry && samus.Position.Y.Whole is > 0x0030 and < 0x00c0,
+    AssertTrue(!first.ReachedVerticalBoundary && samus.Position.Y.Whole is > 0x0030 and < 0x00c0,
         "unclamped first fall returns clear vertical carry");
 
     // Exactly 127 more +$0002 updates carry the negative X word to zero. Native clamps it
@@ -90,14 +90,14 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
         "rainbow beam table-derived Y velocity");
     AssertEqual(116, samus.Position.X.Whole, "rainbow beam horizontal $10.00 step");
     AssertEqual(116, samus.Position.Y.Whole, "rainbow beam vertical $10.00 step");
-    AssertTrue(!beam.NativeCarry, "rainbow beam caller clears vertical-helper carry");
+    AssertTrue(!beam.ReachedVerticalBoundary, "rainbow beam caller clears vertical-helper carry");
 
     // Reaching X $EB returns set carry and skips vertical calculation entirely.
     samus.Position = samus.Position.WithWholeX(0x00e0);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x7777);
     samus.Position = samus.Position.WithWholeY(100);
     MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(samus);
-    AssertTrue(samus.Position.X.Whole == 0x00eb && wall.NativeCarry, "rainbow beam wall clamp returns carry");
+    AssertTrue(samus.Position.X.Whole == 0x00eb && wall.ReachedVerticalBoundary, "rainbow beam wall clamp returns carry");
     AssertEqual(0x00eb, samus.Position.X.Whole, "rainbow beam hardcoded wall X $EB");
     AssertEqual(0, samus.Kinematics.Position.X.Fraction, "rainbow wall clamp clears X subposition");
     AssertEqual(100, samus.Position.Y.Whole, "rainbow wall clamp skips vertical movement");
@@ -110,7 +110,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x9999);
     movement.RainbowBeamAngle = SnesAngle.HalfTurn;
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(samus);
-    AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.NativeCarry,
+    AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.ReachedVerticalBoundary,
         "rainbow ceiling clamp is hidden from caller carry");
     AssertEqual(0x0030, samus.Position.Y.Whole, "rainbow hardcoded ceiling Y $30");
     AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "rainbow ceiling clears Y subposition");

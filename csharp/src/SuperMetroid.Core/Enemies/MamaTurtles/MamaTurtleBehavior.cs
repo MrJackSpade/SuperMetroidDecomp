@@ -410,15 +410,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
         ushort negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
 
-        uint xVelocitySum = (uint)velocity.WholeWord + 1; // BCS supplied carry-in one.
-        bool carry = xVelocitySum > ushort.MaxValue;
-        ushort negatedWhole = unchecked((ushort)(~(ushort)xVelocitySum + 1));
+        bool carry = true; // BCS supplied carry-in one.
+        ushort xVelocityWhole = SnesCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
+        ushort negatedWhole = unchecked((ushort)(~xVelocityWhole + 1));
         state.Velocity = state.Velocity.WithX(
             SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
         ushort negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
-        uint accelerationSum = (uint)state.XAcceleration.WholeWord + (carry ? 1u : 0u);
-        ushort invertedAccelerationWhole = unchecked((ushort)~(ushort)accelerationSum); // No INC in ROM.
+        ushort accelerationWhole = SnesCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
+        ushort invertedAccelerationWhole = unchecked((ushort)~accelerationWhole); // No INC in ROM.
         state.XAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
     }
 

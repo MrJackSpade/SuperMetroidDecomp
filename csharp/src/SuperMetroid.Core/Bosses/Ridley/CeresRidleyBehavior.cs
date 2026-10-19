@@ -609,13 +609,10 @@ internal sealed class CeresRidleyBehavior
             jitter = unchecked((ushort)-jitter);
         // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
-        int xSum = state.FireballBasePosition.X + jitter;
-        int carry = SnesCarry.OutOfWord(xSum);
-        AccelerateRidleyToward(
-            slot,
-            state,
-            new(unchecked((ushort)xSum), unchecked((ushort)(state.FireballBasePosition.Y + jitter + carry))),
-            0);
+        bool carry = false;
+        ushort x = SnesCarry.AddWithCarry(checked((ushort)state.FireballBasePosition.X), jitter, ref carry);
+        ushort y = SnesCarry.AddWithCarry(checked((ushort)state.FireballBasePosition.Y), jitter, ref carry);
+        AccelerateRidleyToward(slot, state, new(x, y), 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
         {
@@ -884,7 +881,7 @@ internal sealed class CeresRidleyBehavior
         ushort difference = unchecked((ushort)(position - target));
         if (difference == 0)
             return velocity;
-        bool carry = position >= target;
+        bool carry = SnesCarry.AfterCompare(position, target);
         bool targetBelow = unchecked((short)difference) < 0;
         ushort magnitude = targetBelow ? unchecked((ushort)-difference) : difference;
         // Hardware quotient; a zero quotient is promoted to one.
@@ -916,18 +913,8 @@ internal sealed class CeresRidleyBehavior
         }
         return velocity;
 
-        void Add(ushort operand)
-        {
-            int result = velocity + operand + (carry ? 1 : 0);
-            velocity = unchecked((ushort)result);
-            carry = result > ushort.MaxValue;
-        }
-        void Subtract(ushort operand)
-        {
-            int result = velocity - operand - (carry ? 0 : 1);
-            velocity = unchecked((ushort)result);
-            carry = result >= 0;
-        }
+        void Add(ushort operand) => velocity = SnesCarry.AddWithCarry(velocity, operand, ref carry);
+        void Subtract(ushort operand) => velocity = SnesCarry.SubtractWithBorrow(velocity, operand, ref carry);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>

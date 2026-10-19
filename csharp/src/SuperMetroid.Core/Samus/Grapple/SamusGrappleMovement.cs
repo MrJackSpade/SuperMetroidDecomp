@@ -338,7 +338,7 @@ public static class SamusGrappleMovement
         grapple.QuarterVelocity = new(
             QuarterExtensionVelocity(grapple.ExtensionVelocity.X.SignedRawValue, grapple.QuarterVelocity.X),
             QuarterExtensionVelocity(grapple.ExtensionVelocity.Y.SignedRawValue, grapple.QuarterVelocity.Y));
-        GrappleBlockReaction finalReaction = default;
+        GrappleBlockReaction finalReaction = GrappleBlockReaction.Passes;
         for (int substep = 0; substep < 4; substep++)
         {
             grapple.EndpointOffset += grapple.QuarterVelocity;
@@ -350,10 +350,10 @@ public static class SamusGrappleMovement
                 grapple.Anchor,
                 plms);
             finalReaction = reaction;
-            if (!reaction.Carry || !reaction.Overflow)
+            if (reaction != GrappleBlockReaction.Connects)
                 continue;
 
-            // Carry+overflow is the native connected result. $94:A8DA centers the point in
+            // A connection is the native carry+overflow result. $94:A8DA centers the point in
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
             grapple.Anchor = new(
                 unchecked((ushort)((grapple.Anchor.X & ~15) | 8)),
@@ -373,7 +373,7 @@ public static class SamusGrappleMovement
         // therefore be sampled and then cleared before the caller decides whether to
         // cancel. Green Hill Zone's Grapple/Speed Booster gate exploit depends on this
         // general cartridge ordering; it is not a gate-specific collision exception.
-        if (finalReaction.Carry)
+        if (finalReaction.Collides())
             return QueueFiringCancellation(grapple);
 
         return new GrappleMovementResult(
@@ -862,7 +862,7 @@ public static class SamusGrappleMovement
         {
             // The prefilled `$8000` word dispatches as an ordinary solid endpoint: carry
             // set, overflow clear, which queues grapple cancellation rather than connecting.
-            return new GrappleBlockReaction(Carry: true, Overflow: false);
+            return GrappleBlockReaction.Solid;
         }
 
         int index = initialBlock.Index;
@@ -879,7 +879,7 @@ public static class SamusGrappleMovement
                 case RoomCollisionType.SpikeAir:
                 case RoomCollisionType.SpecialAir:
                 case RoomCollisionType.UnusedAir:
-                    return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    return GrappleBlockReaction.Passes;
 
                 // Slopes and these solid-family entries return carry with overflow clear,
                 // which makes $9B:C703 queue cancellation rather than establish a rope.
@@ -887,7 +887,7 @@ public static class SamusGrappleMovement
                 case RoomCollisionType.SolidBlock:
                 case RoomCollisionType.DoorBlock:
                 case RoomCollisionType.SpecialBlock:
-                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+                    return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.SpikeBlock:
                     // `$94:A7FD` selects a bank-$84 grapple-reaction PLM by the low seven
@@ -896,29 +896,29 @@ public static class SamusGrappleMovement
                     // three alone uses Draygon's broken-turret setup `$84:CFD5`, which adds
                     // one whole periodic-damage unit and returns carry+overflow to connect.
                     if (block.Bts.RejectsGrappleReaction)
-                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                        return GrappleBlockReaction.Passes;
                     if (block.Bts.GrappleReactionIndex == 3)
                     {
                         samus.LiquidPhysics.AccumulatePeriodicDamage(
                             subDamage: 0,
                             wholeDamage: 1);
-                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+                        return GrappleBlockReaction.Connects;
                     }
 
-                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+                    return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.HorizontalExtension:
                     // Horizontal extensions interpret BTS as a signed block-index delta.
                     // BTS zero is the native terminator and behaves as air.
                     if (block.Bts == RoomBlockBehaviorValues.None)
-                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                        return GrappleBlockReaction.Passes;
                     index += block.Bts.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
                     // Vertical extension uses the same signed BTS but scales by room width.
                     if (block.Bts == RoomBlockBehaviorValues.None)
-                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                        return GrappleBlockReaction.Passes;
                     index += block.Bts.ExtensionOffset * level.Size.X;
                     continue;
 
@@ -927,9 +927,9 @@ public static class SamusGrappleMovement
                     // grapple PLM $D0D8, whose setup returns processor flags $41 (C=1,V=1).
                     // The persistent PLM has no level mutation, so this result is complete.
                     if (block.Bts.RejectsGrappleReaction)
-                        return new GrappleBlockReaction(Carry: false, Overflow: false);
+                        return GrappleBlockReaction.Passes;
                     if (block.Bts.IsPersistentGrappleReaction)
-                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+                        return GrappleBlockReaction.Connects;
 
                     // BTS one/two spawn $D0DC/$D0E0. Setup_CFB5 synchronously saves the
                     // complete level word and clears BTS before returning C+V; the new PLM
@@ -949,7 +949,7 @@ public static class SamusGrappleMovement
                                 "All 40 native PLM slots are occupied during grapple acquisition.");
                         }
 
-                        return new GrappleBlockReaction(Carry: true, Overflow: true);
+                        return GrappleBlockReaction.Connects;
                     }
 
                     // Nonnegative BTS values beyond the four authored grapple reactions
@@ -1008,19 +1008,19 @@ public static class SamusGrappleMovement
                                 isRoomIndependent: true, error);
                         }
                     }
-                    return new GrappleBlockReaction(
-                        Carry: block.CollisionType == RoomCollisionType.ShootableBlock,
-                        Overflow: false);
+                    return block.CollisionType == RoomCollisionType.ShootableBlock
+                        ? GrappleBlockReaction.Solid
+                        : GrappleBlockReaction.Passes;
 
                 case RoomCollisionType.BombableAir:
                     // Bombable-air setup `$84:CEDA` immediately deletes its provisional
                     // PLM for grapple's zero projectile family. Carry remains clear.
-                    return new GrappleBlockReaction(Carry: false, Overflow: false);
+                    return GrappleBlockReaction.Passes;
 
                 case RoomCollisionType.BombableBlock:
                     // The solid twin performs the same rejected setup but independently
                     // returns carry set from `$94:9FF4`.
-                    return new GrappleBlockReaction(Carry: true, Overflow: false);
+                    return GrappleBlockReaction.Solid;
 
                 default:
                     throw new InvalidDataException(
@@ -2159,7 +2159,7 @@ public static class SamusGrappleMovement
             level,
             samus,
             grapple.Anchor);
-        return reaction.Carry;
+        return reaction.Collides();
     }
 
     /// <summary>Applies BTS-specific spike damage once per invincibility window and starts knockback.</summary>

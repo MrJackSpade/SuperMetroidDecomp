@@ -31,7 +31,7 @@ internal static class BabyMetroidGradualAcceleration
     {
         Ensure.NotNull(isVaguelyOffScreen);
         bool carry = true;
-        ushort distance = Sbc(position, target, ref carry);
+        ushort distance = SnesCarry.SubtractWithBorrow(position, target, ref carry);
         if (distance == 0)
             return velocity;
         if (IsNegative(distance))
@@ -42,12 +42,12 @@ internal static class BabyMetroidGradualAcceleration
                 // A carry-set off-screen result makes this ADC add one extra unit.
                 carry = isVaguelyOffScreen();
                 if (carry)
-                    velocity = Adc(velocity, wrongWayOffScreenSpeed, ref carry);
+                    velocity = SnesCarry.AddWithCarry(velocity, wrongWayOffScreenSpeed, ref carry);
                 carry = false;
-                velocity = Adc(velocity, ReversalStep, ref carry);
-                velocity = Adc(velocity, step, ref carry);
+                velocity = SnesCarry.AddWithCarry(velocity, ReversalStep, ref carry);
+                velocity = SnesCarry.AddWithCarry(velocity, step, ref carry);
             }
-            velocity = Adc(velocity, step, ref carry);
+            velocity = SnesCarry.AddWithCarry(velocity, step, ref carry);
             return IsNegative(unchecked((ushort)(velocity - MaxXSpeed))) ? velocity : MaxXSpeed;
         }
         else
@@ -57,12 +57,12 @@ internal static class BabyMetroidGradualAcceleration
             {
                 carry = isVaguelyOffScreen();
                 if (carry)
-                    velocity = Sbc(velocity, wrongWayOffScreenSpeed, ref carry);
+                    velocity = SnesCarry.SubtractWithBorrow(velocity, wrongWayOffScreenSpeed, ref carry);
                 carry = true;
-                velocity = Sbc(velocity, ReversalStep, ref carry);
-                velocity = Sbc(velocity, step, ref carry);
+                velocity = SnesCarry.SubtractWithBorrow(velocity, ReversalStep, ref carry);
+                velocity = SnesCarry.SubtractWithBorrow(velocity, step, ref carry);
             }
-            velocity = Sbc(velocity, step, ref carry);
+            velocity = SnesCarry.SubtractWithBorrow(velocity, step, ref carry);
             ushort limit = unchecked((ushort)-MaxXSpeed);
             return IsNegative(unchecked((ushort)(velocity - limit))) ? limit : velocity;
         }
@@ -72,7 +72,7 @@ internal static class BabyMetroidGradualAcceleration
     public static ushort AccelerateVertically(ushort position, ushort target, ushort velocity, byte divisor)
     {
         bool carry = true;
-        ushort distance = Sbc(position, target, ref carry);
+        ushort distance = SnesCarry.SubtractWithBorrow(position, target, ref carry);
         if (distance == 0)
             return velocity;
         if (IsNegative(distance))
@@ -81,10 +81,10 @@ internal static class BabyMetroidGradualAcceleration
             if (IsNegative(velocity))
             {
                 carry = false;
-                velocity = Adc(velocity, ReversalStep, ref carry);
-                velocity = Adc(velocity, step, ref carry);
+                velocity = SnesCarry.AddWithCarry(velocity, ReversalStep, ref carry);
+                velocity = SnesCarry.AddWithCarry(velocity, step, ref carry);
             }
-            velocity = Adc(velocity, step, ref carry);
+            velocity = SnesCarry.AddWithCarry(velocity, step, ref carry);
             return IsNegative(unchecked((ushort)(velocity - MaxYSpeed))) ? velocity : MaxYSpeed;
         }
         else
@@ -93,10 +93,10 @@ internal static class BabyMetroidGradualAcceleration
             if (!IsNegative(velocity))
             {
                 carry = true;
-                velocity = Sbc(velocity, ReversalStep, ref carry);
-                velocity = Sbc(velocity, step, ref carry);
+                velocity = SnesCarry.SubtractWithBorrow(velocity, ReversalStep, ref carry);
+                velocity = SnesCarry.SubtractWithBorrow(velocity, step, ref carry);
             }
-            velocity = Sbc(velocity, step, ref carry);
+            velocity = SnesCarry.SubtractWithBorrow(velocity, step, ref carry);
             ushort limit = unchecked((ushort)-MaxYSpeed);
             return IsNegative(unchecked((ushort)(velocity - limit))) ? limit : velocity;
         }
@@ -113,20 +113,4 @@ internal static class BabyMetroidGradualAcceleration
 
     /// <summary>Tests the SNES word sign bit before choosing an acceleration or reversal branch.</summary>
     private static bool IsNegative(ushort value) => unchecked((short)value) < 0;
-
-    /// <summary>Models sixteen-bit ADC while carrying overflow into the next native arithmetic step.</summary>
-    private static ushort Adc(ushort value, ushort addend, ref bool carry)
-    {
-        int sum = value + addend + (carry ? 1 : 0);
-        carry = sum > ushort.MaxValue;
-        return unchecked((ushort)sum);
-    }
-
-    /// <summary>Models sixteen-bit SBC with carry as the inverse borrow flag.</summary>
-    private static ushort Sbc(ushort value, ushort subtrahend, ref bool carry)
-    {
-        int difference = value - subtrahend - (carry ? 0 : 1);
-        carry = difference >= 0;
-        return unchecked((ushort)difference);
-    }
 }

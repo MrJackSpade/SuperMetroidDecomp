@@ -1,8 +1,17 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Processor-status subset returned by the bank-$94 grapple block-reaction dispatcher.
-/// Carry means collision; overflow distinguishes a supported grapple connection from the
-/// ordinary solid result that cancels the extending beam.
+/// What the bank-$94 grapple block-reaction dispatcher reports for the block at the beam's endpoint. The cartridge
+/// returns it as carry (a collision) and overflow (a connection); carry clear with overflow set is never produced.
 /// </summary>
-internal readonly record struct GrappleBlockReaction(bool Carry, bool Overflow);
+internal enum GrappleBlockReaction : byte
+{
+    /// <summary>The beam passes through (carry clear).</summary>
+    Passes,
+
+    /// <summary>The block is solid to the beam, which stops it (carry set, overflow clear).</summary>
+    Solid,
+
+    /// <summary>The beam latches onto the block (carry and overflow set).</summary>
+    Connects,
+}

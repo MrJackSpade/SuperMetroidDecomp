@@ -1250,7 +1250,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     ref paletteRequested,
                     ref explosion);
                 movement = _movement.MoveTowardWall(samus);
-                if (movement.Value.NativeCarry)
+                if (movement.Value.ReachedVerticalBoundary)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.OneFrameDelay;
                     FunctionTimer = NativeCountdown.Start(0);
@@ -1337,7 +1337,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand:
                 movement = _movement.StepFallingAfterRainbowBeam(samus);
-                if (movement.Value.NativeCarry)
+                if (movement.Value.ReachedVerticalBoundary)
                     Phase = MotherBrainRainbowBeamAttackPhase.LowerHead;
                 break;
 

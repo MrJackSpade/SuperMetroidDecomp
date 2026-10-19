@@ -258,7 +258,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort bendStep = checked((ushort)(state.Extension.WholePixels / 4));
         // $A8:A532 clears carry once, then adds the eight correction words in segment
         // order (X then Y) with ADC alone, so each addition's carry adds one to the next.
-        int carry = 0;
+        bool carry = false;
         for (int segment = 0; segment < 4; segment++)
         {
             ushort multiple = unchecked((ushort)(bendStep * (segment + 1)));
@@ -285,8 +285,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
             // X is added before Y so its carry feeds the Y addition.
-            ushort segmentX = AddWithCarry(rawX, correctionX, ref carry);
-            ushort segmentY = AddWithCarry(rawY, correctionY, ref carry);
+            ushort segmentX = SnesCarry.AddWithCarry(rawX, correctionX, ref carry);
+            ushort segmentY = SnesCarry.AddWithCarry(rawY, correctionY, ref carry);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 unchecked((short)segmentX), unchecked((short)segmentY));
         }
@@ -345,14 +345,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);
-    }
-
-    /// <summary>Adds two split native words and propagates carry from the low word.</summary>
-    private static ushort AddWithCarry(ushort value, ushort addend, ref int carry)
-    {
-        int sum = value + addend + carry;
-        carry = SnesCarry.OutOfWord(sum);
-        return unchecked((ushort)sum);
     }
 
     /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>

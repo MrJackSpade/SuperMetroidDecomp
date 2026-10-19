@@ -219,7 +219,7 @@ internal static void VerifyVramWriteQueue()
     queue.EnqueueWords(sizeInBytes: 4, nativeSourceAddress: 0x7e2000, [0x2120, 0x2322], VramDmaDestination.FromNative(0x8001));
     AssertEqual(VramWriteQueue.EntryByteCount * 2, queue.TailInBytes, "two packed VRAM queue tails");
 
-    queue.DrainTo(vram);
+    queue.DrainTo(vram, null, null, BgArtworkFixtures.For(vram));
 
     // The later column transfer intentionally overwrites the first pair at word one. This
     // proves insertion order is preserved, while word two retains the ordinary transfer.
@@ -234,7 +234,7 @@ internal static void VerifyVramWriteQueue()
     // rather than reading memory.
     var unresolved = new VramWriteQueue();
     unresolved.Enqueue(sizeInBytes: 2, sourceAddress: 0x7e1000, destination: VramDmaDestination.FromNative(0x0100));
-    AssertThrows<InvalidOperationException>(() => unresolved.DrainTo(vram), "an unresolved native-source record fails at the drain");
+    AssertThrows<InvalidOperationException>(() => unresolved.DrainTo(vram, null, null, BgArtworkFixtures.For(vram)), "an unresolved native-source record fails at the drain");
 
     AssertEqual(0, queue.TailInBytes, "drain clears packed tail");
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");

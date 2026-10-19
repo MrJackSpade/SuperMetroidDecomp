@@ -181,7 +181,7 @@ public sealed class TourianStatueSequence
                 case AnimationProgramAdvanceKind.Show:
                     tile.Cursor = cursor;
                     tile.Timer = NativeCountdown.Start(advance.Duration);
-                    _vramWrites.EnqueueSource(
+                    _vramWrites.EnqueueBackgroundSource(
                         new TourianStatuePictureCharacters(definition.ObjectPointer, advance.Frame),
                         checked((ushort)definition.TransferByteCount),
                         definition.Destination);

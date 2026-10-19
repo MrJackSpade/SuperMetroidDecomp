@@ -48,9 +48,9 @@ internal static class SandAnimatedTilesVerification
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
-            byte before = vram.ReadByte(0x2000);
-            sand.Step(vram, queue);
-            AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
+            byte before = BgArtworkFixtures.Composed(vram)[0x2000];
+            sand.Step(queue);
+            AssertEqual(before, BgArtworkFixtures.Composed(vram)[0x2000], "sand animation does not bypass NMI");
             AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
                 "sand source changes follow compiled cartridge durations");
             if (tick % 10 == 0)
@@ -64,7 +64,7 @@ internal static class SandAnimatedTilesVerification
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
-            queue.DrainTo(vram, provider);
+            queue.DrainTo(vram, provider, null, BgArtworkFixtures.For(vram));
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
@@ -74,14 +74,14 @@ internal static class SandAnimatedTilesVerification
                 for (int i = 0; i < definition.TransferByteCount; i++)
                 {
                     AssertEqual((byte)(1 + slot * 4 + tick / 10 % 4),
-                        vram.ReadByte(destination + i),
+                        BgArtworkFixtures.Composed(vram)[destination + i],
                         "sand ceiling/fall graphics loop independently at exact destinations");
                 }
             }
         }
         sand = new RoomSandAnimatedTilesState(null, null, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
-        sand.Step(vram, queue);
+        sand.Step(queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");

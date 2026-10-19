@@ -53,6 +53,32 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination));
     }
 
+    /// <summary>Queues background character artwork named by its cartridge source; the drain binds it (#1350).</summary>
+    public void EnqueueBackground(ushort sizeInBytes, int sourceAddress, VramDmaDestination destination)
+    {
+        if (sizeInBytes == 0)
+            throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "Zero is reserved for the queue terminator.");
+        if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
+            throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
+        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination) { Background = true });
+    }
+
+    /// <summary>Queues an installed background artwork asset; the drain binds it (#1350).</summary>
+    public void EnqueueBackgroundAsset(VramAssetId asset, ushort sizeInBytes, VramDmaDestination destination)
+    {
+        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset, Background = true });
+    }
+
+    /// <summary>Queues named owned background artwork; the drain binds it (#1350).</summary>
+    public void EnqueueBackgroundSource(ObjCharacterSource source, ushort sizeInBytes, VramDmaDestination destination)
+    {
+        Ensure.NotNull(source);
+        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { OwnedSource = source, Background = true });
+    }
+
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
     public void EnqueueAsset(VramAssetId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
@@ -131,7 +157,9 @@ public sealed class VramWriteQueue
     /// <param name="vram">VRAM receiving the transfers.</param>
     /// <param name="assets">Resolves installed artwork transfers and named owned sources.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
-    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null)
+    /// <param name="backgrounds">Binds the queued background character artwork (#1350); required when any is queued.</param>
+    public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null,
+        BgArtworkBindings? backgrounds = null)
     {
         Ensure.NotNull(vram);
 
@@ -147,8 +175,13 @@ public sealed class VramWriteQueue
                 ReadOnlyMemory<byte> data = source.Resolve(resolver);
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"{source} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
-                vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
-                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, source);
+                if (entry.Background)
+                    BindBackground(backgrounds, entry, new BgArtworkIdentity(source.ToString() ?? source.GetType().Name), data.Span);
+                else
+                {
+                    vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
+                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, source);
+                }
             }
             else if (entry.Staging is { } staging)
                 WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
@@ -160,9 +193,14 @@ public sealed class VramWriteQueue
                     !artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes, out ReadOnlyMemory<byte> selected))
                     throw new InvalidOperationException(
                         $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
-                vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
-                objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
-                    new TransferObjCharacters(entry.SourceAddress, entry.SizeInBytes));
+                if (entry.Background)
+                    BindBackground(backgrounds, entry, new BgArtworkIdentity($"artwork ${entry.SourceAddress:X6}"), selected.Span);
+                else
+                {
+                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
+                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
+                        new TransferObjCharacters(entry.SourceAddress, entry.SizeInBytes));
+                }
             }
             else
             {
@@ -170,8 +208,13 @@ public sealed class VramWriteQueue
                 ReadOnlyMemory<byte> data = assets.Resolve(entry.AssetId);
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
-                vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
-                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new AssetObjCharacters(entry.AssetId));
+                if (entry.Background)
+                    BindBackground(backgrounds, entry, new BgArtworkIdentity($"asset {entry.AssetId}"), data.Span);
+                else
+                {
+                    vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
+                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new AssetObjCharacters(entry.AssetId));
+                }
             }
         }
 
@@ -179,6 +222,16 @@ public sealed class VramWriteQueue
         // typed records at the same point prevents stale transfers on the next frame.
         Entries.Clear();
         TailInBytes = 0;
+    }
+
+    /// <summary>Binds a queued background artwork transfer at its destination; it moves consecutive words.</summary>
+    private static void BindBackground(BgArtworkBindings? backgrounds, VramWriteEntry entry, BgArtworkIdentity identity, ReadOnlySpan<byte> bytes)
+    {
+        if (backgrounds is null)
+            throw new InvalidOperationException($"Queued background artwork {identity.Name} has no bindings to drain into.");
+        if (entry.Destination.WordIncrement != 1)
+            throw new InvalidDataException($"Background artwork {identity.Name} must upload consecutive words.");
+        backgrounds.Bind(identity, entry.Destination.Word, bytes);
     }
 
     /// <summary>

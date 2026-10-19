@@ -68,8 +68,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertEqual(15, installedQueue.Entries.Count,
             "Ceres escape production queues both complete timer lists");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram,
-            new CeresEscapeArtworkProvider(stock, timer));
+        installedQueue.DrainTo(installedVram, new CeresEscapeArtworkProvider(stock, timer), null, BgArtworkFixtures.For(installedVram));
 
         var nativeQueue = new VramWriteQueue();
         foreach (CeresEscapeVramTransferDefinition transfer in
@@ -139,8 +138,7 @@ internal static class CeresEscapeTileArtworkVerification
         var editedQueue = new VramWriteQueue();
         _ = editedEnemies.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(editedState, editedQueue);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram,
-            new CeresEscapeArtworkProvider(edited, timer));
+        editedQueue.DrainTo(editedVram, new CeresEscapeArtworkProvider(edited, timer), null, BgArtworkFixtures.For(editedVram));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out CeresEscapeVramTransferDefinition warningTransfer),

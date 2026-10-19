@@ -295,7 +295,9 @@ internal static class SnesGameplayFrameRendererConstants
             ? RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapSize
             : RoomFxRomDataLayer3Constants.LiquidTilemapSize);
         BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
-        ReadOnlySpan<byte> fxVram = vram.Bytes;
+        // The image a capture shows: bound background characters over VRAM (#1350).
+        SnesVram image = BgArtworkFixtures.ComposedVram(vram);
+        ReadOnlySpan<byte> fxVram = image.Bytes;
         int firstLiquidScrollLine = fx.WaterSurfaceScreenY -
             (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
@@ -320,7 +322,7 @@ internal static class SnesGameplayFrameRendererConstants
             for (int screenX = 0; screenX < SnesGameplayFrameRenderer.Width; screenX++)
             {
                 int scrolledX = geometry.WrapX(fx.Scroll.X + waveDisplacement + screenX);
-                SnesBgTilemapWord entry = vram.ReadWord(geometry.EntryWordAddress(tilemapBaseWord,
+                SnesBgTilemapWord entry = image.ReadWord(geometry.EntryWordAddress(tilemapBaseWord,
                     new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(scrolledX), (ushort)tileY)));
                 int row = format.RowByteOffset(GameplayVramLayout.HudCharacterWord, entry.CharacterIndex,
                     BgCharacterGrid.SourcePixel(pixelY, entry.FlipVertically));

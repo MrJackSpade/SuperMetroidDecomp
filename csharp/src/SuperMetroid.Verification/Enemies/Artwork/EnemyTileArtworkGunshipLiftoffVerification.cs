@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
         var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
-        stockQueue.DrainTo(installedVram, runtime.Artwork);
+        stockQueue.DrainTo(installedVram, runtime.Artwork, null, BgArtworkFixtures.For(installedVram));
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
         AssertTrue(installedVram.ImageEquals(nativeVram),
             "all five installed takeoff uploads match the native VRAM image");
@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.EnemySession.TileArtwork = edited;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
-        pending.DrainTo(editedVram, runtime.Artwork);
+        pending.DrainTo(editedVram, runtime.Artwork, null, BgArtworkFixtures.For(editedVram));
         int firstDestinationByte = transfers[0].DestinationWord * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestinationByte) ^ 0x80),
             editedVram.ReadByte(firstDestinationByte),
@@ -101,7 +101,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
             transfers[0].SourceAddress, VramDmaDestination.FromNative(transfers[0].DestinationWord));
         var legacyVram = new SnesVram();
-        legacyQueue.DrainTo(legacyVram, runtime.Artwork);
+        legacyQueue.DrainTo(legacyVram, runtime.Artwork, null, BgArtworkFixtures.For(legacyVram));
         AssertEqual(editedVram.ReadByte(firstDestinationByte),
             legacyVram.ReadByte(firstDestinationByte),
             "older pending cartridge-source takeoff upload rebinds to current art");

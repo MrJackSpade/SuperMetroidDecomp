@@ -47,7 +47,7 @@ internal static class GameplayHudPresentationVerification
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
         topRowRuntime.Artwork.MapPresentation = original;
-        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, topRowRuntime.Artwork);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, topRowRuntime.Artwork, null, BgArtworkFixtures.For(topRowRuntime.Vram));
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
@@ -121,8 +121,7 @@ internal static class GameplayHudPresentationVerification
         // With presentation bound, the HUD setup queues the immutable row as its installed asset.
         editedTopRowRuntime.VramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
             VramDmaDestination.FromNative(0x5800));
-        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram,
-            editedTopRowRuntime.Artwork);
+        editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, editedTopRowRuntime.Artwork, null, BgArtworkFixtures.For(editedTopRowRuntime.Vram));
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
                 GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(edited.GameplayHud.TopRowTransfer.Span),

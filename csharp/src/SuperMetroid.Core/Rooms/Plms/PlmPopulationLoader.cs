@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -143,8 +144,8 @@ internal sealed class PlmPopulationLoader
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
-        (RoomLevelData level, SnesVram vram, Bank80SystemState system, AreaId areaIndex) =
-            (room.Level, room.Vram, room.System, room.AreaIndex);
+        (RoomLevelData level, BgArtworkBindings backgrounds, Bank80SystemState system, AreaId areaIndex) =
+            (room.Level, room.Backgrounds, room.System, room.AreaIndex);
         PlmHeaderId header = record.HeaderPointer;
         if (DoorPlms.TryIdentifyColoredDoor(
                 header,

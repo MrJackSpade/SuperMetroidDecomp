@@ -318,7 +318,7 @@ internal static class RoomFxRetailInventoryVerification
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(new Position16<RoomPixels>(0, 0));
-            actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+            actual.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
             RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
@@ -344,7 +344,7 @@ internal static class RoomFxRetailInventoryVerification
             ? unchecked((ushort)(expectedBase - RetailRoomFxDefinitions.AuditSurfaceScreenY))
             : (ushort)0;
         actual.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        actual.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -425,7 +425,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort cameraY = unchecked((ushort)(
             fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -451,7 +451,7 @@ internal static class RoomFxRetailInventoryVerification
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
         }
         Rgba32[] second = RenderRoomFx(
             vram,
@@ -466,7 +466,7 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$01 lava surface advances to the next bank-$87 animation frame");
     }
 
-    /// <summary>Composes a captured BG3 FX layer with its current VRAM and CGRAM for visible-surface comparisons.</summary>
+    /// <summary>Composes a captured BG3 FX layer with its current VRAM image and CGRAM for visible-surface comparisons.</summary>
     private static Rgba32[] RenderRoomFx(
         SnesVram vram,
         SnesCgram cgram,
@@ -476,7 +476,7 @@ internal static class RoomFxRetailInventoryVerification
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         if (SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(snapshot, plane) is { } layer)
-            SoftwareBgColorMathRenderer.Composite(frame, vram, cgram, layer);
+            SoftwareBgColorMathRenderer.Composite(frame, BgArtworkFixtures.ComposedVram(vram), cgram, layer);
         return frame;
     }
 
@@ -632,7 +632,7 @@ internal static class RoomFxRetailInventoryVerification
         int movingFrames = 0;
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
             if (fx.YVelocity.RawValue == 0)
                 break;
         }
@@ -816,7 +816,7 @@ internal static class RoomFxRetailInventoryVerification
             // A fresh VRAM object is sufficient here because the assertion targets the
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
-            fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int offset = unchecked((short)(fx.Surface.Y - fx.BaseY.Whole));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
@@ -850,7 +850,7 @@ internal static class RoomFxRetailInventoryVerification
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, cgram, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
@@ -864,7 +864,7 @@ internal static class RoomFxRetailInventoryVerification
         fx = RoomLayer3FxState.ForRoom(fxSession, cgram, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         Layer3PlaneFixtures.WriteEffectPlane(vram, fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(

@@ -22,7 +22,7 @@ internal static class RoomFxTextureDriftVerification
         ushort expectedWater = 0;
         for (int frame = 0; frame < 1100; frame++)
         {
-            water.Step(new SnesVram(), Frame());
+            water.Step(BgArtworkFixtures.For(new SnesVram()), Frame());
             AssertEqual(WholePixels(expectedWater), water.Scroll.X, $"water drift frame {frame}");
             expectedWater = unchecked((ushort)(expectedWater + RoomFxRomData.Water.HorizontalSubscrollVelocity));
         }
@@ -31,7 +31,7 @@ internal static class RoomFxTextureDriftVerification
             RoomLiquidOptions.None, randomNumber: 0);
         for (int frame = 0; frame < 600; frame++)
         {
-            stillWater.Step(new SnesVram(), Frame());
+            stillWater.Step(BgArtworkFixtures.For(new SnesVram()), Frame());
             AssertEqual((ushort)0, stillWater.Scroll.X, $"water without its drift option stays put, frame {frame}");
         }
 
@@ -44,7 +44,7 @@ internal static class RoomFxTextureDriftVerification
             ushort expectedY = 0;
             for (int frame = 0; frame < 200; frame++)
             {
-                rain.Step(new SnesVram(), Frame());
+                rain.Step(BgArtworkFixtures.For(new SnesVram()), Frame());
                 AssertEqual(new Position16<Bg3Pixels>(WholePixels(expectedX), WholePixels(expectedY)), rain.Scroll,
                     $"rain wind {selection} frame {frame}");
                 expectedX = unchecked((ushort)(expectedX + RoomFxRomData.Rain.HorizontalVelocity(selection)));

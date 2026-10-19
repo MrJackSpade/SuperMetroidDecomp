@@ -42,7 +42,7 @@ internal static class StandardObjectArtworkVerification
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             runtime.Artwork.StandardObjectArt = baseline;
             runtime.HudSetup.QueueStandardObjectTiles();
-            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
                 "actual queued gameplay DMA uses installed OBJ bytes without reading ROM");
@@ -66,7 +66,7 @@ internal static class StandardObjectArtworkVerification
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: palettes);
             editedRuntime.Artwork.StandardObjectArt = edited;
             editedRuntime.HudSetup.QueueStandardObjectTiles();
-            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, editedRuntime.Artwork);
+            editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, editedRuntime.Artwork, null, BgArtworkFixtures.For(editedRuntime.Vram));
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),
                 "edited OBJ tile reaches live VRAM through production DMA queue");

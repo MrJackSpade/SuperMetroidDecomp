@@ -233,7 +233,7 @@ internal static class EnemyTileArtworkKraidVerification
             AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                 restored.VramWrites.Entries[quarter].AssetId,
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
-        restored.VramWrites.DrainTo(restored.Vram, restored.Artwork);
+        restored.VramWrites.DrainTo(restored.Vram, restored.Artwork, null, BgArtworkFixtures.For(restored.Vram));
         AssertTrue(restored.Vram.ImageEquals(baselineQueued),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
@@ -296,7 +296,7 @@ internal static class EnemyTileArtworkKraidVerification
                 AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                     queue.Entries[0].AssetId,
                     $"Kraid BG3 quarter {quarter} queues installed art");
-                queue.DrainTo(vram, map);
+                queue.DrainTo(vram, map, null, BgArtworkFixtures.For(vram));
             }
             AssertEqual(quarter + 1, state.DeathBg3TransferCount,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");

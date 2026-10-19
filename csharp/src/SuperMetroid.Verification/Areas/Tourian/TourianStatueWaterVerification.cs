@@ -14,6 +14,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 /// <summary>Checks the four-statues room's special water FX in live physics and displayed BG3 composition.</summary>
 internal static class TourianStatueWaterVerification
 {
@@ -88,7 +89,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
+        runtime.RoomLayer3Fx.Step(runtime.BgArtwork, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;

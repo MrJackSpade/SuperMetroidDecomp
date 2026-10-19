@@ -293,7 +293,7 @@ internal static class CollectiblesVerification
             MaxHealth = 99,
         };
         var plms = PlmFixtures.Unbound();
-        int loaded = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
+        int loaded = PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, system, samus, blockIndex);
     }

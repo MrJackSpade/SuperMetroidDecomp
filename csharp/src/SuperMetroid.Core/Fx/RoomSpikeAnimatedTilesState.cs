@@ -28,6 +28,6 @@ public sealed class RoomSpikeAnimatedTilesState
     }
 
     /// <summary>Schedules the authored character transfer for the next accepted NMI.</summary>
-    public void Step(SnesVram vram, VramWriteQueue writes) =>
-        animation.Step(vram, writes);
+    public void Step(VramWriteQueue writes) =>
+        animation.Step(null, writes);
 }

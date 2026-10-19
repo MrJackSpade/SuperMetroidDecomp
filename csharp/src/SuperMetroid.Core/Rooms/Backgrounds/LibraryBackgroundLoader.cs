@@ -27,7 +27,7 @@ public static class LibraryBackgroundLoader
             switch (instruction.Command)
             {
                 case LibraryBackgroundCommand.TransferToVram:
-                    TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, instruction, artwork);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     DecompressToWorkRam(staging, instruction.SourceAddress,
@@ -37,7 +37,7 @@ public static class LibraryBackgroundLoader
                     FillAndTransfer(staging, vram, RoomAssetRomData.LibraryBackground.ClearFx);
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, instruction, artwork);
                     selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
@@ -48,7 +48,7 @@ public static class LibraryBackgroundLoader
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.Door == activeDoor)
-                        TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                        TransferToVram(staging, vram, instruction, artwork);
                     break;
                 default:
                     throw new InvalidDataException(
@@ -60,10 +60,18 @@ public static class LibraryBackgroundLoader
         return new LibraryBackgroundExecutionResult(selectsKraidHudCharacters);
     }
 
+    /// <summary>Binds a library background's character transfer at its VRAM word (#1350).</summary>
+    [PpuLayoutBoundary("codec: library-background character transfers' native VRAM words")]
+    private static void BindCharacters(LibraryBackgroundArtwork artwork, LibraryBackgroundInstruction transfer, ReadOnlySpan<byte> characters, ushort destination) =>
+        (artwork.Backgrounds ?? throw new InvalidOperationException("A library background's character transfer requires background bindings."))
+            .Bind(new BgArtworkIdentity($"library characters ${transfer.SourceAddress:X6}"), destination, characters);
+
     /// <summary>Routes a transfer command (plain, Kraid or door-selected) to live memory or its installed art catalog, preserving its VRAM word destination.</summary>
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
-    private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundInstruction transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
+    private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
     {
+        (RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt) =
+            (artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
         if (transfer.ByteCount == 0)
         {
             throw new InvalidDataException(
@@ -85,13 +93,11 @@ public static class LibraryBackgroundLoader
                 throw new InvalidDataException(
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, " +
                     $"not {RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount}.");
-            vram.ExecuteQueuedAssetWrite(characterArt.Get(transfer.SourceAddress).Transfer.Span,
-                destination);
+            BindCharacters(artwork, transfer, characterArt.Get(transfer.SourceAddress).Transfer.Span, destination);
         }
         else if (hudArt is not null && transfer.SourceAddress == HudTileAtlasFormat.SourceAddress &&
             transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
-            vram.ExecuteQueuedAssetWrite(
-                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], destination);
+            BindCharacters(artwork, transfer, hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], destination);
         else if (skyArt is not null && skyArt.TryResolve(transfer.SourceAddress, transfer.ByteCount,
                 out ReadOnlyMemory<byte> selected))
             vram.ExecuteQueuedAssetWrite(selected.Span, destination);

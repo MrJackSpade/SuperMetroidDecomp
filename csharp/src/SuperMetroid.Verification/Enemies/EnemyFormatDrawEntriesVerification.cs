@@ -46,7 +46,7 @@ internal static class EnemyFormatDrawEntriesVerification
         int boyonBytes = boyon.TileDataSize & short.MaxValue;
         var queue = new VramWriteQueue();
         queue.Enqueue((ushort)boyonBytes, boyon.TileDataAddress, EnemyVram.EnemyTilesDma(0));
-        queue.DrainTo(new SnesVram(), resolver, enemies.Room.Session.ObjCharacters);
+        queue.DrainTo(new SnesVram(), resolver, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(new SnesVram()));
         ObjCharacterUpload upload = enemies.Room.Session.ObjCharacters.Uploads.Single();
         AssertTrue(upload.Source is TransferObjCharacters, "Enemy tiles bind their installed artwork, not copied bytes");
         SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, resolver);

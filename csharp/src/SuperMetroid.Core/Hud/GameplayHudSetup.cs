@@ -70,10 +70,10 @@ internal sealed class GameplayHudSetup
         // The original copies $2000 bytes even though the named standard BG3 graphics are
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
+        // The HUD's characters are installed artwork bound at the NMI (#1350).
         if (_artwork.MapPresentation is null)
-            _vramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, GameplayVram.HudCharacterUploadDma);
-        else
-            _vramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
+            throw new InvalidOperationException("Initializing the HUD requires installed HUD artwork.");
+        _vramWrites.EnqueueBackgroundAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
 
         QueueStandardObjectTiles();
 

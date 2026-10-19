@@ -133,7 +133,7 @@ internal sealed class SuperMetroidRuntime
     internal RuntimeArtwork Artwork { get; }
 
     /// <summary>Executes the queued video transfers from the installed artwork.</summary>
-    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork, EnemySession.ObjCharacters);
+    private void DrainQueuedVramWrites() => VramWrites.DrainTo(Vram, Artwork, EnemySession.ObjCharacters, BgArtwork);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
@@ -152,6 +152,7 @@ internal sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         Mode7QueueResidue = Ensure.NotNull(mode7QueueResidue);
+        BgArtwork = new BgArtworkBindings(Vram);
         EnemySession.Mode7QueueResidue = Mode7QueueResidue;
 
         BeamCharge = new BeamChargeState();
@@ -172,7 +173,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, Backgrounds = BgArtwork, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites});
@@ -323,6 +324,9 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>PPU video RAM receiving accepted-NMI transfers.</summary>
     public SnesVram Vram { get; } = new();
+
+    /// <summary>The background character artwork the frame shows, composed over <see cref="Vram"/> at capture (#1350).</summary>
+    public BgArtworkBindings BgArtwork { get; }
 
     /// <summary>PPU color RAM initialized from <c>kInitialPalette</c> at ROM <c>$9A:8000</c>.</summary>
     public SnesCgram Cgram { get; } = new();
@@ -568,7 +572,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.Layer3Fx.Step(Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidInHdmaPass });
+            Room.LoadedScope.Layer3Fx.Step(BgArtwork, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidInHdmaPass });
             if (Room.LoadedScope.Layer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -1041,7 +1045,7 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites));
+        return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites, BgArtwork));
     }
 
     /// <summary>

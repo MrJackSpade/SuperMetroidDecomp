@@ -1248,7 +1248,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var coloredDoorPlms = PlmFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        PlmFixtures.LoadPopulation(ref coloredDoorPlms, new PlmRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1276,7 +1276,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new byte[residentWords.Length], new ushort[residentWords.Length]), new byte[8]);
     var residentDoorSystem = new Bank80SystemState();
     var residentDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref residentDoorPlms, new PlmRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
     residentDoorPlms.Step(residentDoorLevel);
 
@@ -1314,7 +1314,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     reopenedWords[residentDoorBlock] = 0x8120;
     RoomLevelData reopenedDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reopenedWords, new byte[reopenedWords.Length], new ushort[reopenedWords.Length]), new byte[8]);
     var reopenedDoorPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    PlmFixtures.LoadPopulation(ref reopenedDoorPlms, new PlmRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reopenedDoorPlms.Step(reopenedDoorLevel);
     AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Bts.Value,
         "persisted left-facing red door reloads as ordinary left blue cap");
@@ -1340,7 +1340,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new byte[greyDoorWords.Length], new ushort[greyDoorWords.Length]), new byte[8]);
     var greyDoorSystem = new Bank80SystemState();
     var greyDoorPlms = PlmFixtures.Unbound();
-    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+    AssertEqual(1, PlmFixtures.LoadPopulation(ref greyDoorPlms, new PlmRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
@@ -1388,7 +1388,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     reloadedGreyWords[greyDoorBlock] = 0x8220;
     RoomLevelData reloadedGreyLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reloadedGreyWords, new byte[reloadedGreyWords.Length], new ushort[reloadedGreyWords.Length]), new byte[8]);
     var reloadedGreyPlms = PlmFixtures.Unbound();
-    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    PlmFixtures.LoadPopulation(ref reloadedGreyPlms, new PlmRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reloadedGreyPlms.Step(reloadedGreyLevel);
     AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Bts.Value,
         "persisted left grey door reloads as ordinary left blue cap");

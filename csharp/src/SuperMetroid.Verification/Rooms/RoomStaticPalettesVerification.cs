@@ -57,8 +57,8 @@ internal static class RoomStaticPalettesVerification
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
-            native.LoadGraphics(new SnesVram(), nativeCgram);
-            installed.LoadGraphics(new SnesVram(), installedCgram);
+            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram);
+            installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
@@ -85,7 +85,7 @@ internal static class RoomStaticPalettesVerification
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled));
         var editedRoomCgram = new SnesCgram();
-        editedRoom.LoadGraphics(new SnesVram(), editedRoomCgram);
+        editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram);
         AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],
             "edited RGB5 room palette changes real room-loader CGRAM");
 

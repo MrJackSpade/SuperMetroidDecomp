@@ -70,7 +70,7 @@ internal static class DmaArtworkBoundaryVerification
                     AssertEqual(1, writes.Entries.Count, "Kraid quarter produces one NMI record");
                     AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                         writes.Entries[0].AssetId, "Kraid restoration queues a typed installed resource");
-                    writes.DrainTo(actual, maps);
+                    writes.DrainTo(actual, maps, null, BgArtworkFixtures.For(actual));
                 }
                 ImportedVramOracle.ExecuteQueued(expected, reference,
                     KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
@@ -90,7 +90,7 @@ internal static class DmaArtworkBoundaryVerification
 
         var animation = new RoomFxAnimatedTilesState();
         animation.LoadDefinition(AnimatedTileObject.Lava);
-        AssertThrows<InvalidOperationException>(() => animation.Step(new SnesVram()),
+        AssertThrows<InvalidOperationException>(() => animation.Step(BgArtworkFixtures.For(new SnesVram())),
             "direct animated characters require installed art, not a bus reader");
         Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, eight BG3 transfer cases and missing-artwork rejection pass.");
     }

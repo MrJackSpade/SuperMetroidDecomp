@@ -35,8 +35,8 @@ public sealed class RoomSandAnimatedTilesState
     }
 
     /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for NMI.</summary>
-    public void Step(SnesVram vram, VramWriteQueue writes)
+    public void Step(VramWriteQueue writes)
     {
-        foreach (var animation in objects) animation.Step(vram, writes);
+        foreach (var animation in objects) animation.Step(null, writes);
     }
 }

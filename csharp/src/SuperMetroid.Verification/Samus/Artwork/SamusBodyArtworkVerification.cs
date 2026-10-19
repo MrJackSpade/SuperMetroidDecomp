@@ -236,8 +236,7 @@ internal static class SamusBodyArtworkVerification
                 Enumerable.Range(0, SamusSpecialSequenceRomData.Death.TileSegmentByteCount)
                     .Select(offset => bus.ReadCartridgeByte(segment.SourceAddress + offset)).ToArray(),
                 segment.Destination.Encoded);
-            installedQueue.DrainTo(installedDeathVram,
-                new DeathTileAssetProvider(stock.DeathTiles));
+            installedQueue.DrainTo(installedDeathVram, new DeathTileAssetProvider(stock.DeathTiles), null, BgArtworkFixtures.For(installedDeathVram));
             AssertTrue(nativeDeathVram.ImageEquals(installedDeathVram),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
             int firstCharacter = (segment.Destination.Encoded - GameplayVramLayout.ObjectCharacters.Offset) /
@@ -544,10 +543,8 @@ internal static class SamusBodyArtworkVerification
             firstDeathSegment.SourceAddress, firstDeathSegment.Destination);
         var stockDeathTilesVram = new SnesVram();
         var editedDeathTilesVram = new SnesVram();
-        stockDeathTransfer.DrainTo(stockDeathTilesVram,
-            new DeathTileAssetProvider(stock.DeathTiles));
-        editedDeathTransfer.DrainTo(editedDeathTilesVram,
-            new DeathTileAssetProvider(replacement.DeathTiles));
+        stockDeathTransfer.DrainTo(stockDeathTilesVram, new DeathTileAssetProvider(stock.DeathTiles), null, BgArtworkFixtures.For(stockDeathTilesVram));
+        editedDeathTransfer.DrainTo(editedDeathTilesVram, new DeathTileAssetProvider(replacement.DeathTiles), null, BgArtworkFixtures.For(editedDeathTilesVram));
         AssertTrue(!stockDeathTilesVram.ImageEquals(editedDeathTilesVram),
             "edited death explosion PNG reaches the queued production VRAM transfer");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>

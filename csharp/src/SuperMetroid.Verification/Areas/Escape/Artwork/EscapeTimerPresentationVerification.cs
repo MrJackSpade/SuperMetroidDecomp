@@ -61,7 +61,7 @@ internal static class EscapeTimerPresentationVerification
         AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].Destination.Encoded,
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
-        queued.DrainTo(timerVram, original);
+        queued.DrainTo(timerVram, original, null, BgArtworkFixtures.For(timerVram));
         AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "typed first timer record publishes exact stock VRAM");

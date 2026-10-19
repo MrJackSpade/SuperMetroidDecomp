@@ -129,7 +129,7 @@ internal static class CrocomirePresentation1193Verification
                 "Re-enabled spikes resume the pending first frame");
             var unselected = new RoomSpikeAnimatedTilesState(null, null, AreaId.Norfair);
             var clearedWrites = new VramWriteQueue();
-            unselected.Step(runtime.Vram, clearedWrites);
+            unselected.Step(clearedWrites);
             AssertEqual(0, clearedWrites.Entries.Count, "A room without selected spikes builds an empty spike owner");
         }
         else
@@ -201,8 +201,8 @@ internal static class CrocomirePresentation1193Verification
         {
             var expected = new VramWriteQueue();
             var actual = new VramWriteQueue();
-            runtime.RoomSpikes.Step(runtime.Vram, expected);
-            restored.Step(runtime.Vram, actual);
+            runtime.RoomSpikes.Step(expected);
+            restored.Step(actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
         // Debugger states are build-pinned (#1270); an older graph without spike state is rejected, not migrated.

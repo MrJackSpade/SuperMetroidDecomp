@@ -260,7 +260,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
     AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
-    queue.DrainTo(vram);
+    queue.DrainTo(vram, null, null, BgArtworkFixtures.For(vram));
     AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
     AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
 

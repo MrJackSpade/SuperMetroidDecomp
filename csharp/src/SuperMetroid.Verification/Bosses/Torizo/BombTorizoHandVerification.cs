@@ -56,7 +56,7 @@ internal static class BombTorizoHandVerification
         ]);
         PlmFixtures.VisualsOf(plms).RoomPlmBombTorizoHandVisuals = editedVisuals;
 
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "enemy header scan sees live Bomb Torizo hand");
@@ -113,7 +113,7 @@ internal static class BombTorizoHandVerification
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
                 request.Destination);
-            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),
                 "Bomb Torizo PLM transfer resolves installed artwork");
@@ -149,7 +149,7 @@ internal static class BombTorizoHandVerification
             "terminal hand music request");
 
         var defeated = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref defeated, new PlmRoom(level, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref defeated, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "defeated setup exposes no transient hand header");

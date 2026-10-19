@@ -131,7 +131,7 @@ internal static class RoomSkyTilemapsVerification
                 stock.Tilemap(ScrollingSkyChunkTable.Land).Words[shownRow],
             "editing a sky page changes the row the sky shows");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
-            "per-frame NMI transfers use installed art, ocean's wrapped top row is blank, and an edit reaches the queued row.");
+            "rows are the native page rows, and an edit reaches the shown row.");
     }
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>

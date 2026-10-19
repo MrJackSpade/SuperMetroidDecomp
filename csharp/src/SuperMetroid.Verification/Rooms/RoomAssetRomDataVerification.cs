@@ -134,8 +134,8 @@ internal static class RoomAssetRomDataVerification
             var guardedVram = new SnesVram();
             var nativeCgram = new SnesCgram();
             var guardedCgram = new SnesCgram();
-            native.LoadGraphics(nativeVram, nativeCgram);
-            guarded.LoadGraphics(guardedVram, guardedCgram);
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram);
+            guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram);
             AssertTrue(nativeVram.ImageEquals(guardedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(guardedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
@@ -205,8 +205,8 @@ internal static class RoomAssetRomDataVerification
             var installedVram = new SnesVram();
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
-            native.LoadGraphics(nativeVram, nativeCgram);
-            installed.LoadGraphics(installedVram, installedCgram);
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram);
+            installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram);
             AssertTrue(nativeVram.ImageEquals(installedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");

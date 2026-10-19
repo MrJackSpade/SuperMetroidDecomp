@@ -152,13 +152,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>
     /// Points pending transfers a restored legacy queue still sources from the cartridge bus at the
-    /// installed HUD, Kraid BG3 and escape-timer artwork, matched by their native source and size.
+    /// installed Kraid BG3 and escape-timer artwork, matched by their native source and size.
     /// </summary>
     [SuperMetroid.Core.Hardware.PpuLayoutBoundary("codec: legacy queued VRAM DMA records rebound from native bus sources to installed artwork")]
     private void RebindLegacyArtworkTransfers()
     {
-        _vramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
-            SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
         for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             _vramWrites.RebindBusSource(

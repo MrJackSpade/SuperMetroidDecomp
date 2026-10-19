@@ -28,8 +28,9 @@ internal static class CeresMode7MapVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Mode7MapSnapshot first = Published(runtime);
-        // The room's tileset upload still fills VRAM; Mode 7 reads its map from the low bytes of the first $4000 words.
-        AssertTrue(first.Cells.SequenceEqual(Mode7MapFixtures.FromVram(runtime.Vram.Bytes).Cells),
+        // The room's tileset characters are bound (#1350); Mode 7 reads its map from the low bytes of the first $4000
+        // words of the image they compose.
+        AssertTrue(first.Cells.SequenceEqual(Mode7MapFixtures.FromVram(runtime.PublishDisplayFrame().Memory.Vram).Cells),
             "the published map is the tileset map the room's character upload carries");
         AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, first.Tileset, "the map is bound to the room's tileset");
 

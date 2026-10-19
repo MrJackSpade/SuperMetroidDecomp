@@ -97,7 +97,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     ? edited : stock });
             var system = new Bank80SystemState();
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident colored-door header ${(int)header:X4} loads");
             ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | ((ushort)header + 2)));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
@@ -163,7 +163,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
 
             var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = stock });
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door ${(int)header:X4} reloads");
             // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
             // deletes on the next pass.

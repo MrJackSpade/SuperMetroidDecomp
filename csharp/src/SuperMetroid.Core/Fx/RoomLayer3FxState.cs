@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -335,9 +336,9 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
-    public void Step(SnesVram vram, RoomLayer3FxFrame frame)
+    public void Step(BgArtworkBindings backgrounds, RoomLayer3FxFrame frame)
     {
-        Ensure.NotNull(vram);
+        Ensure.NotNull(backgrounds);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
         {
@@ -356,7 +357,7 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(vram, artwork: AnimatedTileArtwork);
+        animatedTiles.Step(backgrounds, artwork: AnimatedTileArtwork);
 
         if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;

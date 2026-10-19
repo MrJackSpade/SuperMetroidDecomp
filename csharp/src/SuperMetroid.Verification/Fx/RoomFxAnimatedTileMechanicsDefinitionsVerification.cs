@@ -70,7 +70,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
-                state.Step(vram, writes);
+                state.Step(BgArtworkFixtures.For(vram), writes);
                 if (state.LastSourceAddress.HasValue)
                     observedFrames++;
             }
@@ -141,7 +141,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var observed = new List<(int Update, int Source)>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
-                state.Step(vram, writes);
+                state.Step(BgArtworkFixtures.For(vram), writes);
                 if (state.LastSourceAddress is int source)
                     observed.Add((step, source));
             }

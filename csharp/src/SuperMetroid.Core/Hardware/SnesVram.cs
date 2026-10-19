@@ -19,6 +19,15 @@ public sealed class SnesVram
     /// <summary>Physical VRAM image addressed as 64 KiB of bytes behind the PPU's word ports.</summary>
     private readonly byte[] _bytes = new byte[ByteCount];
 
+    /// <summary>
+    /// When each word was last written, on the clock <see cref="BgArtworkBindings"/> shares (#1350), so a binding shows only
+    /// over words VRAM has not written since; null until bindings attach, as a frontend screen's VRAM never has any.
+    /// </summary>
+    private uint[]? _writeStamps;
+
+    /// <summary>The write clock: the stamp of the latest write or binding.</summary>
+    private uint _writeClock;
+
     /// <summary>Transient write generation incremented before each mutation so render capture can detect changes.</summary>
     [NonSerialized] private long writeGeneration;
     /// <summary>Transient immutable copy reused while no VRAM write has occurred; excluded from saved state.</summary>
@@ -45,6 +54,21 @@ public sealed class SnesVram
     /// Writes should pass through DMA-aware methods so word stepping remains visible.
     /// </summary>
     public ReadOnlySpan<byte> Bytes => _bytes;
+
+    /// <summary>Starts tracking when each word is written, for background artwork bindings to order against (#1350).</summary>
+    internal void TrackWriteOrder() => _writeStamps ??= new uint[WordCount];
+
+    /// <summary>Advances the write clock and returns its new stamp (#1350).</summary>
+    internal uint NextWriteStamp() => ++_writeClock;
+
+    /// <summary>When VRAM word <paramref name="wordAddress"/> was last written; zero while write order is not tracked.</summary>
+    internal uint WriteStampAt(int wordAddress) => _writeStamps?[wordAddress] ?? 0;
+
+    /// <summary>The stamp a write takes: the next on the clock while write order is tracked, otherwise none.</summary>
+    private uint BeginWrite() => _writeStamps is null ? 0 : NextWriteStamp();
+
+    /// <summary>Records that a write stamped <paramref name="stamp"/> reached <paramref name="wordCount"/> words from <paramref name="firstWord"/>.</summary>
+    private void StampWords(int firstWord, int wordCount, uint stamp) => _writeStamps?.AsSpan(firstWord, wordCount).Fill(stamp);
 
     /// <summary>
     /// Reads a byte by physical VRAM byte offset.
@@ -75,6 +99,7 @@ public sealed class SnesVram
     public void ExecuteWordTransfer(ReadOnlySpan<ushort> words, ushort destinationWord, int wordIncrement)
     {
         writeGeneration++;
+        uint stamp = BeginWrite();
         if (wordIncrement is not (1 or 32))
             throw new ArgumentOutOfRangeException(nameof(wordIncrement), "Known tilemap DMA increments are one or 32 words.");
 
@@ -84,6 +109,7 @@ public sealed class SnesVram
             int byteOffset = destination * 2;
             _bytes[byteOffset] = (byte)word;
             _bytes[byteOffset + 1] = SnesLittleEndian.HighByte(word);
+            StampWords(destination, 1, stamp);
             destination = (destination + wordIncrement) & WordAddressMask;
         }
     }
@@ -99,18 +125,22 @@ public sealed class SnesVram
         if (destinationByteOffset < 0 || destinationByteOffset + bytes.Length > ByteCount)
             throw new ArgumentOutOfRangeException(nameof(destinationByteOffset));
         bytes.CopyTo(_bytes.AsSpan(destinationByteOffset));
+        if (!bytes.IsEmpty)
+            StampWords(destinationByteOffset / 2, (destinationByteOffset + bytes.Length - 1) / 2 - destinationByteOffset / 2 + 1, BeginWrite());
     }
 
     /// <summary>Loads bytes through Mode 7's high-byte-only $2119 DMA port.</summary>
     public void LoadMode7CharacterBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
     {
         writeGeneration++;
+        uint stamp = BeginWrite();
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
         int destination = destinationWord & WordAddressMask;
         foreach (byte value in bytes)
         {
             _bytes[destination * 2 + 1] = value;
+            StampWords(destination, 1, stamp);
             destination = (destination + 1) & WordAddressMask;
         }
     }
@@ -119,12 +149,14 @@ public sealed class SnesVram
     public void LoadMode7MapBytes(ReadOnlySpan<byte> bytes, ushort destinationWord = 0)
     {
         writeGeneration++;
+        uint stamp = BeginWrite();
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
         int destination = destinationWord & WordAddressMask;
         foreach (byte value in bytes)
         {
             _bytes[destination * 2] = value;
+            StampWords(destination, 1, stamp);
             destination = (destination + 1) & WordAddressMask;
         }
     }
@@ -133,12 +165,14 @@ public sealed class SnesVram
     public void FillMode7MapBytes(byte value, int wordCount, ushort destinationWord = 0)
     {
         writeGeneration++;
+        uint stamp = BeginWrite();
         if ((uint)wordCount > WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         int destination = destinationWord & WordAddressMask;
         for (int index = 0; index < wordCount; index++)
         {
             _bytes[destination * 2] = value;
+            StampWords(destination, 1, stamp);
             destination = (destination + 1) & WordAddressMask;
         }
     }
@@ -146,6 +180,7 @@ public sealed class SnesVram
     public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
     {
         writeGeneration++;
+        uint stamp = BeginWrite();
         if (bytes.Length is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
         VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
         int destinationWord = destination.Word;
@@ -154,6 +189,7 @@ public sealed class SnesVram
         {
             bool high = (i & 1) != 0;
             _bytes[destinationWord * 2 + (high ? 1 : 0)] = bytes[i];
+            StampWords(destinationWord, 1, stamp);
             if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
         }
     }
@@ -166,5 +202,6 @@ public sealed class SnesVram
     {
         writeGeneration++;
         Array.Clear(_bytes);
+        StampWords(0, WordCount, BeginWrite());
     }
 }

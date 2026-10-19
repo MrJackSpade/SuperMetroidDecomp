@@ -71,7 +71,7 @@ internal static class BombTorizoHandArtworkVerification
         queue.Enqueue(checked((ushort)page.ByteCount), page.SourceAddress,
             GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset));
         runtime.EnemySession.TileArtwork = edited;
-        queue.DrainTo(runtime.Vram, runtime.Artwork);
+        queue.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
         AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> original),
             "stock debris page remains installed");
         AssertEqual((byte)(original.Span[0] ^ 0x80),

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -184,14 +185,14 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         CollectiblePresentation presentation,
         RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
-        (RoomLevelData level, SnesVram vram, Bank80SystemState system) =
-            (room.Level, room.Vram, room.System);
+        (RoomLevelData level, BgArtworkBindings backgrounds, Bank80SystemState system) =
+            (room.Level, room.Backgrounds, room.System);
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
             ? LoadDynamicCollectibleGraphics(
-                level, vram, kind, suppliedGraphic)
+                level, backgrounds, kind, suppliedGraphic)
             : -1;
 
         ushort setupWord = original.PackedWord.WithCollisionType(
@@ -270,10 +271,11 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         return false;
     }
 
-    /// <summary>Uploads two animation frames to the next VRAM slot and updates live block-definition words.</summary>
+    /// <summary>Binds two animation frames to the next collectible character slot (#1350) and updates live block-definition words.</summary>
+    [PpuLayoutBoundary("codec: the collectible character slots' native VRAM words")]
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
-        SnesVram vram,
+        BgArtworkBindings backgrounds,
         InWorldCollectibleKind kind,
         RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
@@ -290,7 +292,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         _nextCollectibleGraphicsSlot = (_nextCollectibleGraphicsSlot + 1) & 3;
 
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
-        new RoomGraphicsVram(vram).CollectibleSlot(graphicsSlot).Load(graphics.Span);
+        backgrounds.Bind(new BgArtworkIdentity($"collectible slot {graphicsSlot}: {kind}"),
+            RoomGraphicsLayout.CollectibleCharacters.Offset + graphicsSlot * RoomGraphicsVram.CollectibleSlotWordCount, graphics.Span);
 
         int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * 8;
         int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * 8;

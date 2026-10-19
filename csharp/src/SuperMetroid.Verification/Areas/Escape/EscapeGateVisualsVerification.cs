@@ -103,7 +103,7 @@ internal static class EscapeGateVisualsVerification
 
         RoomLevelData closedLevel = CreateLevel();
         var closed = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closed, new PlmRoom(closedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
         closed.Step(closedLevel);
         AssertEqual((ushort)0x830f,
@@ -115,7 +115,7 @@ internal static class EscapeGateVisualsVerification
 
         RoomLevelData closingLevel = CreateLevel();
         var closing = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmEscapeGateVisuals = edited });
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref closing, new PlmRoom(closingLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
             Name: nameof(DoorDefinitions.MotherBrain1),

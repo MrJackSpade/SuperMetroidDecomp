@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -126,10 +127,11 @@ public sealed class CartridgeRoomAssets
         }
     }
 
-    /// <summary>Installs the room's two character regions and its first 128 CGRAM colors.</summary>
-    public void LoadGraphics(SnesVram vram, SnesCgram cgram)
+    /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
+    [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
+    public void LoadGraphics(BgArtworkBindings backgrounds, SnesCgram cgram)
     {
-        Ensure.NotNull(vram);
+        Ensure.NotNull(backgrounds);
         Ensure.NotNull(cgram);
 
         // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
@@ -137,9 +139,10 @@ public sealed class CartridgeRoomAssets
         // BG character allocation. The second transfer from VRAM byte $0000 must therefore
         // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
         // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        var graphics = new RoomGraphicsVram(vram);
-        graphics.CommonRoomElementCharacters.Load(CreCharacters);
-        graphics.AreaCharacters.Load(RoomCharacters);
+        backgrounds.Bind(new BgArtworkIdentity("common room element characters"),
+            RoomGraphicsLayout.CommonRoomElementCharacters.Offset, CreCharacters);
+        backgrounds.Bind(new BgArtworkIdentity($"tileset characters ${Tileset.CharacterAddress:X6}"),
+            RoomGraphicsLayout.AreaCharacters.Offset, RoomCharacters);
         if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {
             throw new InvalidDataException(

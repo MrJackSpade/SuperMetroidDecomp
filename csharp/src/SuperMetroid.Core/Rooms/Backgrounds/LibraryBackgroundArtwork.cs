@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -17,4 +18,7 @@ public sealed record LibraryBackgroundArtwork
 
     /// <summary>Character art.</summary>
     public RoomCharacterAtlasCatalog? CharacterArt { get; init; } = null;
+
+    /// <summary>The bindings character transfers bind into (#1350); a program that transfers characters requires them.</summary>
+    public BgArtworkBindings? Backgrounds { get; init; } = null;
 }

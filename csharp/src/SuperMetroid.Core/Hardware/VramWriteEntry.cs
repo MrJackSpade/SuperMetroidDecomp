@@ -22,6 +22,9 @@ public readonly record struct VramWriteEntry(
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
     public VramAssetId AssetId { get; init; }
 
+    /// <summary>Whether the transfer is background character artwork, which the drain binds instead of writing (#1350).</summary>
+    public bool Background { get; init; }
+
     /// <summary>
     /// The owned buffer the transfer reads when the queue drains, in place of the WRAM its native
     /// <see cref="SourceAddress"/> names; null for bus and asset transfers.

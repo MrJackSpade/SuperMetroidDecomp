@@ -104,7 +104,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         _instructionTimer = NativeCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
         int source = definition.FrameSource(NextFrameIndex);
         LastSourceAddress = source;
-        writes.Enqueue(
+        writes.EnqueueBackground(
             WreckedShipTreadmillRomData.TransferByteCount,
             source,
             Destination);

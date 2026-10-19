@@ -94,7 +94,7 @@ internal static class RightFacingGateGlitchVerification
                 MaxSuperMissiles = 10,
             };
             var plms = PlmFixtures.Unbound();
-            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, populationVram, new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(populationVram), new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
                 plms.Step(level);
             plms.Gates.TakeDownwardGateProjectileRequests();

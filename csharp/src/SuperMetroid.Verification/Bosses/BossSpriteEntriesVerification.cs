@@ -52,7 +52,7 @@ internal static class BossSpriteEntriesVerification
         var staging = new VramStagingBuffer(64);
         staging.ByteView(0, 64)[3] = 0x5a;
         queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestination.At(GameplayVramLayout.ObjectCharacters, 0x400));
-        queue.DrainTo(new SnesVram(), runtime.Artwork, uploads);
+        queue.DrainTo(new SnesVram(), runtime.Artwork, uploads, BgArtworkFixtures.For(new SnesVram()));
         staging.ByteView(0, 64)[3] = 0;
         AssertEqual(2, uploads.Uploads.Count, "Both uploads reach the OBJ page");
         AssertEqual<ObjCharacterSource>(statue, uploads.Uploads[0].Source, "The statue picture is bound by its identity");

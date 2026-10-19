@@ -71,6 +71,21 @@ public sealed class PpuMemorySnapshot
         return new(vram.CaptureImage(), cgram.Colors.ToArray(), sprites.Draws);
     }
 
+    /// <summary>
+    /// Captures gameplay's memories with its background character artwork composed over the VRAM image (#1350): each
+    /// binding shows over the words VRAM has not written since it was made.
+    /// </summary>
+    public static PpuMemorySnapshot Capture(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, BgArtworkBindings backgrounds)
+    {
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(backgrounds);
+        byte[] image = vram.CaptureImage().ToArray();
+        backgrounds.ComposeOver(image);
+        return new(image, cgram.Colors.ToArray(), sprites.Draws);
+    }
+
     /// <summary>Captures a frontend screen's memories, converting its OAM storage into the draw it stands for.</summary>
     /// <param name="vram">The screen's VRAM.</param>
     /// <param name="cgram">The screen's CGRAM.</param>

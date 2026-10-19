@@ -78,8 +78,8 @@ internal sealed class RoomMainRoutines
     {
         if (_player.Samus?.Xray.AreAnimatedTilesSuspended == true)
             return;
-        room.SandTiles.Step(_vram, _vramWrites);
-        room.SpikeTiles.Step(_vram, _vramWrites);
+        room.SandTiles.Step(_vramWrites);
+        room.SpikeTiles.Step(_vramWrites);
         if (_room.ActiveRoom is not null)
             room.TreadmillTiles.Step(_system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), _vramWrites);
         room.TourianStatues.StepTiles();

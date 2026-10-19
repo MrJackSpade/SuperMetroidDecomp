@@ -42,7 +42,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        assets.LoadGraphics(vram, cgram);
+        assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, vram, cgram) { Level = assets.LevelData });

@@ -2328,8 +2328,8 @@
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
-        "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs"
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
+        "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs"
       ]
     },
     {
@@ -2341,7 +2341,7 @@
       "encoding": "4-bpp BG characters, four 8-character slots",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/CollectiblePlms.cs"
       ]
     },
     {
@@ -2354,8 +2354,8 @@
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
-        "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
+        "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/RoomArtworkRenderParityVerification.cs"
       ]
     },

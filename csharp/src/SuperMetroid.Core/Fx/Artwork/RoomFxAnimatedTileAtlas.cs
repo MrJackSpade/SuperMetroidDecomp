@@ -102,13 +102,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 
     /// <summary>Publishes a selected installed frame through the synchronous liquid/rain owner.</summary>
     [PpuLayoutBoundary("codec: executes a native room-FX transfer record's encoded VRAM destination")]
-    public void LoadFrame(SnesVram vram, int sourceAddress, ushort byteCount,
-        ushort encodedVramDestination)
-    {
-        Ensure.NotNull(vram);
-        if (!TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
-            throw new InvalidDataException(
-                $"Room-FX frame ${sourceAddress:X6} is missing from installed artwork.");
-        vram.ExecuteQueuedAssetWrite(data.Span, encodedVramDestination);
-    }
+    public ReadOnlyMemory<byte> Frame(int sourceAddress, ushort byteCount) =>
+        TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
+            : throw new InvalidDataException($"Room-FX frame ${sourceAddress:X6} is missing from installed artwork.");
 }

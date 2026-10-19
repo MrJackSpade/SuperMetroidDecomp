@@ -354,11 +354,11 @@ internal static class RoomFxRomDataVerification
                      frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                    state.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                     AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                state.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                 AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }

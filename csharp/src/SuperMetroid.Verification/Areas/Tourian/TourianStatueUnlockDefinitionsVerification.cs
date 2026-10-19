@@ -134,14 +134,14 @@ internal static class TourianStatueUnlockDefinitionsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
-        runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
+        runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
         forbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
             runtime.TourianStatues.StepTiles();
-            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork);
+            runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),

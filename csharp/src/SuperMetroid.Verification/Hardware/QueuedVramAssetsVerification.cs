@@ -32,7 +32,7 @@ internal static class QueuedVramAssetsVerification
             var queue = new VramWriteQueue();
             queue.EnqueueAsset(VramAssetId.StandardHudTiles, (ushort)length, VramDmaDestination.FromNative(destination));
             AssertEqual(VramWriteQueue.EntryByteCount, queue.TailInBytes, "asset occupies the same native queue record budget");
-            queue.DrainTo(actual, new TestVramAssets(data));
+            queue.DrainTo(actual, new TestVramAssets(data), null, BgArtworkFixtures.For(actual));
             for (int i = 0; i < 65536; i++) AssertEqual(expected.ReadByte(i), actual.ReadByte(i), "asset DMA matches native byte ports, stride and wrap");
             AssertEqual(0, queue.TailInBytes, "asset queue clears at normal drain boundary");
         }
@@ -44,7 +44,7 @@ internal static class QueuedVramAssetsVerification
         mixed.EnqueueAsset(VramAssetId.StandardHudTiles, 3, VramDmaDestination.FromNative(0));
         mixed.EnqueueStaging(1, 0x7e0002, mixedStaging, 2, VramDmaDestination.FromNative(1));
         var mixedVram = new SnesVram();
-        mixed.DrainTo(mixedVram, new TestVramAssets([7, 8, 9]));
+        mixed.DrainTo(mixedVram, new TestVramAssets([7, 8, 9]), null, BgArtworkFixtures.For(mixedVram));
         AssertEqual((byte)7, mixedVram.ReadByte(0), "asset follows earlier staged write");
         AssertEqual((byte)8, mixedVram.ReadByte(1), "asset high port retained");
         AssertEqual((byte)3, mixedVram.ReadByte(2), "later staged write follows asset in queue order");
@@ -55,10 +55,10 @@ internal static class QueuedVramAssetsVerification
         DebuggerObjectGraphSerializer.Serialize(state, pending);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
-        AssertThrows<InvalidOperationException>(() => restored.DrainTo(new SnesVram()), "missing asset provider fails loudly");
-        AssertThrows<InvalidDataException>(() => restored.DrainTo(new SnesVram(), new TestVramAssets([1])), "asset size mismatch fails loudly");
+        AssertThrows<InvalidOperationException>(() => restored.DrainTo(new SnesVram(), null, null, BgArtworkFixtures.For(new SnesVram())), "missing asset provider fails loudly");
+        AssertThrows<InvalidDataException>(() => restored.DrainTo(new SnesVram(), new TestVramAssets([1]), null, BgArtworkFixtures.For(new SnesVram())), "asset size mismatch fails loudly");
         var restoredVram = new SnesVram();
-        restored.DrainTo(restoredVram, new TestVramAssets([21, 22, 23]));
+        restored.DrainTo(restoredVram, new TestVramAssets([21, 22, 23]), null, BgArtworkFixtures.For(restoredVram));
         AssertEqual((byte)21, restoredVram.ReadByte(0), "restored pending reference resolves current host artwork at drain");
         AssertEqual((byte)23, restoredVram.ReadByte(2), "odd final byte survives debugger round trip");
         AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset(VramAssetId.None, 1, VramDmaDestination.FromNative(0)), "None is not an asset source");

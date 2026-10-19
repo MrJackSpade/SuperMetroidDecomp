@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -87,10 +88,9 @@ internal sealed class RoomFxAnimatedTilesState
     /// Executes one <c>AnimtilesHandler</c> pass and performs the NMI-visible transfer. When the timer
     /// expires the next frame is shown for its duration, and the loop returns from the last frame to the first.
     /// </summary>
-    public void Step(SnesVram vram, VramWriteQueue? writes = null,
+    public void Step(BgArtworkBindings? backgrounds, VramWriteQueue? writes = null,
         RoomFxAnimatedTileAtlas? artwork = null)
     {
-        Ensure.NotNull(vram);
         LastSourceAddress = null;
         if (!IsActive)
             return;
@@ -111,9 +111,11 @@ internal sealed class RoomFxAnimatedTilesState
         nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
         LastSourceAddress = sourceAddress;
         if (writes is not null)
-            writes.Enqueue(mechanics.TransferByteCount, sourceAddress, Destination);
+            writes.EnqueueBackground(mechanics.TransferByteCount, sourceAddress, Destination);
         else if (artwork is not null)
-            artwork.LoadFrame(vram, sourceAddress, mechanics.TransferByteCount, mechanics.EncodedVramDestination);
+            (backgrounds ?? throw new InvalidOperationException("A direct room-FX frame needs background bindings."))
+                .Bind(new BgArtworkIdentity($"room-FX frame ${sourceAddress:X6}"), Destination.Word,
+                    artwork.Frame(sourceAddress, mechanics.TransferByteCount).Span);
         else
             throw new InvalidOperationException(
                 "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");

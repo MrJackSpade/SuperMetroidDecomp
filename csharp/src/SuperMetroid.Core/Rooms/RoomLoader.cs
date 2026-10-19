@@ -91,6 +91,8 @@ internal sealed class RoomLoader
     private readonly TesterTools _tester;
     /// <summary>Receives the initial tile and sprite graphics uploads.</summary>
     private readonly SnesVram _vram;
+    /// <summary>The background character artwork the room binds (#1350).</summary>
+    private readonly BgArtworkBindings _backgrounds;
     /// <summary>Queues VRAM writes that must occur at the next display boundary.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -124,6 +126,7 @@ internal sealed class RoomLoader
         _system = dependencies.System;
         _tester = dependencies.Tester;
         _vram = dependencies.Vram;
+        _backgrounds = dependencies.Backgrounds;
         _vramWrites = dependencies.VramWrites;
 
     }
@@ -867,7 +870,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHdmaConfigured)
             : null;
 
-        assets.LoadGraphics(_vram, _cgram);
+        assets.LoadGraphics(_backgrounds, _cgram);
         // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
         scope.Mode7Map = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateMode7Map() : null;
 
@@ -923,7 +926,7 @@ internal sealed class RoomLoader
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (room.State.Background is { } background)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemySession.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemySession.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt, Backgrounds = _backgrounds });
             if (backgroundResult.SelectsKraidHudCharacters)
                 _display.SelectKraidHudCharacterBase();
         }
@@ -955,7 +958,7 @@ internal sealed class RoomLoader
         // serves the room's PLMs and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
         var plmServices = new RoomPlmRuntimeServices(scope, _player, _room, _system);
-        var plmRoom = new PlmRoom(assets.LevelData, _vram, _system, room.AreaIndex);
+        var plmRoom = new PlmRoom(assets.LevelData, _backgrounds, _system, room.AreaIndex);
         var plmBindings = new RoomPlmServices
         {
             Samus = plmServices,

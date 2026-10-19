@@ -166,7 +166,7 @@ internal static void VerifyRoomEnemyLoading()
         [0xa29100] = primaryTileBytes,
         [0xa39320] = specialTileBytes,
     });
-    tileQueue.DrainTo(vram, seededTiles, enemies.Room.Session.ObjCharacters);
+    tileQueue.DrainTo(vram, seededTiles, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(vram));
     AssertEqual(2, enemies.Room.Session.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
     AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
     AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
@@ -217,7 +217,7 @@ internal static void VerifyRoomEnemyLoading()
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), installedVram, installedCgram));
     var installedQueue = new VramWriteQueue();
     installedEnemies.PopulationLoader.QueueGraphicsUploads(installedQueue);
-    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters);
+    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(installedVram));
     AssertTrue(vram.ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),

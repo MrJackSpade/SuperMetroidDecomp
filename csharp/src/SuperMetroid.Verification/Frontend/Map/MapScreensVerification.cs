@@ -194,9 +194,9 @@ internal static class MapScreensVerification
         Add(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
         Add(FileSelectMapRomData.RoomFrame, 1600);
         Add(FileSelectMapRomData.RoomFrameFooter, 322);
-        Add(FileSelectMapRomData.RoomLabelPointers, MapScreenDefinitions.ZebesAreas * 2);
+        Add(FileSelectMapRomData.AreaLabelPointerTable, MapScreenDefinitions.ZebesAreas * 2);
         for (int area = 0; area < MapScreenDefinitions.ZebesAreas; area++)
-            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, FileSelectMapRomData.RoomLabelPointers + area * 2), 24);
+            Add(FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, FileSelectMapRomData.AreaLabelPointerTable + area * 2), 24);
         void Add(int start, int length) { for (int offset = 0; offset < length; offset++) forbidden.Add(start + offset); }
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(forbidden.Contains, address => $"Installed map screens read cartridge presentation at {address:X6}.");

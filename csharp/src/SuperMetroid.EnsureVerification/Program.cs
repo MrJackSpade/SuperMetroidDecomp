@@ -68,6 +68,7 @@ internal static class Program
                 (nameof(FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer), FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer),
                 (nameof(UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer), UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer),
                 (nameof(RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer), RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer),
+                (nameof(RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer), RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer),
                 (nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
                 (nameof(VerifyParameterContracts), VerifyParameterContracts),
                 (nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),

@@ -52,7 +52,7 @@ public static class FileSelectMapRomData
     /// <summary>$82:9628 copies twelve area-label tile words.</summary>
     public const int RoomLabelWords = 12;
     /// <summary>$82:965F, twelve-word area label pointers in bank $82.</summary>
-    public const int RoomLabelPointers = 0x82965f;
+    public const int AreaLabelPointerTable = 0x82965f;
     /// <summary>BG12NBA=$33 selects the map and frame character base.</summary>
     public const ushort RoomCharacters = 0x3000;
     /// <summary>$81:A725 fills the unused BG2 frame words with $2801.</summary>

@@ -61,3 +61,4 @@ SME6408 | Design | Warning | EnemySlotWordAnalyzer
 SME6409 | Architecture | Warning | RoomLifetimeAnalyzer
 SME6410 | Architecture | Warning | RoomLifetimeAnalyzer
 SME6411 | Architecture | Warning | RoomLifetimeAnalyzer
+SME6412 | Architecture | Warning | RoomPointerAnalyzer

@@ -71,7 +71,7 @@ internal static class FileSelectRoomMapVerification
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.RoomLabelPointers + areaIndex * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.AreaLabelPointerTable + areaIndex * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800

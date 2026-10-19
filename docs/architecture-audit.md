@@ -182,6 +182,11 @@ its reason (SME6409); a type that is neither holds no field or auto-property of 
 `ResetForRoom*`, `Reset*RoomState` or `ResetForRoomLoad` method is declared (SME6411). Each room builds its own scope,
 so nothing resets for the next room. See [room-scope.md](room-scope.md).
 
+**SME6412** keeps rooms, room states and doors identified by their definitions (#1333): a field, property, parameter
+or method named as a room, room-state or door pointer with a number type is reported. Runtime code names a room by
+its `RoomHeaderDefinition`, a state by its `CartridgeRoomState` and a door by its `CartridgeDoorHeader`; the native
+bank-$8F and bank-$83 pointers are the import pipeline's knowledge.
+
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
 `csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
 equal the map's lists; production projects reference only production projects; and no build or tool output sits in

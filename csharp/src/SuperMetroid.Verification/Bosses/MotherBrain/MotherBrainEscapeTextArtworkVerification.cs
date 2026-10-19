@@ -10,6 +10,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -99,8 +101,8 @@ internal static class MotherBrainEscapeTextArtworkVerification
         EnemyTileArtworkCatalog artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
-        var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
+            new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
         for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
@@ -110,7 +112,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
                 MotherBrainEscapeTextArtworkDefinitions.PageDestination(page));
             enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
-        return vram;
+        return ObjVram();
     }
 
 }

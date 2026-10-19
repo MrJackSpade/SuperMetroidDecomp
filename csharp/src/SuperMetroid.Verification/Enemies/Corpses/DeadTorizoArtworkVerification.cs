@@ -246,15 +246,14 @@ internal static class DeadTorizoArtworkVerification
         new Action<int>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
     }
 
-    /// <summary>Renders the corpse hook into a fresh OAM buffer with its native map reads guarded.</summary>
+    /// <summary>Renders the corpse hook's published frame as the OAM image it stands for, with its native map reads guarded.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         Position16<RoomPixels> camera)
     {
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
         var oam = new OamBuffer();
-        new Action<OamBuffer, Position16<RoomPixels>>(enemies.DeadTorizoBehavior.DrawDeadTorizoHook)(
-                oam, camera);
+        oam.AppendDrawn(frame => enemies.DeadTorizoBehavior.DrawDeadTorizoHook(frame, EnemyFormatDrawAccess.BlankObjectPage, camera));
         return oam;
     }
 

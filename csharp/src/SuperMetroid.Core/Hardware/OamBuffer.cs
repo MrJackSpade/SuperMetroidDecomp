@@ -112,59 +112,6 @@ public sealed class OamBuffer
         NextByteOffset += 4;
     }
 
-    /// <summary>Appends an immutable calculated enemy composition in its original drawing order.</summary>
-    public void AddEnemySpritemap(EnemySpritemapParts parts,
-        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
-        bool clipVerticalWrap = false, bool originYIsOnScreen = true)
-    {
-        Ensure.NotNull(parts);
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        for (int index = 0; index < parts.Count; index++)
-            AppendEnemySpritemapPart(parts[index], origin, paletteBits,
-                baseTileIndex, clipVerticalWrap, originYIsOnScreen);
-    }
-
-    /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
-    internal void AppendEnemySpritemapPart(EnemySpritemapPart part,
-        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
-        bool clipVerticalWrap, bool originYIsOnScreen)
-    {
-        SnesSpritemapXWord encodedXOffset = part.X;
-        byte encodedYOffset = part.Y.Raw;
-        ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
-        int unsignedYSum = unchecked((byte)origin.Y) + encodedYOffset;
-        byte calculatedY;
-        if (!clipVerticalWrap)
-        {
-            calculatedY = unchecked((byte)unsignedYSum);
-        }
-        else
-        {
-            // Extended enemy spritemaps route each component through $81:8B22 or
-            // $81:8B96. Their complementary carry/sign tests prevent a piece on one
-            // side of the vertical boundary from wrapping onto the other side.
-            bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
-            bool hideForVerticalWrap = originYIsOnScreen
-                ? yOffsetIsNegative ? unsignedYSum < ByteRange : unsignedYSum >= ByteRange
-                : yOffsetIsNegative ? unsignedYSum >= ByteRange : unsignedYSum < ByteRange;
-            calculatedY = hideForVerticalWrap ? HiddenY : unchecked((byte)unsignedYSum);
-        }
-        SnesObjAttributeWord finalAttributes = part.Attributes
-            .AddPackedTileBase(baseTileIndex)
-            .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
-
-        int spriteIndex = NextByteOffset >> 2;
-        int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = unchecked((byte)calculatedX);
-        _lowTable[lowOffset + 1] = calculatedY;
-        WriteAttributes(lowOffset, finalAttributes);
-        SetHighTablePair(
-            spriteIndex,
-            SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-
-        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
-    }
-
     /// <summary>
     /// Appends one already-packed small OBJ record. Bank $94's grapple renderer writes
     /// these four bytes directly instead of routing through a spritemap loader.

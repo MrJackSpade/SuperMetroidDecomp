@@ -40,4 +40,18 @@ public enum SpriteSourceKind
     RoomSpriteObject,
     /// <summary>A Ceres elevator arrival actor; the instance is 0 for the moving pad and 1 for the platform.</summary>
     CeresElevatorArrival,
+    /// <summary>Dead Torizo's post-enemy frame, drawn by its graphics hook.</summary>
+    DeadTorizoHook,
+    /// <summary>A Ridley tail segment; the instance is the segment, 0 at the base through 6 at the tip.</summary>
+    RidleyTail,
+    /// <summary>Ridley's wings.</summary>
+    RidleyWings,
+    /// <summary>The Baby Metroid Ceres Ridley's scene draws.</summary>
+    CeresBaby,
+    /// <summary>The Ridley-room door overlay Ceres Ridley's scene draws.</summary>
+    CeresDoorOverlay,
+    /// <summary>Mother Brain's brain.</summary>
+    MotherBrainBrain,
+    /// <summary>A Mother Brain neck joint; the instance is the joint, 0 nearest the brain through 4 at the body.</summary>
+    MotherBrainNeck,
 }

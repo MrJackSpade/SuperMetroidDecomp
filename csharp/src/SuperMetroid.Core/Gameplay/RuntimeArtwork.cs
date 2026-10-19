@@ -10,6 +10,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -17,7 +19,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
-internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver
+internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver,
+    IInstalledObjCharacterArtwork
 {
     /// <summary>The page cache for the gameplay OBJ character table; artwork, never saved.</summary>
     [NonSerialized] private ObjCharacterTablePage? gameplayObjectPage;
@@ -36,10 +39,13 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         TryResolveInstalledArtwork(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"No bound artwork serves the OBJ upload from ${sourceAddress:X6} ({byteCount} bytes).");
 
-    /// <summary>Resolves an OBJ binding's Crocomire skeleton chunk.</summary>
-    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCrocomireSkeletonChunk(int entry) =>
-        (_enemySession.TileArtwork?.CrocomireSkeleton ?? throw new InvalidOperationException(
-            "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(entry);
+    /// <inheritdoc/>
+    EnemyTileArtworkCatalog IInstalledObjCharacterArtwork.EnemyTiles =>
+        _enemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
+
+    /// <inheritdoc/>
+    RoomFxAnimatedTileAtlas IInstalledObjCharacterArtwork.AnimatedTiles =>
+        MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
 
     /// <summary>The installed HUD atlas <see cref="HudCharacters"/> was built from, so a rebind rebuilds it.</summary>
     [NonSerialized] private HudTileAtlas? hudCharactersSource;

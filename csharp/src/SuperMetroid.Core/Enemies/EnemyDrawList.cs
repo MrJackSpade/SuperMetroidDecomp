@@ -180,9 +180,9 @@ internal sealed class EnemyDrawList
                 RoomEnemySlot slot = draw.Slot;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, draw.NativeIndex / RoomEnemySystem.NativeSlotSize);
                 // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
-                // and wings), preserving both that OAM order and the enemy's normal layer queue.
+                // and wings), preserving both that drawing order and the enemy's normal layer queue.
                 if (slot.Entity is IEnemyDrawHooks drawHooks)
-                    drawHooks.DrawBeforeBody(sprites.Oam, camera);
+                    drawHooks.DrawBeforeBody(sprites, objects, camera);
                 if (draw.Frame is { } frame)
                 {
                     _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw
@@ -215,8 +215,8 @@ internal sealed class EnemyDrawList
             // the frontend's disjoint low/high-priority layer ranges.
             if (layer == 5)
             {
-                _motherBrainBehavior.DrawMotherBrainHook(sprites.Oam, camera);
-                _deadTorizoBehavior.DrawDeadTorizoHook(sprites.Oam, camera);
+                _motherBrainBehavior.DrawMotherBrainHook(sprites, objects, camera);
+                _deadTorizoBehavior.DrawDeadTorizoHook(sprites, objects, camera);
             }
         }
     }

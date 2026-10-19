@@ -167,7 +167,7 @@ internal sealed class SuperMetroidRuntime
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
-        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Oam = Oam, Player = Player, Room = Room, VramWrites = VramWrites});
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Artwork = Artwork, Player = Player, Room = Room, VramWrites = VramWrites});
         HdmaPhase = new HdmaObjectPhase(Freeze, System);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
@@ -332,9 +332,6 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>The sprite frame the main loop is building for the next NMI: OAM sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();
-
-    /// <summary>Current 544-byte sprite table prepared for the next PPU OAM upload.</summary>
-    public OamBuffer Oam => Sprites.Oam;
 
     /// <summary>
     /// Sprite frame made visible by the most recent accepted NMI. Renderers use it; debugger watches

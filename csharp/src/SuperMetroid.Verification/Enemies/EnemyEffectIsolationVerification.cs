@@ -12,6 +12,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
@@ -87,9 +89,8 @@ internal static class EnemyEffectIsolationVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainRotIsolation()
     {
-        var baselineVram = new SnesVram(); var editedVram = new SnesVram();
-        RoomEnemySystem baselineEnemies = CorpseRamEnemies(baselineVram);
-        RoomEnemySystem editedEnemies = CorpseRamEnemies(editedVram);
+        var baselineEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         EnemyStagingSurfaces baseline = baselineEnemies.Room.Staging;
         EnemyStagingSurfaces edited = editedEnemies.Room.Staging;
         var baselineRot = new MotherBrainCorpseRottingState();
@@ -140,24 +141,17 @@ internal static class EnemyEffectIsolationVerification
                 baseline.Bg2.Bytes.SequenceEqual(edited.Bg2.Bytes), "corpse art changes only its graphics buffer");
             foreach (var request in expected.VramTransfers) baselineTransfer(request);
             foreach (var request in actual.VramTransfers) editedTransfer(request);
+            SnesVram shown = ObjCharacterVramImage.Of(baselineEnemies.Room.Session.ObjCharacters, new EnemyTileTransfers(InstalledFixtures.EnemyTiles));
             foreach (var request in expected.VramTransfers)
             {
                 int source = checked((int)request.SourceAddress) - MotherBrainCorpseRottingState.GraphicsBufferAddress;
-                AssertTrue(baselineVram.Bytes.Slice(request.VramDestination * 2, request.Size)
+                AssertTrue(shown.Bytes.Slice(request.VramDestination * 2, request.Size)
                     .SequenceEqual(baseline.RottingHeap.Bytes.Slice(source, request.Size)), "production staging DMA uploads current rot pixels");
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, baselineRot.ProcessCallCount, "fixed corpse completion clock");
         Console.WriteLine("  Mother Brain replacement: 118 exact calls, 48 row completions, 702 RAM DMA uploads, dust/audio timing unchanged.");
-    }
-
-    /// <summary>An enemy system bound to a cartridge-free fixture and <paramref name="vram"/>, for corpse upload checks.</summary>
-    private static RoomEnemySystem CorpseRamEnemies(SnesVram vram)
-    {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation.BindVram(vram);
-        return enemies;
     }
 
     /// <summary>Runs the Crocomire melt and Mother Brain corpse artwork isolation checks.</summary>

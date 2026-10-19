@@ -25,9 +25,4 @@ internal sealed record EnemySpritemapDraw
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Clip vertical wrap.</summary>
-    public bool ClipVerticalWrap { get; init; } = false;
-
-    /// <summary>Origin y is on screen.</summary>
-    public bool OriginYIsOnScreen { get; init; } = true;
 }

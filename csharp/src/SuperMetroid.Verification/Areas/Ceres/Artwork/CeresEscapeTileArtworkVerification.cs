@@ -190,10 +190,25 @@ internal static class CeresEscapeTileArtworkVerification
     /// <summary>Provides installed escape timer assets and enemy tile pages to the queued VRAM writer.</summary>
     internal sealed class CeresEscapeArtworkProvider(
         EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
-        : IVramAssetProvider, IInstalledArtworkTransferSource
+        : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork
     {
         /// <summary>Resolves a typed timer transfer from the installed indexed-PNG atlas.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => timer.Resolve(asset);
+
+        /// <summary>Resolves a typed timer page shown in the OBJ characters.</summary>
+        public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => timer.Resolve(asset);
+
+        /// <summary>Resolves a source-address transfer from installed Ceres escape tile pages.</summary>
+        public ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount) =>
+            tiles.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
+                : throw new InvalidOperationException($"No Ceres escape tiles at ${sourceAddress:X6}.");
+
+        /// <inheritdoc/>
+        public EnemyTileArtworkCatalog EnemyTiles => tiles;
+
+        /// <summary>Rejects animated tiles, which the Ceres escape fixture never binds.</summary>
+        public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
+            throw new InvalidOperationException("The Ceres escape fixture binds no animated tiles.");
 
         /// <summary>Resolves source-address transfers from installed Ceres escape tile pages.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,

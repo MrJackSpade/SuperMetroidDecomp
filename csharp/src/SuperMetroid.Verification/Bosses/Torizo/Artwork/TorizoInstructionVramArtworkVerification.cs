@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 
@@ -30,8 +31,6 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertTrue(stock.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
         var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
-        var installedVram = new SnesVram();
-        installedEnemies.Presentation.BindVram(installedVram);
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -69,9 +68,10 @@ internal static class TorizoInstructionVramArtworkVerification
                     installed.Span[offset],
                     $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             UploadTorizoTiles(installedEnemies, installedSlot, transferIndex);
+            ReadOnlySpan<byte> shown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.ObjCharacters,
+                new EnemyTileTransfers(stock)).Characters.Slice((transfer.DestinationWord - GameplayVramLayout.ObjectCharacters.Offset) * 2);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
-                AssertEqual(installed.Span[offset],
-                    installedVram.ReadByte(transfer.DestinationWord * 2 + offset),
+                AssertEqual(installed.Span[offset], shown[offset],
                     $"production Torizo upload $AA:{instruction:X4} byte {offset:X4}");
         }
 
@@ -126,8 +126,6 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
         var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
-        var editedVram = new SnesVram();
-        editedEnemies.Presentation.BindVram(editedVram);
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
         editedSlot.Bind(editedSlot.EnemyDefinitionPointer, installedSlot.Definition);
@@ -137,8 +135,12 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial upload copies its awakening sheet");
         UploadTorizoTiles(editedEnemies, editedSlot, goldenUpload);
-        AssertEqual(editedBytes.Span[0], editedVram.ReadByte(0x6d00 * 2),
-            "edited Golden Torizo PNG changes production VRAM upload");
+        ObjCharacterUpload goldenTiles = editedEnemies.Room.Session.ObjCharacters.Uploads.Single();
+        AssertEqual<ObjCharacterSource>(new TorizoTileTransferCharacters(goldenUpload), goldenTiles.Source,
+            "Golden Torizo's upload binds its installed transfer by entry");
+        AssertEqual(editedBytes.Span[0], new ObjCharacterTablePage().Page(editedEnemies.Room.Session.ObjCharacters,
+                new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayout.ObjectCharacters.Offset) * 2],
+            "edited Golden Torizo PNG changes the production OBJ page upload");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoInstructionVram.")).TryResolve(golden.SourceAddress,
                     golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&

@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 
@@ -57,9 +58,9 @@ internal static class CrocomireSkeletonArtworkVerification
             () => CrocomireSkeletonTransferDefinitions.TryGet(invalidIndex, out _),
             "out-of-range Crocomire skeleton upload fails loudly");
 
-        (SnesVram installedVram, CrocomireDeathState installedState,
+        (byte[] installedCharacters, CrocomireDeathState installedState,
             CartridgeReadGuard denied) = RunInstalled(stock);
-        var nativeVram = new SnesVram();
+        var nativeCharacters = new byte[ObjCharacterUploads.TableByteCount];
         for (int index = 0; index < frames.Length; index++)
         {
             int destination = ReadNativeCrocomireSkeletonWord(rom,
@@ -67,10 +68,11 @@ internal static class CrocomireSkeletonArtworkVerification
             int source = 0xad0000 | ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadCartridgeByte(source + offset)).ToArray();
-            nativeVram.LoadBytes((0x6000 + destination) * 2, page);
+            page.CopyTo(nativeCharacters, destination * 2);
         }
-        AssertTrue(installedVram.ImageEquals(nativeVram),
-            "all six installed Crocomire skeleton uploads match native full VRAM");
+        AssertEqual(nativeCharacters.Length, installedCharacters.Length, "the OBJ page spans the native OBJ characters");
+        AssertEqual(-1, Enumerable.Range(0, nativeCharacters.Length).FirstOrDefault(index => installedCharacters[index] != nativeCharacters[index], -1),
+            "all six installed Crocomire skeleton uploads match the native OBJ characters (first differing byte)");
         AssertEqual(frames.Length,
             installedState.SkeletonTileChunk,
             "terminal skeleton upload does not advance the chunk count");
@@ -93,23 +95,21 @@ internal static class CrocomireSkeletonArtworkVerification
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrides);
-        (SnesVram editedVram, _, CartridgeReadGuard editedGuard) =
+        (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
-        int firstDestination = (CrocomireSkeletonTransferDefinitions.ObselBaseWord +
-            frames[0].DestinationOffset) * 2;
-        AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
-            editedVram.ReadByte(firstDestination),
+        int firstDestination = frames[0].DestinationOffset * 2;
+        AssertEqual((byte)(installedCharacters[firstDestination] ^ 0x80),
+            editedCharacters[firstDestination],
             "Crocomire skeleton PNG edit changes the actual uploaded planar pixel");
-        AssertTrue(installedVram.Bytes[..firstDestination].SequenceEqual(
-                editedVram.Bytes[..firstDestination]) &&
-            installedVram.Bytes[(firstDestination + 1)..].SequenceEqual(
-                editedVram.Bytes[(firstDestination + 1)..]),
-            "Crocomire skeleton edit leaves every other VRAM byte unchanged");
+        AssertTrue(installedCharacters[..firstDestination].SequenceEqual(
+                editedCharacters[..firstDestination]) &&
+            installedCharacters[(firstDestination + 1)..].SequenceEqual(
+                editedCharacters[(firstDestination + 1)..]),
+            "Crocomire skeleton edit leaves every other OBJ character byte unchanged");
         AssertEqual(0, editedGuard.ForbiddenReadAttempts,
             "edited Crocomire skeleton remains ROM-free at upload time");
-        AssertEqual(editedVram.ReadByte(firstDestination), RunInstalled(
-                EnemyTileArtworkFiles.Load(stockDirectory, overrides)).Vram
-                .ReadByte(firstDestination),
+        AssertEqual(editedCharacters[firstDestination], RunInstalled(
+                EnemyTileArtworkFiles.Load(stockDirectory, overrides)).Characters[firstDestination],
             "Crocomire skeleton PNG override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -121,10 +121,10 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "malformed Crocomire skeleton override fails loudly");
-        Console.WriteLine("Crocomire skeleton art: six native transfers, full-VRAM parity, " +
+        Console.WriteLine("Crocomire skeleton art: six native transfers, OBJ character parity, " +
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
 
-        static (SnesVram Vram, CrocomireDeathState State,
+        static (byte[] Characters, CrocomireDeathState State,
             CartridgeReadGuard Guard) RunInstalled(EnemyTileArtworkCatalog art)
         {
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
@@ -135,7 +135,8 @@ internal static class CrocomireSkeletonArtworkVerification
             for (int index = 0;
                  index <= CrocomireSkeletonTransferDefinitions.Frames.Length; index++)
                 Upload(system, state);
-            return (vram, state, guard);
+            return (new ObjCharacterTablePage().Page(system.Room.Session.ObjCharacters, new EnemyTileTransfers(art)).Characters[..ObjCharacterUploads.TableByteCount].ToArray(),
+                state, guard);
         }
 
         static void SetRuntimeFields(RoomEnemySystem system,

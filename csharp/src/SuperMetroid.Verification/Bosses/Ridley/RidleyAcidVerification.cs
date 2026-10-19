@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification
@@ -34,8 +35,8 @@ internal static class RidleyAcidVerification
         expectedEmptyOam.FinalizeFrame();
         var ridleyOam = new OamBuffer();
         ridleyOam.BeginFrame();
-        runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, new(0, 256));
-        runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyPostEnemyHook(ridleyOam, new(0, 256));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
+        ridleyOam.AppendDrawn(frame => runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyPostEnemyHook(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 256)));
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");

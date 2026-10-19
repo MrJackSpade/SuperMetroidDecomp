@@ -13,17 +13,11 @@ public readonly struct EnemyVram(SnesVram vram)
     /// <summary>The enemy BG2 image.</summary>
     public VramRegion EnemyBg2Tilemap => new(vram, EnemyVramLayout.EnemyBg2Tilemap);
 
-    /// <summary>The OBJ table addressed by Crocomire's skeleton uploads.</summary>
-    public VramRegion CrocomireSkeletonTiles => new(vram, EnemyVramLayout.CrocomireSkeletonTiles);
-
     /// <summary>The enemy graphics-set characters.</summary>
     public VramRegion EnemyTiles => new(vram, EnemyVramLayout.EnemyTiles);
 
     /// <summary>The Kraid room's backdrop BG characters.</summary>
     public VramRegion KraidRoomBackgroundTiles => new(vram, EnemyVramLayout.KraidRoomBackgroundTiles);
-
-    /// <summary>Draygon's opening Evir characters.</summary>
-    public VramRegion DraygonEvirTiles => new(vram, EnemyVramLayout.DraygonEvirTiles);
 
     /// <summary>Queued-DMA destination <paramref name="wordOffset"/> words into the enemy graphics-set characters.</summary>
     public static VramDmaDestination EnemyTilesDma(int wordOffset) => VramDmaDestination.At(EnemyVramLayout.EnemyTiles, wordOffset);

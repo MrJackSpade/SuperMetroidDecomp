@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -21,12 +22,12 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.ResolveCeresRidleyProjectileHits(projectiles, sharedProjectiles);
 
     /// <inheritdoc/>
-    public void DrawCeresRidleyImmediateBabyAndDoor(OamBuffer oam, Position16<RoomPixels> camera) =>
-        ceresRidley.DrawCeresRidleyImmediateBabyAndDoor(oam, camera);
+    public void DrawCeresRidleyImmediateBabyAndDoor(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera) =>
+        ceresRidley.DrawCeresRidleyImmediateBabyAndDoor(sprites, objects, camera);
 
     /// <inheritdoc/>
-    public void DrawCeresRidleyPostEnemyHook(OamBuffer oam, Position16<RoomPixels> camera) =>
-        ceresRidley.DrawCeresRidleyPostEnemyHook(oam, camera);
+    public void DrawCeresRidleyPostEnemyHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera) =>
+        ceresRidley.DrawCeresRidleyPostEnemyHook(sprites, objects, camera);
 
     /// <inheritdoc/>
     public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter) =>

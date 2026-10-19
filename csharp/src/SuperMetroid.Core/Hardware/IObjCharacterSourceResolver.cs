@@ -11,8 +11,4 @@ public interface IObjCharacterSourceResolver
     /// <param name="sourceAddress">The native upload's source address.</param>
     /// <param name="byteCount">The native upload's byte count.</param>
     ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount);
-
-    /// <summary>One installed Crocomire skeleton character chunk.</summary>
-    /// <param name="entry">The chunk's transfer entry.</param>
-    ReadOnlyMemory<byte> ResolveCrocomireSkeletonChunk(int entry);
 }

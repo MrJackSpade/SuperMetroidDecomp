@@ -14,6 +14,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Checks Mother Brain corpse PNG import, VRAM transfers, and rotting buffer setup against native graphics.</summary>
 internal static class MotherBrainCorpseArtworkVerification
@@ -49,18 +50,18 @@ internal static class MotherBrainCorpseArtworkVerification
 
         // Only the oracle/import above receives cartridge bytes. Production transfers and
         // staging run against the same cartridge-incapable memory type as installed games.
-        SnesVram stockVram = TransferMotherBrainCorpsePages(stock);
+        byte[] stockCharacters = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(page) -
                 MotherBrainCorpseArtworkDefinitions.SourceAddress);
             int destinationOffset =
-                MotherBrainCorpseArtworkDefinitions.VramPageDestination(page) * 2;
-            AssertTrue(stockVram.Bytes.Slice(destinationOffset,
+                (MotherBrainCorpseArtworkDefinitions.VramPageDestination(page) - GameplayVramLayout.ObjectCharacters.Offset) * 2;
+            AssertTrue(stockCharacters.AsSpan(destinationOffset,
                     MotherBrainCorpseArtworkDefinitions.VramPageByteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset,
                     MotherBrainCorpseArtworkDefinitions.VramPageByteCount)),
-                $"installed Mother Brain corpse VRAM page {page} matches the native transfer");
+                $"installed Mother Brain corpse OBJ page {page} matches the native transfer");
         }
 
         var nativeStaging = new EnemyStagingSurfaces();
@@ -105,11 +106,11 @@ internal static class MotherBrainCorpseArtworkVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        SnesVram editedVram = TransferMotherBrainCorpsePages(edited);
-        int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) * 2 +
+        byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
+        int editedVramOffset = (MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) - GameplayVramLayout.ObjectCharacters.Offset) * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
-        AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
-            editedVram.ReadByte(editedVramOffset),
+        AssertEqual((byte)(stockCharacters[editedVramOffset] ^ 0x80),
+            editedCharacters[editedVramOffset],
             "Mother Brain corpse PNG edit changes live sprite VRAM");
         var editedStaging = new EnemyStagingSurfaces();
         new MotherBrainCorpseRottingState().Initialize(editedStaging, (edited.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
@@ -138,12 +139,10 @@ internal static class MotherBrainCorpseArtworkVerification
     }
 
     /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
-    private static SnesVram TransferMotherBrainCorpsePages(
+    private static byte[] TransferMotherBrainCorpsePages(
         EnemyTileArtworkCatalog artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
-        var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
@@ -153,7 +152,8 @@ internal static class MotherBrainCorpseArtworkVerification
                 MotherBrainCorpseArtworkDefinitions.VramPageDestination(page));
             enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
-        return vram;
+        return new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(artwork))
+            .Characters[..ObjCharacterUploads.TableByteCount].ToArray();
     }
 
     /// <summary>Compares the staged graphics buffer and all rotting-table entries with an independent native copy.</summary>

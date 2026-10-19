@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -11,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal sealed class MotherBrainEncounter
 {
-    /// <summary>VRAM and sprite presentation owner receiving encounter tile transfers.</summary>
+    /// <summary>Sprite presentation owner whose OBJ character table shows encounter tile transfers.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Room services supplying installed artwork and mutable memory for native transfers.</summary>
     private readonly EnemyRoomBinding _room;
@@ -27,24 +26,28 @@ internal sealed class MotherBrainEncounter
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
 
-    /// <summary>Loads known cartridge artwork from installed assets and preserves mutable WRAM DMA for the corpse buffer.</summary>
+    /// <summary>
+    /// Shows a sprite tile transfer in the OBJ character table: known cartridge artwork as its installed page, and the
+    /// mutable WRAM corpse buffer as the bytes it holds.
+    /// </summary>
     [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]
     internal void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
+        VramDmaDestination destination = VramDmaDestination.At(GameplayVramLayout.ObjectCharacters,
+            transfer.VramDestination - GameplayVramLayout.ObjectCharacters.Offset);
         if (_room.Artwork is not null &&
             MotherBrainSpecialSpriteArtworkDefinitions.TryForSource(
                 transfer.SourceAddress, out MotherBrainSpecialSpriteSheetDefinition sheet))
         {
             int page = sheet.ResolvePage(
                 transfer.SourceAddress, transfer.Size, transfer.VramDestination);
-            MotherBrainSpecialSpriteArtworkCatalog artwork = _room.Artwork.MotherBrainSpecialSprites ??
+            if (_room.Artwork.MotherBrainSpecialSprites is null)
                 throw new InvalidDataException(
                     $"Installed enemy artwork is missing {sheet.FileName}.");
-            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
-                artwork.Get(sheet.SourceAddress).Transfer.Span.Slice(
-                    page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-                    transfer.Size));
+            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainSpecialSpriteCharacters(
+                Enumerable.Range(0, MotherBrainSpecialSpriteArtworkDefinitions.All.Count)
+                    .Single(index => MotherBrainSpecialSpriteArtworkDefinitions.All[index] == sheet), page, transfer.Size));
             return;
         }
         if (MotherBrainEscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
@@ -68,13 +71,10 @@ internal sealed class MotherBrainEncounter
                 throw new InvalidDataException(
                     $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
 
-            RoomCharacterAtlas artwork = _room.Artwork.MotherBrainEscapeText ??
+            if (_room.Artwork.MotherBrainEscapeText is null)
                 throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
-            int offset = checked((int)transfer.SourceAddress -
-                MotherBrainEscapeTextArtworkDefinitions.SourceAddress);
-            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
-                artwork.Transfer.Span.Slice(offset, transfer.Size));
+            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainEscapeTextCharacters(page));
             return;
         }
         if (MotherBrainCorpseArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
@@ -101,15 +101,12 @@ internal sealed class MotherBrainEncounter
                 throw new InvalidDataException(
                     $"Invalid Mother Brain corpse sprite transfer {transfer}.");
 
-            RoomCharacterAtlas artwork = _room.MotherBrainCorpseArtwork;
-            int offset = checked((int)transfer.SourceAddress -
-                MotherBrainCorpseArtworkDefinitions.SourceAddress);
-            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
-                artwork.Transfer.Span.Slice(offset, transfer.Size));
+            _ = _room.MotherBrainCorpseArtwork;
+            _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainCorpseCharacters(page));
             return;
         }
-        if (_presentation.EscapeTimerArtwork?.TryLoadNativeTransfer(
-            _presentation.Vram, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
+        if (_presentation.EscapeTimerArtwork?.TryRecordNativeTransfer(
+            _presentation.ObjCharacters, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
             return;
         if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
         {
@@ -120,9 +117,9 @@ internal sealed class MotherBrainEncounter
             throw new InvalidDataException(
                 $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
         }
-        // The mutable $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
-        _room.Staging.LoadNativeTransfer(_presentation.Vram,
-            unchecked((int)transfer.SourceAddress), transfer.Size, checked((ushort)transfer.VramDestination));
+        // The mutable $7E:9000 corpse buffer reaches the OBJ characters through the ordinary mode-1 DMA.
+        _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new StagedObjCharacters(
+            _room.Staging.ReadNativeTransfer(unchecked((int)transfer.SourceAddress), transfer.Size)));
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

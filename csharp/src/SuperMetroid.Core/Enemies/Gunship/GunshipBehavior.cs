@@ -542,12 +542,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidDataException("Gunship takeoff tile index escaped its five-entry table.");
         GunshipLiftoffTransferDefinition transfer =
             GunshipLiftoffTransferDefinitions.Frames[transferIndex];
-        if (_room.Artwork?.GunshipLiftoff is not null)
-            vramWriteQueue.EnqueueAsset(transfer.Asset,
-                GunshipLiftoffTransferDefinitions.ByteCount, VramDmaDestination.FromNative(transfer.DestinationWord));
-        else
-            vramWriteQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-                transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
+        if (_room.Artwork?.GunshipLiftoff is null)
+            throw new InvalidDataException("Gunship takeoff requires the installed liftoff artwork.");
+        vramWriteQueue.EnqueueAsset(transfer.Asset,
+            GunshipLiftoffTransferDefinitions.ByteCount, VramDmaDestination.FromNative(transfer.DestinationWord));
 
         Part(top).LiftoffTransferIndex = unchecked((ushort)(Part(top).LiftoffTransferIndex + 1));
         if (Part(top).LiftoffTransferIndex >= GunshipLiftoffTransferDefinitions.Frames.Length)

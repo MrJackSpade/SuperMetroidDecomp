@@ -69,5 +69,63 @@ internal static class OamBufferAccess
                 self.AppendEnemySpritemapPart(part, origin, paletteBits,
                     baseTileIndex, clipVerticalWrap, originYIsOnScreen);
         }
+
+        /// <summary>Appends an installed enemy composition in its original drawing order, as the native writer does.</summary>
+        [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy compositions")]
+        public void AddEnemySpritemap(EnemySpritemapParts parts,
+            Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
+            bool clipVerticalWrap = false, bool originYIsOnScreen = true)
+        {
+            Ensure.NotNull(parts);
+            _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+            for (int index = 0; index < parts.Count; index++)
+                self.AppendEnemySpritemapPart(parts[index], origin, paletteBits,
+                    baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+        }
+
+        /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
+        [PpuLayoutBoundary("exact hardware test: native OAM oracle for enemy parts")]
+        internal void AppendEnemySpritemapPart(EnemySpritemapPart part,
+            Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
+            bool clipVerticalWrap, bool originYIsOnScreen)
+        {
+            SnesSpritemapXWord encodedXOffset = part.X;
+            byte encodedYOffset = part.Y.Raw;
+            ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
+            int unsignedYSum = unchecked((byte)origin.Y) + encodedYOffset;
+            byte calculatedY;
+            if (!clipVerticalWrap)
+            {
+                calculatedY = unchecked((byte)unsignedYSum);
+            }
+            else
+            {
+                // Extended enemy spritemaps route each component through $81:8B22 or
+                // $81:8B96. Their complementary carry/sign tests prevent a piece on one
+                // side of the vertical boundary from wrapping onto the other side.
+                bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
+                bool hideForVerticalWrap = originYIsOnScreen
+                    ? yOffsetIsNegative ? unsignedYSum < ByteRange : unsignedYSum >= ByteRange
+                    : yOffsetIsNegative ? unsignedYSum >= ByteRange : unsignedYSum < ByteRange;
+                calculatedY = hideForVerticalWrap ? HiddenY : unchecked((byte)unsignedYSum);
+            }
+            SnesObjAttributeWord finalAttributes = part.Attributes
+                .AddPackedTileBase(baseTileIndex)
+                .Or(SnesObjAttributeWord.FromPaletteBits(paletteBits));
+
+            int spriteIndex = self.NextByteOffset >> 2;
+            int lowOffset = self.NextByteOffset;
+            self.WritableLowTable()[lowOffset] = unchecked((byte)calculatedX);
+            self.WritableLowTable()[lowOffset + 1] = calculatedY;
+            self.WriteAttributes(lowOffset, finalAttributes);
+            self.SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
+            self.NextByteOffset = (self.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
+        }
     }
+
+    /// <summary>The span of one byte coordinate, which a vertical sum crosses when it wraps.</summary>
+    private const int ByteRange = 256;
+
+    /// <summary>The Y at which the native writer hides a part that would wrap across the screen's edge.</summary>
+    private const byte HiddenY = 240;
 }

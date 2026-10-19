@@ -18,6 +18,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -451,7 +452,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// record carries extended-spritemap bit <c>$0004</c>; routing it through the generic
     /// extended parser is precisely the corruption the cartridge hook avoids.
     /// </summary>
-    internal void DrawMotherBrainHook(OamBuffer oam, Position16<RoomPixels> camera)
+    internal void DrawMotherBrainHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
         RoomEnemySlot? head = state?.Head;
@@ -473,20 +474,23 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(head.Position.X.Whole + brainShake.X +
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
-            oam,
-            MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
-            head.Position.Whole + brainShake,
-            // The custom draw hook bypasses ordinary enemy palette selection. Retail
-            // still selects the shared white hurt palette on odd flash-timer frames.
-            (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
-            checked((ushort)head.VramTilesIndex),
+            sprites,
+            objects,
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain),
+            new MotherBrainWorldFrame(
+                MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
+                head.Position.Whole + brainShake,
+                // The custom draw hook bypasses ordinary enemy palette selection. Retail
+                // still selects the shared white hurt palette on odd flash-timer frames.
+                (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
+                checked((ushort)head.VramTilesIndex)),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
             return;
 
         // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
-        // last. Equal-priority overlap therefore follows the same low-OAM precedence.
+        // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = (head.FlashTimer.RawValue & 6) >> 1;
         Offset16<RoomPixels> neckShake = MotherBrainShakeOffsets[shakeIndex];
         Position16<RoomPixels>[] segments =
@@ -501,11 +505,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
-                oam,
-                frame: MotherBrainVisualDefinitions.NeckJointFrame,
-                segment + neckShake,
-                state.NeckPalette.PaletteBits,
-                checked((ushort)head.VramTilesIndex),
+                sprites,
+                objects,
+                new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
+                new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
+                    state.NeckPalette.PaletteBits, checked((ushort)head.VramTilesIndex)),
                 camera);
         }
     }
@@ -514,23 +518,22 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
-    /// <summary>Draws a selected world-space Mother Brain frame with palette and camera offsets.</summary>
+    /// <summary>Publishes a selected world-space Mother Brain frame with palette and camera offsets.</summary>
     internal void DrawMotherBrainWorldSpritemap(
-        OamBuffer oam,
-        EnemyFrameId frame,
-        Position16<RoomPixels> world,
-        ushort paletteIndex,
-        ushort vramTilesIndex,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
+        SpriteSource source,
+        MotherBrainWorldFrame frame,
         Position16<RoomPixels> camera)
     {
         // Mother Brain's private `$A9:93EE` writer rejects an entire map whose center begins
         // above the screen. The generic writer intentionally wraps, so preserve that unique
         // vertical gate here before sharing its byte-exact map decoder.
-        Position16<ScreenPixels> screen = world.ToScreen(camera);
+        Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
         if (unchecked((short)screen.Y) < 0)
             return;
 
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
+        _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame.Frame, Origin = screen.ToOam(), PaletteBits = frame.PaletteIndex, BaseTileIndex = frame.VramTilesIndex });
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>

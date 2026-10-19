@@ -68,23 +68,26 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(nativeSecondTiles.SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "typed second timer record publishes exact stock VRAM");
-        var synchronousVram = new SnesVram();
-        AssertTrue(tileAtlas.TryLoadNativeTransfer(synchronousVram,
+        var synchronous = new ObjCharacterUploads();
+        AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
             EscapeTimerTileRomData.FirstSourceAddress,
             EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileAtlasFormat.FirstDestinationWord),
             "Mother Brain synchronous owner recognizes first timer record");
-        AssertTrue(tileAtlas.TryLoadNativeTransfer(synchronousVram,
+        AssertTrue(tileAtlas.TryRecordNativeTransfer(synchronous,
             EscapeTimerTileRomData.SecondSourceAddress,
             EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeTimerTileAtlasFormat.SecondDestinationWord),
             "Mother Brain synchronous owner recognizes second timer record");
-        AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(synchronousVram,
-            EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
-            "Mother Brain synchronous first timer transfer uses installed artwork");
-        AssertTrue(nativeSecondTiles.SequenceEqual(ReadVram(synchronousVram,
-            EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
-            "Mother Brain synchronous second timer transfer uses installed artwork");
+        AssertEqual(new ObjCharacterUpload((EscapeTimerTileAtlasFormat.FirstDestinationWord - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+                EscapeTimerTileAtlasFormat.FirstByteCount, new AssetObjCharacters(VramAssetId.EscapeTimerFirstTiles), 0),
+            synchronous.Uploads[0], "Mother Brain synchronous first timer transfer shows the installed first page");
+        AssertEqual(new ObjCharacterUpload((EscapeTimerTileAtlasFormat.SecondDestinationWord - GameplayVramLayout.ObjectCharacters.Offset) * 2,
+                EscapeTimerTileAtlasFormat.SecondByteCount, new AssetObjCharacters(VramAssetId.EscapeTimerSecondTiles), 0),
+            synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");
+        AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).ToArray()) &&
+                nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).ToArray()),
+            "Mother Brain synchronous timer pages hold the installed artwork");
 
         var restoredQueueRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,

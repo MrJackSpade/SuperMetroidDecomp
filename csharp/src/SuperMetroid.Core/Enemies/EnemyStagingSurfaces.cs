@@ -64,13 +64,13 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
             transfer.Destination);
     }
 
-    /// <summary>Uploads a native transfer whose source lies in one of the surfaces immediately, as Mother Brain's does.</summary>
-    [PpuLayoutBoundary("codec: Mother Brain corpse transfer's native VRAM destination")]
-    internal void LoadNativeTransfer(SnesVram vram, int sourceAddress, int byteCount, ushort encodedDestination)
+    /// <summary>The bytes a native transfer whose source lies in one of the surfaces reads now.</summary>
+    /// <param name="sourceAddress">The transfer's native WRAM source.</param>
+    /// <param name="byteCount">Bytes the transfer moves.</param>
+    internal ReadOnlySpan<byte> ReadNativeTransfer(int sourceAddress, int byteCount)
     {
-        Ensure.NotNull(vram);
         (VramStagingBuffer buffer, int offset) = Resolve(sourceAddress, byteCount);
-        vram.ExecuteQueuedAssetWrite(buffer.Bytes.Slice(offset, byteCount), encodedDestination);
+        return buffer.Bytes.Slice(offset, byteCount);
     }
 
     /// <inheritdoc/>

@@ -908,16 +908,21 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyProgram = cursor;
     }
 
-    /// <summary>Copies tile transfer <paramref name="transfer"/>'s installed characters to VRAM, as the common $814B does.</summary>
+    /// <summary>
+    /// Shows tile transfer <paramref name="transfer"/>'s installed characters in the OBJ character table, as the common
+    /// $814B copies them.
+    /// </summary>
     [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records ($AA, bank-$A0 $814B)")]
     private void ApplyTorizoTileTransfer(int transfer)
     {
         TorizoInstructionVramTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[transfer];
         var installed = _room.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
             "Torizo instruction-time tile transfers require installed artwork.");
-        if (!installed.TryResolve(definition.SourceAddress, definition.ByteCount, out ReadOnlyMemory<byte> characters))
+        if (!installed.TryResolve(definition.SourceAddress, definition.ByteCount, out _))
             throw new InvalidDataException($"Torizo tile transfer {transfer} has no installed art.");
-        _presentation.Vram.LoadBytes(definition.DestinationWord * 2, characters.Span);
+        _presentation.ObjCharacters.RecordUpload(
+            VramDmaDestination.At(GameplayVramLayout.ObjectCharacters, definition.DestinationWord - GameplayVramLayout.ObjectCharacters.Offset),
+            definition.ByteCount, new TorizoTileTransferCharacters(transfer));
     }
 
     /// <summary>

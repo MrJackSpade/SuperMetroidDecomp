@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
@@ -367,8 +368,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>.</summary>
-    internal void DrawDeadTorizoHook(OamBuffer oam, Position16<RoomPixels> camera)
+    /// <summary>Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame over the OBJ page.</summary>
+    internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         if (DeadTorizo is null)
             return;
@@ -376,7 +377,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
+        _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.DeadTorizoHook), new EnemySpritemapDraw { Frame = DeadTorizoArtworkDefinitions.HookFrame, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

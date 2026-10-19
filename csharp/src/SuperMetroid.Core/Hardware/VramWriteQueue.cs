@@ -61,6 +61,17 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
     }
 
+    /// <summary>Queues an upload of named owned artwork, resolved when the queue drains.</summary>
+    /// <param name="source">The owned artwork uploaded.</param>
+    /// <param name="sizeInBytes">Bytes uploaded.</param>
+    /// <param name="destination">Where the upload lands.</param>
+    public void EnqueueSource(ObjCharacterSource source, ushort sizeInBytes, VramDmaDestination destination)
+    {
+        Ensure.NotNull(source);
+        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { OwnedSource = source });
+    }
+
     /// <summary>
     /// Queues a transfer from an owned staging buffer that stands for the WRAM at <paramref name="nativeSourceAddress"/>.
     /// The buffer is read when the queue drains; the native address stays on the record for debugger comparison.
@@ -125,7 +136,7 @@ public sealed class VramWriteQueue
     /// installed artwork must resolve; a record it does not resolve fails rather than reading memory.
     /// </summary>
     /// <param name="vram">VRAM receiving the transfers.</param>
-    /// <param name="assets">Resolves installed artwork transfers.</param>
+    /// <param name="assets">Resolves installed artwork transfers and named owned sources.</param>
     /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
     public void DrainTo(SnesVram vram, IVramAssetProvider? assets = null, ObjCharacterUploads? objects = null)
     {
@@ -136,12 +147,22 @@ public sealed class VramWriteQueue
         for (int index = 0; index < Entries.Count; index++)
         {
             VramWriteEntry entry = Entries[index];
-            if (entry.Staging is { } staging)
-                vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.Destination.Encoded);
+            if (entry.OwnedSource is { } source)
+            {
+                if (assets is not IObjCharacterSourceResolver resolver)
+                    throw new InvalidOperationException($"Queued upload of {source} has no bound artwork resolver.");
+                ReadOnlyMemory<byte> data = source.Resolve(resolver);
+                if (data.Length != entry.SizeInBytes)
+                    throw new InvalidDataException($"{source} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
+                vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, source);
+            }
+            else if (entry.Staging is { } staging)
+                WriteStaged(vram, objects, entry, staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes));
             else if (entry.StagingWords is { } words)
-                vram.ExecuteQueuedAssetWrite(LittleEndianBytes(words, entry.SizeInBytes), entry.Destination.Encoded);
+                WriteStaged(vram, objects, entry, LittleEndianBytes(words, entry.SizeInBytes));
             else if (entry.ZeroFill)
-                vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.Destination.Encoded);
+                WriteStaged(vram, objects, entry, new byte[entry.SizeInBytes]);
             else if (entry.AssetId == VramAssetId.None)
             {
                 if (assets is not IInstalledArtworkTransferSource artwork ||
@@ -150,7 +171,7 @@ public sealed class VramWriteQueue
                         $"Queued VRAM transfer of {entry.SizeInBytes} bytes from ${entry.SourceAddress:X6} has no installed artwork.");
                 vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
                 objects?.RecordUpload(entry.Destination, entry.SizeInBytes,
-                    ObjCharacterSource.FromTransfer(entry.SourceAddress, entry.SizeInBytes));
+                    new TransferObjCharacters(entry.SourceAddress, entry.SizeInBytes));
             }
             else
             {
@@ -159,7 +180,7 @@ public sealed class VramWriteQueue
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
                 vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
-                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, ObjCharacterSource.FromAsset(entry.AssetId));
+                objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new AssetObjCharacters(entry.AssetId));
             }
         }
 
@@ -167,6 +188,16 @@ public sealed class VramWriteQueue
         // typed records at the same point prevents stale transfers on the next frame.
         Entries.Clear();
         TailInBytes = 0;
+    }
+
+    /// <summary>
+    /// Writes staged bytes and records them where they reach the OBJ character table: a staged surface keeps changing,
+    /// so the table shows the bytes the upload read.
+    /// </summary>
+    private static void WriteStaged(SnesVram vram, ObjCharacterUploads? objects, VramWriteEntry entry, ReadOnlySpan<byte> bytes)
+    {
+        vram.ExecuteQueuedAssetWrite(bytes, entry.Destination.Encoded);
+        objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new StagedObjCharacters(bytes));
     }
 
     /// <summary>The first <paramref name="byteCount"/> bytes of <paramref name="words"/>, low byte first.</summary>

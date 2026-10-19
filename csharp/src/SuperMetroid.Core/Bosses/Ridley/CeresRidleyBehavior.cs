@@ -16,6 +16,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -1124,7 +1125,8 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Ports DrawRidleyTail $A6:DB2A and DrawRidleyWings $A6:DAD8.</summary>
     internal void DrawRidleySupplementalSprites(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         RoomEnemySlot slot,
         Position16<RoomPixels> camera)
     {
@@ -1142,18 +1144,22 @@ internal sealed class CeresRidleyBehavior
             EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(
-                oam,
+                sprites,
+                objects,
+                new SpriteSource(SpriteSourceKind.RidleyTail, 6),
                 state.SpritemapPaletteIndex,
                 tip,
                 tipFrame,
                 camera);
 
             // $A6:DB59-$DBBF walks back from segment five to the base after emitting the
-            // tip. Lower OAM indices win equal-priority overlap, so reversing this visually
+            // tip. Earlier draws win equal-priority overlap, so reversing this visually
             // changes the curl even though every individual piece is otherwise correct.
             for (int index = 5; index >= 0; index--)
                 DrawRidleyWorldSpritemap(
-                    oam,
+                    sprites,
+                    objects,
+                    new SpriteSource(SpriteSourceKind.RidleyTail, index),
                     state.SpritemapPaletteIndex,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
@@ -1165,7 +1171,7 @@ internal sealed class CeresRidleyBehavior
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingPointerIndex);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = wingFrame, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
+        _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.RidleyWings), new EnemySpritemapDraw { Frame = wingFrame, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0 });
     }
 
     /// <summary>
@@ -1175,10 +1181,12 @@ internal sealed class CeresRidleyBehavior
     /// drawing queues, so the Baby appears with the room and before Ridley's composite.
     /// </summary>
     public void DrawCeresRidleyImmediateBabyAndDoor(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera)
     {
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
         _room.EnsureLoaded();
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
@@ -1187,7 +1195,7 @@ internal sealed class CeresRidleyBehavior
             _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
-        DrawCeresRidleyBabyAndDoor(oam, camera);
+        DrawCeresRidleyBabyAndDoor(sprites, objects, camera);
     }
 
     /// <summary>
@@ -1196,22 +1204,25 @@ internal sealed class CeresRidleyBehavior
     /// same private Baby instruction list after the ordinary enemy layer loop.
     /// </summary>
     public void DrawCeresRidleyPostEnemyHook(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera)
     {
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
             _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
-        DrawCeresRidleyBabyAndDoor(oam, camera);
+        DrawCeresRidleyBabyAndDoor(sprites, objects, camera);
     }
 
-    /// <summary>Emits the private Baby map and hidden door overlay with the native secondary quake offset.</summary>
+    /// <summary>Publishes the private Baby frame and hidden door overlay with the native secondary quake offset.</summary>
     private void DrawCeresRidleyBabyAndDoor(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = _ridleyEncounter.Ridley
@@ -1221,7 +1232,7 @@ internal sealed class CeresRidleyBehavior
         {
             if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = babyFrame, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.Whole.ToScreen(camera).Y < 256 });
+                _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.CeresBaby), new EnemySpritemapDraw { Frame = babyFrame, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0 });
             }
         }
 
@@ -1238,7 +1249,7 @@ internal sealed class CeresRidleyBehavior
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
-            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            _presentation.PublishEnemySpritemap(sprites, objects, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), new EnemySpritemapDraw { Frame = CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
 
@@ -1333,16 +1344,18 @@ internal sealed class CeresRidleyBehavior
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
     }
 
-    /// <summary>Projects a Ridley component's world spritemap into OAM using the current camera.</summary>
+    /// <summary>Publishes a Ridley component's world frame at its screen position for the current camera.</summary>
     private void DrawRidleyWorldSpritemap(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
+        SpriteSource source,
         SnesObjAttributeWord paletteIndex,
         RidleyTailSegment segment,
         EnemyFrameId frame,
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
+        _presentation.PublishEnemySpritemap(sprites, objects, source, new EnemySpritemapDraw { Frame = frame, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0 });
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>
@@ -1786,7 +1799,13 @@ internal sealed class CeresRidleyBehavior
 
         if (_presentation.EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
-            vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
+        {
+            // Character pages upload as named installed artwork; the overlay tilemaps are background words.
+            if (CeresEscapeTileCharacters.ForTransfer(sourceAddress, byteCount) is { } characters)
+                vramWriteQueue.EnqueueSource(characters, byteCount, VramDmaDestination.FromNative(destination));
+            else
+                vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
+        }
 
         state.CeresEscapeTransfers = cursor.Advance();
         return state.CeresEscapeTransfers.IsFinished;

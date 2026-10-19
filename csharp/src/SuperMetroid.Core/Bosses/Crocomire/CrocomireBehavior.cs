@@ -1341,7 +1341,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
-    /// <summary>Uploads the next ordered skeleton character chunk to its native OBJ VRAM position.</summary>
+    /// <summary>Shows the next ordered skeleton character chunk at its native OBJ character position.</summary>
     internal void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.SkeletonTileChunk;
@@ -1350,12 +1350,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
                 CrocomireSkeletonTransferDefinition frame))
             return;
-        // The native OBSEL base contributes $6000 words. Only character
-        // pixels are editable; the transfer order and VRAM position are not.
-        new EnemyVram(_presentation.Vram).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
-            frame.DestinationOffset * sizeof(ushort));
+        // Only character pixels are editable; the transfer order and OBJ position are not.
         _presentation.ObjCharacters.RecordUpload(EnemyVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
-            artwork.Chunk(entry).Length, ObjCharacterSource.FromCrocomireSkeletonChunk(entry));
+            artwork.Chunk(entry).Length, new CrocomireSkeletonChunkCharacters(entry));
         death.SkeletonTileChunk++;
     }
 

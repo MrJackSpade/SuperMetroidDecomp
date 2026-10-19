@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -8,8 +8,9 @@ internal interface IEnemyDrawHooks : IEnemyEntity
     /// <summary>The palette bits the common writer uses for the occupant, when its AI owns them; otherwise null.</summary>
     ushort? CommonDrawPaletteIndex();
 
-    /// <summary>Draws supplemental sprites before the common writer emits the occupant's body.</summary>
-    /// <param name="oam">The OAM being built.</param>
+    /// <summary>Publishes supplemental sprites before the common writer publishes the occupant's body.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
     /// <param name="camera">The camera position.</param>
-    void DrawBeforeBody(OamBuffer oam, Position16<RoomPixels> camera);
+    void DrawBeforeBody(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera);
 }

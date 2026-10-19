@@ -939,7 +939,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
         var doorOam = new OamBuffer();
         doorOam.BeginFrame();
-        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(doorOam, new(0, 0));
+        doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
         doorOam.FinalizeFrame();
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).Position.X,
             $"Ceres private door hook byte-indexed quake phase {timer}");
@@ -1264,6 +1264,8 @@ internal static void VerifyCeresRidleyRoomEntry()
             AssertEqual(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles,
                 actual.AssetId, $"Ceres timer {index} installed source identity");
         }
+        else if (CeresEscapeTileCharacters.ForTransfer(expected.SourceAddress, expected.SizeInBytes) is { } characters)
+            AssertEqual<ObjCharacterSource?>(characters, actual.OwnedSource, $"Ceres transfer {index} names its installed character page");
         else
             AssertEqual(expected.SourceAddress, actual.SourceAddress, $"Ceres transfer {index} native source");
         AssertEqual(expected.Destination.Encoded, actual.Destination.Encoded,
@@ -1812,7 +1814,4 @@ internal sealed class SeededEnemyTileTransfers(IReadOnlyDictionary<int, byte[]> 
         TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"The loading fixture seeded no {byteCount} tile bytes at ${sourceAddress:X6}.");
 
-    /// <summary>Rejects skeleton chunks, which the fixture never binds.</summary>
-    public ReadOnlyMemory<byte> ResolveCrocomireSkeletonChunk(int entry) =>
-        throw new InvalidOperationException($"The loading fixture binds no skeleton chunk {entry}.");
 }

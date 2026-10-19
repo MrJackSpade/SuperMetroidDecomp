@@ -31,6 +31,8 @@ public readonly record struct VramWriteEntry(
     /// </summary>
     public VramStagingBuffer? Staging { get; init; }
 
+    /// <summary>The owned artwork the transfer uploads, resolved when the queue drains; null for every other transfer.</summary>
+    public ObjCharacterSource? OwnedSource { get; init; }
     /// <summary>The first byte of <see cref="Staging"/> the transfer reads.</summary>
     public int StagingOffset { get; init; }
 

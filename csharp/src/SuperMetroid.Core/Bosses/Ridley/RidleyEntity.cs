@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -73,10 +74,10 @@ internal sealed class RidleyEntity(
     public ushort? CommonDrawPaletteIndex() => IsBody ? encounter.Ridley?.CommonDrawPaletteIndex.Raw : null;
 
     /// <summary>Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the common writer emits the body.</summary>
-    public void DrawBeforeBody(OamBuffer oam, Position16<RoomPixels> camera)
+    public void DrawBeforeBody(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         if (IsBody)
-            ceres.DrawRidleySupplementalSprites(oam, Slot, camera);
+            ceres.DrawRidleySupplementalSprites(sprites, objects, Slot, camera);
     }
 
     /// <summary>

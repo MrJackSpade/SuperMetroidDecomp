@@ -1,0 +1,18 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+
+/// <summary>One page of the installed Mother Brain corpse tiles.</summary>
+/// <param name="Page">The page.</param>
+internal sealed record MotherBrainCorpseCharacters(int Page) : ObjCharacterSource
+{
+    /// <inheritdoc/>
+    public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
+        (InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.MotherBrainCorpse ?? throw new InvalidDataException(
+            "Installed enemy artwork is missing mother-brain-corpse-tiles.png.")).Transfer.Slice(
+            checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(Page)) - MotherBrainCorpseArtworkDefinitions.SourceAddress,
+            MotherBrainCorpseArtworkDefinitions.VramPageByteCount);
+
+    /// <summary>Names the source for diagnostics.</summary>
+    public override string ToString() => $"Mother Brain corpse page {Page}";
+}

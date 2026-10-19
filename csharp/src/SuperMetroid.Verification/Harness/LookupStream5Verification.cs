@@ -1852,7 +1852,7 @@ internal static class LookupStream5Verification
         {
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
             var actual = new OamBuffer(); actual.BeginFrame();
-            enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(actual, new(camera, 0)); actual.FinalizeFrame();
+            actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");

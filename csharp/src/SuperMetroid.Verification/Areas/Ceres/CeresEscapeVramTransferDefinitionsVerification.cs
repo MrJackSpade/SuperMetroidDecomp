@@ -99,6 +99,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                         entry.AssetId,
                         $"Ceres transfer ${expected.Pointer:X4} editable timer page");
                 }
+                else if (CeresEscapeTileCharacters.ForTransfer(expected.SourceAddress, expected.ByteCount) is { } characters)
+                    AssertEqual<ObjCharacterSource?>(characters, entry.OwnedSource,
+                        $"Ceres transfer ${expected.Pointer:X4} names its installed character page");
                 else
                     AssertEqual(expected.SourceAddress, entry.SourceAddress,
                         $"Ceres transfer ${expected.Pointer:X4} queued source");

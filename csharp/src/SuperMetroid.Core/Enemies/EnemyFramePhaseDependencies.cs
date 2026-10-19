@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -39,8 +40,11 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Nmi.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>Oam.</summary>
-    public required OamBuffer Oam { get; init; }
+    /// <summary>The frame's sprite description, which Ceres Ridley's in-main Baby draw publishes into.</summary>
+    public required SpriteFrameBuffer Sprites { get; init; }
+
+    /// <summary>The installed gameplay artwork the OBJ character page composes from.</summary>
+    public required RuntimeArtwork Artwork { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

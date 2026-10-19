@@ -37,8 +37,6 @@ internal sealed class GameplayActorDrawing
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Receives actor sprites in cartridge drawing order.</summary>
-    private readonly OamBuffer _oam;
 
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from, as the table's bindings show it.</summary>
     private SpriteArtwork ObjectPage => _artwork.GameplayObjectPage(_enemySession.ObjCharacters);
@@ -66,7 +64,6 @@ internal sealed class GameplayActorDrawing
         _enemySession = dependencies.EnemySession;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
-        _oam = dependencies.Sprites.Oam;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
@@ -453,7 +450,8 @@ internal sealed class GameplayActorDrawing
             // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
             room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
-                _oam,
+                _sprites,
+                ObjectPage,
                 _room.Camera.PixelPosition);
         }
     }

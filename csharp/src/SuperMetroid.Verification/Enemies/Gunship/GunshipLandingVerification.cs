@@ -48,7 +48,7 @@ internal static class GunshipLandingVerification
             InputLocked = true,
         };
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
-                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } });
+                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { TileArtwork = InstalledFixtures.EnemyTiles };
         samus.Presentation.TileTransfers.BindArtwork(
             InstalledFixtures.SamusBody);
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), vram, cgram) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });

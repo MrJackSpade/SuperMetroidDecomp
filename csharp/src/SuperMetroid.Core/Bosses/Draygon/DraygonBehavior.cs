@@ -311,14 +311,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         "Draygon opening Evir sheet no longer has the compiled transfer length.");
                 if (_room.Artwork?.TryResolve(evir.TileDataAddress,
-                        DraygonIntroPresentationDefinitions.EvirTilesByteCount,
-                        out ReadOnlyMemory<byte> installedTiles) != true)
+                        DraygonIntroPresentationDefinitions.EvirTilesByteCount, out _) != true)
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
-                new EnemyVram(_presentation.Vram).DraygonEvirTiles.Load(installedTiles.Span);
                 _presentation.ObjCharacters.RecordUpload(EnemyVram.DraygonEvirTilesDma,
-                    DraygonIntroPresentationDefinitions.EvirTilesByteCount,
-                    ObjCharacterSource.FromTransfer(evir.TileDataAddress, DraygonIntroPresentationDefinitions.EvirTilesByteCount));
+                    DraygonIntroPresentationDefinitions.EvirTilesByteCount, new EnemyTileCharacters(EnemyDefinitionId.Evir));
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

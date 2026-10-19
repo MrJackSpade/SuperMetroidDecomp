@@ -3073,8 +3073,11 @@ internal static class EnemySpritemapArtworkVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
         var oam = new OamBuffer();
-        enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
-            ?? throw new InvalidOperationException("A Mother Brain draw shows a frame."), world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
+        EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
+            ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
+        oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(sprites, EnemyFormatDrawAccess.BlankObjectPage,
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, 0x0400, 0x0010),
+            new Position16<RoomPixels>(0x0100, 0x0010)));
         return oam;
     }
 

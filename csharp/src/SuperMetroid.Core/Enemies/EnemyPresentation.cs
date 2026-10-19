@@ -149,21 +149,4 @@ internal sealed class EnemyPresentation
         sprites.Add(new SpriteDraw(source, frame, objects, origin, default,
             (byte)SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex, 0));
 
-    /// <summary>Draws an installed enemy composition or accepts the compiled common empty frame.</summary>
-    /// <remarks>A nonempty frame without installed display art is an asset error rather than a cartridge fallback.</remarks>
-    internal void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
-    {
-        // The common empty frame is compiled definition data, not missing artwork.
-        if (draw.Frame == EnemyFrameId.Empty)
-            return;
-        if (_room.Artwork?.Spritemaps?.TryGetDisplay(EnemyFrames.Bank(draw.Frame), EnemyFrames.Spritemap(draw.Frame),
-                out EnemySpritemapParts installed) == true)
-        {
-            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
-                checked((ushort)draw.PaletteBits), checked((ushort)draw.BaseTileIndex), draw.ClipVerticalWrap,
-                draw.OriginYIsOnScreen);
-            return;
-        }
-        throw new InvalidDataException($"Enemy frame {draw.Frame} requires an installed display composition.");
-    }
 }

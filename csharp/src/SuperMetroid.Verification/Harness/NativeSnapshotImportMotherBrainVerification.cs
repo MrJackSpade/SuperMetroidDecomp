@@ -22,6 +22,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
+        ImportMotherBrainBodyImage(runtime, state, W);
         state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
@@ -167,4 +168,30 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// </summary>
     internal static int DecodeLegTilePage(ushort word) =>
         word == 0 ? 0 : MotherBrainLegTileTransferDefinitionsConstants.IndexOf(word);
+
+    /// <summary>
+    /// The phase-two transition uploads her staged body screen and she owns the enemy BG2 image from then on (#1356). A
+    /// snapshot taken after the transition never ran it in the port, so the image starts as the uploaded staging screen.
+    /// </summary>
+    private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
+    {
+        var function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
+        bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath && function is
+            MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain or MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense or
+            MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles or
+            MotherBrainBodyFunction.FakeDeathAscentContinuePausing or MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake or
+            MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain or MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched or
+            MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray);
+        if (!transferred)
+            return;
+        var screen = new ushort[MotherBrainBg2Definitions.InitialTransferByteCount / sizeof(ushort)];
+        for (int word = 0; word < screen.Length; word++)
+            screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
+        var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
+        image.Write(0, screen);
+        runtime.Enemies.Presentation.AttachBg2Image(image);
+    }
+
+    /// <summary>The WRAM offset of the enemy BG2 staging image, <c>$7E:2000</c>.</summary>
+    private const int EnemyBg2StagingWram = 0x2000;
 }

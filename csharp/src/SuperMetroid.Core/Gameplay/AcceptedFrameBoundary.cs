@@ -21,6 +21,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -222,8 +223,9 @@ internal sealed class AcceptedFrameBoundary
                 ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyBg2Scroll, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
                 : null,
             Displays?.CrocomireBg2Scroll,
-            motherBrain is { HasBg2ScrollOverride: true },
-            motherBrain is { DeathBg2Hidden: true });
+            motherBrain is { HasBg2ScrollOverride: true } or { DeathBg2Hidden: true }
+                ? new MotherBrainBodyPlacement(motherBrain.HasBg2ScrollOverride ? motherBrain.Bg2Scroll : null, motherBrain.DeathBg2Hidden)
+                : null);
     }
 
     /// <summary>

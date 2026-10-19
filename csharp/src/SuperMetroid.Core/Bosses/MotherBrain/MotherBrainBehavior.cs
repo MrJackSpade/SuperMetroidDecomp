@@ -1626,7 +1626,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
-            new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
+            _presentation.RequireBg2Image().Write(0, words);
             state.EnemyBg2TilemapSize = MotherBrainDeathRomData.Bg2LastByte;
             state.EnemyBg2TilemapTransferRequested = true;
         }
@@ -2416,12 +2416,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The native transition now requests the prepared enemy image, replacing the
-        // room's pipe background before the articulated body becomes visible.
+        // room's pipe background before the articulated body becomes visible. Its one
+        // 32x32 screen is the whole BG2 map she shows; she owns that image from here (#1356).
         var words = new ushort[state.EnemyBg2TilemapSize / 2];
         StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
             words[index] = bg2[index];
-        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
+        var image = new EnemyBg2Image(MotherBrainBg2Definitions.BlankTile);
+        image.Write(0, words);
+        _presentation.AttachBg2Image(image);
         state.EnemyBg2TilemapTransferRequested = true;
     }
     // `$86:CDD0-$CDE1` indexes the 256-word sine cycle by the already-even angle
@@ -2946,7 +2949,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Consumes the pre-rise wait and advances to body ascent.</summary>
-    private void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
+    private static void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
@@ -3571,14 +3574,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Body.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Publishes the encounter's BG2 offset for the current body motion.</summary>
-    private void PublishMotherBrainBg2Scroll(
+    /// <summary>Sets the BG2 offset placing her body for the current motion; the NMI publishes it with her body (#1356).</summary>
+    private static void PublishMotherBrainBg2Scroll(
         MotherBrainEnemyState state,
         Position16<Bg2Pixels> scroll)
     {
         state.Bg2Scroll = scroll;
         state.HasBg2ScrollOverride = true;
-        _room.Services.MotherBrain.SetBg2Scroll(scroll);
     }
     /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
     private static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =

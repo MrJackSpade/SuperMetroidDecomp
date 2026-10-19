@@ -96,8 +96,9 @@ public static class GameplayDisplayCapture
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = ppu.RoomShake;
         Position16<RoomPixels> bg1Scroll = ppu.Bg1Scroll + shake.Bg1;
-        // Draygon places his body image with his own BG2 scroll (#1354), which the room's water waves then displace.
-        Position16<Bg2Pixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? ppu.Bg2Scroll) + shake.Bg2;
+        // Draygon (#1354) and Mother Brain (#1356) place their body images with their own BG2 scrolls, which the room's
+        // water waves then displace.
+        Position16<Bg2Pixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? bosses.MotherBrainBody?.Scroll ?? ppu.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
@@ -129,13 +130,13 @@ public static class GameplayDisplayCapture
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
                 : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBody is { } kraidMap ? kraidMap.Tilemap.Size
-                : bosses.MotherBrainBg2ScrollOverride ? new Extent16<TilemapCells>(32, 32)
+                : bosses.MotherBrainBody is { Scroll: not null } ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
             GameplayVramLayout.Bg2TilemapWord,
             character, character, scene.HudCharacterWord,
             live.DoorTransitionMainScreenLayers ??
-                (bosses.MotherBrainDeathBg2Hidden
+                (bosses.MotherBrainBody is { Hidden: true }
                     ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                     : displayedMainScreen),
             bg2Lines.First, bg2Lines.End,

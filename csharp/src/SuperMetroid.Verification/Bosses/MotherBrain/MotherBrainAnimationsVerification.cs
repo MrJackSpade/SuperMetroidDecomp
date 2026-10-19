@@ -131,14 +131,17 @@ internal static class MotherBrainAnimationsVerification
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
         var scrolls = new List<Position16<Bg2Pixels>>();
-        enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)scrolls.Add;
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodyProgram program)
         {
             MotherBrainBehavior.SetMotherBrainBodyProgram(state, program);
             for (int update = 0; update < 256; update++)
+            {
                 enemies.MotherBrainBehavior.AdvanceMotherBrainSlotAnimation(state.Body, samus: null);
+                if (state.HasBg2ScrollOverride)
+                    scrolls.Add(state.Bg2Scroll);
+            }
         }
         Run(MotherBrainBodyProgram.WalkForwardReallyFast);
         AssertEqual(origin + new Offset16<RoomPixels>(24, 0), state.Body.Position.Whole, "a forward walk moves the body 24 pixels right");

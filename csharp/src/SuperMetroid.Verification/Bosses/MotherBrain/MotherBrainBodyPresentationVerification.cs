@@ -55,16 +55,16 @@ internal static class MotherBrainBodyPresentationVerification
             AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body);
             string selected = (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[frame.Name];
             AssertBodyOam(changed, editedOam.Frames[selected], replacement.Body);
-            AssertBodyBg2(baseline.Inner.Vram, stockBg2, frame.Name);
-            AssertBodyBg2(replacement.Inner.Vram, editedBg2, selected);
+            AssertBodyBg2(baseline.Bg2Words, stockBg2, frame.Name);
+            AssertBodyBg2(replacement.Bg2Words, editedBg2, selected);
             AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, frame.Pointer);
             AssertEqual(frame.Pointer, replacement.Body.SpritemapPointer, "display remap retains physical frame");
 
             replacement.SetFrame(frame.Pointer, fresh: false);
-            replacement.Inner.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayout.VramBase, 1);
-            byte[] retained = replacement.Inner.Vram.Bytes.ToArray();
+            replacement.MarkBg2(0xbeef);
+            ushort[] retained = replacement.Bg2Words;
             AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body);
-            AssertTrue(retained.SequenceEqual(replacement.Inner.Vram.Bytes),
+            AssertTrue(retained.SequenceEqual(replacement.Bg2Words),
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
         int steps = 0;
@@ -79,7 +79,7 @@ internal static class MotherBrainBodyPresentationVerification
                 AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, steps);
                 AssertAnimationValues(baseline.State, replacement.State, "Mother Brain instruction state");
                 AssertTrue(baseline.ScrollCalls.SequenceEqual(replacement.ScrollCalls),
-                    "editable art preserves each body/BG2 counter-scroll callback");
+                    "editable art preserves each body/BG2 counter-scroll");
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
@@ -148,7 +148,7 @@ internal static class MotherBrainBodyPresentationVerification
 
     /// <summary>Checks the exact BG2 tilemap words and destinations written for a selected body pose.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void AssertBodyBg2(SnesVram actual, EnemyBg2FrameDocument authored, string oamName)
+    private static void AssertBodyBg2(ushort[] actual, EnemyBg2FrameDocument authored, string oamName)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         if (authored.Frames.TryGetValue(oamName.Replace("_oam_", "_bg2_", StringComparison.Ordinal), out var writes))
@@ -156,7 +156,7 @@ internal static class MotherBrainBodyPresentationVerification
                 for (int tile = 0; tile < write.Tiles.Length; tile++)
                     expected[write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X + tile] = checked((ushort)write.Tiles[tile]);
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayout.VramBase + index), "body BG2 exact ordered runs and destinations");
+            AssertEqual(expected[index], actual[index], "body BG2 exact ordered runs and destinations");
     }
 
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>

@@ -232,6 +232,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyPublicationVerifica
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltPublicationVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBodyPublicationVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomBackgroundsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.OldTourianEscapeShaftWallVerification;
 using static SuperMetroid.Verification.Harness.OperationContractsVerification;
@@ -876,6 +877,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPhantoonBodyPublication), () => VerifyPhantoonBodyPublication()),
         new(nameof(VerifyDraygonBodyPublication), () => VerifyDraygonBodyPublication()),
         new(nameof(VerifyCrocomireMeltPublication), () => VerifyCrocomireMeltPublication()),
+        new(nameof(VerifyMotherBrainBodyPublication), () => VerifyMotherBrainBodyPublication()),
         new(nameof(AuditBoostFloor), () => AuditBoostFloor()),
         new(nameof(VerifyEnemyInstructionCodePointerCatalogs), () => VerifyEnemyInstructionCodePointerCatalogs()),
         new(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog()),

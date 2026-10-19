@@ -35,8 +35,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Action? SetAreaTorizoDefeated { get; set; }
     /// <summary>Optional case-owned callback for room scroll-zone writes.</summary>
     public Action<int, RoomScrollState>? SetRoomScrollState { get; set; }
-    /// <summary>Optional case-owned callback for Mother Brain's BG2 scroll updates.</summary>
-    public Action<Position16<Bg2Pixels>>? SetMotherBrainBg2Scroll { get; set; }
     /// <summary>Optional case-owned callback for Mother Brain glass hit-count increments.</summary>
     public Action? IncrementMotherBrainGlassRoomArgument { get; set; }
 
@@ -126,15 +124,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Forwards Mother Brain's default layer blend to loaded room services.</summary>
     public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
         Loaded("write Mother Brain's layer-blending configuration").MotherBrain.SetLayerBlendingDefault(configuration);
-
-    /// <summary>Writes Mother Brain's BG2 scroll through an override or loaded services.</summary>
-    public void SetBg2Scroll(Position16<Bg2Pixels> scroll)
-    {
-        if (SetMotherBrainBg2Scroll is { } set)
-            set(scroll);
-        else
-            Loaded("write Mother Brain's BG2 scroll registers").MotherBrain.SetBg2Scroll(scroll);
-    }
 
     /// <summary>Forwards a BG1 overlay write to the loaded room.</summary>
     public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>

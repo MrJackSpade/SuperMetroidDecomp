@@ -24,12 +24,12 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal RoomEnemySlot Body => Inner.Actor;
         /// <summary>Third-form body state bound to the fixture's encounter.</summary>
         internal MotherBrainEnemyState State { get; }
-        /// <summary>BG2 scroll publications captured from the production callback.</summary>
+        /// <summary>The BG2 scroll placing the body after each production step that has taken BG2 over (#1356).</summary>
         internal List<Position16<Bg2Pixels>> ScrollCalls { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
 
-        /// <summary>Creates and binds a third-form body with installed artwork and captured BG2 scroll calls.</summary>
+        /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
         internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
         {
             Inner = new EnemyAnimationFixture(artwork, golden: false);
@@ -40,7 +40,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Body.PaletteIndex = Body.VramTilesIndex = 0;
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
-            Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
+            // Her phase-two transition attaches the enemy BG2 image her body draws into (#1356).
+            Inner.Enemies.Presentation.AttachBg2Image(new EnemyBg2Image(0));
             Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
@@ -56,13 +57,23 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>
         internal void SetProgram(MotherBrainBodyProgram program) => MotherBrainBehavior.SetMotherBrainBodyProgram(State, program);
 
-        /// <summary>Advances the body's actual production instruction processor once.</summary>
-        internal void Step() => instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
+        /// <summary>Advances the body's actual production instruction processor once and samples the scroll placing her body.</summary>
+        internal void Step()
+        {
+            instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
+            if (State.HasBg2ScrollOverride)
+                ScrollCalls.Add(State.Bg2Scroll);
+        }
+
+        /// <summary>The words of the BG2 image her body draws into.</summary>
+        internal ushort[] Bg2Words => [.. Inner.Enemies.Presentation.RequireBg2Image().Publish().Words];
+
+        /// <summary>Writes <paramref name="word"/> at the start of her BG2 image.</summary>
+        internal void MarkBg2(ushort word) => Inner.Enemies.Presentation.RequireBg2Image().Write(0, [word]);
         /// <summary>Runs the fixture's production enemy drawing path.</summary>
         internal OamBuffer Draw() => Inner.Draw();
-        /// <summary>Clears the native BG2 tilemap region before checking fresh publication.</summary>
-        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-        internal void ClearBg2() => Inner.Vram.ExecuteWordTransfer(
-            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
+        /// <summary>Clears her BG2 image before checking fresh publication.</summary>
+        internal void ClearBg2() => Inner.Enemies.Presentation.RequireBg2Image().Write(0,
+            new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight]);
     }
 }

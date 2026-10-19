@@ -130,7 +130,5 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Fails when Mother Brain changes blending without an installed room-effects service.</summary>
         public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
             throw Missing("write Mother Brain's layer-blending configuration");
-        /// <summary>Fails when Mother Brain changes BG2 scroll without an installed room-effects service.</summary>
-        public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => throw Missing("write Mother Brain's BG2 scroll registers");
     }
 }

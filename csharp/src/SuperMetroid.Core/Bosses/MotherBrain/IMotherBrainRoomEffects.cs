@@ -10,7 +10,4 @@ public interface IMotherBrainRoomEffects
 
     /// <summary>Sets the default layer-blending configuration.</summary>
     void SetLayerBlendingDefault(LayerBlendingConfiguration configuration);
-
-    /// <summary>Writes the BG2 scroll registers.</summary>
-    void SetBg2Scroll(Position16<Bg2Pixels> scroll);
 }

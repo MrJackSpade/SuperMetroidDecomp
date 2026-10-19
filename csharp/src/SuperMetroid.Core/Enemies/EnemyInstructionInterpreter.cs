@@ -138,11 +138,11 @@ internal sealed class EnemyInstructionInterpreter
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }
-        // A boss that owns the enemy BG2 image draws into it (#1353); the others still upload into VRAM until their
-        // bodies are published (#1354-#1357).
+        // A boss that owns the enemy BG2 image draws into it (#1353). Mother Brain only stages her body until her
+        // phase-two transition attaches the image (#1356), as native uploads nothing before then.
         if (_presentation.Bg2Image is { } image)
             image.Write(destinationWord, words);
-        else
+        else if (_motherBrainEncounter.MotherBrain is null)
             new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 

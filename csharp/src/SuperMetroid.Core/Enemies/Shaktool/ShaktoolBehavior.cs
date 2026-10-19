@@ -5,10 +5,12 @@ using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

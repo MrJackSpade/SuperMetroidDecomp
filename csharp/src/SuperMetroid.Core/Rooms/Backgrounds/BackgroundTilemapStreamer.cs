@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// are the combined CRE-then-area table loaded at WRAM <c>$A000</c>. A produced update is
 /// inert data until the runtime's NMI integration consumes its segments.
 /// </remarks>
+[RoomLifetime]
 public sealed class BackgroundTilemapStreamer
 {
     /// <summary>Retained BG1 level words, including the native streaming tail.</summary>

@@ -4,10 +4,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -6,9 +6,11 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>The Dragon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

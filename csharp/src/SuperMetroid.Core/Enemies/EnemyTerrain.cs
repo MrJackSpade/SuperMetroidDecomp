@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its PLM
 /// through the active room PLM owner supplied for each enemy frame.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyTerrain
 {
     /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c> at $A0:C6AB.</summary>

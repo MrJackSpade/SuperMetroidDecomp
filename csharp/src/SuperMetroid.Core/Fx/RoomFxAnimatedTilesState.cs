@@ -63,9 +63,12 @@ internal sealed class RoomFxAnimatedTilesState
     }
 
     /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
+    /// <exception cref="InvalidOperationException">This object has already loaded a definition.</exception>
     public void LoadDefinition(AnimatedTileObject definition)
     {
-        Reset();
+        // Each room builds its own animated-tile objects, so an object loads one definition, from its fresh state.
+        if (objectPointer != AnimatedTileObject.None)
+            throw new InvalidOperationException($"Room-FX animation already loaded {objectPointer}.");
         objectPointer = definition;
         if (objectPointer == AnimatedTileObject.None)
             return;
@@ -114,16 +117,5 @@ internal sealed class RoomFxAnimatedTilesState
         else
             throw new InvalidOperationException(
                 "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");
-    }
-
-    /// <summary>Clears the room-owned object when its FX record is replaced or absent.</summary>
-    public void Reset()
-    {
-        IsActive = false;
-        LastSourceAddress = null;
-        objectPointer = AnimatedTileObject.None;
-        nextFrame = 0;
-        instructionTimer = NativeCountdown.Start(0);
-        compiledMechanics = null;
     }
 }

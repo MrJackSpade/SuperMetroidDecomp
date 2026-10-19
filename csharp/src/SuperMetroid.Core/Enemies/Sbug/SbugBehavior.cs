@@ -4,10 +4,12 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
+[RoomLifetime]
 internal sealed class DoorPlms : IPlmFamilySource
 {
     /// <summary>Registers the ColoredDoor family, which has no step of its own: its slots take the shared path.</summary>

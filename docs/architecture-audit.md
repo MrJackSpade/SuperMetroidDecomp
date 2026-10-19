@@ -176,6 +176,12 @@ implementation state; another type changes it through a named operation on the o
 (`VariableA`-`F`, `Parameter1`/`2` or another lettered variable or numbered parameter): each family owns its state as
 typed fields, and authored spawn parameters are read from the slot's spawn record.
 
+**SME6409**, **SME6410** and **SME6411** keep room-lifetime state in the room scope (#1329). A type marked
+`[RoomLifetime]` is constructed only inside another room-lifetime type or a `[RoomScopeBoundary]` type, which states
+its reason (SME6409); a type that is neither holds no field or auto-property of a room-lifetime type (SME6410); and no
+`ResetForRoom*`, `Reset*RoomState` or `ResetForRoomLoad` method is declared (SME6411). Each room builds its own scope,
+so nothing resets for the next room. See [room-scope.md](room-scope.md).
+
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
 `csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
 equal the map's lists; production projects reference only production projects; and no build or tool output sits in

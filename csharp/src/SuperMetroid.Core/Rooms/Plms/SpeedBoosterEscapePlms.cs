@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
+[RoomLifetime]
 internal sealed class SpeedBoosterEscapePlms
 {
     /// <summary>Live room owners for Samus, events, layer 3 FX, and earthquake timing.</summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
+[RoomLifetime]
 internal sealed class GatePlms : IPlmFamilySource
 {
     /// <summary>Registers the DownwardGate family, which has no step of its own: its slots take the shared path.</summary>

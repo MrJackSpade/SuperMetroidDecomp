@@ -3,10 +3,12 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Tourian PLMs: the access gate, the Metroids-cleared states, and the old Tourian escape-shaft wall.</summary>
+[RoomLifetime]
 internal sealed class TourianPlms
 {
     /// <summary>Room event, Samus, and enemy-projectile owners used by Tourian PLM callbacks.</summary>

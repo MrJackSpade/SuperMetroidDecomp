@@ -14,10 +14,12 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
@@ -727,6 +729,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// itself, not count - 1, and does not inspect active-slot sentinels; count five
     /// therefore includes the first physical bomb.
     /// </summary>
+    [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
     internal readonly struct KraidShotSlots
     {
         /// <summary>Five physical Samus shot slots indexed by the native shot counter.</summary>

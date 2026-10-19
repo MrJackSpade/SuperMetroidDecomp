@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <c>LoadLevelDataAndOtherThings</c>. It deliberately does not execute arbitrary room ASM;
 /// those bank-$8F setup/main functions remain separate behavior to translate per room.
 /// </remarks>
+[RoomLifetime]
 public sealed class CartridgeRoomAssets
 {
     /// <summary>Retains the selected header, physical level allocation, scroll grid, and installed graphics.</summary>

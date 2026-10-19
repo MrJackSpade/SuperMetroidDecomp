@@ -22,8 +22,8 @@ public sealed class SamusShinesparkState
 {
     /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
-    /// <summary>Live charge-flare owner canceled when spark windup begins.</summary>
-    [NonSerialized] private SamusProjectileSystem? _projectiles;
+    /// <summary>The session's held beam charge and flare, canceled when spark windup begins.</summary>
+    [NonSerialized] private BeamChargeState? _charge;
     /// <summary>One-frame library-one sound request from canceling a sufficiently charged flare.</summary>
     [NonSerialized] private bool _chargeCancellationSoundRequested;
 
@@ -32,10 +32,10 @@ public sealed class SamusShinesparkState
     /// including restored states. These references are routing, not cartridge state.
     /// </summary>
     internal void BindProjectileOwners(
-        SamusProjectileSystem projectiles,
+        BeamChargeState charge,
         SamusPowerBombExplosionState powerBomb)
     {
-        _projectiles = projectiles;
+        _charge = charge;
         _audioPowerBomb = powerBomb;
     }
 
@@ -300,7 +300,7 @@ public sealed class SamusShinesparkState
         int cancelledCharge = samus.ProjectileFlareCounter;
         if (cancelledCharge != 0)
         {
-            _projectiles?.Firing.CancelChargeForShinespark();
+            _charge?.CancelForShinespark();
             samus.ProjectileFlareCounter = 0;
             if (cancelledCharge >= SamusProjectileRomData.Beams.ChargeSoundStartCounter)
             {

@@ -6,10 +6,12 @@ using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

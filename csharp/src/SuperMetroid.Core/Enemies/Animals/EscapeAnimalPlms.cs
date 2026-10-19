@@ -2,10 +2,12 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The critters-escape PLMs: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
+[RoomLifetime]
 internal sealed class EscapeAnimalPlms
 {
     /// <summary>Room event owner used to gate the Crateria escape passage.</summary>

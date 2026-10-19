@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Loads a room PLM population: installs the room bindings, allocates native slots and runs each family setup in record order.</summary>
+[RoomLifetime]
 internal sealed class PlmPopulationLoader
 {
     /// <summary>Installs room services once so every resident pre-instruction sees the same owners.</summary>

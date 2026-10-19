@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// Treadmill objects selected by LoadFxHeader's area animation bitset, independently
 /// of the additional entrance object spawned by door ASM.
 /// </summary>
+[RoomLifetime]
 public sealed class RoomTreadmillAnimatedTilesState
 {
     /// <summary>Treadmill animations selected by the current room FX bitset in native bit order.</summary>

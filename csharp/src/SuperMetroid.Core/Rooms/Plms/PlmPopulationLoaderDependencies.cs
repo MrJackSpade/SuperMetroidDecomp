@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The collaborators a <see cref="PlmPopulationLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record PlmPopulationLoaderDependencies
 {
     /// <summary>Bindings.</summary>

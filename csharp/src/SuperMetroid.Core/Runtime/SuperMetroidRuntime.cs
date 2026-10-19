@@ -490,7 +490,7 @@ internal sealed class SuperMetroidRuntime
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquakeOwner(scope.Enemies);
         scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion);
-        Player.Samus?.Shinespark.BindProjectileOwners(scope.Projectiles, scope.BombProjectiles.PowerBombExplosion);
+        Player.Samus?.Shinespark.BindProjectileOwners(BeamCharge, scope.BombProjectiles.PowerBombExplosion);
         EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.Layer3Fx, Room.LoadedScope.Enemies);
     }
 

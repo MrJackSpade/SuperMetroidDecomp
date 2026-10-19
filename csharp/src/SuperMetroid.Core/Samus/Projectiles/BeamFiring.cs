@@ -3,10 +3,12 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer $18AC, and the charged and combo launch paths.</summary>
+[RoomLifetime]
 internal sealed class BeamFiring
 {
     /// <summary>Clears charge flares and initializes launched beam animation.</summary>
@@ -43,18 +45,6 @@ internal sealed class BeamFiring
     /// </summary>
     public void CancelChargeForBombSpread()
         => CancelCharge();
-
-    /// <summary>
-    /// Applies <c>Projectile_Func7_Shinespark</c>'s flare teardown at $90:CFFA.
-    /// Unlike HUD selection, the cartridge clears the live charge and its animation
-    /// without rewriting the previous-frame sampling word.
-    /// </summary>
-    internal void CancelChargeForShinespark()
-    {
-        _charge.FlareCounter = 0;
-        _animation.ClearFlareAnimationState();
-    }
-
     /// <summary>
     /// Native Samus command four ($90:F19B/$90:F19E): consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit palette. Unlike HUD

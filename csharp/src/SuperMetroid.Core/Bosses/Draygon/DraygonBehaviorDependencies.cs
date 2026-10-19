@@ -3,10 +3,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The collaborators a <see cref="DraygonBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record DraygonBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

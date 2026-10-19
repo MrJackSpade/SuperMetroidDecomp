@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -24,6 +25,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
+[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class CeresDestructionCinematicState
 {
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>

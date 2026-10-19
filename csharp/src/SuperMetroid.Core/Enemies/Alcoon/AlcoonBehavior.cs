@@ -7,10 +7,12 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

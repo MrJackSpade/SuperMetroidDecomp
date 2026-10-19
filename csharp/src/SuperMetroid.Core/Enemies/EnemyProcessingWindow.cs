@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Selects the enemies EnemyMain processes this frame: the processing window, on-screen tests, and the active and
 /// interactive native index lists.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>

@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// Samus, boss and event flags, layer-3 FX, earthquake and enemy-side effects. each room's PLM system is built
 /// with them, so no slot can reach the previous room's owners.
 /// </summary>
+[RoomLifetime]
 internal sealed class PlmRoomBindings
 {
     /// <summary>Current room's bank-$80 shared system state, cleared with its resident PLMs.</summary>

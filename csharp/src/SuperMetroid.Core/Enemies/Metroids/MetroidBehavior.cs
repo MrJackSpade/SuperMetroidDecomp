@@ -10,10 +10,12 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

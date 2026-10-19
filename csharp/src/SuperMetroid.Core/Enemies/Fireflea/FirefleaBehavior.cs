@@ -4,10 +4,12 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>The Fireflea species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

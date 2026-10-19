@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -21,6 +22,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// continues through the first narration card, the complete first illustrated/typewriter
 /// page, and the native palette transition into the Mother Brain gameplay flashback.
 /// </remarks>
+[RoomScopeBoundary("A cinematic scene that owns its own flashback level and Samus projectiles for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class IntroCinematicState
 {
     /// <summary>Host-owned trail artwork; the flashback projectile pages bind its characters.</summary>

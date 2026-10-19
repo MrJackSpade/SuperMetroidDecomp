@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The collaborators a <see cref="EnemyCollision"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record EnemyCollisionDependencies
 {
     /// <summary>Dispatch.</summary>

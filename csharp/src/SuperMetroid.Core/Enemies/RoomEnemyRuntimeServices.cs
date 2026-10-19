@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// RNG, event and boss bits, the room's scroll zones, Samus's control lock, Mother Brain's room
 /// effects and the active PLM population. Boss bits address the room's area.
 /// </summary>
+[RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
     Bank80SystemState system,
     ActiveRoomState room,

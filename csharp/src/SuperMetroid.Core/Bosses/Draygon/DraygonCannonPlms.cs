@@ -1,10 +1,12 @@
 ﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall-turret PLMs: header identification and the cannon state Draygon's grab fight drives.</summary>
+[RoomLifetime]
 internal sealed class DraygonCannonPlms : IPlmFamilySource
 {
     /// <summary>Registers the DraygonCannon family, which has no step of its own: its slots take the shared path.</summary>

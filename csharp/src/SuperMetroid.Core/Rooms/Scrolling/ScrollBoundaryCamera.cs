@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// stimuli: genuine Samus tracking at <c>$90:95A0</c> will eventually supply the same
 /// proposed position, ideal position, and fixed-point camera speed fields.
 /// </remarks>
+[RoomLifetime]
 public sealed class ScrollBoundaryCamera
 {
     /// <summary>Half a 256-pixel screen: the camera's centre.</summary>

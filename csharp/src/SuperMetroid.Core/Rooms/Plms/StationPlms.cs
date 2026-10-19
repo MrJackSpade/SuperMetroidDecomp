@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
+[RoomLifetime]
 internal sealed class StationPlms : IPlmFamilySource
 {
     /// <summary>Registers the Station family's step.</summary>

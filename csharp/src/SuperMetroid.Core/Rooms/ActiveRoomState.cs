@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Rooms;
 /// sky, landing-site entry, inherited layer-1 position, load station, Ceres elevator arrival, room-main scratch and
 /// the door transition's main-screen layers.
 /// </summary>
+[RoomScopeBoundary("Holds the loaded room and the room under construction.")]
 internal sealed class ActiveRoomState
 {
 
@@ -25,8 +26,8 @@ internal sealed class ActiveRoomState
     /// </summary>
     internal SnesMainScreenLayers? DoorTransitionMainScreenLayers { get; set; }
 
-    /// <summary>The load-station record that most recently established this runtime.</summary>
-    public LoadStationEntry? ActiveLoadStation { get; internal set; }
+    /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
+    public LoadStationEntry? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
@@ -39,11 +40,12 @@ internal sealed class ActiveRoomState
 
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
-    internal RoomScopeConstruction BeginConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    internal RoomScopeConstruction BeginConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+        LoadStationEntry? loadStation)
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        _construction = new RoomScopeConstruction(door, room, assets);
+        _construction = new RoomScopeConstruction(door, room, assets, loadStation);
         return _construction;
     }
 
@@ -68,11 +70,11 @@ internal sealed class ActiveRoomState
     public CartridgeDoorHeader? ActiveDoor => View(c => c.Door, s => s.Door);
 
 
-    /// <summary>The two native bank-$86 objects that carry Samus into fresh Ceres.</summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival { get; internal set; }
+    /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
+    public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
     /// <summary>Room-main scratch word <c>$07E1</c>, which room loading never clears.</summary>
-    public RoomMainScratchState RoomMainScratch { get; internal set; } = new();
+    public RoomMainScratchState RoomMainScratch { get; } = new();
 
     /// <summary>
     /// Active layer-1 scroll-boundary state. It remains null until a room-specific scroll

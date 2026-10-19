@@ -1,8 +1,11 @@
-﻿using static SuperMetroid.Core.Hardware.SnesAddressMath;
+﻿using SuperMetroid.Core.Rooms;
+
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile hits on enemies: the collision prelude, reflection, the intro Mother Brain missile, and the start of the impact explosion.</summary>
+[RoomLifetime]
 internal sealed class ProjectileEnemyImpacts
 {
     /// <summary>Owns projectile clearing when reflection retires a Super Missile link.</summary>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -11,6 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="SelectedShotAi">The named callback of the selected hitbox (the header's on the radius path), if named.</param>
 /// <param name="UsesExtendedHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HealthBefore">Enemy health before common bomb damage (set for the common stages).</param>
+[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyBombContext(
     RoomEnemySlot Enemy,
     SamusBombProjectileSlot Bomb,

@@ -2,10 +2,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>A validated <see cref="IRoomEnemyLoad"/>; required capabilities are non-null at construction.</summary>
+[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/>.</summary>

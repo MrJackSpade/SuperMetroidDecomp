@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="Streamer">The background tilemap streamer that publishes changed blocks.</param>
 /// <param name="View">The BG1 view the tile writes reflect.</param>
 /// <param name="Frame">What the handler reads from the rest of the frame.</param>
+[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct PlmStepContext(
     RoomPlmSystem Plms, RoomLevelData Level, BackgroundTilemapStreamer Streamer, PlmView View, PlmFrameInputs Frame)
 {

@@ -82,6 +82,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -96,6 +97,7 @@ namespace SuperMetroid.Core.Enemies;
 /// WRAM-array aliasing to copy fields from earlier slots. A compact host list would appear
 /// cleaner while destroying behavior that the original code expects.
 /// </remarks>
+[RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSource, IEnemyFrameResults
 {
     /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
@@ -536,29 +538,16 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public EnemyFrameResult LastEnemyFrame => FrameResults.Build();
 
     /// <summary>
-    /// Creates a session's first room's enemy system: all 32 stable physical slot objects, with no residue and the
-    /// door-transition gates clear, without loading a population or binding memory, graphics, random-number, or
-    /// gameplay services.
-    /// </summary>
-    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
-    /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
-    public RoomEnemySystem(EnemySession session, IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null)
-        : this(session, EnemyRoomResidue.None, definitions, services)
-    {
-    }
-
-    /// <summary>
     /// Creates a room's enemy system: all 32 stable physical slot objects, starting from the words the replaced room's
     /// enemies left, with the door-transition gates clear, without loading a population or binding memory, graphics,
     /// random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    /// <param name="residue">The words the replaced room's enemies leave behind.</param>
+    /// <param name="residue">The words the replaced room's enemies leave behind, or null for the session's first room.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
-    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue residue, IRoomEnemyDefinitionSource? definitions,
-        IRoomEnemyServices? services)
+    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue? residue = null,
+        IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null)
     {
         Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
@@ -764,7 +753,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
         SlotTable.InstallSlots(Species);
-        Ensure.NotNull(residue).ApplyTo(this);
+        (residue ?? EnemyRoomResidue.None).ApplyTo(this);
     }
 
     /// <summary>

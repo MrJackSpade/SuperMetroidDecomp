@@ -20,6 +20,7 @@ namespace SuperMetroid.Core.Fx;
 /// writes without inventing another representation for the corresponding bank-$88 state.
 /// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
+[RoomLifetime]
 public sealed class RoomLayer3FxState
 {
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>

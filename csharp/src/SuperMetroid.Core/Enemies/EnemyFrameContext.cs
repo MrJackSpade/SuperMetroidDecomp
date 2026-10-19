@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Per-pass enemy frame context: the random and NMI frame counters, the live Samus projectile system,
 /// and the frozen-time, process-all and deferred-camera flags for the current enemy pass.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyFrameContext
 {
     /// <summary>Binds the enemy pass to the session that holds the random enemy counter.</summary>

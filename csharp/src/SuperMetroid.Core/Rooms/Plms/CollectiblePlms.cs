@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
+[RoomLifetime]
 internal sealed class CollectiblePlms : IPlmFamilySource
 {
     /// <summary>Registers the Collectible family's step.</summary>

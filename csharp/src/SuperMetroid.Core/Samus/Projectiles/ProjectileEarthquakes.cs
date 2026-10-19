@@ -1,7 +1,9 @@
 ﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Super Missile impact earthquakes: the last requested quake type and duration, published to the room's shared earthquake owner when one is bound.</summary>
+[RoomLifetime]
 internal sealed class ProjectileEarthquakes
 {
     /// <summary>

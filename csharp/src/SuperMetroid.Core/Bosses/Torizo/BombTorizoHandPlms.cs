@@ -3,10 +3,12 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Bomb Torizo statue's hand PLM: its setup, per-frame state and the instructions that wake the statue.</summary>
+[RoomLifetime]
 internal sealed class BombTorizoHandPlms
 {
     /// <summary>Live room bindings used to inspect Samus's collected equipment during the hand's wake check.</summary>

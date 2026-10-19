@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile pre-instructions, Super Missile links, and the movement-window deletion check.</summary>
+[RoomLifetime]
 internal sealed class ProjectileMotion
 {
     /// <summary>Clears shots that expire or leave the native movement window.</summary>

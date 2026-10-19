@@ -1,9 +1,11 @@
 ﻿using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The room's layer-3 FX words that enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
+[RoomLifetime]
 internal sealed class EnemyRoomFx
 {
     /// <summary>Current room's layer-3 FX owner; excluded from serialized enemy state and rebound after restoration.</summary>

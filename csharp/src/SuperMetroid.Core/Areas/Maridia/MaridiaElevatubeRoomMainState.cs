@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// words so their signed fixed-point behavior remains debugger-visible. The fraction of the
 /// tracked position is the shared <c>RoomMainASMVar1</c>, which the door callbacks leave stale.
 /// </summary>
+[RoomLifetime]
 public sealed class MaridiaElevatubeRoomMainState
 {
     /// <summary>Whether the selected room state names main routine $8F:E2B6.</summary>

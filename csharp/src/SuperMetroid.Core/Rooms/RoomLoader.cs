@@ -34,6 +34,7 @@ namespace SuperMetroid.Core.Rooms;
 /// Room loading: saved games and new sessions, cartridge rooms and doors, room setup, palettes, the HUD minimap,
 /// enemies and PLMs of the loaded room.
 /// </summary>
+[RoomScopeBoundary("Builds each room's scope in the native load order.")]
 internal sealed class RoomLoader
 {
     /// <summary>Supplies decoded graphics and palette assets for the room being entered.</summary>
@@ -171,12 +172,12 @@ internal sealed class RoomLoader
                 $"Fresh Ceres station targets area ${(byte)room.AreaIndex:X2}, expected area $06.");
         }
 
-        _room.ActiveLoadStation = station;
         return LoadCartridgeRoom(
             door,
             room,
             station.CameraPosition,
-            RoomViewportLoadMode.DisplayInitialViewport);
+            RoomViewportLoadMode.DisplayInitialViewport,
+            new RoomEntry { LoadStation = station });
     }
 
     /// <summary>
@@ -231,13 +232,12 @@ internal sealed class RoomLoader
                 $"Load station {requestedArea}:{stationIndex} targets room area " +
                 $"{room.AreaIndex}.");
         }
-        _room.ActiveLoadStation = station;
-        _room.CeresElevatorArrival = null;
         InitialViewportResult viewport = LoadCartridgeRoom(
             door,
             room,
             station.CameraPosition,
-            RoomViewportLoadMode.DisplayInitialViewport);
+            RoomViewportLoadMode.DisplayInitialViewport,
+            new RoomEntry { LoadStation = station });
         // LoadFromLoadStation writes `$1E75 = 1`. Without this room-entry lockout, the
         // first standing floor probe after loading directly on a save pod immediately
         // reopens its confirmation message.
@@ -345,20 +345,18 @@ internal sealed class RoomLoader
         samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new SnesFixedPosition(station.SamusPosition.X, 0)).WithY(new SnesFixedPosition(station.SamusPosition.Y, 0));
         samus.InputLocked = true;
-        _room.ActiveLoadStation = station;
 
         // The special loader still executes the normal room-object teardown before it
         // constructs Landing Site. CeresElevatorArrival models two bank-$86 projectiles
-        // from the abandoned station room; retaining it here lets its delayed Y=$0048
-        // completion overwrite the Samus position currently carried by the gunship.
-        _room.CeresElevatorArrival = null;
-
+        // of the abandoned station room, so Landing Site's scope ends them; retaining them
+        // would let their delayed Y=$0048 completion overwrite the Samus position currently
+        // carried by the gunship.
         InitialViewportResult viewport = LoadCartridgeRoom(
             door,
             room,
             station.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
-            GunshipLoadScenario.EscapingCeres);
+            new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
         samus.Presentation.LoadSuitPalette(_cgram);
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
@@ -776,9 +774,8 @@ internal sealed class RoomLoader
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
 
         // The load-station record established only the first room. Once bank $94 publishes
-        // a door definition, that definition and its destination header become authoritative.
-        _room.ActiveLoadStation = null;
-        _room.CeresElevatorArrival = null;
+        // a door definition, that definition and its destination header become authoritative:
+        // the destination's scope is built without a load station.
 
         // State $0B's door IRQ has already placed Samus before LoadMoreThings constructs
         // the destination room. This ordering is observable for elevator arrivals:
@@ -796,8 +793,7 @@ internal sealed class RoomLoader
             room,
             placement.CameraPosition,
             viewportLoadMode,
-            runDoorClosingPlm: true,
-            preloadedAssets: assets);
+            new RoomEntry { RunDoorClosingPlm = true, PreloadedAssets = assets });
 
         // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
         // loaded and before state $0B captures the destination fade target. The source fade
@@ -820,9 +816,7 @@ internal sealed class RoomLoader
         CartridgeRoomHeader room,
         Position16<RoomPixels> camera,
         RoomViewportLoadMode viewportLoadMode,
-        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
-        bool runDoorClosingPlm = false,
-        CartridgeRoomAssets? preloadedAssets = null)
+        RoomEntry entry = default)
     {
         DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
         {
@@ -831,7 +825,7 @@ internal sealed class RoomLoader
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
-        CartridgeRoomAssets assets = preloadedAssets ??
+        CartridgeRoomAssets assets = entry.PreloadedAssets ??
             CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
@@ -843,7 +837,7 @@ internal sealed class RoomLoader
                     gated.Enemies.Elevator.ElevatorDoorTransitionActive)
                 : default,
             _room.Scope is { } previous ? EnemyRoomResidue.Of(previous.Enemies) : EnemyRoomResidue.None);
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets);
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
         _hudSetup.SelectGameplayHudCharacterBase();
@@ -918,7 +912,7 @@ internal sealed class RoomLoader
         scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
             ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
-        scope.LandingSiteEntry = null;
+
         assets.LoadGraphics(_vram, _cgram);
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
@@ -994,7 +988,7 @@ internal sealed class RoomLoader
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
         _gameplayWindows.BindGameplayWindowRegisters(projectiles);
-        _player.Samus?.Shinespark.BindProjectileOwners(projectiles, bombs.PowerBombExplosion);
+        _player.Samus?.Shinespark.BindProjectileOwners(_beamCharge, bombs.PowerBombExplosion);
 
         // `$82:EB6C` walks this zero-terminated list once. Each six-byte record allocates
         // the highest free one of forty IDs before its bank-$84 setup executes. Immediate
@@ -1043,7 +1037,7 @@ internal sealed class RoomLoader
         if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
             plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
 
-        if (runDoorClosingPlm)
+        if (entry.RunDoorClosingPlm)
         {
             // `$82:E4C9` performs this handoff after destination PLMs, door/room setup,
             // and FX construction but before enemy initialization. The C# room constructor
@@ -1072,7 +1066,7 @@ internal sealed class RoomLoader
             Samus = _player.Samus,
             ControllerInput = _controller1.Current,
             Camera = destinationCamera.PixelPosition,
-            GunshipScenario = gunshipLoadScenario,
+            GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
         });
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
@@ -1264,9 +1258,9 @@ internal sealed class RoomLoader
         // before the first draw and explicitly clears that graphics index. The specialized
         // arrival model owns that native post-initialization value; passing the transient
         // enemy word here previously recolored the level-data concealer teal.
-        _room.CeresElevatorArrival = new CeresElevatorArrivalState(
+        _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(
             _player.Samus,
-            _enemySession.TileArtwork?.ProjectileSpritemaps);
+            _enemySession.TileArtwork?.ProjectileSpritemaps));
 
         // The locked Ceres-start frame handler still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving

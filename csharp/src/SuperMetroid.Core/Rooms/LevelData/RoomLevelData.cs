@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// and the parallel BTS byte for collision. Keeping one object prevents rendering and
 /// physics from quietly loading different room revisions or indexing conventions.
 /// </remarks>
+[RoomLifetime]
 public sealed class RoomLevelData
 {
     /// <summary>The solid word an out-of-room block reads as: the allocation is prefilled with solid air.</summary>

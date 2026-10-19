@@ -5,6 +5,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -19,6 +20,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// pair separate avoids pretending that the larger general enemy-projectile engine has
 /// already been translated.
 /// </remarks>
+[RoomLifetime]
 public sealed class CeresElevatorArrivalState
 {
     /// <summary>First spawned projectile, which moves Samus before the platform checks landing.</summary>

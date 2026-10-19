@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// from the area table and selected FX record, never from a particular room number.
 /// Other animated-tile families retain their existing independent owners.
 /// </summary>
+[RoomLifetime]
 public sealed class RoomSandAnimatedTilesState
 {
     /// <summary>Only sand-family objects selected by the current room's area and FX record.</summary>

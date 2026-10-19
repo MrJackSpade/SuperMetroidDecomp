@@ -5,10 +5,12 @@ using SuperMetroid.Core.Enemies.Platforms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

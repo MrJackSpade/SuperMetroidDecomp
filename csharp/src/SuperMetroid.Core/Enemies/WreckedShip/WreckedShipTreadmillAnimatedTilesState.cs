@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
@@ -9,6 +10,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// shows its four treadmill frames in a loop, one frame per pass, each a transfer of the frame's
 /// art to the treadmill's tiles for the following NMI.
 /// </summary>
+[RoomLifetime]
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
     /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>

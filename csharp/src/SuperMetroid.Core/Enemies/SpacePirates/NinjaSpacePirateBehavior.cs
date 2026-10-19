@@ -8,10 +8,12 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Samus-eater plant PLMs: their spawn, the held Samus position and the pre-instruction that runs the bite.</summary>
+[RoomLifetime]
 internal sealed class SamusEaterPlms
 {
     /// <summary>Live room owners used to find held Samus and allocate PLM slots.</summary>

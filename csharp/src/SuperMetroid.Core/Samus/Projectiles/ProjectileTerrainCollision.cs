@@ -2,10 +2,12 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
+[RoomLifetime]
 internal sealed class ProjectileTerrainCollision
 {
     /// <summary>Clears projectile slots when the native kill dispatcher rejects an already converted family.</summary>

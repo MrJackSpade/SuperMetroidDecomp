@@ -11,10 +11,12 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>The collaborators a <see cref="BotwoonBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record BotwoonBehaviorDependencies
 {
     /// <summary>Room.</summary>

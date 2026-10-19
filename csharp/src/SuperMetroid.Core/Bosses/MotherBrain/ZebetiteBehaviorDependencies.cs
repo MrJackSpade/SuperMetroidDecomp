@@ -2,10 +2,12 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="ZebetiteBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record ZebetiteBehaviorDependencies
 {
     /// <summary>Dispatch.</summary>

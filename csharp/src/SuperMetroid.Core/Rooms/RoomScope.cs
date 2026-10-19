@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Rooms;
 /// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329, <c>docs/room-scope.md</c>).
 /// </summary>
+[RoomLifetime]
 internal sealed record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
@@ -88,4 +89,22 @@ internal sealed record RoomScope
 
     /// <summary>The room's runtime services, bound to its area, shared by its PLMs and enemies.</summary>
     public required RoomEnemyRuntimeServices Services { get; init; }
+
+    /// <summary>The load-station record whose load established this room; null for a room entered otherwise.</summary>
+    public LoadStationEntry? LoadStation { get; init; }
+
+    /// <summary>
+    /// The two native bank-$86 objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They
+    /// are projectiles of this room, so the next room's load ends them.
+    /// </summary>
+    public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
+
+    /// <summary>Begins the Ceres elevator arrival in this room.</summary>
+    /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>
+    internal void BeginCeresElevatorArrival(CeresElevatorArrivalState arrival)
+    {
+        if (CeresElevatorArrival is not null)
+            throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
+        CeresElevatorArrival = Ensure.NotNull(arrival);
+    }
 }

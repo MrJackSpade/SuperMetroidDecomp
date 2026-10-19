@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 /// The cartridge-defined parts of one door entry into Landing Site that are needed before
 /// the first gameplay frame: camera screen and door-selected scrolling-sky transfer.
 /// </summary>
+[RoomLifetime]
 public sealed record LandingSiteEntryState(
     RoomIdentity RoomIdentity,
     Position16<MapTiles> RoomMapPosition,

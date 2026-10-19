@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The wall space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

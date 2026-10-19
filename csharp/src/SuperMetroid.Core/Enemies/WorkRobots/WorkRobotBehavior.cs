@@ -8,10 +8,12 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

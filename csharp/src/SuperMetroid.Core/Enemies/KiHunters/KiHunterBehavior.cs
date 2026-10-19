@@ -9,10 +9,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>The Ki-Hunter species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

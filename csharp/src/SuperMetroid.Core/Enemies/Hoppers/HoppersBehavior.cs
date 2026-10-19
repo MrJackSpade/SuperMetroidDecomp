@@ -5,10 +5,12 @@ using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

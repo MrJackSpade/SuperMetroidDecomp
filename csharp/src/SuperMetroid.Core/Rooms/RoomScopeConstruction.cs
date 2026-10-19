@@ -18,7 +18,9 @@ namespace SuperMetroid.Core.Rooms;
 /// order, and later steps read the parts already built here, never the previous room's; <see cref="Complete"/> checks
 /// every required part. The load runs within one host call, so no frame observes a partial construction.
 /// </summary>
-internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets)
+[RoomLifetime]
+internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeRoomHeader room, CartridgeRoomAssets assets,
+    LoadStationEntry? loadStation)
 {
     /// <summary>The destination door.</summary>
     public CartridgeDoorHeader Door { get; } = Ensure.NotNull(door);
@@ -28,6 +30,9 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
 
     /// <summary>The destination's asset graph.</summary>
     public CartridgeRoomAssets Assets { get; } = Ensure.NotNull(assets);
+
+    /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
+    public LoadStationEntry? LoadStation { get; } = loadStation;
 
     /// <summary>The level allocation, once the level step has run.</summary>
     public RoomLevelData? LevelData { get; set; }
@@ -96,6 +101,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         Door = Door,
         Room = Room,
         Assets = Assets,
+        LoadStation = LoadStation,
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
         BackgroundStreamer = BackgroundStreamer ?? throw Missing(nameof(BackgroundStreamer)),

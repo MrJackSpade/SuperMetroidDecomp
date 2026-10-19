@@ -22,6 +22,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// routines that index from the bomb half of the allocation. This port gives each slot
 /// semantic fields, but the comments below retain every important alias and source seam.
 /// </remarks>
+[RoomLifetime]
 public sealed class SamusBombProjectileSystem
 {
     /// <summary>Shared installed timed-frame sprite choices for the bomb half of the projectile pool.</summary>

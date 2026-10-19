@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Fx;
 /// Keeping the native pointers, timers, and byte-indexed destination here avoids encoding a
 /// screenshot's colors as a room-specific correction.
 /// </remarks>
+[RoomLifetime]
 public sealed class RoomPaletteFxSystem
 {
     /// <summary>Native bank-$8D allocator capacity and descending handler range.</summary>

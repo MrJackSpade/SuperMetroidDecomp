@@ -67,6 +67,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -74,6 +75,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy instruction interpreter: common bank-$A0 instructions, owner-private instruction dispatch,
 /// visual selectors and mechanics words, instruction VRAM transfers, and installed extended-frame BG2 writes.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyInstructionInterpreter
 {
     /// <summary>Owns the working BG2 tilemap used by Crocomire's extended frames.</summary>

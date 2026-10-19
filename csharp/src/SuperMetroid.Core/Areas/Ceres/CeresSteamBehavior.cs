@@ -8,10 +8,12 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>

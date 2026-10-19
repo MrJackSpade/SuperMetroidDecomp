@@ -54,8 +54,6 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
 
-            self.Room.ActiveLoadStation = null;
-            self.Room.CeresElevatorArrival = null;
             InitialViewportResult viewport = self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,
@@ -85,7 +83,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport,
-                runDoorClosingPlm: true);
+                new RoomEntry { RunDoorClosingPlm = true });
         }
     }
 }

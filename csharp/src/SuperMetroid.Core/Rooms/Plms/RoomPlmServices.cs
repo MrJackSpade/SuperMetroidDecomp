@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// checks for it where it previously checked its delegate, and a family whose program needs a missing
 /// service fails loudly.
 /// </summary>
+[RoomLifetime]
 public sealed record RoomPlmServices
 {
     /// <summary>Samus as PLMs see her.</summary>

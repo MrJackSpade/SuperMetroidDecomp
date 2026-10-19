@@ -6,6 +6,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -19,6 +20,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// preserve cartridge behavior; editable text and fonts come from installed assets. The named phases merely replace the native
 /// <c>cinematic_function</c> address, making the same coroutine boundaries debuggable in C#.
 /// </remarks>
+[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState
 {
     /// <summary>The <see cref="EndingCreditsPresentation"/> owner of this EndingCreditsState.</summary>

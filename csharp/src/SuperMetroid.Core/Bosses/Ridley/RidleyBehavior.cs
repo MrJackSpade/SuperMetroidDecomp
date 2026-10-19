@@ -11,10 +11,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class RidleyBehavior : IEnemySpecies
 {
     /// <summary>Enemy dispatcher used for Ridley's registered native callbacks.</summary>

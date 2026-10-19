@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Eye-door PLMs (Tourian and Kraid lair): eye projectile spawning, hit reaction and conversion to a blue door.</summary>
+[RoomLifetime]
 internal sealed class EyeDoorPlms : IPlmFamilySource
 {
     /// <summary>Registers the EyeDoor family, which has no step of its own: its slots take the shared path.</summary>

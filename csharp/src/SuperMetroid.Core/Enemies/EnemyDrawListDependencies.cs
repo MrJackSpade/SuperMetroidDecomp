@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The collaborators a <see cref="EnemyDrawList"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record EnemyDrawListDependencies
 {
     /// <summary>Ceres ridley behavior.</summary>

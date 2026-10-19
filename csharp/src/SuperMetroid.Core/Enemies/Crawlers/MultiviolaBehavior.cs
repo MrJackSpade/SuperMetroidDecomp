@@ -4,10 +4,12 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

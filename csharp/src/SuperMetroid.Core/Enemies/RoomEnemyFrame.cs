@@ -4,10 +4,12 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</summary>
+[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record RoomEnemyFrame
 {
     /// <summary>Layer-one camera position (viewport top-left) in whole room pixels.</summary>

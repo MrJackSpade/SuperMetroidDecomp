@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Horizontal spikes selected by the room FX animation bitset, including Crocomire's left wall.</summary>
+[RoomLifetime]
 public sealed class RoomSpikeAnimatedTilesState
 {
     /// <summary>Current room's horizontal-spike tile transfer state, reset whenever a new FX record is selected.</summary>

@@ -7,12 +7,14 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Cartridge-backed setup and first actor phase of the SR388 baby-Metroid discovery scene.
 /// </summary>
+[RoomScopeBoundary("A cinematic scene that owns its own level for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class IntroBabyDiscoveryState
 {
 

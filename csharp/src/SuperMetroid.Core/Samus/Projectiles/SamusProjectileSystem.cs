@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -25,6 +26,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// model and bank-$93 interpreter are intentionally general enough for the remaining beam
 /// and missile families, but unsupported producers are rejected before allocating a slot.
 /// </remarks>
+[RoomLifetime]
 public sealed class SamusProjectileSystem
 {
     /// <summary>Tracks held charge, flare components, and charge palette state across room transitions.</summary>
@@ -731,9 +733,9 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Fully clears projectile storage and held-charge presentation for session resets
-    /// and forced owners such as elevator boarding. Ordinary room transitions must use
-    /// <see cref="ClearProjectileData"/> because native projectile deletion preserves charge.
+    /// Fully clears projectile storage and held-charge presentation for forced owners such as
+    /// elevator boarding and the intro flashback. A room's load builds a new system instead,
+    /// whose held charge is the session's.
     /// </summary>
     public void Reset(SamusState? samus = null)
     {
@@ -748,12 +750,10 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Clears departing projectile storage without cancelling held beam charge.
-    /// Native ResetProjectileData ($90:AD22) does not write the flare counter,
-    /// flare animation words or charge palette state. Full session/elevator reset
-    /// callers still use <see cref="Reset"/> when those owners must also be cleared.
+    /// Native ResetProjectileData ($90:AD22): clears projectile storage without the flare
+    /// counter, flare animation words or charge palette state, which <see cref="Reset"/> clears after it.
     /// </summary>
-    public void ClearProjectileData(SamusState? samus = null)
+    private void ClearProjectileData(SamusState? samus)
     {
         if (samus is not null)
         {

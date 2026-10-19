@@ -36,6 +36,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// other pointer fails instead of silently inventing an effect for a still-untranslated PLM
 /// family.
 /// </remarks>
+[RoomLifetime]
 public sealed class RoomPlmSystem
 {
     /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>

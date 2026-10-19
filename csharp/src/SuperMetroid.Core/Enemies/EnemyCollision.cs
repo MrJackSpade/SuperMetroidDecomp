@@ -31,6 +31,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Samus-to-enemy interaction: touch, shot, bomb and power-bomb collision walks over the interactive
 /// enemies, extended hitboxes, vulnerability and freezing, and the dispatch into the registered reactions.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyCollision
 {
     /// <summary>Dispatches bank-local enemy callbacks selected by touch or projectile contact.</summary>

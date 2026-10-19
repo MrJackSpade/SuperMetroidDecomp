@@ -1,19 +1,38 @@
 # Room scope
 
-Room-scoped state in the C# port has no structural lifetime yet: its owners are built once per gameplay runtime,
-cleared field by field during room loading, and late-bound to per-room services. A missed field carries state into
-the next room; an over-eager clear drops state the cartridge keeps. #1329 replaces the resets with an explicit room
-scope: a `RoomScope` built by `RoomScopeConstruction` in the native load order, holding each owner's room-lifetime
-state, with the values a destination reads from the previous room named in `RoomTransitionCarryOver`.
+Room-scoped state used to have no structural lifetime: its owners were built once per gameplay runtime, cleared
+field by field during room loading, and late-bound to per-room services. A missed field carried state into the next
+room; an over-eager clear dropped state the cartridge keeps. #1329 replaced the resets with an explicit room scope: a
+`RoomScope` built by `RoomScopeConstruction` in the native load order, holding each owner's room-lifetime state, with
+the values a destination reads from the previous room named in `RoomTransitionCarryOver`.
 
 This document records the load order, the deliberate carry-overs and the deliberate resets, with their evidence.
-[`room-scope-inventory.json`](room-scope-inventory.json) classifies every step of the four room-load bodies and every
-`Reset*`, `Clear*` and `ResetForRoom*` declaration in Core. Both were produced by static source inspection.
+[`room-scope-inventory.json`](room-scope-inventory.json) classifies every step of the room-load bodies and every
+`Reset*` and `Clear*` declaration in Core. Both were produced by static source inspection; no room-lifetime reset
+remains.
+
+## Enforcement
+
+Every room-lifetime type carries `[RoomLifetime]`: the scope, its parts, and the components those parts hold.
+Session state lives on session owners (`EnemySession`, `RoomFxSession`, `PaletteFxSessionState`, `BeamChargeState`,
+`ActiveRoomState`'s session words). The blocking `RoomLifetimeAnalyzer` keeps the split:
+
+- **SME6409**: a room-lifetime type is constructed only inside another room-lifetime type or a `[RoomScopeBoundary]`
+  type. The boundaries are `RoomLoader`, which builds each scope, `ActiveRoomState`, `RoomTransitionCarryOver`, the
+  per-call inputs that pass room parts for one call, and the cinematic scenes that own a level, projectiles or palette
+  FX while no gameplay room is loaded. Each boundary states its reason.
+- **SME6410**: a type that is neither room-lifetime nor a boundary holds no field or auto-property of a room-lifetime
+  type, including as a generic or array element. Session code receives the room's parts as parameters or reads them
+  through `ActiveRoomState` at a frame root.
+- **SME6411**: no `ResetForRoom*`, `Reset*RoomState` or `ResetForRoomLoad` method is declared.
+
+`ActiveRoomState` has no settable per-room property. The load station that established a room is an input of its
+scope's construction, and the Ceres elevator arrival begins in, and ends with, the room it began in.
 
 ## Load order
 
 The door path enters through `RoomLoader.LoadPendingDoorDestination`; station, post-Ceres and debug loads enter at
-`RoomLoader.LoadCartridgeRoom`. The construction replaces each reset or load line with "construct this owner's fresh
+`RoomLoader.LoadCartridgeRoom`. The construction replaced each reset or load line with "construct this owner's fresh
 room state here", so this order is kept line for line.
 
 | Phase | Where | Operation |
@@ -22,34 +41,34 @@ room state here", so this order is kept line for line.
 | Pre-load | `LoadPendingDoorDestination` | X-ray direct G-mode demoted to indirect (carried into the destination setup) |
 | Pre-load | `LoadPendingDoorDestination` | Destination assets built before the source door is consumed, so a rejected room stays retryable |
 | Pre-load | `LoadPendingDoorDestination` | A departing elevator becomes arriving (status 2) before enemy init |
-| Pre-load | `LoadPendingDoorDestination` | Load-station and Ceres-arrival records cleared |
 | Pre-load | `LoadPendingDoorDestination` | Samus placed; only door-travel displacement cleared (velocity survives) |
-| Header | `LoadCartridgeRoom` | Active door, room and assets |
-| Room mains | `LoadCartridgeRoom` | HUD character base; treadmill, elevatube and Ceres shaft restart (the shaft reads `RoomMainScratch`) |
+| Carry-over | `LoadCartridgeRoom` | `RoomTransitionCarryOver` captured from the outgoing scope |
+| Header | `LoadCartridgeRoom` | Scope construction begins with the door, room, assets and load station (none for a door) |
+| Room mains | `LoadCartridgeRoom` | HUD character base; treadmill, elevatube and Ceres shaft built (the shaft reads `RoomMainScratch`) |
 | Display | `LoadCartridgeRoom` | Mode 7 transform: the Ceres elevator door publishes its matrix, other doors clear it |
 | Level and camera | `LoadCartridgeRoom` | Level data; a new camera inheriting tracking state and fraction words |
 | Scroll | `LoadCartridgeRoom` | Layer-2 scroll; previous blocks primed, or the door-opening destination prepared |
-| Streamers | `LoadCartridgeRoom` | Background streamer, scrolling sky, landing-site entry |
+| Streamers | `LoadCartridgeRoom` | Background streamer, scrolling sky |
 | Graphics | `LoadCartridgeRoom` | Room graphics, common gameplay sprite rows (`$82:E139`) |
 | FX | `LoadCartridgeRoom` | Layer-3 FX (consumes the session RNG value), Ceres haze, sand/spike/treadmill tiles, palette FX |
 | Library BG | `LoadCartridgeRoom` | The room state's library-background program |
-| Teardown | `LoadCartridgeRoom` | PLM pool, bombs and Samus projectiles destroyed (`$82:E43A-$E472`) |
-| PLMs | `LoadCartridgeRoom` | Runtime services (first instance), PLM population |
+| Teardown | `LoadCartridgeRoom` | Samus echo storage cleared; new bombs and Samus projectiles with the carried residue (`$82:E43A-$E472`) |
+| PLMs | `LoadCartridgeRoom` | Area progress, PLM services, the room's PLM system and the shared runtime services; PLM population |
 | Door ASM | `LoadCartridgeRoom` | Door setup code, then setup-callback PLM spawns |
 | Door closer | `LoadCartridgeRoom` | Door-closing PLM after room PLMs, before enemies |
 | Beam | `LoadCartridgeRoom` | Beam tiles and palette before enemy init (`$82:E4CC`) |
-| Enemies | `LoadCartridgeRoom` | Runtime services (second instance), the room's `RoomEnemySystem` built with the door gates clear, then `Load` |
+| Enemies | `LoadCartridgeRoom` | The room's `RoomEnemySystem` built with its definitions, services and carried residue and the door gates clear, then `Load` |
 | Post-enemy | `LoadCartridgeRoom` | Ridley minimap, escape effects, gate projectile requests applied after the pool clear, pre-Phantoon projectile, enemy room effects, Tourian statues, graphics uploads, then the carried door gates re-asserted over the loaded enemies |
 
-Each room builds its `RoomEnemySystem`, with every species owner, at the enemy step. `Load` binds the room's load
-inputs (definitions, services, video memory, the Rinka and shutter load cameras) and loads the population once; a
+Each room builds its `RoomEnemySystem`, with every species owner, at the enemy step, from its definitions and services.
+`Load` binds the room's load inputs (video memory, the Rinka and shutter load cameras) and loads the population once; a
 second call fails. The species resets it used to run are gone: a fresh owner holds exactly what each restored (audited
 statically, member by member), so none survives into the next room. PLM setup reaches the destination's enemies through
 the room under construction and fails if it does so before the enemy step, where the cartridge's enemy load would
 overwrite what it wrote.
 
-`RoomPlmSystem.Reset` unbinds the Chozo statue, clears every slot, the sound queue, the gate requests, the bindings, the
-tilemap updates and the station events, then resets the Mother Brain glass, collectible and Bomb Torizo hand state.
+Each room builds its `RoomPlmSystem` at the PLM step, so no slot, sound, gate request, binding, tilemap update, station
+event, Mother Brain glass, collectible or Bomb Torizo hand state survives a door.
 
 ## Deliberate carry-overs
 
@@ -111,7 +130,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 
 | Owner | State | Classification |
 | --- | --- | --- |
-| `ActiveRoomState` | door, room, assets, level, camera, streamer, sky, landing site | room (the camera inherits named carry-over) |
+| `ActiveRoomState` | door, room, assets, load station, level, camera, streamer, sky, landing site, Ceres elevator arrival (views of the scope) | room (the camera inherits named carry-over) |
 | `ActiveRoomState` | `RoomMainScratch`, `InheritedLayer1Position`, `DoorTransitionMainScreenLayers` | session carry-over |
 | `RoomEnemySystem` | slots, count, processing window, interactive bodies, graphics set, draw list, room status, earthquake | room (door gates re-asserted from the carry-over after load) |
 | `RoomEnemySystem` | species state | room |

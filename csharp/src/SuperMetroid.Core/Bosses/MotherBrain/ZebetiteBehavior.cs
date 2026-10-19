@@ -12,10 +12,12 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Zebetite species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

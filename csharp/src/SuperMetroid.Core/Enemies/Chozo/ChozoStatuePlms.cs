@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Chozo statue hand PLMs ($84:D6EA family): the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
+[RoomLifetime]
 internal sealed class ChozoStatuePlms
 {
     /// <summary>Room progression, area, and other services used by statue hand setup.</summary>

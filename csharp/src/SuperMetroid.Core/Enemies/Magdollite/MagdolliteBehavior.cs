@@ -6,10 +6,12 @@ using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

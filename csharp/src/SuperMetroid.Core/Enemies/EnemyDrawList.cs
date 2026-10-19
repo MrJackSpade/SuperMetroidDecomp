@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -11,6 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// EnemyMain's draw phase (<c>WriteEnemyOams</c>): the per-layer queues the enemy pass fills, the common
 /// draw-palette selection, and the ordinary, extended and supplemental sprite output with its BG2 frame side effects.
 /// </summary>
+[RoomLifetime]
 internal sealed class EnemyDrawList
 {
     /// <summary>Draws Ceres Ridley's tail and wings before its common body spritemap.</summary>

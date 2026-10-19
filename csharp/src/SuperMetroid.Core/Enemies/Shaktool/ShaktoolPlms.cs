@@ -1,10 +1,12 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Shaktool's room controller PLM and the pre-instruction that follows Shaktool's digging.</summary>
+[RoomLifetime]
 internal sealed class ShaktoolPlms
 {
     /// <summary>Room owners needed by the controller's event and Samus-position checks.</summary>

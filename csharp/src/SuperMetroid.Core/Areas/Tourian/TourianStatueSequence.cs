@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// pre-instructions. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
+[RoomLifetime]
 public sealed class TourianStatueSequence
 {
 

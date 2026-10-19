@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The collaborators a <see cref="BombTorizoBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record BombTorizoBehaviorDependencies
 {
     /// <summary>Room.</summary>

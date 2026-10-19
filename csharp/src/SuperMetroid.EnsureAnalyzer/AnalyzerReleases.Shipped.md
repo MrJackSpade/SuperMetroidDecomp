@@ -58,3 +58,6 @@ SME6405 | Architecture | Error | ModuleLayoutAnalyzer
 SME6406 | Architecture | Error | CoreLayerAnalyzer
 SME6407 | Design | Warning | SpeciesReachAnalyzer
 SME6408 | Design | Warning | EnemySlotWordAnalyzer
+SME6409 | Architecture | Warning | RoomLifetimeAnalyzer
+SME6410 | Architecture | Warning | RoomLifetimeAnalyzer
+SME6411 | Architecture | Warning | RoomLifetimeAnalyzer

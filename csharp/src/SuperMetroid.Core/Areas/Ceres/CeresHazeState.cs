@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -9,6 +11,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// These mutually exclusive control phases use scalar state, not a sampled timing
 /// table. Immediate viewport loading starts at the completed fade-in state.
 /// </summary>
+[RoomLifetime]
 public sealed class CeresHazeState
 {
     /// <summary>Mutually exclusive native pre-instruction phases of the room-owned haze.</summary>

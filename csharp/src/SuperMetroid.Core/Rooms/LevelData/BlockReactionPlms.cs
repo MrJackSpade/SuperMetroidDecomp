@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Block-reaction PLMs spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
+[RoomLifetime]
 internal sealed class BlockReactionPlms
 {
     /// <summary>Provides room-specific state used when block reaction programs are installed.</summary>

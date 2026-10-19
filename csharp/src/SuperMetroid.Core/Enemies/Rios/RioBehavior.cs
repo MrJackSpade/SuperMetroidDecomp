@@ -7,10 +7,12 @@ using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// three-word records at <c>$89:AD5F</c>. The index is the shared <c>RoomMainASMVar1</c>,
 /// which the following room inherits; the timer word is owned here.
 /// </remarks>
+[RoomLifetime]
 public sealed class CeresElevatorShaftRoomMainState
 {
     /// <summary>Initial value written to RoomMainASMVar1 by door ASM <c>$8F:E4E0</c>.</summary>

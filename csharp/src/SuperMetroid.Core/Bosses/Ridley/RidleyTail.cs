@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -11,6 +12,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// terrain probing, Samus contact, and the projectile-blocking joints shared by the Ceres and
 /// Lower Norfair encounters.
 /// </summary>
+[RoomLifetime]
 internal sealed class RidleyTail
 {
     /// <summary>Exposes the five ordinary Samus projectile slots checked by Ceres whip aiming.</summary>

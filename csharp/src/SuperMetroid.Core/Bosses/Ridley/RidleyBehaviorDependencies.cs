@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="RidleyBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record RidleyBehaviorDependencies
 {
     /// <summary>Dispatch.</summary>

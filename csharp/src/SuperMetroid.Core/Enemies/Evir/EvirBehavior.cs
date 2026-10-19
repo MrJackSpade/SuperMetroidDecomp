@@ -5,10 +5,12 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

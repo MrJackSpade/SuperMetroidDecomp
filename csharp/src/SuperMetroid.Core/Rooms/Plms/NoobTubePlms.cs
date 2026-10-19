@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The Maridia glass tube (N00b tube) PLM: its crack and shatter, earthquake, layer-3 FX and projectile spawns.</summary>
+[RoomLifetime]
 internal sealed class NoobTubePlms
 {
     /// <summary>Room services receiving tube event, Samus, FX, and projectile effects.</summary>

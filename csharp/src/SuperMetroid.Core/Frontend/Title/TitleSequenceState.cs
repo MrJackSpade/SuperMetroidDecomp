@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Title;
 
@@ -16,6 +17,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// supply extracted graphics, palette, and gradient presentation. No cartridge
 /// image is mapped during the title sequence.
 /// </remarks>
+[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 public sealed class TitleSequenceState
 {
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>

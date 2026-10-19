@@ -61,7 +61,7 @@ internal static class SuperMetroidRuntimeAccess
         internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
             IRoomEnemyServices services, IRoomEnemyLoad request)
         {
-            var enemies = new RoomEnemySystem(self.EnemySession, definitions, services);
+            var enemies = new RoomEnemySystem(self.EnemySession, definitions: definitions, services: services);
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
             return enemies;

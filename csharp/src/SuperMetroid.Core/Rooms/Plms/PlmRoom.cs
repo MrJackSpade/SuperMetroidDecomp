@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// The room a PLM population is installed into (#633): the address space PLM programs read, the
 /// level and BG1 streamer they edit, VRAM, the system state that owns their bits, and the area.
 /// </summary>
+[RoomLifetime]
 public sealed record PlmRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>

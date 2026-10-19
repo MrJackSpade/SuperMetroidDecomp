@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</summary>
+[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record ShinesparkFrame
 {
     /// <summary>

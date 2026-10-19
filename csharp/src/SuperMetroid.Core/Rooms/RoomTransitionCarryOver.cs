@@ -21,5 +21,6 @@ namespace SuperMetroid.Core.Rooms;
 /// destination's enemies load with them clear and resume them once loaded (owner decision on #1329).
 /// </param>
 /// <param name="EnemyResidue">The words the outgoing room's enemy projectiles and enemy slot table leave behind.</param>
+[RoomScopeBoundary("Captures the outgoing room's parts the destination reads.")]
 internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, FixedPosition<RoomPixels> InheritedLayer1Position,
     SamusProjectileResidue ProjectileResidue, EnemyDoorTransitionGates DoorGates, EnemyRoomResidue EnemyResidue);

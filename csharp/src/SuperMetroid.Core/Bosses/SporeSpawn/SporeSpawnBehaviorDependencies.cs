@@ -13,10 +13,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The collaborators a <see cref="SporeSpawnBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+[RoomLifetime]
 internal sealed record SporeSpawnBehaviorDependencies
 {
     /// <summary>Room.</summary>

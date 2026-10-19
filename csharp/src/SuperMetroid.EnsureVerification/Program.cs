@@ -67,6 +67,7 @@ internal static class Program
                 (nameof(EnemySlotWordAnalyzerTests.VerifyEnemySlotWordAnalyzer), EnemySlotWordAnalyzerTests.VerifyEnemySlotWordAnalyzer),
                 (nameof(FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer), FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer),
                 (nameof(UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer), UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer),
+                (nameof(RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer), RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer),
                 (nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
                 (nameof(VerifyParameterContracts), VerifyParameterContracts),
                 (nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),

@@ -1,0 +1,42 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
+
+namespace SuperMetroid.Core.Rooms;
+
+/// <summary>
+/// One loaded room's state, built by <see cref="RoomScopeConstruction"/> in the cartridge's load order and replaced
+/// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
+/// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329, <c>docs/room-scope.md</c>).
+/// </summary>
+internal sealed record RoomScope
+{
+    /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
+    public required CartridgeDoorHeader Door { get; init; }
+
+    /// <summary>The selected room and state header.</summary>
+    public required CartridgeRoomHeader Room { get; init; }
+
+    /// <summary>The room's decompressed, read-only asset graph.</summary>
+    public required CartridgeRoomAssets Assets { get; init; }
+
+    /// <summary>The room's BG1/BTS/BG2 allocation, shared by rendering and collision.</summary>
+    public required RoomLevelData LevelData { get; init; }
+
+    /// <summary>The room's layer-1 scroll-boundary camera.</summary>
+    public required ScrollBoundaryCamera Camera { get; init; }
+
+    /// <summary>The room's background tilemap producer.</summary>
+    public required BackgroundTilemapStreamer BackgroundStreamer { get; init; }
+
+    /// <summary>The bank-$88 scrolling-sky updater of a scrolling-sky room, or null.</summary>
+    public required ScrollingSkyState? ScrollingSky { get; init; }
+
+    /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
+    public required LandingSiteEntryState? LandingSiteEntry { get; init; }
+
+    /// <summary>The room's runtime services, bound to its area, shared by its PLMs and enemies.</summary>
+    public required RoomEnemyRuntimeServices Services { get; init; }
+}

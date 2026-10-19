@@ -39,7 +39,7 @@ internal static class GameplayGrapplePaletteVerification
         var words = new ushort[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[512], new ushort[512]), new byte[8]);
-        runtime.Room.LevelData = level;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
         var expected = new SnesCgram();
         var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");

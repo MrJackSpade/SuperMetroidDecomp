@@ -53,7 +53,7 @@ internal static class RoomArtworkRenderParityVerification
                     "Landing Site frame contains its real door-selected sky page");
             }
             else
-                AssertTrue((native.Room.ActiveRoomAssets ?? throw new InvalidOperationException("Verification requires native.Room.ActiveRoomAssets.")).RoomCharacters.Length >
+                AssertTrue((native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.Vram.ImageEquals(installed.Vram),
@@ -70,11 +70,11 @@ internal static class RoomArtworkRenderParityVerification
 
             void VerifyVisibleOverrides()
             {
-                int characterSource = (native.Room.ActiveRoomAssets ?? throw new InvalidOperationException("Verification requires native.Room.ActiveRoomAssets.")).Tileset.CharacterAddress;
+                int characterSource = (native.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")).Assets.Tileset.CharacterAddress;
                 string characterName = RoomCharacterAtlasFormat.SourceFileName(characterSource);
                 string stockCharacterPath = Path.Combine(installation.RoomCharacterDirectory,
                     characterName);
-                int tileCount = native.Room.ActiveRoomAssets.RoomCharacters.Length /
+                int tileCount = native.Room.Scope.Assets.RoomCharacters.Length /
                     RoomCharacterAtlasFormat.BytesPerTile;
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 int rows = (tileCount + columns - 1) / columns;

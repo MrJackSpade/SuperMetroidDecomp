@@ -75,7 +75,7 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Arm();
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 20; i++) explosion.StepFrame();
-        runtime.Room.ScrollingSky = new ScrollingSkyState();
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = new ScrollingSkyState() });
         runtime.Display.GameplayHudCharacterBaseWord = KraidHudCharacterWord;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(31, 0, 31));
@@ -88,7 +88,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "a published frame survives later simulation, latch and PPU memory changes");
 
         explosion.Reset();
-        runtime.Room.ScrollingSky = null;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = null });
         runtime.Display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
@@ -144,7 +144,7 @@ internal static class GameplayDisplayFrameTestsVerification
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
         // HDMA reads the table during display; the mirror waits for the NMI upload.
         var sky = new ScrollingSkyState();
-        runtime.Room.ScrollingSky = sky;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = sky });
         sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false, runtime.VramWrites);
         MarkMainLoopWrite(runtime);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSkyHorizontalScrolls is not null,
@@ -153,7 +153,7 @@ internal static class GameplayDisplayFrameTestsVerification
             registers.Bg2MapSize == before.Bg2MapSize, "sky BG2VOFS and BG2SC");
         AssertPublished(runtime, registers => registers.Bg2Scroll.Y == SkyLayer1Y &&
             registers.Bg2MapSize == new Extent16<TilemapCells>(32, 64), "sky BG2VOFS and BG2SC");
-        runtime.Room.ScrollingSky = null;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { ScrollingSky = null });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

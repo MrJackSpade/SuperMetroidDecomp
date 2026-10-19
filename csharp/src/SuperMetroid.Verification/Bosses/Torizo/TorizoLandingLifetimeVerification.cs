@@ -40,7 +40,7 @@ internal static class TorizoLandingLifetimeVerification
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);
-        runtime.Room.LevelData = level;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;
         samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation();samus.CommitPoseHistory();

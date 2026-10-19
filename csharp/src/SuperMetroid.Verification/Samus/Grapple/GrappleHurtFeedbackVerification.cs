@@ -35,7 +35,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
-        runtime.Room.LevelData = level;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;

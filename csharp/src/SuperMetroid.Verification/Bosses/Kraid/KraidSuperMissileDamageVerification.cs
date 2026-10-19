@@ -44,7 +44,7 @@ internal static class KraidSuperMissileDamageVerification
         (state ?? throw new InvalidOperationException("Verification requires state.")).DisplayedHeadFrame = FullyOpenRoarFrame();
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
-        runtime.Room.LevelData = level;
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
         samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation();samus.CommitPoseHistory();

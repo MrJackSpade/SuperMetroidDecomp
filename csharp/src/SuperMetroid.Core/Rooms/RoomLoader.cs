@@ -855,9 +855,10 @@ internal sealed class RoomLoader
         CartridgeRoomAssets assets = preloadedAssets ??
             CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
 
-        _room.ActiveDoor = door;
-        _room.ActiveRoom = room;
-        _room.ActiveRoomAssets = assets;
+        // The destination reads the outgoing room only through this capture; from here on the room views show the
+        // destination's parts as each step builds them.
+        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position);
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets);
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
         _hudSetup.SelectGameplayHudCharacterBase();
@@ -884,21 +885,22 @@ internal sealed class RoomLoader
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only through RunNmi, matching the normal shadow-register path.
         _display.PublishDoorMode7(initialMode7Transform);
-        _room.LevelData = assets.LevelData;
-        ScrollBoundaryCamera? previousCamera = _room.Camera;
-        _room.Camera = new ScrollBoundaryCamera(assets.Scrolls);
+        scope.LevelData = assets.LevelData;
+        ScrollBoundaryCamera? previousCamera = carryOver.PreviousCamera;
+        var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
+        scope.Camera = destinationCamera;
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
-            if (previousCamera is not null) _room.Camera.InheritTrackingState(previousCamera);
-            _room.Camera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? _room.InheritedLayer1Position);
+            if (previousCamera is not null) destinationCamera.InheritTrackingState(previousCamera);
+            destinationCamera.SetDoorTransitionPosition(camera, previousCamera?.Position ?? carryOver.InheritedLayer1Position);
         }
         else
         {
-            _room.Camera.SetPosition(camera);
+            destinationCamera.SetPosition(camera);
             if (previousCamera is not null)
-                _room.Camera.RetainSubpositions(previousCamera);
+                destinationCamera.RetainSubpositions(previousCamera);
             else
-                _room.Camera.RetainSubpositions(_room.InheritedLayer1Position);
+                destinationCamera.RetainSubpositions(carryOver.InheritedLayer1Position);
         }
         _backgroundScroll.Layer2Scroll = room.State.Layer2Scroll;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)
@@ -922,12 +924,13 @@ internal sealed class RoomLoader
             selectedFx?.Type == (byte)RoomFxType.ScrollingSky ||
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
-        _room.BackgroundStreamer = _room.LevelData.CreateBackgroundStreamer(
+        BackgroundTilemapStreamer backgroundStreamer = assets.LevelData.CreateBackgroundStreamer(
             sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)2048);
-        _room.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
+        scope.BackgroundStreamer = backgroundStreamer;
+        scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
             ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
-        _room.LandingSiteEntry = null;
+        scope.LandingSiteEntry = null;
         assets.LoadGraphics(_vram, _cgram);
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
@@ -948,7 +951,7 @@ internal sealed class RoomLoader
             door,
             _system.RandomNumber,
             room.Definition);
-        _roomLayer3Fx.PrimeViewport(_room.Camera.PixelPosition);
+        _roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
         _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
@@ -997,10 +1000,12 @@ internal sealed class RoomLoader
         // can observe the resulting physical header/argument ordering. All room families
         // enter through this one parser; an unsupported header throws with complete record
         // context instead of being skipped by a collection of sibling scans.
+        // One set of runtime services serves the room's PLMs and enemies.
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, _plms, _display, _backgroundScroll, room.AreaIndex);
+        scope.Services = areaServices;
         var plmServices = new RoomPlmRuntimeServices(_enemies, _player, _room, _system);
         _plms.PopulationLoader.LoadRoomPopulation(
-            new PlmRoom(_room.LevelData, _room.BackgroundStreamer, _vram, _system, room.AreaIndex),
+            new PlmRoom(assets.LevelData, backgroundStreamer, _vram, _system, room.AreaIndex),
             room.State.PlmPopulation,
             new RoomPlmServices
             {
@@ -1020,17 +1025,17 @@ internal sealed class RoomLoader
         // limits.
         _doorTransition.RunDoorSetupCode(door);
         if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
-            _plms.Shaktool.TrySpawnShaktoolRoomController(_room.Camera.Scrolls);
+            _plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
-            _plms.EscapeAnimals.SetupCrittersEscapeBlock(_room.LevelData,
-                _room.LevelData.GetBlockIndex(new(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY)));
+            _plms.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
+                assets.LevelData.GetBlockIndex(new(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY)));
         // `$8F:91A9` spawns the fake-wall PLM; SpawnHardcodedPLM silently drops it when all
         // forty native slots are occupied.
         if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
-            _plms.Tourian.TrySpawnOldTourianEscapeShaftWall(_room.LevelData);
+            _plms.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
         // `$8F:9194` also spawns this PLM before writing the quake SetupEscapeRoomEffects owns.
         if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
-            _plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(_room.LevelData);
+            _plms.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
 
         if (runDoorClosingPlm)
         {
@@ -1039,7 +1044,7 @@ internal sealed class RoomLoader
             // groups those owners differently, yet this point preserves the observable
             // PLM-pool order: every room-authored actor exists before the closer requests
             // the next highest free slot, and no enemy-authored PLM has run yet.
-            _plms.DoorPlms.TrySpawnDoorClosingPlm(_room.LevelData, door, _system);
+            _plms.DoorPlms.TrySpawnDoorClosingPlm(assets.LevelData, door, _system);
         }
 
         // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies. Golden Torizo's code mutates
@@ -1052,12 +1057,12 @@ internal sealed class RoomLoader
             room.State.EnemyGraphicsSet,
             _vram,
             _cgram,
-            new RoomEnemyRuntimeServices(_system, _room, _player, _plms, _display, _backgroundScroll, room.AreaIndex))
+            areaServices)
         {
-            Level = _room.LevelData,
+            Level = assets.LevelData,
             Samus = _player.Samus,
             ControllerInput = _controller1.Current,
-            Camera = _room.Camera.PixelPosition,
+            Camera = destinationCamera.PixelPosition,
             GunshipScenario = gunshipLoadScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
         });
@@ -1090,16 +1095,18 @@ internal sealed class RoomLoader
             // or column. An eager destination fill destroys the circular-map seam before
             // the opening IRQ and visibly offsets door/elevator arrivals.
             _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
+            _room.Adopt(scope.Complete());
             return new InitialViewportResult();
         }
 
+        _room.Adopt(scope.Complete());
         _pendingDoorOpeningPpuScroll = null;
-        _backgroundScroll.Layer1Position = _room.Camera.PixelPosition;
+        _backgroundScroll.Layer1Position = destinationCamera.PixelPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = _backgroundScroll.BuildInitialViewportRequests();
         int segmentCount = 0;
         foreach (BackgroundUpdateRequest request in requests)
         {
-            TilemapStreamUpdate update = _room.BackgroundStreamer.Build(request)
+            TilemapStreamUpdate update = backgroundStreamer.Build(request)
                 ?? throw new InvalidOperationException("Initial room display unexpectedly requested Mode 7 streaming.");
             update.ExecuteTo(_vram);
             segmentCount += update.Segments.Count;

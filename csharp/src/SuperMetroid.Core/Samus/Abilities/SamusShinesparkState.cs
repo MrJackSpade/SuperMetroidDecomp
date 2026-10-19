@@ -256,10 +256,9 @@ public sealed class SamusShinesparkState
     /// Ports <c>Samus_CrouchTrans</c> at <c>$91:F7B0</c>. The signed comparison accepts
     /// stage four and any larger high byte exactly as the 65816 does.
     /// </summary>
-    public bool TryStoreFromSpeedBooster(ushort speedBoostCounter)
+    public bool TryStoreFromSpeedBooster(SamusSpeedBoostCounter speedBoostCounter)
     {
-        if (unchecked((short)((SnesLittleEndian.HighByteInPlace(speedBoostCounter)) -
-            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)) < 0)
+        if (!speedBoostCounter.MeetsShinesparkStoreThreshold)
             return false;
 
         ShineTimer = NativeCountdown.Start(180);
@@ -325,7 +324,7 @@ public sealed class SamusShinesparkState
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
-            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
+            new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(8, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpDirection = 0;
@@ -542,7 +541,7 @@ false);
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
-        samus.HorizontalSpeed.SpeedBoostCounter = 0;
+        samus.HorizontalSpeed.SpeedBoostCounter = default;
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;

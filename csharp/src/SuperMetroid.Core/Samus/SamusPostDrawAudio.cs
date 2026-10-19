@@ -27,7 +27,7 @@ public static class SamusPostDrawAudio
         SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
         if (speed.EchoSoundFlag != 0 &&
-            (speed.SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage) == 0)
+            !speed.SpeedBoostCounter.HasActiveStageBit)
         {
             speed.EchoSoundFlag = 0;
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, maximumQueued: 15);

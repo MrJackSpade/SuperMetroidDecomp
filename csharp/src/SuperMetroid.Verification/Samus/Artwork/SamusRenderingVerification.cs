@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
@@ -300,7 +301,7 @@ internal static void VerifySamusRenderingSlice()
         "knockback overrides odd-frame invincibility blink");
 
     samus.KnockbackTimer = NativeCountdown.Start(0);
-    AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400),
+    AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)),
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);

@@ -22,7 +22,7 @@ internal static class PauseMomentumVerification
             {
                 BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000),
-                SpeedBoostCounter = 0x0402,
+                SpeedBoostCounter = new SamusSpeedBoostCounter(0x0402),
                 SpecialPaletteFrame = 6,
                 SpecialPaletteTimer = NativeCountdown.Start(3),
             };
@@ -32,7 +32,7 @@ internal static class PauseMomentumVerification
             speed.CaptureSpeedEchoPosition(4, new(90, 200));
             speed.CancelRunningMomentum(SamusFacingDirection.Right);
             speed.HasRunningMomentum = momentum;
-            speed.SpeedBoostCounter = counter;
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(counter);
             speed.ReconcilePauseSpeedBoosterState(equipped);
             AssertEqual(0x00014000u, speed.BaseFixed, "unpause preserves numeric base speed");
             AssertEqual(2, speed.ExtraRunSpeed.Whole, "unpause leaves extra whole speed for the next movement update");
@@ -40,7 +40,7 @@ internal static class PauseMomentumVerification
             AssertTrue(speed.HasRunningMomentum == (equipped && momentum), "unpause reconciles momentum to Speed Booster equipment");
             ushort expectedCounter = equipped ? momentum && counter == 0
                 ? initialCounter : counter : (ushort)0;
-            AssertEqual(expectedCounter, speed.SpeedBoostCounter, "unpause preserves, arms or clears boost countdown");
+            AssertEqual(expectedCounter, speed.SpeedBoostCounter.RawValue, "unpause preserves, arms or clears boost countdown");
             if (!equipped)
             {
                 AssertEqual(0, speed.SpecialPaletteFrame, "unpause clears boost palette frame");

@@ -873,13 +873,13 @@ internal static void VerifySamusLiquidPhysics()
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,
         speedBoosterEquipped: false);
-    sample.HorizontalSpeed.SpeedBoostCounter = 0x0401;
+    sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
     sample.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     sample.LiquidPhysics.PrepareAnimationFrame(sample);
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
         "lava cancels momentum even with Gravity Suit");
-    AssertEqual(0, sample.HorizontalSpeed.SpeedBoostCounter,
+    AssertEqual(0, sample.HorizontalSpeed.SpeedBoostCounter.RawValue,
         "lava clears speed-boost timer/counter");
     AssertEqual(0, sample.HorizontalSpeed.ExtraRunSpeed.Whole,
         "lava explicitly clears extra whole speed");
@@ -891,12 +891,12 @@ internal static void VerifySamusLiquidPhysics()
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,
         speedBoosterEquipped: false);
-    sample.HorizontalSpeed.SpeedBoostCounter = 0x0201;
+    sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0201);
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, acid: true);
     sample.LiquidPhysics.PrepareAnimationFrame(sample);
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
-    AssertEqual(0x0201, sample.HorizontalSpeed.SpeedBoostCounter,
+    AssertEqual(0x0201, sample.HorizontalSpeed.SpeedBoostCounter.RawValue,
         "acid preserves speed-boost timer/counter");
     AssertEqual(1, sample.HorizontalSpeed.ExtraRunSpeed.Whole,
         "acid preserves extra run speed");
@@ -1166,7 +1166,7 @@ internal static void VerifySamusAtmosphericEffects()
     // compiled running stream initializes frame two at two ticks, so stage its
     // final tick explicitly instead of relying on the old synthetic ROM delay.
     runner.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 1);
-    runner.HorizontalSpeed.SpeedBoostCounter = 0x0400;
+    runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
     AssertEqual(SamusAtmosphericEffectType.AlternateDust, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
         "boost-stage-four foot contact creates dust");
@@ -1179,12 +1179,12 @@ internal static void VerifySamusAtmosphericEffects()
 
     // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
-    runner.HorizontalSpeed.SpeedBoostCounter = 0x0301;
+    runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
     runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(1);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
-    AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(0x0400), "seed stored shine sound gate");
+    AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine sound gate");
     runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");

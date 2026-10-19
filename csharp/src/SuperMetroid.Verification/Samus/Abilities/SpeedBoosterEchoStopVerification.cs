@@ -30,7 +30,7 @@ internal static class SpeedBoosterEchoStopVerification
         samus.Presentation.InitializeAnimation();
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
-        speed.SpeedBoostCounter = 0x0301;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
         ushort animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
             0, ref animation, out _, () => queue.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6));
@@ -88,13 +88,13 @@ internal static class SpeedBoosterEchoStopVerification
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
-        speed.SpeedBoostCounter = 0x0301;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
         ushort animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
             0, ref animation, out _);
         AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");
         AssertEqual((ushort)1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
-        speed.SpeedBoostCounter = 0;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0);
         samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual((ushort)1, speed.EchoSoundFlag, "negative charging latch skips echo cleanup in native order");
@@ -113,7 +113,7 @@ internal static class SpeedBoosterEchoStopVerification
 
         samus.Position = samus.Position.WithWhole(new(24, 24));
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
-        speed.SpeedBoostCounter = 0x0401;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401);
         speed.EchoSoundFlag = 1;
         speed.EchoSoundRequested = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();

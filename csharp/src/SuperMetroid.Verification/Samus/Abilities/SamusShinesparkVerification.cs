@@ -79,9 +79,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
     };
-    AssertTrue(!shine.Shinespark.TryStoreFromSpeedBooster(0x03ff),
+    AssertTrue(!shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x03ff)),
         "stage three cannot store shine");
-    AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(0x0400),
+    AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)),
         "stage four stores shine");
     AssertEqual(180, shine.Shinespark.ShineTimer.RawValue, "stored shine begins at 180");
     AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
@@ -114,7 +114,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(30, shine.Shinespark.StartStopTimer.RawValue, "windup timer is 30");
     AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed.Whole,
         "windup seeds exact 8.0000 extra speed");
-    AssertEqual(0x0400, shine.HorizontalSpeed.SpeedBoostCounter,
+    AssertEqual(0x0400, shine.HorizontalSpeed.SpeedBoostCounter.RawValue,
         "windup republishes stage four");
 
     const int width = 24;
@@ -163,7 +163,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         directional.PoseMetadata.RefreshCollisionRadii();
         directional.Presentation.InitializeAnimation();
-        directional.Shinespark.TryStoreFromSpeedBooster(0x0400);
+        directional.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400));
         directional.Shinespark.BeginWindup(directional);
         directional.Shinespark.BeginDirectionalLaunch(directional, targetPose);
         AssertTrue(directional.Shinespark.ConsumeLaunchSoundRequest(),
@@ -206,7 +206,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     };
     externallyReversedSpark.PoseMetadata.RefreshCollisionRadii();
     externallyReversedSpark.Presentation.InitializeAnimation();
-    externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(0x0400);
+    externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400));
     externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         externallyReversedSpark,
@@ -255,7 +255,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         invincible.PoseMetadata.RefreshCollisionRadii();
         invincible.Presentation.InitializeAnimation();
-        invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
+        invincible.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter));
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
         invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { NmiFrameCounter = 0, PlayerInvincibilityEnabled = true });
@@ -278,7 +278,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     };
     horizontal.PoseMetadata.RefreshCollisionRadii();
     horizontal.Presentation.InitializeAnimation();
-    horizontal.Shinespark.TryStoreFromSpeedBooster(0x0400);
+    horizontal.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400));
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
         horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
@@ -424,7 +424,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         fixture.PoseMetadata.RefreshCollisionRadii();
         fixture.Presentation.InitializeAnimation();
-        fixture.Shinespark.TryStoreFromSpeedBooster(0x0400);
+        fixture.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400));
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(
             fixture, SamusPoseId.ShinesparkHorizontalRightPose);
@@ -483,7 +483,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
+        samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter));
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
         samus.Kinematics.YAcceleration = default;

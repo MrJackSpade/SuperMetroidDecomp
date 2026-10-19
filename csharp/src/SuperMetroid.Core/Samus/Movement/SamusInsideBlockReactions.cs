@@ -70,7 +70,7 @@ public static class SamusInsideBlockReactions
                     // but preserves the lower fractional bits rather than zeroing base X.
                     var speed = samus.HorizontalSpeed;
                     speed.HasRunningMomentum = false;
-                    speed.SpeedBoostCounter = 0;
+                    speed.SpeedBoostCounter = default;
                     speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = default;
                     speed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);

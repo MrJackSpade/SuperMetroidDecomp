@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
@@ -20,7 +21,7 @@ internal static class KnockbackShinesparkLaunchVerification
         var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) };
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400), "a shine is stored");
+        AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "a shine is stored");
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.RelinquishMovementHandler();
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");

@@ -81,7 +81,7 @@ internal static class FullBodyPalettePointerListsVerification
             {
                 var speed = new SamusHorizontalSpeedState
                 {
-                    SpeedBoostCounter = 0x0400,
+                    SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400),
                     SpecialPaletteTimer = NativeCountdown.Start(1),
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
@@ -95,7 +95,7 @@ internal static class FullBodyPalettePointerListsVerification
             }
 
             var stored = new SamusState { EquippedItems = items };
-            AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(0x0400), "seed stored shine");
+            AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
                 var actual = new SnesCgram();
@@ -110,7 +110,7 @@ internal static class FullBodyPalettePointerListsVerification
             }
 
             var active = new SamusState { EquippedItems = items };
-            AssertTrue(active.Shinespark.TryStoreFromSpeedBooster(0x0400), "seed active shine");
+            AssertTrue(active.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed active shine");
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
             {
@@ -143,7 +143,7 @@ internal static class FullBodyPalettePointerListsVerification
 
         var adjacentBoost = new SamusHorizontalSpeedState
         {
-            SpeedBoostCounter = 0x0400,
+            SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400),
             SpecialPaletteTimer = NativeCountdown.Start(1),
             SpecialPaletteFrame = 8,
         };

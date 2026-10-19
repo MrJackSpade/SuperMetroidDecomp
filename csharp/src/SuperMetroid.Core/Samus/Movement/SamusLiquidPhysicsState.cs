@@ -324,7 +324,7 @@ public sealed class SamusLiquidPhysicsState
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
             IsBelowSurface(LavaAcidYPosition, bottom))
         {
-            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != 0)
+            if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
                 // Lava alone executes `$90:81C9-$81D5` before the Gravity-Suit branch.
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
@@ -752,7 +752,7 @@ public sealed class SamusLiquidPhysicsState
         if (!CinematicFunctionActive &&
             !BossPresent &&
             samus.InputSnapshot.SharedShineTimer == 0 &&
-            (samus.HorizontalSpeed.SpeedBoostCounter & 1 << 10) == 0)
+            !samus.HorizontalSpeed.SpeedBoostCounter.HasActiveStageBit)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), maximumQueued: 6);
         }

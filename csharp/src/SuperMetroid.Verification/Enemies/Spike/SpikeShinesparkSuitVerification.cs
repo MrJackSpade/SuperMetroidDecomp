@@ -187,8 +187,8 @@ internal static class SpikeShinesparkSuitVerification
             SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);
         samus.PoseHistory.LastDifferentPose = 0;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
-        AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(
-            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter),
+        AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(
+            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)),
             "spike-suit fixture accepts stored Shinespark");
 
         int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);

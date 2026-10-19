@@ -147,7 +147,7 @@ internal static void VerifySamusHorizontalSpeed()
             controllerInput: SnesButton.B,
             speedBoosterEquipped: false));
     AssertTrue(speed.HasRunningMomentum, "ordinary Dash establishes native momentum flag");
-    AssertEqual(0, speed.SpeedBoostCounter, "ordinary Dash leaves booster stage zero");
+    AssertEqual(0, speed.SpeedBoostCounter.RawValue, "ordinary Dash leaves booster stage zero");
     AssertEqual(2, speed.ExtraRunSpeed.Whole, "ordinary Dash whole-speed cap");
     AssertEqual(0, speed.ExtraRunSpeed.Fraction, "ordinary Dash fractional-speed cap");
     speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, speedBoosterEquipped: false);
@@ -191,7 +191,7 @@ internal static void VerifySamusHorizontalSpeed()
         controllerInput: SnesButton.B,
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
-    AssertEqual(1, booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
+    AssertEqual(1, booster.SpeedBoostCounter.RawValue, "Speed Booster seeds native stage-zero countdown");
     AssertEqual(1, booster.SpecialPaletteTimer.RawValue, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
@@ -222,7 +222,7 @@ internal static void VerifySamusHorizontalSpeed()
             AssertEqual(2, boostTimer, "stage-one delay matches native cadence");
         }
     }
-    AssertEqual(0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
+    AssertEqual(0x0402, booster.SpeedBoostCounter.RawValue, "Speed Booster reaches stage four countdown");
     AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
     AssertTrue(booster.ConsumeEchoSoundRequest(),
         "frontend can consume the speed-echo publication exactly once");
@@ -241,7 +241,7 @@ internal static void VerifySamusHorizontalSpeed()
         {
             HasRunningMomentum = true,
             ExtraRunSpeed = new SnesUnsignedSixteenSixteen(7, 0),
-            SpeedBoostCounter = activeStage ? (ushort)0x0401 : (ushort)0x0301,
+            SpeedBoostCounter = new SamusSpeedBoostCounter(activeStage ? (ushort)0x0401 : (ushort)0x0301),
             ContactDamageIndex = SamusContactDamageIndex.None,
         };
         retainedBoost.HandleExtraRunSpeed(movement, 0, true, liquidImpeded: liquid);
@@ -283,7 +283,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
-    var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
+    var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0401) };
     var submergedBoostCgram = new SnesCgram();
     submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
     AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags)0x2000, BottomBoundarySubmerged = true }),

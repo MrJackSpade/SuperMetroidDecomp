@@ -1601,7 +1601,7 @@ level, targetPose, nmiFrameCounter, plms, out int adjustment);
             // posture movement can cancel running momentum. A stage-four crouch therefore
             // banks 180 palette-handler ticks even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
-            if (_samus.Shinespark.TryStoreFromSpeedBooster(checked((ushort)_samus.HorizontalSpeed.SpeedBoostCounter)))
+            if (_samus.Shinespark.TryStoreFromSpeedBooster(_samus.HorizontalSpeed.SpeedBoostCounter))
             {
                 // The successful native store replaces the shared palette handler
                 // and timer even if an interrupted Flash was keeping them alive.

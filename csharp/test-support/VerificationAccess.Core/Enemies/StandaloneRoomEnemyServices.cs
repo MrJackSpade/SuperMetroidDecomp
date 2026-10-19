@@ -19,6 +19,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <summary>The installed target of words written over BG1, or null when the host provides none.</summary>
     private readonly Action<int, ushort[]>? bg1Overlay;
 
+    /// <summary>The installed target of words written over BG2, or null when the host provides none.</summary>
+    private readonly Action<int, ushort[]>? bg2Overlay;
+
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
     public StandaloneRoomEnemyServices(Func<int> generate) => random = new RandomNumbers(Ensure.NotNull(generate));
 
@@ -55,6 +58,13 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <inheritdoc />
     public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
         (bg1Overlay ?? throw Unavailable.Missing("write words over BG1"))(firstWord, words.ToArray());
+
+    /// <summary>Installs the target of words written over BG2, which the Zebes escape typewriter writes.</summary>
+    public Action<int, ushort[]> DrawBg2OverlayWords { init => bg2Overlay = Ensure.NotNull(value); }
+
+    /// <inheritdoc />
+    public void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
+        (bg2Overlay ?? throw Unavailable.Missing("write words over BG2"))(firstWord, words.ToArray());
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
     private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers

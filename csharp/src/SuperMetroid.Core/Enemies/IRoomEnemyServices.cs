@@ -27,4 +27,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <param name="firstWord">The first BG1 tilemap word written.</param>
     /// <param name="words">The tilemap words, in tilemap order.</param>
     void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words);
+
+    /// <summary>Writes tilemap words over the room's BG2 from tilemap word <paramref name="firstWord"/> (#1348).</summary>
+    void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words);
 }

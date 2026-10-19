@@ -39,6 +39,9 @@ internal sealed record RoomScope
     /// <summary>Words the room's actors wrote over its BG1 tilemap (the Ceres escape warning), or null (#1346).</summary>
     public RoomTilemapOverlay? Bg1Overlay { get; private set; }
 
+    /// <summary>Words the room's actors wrote over BG2, or null (#1348).</summary>
+    public RoomTilemapOverlay? Bg2Overlay { get; private set; }
+
     /// <summary>The bank-$88 scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
@@ -104,6 +107,10 @@ internal sealed record RoomScope
     /// <param name="words">The tilemap words, in tilemap order.</param>
     internal void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
         Bg1Overlay = (Bg1Overlay ?? RoomTilemapOverlay.Empty).With(firstWord, words);
+
+    /// <summary>Writes <paramref name="words"/> over BG2 from tilemap word <paramref name="firstWord"/> (#1348).</summary>
+    internal void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
+        Bg2Overlay = (Bg2Overlay ?? RoomTilemapOverlay.Empty).With(firstWord, words);
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

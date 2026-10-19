@@ -21,19 +21,19 @@ internal static class MotherBrainDeathHandoffVerification
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes, textAddress,
             [new EscapeTypewriterLine(0x4800, "A !")]);
         var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
-        AssertTrue(!text.Step(vram), "typewriter first glyph is not completion");
+        AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
         AssertEqual(EscapeTypewriterRomData.ZebesTileBase, vram.ReadWord(0x4800), "text glyph reaches actual VRAM");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
-        text.Step(vram);
+        text.StepInto(vram);
         AssertEqual((ushort)0x4802, text.Destination, "space advances cursor without a tile");
-        text.Step(vram);
-        text.Step(vram);
+        text.StepInto(vram);
+        text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
-        text.Step(vram);
+        text.StepInto(vram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 26), vram.ReadWord(0x4802), "exclamation uses native remap");
         AssertTrue(text.ClickRequested, "second visible glyph clicks despite intervening space");
-        text.Step(vram); text.Step(vram);
-        AssertTrue(text.Step(vram), "typewriter completes only at terminator after delay");
+        text.StepInto(vram); text.StepInto(vram);
+        AssertTrue(text.StepInto(vram), "typewriter completes only at terminator after delay");
 
         ushort[] foreground = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(foreground, new byte[256], new ushort[256]), new byte[8192]);

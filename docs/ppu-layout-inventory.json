@@ -1759,30 +1759,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Fx.RoomFxVramLayout",
-      "name": "Layer3Area",
-      "region": "Vram",
-      "offset": "$5880",
-      "count": 1920,
-      "encoding": "BG3 tilemap words",
-      "aliasOf": "GameplayVramLayout.HudTilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Fx.RoomFxVramLayout",
-      "name": "Layer3Tilemap",
-      "region": "Vram",
-      "offset": "$5BE0",
-      "count": 1056,
-      "encoding": "BG3 tilemap words",
-      "aliasOf": "RoomFxVramLayout.Layer3Area",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVram.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Gameplay.NewGamePaletteLayout",
       "name": "CeresElevatorConcealer",
       "region": "Cgram",

@@ -57,7 +57,7 @@ internal static class SoftwareMode7GameplayRenderer
         {
             // BG3 writes every HUD pixel (opaque color zero), so it renders straight into the frame.
             int hudRows = layer.HudScanlines / SnesPpuLayout.BackgroundTileSizePixels;
-            SnesBgTilemapRenderer.Render2Bpp(output.AsSpan(0, width * hudRows * SnesPpuLayout.BackgroundTileSizePixels), memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.HudTilemapWord, CharacterBaseWord = layer.HudCharacterWord }, rowCount: hudRows, transparentColorZero: false);
+            SnesBgTilemapRenderer.Render2Bpp(output.AsSpan(0, width * hudRows * SnesPpuLayout.BackgroundTileSizePixels), memory.Vram, memory.Cgram, layer.Hud, layer.HudCharacterWord, hudRows);
         }
         return output;
     }

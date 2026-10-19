@@ -53,9 +53,9 @@ internal static class RoomFxRecordDefinitionsVerification
         var nativeFx = new RoomLayer3FxState(nativeFxSession);
         var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         var compiledFx = new RoomLayer3FxState(compiledFxSession);
-        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeVram, nativeCgram, room.State.Fx,
+        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledVram, compiledCgram, room.State.Fx,
+        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledCgram, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");

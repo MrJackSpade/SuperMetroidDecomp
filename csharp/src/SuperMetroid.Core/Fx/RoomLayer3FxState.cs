@@ -41,6 +41,22 @@ public sealed class RoomLayer3FxState
     /// <summary>Current host-owned BG3 effect tilemaps; never stored in debugger state.</summary>
     public RoomFxLayer3TilemapCatalog? Layer3Tilemaps => _session.Layer3Tilemaps;
 
+    /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
+    public RoomFxType? EffectPageType { get; private set; }
+
+    /// <summary>The words of the page the room's BG3 plane shows (#1348); empty when it shows none.</summary>
+    public ushort[] EffectPageWords()
+    {
+        if (EffectPageType is not { } type)
+            return [];
+        ReadOnlySpan<byte> page = (Layer3Tilemaps ?? throw new InvalidOperationException(
+            "A room effect's page requires installed layer-3 tilemaps.")).Resolve(type).Span;
+        var words = new ushort[page.Length / sizeof(ushort)];
+        for (int word = 0; word < words.Length; word++)
+            words[word] = SnesLittleEndian.Word(page[word * 2], page[word * 2 + 1]);
+        return words;
+    }
+
     /// <summary>Current host-owned room-FX blend colors; never stored in debugger state.</summary>
     public RoomFxPaletteBlendCatalog? PaletteBlendColors => _session.PaletteBlendColors;
     /// <summary>
@@ -165,7 +181,6 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Builds one room's layer-3 FX from the current door's native FX record.</summary>
     /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
-    /// <param name="vram">VRAM receiving the cleared and selected BG3 tilemap.</param>
     /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
@@ -173,45 +188,31 @@ public sealed class RoomLayer3FxState
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomLayer3FxState ForRoom(
         RoomFxSession session,
-        SnesVram vram,
         SnesCgram cgram,
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        ForRecord(session, vram, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForRecord(session, cgram, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
     /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
-    /// <param name="vram">VRAM receiving the cleared and selected BG3 tilemap.</param>
     /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
     /// <param name="source">The FX record's source.</param>
-    internal static RoomLayer3FxState ForRecord(RoomFxSession session, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    internal static RoomLayer3FxState ForRecord(RoomFxSession session, SnesCgram cgram, RoomFxLoadSource source)
     {
         var fx = new RoomLayer3FxState(session);
-        fx.SelectRecord(vram, cgram, source);
+        fx.SelectRecord(cgram, source);
         return fx;
     }
 
     /// <summary>
-    /// Clears the BG3 tilemap, selects the door's FX record, and initializes the
-    /// liquid and palette state shared by room effects and PLMs.
+    /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
+    /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="Layer3Plane"/>).
     /// </summary>
-    private void SelectRecord(SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    private void SelectRecord(SnesCgram cgram, RoomFxLoadSource source)
     {
-        Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-
-        // Both native room-load paths clear VRAM $5880-$5FFF to $184E immediately before
-        // copying the selected bank-$8A effect tilemap at $5BE0. This is not optional
-        // cleanup for rooms without FX: liquids deliberately expose the cleared first page
-        // above their surface. Retaining zeros or a previous room's HUD/effect words makes
-        // the standard orange `1` glyph (and sometimes a displaced HUD clone) scroll with
-        // the atmosphere.
-        VramRegion layer3Area = new RoomFxVram(vram).Layer3Area;
-        var clearedTilemap = new ushort[layer3Area.WordCount];
-        Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
-        layer3Area.Write(clearedTilemap);
 
         if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
             earthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
@@ -239,9 +240,8 @@ public sealed class RoomLayer3FxState
         if (!IsRenderable)
             return;
 
-        new RoomFxVram(vram).Layer3Tilemap.Load((Layer3Tilemaps ?? throw new InvalidOperationException(
-                "Renderable room FX requires installed layer-3 tilemaps."))
-            .Resolve(Type).Span);
+        // The room shows this effect's page under the HUD until the next room.
+        EffectPageType = Type;
 
         if (RoomFxTypes.UsesWater(Type))
         {

@@ -72,25 +72,27 @@ public sealed class EscapeTypewriterState
     /// <summary>Removes host content while retaining the saved program identity and cursor.</summary>
     public void UnbindProgram() => installedProgram = null;
 
-    /// <summary>Advances the warning by one gameplay call, writing at most one glyph or consuming one space when the delay has expired.</summary>
-    /// <param name="vram">VRAM receiving each non-space character's single tilemap word.</param>
+    /// <summary>Advances the warning by one gameplay call, typing at most one glyph or consuming one space when the delay has expired.</summary>
+    /// <param name="glyph">Receives the glyph typed this call, for the owner to write over its background; null otherwise.</param>
     /// <returns>True once all lines have been consumed; false during countdowns and character processing, including the final character's call.</returns>
     /// <remarks>The timer reload uses the previous delay before first-start initialization, so the first two character calls are consecutive; later characters skip two intervening calls.</remarks>
     /// <exception cref="InvalidOperationException">An eligible call requires text, but no host program is bound after construction or restoration.</exception>
-    public bool Step(SnesVram vram)
+    public bool Step(out EscapeTypewriterGlyph? glyph)
     {
         ClickRequested = false;
+        glyph = null;
         if (Completed) return true;
         if (!DelayTimer.IsZero) { DelayTimer = DelayTimer.Decrement().Remaining; return false; }
         EscapeTypewriterProgram program = installedProgram ??
             throw new InvalidOperationException(
                 $"Escape typewriter program {ProgramId} was restored without host content rebind.");
-        return StepInstalled(program, vram);
+        return StepInstalled(program, out glyph);
     }
 
     /// <summary>Advances line and character cursors after the delay expires, consuming at most one character.</summary>
-    private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
+    private bool StepInstalled(EscapeTypewriterProgram program, out EscapeTypewriterGlyph? glyph)
     {
+        glyph = null;
         DelayTimer = NativeCountdown.Start(Delay);
         if (!ProgramStarted)
         {
@@ -110,7 +112,7 @@ public sealed class EscapeTypewriterState
             if (ProgramCharacterIndex == 0)
                 Destination = line.Destination;
             byte character = (byte)line.Text[ProgramCharacterIndex++];
-            WriteCharacter(character, vram);
+            glyph = TypeCharacter(character);
             return false;
         }
         return Completed = true;
@@ -121,19 +123,19 @@ public sealed class EscapeTypewriterState
     internal static bool LineFitsInVram(int destination, int length) =>
         destination >= 0 && destination + length <= SnesVram.WordCount;
 
-    /// <summary>Writes a non-space glyph, requests a click every second glyph, and advances the tilemap destination.</summary>
-    [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
-    private void WriteCharacter(byte character, SnesVram vram)
+    /// <summary>Types a non-space glyph, requests a click every second glyph, and advances the tilemap destination.</summary>
+    private EscapeTypewriterGlyph? TypeCharacter(byte character)
     {
+        EscapeTypewriterGlyph? glyph = null;
         if (character != (byte)' ')
         {
             if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
-            ushort tile = unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter));
-            vram.ExecuteWordTransfer([tile], checked((ushort)Destination), 1);
+            glyph = new(Destination, new SnesBgTilemapWord(unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter))));
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
         Destination = (Destination + 1) % DestinationPeriod;
+        return glyph;
     }
 
 }

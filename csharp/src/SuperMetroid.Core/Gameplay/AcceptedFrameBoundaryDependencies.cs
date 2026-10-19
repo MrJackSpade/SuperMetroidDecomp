@@ -8,6 +8,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -16,6 +17,9 @@ internal sealed record AcceptedFrameBoundaryDependencies
 {
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
+
+    /// <summary>The HUD whose rows the BG3 plane shows.</summary>
+    public required HudState Hud { get; init; }
 
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }

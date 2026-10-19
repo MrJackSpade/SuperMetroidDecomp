@@ -1,19 +1,27 @@
 // Literal X-ray Mode-1 composition. Header/scanline packing is documented by
 // DispatchXrayGameplay; no CPU-colored pixels or priority raster are uploaded.
-// Word addresses shared with SnesPpuLayout's gameplay tilemap definitions.
-static const uint XrayGameplayHudMapWord = 22528;
 // D3D11GameplaySubscreenKind header contract.
 static const uint SubscreenCapturedBg3 = 1;
 static const uint SubscreenGameplayBg2 = 2;
 static const uint SubscreenGameplayBg2AndCapturedBg3 = 3;
-// A room source (RoomTile) or the VRAM tilemap at `map`; a room position the room does not cover is transparent.
+// A room source (RoomTile), the BG3 plane from row `map`, or the VRAM tilemap at `map`; a room position the room
+// does not cover is transparent. Words written over BG2 cover it when roomSource carries RoomSourceBg2Overlay.
 uint2 XrayBackground(uint roomSource, uint map, uint chars, uint2 size, uint2 position, bool fourBit, bool opaqueZero)
 {
     uint entry = 0;
     uint2 within = uint2(0, 0);
     bool shown = true;
-    if (roomSource != 0)
-        shown = RoomTile(roomSource, position, entry, within);
+    uint source = roomSource & 255;
+    uint written = 0;
+    if ((roomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(position & 65535, size, written))
+    {
+        entry = written;
+        within = position & 7;
+    }
+    else if (source == RoomSourceBg3)
+        entry = Bg3Word(map, size.y, position & 65535, within);
+    else if (source != 0)
+        shown = RoomTile(source, position, entry, within);
     else
     {
         position &= size * 8 - 1;
@@ -43,7 +51,7 @@ uint XrayGameplay(uint2 screen)
     uint winner = Palette(0);
     if (screen.y < 32)
     {
-        uint2 hud = XrayBackground(0, XrayGameplayHudMapWord, (uint)MatrixB, uint2(32,32), screen, false, true);
+        uint2 hud = XrayBackground(RoomSourceBg3, 0, (uint)MatrixB, uint2(32,32), screen, false, true);
         winner = hud.x;
     }
     else
@@ -79,7 +87,7 @@ uint XrayGameplay(uint2 screen)
             sub = XrayBackground(RoomSource, (uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false).x;
         if (OffsetX != 0 && (Reserved3 == SubscreenCapturedBg3 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(0, (uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
+            uint2 bg3 = XrayBackground(RoomSourceBg3, (uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
                 screen + uint2(scan.w & 65535, scan.w >> 16), false, false);
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

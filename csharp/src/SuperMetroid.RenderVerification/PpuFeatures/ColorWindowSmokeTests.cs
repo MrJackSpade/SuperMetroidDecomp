@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Compares Direct3D and software output for color windows, subscreen math, and message masks.</summary>
 internal static class ColorWindowSmokeTests
@@ -16,6 +17,7 @@ internal static class ColorWindowSmokeTests
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(vram, palette, []);
+        Layer3Plane bg3 = Layer3PlaneFixtures.FromVram(vram);
         int count = 0;
         for (int sample = 0; sample < 64; sample++)
         {
@@ -40,7 +42,7 @@ internal static class ColorWindowSmokeTests
             var scrolls = new Position16<BgPlanePixels>[224];
             for (int y = 0; y < scrolls.Length; y++)
                 scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
-            var math = new Bg2BppColorMathRenderLayer(0x7ffe, 0x7ff8, height, first, operation, scrolls);
+            var math = new Bg2BppColorMathRenderLayer(bg3, height == 32 ? 32 : 0, 0x7ff8, height, first, operation, scrolls);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null), math }, 3, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),

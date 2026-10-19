@@ -4,13 +4,15 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The frame's room backgrounds packed for Tiles.hlsl at register t3 (#1346): a header of three plane records (BG1, BG2
-/// and a door's source room), the door window, the BG1 overlay offset and the sky rows' offset; then each plane's level
-/// words, each distinct set of block definitions as tilemap words, the overlay's words and the sky's rows (#1347). The GPU resolves every room tile from these, so
+/// and a door's source room), the door window, the BG1 overlay, sky, BG3 and BG2 overlay offsets; then each plane's level
+/// words, each distinct set of block definitions as tilemap words, the overlay's words, the sky's rows (#1347), the
+/// BG3 plane and the BG2 overlay's words (#1348). The GPU resolves every room tile from these, so
 /// nothing is streamed into VRAM. Repacked only when the published planes, offsets, door or overlay change.
 /// </summary>
 internal sealed class D3D11RoomLevelBuffer : IDisposable
@@ -19,14 +21,19 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int RecordWords = 6;
     /// <summary>Plane slots: BG1, BG2 and a door's source room.</summary>
     private const int PlaneSlots = 3;
-    /// <summary>Header words: the plane records, the door window origin, the overlay offset and the sky rows' offset.</summary>
-    private const int HeaderWords = PlaneSlots * RecordWords + 3;
+    /// <summary>Header words: the plane records, the door window origin, and the offsets of the BG1 overlay, the sky rows,
+    /// the BG3 plane and the BG2 overlay.</summary>
+    private const int HeaderWords = PlaneSlots * RecordWords + 5;
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>Header word of the overlay's first word, or zero without an overlay.</summary>
     private const int OverlayWord = DoorWindowWord + 1;
     /// <summary>Header word of the sky's first row word, or zero without a sky (#1347).</summary>
     private const int SkyWord = OverlayWord + 1;
+    /// <summary>Header word of the BG3 plane's first word, or zero without one (#1348).</summary>
+    private const int Bg3Word = SkyWord + 1;
+    /// <summary>Header word of the BG2 overlay's first word, or zero without one (#1348).</summary>
+    private const int Bg2OverlayWord = Bg3Word + 1;
     /// <summary>A sky row word that selects no page: the row shows nothing.</summary>
     private const uint SkyRowHidden = uint.MaxValue;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
@@ -35,7 +42,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>The device the buffer lives on.</summary>
     private readonly ID3D11Device device;
     /// <summary>What the last <see cref="Pack"/> packed, so an unchanged frame skips the upload.</summary>
-    private (RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomTilemapOverlay? Overlay, SkyTilemap? Sky)? packed;
+    private (RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomTilemapOverlay? Overlay, SkyTilemap? Sky,
+        Layer3Plane? Bg3, RoomTilemapOverlay? Bg2Overlay)? packed;
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -57,12 +65,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <param name="door">A door's source room screen, or null.</param>
     /// <param name="overlay">Words written over BG1, or null.</param>
     /// <param name="sky">The scrolling sky's rows on BG2, or null.</param>
+    /// <param name="bg3">The HUD and room effect plane on BG3, or null.</param>
+    /// <param name="bg2Overlay">Words written over BG2, or null.</param>
     internal bool Pack(RoomBackgroundLayer? bg1, RoomBackgroundLayer? bg2, RoomDoorBackground? door, RoomTilemapOverlay? overlay,
-        SkyTilemap? sky)
+        SkyTilemap? sky, Layer3Plane? bg3, RoomTilemapOverlay? bg2Overlay)
     {
-        var frame = (bg1, bg2, door, overlay, sky);
-        // No dispatch samples t3 without a room plane or sky, so such a scene keeps the last packed room unread.
-        if (packed == frame || (bg1 is null && bg2 is null && sky is null))
+        var frame = (bg1, bg2, door, overlay, sky, bg3, bg2Overlay);
+        // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread.
+        if (packed == frame || (bg1 is null && bg2 is null && sky is null && bg3 is null))
             return false;
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         var definitionWords = new Dictionary<ImmutableArray<byte>, int>();
@@ -84,6 +94,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int skyOffset = sky is null ? 0 : words;
         if (sky is not null)
             words += SkyTilemap.Rows * SkyTilemap.Columns;
+        int bg3Offset = bg3 is null ? 0 : words;
+        if (bg3 is not null)
+            words += Layer3Plane.Rows * Layer3Plane.Columns;
+        int bg2OverlayOffset = bg2Overlay is null ? 0 : words;
+        if (bg2Overlay is not null)
+            words += RoomTilemapOverlay.WordCount;
         if (words > Upload.Length)
         {
             Dispose();
@@ -121,6 +137,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (sky is not null)
             for (int word = 0; word < SkyTilemap.Rows * SkyTilemap.Columns; word++)
                 upload[skyOffset + word] = sky.RowShown(word / SkyTilemap.Columns) ? sky.Words[word] : SkyRowHidden;
+        upload[Bg3Word] = (uint)bg3Offset;
+        if (bg3 is not null)
+            for (int word = 0; word < Layer3Plane.Rows * Layer3Plane.Columns; word++)
+                upload[bg3Offset + word] = bg3.Words[word];
+        upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
+        if (bg2Overlay is not null)
+            for (int word = 0; word < RoomTilemapOverlay.WordCount; word++)
+                upload[bg2OverlayOffset + word] = unchecked((uint)bg2Overlay.Words[word]);
         packed = frame;
         return true;
     }

@@ -140,6 +140,10 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public void DrawBg1Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
         Loaded("write over the room's BG1").DrawBg1Overlay(firstWord, words);
 
+    /// <summary>Writes words over the loaded room's BG2.</summary>
+    public void DrawBg2Overlay(int firstWord, ReadOnlySpan<ushort> words) =>
+        Loaded("write over the room's BG2").DrawBg2Overlay(firstWord, words);
+
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(PlmHeaderId header) =>
         Loaded("query the active room PLM population").Plms.HasActiveHeader(header);

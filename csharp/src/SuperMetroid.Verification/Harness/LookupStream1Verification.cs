@@ -2555,7 +2555,7 @@ internal static class LookupStream1Verification
                         break;
                     }
                 }
-                AssertEqual(done, actual.Step(actualVram), "escape text native completion");
+                AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
                 AssertEqual(destination, actual.Destination, "escape text native destination");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
                 AssertEqual(timer, actual.DelayTimer.RawValue, "escape text native countdown");

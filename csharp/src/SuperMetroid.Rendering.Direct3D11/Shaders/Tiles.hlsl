@@ -26,9 +26,11 @@ StructuredBuffer<uint> Memory : register(t0);
 StructuredBuffer<uint> BgLayers : register(t2);
 // Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay.
 StructuredBuffer<uint> RoomLevels : register(t3);
-// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, or the sky's rows.
-static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3;
+// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows, or
+// the BG3 plane. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
+static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -103,6 +105,20 @@ bool SkyTile(uint2 scrolled, out uint entry, out uint2 within)
     entry = shown ? word : 0;
     within = scrolled & 7;
     return shown;
+}
+// The BG3 plane (Layer3Plane): 32 by 64 words. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
+uint Bg3Word(uint firstRow, uint rows, uint2 scrolled, out uint2 within)
+{
+    within = scrolled & 7;
+    return RoomLevels[RoomLevels[RoomBg3Word] + (firstRow + (scrolled.y >> 3) % rows) * 32 + ((scrolled.x >> 3) & 31)];
+}
+// A word written over BG2 at the tilemap word a `size` layout places the scrolled position (RoomTilemapOverlay).
+bool Bg2OverlayWord(uint2 scrolled, uint2 size, out uint entry)
+{
+    uint2 tile = (scrolled & (size * 8 - 1)) >> 3;
+    uint index = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024 + (tile.y & 31) * 32 + (tile.x & 31);
+    entry = index < 2048 ? RoomLevels[RoomLevels[RoomBg2OverlayWord] + index] : 4294967295u;
+    return entry != 4294967295u;
 }
 // BG2 from the room's layer-2 plane or the sky's rows, or BG1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over BG1, then the level plane.
@@ -315,9 +331,19 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpBg4 && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
     uint entry = 0;
     uint2 within = uint2(0, 0);
-    if (RoomSource != 0)
+    uint2 scrolled = (sampleScreen + scroll) & 65535;
+    uint source = RoomSource & 255;
+    uint written = 0;
+    if ((RoomSource & RoomSourceBg2Overlay) != 0 && Bg2OverlayWord(scrolled, uint2(MapWidth, MapHeight), written))
     {
-        if (!RoomTile(RoomSource, sampleScreen + scroll, entry, within)) return;
+        entry = written;
+        within = scrolled & 7;
+    }
+    else if (source == RoomSourceBg3)
+        entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
+    else if (source != 0)
+    {
+        if (!RoomTile(source, scrolled, entry, within)) return;
     }
     else
     {

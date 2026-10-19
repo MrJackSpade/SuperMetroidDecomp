@@ -131,6 +131,15 @@ public static class GameplayHudDefinitions
     /// <summary>Five minimap columns fit at the HUD's right edge beside the border cap.</summary>
     private const int MinimapVisibleColumns = 5;
 
+    /// <summary>The stock HUD top row.</summary>
+    internal static ushort[] StockTopRow()
+    {
+        var row = new ushort[Width];
+        for (int column = 0; column < row.Length; column++)
+            row[column] = TopRowWord(column);
+        return row;
+    }
+
     /// <summary>Builds a static top-row word, leaving the HUD blank until the right-aligned minimap border.</summary>
     internal static ushort TopRowWord(int column)
     {

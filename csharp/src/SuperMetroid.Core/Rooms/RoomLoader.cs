@@ -878,11 +878,10 @@ internal sealed class RoomLoader
         LoadGameplaySpritePalettes();
 
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
-        // blend, uploads the common $8A BG3 tilemap, and creates the type-owned HDMA/
+        // blend, chooses the effect page the BG3 plane shows, and creates the type-owned HDMA/
         // animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _vram,
             _cgram,
             room.State.Fx,
             door,

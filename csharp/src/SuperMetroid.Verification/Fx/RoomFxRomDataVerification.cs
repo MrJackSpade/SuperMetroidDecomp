@@ -174,7 +174,7 @@ internal static class RoomFxRomDataVerification
         foreach (RoomFxType type in nonLayer3Types)
         {
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
-            state = LoadSyntheticRoomFx(stateSession, bus, vram, cgram, record);
+            state = LoadSyntheticRoomFx(stateSession, bus, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
                 LayerBlendingConfiguration.NormalGameplay,
@@ -213,11 +213,12 @@ internal static class RoomFxRomDataVerification
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, (byte)layerBlend);
 
-        RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, vram, cgram, record);
-        Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, vram, cgram, session, state, record, type));
+        RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
+        Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));
         AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
-            vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
-            $"{type} room load clears the first gameplay BG3 FX word");
+            Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords())
+                .WordAt(Layer3Plane.HudRows, 0).Raw,
+            $"{type} room shows the cleared word in the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             const ushort surfaceY = 100;
@@ -226,7 +227,7 @@ internal static class RoomFxRomDataVerification
                     ? (byte)3
                     : (byte)RoomFxRomDataLavaAcidConstants.VerticalBg2WaveOption);
             SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
-            state = LoadSyntheticRoomFx(session, bus, vram, cgram, record);
+            state = LoadSyntheticRoomFx(session, bus, cgram, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
@@ -255,7 +256,7 @@ internal static class RoomFxRomDataVerification
             // and applies the cartridge layer-three plane below it.
             vram.ExecuteWordTransfer(
                 Enumerable.Repeat((ushort)1, 33 * 32).ToArray(),
-                RoomFxRomData.Layer3.TilemapDestinationWord,
+                RoomFxRomDataLayer3Constants.TilemapDestinationWord,
                 wordIncrement: 1);
             var character = new byte[16];
             for (int row = 0; row < 8; row++)
@@ -271,11 +272,11 @@ internal static class RoomFxRomDataVerification
             // indexing from $5800 sampled the first page and moved it with the effect.
             vram.ExecuteWordTransfer(
                 Enumerable.Repeat((ushort)1, SnesPpuLayout.TilemapPageWordCount).ToArray(),
-                RoomFxRomData.Layer3.LiquidTilemapBaseWord,
+                RoomFxRomDataLayer3Constants.LiquidTilemapBaseWord,
                 wordIncrement: 1);
             vram.ExecuteWordTransfer(
                 Enumerable.Repeat((ushort)2, SnesPpuLayout.TilemapPageWordCount).ToArray(),
-                RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord,
+                RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapBaseWord,
                 wordIncrement: 1);
             var redDecoyCharacter = new byte[16];
             var blueEffectCharacter = new byte[16];
@@ -398,8 +399,8 @@ internal static class RoomFxRomDataVerification
 
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static RoomLayer3FxState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
-        SnesVram vram, SnesCgram cgram, ushort pointer) =>
-        RoomLayer3FxState.ForDefinition(session, vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+        SnesCgram cgram, ushort pointer) =>
+        RoomLayer3FxState.ForDefinition(session, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
     [CpuBusBoundary("exact bus test: decodes the synthetic sixteen-byte bank-$83 room FX record")]

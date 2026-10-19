@@ -210,7 +210,7 @@ internal static class RoomFxPaletteBlendsVerification
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,
         };
-        var state = RoomLayer3FxState.ForDefinition(stateSession, new SnesVram(), cgram, record, randomNumber: 0);
+        var state = RoomLayer3FxState.ForDefinition(stateSession, cgram, record, randomNumber: 0);
         return (state, bus, cgram);
     }
 

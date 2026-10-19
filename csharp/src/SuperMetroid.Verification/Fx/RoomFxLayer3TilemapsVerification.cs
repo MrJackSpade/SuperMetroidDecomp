@@ -47,12 +47,12 @@ internal static class RoomFxLayer3TilemapsVerification
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
-            SnesVram vram = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
+            Layer3Plane plane = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
                 out CartridgeReadGuard guarded);
-            int destination = RoomFxRomData.Layer3.TilemapDestinationWord * 2;
-            for (int index = 0; index < native.Length; index++)
-                AssertEqual(native[index], vram.ReadByte(destination + index),
-                    $"room-FX {type} installed VRAM byte {index}");
+            int first = Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns;
+            for (int index = 0; index < native.Length / sizeof(ushort); index++)
+                AssertEqual(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]), plane.Words[first + index],
+                    $"room-FX {type} installed page word {index} is shown on the BG3 plane");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"room-FX {type} installed load reads no tilemap ROM or pointer table");
         }
@@ -83,13 +83,13 @@ internal static class RoomFxLayer3TilemapsVerification
         AssertTrue(!edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span.SequenceEqual(
             baseline.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span),
             "room-FX BG3 edit changes the selected tilemap words");
-        SnesVram vram = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
+        Layer3Plane plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
             edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
             out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
             edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span[..sizeof(ushort)]);
-        AssertEqual(editedWord, vram.ReadWord(RoomFxRomData.Layer3.TilemapDestinationWord),
-            "edited lava tile cell reaches production BG3 VRAM");
+        AssertEqual(editedWord, plane.Words[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
+            "edited lava tile cell reaches the room's BG3 plane");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited lava page loads without native art or pointer reads");
         AssertThrows<InvalidDataException>(() =>
@@ -102,11 +102,11 @@ internal static class RoomFxLayer3TilemapsVerification
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX BG3 override restores stock content identity");
-        Console.WriteLine("Room-FX BG3 override: edited lava tile reaches VRAM and removal restores stock.");
+        Console.WriteLine("Room-FX BG3 override: edited lava tile reaches the BG3 plane and removal restores stock.");
     }
 
-    /// <summary>Loads one compiled default FX record into constructed VRAM with native tilemap reads forbidden.</summary>
-    private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
+    /// <summary>Loads one compiled default FX record with native tilemap reads forbidden; returns the BG3 plane it shows under a blank HUD.</summary>
+    private static Layer3Plane LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out CartridgeReadGuard guarded)
     {
@@ -119,11 +119,9 @@ internal static class RoomFxLayer3TilemapsVerification
             Layer3Tilemaps = catalog,
             PaletteBlendColors = paletteColors,
         };
-        var state = new RoomLayer3FxState(stateSession);
-        var vram = new SnesVram();
-        state = RoomLayer3FxState.ForDefinition(stateSession, vram, new SnesCgram(), record, randomNumber: 0);
+        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new SnesCgram(), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
-        return vram;
+        return Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], state.EffectPageWords());
     }
 
     /// <summary>Forbids bank-$8A tilemap payloads and the FX tilemap pointer table.</summary>

@@ -225,6 +225,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.MurderBeamVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.OceanSkyVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.ScrollingSkyLayerVerification;
+using static SuperMetroid.Verification.Fx.Layer3PlaneVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomBackgroundsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.OldTourianEscapeShaftWallVerification;
 using static SuperMetroid.Verification.Harness.OperationContractsVerification;
@@ -858,6 +859,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState()),
         new(nameof(VerifyOceanSky), () => VerifyOceanSky()),
         new(nameof(VerifyPublishedSkyBands), () => VerifyPublishedSkyBands()),
+        new(nameof(VerifyPublishedHudRows), () => VerifyPublishedHudRows()),
+        new(nameof(VerifyWaterEffectPlane), () => VerifyWaterEffectPlane()),
+        new(nameof(VerifyTypewriterGlyphs), () => VerifyTypewriterGlyphs()),
         new(nameof(AuditBoostFloor), () => AuditBoostFloor()),
         new(nameof(VerifyEnemyInstructionCodePointerCatalogs), () => VerifyEnemyInstructionCodePointerCatalogs()),
         new(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog()),

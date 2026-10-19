@@ -91,13 +91,13 @@ internal static class InstalledSporesTests
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
-            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), baselineVram, colors, definition, 0);
-            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedVram, editedColors, definition, 0);
+            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), colors, definition, 0);
+            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedColors, definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
                 "A compiled spores record selects incompatible blending.");
-            Require(baselineVram.Bytes.Slice(RoomFxRomData.Layer3.TilemapDestinationWord * 2,
+            Require(baselineVram.Bytes.Slice(RoomFxRomDataLayer3Constants.TilemapDestinationWord * 2,
                 RoomFxLayer3TilemapFormat.PageByteCount).SequenceEqual(stock.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Spores).Span),
                 "Spore tilemap was not loaded at the native destination.");
             int tick = 0;

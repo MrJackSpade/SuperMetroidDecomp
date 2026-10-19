@@ -1831,11 +1831,15 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>
+    [PpuLayoutBoundary("codec: the Ceres escape typewriter program\'s native BG1 tilemap destinations")]
     private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
-        bool completed = installed.Step(_presentation.Vram);
+        bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
+        // The Ceres program types over the room's BG1 (#1348).
+        if (glyph is { } typed)
+            _room.Services.DrawBg1Overlay(typed.Destination - GameplayVramLayout.Bg1TilemapWord, [typed.Tile.Raw]);
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);

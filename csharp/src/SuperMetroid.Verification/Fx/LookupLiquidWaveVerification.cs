@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -35,7 +36,7 @@ internal static class LookupLiquidWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.Bg2Wave, WaterBg3WavePhase: phase,
                 WaterBg2WavePhase: phase, WaterSurfaceScreenY: 100);
-            var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water);
+            var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water, RoomBackgroundsFixtures.BlankBg3());
             for (int y = SnesGameplayFrameRenderer.HudHeight; y < SnesGameplayFrameRenderer.Height; y++)
             {
                 int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;

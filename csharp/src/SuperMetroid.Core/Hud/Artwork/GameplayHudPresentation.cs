@@ -69,19 +69,26 @@ public sealed class GameplayHudPresentation
 
     /// <summary>Gets the SHA-256 identity of the source presentation document.</summary>
     public string ContentIdentity { get; }
+    /// <summary>The HUD's static top row, with any installed edits (#1348).</summary>
+    public ushort[] TopRow()
+    {
+        var row = new ushort[GameplayHudDefinitions.Width];
+        for (int column = 0; column < row.Length; column++)
+            row[column] = topRowOverrides.TryGetValue(column, out ushort edited) ? edited : GameplayHudDefinitions.TopRowWord(column);
+        return row;
+    }
+
     /// <summary>Native-order BG3 top-row bytes supplied at the existing queued DMA boundary.</summary>
     public ReadOnlyMemory<byte> TopRowTransfer
     {
         get
         {
-            // This is the queued DMA output, not a cached stock lookup table.
+            ushort[] row = TopRow();
             byte[] transfer = new byte[GameplayHudDefinitions.TopRowByteCount];
-            for (int column = 0; column < GameplayHudDefinitions.Width; column++)
+            for (int column = 0; column < row.Length; column++)
             {
-                ushort word = topRowOverrides.TryGetValue(column, out ushort edited)
-                    ? edited : GameplayHudDefinitions.TopRowWord(column);
-                transfer[column * 2] = (byte)word;
-                transfer[column * 2 + 1] = SnesLittleEndian.HighByte(word);
+                transfer[column * 2] = (byte)row[column];
+                transfer[column * 2 + 1] = SnesLittleEndian.HighByte(row[column]);
             }
             return transfer;
         }

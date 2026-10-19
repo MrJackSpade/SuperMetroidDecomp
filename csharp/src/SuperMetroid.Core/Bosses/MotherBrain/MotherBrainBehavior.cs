@@ -4041,6 +4041,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             sharedProjectiles);
     }
 
+    /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
+    [PpuLayoutBoundary("codec: the Zebes escape typewriter program's native BG2 tilemap destinations")]
+    private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
+        _room.Services.DrawBg2Overlay(glyph.Destination - GameplayVramLayout.Bg2TilemapWord, [glyph.Tile.Raw]);
+
     /// <summary>Runs one native body-function call through the shared verified sequence.</summary>
     private void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
@@ -4062,7 +4067,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle)
         {
             var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
-            typewriterFinished = text.Step(_presentation.Vram);
+            typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
+            if (glyph is { } typed)
+                WriteZebesTypewriterGlyph(typed);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EscapeTypewriterRomData.ZebesClick);
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer });

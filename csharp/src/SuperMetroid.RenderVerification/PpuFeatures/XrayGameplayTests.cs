@@ -6,6 +6,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks gameplay color math and X-ray source selection against software and D3D11 pixels.</summary>
 internal static class XrayGameplayTests
@@ -39,13 +40,15 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+            Layer3Plane plane = Layer3PlaneFixtures.FromVram(vram);
+            bg1 = bg1 with { Bg3 = plane };
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg2 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop
                 | (half ? SnesColorMathControl.Half : 0) | (subtract ? SnesColorMathControl.Subtract : 0);
-            var bg3 = sub ? new Bg2BppColorMathRenderLayer(0x5C00, 0x1000, 32, 32,
+            var bg3 = sub ? new Bg2BppColorMathRenderLayer(plane, Layer3Plane.Rows / 2, 0x1000, 32, 32,
                 ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[224]) : null;
             var layer = new GameplayColorMathRenderLayer(new(registers, bg1), lines, reveal, new ColorMathRegisters { ColorMath = controls, AddSubscreen = true, FixedRed = 7, FixedGreen = 7, FixedBlue = 7 }, bg3);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 0, 15);
@@ -97,7 +100,7 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(new(1), (8, 8, new(4)), (9, 8, new(4)))), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = 18, FixedGreen = 18, FixedBlue = 18 });
+                var dark = new GameplayColorMathRenderLayer(new(registers, RoomBackgroundsFixtures.Uniform(new(1), (8, 8, new(4)), (9, 8, new(4))) with { Bg3 = Layer3PlaneFixtures.FromVram(vram) }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = 18, FixedGreen = 18, FixedBlue = 18 });
                 var darkScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 0, 15);
                 var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -125,7 +128,8 @@ internal static class XrayGameplayTests
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray(),
                 Enumerable.Range(0, 192).Select(_ => Word()).ToArray()));
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
-            var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
+            int bg3Rows = frame % 2 == 0 ? 32 : 64;
+            var bg3 = new Bg2BppColorMathRenderLayer(gameplay.Rooms.Bg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), Word(), bg3Rows, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = bg2Subscreen || frame % 3 != 0, FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, bg2Subscreen ? null : bg3, bg2Subscreen);

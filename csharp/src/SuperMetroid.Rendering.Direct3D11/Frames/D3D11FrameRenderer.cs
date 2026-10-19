@@ -12,6 +12,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
@@ -198,14 +199,21 @@ public sealed class D3D11FrameRenderer : IDisposable
         return bytes.ToArray();
     }
 
+    /// <summary>The one BG3 plane a frame shows (#1348): every layer that reads BG3 reads the same plane.</summary>
+    private static Layer3Plane SameBg3(Layer3Plane? shown, Layer3Plane plane) =>
+        shown is null || ReferenceEquals(shown, plane) ? plane
+            : throw new InvalidOperationException("A frame's layers show two different BG3 planes.");
+
     /// <summary>Uploads BG2 scanline scrolls for add/subtract color math.</summary>
     private unsafe void DispatchBackgroundMath(Bg2BppColorMathRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
             ? D3D11TileOperation.BgAdd : D3D11TileOperation.BgSubtract);
-        data[1] = (uint)layer.TilemapWord; data[2] = (uint)layer.CharacterWord;
+        // The BG3 plane window: its first row stands in the tilemap word, its height in the map height (#1348).
+        data[1] = (uint)layer.FirstRow; data[2] = (uint)layer.CharacterWord;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
+        data[14] = (uint)D3D11RoomSource.Bg3;
         data[25] = (uint)layer.FirstScanline; data[26] = 224;
         for (int y = 0; y < layer.Scrolls.Length; y++)
         {
@@ -283,7 +291,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
         data[16] = (uint)r.Bg2TilemapWord; data[17] = (uint)r.HudCharacterWord;
         // BG1 is always the room's; BG2 is its layer-2 plane, the sky's rows or the tilemap at word 16.
-        data[14] = (uint)D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
+        data[14] = D3D11RoomSources.Bg2Of(layer.Gameplay.Rooms);
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
         data[27] = (uint)r.Bg2Mosaic.Size;
@@ -294,7 +302,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[15] = (uint)(layer.SubscreenUsesBg2
                 ? D3D11GameplaySubscreenKind.GameplayBg2AndCapturedBg3
                 : D3D11GameplaySubscreenKind.CapturedBg3);
-            data[18] = (uint)sub.TilemapWord; data[19] = (uint)sub.CharacterWord;
+            data[18] = (uint)sub.FirstRow; data[19] = (uint)sub.CharacterWord;
             data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
         }
         for (int y = 32; y < 224; y++)
@@ -357,7 +365,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         // HUD color zero is opaque, and OBJ never overlays this band.
         if (layer.HudScanlines != 0)
-            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = (uint)layer.HudTilemapWord, Characters = (uint)layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
+            DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, Characters = (uint)layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
     }
 
     /// <summary>Composes ordinary gameplay in Mode-1 priority order, splitting bands at layer-enable changes.</summary>
@@ -380,7 +388,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Objects(2); Background2(true); Background1(true); Objects(3);
             first = end;
         }
-        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = GameplayVramLayout.HudTilemapWord, Characters = (uint)r.HudCharacterWord, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
+        DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Bg3, Map = 0, Characters = (uint)r.HudCharacterWord, TransparentZero = 0, EndScanline = SnesPpuLayout.GameplayHudHeightPixels, Windows = r.Windows, WindowMask = r.MainScreenWindowMask, WindowTarget = SnesWindowTarget.Bg3 });
 
         void Objects(uint priority)
         {
@@ -407,7 +415,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[1] = (uint)r.Bg2TilemapWord; data[2] = (uint)r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
-        data[14] = (uint)D3D11RoomSources.Bg2Of(layer.Rooms);
+        data[14] = D3D11RoomSources.Bg2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
         // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
         data[27] = (uint)r.Bg2Mosaic.Size;
@@ -488,10 +496,20 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
+        Layer3Plane? bg3 = rooms?.Bg3;
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is Mode7GameplayRenderLayer { Floor.Room: { } floorRoom })
-                floor = floorRoom;
-        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky))
+        {
+            if (layer is Mode7GameplayRenderLayer mode7)
+            {
+                floor = mode7.Floor?.Room ?? floor;
+                bg3 = SameBg3(bg3, mode7.Hud);
+            }
+            else if (layer is Bg2BppColorMathRenderLayer math)
+                bg3 = SameBg3(bg3, math.Plane);
+            else if (layer is GameplayColorMathRenderLayer { Subscreen: { } sub })
+                bg3 = SameBg3(bg3, sub.Plane);
+        }
+        if (roomLevels.Pack(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3, rooms?.Bg2Overlay))
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);

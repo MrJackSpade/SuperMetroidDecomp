@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU background colour-math rasterizer")]
 internal static class SoftwareBgColorMathRenderer
 {
-    /// <summary>Samples each physical scanline's 2-bpp tiles, skips transparent color zero, and applies clipped byte-channel color math.</summary>
+    /// <summary>Samples each physical scanline's 2-bpp tiles from the BG3 plane, skips transparent color zero, and applies clipped byte-channel color math.</summary>
     internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
@@ -32,8 +32,7 @@ internal static class SoftwareBgColorMathRenderer
                     // Fine scroll and per-line HDMA are resolved before caching.
                     // A tile run shares its map word, bitplane row and palette;
                     // no mutable state is cached across scanlines or frames.
-                    SnesBgTilemapWord tile = vram.ReadWord((layer.TilemapWord +
-                        (sy >> 3) * SnesPpuLayout.TilemapPageWidthInTiles + tileX) & (SnesPpuLayout.VramWordCount - 1));
+                    SnesBgTilemapWord tile = layer.Plane.WordAt(layer.FirstRow + (sy >> 3), tileX);
                     int py = tile.FlipVertically ? 7 - (sy & 7) : sy & 7;
                     int character = ((layer.CharacterWord + tile.CharacterIndex * 8) & (SnesPpuLayout.VramWordCount - 1)) * 2;
                     int addressMask = SnesPpuLayout.VramWordCount * 2 - 1;

@@ -139,7 +139,7 @@ internal static class SnesGameplayFrameRendererConstants
             }
         }
 
-        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram);
+        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram, Layer3PlaneFixtures.FromVram(vram), GameplayVramLayout.HudCharacterWord);
         return output;
     }
     /// <summary>
@@ -289,11 +289,11 @@ internal static class SnesGameplayFrameRendererConstants
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         bool fullScreenAtmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog;
         ushort tilemapBaseWord = fullScreenAtmosphere
-            ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord
-            : RoomFxRomData.Layer3.LiquidTilemapBaseWord;
+            ? RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapBaseWord
+            : RoomFxRomDataLayer3Constants.LiquidTilemapBaseWord;
         var geometry = new BgTilemapGeometry(fullScreenAtmosphere
-            ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapSize
-            : RoomFxRomData.Layer3.LiquidTilemapSize);
+            ? RoomFxRomDataLayer3Constants.FullScreenAtmosphereTilemapSize
+            : RoomFxRomDataLayer3Constants.LiquidTilemapSize);
         BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
         ReadOnlySpan<byte> fxVram = vram.Bytes;
         int firstLiquidScrollLine = fx.WaterSurfaceScreenY -
@@ -404,7 +404,7 @@ internal static class SnesGameplayFrameRendererConstants
 
         // IRQ command 4 writes BG3SC=$5A and TM=$04 for scanlines 0-31. That exposes the
         // four HUD rows at tilemap word $5800 while disabling OBJ in the HUD band.
-        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram);
+        SnesGameplayFrameRenderer.DrawHud(output, vram, cgram, Layer3PlaneFixtures.FromVram(vram), GameplayVramLayout.HudCharacterWord);
 
         int pixelCount = SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height;
         Rgba32[] rentedObjectPixels = ArrayPool<Rgba32>.Shared.Rent(pixelCount);

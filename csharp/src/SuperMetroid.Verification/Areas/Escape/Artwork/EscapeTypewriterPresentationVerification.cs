@@ -38,7 +38,7 @@ internal static class EscapeTypewriterPresentationVerification
             {
                 if (frame == 2048) throw new InvalidOperationException($"{id} typewriter did not terminate.");
                 comparedFrames++;
-                if (installed.Step(installedVram)) break;
+                if (installed.StepInto(installedVram)) break;
             }
             AssertTrue(installed.GlyphsWritten > 0, $"{id} installed typewriter writes its glyphs");
         }
@@ -52,24 +52,24 @@ internal static class EscapeTypewriterPresentationVerification
         var editedState = new EscapeTypewriterState(
             edited.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var editedVram = new SnesVram();
-        editedState.Step(editedVram);
-        editedState.Step(editedVram);
+        editedState.StepInto(editedVram);
+        editedState.StepInto(editedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             editedVram.ReadWord(0x4906), "edited UTF-8 escape text reaches live VRAM");
 
         var rebound = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var reboundVram = new SnesVram();
-        rebound.Step(reboundVram);
+        rebound.StepInto(reboundVram);
         rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
-        rebound.Step(reboundVram);
+        rebound.StepInto(reboundVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             reboundVram.ReadWord(0x4906), "active escape typewriter accepts current replacement content");
 
         var saved = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase);
         var savedVram = new SnesVram();
-        saved.Step(savedVram);
+        saved.StepInto(savedVram);
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
@@ -78,10 +78,10 @@ internal static class EscapeTypewriterPresentationVerification
         AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
             "debugger state retains compiled escape program identity");
         AssertThrows<InvalidOperationException>(() =>
-            restored.Step(new SnesVram()),
+            restored.StepInto(new SnesVram()),
             "restored escape text fails loudly until host content is rebound");
         restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
-        restored.Step(savedVram);
+        restored.StepInto(savedVram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'I' - 'A'),
             savedVram.ReadWord(0x4906), "restored escape text resumes at its saved character");
 
@@ -119,8 +119,8 @@ internal static class EscapeTypewriterPresentationVerification
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
             EscapeTypewriterRomData.ZebesTileBase);
         var vram = new SnesVram();
-        state.Step(vram);
-        state.Step(vram);
+        state.StepInto(vram);
+        state.StepInto(vram);
         AssertEqual((ushort)(EscapeTypewriterRomData.ZebesTileBase + 'E' - 'A'),
             vram.ReadWord(0x4906), "catalog override changes installed escape text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,

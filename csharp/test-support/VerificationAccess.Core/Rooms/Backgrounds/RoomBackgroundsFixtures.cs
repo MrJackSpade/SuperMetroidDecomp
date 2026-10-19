@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -13,12 +14,16 @@ internal static class RoomBackgroundsFixtures
     /// <summary>Block definitions a fixture room loads: every ten-bit visual index.</summary>
     private const int Definitions = 1024;
 
-    /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, and no BG2 plane.</summary>
+    /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and a zero BG3 plane.</summary>
     internal static RoomBackgrounds Blank() => Uniform(default);
+
+    /// <summary>A BG3 plane of zero words.</summary>
+    internal static Layer3Plane BlankBg3() => new(new ushort[Layer3Plane.Rows * Layer3Plane.Columns]);
 
     /// <summary>
     /// A room whose BG1 shows <paramref name="tile"/> in every cell over the whole unscrolled screen, as a VRAM BG1
-    /// tilemap filled with that word did, except the listed eight-pixel <paramref name="cells"/>; and no BG2 plane.
+    /// tilemap filled with that word did, except the listed eight-pixel <paramref name="cells"/>; no BG2 plane; and a zero
+    /// BG3 plane.
     /// </summary>
     internal static RoomBackgrounds Uniform(SnesBgTilemapWord tile,
         params ReadOnlySpan<(int Column, int Row, SnesBgTilemapWord Tile)> cells)
@@ -47,11 +52,11 @@ internal static class RoomBackgroundsFixtures
             blocks[block] = index;
         }
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
-            blocks, [.. definitions]), default), null);
+            blocks, [.. definitions]), default), null, BlankBg3());
     }
 
     /// <summary>
-    /// A room of random blocks over random definitions. Each plane's offset places a random point of the room at the
+    /// A room of random blocks over random definitions, with a random BG3 plane. Each plane's offset places a random point of the room at the
     /// given scroll, so the screen it is scrolled to shows mostly room and some edge. Optionally adds a door's source
     /// screen and words written over BG1.
     /// </summary>
@@ -89,6 +94,9 @@ internal static class RoomBackgroundsFixtures
                 words[index] = (ushort)random.Next(ushort.MaxValue + 1);
             written = RoomTilemapOverlay.Empty.With(random.Next(RoomTilemapOverlay.WordCount - words.Length), words);
         }
-        return new RoomBackgrounds(bg1, bg2, source, written);
+        var bg3 = new ushort[Layer3Plane.Rows * Layer3Plane.Columns];
+        for (int index = 0; index < bg3.Length; index++)
+            bg3[index] = (ushort)random.Next(ushort.MaxValue + 1);
+        return new RoomBackgrounds(bg1, bg2, new Layer3Plane(bg3), source, written);
     }
 }

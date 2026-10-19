@@ -9,11 +9,11 @@ internal static class RoomLayer3FxStateAccess
     extension(RoomLayer3FxState)
     {
         /// <summary>Builds room FX from an explicit immutable FX definition through the normal room-load path.</summary>
-        internal static RoomLayer3FxState ForDefinition(RoomFxSession session, SnesVram vram, SnesCgram cgram,
+        internal static RoomLayer3FxState ForDefinition(RoomFxSession session, SnesCgram cgram,
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            return RoomLayer3FxState.ForRecord(session, vram, cgram, new RoomFxLoadSource
+            return RoomLayer3FxState.ForRecord(session, cgram, new RoomFxLoadSource
             {
                 Fx = null,
                 Door = definition.Door,

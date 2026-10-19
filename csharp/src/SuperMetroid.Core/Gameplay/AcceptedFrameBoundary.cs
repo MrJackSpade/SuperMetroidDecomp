@@ -19,6 +19,8 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -60,6 +62,8 @@ internal sealed class AcceptedFrameBoundary
     private readonly SamusFrameState _player;
     /// <summary>Supplies the session COLDATA shadows.</summary>
     private readonly RoomFxSession _roomFx;
+    /// <summary>The HUD whose rows the BG3 plane shows.</summary>
+    private readonly HudState _hud;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
@@ -88,6 +92,7 @@ internal sealed class AcceptedFrameBoundary
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
+        _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
         _vram = dependencies.Vram;
         _xray = dependencies.Xray;
@@ -239,8 +244,24 @@ internal sealed class AcceptedFrameBoundary
             layer2.Horizontal.Streams || layer2.Vertical.Streams
                 ? new RoomBackgroundLayer(level.BackgroundPlane, _backgroundScroll.Bg2Offset.AsBgPlaneOffset())
                 : null,
+            CaptureLayer3Plane(),
             _room.DoorSourceBackground,
-            scope.Bg1Overlay);
+            scope.Bg1Overlay,
+            Bg2Overlay: scope.Bg2Overlay);
+    }
+
+    /// <summary>
+    /// The BG3 plane this NMI displays (#1348): the HUD's static top row and its three rows as this NMI uploads them,
+    /// over the room effect's area.
+    /// </summary>
+    private Layer3Plane CaptureLayer3Plane()
+    {
+        var hudRows = new ushort[Layer3Plane.HudRows * Layer3Plane.Columns];
+        // Without installed HUD artwork the HUD shows the stock top row, as the bus-sourced upload does.
+        ushort[] topRow = _artwork.MapPresentation?.GameplayHud.TopRow() ?? GameplayHudDefinitions.StockTopRow();
+        topRow.CopyTo(hudRows, 0);
+        _hud.MutableRows.CopyTo(hudRows.AsSpan(Layer3Plane.Columns));
+        return Layer3Plane.Compose(hudRows, _room.Layer3Fx?.EffectPageWords() ?? []);
     }
 
     /// <summary>COLDATA shadows the HDMA pre-instructions wrote during the previous main loop.</summary>

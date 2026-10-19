@@ -4,6 +4,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks D3D11 Mode 7 rendering against software output over native PPU geometry.</summary>
 internal static class Mode7SmokeTests
@@ -18,6 +19,7 @@ internal static class Mode7SmokeTests
         random.NextBytes(vram); random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, 128, 3);
+        Layer3Plane bg3 = Layer3PlaneFixtures.FromVram(vram);
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })
@@ -44,7 +46,7 @@ internal static class Mode7SmokeTests
                 : (Mode1FloorBand?)null;
             var layer = new Mode7GameplayRenderLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), true),
-                0x5800, 0x4000, hud, band);
+                bg3, 0x4000, hud, band);
             Check(new RenderFrameSnapshot(new(++count, 1, 0),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
         }

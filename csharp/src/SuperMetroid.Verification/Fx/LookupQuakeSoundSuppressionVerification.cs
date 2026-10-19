@@ -35,12 +35,12 @@ internal static class LookupQuakeSoundSuppressionVerification
         var cgram = new SnesCgram();
         foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
         {
-            state = RoomLayer3FxState.ForRoom(stateSession, vram, cgram, fx: null, door: null, randomNumber: 0,
+            state = RoomLayer3FxState.ForRoom(stateSession, cgram, fx: null, door: null, randomNumber: 0,
                 room: room);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(room is not null ? 0 : 1, state.SoundRequests.Count,
                 "Actual room initialization and quake emission honor native suppression");
-            state = RoomLayer3FxState.ForRoom(stateSession, vram, cgram, fx: null, door: null, randomNumber: 0,
+            state = RoomLayer3FxState.ForRoom(stateSession, cgram, fx: null, door: null, randomNumber: 0,
                 room: null);
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Unsuppressed room resets previous sentinel");

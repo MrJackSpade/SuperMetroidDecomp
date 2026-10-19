@@ -33,6 +33,8 @@ internal static class RoomFxSnapshotTestsVerification
             (RoomFxType.Rain, LayerBlendingConfiguration.Rain),
             (RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
         };
+        // The BG3 plane is the one the oracle reads from VRAM (#1348).
+        Layer3Plane plane = Layer3PlaneFixtures.FromVram(vram);
         foreach ((RoomFxType type, LayerBlendingConfiguration blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
@@ -42,7 +44,7 @@ internal static class RoomFxSnapshotTestsVerification
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
             Rgba32[] expected = baseline.ToArray();
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(expected, vram, cgram, fx);
-            Bg2BppColorMathRenderLayer? layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx);
+            Bg2BppColorMathRenderLayer? layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx, plane);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0),
                 new LayeredRenderSnapshot(memory, layer is null ? [] : new RenderLayer[] { layer }, 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(packet);
@@ -50,16 +52,16 @@ internal static class RoomFxSnapshotTestsVerification
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)), "room FX preserves HUD band");
         }
         var lines = new Position16<BgPlanePixels>[224];
-        var owned = new Bg2BppColorMathRenderLayer(0x5800, 0x4000, 64, 32, ExpandedColorMathOperation.Add, lines);
+        var owned = new Bg2BppColorMathRenderLayer(plane, 0, 0x4000, 64, 32, ExpandedColorMathOperation.Add, lines);
         Array.Fill(lines, new Position16<BgPlanePixels>(1234, 5678));
         AssertTrue(owned.Scrolls.All(line => line == default), "BG math owns register rows");
-        AssertThrows<ArgumentException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,
+        AssertThrows<ArgumentException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 0, 64, 32,
             ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[223]), "BG math rejects truncated register table");
-        AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,
+        AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(plane, 0, 0, 64, 32,
             (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, [owned], 3, 15));
         AssertThrows<InvalidDataException>(() => SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(
-            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue))), "capture preserves invalid water configuration failure");
+            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

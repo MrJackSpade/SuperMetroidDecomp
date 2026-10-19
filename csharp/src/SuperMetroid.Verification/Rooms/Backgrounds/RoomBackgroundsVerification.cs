@@ -62,7 +62,7 @@ internal static class RoomBackgroundsVerification
             new Offset16<BgPlanePixels>(0, 0));
         var sourceScroll = new Position16<BgPlanePixels>(0, 0);
         var door = RoomDoorBackground.Begin(source, sourceScroll);
-        var withDoor = new RoomBackgrounds(layer, null, door).Bg1Source;
+        var withDoor = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), door).Bg1Source;
         var top = new Position16<BgPlanePixels>(0x18, SnesPpuLayout.FirstVisibleBackgroundScanline + SnesPpuLayout.GameplayHudHeightPixels);
         AssertTrue(withDoor.TrySample(top, out BgTileSample doorSample) && doorSample.Tile.Raw == 15 * 4 + 1,
             "the door window's first gameplay line shows the source room");
@@ -72,7 +72,7 @@ internal static class RoomBackgroundsVerification
 
         // Words written over BG1 replace the room's tile at their tilemap cell only.
         var overlay = RoomTilemapOverlay.Empty.With(3 * 32 + 5, [0x1234]);
-        var withOverlay = new RoomBackgrounds(layer, null, null, overlay).Bg1Source;
+        var withOverlay = new RoomBackgrounds(layer, null, RoomBackgroundsFixtures.BlankBg3(), null, overlay).Bg1Source;
         var cell = new Position16<BgPlanePixels>(5 * 8 + 2, 3 * 8 + 1);
         AssertTrue(withOverlay.TrySample(cell, out BgTileSample written) && written.Tile.Raw == 0x1234 &&
                 written.Pixel == new Position16<CharacterPixels>(2, 1),

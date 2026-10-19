@@ -73,7 +73,7 @@ internal static class RoomFxTextureDriftVerification
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
             PackedYVelocity: 0, Timer: 0, Type: (byte)type, DefaultLayerBlend: (byte)blend, Layer3LayerBlend: (byte)blend,
             LiquidOptions: checked((byte)options.ToNativeWord()), PaletteFxBitset: 0, AnimatedTileBitset: 0, PaletteBlend: 0);
-        state = RoomLayer3FxState.ForDefinition(stateSession, new SnesVram(), new SnesCgram(), record, checked((ushort)randomNumber));
+        state = RoomLayer3FxState.ForDefinition(stateSession, new SnesCgram(), record, checked((ushort)randomNumber));
         AssertEqual(type, state.Type, $"synthetic {type} record loads");
         return state;
     }

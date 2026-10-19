@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -122,13 +123,36 @@ public static class SnesBgTilemapRenderer
     public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, int rowCount, bool transparentColorZero = false, bool? priority = null)
     {
         Ensure.NotNull(vram);
-        Ensure.NotNull(cgram);
         if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
-
-        BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
         var geometry = new BgTilemapGeometry(new Extent16<TilemapCells>(
             SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles));
+        var entries = new ushort[rowCount * SnesPpuLayout.TilemapPageWidthInTiles];
+        for (int characterY = 0; characterY < rowCount; characterY++)
+        for (int characterX = 0; characterX < SnesPpuLayout.TilemapPageWidthInTiles; characterX++)
+            entries[characterY * SnesPpuLayout.TilemapPageWidthInTiles + characterX] = vram.ReadWord(geometry.EntryWordAddress(
+                addresses.TilemapBaseWord, new Position16<TilemapCells>((ushort)characterX, (ushort)characterY)));
+        Render2BppEntries(output, vram, cgram, addresses.CharacterBaseWord, entries, transparentColorZero, priority);
+    }
+
+    /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348), as <see cref="Render2Bpp(Span{Rgba32}, SnesVram, SnesCgram, BgVramAddresses, int, bool, bool?)"/> renders a VRAM tilemap.</summary>
+    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Layer3Plane plane, int characterBaseWord, int rowCount, bool transparentColorZero = false)
+    {
+        Ensure.NotNull(plane);
+        if (rowCount is <= 0 or > 32)
+            throw new ArgumentOutOfRangeException(nameof(rowCount));
+        Render2BppEntries(output, vram, cgram, characterBaseWord,
+            plane.Words[..(rowCount * SnesPpuLayout.TilemapPageWidthInTiles)], transparentColorZero, null);
+    }
+
+    /// <summary>Renders 32-wide rows of 2-bpp tilemap words: one row per 32 entries.</summary>
+    private static void Render2BppEntries(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, int characterBaseWord,
+        ReadOnlySpan<ushort> entries, bool transparentColorZero, bool? priority)
+    {
+        int rowCount = entries.Length / SnesPpuLayout.TilemapPageWidthInTiles;
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
         const int width = SnesPpuLayout.TilemapPageWidthInTiles * SnesPpuLayout.BackgroundTileSizePixels;
         int height = rowCount * SnesPpuLayout.BackgroundTileSizePixels;
         Ensure.LengthEqual(output, checked(width * height));
@@ -138,13 +162,12 @@ public static class SnesBgTilemapRenderer
         {
             for (int characterX = 0; characterX < SnesPpuLayout.TilemapPageWidthInTiles; characterX++)
             {
-                SnesBgTilemapWord entry = vram.ReadWord(geometry.EntryWordAddress(addresses.TilemapBaseWord,
-                    new Position16<TilemapCells>((ushort)characterX, (ushort)characterY)));
+                var entry = new SnesBgTilemapWord(entries[characterY * SnesPpuLayout.TilemapPageWidthInTiles + characterX]);
                 if (priority.HasValue && entry.HasPriority != priority.Value)
                     continue;
                 for (int y = 0; y < SnesPpuLayout.BackgroundTileSizePixels; y++)
                 {
-                    int row = format.RowByteOffset(addresses.CharacterBaseWord, entry.CharacterIndex,
+                    int row = format.RowByteOffset(characterBaseWord, entry.CharacterIndex,
                         BgCharacterGrid.SourcePixel(y, entry.FlipVertically));
                     for (int x = 0; x < SnesPpuLayout.BackgroundTileSizePixels; x++)
                     {

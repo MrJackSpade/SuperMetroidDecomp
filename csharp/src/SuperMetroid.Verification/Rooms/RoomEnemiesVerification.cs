@@ -1318,12 +1318,12 @@ internal static void VerifyCeresRidleyRoomEntry()
         "$A6:C131 sets the area-boss bit within the escape-start enemy pass");
     AssertTrue(typewriterFrames > 128,
         "Ceres English warning remains visible long enough to type all three lines");
-    AssertEqual(0x3594, vram.ReadWord(0x5105),
-        "Ceres warning renders the S in SELF from the cartridge typewriter alphabet");
-    AssertEqual(0x3582, vram.ReadWord(0x5145),
-        "Ceres warning renders the A in ACTIVATED on its second line");
-    AssertEqual(0x3584, vram.ReadWord(0x5185),
-        "Ceres warning renders the C in COLONY on its third line");
+    AssertEqual(0x3594, ceresOverlay.Words[0x5105 - 0x5000],
+        "Ceres warning writes the S in SELF from the cartridge typewriter alphabet over BG1");
+    AssertEqual(0x3582, ceresOverlay.Words[0x5145 - 0x5000],
+        "Ceres warning writes the A in ACTIVATED on its second line over BG1");
+    AssertEqual(0x3584, ceresOverlay.Words[0x5185 - 0x5000],
+        "Ceres warning writes the C in COLONY on its third line over BG1");
     AssertEqual(CeresEscapeStatus.SelfDestructStarted, enemies.RidleyEncounter.CeresStatus,
         "Ceres escape publishes status two for door destruction");
     AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,

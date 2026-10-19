@@ -28,6 +28,9 @@ public sealed class HudState
 
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
     internal readonly ushort[] Tiles = new ushort[MutableTileCount];
+
+    /// <summary>The three mutable HUD rows the frame shows, row-major (#1348).</summary>
+    public ReadOnlySpan<ushort> MutableRows => Tiles;
     /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
     internal HudItem PreviousSelectedItem;
     /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>

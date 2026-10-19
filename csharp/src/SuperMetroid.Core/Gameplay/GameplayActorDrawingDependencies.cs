@@ -30,8 +30,9 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+
+    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
+    public required EnemySession EnemySession { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }

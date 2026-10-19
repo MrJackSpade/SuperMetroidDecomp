@@ -80,16 +80,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
     private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
 
-    /// <summary>Discards prior room corpse state and its queued tile transfers.</summary>
-    internal void ResetDeadSidehopperRoomState()
-    {
-        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
-            Extensions[slotIndex] = new DeadSidehopperExtensionWords();
-        _deadMonsters.Clear();
-        _deadSidehopperLevel = null;
-        _deadSidehopperCamera = default;
-    }
-
     /// <summary>Clears the per-frame corpse DMA and sound records before enemy AI runs.</summary>
     internal void BeginDeadSidehopperFrame()
     {
@@ -580,12 +570,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (!ReferenceEquals(state.Slot, slot))
             throw new InvalidDataException("Dead-sidehopper state belongs to a different slot.");
         return state;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetDeadSidehopperRoomState();
     }
 
     /// <inheritdoc/>

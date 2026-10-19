@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
 
@@ -13,8 +14,8 @@ internal sealed record GameplayHudSetupDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+    /// <summary>The room whose loaded enemy graphics a HUD initialization requeues.</summary>
+    public required ActiveRoomState Room { get; init; }
 
     /// <summary>Hud.</summary>
     public required HudState Hud { get; init; }

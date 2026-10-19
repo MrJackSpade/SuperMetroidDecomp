@@ -17,8 +17,6 @@ internal sealed record EnemyRoomEffectsDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Escape timer.</summary>
     public required EscapeTimer EscapeTimer { get; init; }

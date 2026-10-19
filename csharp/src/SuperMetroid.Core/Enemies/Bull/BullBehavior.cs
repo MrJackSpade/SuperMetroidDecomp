@@ -270,11 +270,4 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                     ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection.Raw);
             },
         };
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        for (int slot = 0; slot < _extensions.Length; slot++)
-            _extensions[slot] = new BullExtensionWords();
-    }
 }

@@ -378,12 +378,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastHopperSoundEffect { get; private set; }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastHopperSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastHopperSoundEffect = null;

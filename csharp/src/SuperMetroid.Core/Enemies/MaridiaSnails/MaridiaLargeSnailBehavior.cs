@@ -64,12 +64,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Most recent library-two sound requested by Oum this frame.</summary>
     public SoundEffectId? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
-    /// <summary>Clears physical-slot extensions and the frame's pending Oum sound.</summary>
-    internal void ResetMaridiaLargeSnailRoomState()
-    {
-        LastMaridiaLargeSnailSoundEffect = null;
-    }
-
     /// <summary>Ports <c>InitAI_Oum</c> at $A2:CCD4.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
@@ -619,12 +613,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
             });
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetMaridiaLargeSnailRoomState();
     }
 
     /// <inheritdoc/>

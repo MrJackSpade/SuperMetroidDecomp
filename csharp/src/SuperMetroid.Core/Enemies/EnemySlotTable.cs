@@ -15,12 +15,6 @@ internal sealed class EnemySlotTable
     /// <summary>The lowest physical slot with no enemy definition, or -1 when every slot is taken.</summary>
     internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.EnemyDefinitionPointer == 0);
 
-    /// <summary>Drops one species' state from every slot.</summary>
-    internal void ClearSpeciesState<TState>() where TState : class
-    {
-        foreach (RoomEnemySlot slot in _slots)
-            slot.SetSpeciesState<TState>(null);
-    }
 
     /// <summary>Creates the 32 slots once, each bound to the species registry that dispatches its entity.</summary>
     /// <exception cref="InvalidOperationException">The slots already exist.</exception>

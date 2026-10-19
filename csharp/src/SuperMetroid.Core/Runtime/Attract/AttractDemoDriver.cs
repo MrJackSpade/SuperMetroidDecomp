@@ -25,8 +25,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly SnesCgram _cgram;
     /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Supplies Kraid's scene-specific function timer setup.</summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>The session's Mode 7 transfer residue, which a demo's Samus reads.</summary>
+    private readonly EnemySession _enemySession;
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
@@ -47,7 +47,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _attractSession = dependencies.AttractSession;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
-        _enemies = dependencies.Enemies;
+        _enemySession = dependencies.EnemySession;
         _hudSetup = dependencies.HudSetup;
         _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
@@ -100,7 +100,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
 
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
+            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
@@ -124,7 +124,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _room.CeresElevatorArrival = null;
         _roomLoader.LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
-        ApplyAttractRoomSetup(scene.RoomSetupPointer);
+        // The scene's room setup acts on the demo room the load just built.
+        ApplyAttractRoomSetup(scene.RoomSetupPointer, _room.LoadedScope.Enemies);
         _player.Samus.Presentation.LoadSuitPalette(_cgram);
         _player.Samus.PoseMetadata.RefreshCollisionRadii();
         _player.Samus.Presentation.InitializeAnimation();
@@ -170,7 +171,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>Applies scene-specific scroll, sky-owner, Kraid timer, or defeated-boss setup.</summary>
-    private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer)
+    private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer, RoomEnemySystem enemies)
     {
         switch (pointer)
         {
@@ -186,7 +187,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                     throw new InvalidDataException("Landing Site demo requires the scrolling-sky BG2 owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                _enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoRomData.SetupValues.KraidFunctionTimer);
+                enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoRomData.SetupValues.KraidFunctionTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);

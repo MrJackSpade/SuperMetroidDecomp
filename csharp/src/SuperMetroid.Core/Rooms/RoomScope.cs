@@ -80,6 +80,9 @@ internal sealed record RoomScope
     /// <summary>The room's Ceres elevator shaft room main, active only when the elevator door enters it.</summary>
     public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
+    /// <summary>The room's enemy population and the species owners that run it.</summary>
+    public required RoomEnemySystem Enemies { get; init; }
+
     /// <summary>The room's PLM population and the family owners that run it.</summary>
     public required RoomPlmSystem Plms { get; init; }
 

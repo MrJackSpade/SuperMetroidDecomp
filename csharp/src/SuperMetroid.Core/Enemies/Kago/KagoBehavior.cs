@@ -402,12 +402,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Read();
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastKagoBugSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastKagoBugSoundEffect = null;

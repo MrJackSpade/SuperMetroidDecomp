@@ -45,12 +45,13 @@ public sealed class TourianStatueSequence
     /// <param name="roomLayer3Fx">The room's layer-3 FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
     /// <param name="plms">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
+    /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomLayer3FxState roomLayer3Fx,
-        RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms)
+        RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms, RoomEnemySystem enemies)
     {
 
         _cgram = dependencies.Cgram;
-        _enemies = dependencies.Enemies;
+        _enemies = Ensure.NotNull(enemies);
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomLayer3Fx = Ensure.NotNull(roomLayer3Fx);

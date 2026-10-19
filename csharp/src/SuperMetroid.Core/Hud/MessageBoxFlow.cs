@@ -20,8 +20,6 @@ internal sealed class MessageBoxFlow
 {
     /// <summary>Supplies BG1 offset when resumed PLMs publish tilemap updates.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Handles gunship prompts and save-station electricity on accepted saves.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Refreshes counters and queues uploads when message completion lacks a suspended frame tail.</summary>
@@ -45,7 +43,6 @@ internal sealed class MessageBoxFlow
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _enemies = dependencies.Enemies;
         _freeze = dependencies.Freeze;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
@@ -111,14 +108,14 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
+    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
 
-        if (_enemies.Gunship.SavePromptPending)
+        if (room.Enemies.Gunship.SavePromptPending)
         {
             bool accepted = _messageBox.ConsumeConfirmationResult()
                 ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            _enemies.Gunship.AnswerSavePrompt(accepted);
+            room.Enemies.Gunship.AnswerSavePrompt(accepted);
             _gunshipExitSoundRequested = true;
             if (accepted)
             {
@@ -146,7 +143,7 @@ internal sealed class MessageBoxFlow
                 update.ExecuteTo(_vram);
             if (confirmation.Saving)
             {
-                _enemies.Projectiles.SpawnSaveStationElectricity(
+                room.Enemies.Projectiles.SpawnSaveStationElectricity(
                     saveStation.BlockIndex,
                     level.Size.X);
                 _system.MarkSaveStationUsed(
@@ -187,7 +184,7 @@ internal sealed class MessageBoxFlow
                 throw new InvalidOperationException(
                     "A pending suit transformation requires an active Samus and room camera.");
             }
-            _enemies.Elevator.ResetStatus();
+            room.Enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
                 _player.Samus,
                 _room.Camera.PixelPosition,

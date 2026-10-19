@@ -864,21 +864,21 @@ internal static class RidleyFullMovieVerification
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer.RawValue, "first native fade visual duration");
-        AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires runtime.Enemies.RidleyEncounter.Ridley.")).Function, "native Ridley AI remains gated during fade visuals");
-        AssertEqual((ushort)0, runtime.Enemies.RidleyEncounter.Ridley.FunctionTimer.RawValue, "fade does not consume the reveal countdown");
+        AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "native Ridley AI remains gated during fade visuals");
+        AssertEqual((ushort)0, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer.RawValue, "fade does not consume the reveal countdown");
         game.Step(0);
         AssertEqual((ushort)11, ridley.InstructionTimer.RawValue, "later fade updates continue enemy animation");
         int remainingFade = 0;
         while (game.GameState == SuperMetroidGameState.LoadingNextRoomB && remainingFade++ < 32)
         {
             game.Step(0);
-            AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.RidleyEncounter.Ridley.Function, "reveal timer remains gated through the final fade dispatch");
+            AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "reveal timer remains gated through the final fade dispatch");
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "fade releases ordinary gameplay");
         AssertTrue(!runtime.Enemies.RoomStatus.EnemyDoorTransitionActive, "completed fade clears enemy gate");
         game.Step(0);
-        AssertEqual(RidleyAiFunction.InitialDelay, runtime.Enemies.RidleyEncounter.Ridley.Function, "first gameplay update begins reveal");
-        AssertEqual((ushort)169, runtime.Enemies.RidleyEncounter.Ridley.FunctionTimer.RawValue, "native first gameplay update consumes one of 170 reveal ticks");
+        AssertEqual(RidleyAiFunction.InitialDelay, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "first gameplay update begins reveal");
+        AssertEqual((ushort)169, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).FunctionTimer.RawValue, "native first gameplay update consumes one of 170 reveal ticks");
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 

@@ -25,8 +25,6 @@ internal sealed record PlmFramePhaseDependencies
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }

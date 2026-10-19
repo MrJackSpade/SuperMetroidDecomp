@@ -48,7 +48,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.Enemies.TileArtwork = stock;
+        runtime.EnemySession.TileArtwork = stock;
         VramWriteQueue stockQueue = QueueAllTakeoffFrames(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
@@ -84,7 +84,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 image.Pixels, image.Palette);
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        runtime.Enemies.TileArtwork = edited;
+        runtime.EnemySession.TileArtwork = edited;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
         pending.DrainTo(editedVram, runtime.Artwork);

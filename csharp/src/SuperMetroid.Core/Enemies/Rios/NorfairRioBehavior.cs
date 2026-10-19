@@ -42,12 +42,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
     public SoundEffectId? LastNorfairRioSoundEffect { get; private set; }
 
-    /// <summary>Clears per-slot Rio state and the last dive sound when leaving a room.</summary>
-    internal void ResetNorfairRioRoomState()
-    {
-        LastNorfairRioSoundEffect = null;
-    }
-
     /// <summary>Ports <c>NorfairRio_Init</c> at $A2:C242.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
@@ -362,12 +356,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyNorfairRioCue(state, cue));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetNorfairRioRoomState();
     }
 
     /// <inheritdoc/>

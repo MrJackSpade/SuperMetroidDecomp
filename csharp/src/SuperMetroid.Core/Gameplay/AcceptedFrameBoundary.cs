@@ -39,8 +39,17 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each accepted NMI.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
-    /// <summary>Provides boss-specific display windows and latches Phantoon presentation.</summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>
+    /// The cleared enemy RAM before the gameplay runtime's first room: a never-loaded enemy system over the session,
+    /// whose displays are all empty.
+    /// </summary>
+    private RoomEnemySystem NoRoomEnemies { get; }
+
+    /// <summary>The session's OBJ character table, which the displayed gameplay object page binds.</summary>
+    private readonly EnemySession _enemySession;
+
+    /// <summary>The loading or loaded room's enemies, whose boss displays and earthquake the publication latches.</summary>
+    private RoomEnemySystem Enemies => _room.Enemies ?? NoRoomEnemies;
     /// <summary>Window register cache latched with the accepted frame.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
     /// <summary>Owns accepted, lagged, and all-NMI frame counters.</summary>
@@ -73,7 +82,8 @@ internal sealed class AcceptedFrameBoundary
         _physicalController1 = dependencies.PhysicalController1;
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;
-        _enemies = dependencies.Enemies;
+        _enemySession = dependencies.EnemySession;
+        NoRoomEnemies = new RoomEnemySystem(dependencies.EnemySession);
         _gameplayWindows = dependencies.GameplayWindows;
         _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
@@ -135,7 +145,7 @@ internal sealed class AcceptedFrameBoundary
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _gameplayWindows.Cache.LatchNmi();
-        var bg2Window = _enemies.DisplaySources.Draygon is { } boss
+        var bg2Window = Enemies.DisplaySources.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
@@ -143,10 +153,10 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
-            _enemies.Earthquake.LastRoomShake, bg2Window.First, bg2Window.End);
+            Enemies.Earthquake.LastRoomShake, bg2Window.First, bg2Window.End);
         RoomLayer3FxRenderSnapshot? roomLayer3Fx = _room.Layer3Fx?.CaptureForDisplay();
-        _enemies.DisplaySources.Phantoon?.Wave.LatchDisplay();
-        if (_enemies.DisplaySources.Phantoon is { } phantoonDisplay)
+        Enemies.DisplaySources.Phantoon?.Wave.LatchDisplay();
+        if (Enemies.DisplaySources.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
         _display.Latched = new GameplayNmiDisplayLatch(
@@ -155,7 +165,7 @@ internal sealed class AcceptedFrameBoundary
             _display.ActiveSamusMode7Transform,
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),
-            _enemies.DisplaySources.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            Enemies.DisplaySources.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             // Before the first room there are no statues, so no descent is displayed.
             _room.TourianStatues?.DisplayedVerticalOffset ?? 0,
             CaptureSceneRegisters(),
@@ -167,7 +177,7 @@ internal sealed class AcceptedFrameBoundary
         // The displayed enemy-format draws show the OBJ characters this frame's uploads bound, as the OAM it latched
         // reads the VRAM those uploads wrote.
         if (_displayedSprites.Shows(SpriteArtworkKind.GameplayObjects))
-            _displayedSprites.RebindArtwork(SpriteArtworkKind.GameplayObjects, _artwork.GameplayObjectPage(_enemies.ObjCharacters));
+            _displayedSprites.RebindArtwork(SpriteArtworkKind.GameplayObjects, _artwork.GameplayObjectPage(_enemySession.ObjCharacters));
         // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         _artwork.PublishReboundBeamPalette();
@@ -192,7 +202,7 @@ internal sealed class AcceptedFrameBoundary
             _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
             ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
             room?.Definition,
-            _enemies.RoomStatus.BossId);
+            Enemies.RoomStatus.BossId);
     }
 
     /// <summary>
@@ -202,12 +212,12 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
-        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(_enemies.DisplaySources.CeresRidley);
-        var motherBrain = _enemies.DisplaySources.MotherBrain;
+        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(Enemies.DisplaySources.CeresRidley);
+        var motherBrain = Enemies.DisplaySources.MotherBrain;
         return new(
             ridley,
-            _enemies.DisplaySources.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
-            _enemies.DisplaySources.CrocomireBg2Scroll,
+            Enemies.DisplaySources.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
+            Enemies.DisplaySources.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });
     }
@@ -223,7 +233,7 @@ internal sealed class AcceptedFrameBoundary
             _roomFx.FixedColors.Snapshot(),
             powerBomb,
             new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
-            _enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);
+            Enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);
     }
 
     /// <summary>
@@ -242,20 +252,20 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal MorphBallEyeBeamRenderSnapshot? CaptureMorphBallEyeBeamForDisplay()
     {
-        MorphBallEyeBeamState beam = _enemies.DisplaySources.MorphBallEyeBeam;
+        MorphBallEyeBeamState beam = Enemies.DisplaySources.MorphBallEyeBeam;
         if (beam.Phase == MorphBallEyeBeamPhase.Inactive)
             return null;
 
         int bodyIndex = beam.BodySlotIndex;
-        if ((uint)bodyIndex >= _enemies.SlotTable.Slots.Count ||
-            (uint)bodyIndex >= _enemies.DisplaySources.MorphBallEyeStates.Count ||
-            _enemies.DisplaySources.MorphBallEyeStates[bodyIndex] is not { } eyeState)
+        if ((uint)bodyIndex >= Enemies.SlotTable.Slots.Count ||
+            (uint)bodyIndex >= Enemies.DisplaySources.MorphBallEyeStates.Count ||
+            Enemies.DisplaySources.MorphBallEyeStates[bodyIndex] is not { } eyeState)
         {
             throw new InvalidDataException(
                 $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
         }
 
-        RoomEnemySlot body = _enemies.SlotTable.Slots[bodyIndex];
+        RoomEnemySlot body = Enemies.SlotTable.Slots[bodyIndex];
         return new MorphBallEyeBeamRenderSnapshot(
             beam.Phase,
             body.Position.Whole,

@@ -77,9 +77,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
         EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
 
-    /// <summary>Discards the linked encounter state before another room is loaded.</summary>
-    internal void ResetDraygonRoomState() => Draygon = null;
-
     /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
     internal void InitializeDraygonBody(RoomEnemySlot body)
     {
@@ -2096,20 +2093,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>
         unchecked((short)projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 512 ||
         unchecked((short)projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 512;
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Draygon is not null)
-        {
-            Draygon.LastSoundLibrary2 = null;
-            Draygon.LastSoundLibrary3 = null;
-            Draygon.MusicRequest = null;
-        }
-        ResetDraygonRoomState();
-    }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

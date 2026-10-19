@@ -120,18 +120,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>True after the $640 X threshold starts the native bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
-    /// <summary>Clears Crocomire-owned room state and queued arena mutations on room entry.</summary>
-    internal void ResetCrocomireRoomState()
-    {
-        Crocomire = null;
-        CrocomireDeath = null;
-        _crocomireCamera = Position16<RoomPixels>.Zero;
-        LastCrocomireSoundEffect = null;
-        LastCrocomireMusicRequest = null;
-        CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
-        CrocomireBridgeCollapseStarted = false;
-    }
-
     /// <summary>Ports <c>InitAI_Crocomire</c> at $A4:8A5A.</summary>
     internal void InitializeCrocomire(RoomEnemySlot slot)
     {
@@ -2311,12 +2299,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
             (projectile.Velocity.Y.RawValue + 24) & 16383))));
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetCrocomireRoomState();
     }
 
     /// <inheritdoc/>

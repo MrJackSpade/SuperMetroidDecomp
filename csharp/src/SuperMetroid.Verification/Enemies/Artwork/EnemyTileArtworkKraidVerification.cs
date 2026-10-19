@@ -207,8 +207,8 @@ internal static class EnemyTileArtworkKraidVerification
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
         runtime.Artwork.MapPresentation = stock;
-        runtime.Enemies.TileArtwork = enemyArtwork;
-        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.Presentation.HudTileArtwork),
+        runtime.EnemySession.TileArtwork = enemyArtwork;
+        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.EnemySession.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)

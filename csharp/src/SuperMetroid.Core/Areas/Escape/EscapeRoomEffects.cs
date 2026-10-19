@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Areas.Escape;
 /// </summary>
 internal sealed class EscapeRoomEffects
 {
-    /// <summary>Owns earthquake state and the escape-explosion projectile publisher.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Sets the native two- or four-frame explosion cadence.</summary>
@@ -23,16 +21,15 @@ internal sealed class EscapeRoomEffects
     private readonly Bank80SystemState _system;
 
     /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
-    internal EscapeRoomEffects(RoomEnemySystem enemies, GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, Bank80SystemState system)
+    internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, Bank80SystemState system)
     {
-        _enemies = enemies;
         _freeze = freeze;
         _clock = clock;
         _room = room;
         _system = system;
     }
     /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two native switchers.</summary>
-    internal void SetupEscapeRoomEffects(RoomSetupCallback setup)
+    internal void SetupEscapeRoomEffects(RoomSetupCallback setup, RoomEnemySystem enemies)
     {
         // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms
         // whose mains switch quake types; the other setups leave the shared word alone.
@@ -67,15 +64,15 @@ internal sealed class EscapeRoomEffects
         };
         if (type is { } quake)
         {
-            _enemies.Earthquake.EarthquakeType = quake;
-            _enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
+            enemies.Earthquake.EarthquakeType = quake;
+            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
         }
         if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.EventNumber.ZebesTimebombSet);
     }
 
     /// <summary>Dispatches the escape room-main callbacks at the native post-draw boundary.</summary>
-    internal void StepEscapeRoomEffects()
+    internal void StepEscapeRoomEffects(RoomEnemySystem enemies)
     {
         if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
         RoomMainCallback main = _room.ActiveRoom.State.MainCallback;
@@ -91,12 +88,12 @@ internal sealed class EscapeRoomEffects
             {
                 _room.RoomMainScratch.Countdown = _room.RoomMainScratch.Countdown.Decrement().Remaining;
                 if (_room.RoomMainScratch.Countdown.IsZero)
-                    _enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.LightHorizontal : ZebesEscapeRomData.MediumHorizontal;
+                    enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.LightHorizontal : ZebesEscapeRomData.MediumHorizontal;
             }
             else if (_system.NextRandom() < (light ? ZebesEscapeRomData.LightChance : ZebesEscapeRomData.MediumChance))
             {
                 _room.RoomMainScratch.Countdown = NativeCountdown.Start(ZebesEscapeRomData.DiagonalFrames);
-                _enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
+                enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
             }
         }
         if (!_freeze.TimeIsFrozen && (_clock.Counter & (nonblank ? 1 : 3)) == 0)
@@ -107,8 +104,8 @@ internal sealed class EscapeRoomEffects
                 unchecked((ushort)(_room.Camera.PixelPosition.Y + (SnesLittleEndian.HighByte(random)))));
             int blockIndex = _room.LevelData.Size.RowMajorIndex(explosion.ToRoomBlock());
             if (!nonblank || _room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.VisualBlockIndex != ZebesEscapeRomData.BlankTile)
-                _enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
+                enemies.PlmSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
         }
-        if (nonblank) _enemies.Earthquake.AddTimerBits(ZebesEscapeRomData.ContinuousTimerBit);
+        if (nonblank) enemies.Earthquake.AddTimerBits(ZebesEscapeRomData.ContinuousTimerBit);
     }
 }

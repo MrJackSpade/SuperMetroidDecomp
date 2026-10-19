@@ -78,18 +78,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether the Lower Norfair statue has started lowering the acid in this room (instruction $AA:E429).</summary>
     public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
-    /// <summary>Clears prior-room statue state, pending PLMs, sound, Samus-control and FX publications.</summary>
-    internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
-    {
-        Ensure.NotNull(services);
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<ChozoStatueState>(null);
-        ChozoStatuePlmRequests.Clear();
-        LastChozoStatueSoundEffect = null;
-        ChozoStatueSamusControlsEnabled = true;
-        ChozoStatueAcidLoweringStarted = false;
-    }
-
     /// <summary>
     /// Ports the complete palette-only initializer at $AA:E716. The retail record begins
     /// with property $0200, so it exists solely long enough to replace target palette rows
@@ -452,11 +440,5 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetChozoStatueRoomState(request.Services);
     }
 }

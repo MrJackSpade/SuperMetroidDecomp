@@ -54,16 +54,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
     public SoundEffectId? LastMagdolliteSoundEffect { get; private set; }
 
-    /// <summary>Clears room-lifetime state before a new enemy population is initialized.</summary>
-    internal void ResetMagdolliteRoomState()
-    {
-        LastMagdolliteSoundEffect = null;
-        MagdollitePaletteAnimationInstalled = false;
-        MagdollitePaletteAnimationTimer = NativeCountdown.Start(0);
-        MagdollitePaletteFrame = 0;
-        MagdollitePaletteBaseColor = 0;
-    }
-
     /// <summary>Clears events whose public meaning is limited to one enemy frame.</summary>
     internal void ResetMagdolliteFrameEvents()
     {
@@ -846,12 +836,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,
             EnemyDefinitionId.Magdollite);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetMagdolliteRoomState();
     }
 
     /// <inheritdoc/>

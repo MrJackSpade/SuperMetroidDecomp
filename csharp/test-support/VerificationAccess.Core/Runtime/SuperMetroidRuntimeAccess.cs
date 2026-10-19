@@ -51,6 +51,21 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>The loaded room's bombs.</summary>
         internal SamusBombProjectileSystem BombProjectiles => self.Room.LoadedScope.BombProjectiles;
 
+        /// <summary>The loaded room's enemies.</summary>
+        internal RoomEnemySystem Enemies => self.Room.LoadedScope.Enemies;
+
+        /// <summary>
+        /// Gives the loaded room a new enemy system loaded from <paramref name="request"/>, as a room load builds one, and
+        /// returns it. Fixtures use it to place a constructed population into a room that is already running.
+        /// </summary>
+        internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyLoad request)
+        {
+            var enemies = new RoomEnemySystem(self.EnemySession);
+            enemies.Load(request);
+            self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
+            return enemies;
+        }
+
         /// <summary>The loaded room's layer-3 FX.</summary>
         internal RoomLayer3FxState RoomLayer3Fx => self.Room.LoadedScope.Layer3Fx;
 

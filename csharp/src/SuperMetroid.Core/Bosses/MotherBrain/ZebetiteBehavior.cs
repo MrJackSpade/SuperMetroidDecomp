@@ -410,15 +410,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastZebetiteSoundEffect = null;
-        PaletteChangeNumber = 0;
-        CameraDistanceIndex = CameraDistanceMode.NormalTracking;
-        SharedPaletteCycle = 0;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastZebetiteSoundEffect = null;

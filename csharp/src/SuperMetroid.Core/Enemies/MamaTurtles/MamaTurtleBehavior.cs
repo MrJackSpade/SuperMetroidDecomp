@@ -943,16 +943,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastMamaTurtleSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<MamaTurtleEnemyState>(null);
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<BabyTurtleEnemyState>(null);
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMamaTurtleSoundEffect = null;

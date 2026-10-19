@@ -703,12 +703,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastYardSoundEffect { get; private set; }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastYardSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastYardSoundEffect = null;

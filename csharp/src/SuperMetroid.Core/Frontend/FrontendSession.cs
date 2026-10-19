@@ -192,7 +192,7 @@ internal sealed class FrontendSession
         }
         // Enemy initialization follows the room's music-data queueing in native loading.
         if (runtime is not null)
-            foreach (MusicCommand command in runtime.Enemies.Audio.ConsumeInitializationMusicDelayed8())
+            foreach (MusicCommand command in runtime.Room.LoadedScope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
                 audio.QueueMusicDelayed8(command);
 
         // The message-box selector is an NMI-only owner, not part of the gameplay
@@ -296,10 +296,10 @@ internal sealed class FrontendSession
         if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
-        foreach (EnemySoundRequest request in runtime.Enemies.Audio.SoundRequests)
+        foreach (EnemySoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (EnemyMusicRequest request in runtime.Enemies.Audio.MusicRequests)
+        foreach (EnemyMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
     }
     /// <summary>

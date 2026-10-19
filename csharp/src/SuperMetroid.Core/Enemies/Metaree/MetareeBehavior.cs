@@ -266,12 +266,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastMetareeSoundEffect { get; private set; }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastMetareeSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMetareeSoundEffect = null;

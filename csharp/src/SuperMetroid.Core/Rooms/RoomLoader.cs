@@ -50,8 +50,8 @@ internal sealed class RoomLoader
     private readonly GameplayDisplayState _display;
     /// <summary>Coordinates the native door loader's staged transition states.</summary>
     private readonly DoorTransitionRunner _doorTransition;
-    /// <summary>Creates and initializes the destination room's enemy slots.</summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>The enemy words and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
+    private readonly EnemySession _enemySession;
     /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
     private readonly Bg2TilemapStaging _bg2TilemapStaging;
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
@@ -106,7 +106,7 @@ internal sealed class RoomLoader
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
-        _enemies = dependencies.Enemies;
+        _enemySession = dependencies.EnemySession;
         _bg2TilemapStaging = dependencies.Bg2TilemapStaging;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeEffects = dependencies.EscapeEffects;
@@ -278,7 +278,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
+            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
@@ -311,7 +311,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a tester grant already applied to her is not repeated.
         // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState { Mode7QueueResidue = _enemies.Room.Mode7QueueResidue, Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState { Mode7QueueResidue = _enemySession.Mode7QueueResidue, Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         if (ReferenceEquals(_tester.testerInventoryRecipient, carried))
@@ -526,7 +526,7 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("A loaded destination and Samus are required.");
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
-        if (_enemies.Elevator.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
+        if (_room.LoadedScope.Enemies.Elevator.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
             _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, _player.Samus.Position.Whole);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
@@ -639,8 +639,8 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
             }
         }
-        _enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
-        if (completed && _enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
+        if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         _player.Samus.Position = state.SamusPosition;
         _room.Camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), _player.Samus.Position.Whole);
@@ -708,9 +708,9 @@ internal sealed class RoomLoader
         ushort y = NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole);
         _player.Samus.Position = _player.Samus.Position.WithWhole(new(x, y));
 
-        if (_enemies.Elevator.ElevatorFlags != ElevatorJourneyFlag.None)
+        if (_room.LoadedScope.Enemies.Elevator.ElevatorFlags != ElevatorJourneyFlag.None)
         {
-            if (!_enemies.Elevator.ElevatorTravelsUpward)
+            if (!_room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 _player.Samus.PoseMetadata.SetupForElevator();
             else
                 _player.Samus.InputLocked = true;
@@ -771,9 +771,9 @@ internal sealed class RoomLoader
         // room constructor initializes enemies in one host call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
         // must see two and place itself at parameter 2 instead of clearing the journey.
-        bool arrivingByElevator = _enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
+        bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
-            _enemies.Elevator.PrepareElevatorArrival();
+            _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
 
         // The load-station record established only the first room. Once bank $94 publishes
         // a door definition, that definition and its destination header become authoritative.
@@ -837,7 +837,12 @@ internal sealed class RoomLoader
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
         var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position,
-            _room.Scope is { } outgoing ? SamusProjectileResidue.Of(outgoing.Projectiles) : SamusProjectileResidue.None);
+            _room.Scope is { } outgoing ? SamusProjectileResidue.Of(outgoing.Projectiles) : SamusProjectileResidue.None,
+            _room.Scope is { } gated
+                ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
+                    gated.Enemies.Elevator.ElevatorDoorTransitionActive)
+                : default,
+            _room.Scope is { } previous ? EnemyRoomResidue.Of(previous.Enemies) : EnemyRoomResidue.None);
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets);
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
@@ -969,7 +974,7 @@ internal sealed class RoomLoader
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (room.State.Background is { } background)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.ExecuteProgram(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemySession.Staging), _vram, background, door, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
             if (backgroundResult.SelectsKraidHudCharacters)
                 _display.SelectKraidHudCharacterBase();
         }
@@ -988,7 +993,6 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
-        projectiles.Earthquakes.BindRoomEarthquakeOwner(_enemies);
         _gameplayWindows.BindGameplayWindowRegisters(projectiles);
         _player.Samus?.Shinespark.BindProjectileOwners(projectiles, bombs.PowerBombExplosion);
 
@@ -1001,7 +1005,7 @@ internal sealed class RoomLoader
         // The room's PLM system is built with its bindings, then one set of runtime services
         // serves the room's PLMs and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
-        var plmServices = new RoomPlmRuntimeServices(_enemies, _player, _room, _system);
+        var plmServices = new RoomPlmRuntimeServices(scope, _player, _room, _system);
         var plmRoom = new PlmRoom(assets.LevelData, backgroundStreamer, _vram, _system, room.AreaIndex);
         var plmBindings = new RoomPlmServices
         {
@@ -1053,7 +1057,12 @@ internal sealed class RoomLoader
         // equipment during initialization; its grant must not retroactively select the beam loaded for this room.
         _artwork.UpdateBeamTilesAndPalette(_cgram, _player.Samus?.EquippedBeams ?? 0);
 
-        _enemies.Load(new RoomEnemyLoadRequest(
+        // `$A0:8A1E` LoadEnemies builds the destination's enemy RAM, with the door-transition gates clear, over the
+        // projectile and first-free words the outgoing room's enemies left.
+        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue);
+        scope.Enemies = enemies;
+        projectiles.Earthquakes.BindRoomEarthquakeOwner(enemies);
+        enemies.Load(new RoomEnemyLoadRequest(
             CompiledRoomEnemyDefinitions.Instance,
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
@@ -1070,25 +1079,27 @@ internal sealed class RoomLoader
         });
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
-        if (_enemies.Ceres.RidleyPresent)
+        if (enemies.Ceres.RidleyPresent)
         {
             _hud.DisableMinimapForBoss();
-            if (_enemies.RoomStatus.BossId == RidleyMapDefinitions.NorfairBossId)
+            if (enemies.RoomStatus.BossId == RidleyMapDefinitions.NorfairBossId)
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
                     _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1))));
         }
-        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback);
+        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback, enemies);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
         // requests here—the first point matching the cartridge's completed room teardown—
         // so the closed actor survives into the initial viewport.
-        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms);
+        _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms, enemies);
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
-            _enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms);
-        _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
+            enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx, enemies);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms, enemies);
+        enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
+        // The door-transition code that owns $0795/$0797 keeps them over the destination once its enemies are loaded.
+        enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
@@ -1225,7 +1236,7 @@ internal sealed class RoomLoader
 
         _player.Samus = new SamusState
         {
-            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
+            Mode7QueueResidue = _enemySession.Mode7QueueResidue,
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
@@ -1257,7 +1268,7 @@ internal sealed class RoomLoader
         // enemy word here previously recolored the level-data concealer teal.
         _room.CeresElevatorArrival = new CeresElevatorArrivalState(
             _player.Samus,
-            _enemies.TileArtwork?.ProjectileSpritemaps);
+            _enemySession.TileArtwork?.ProjectileSpritemaps);
 
         // The locked Ceres-start frame handler still publishes the initial minimap. The
         // ordinary update below used to be gated on GroundedSamusMovementEnabled, leaving

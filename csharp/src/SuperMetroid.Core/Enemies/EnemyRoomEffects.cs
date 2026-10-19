@@ -24,8 +24,6 @@ internal sealed class EnemyRoomEffects
     private readonly SnesCgram _cgram;
     /// <summary>Receives layer-blending defaults selected by a Mother Brain FX entry.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Publishes boss PLM requests and receives downward-gate projectile work.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
     /// <summary>Supplies Samus equipment and relinquishes the drained-phase timer handler.</summary>
@@ -40,7 +38,6 @@ internal sealed class EnemyRoomEffects
     {
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
         _escapeTimer = dependencies.EscapeTimer;
         _player = dependencies.Player;
         _room = dependencies.Room;
@@ -57,7 +54,7 @@ internal sealed class EnemyRoomEffects
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomPaletteFxSystem roomPaletteFx, RoomEnemySystem enemies)
     {
         ApplyPendingBotwoonWallPlm(requests, plms);
         ApplyPendingSporeSpawnCeilingPlm(requests, plms);
@@ -65,7 +62,7 @@ internal sealed class EnemyRoomEffects
         ApplyPendingKraidPlms(requests, plms);
         ApplyPendingMotherBrainPlms(requests, plms, roomLayer3Fx, roomPaletteFx);
         ApplyPendingShitroidWallPlms(requests, plms);
-        ApplyPendingChozoStatuePlms(plms, roomLayer3Fx);
+        ApplyPendingChozoStatuePlms(plms, roomLayer3Fx, enemies);
     }
 
     /// <summary>
@@ -243,15 +240,15 @@ internal sealed class EnemyRoomEffects
     /// Also runs before movement so restored states cannot collide before their pending
     /// initialization setup has installed the hand block.
     /// </summary>
-    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx)
+    internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomEnemySystem enemies)
     {
-        plms.ChozoStatue.BindChozoStatueContext(_enemies, roomLayer3Fx);
+        plms.ChozoStatue.BindChozoStatueContext(enemies, roomLayer3Fx);
         if (_room.LevelData is not null)
-            _enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
+            enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }
 
     /// <summary>Transfers bank-$84 downward-gate spawn/wake work into bank $86.</summary>
-    internal void ApplyPendingDownwardGateProjectileRequests(RoomPlmSystem plms)
+    internal void ApplyPendingDownwardGateProjectileRequests(RoomPlmSystem plms, RoomEnemySystem enemies)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Gate projectile work requires active room level data.");
@@ -260,7 +257,7 @@ internal sealed class EnemyRoomEffects
         {
             if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true)
                 continue;
-            _enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, _room.LevelData.Size.X);
+            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, _room.LevelData.Size.X);
         }
     }
 }

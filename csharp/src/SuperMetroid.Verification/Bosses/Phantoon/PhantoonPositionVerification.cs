@@ -60,7 +60,7 @@ internal static class PhantoonPositionVerification
         var positions = new HashSet<(ushort X, ushort Y)>();
         for (int frame = 0; frame < 1400; frame++)
         {
-            var phantoon = runtime.Enemies.PhantoonBehavior.Phantoon;
+            var phantoon = runtime.Enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
             ushort displayedX = phantoon.Bg2Scroll.X;
             ushort displayedY = phantoon.Bg2Scroll.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);

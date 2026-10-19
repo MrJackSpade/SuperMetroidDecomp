@@ -36,13 +36,6 @@ internal sealed class EnemyProcessingWindow
     /// <summary>Active native indexes still eligible for Samus interaction.</summary>
     internal IReadOnlyList<int> InteractiveEnemyIndexes => _interactiveEnemyIndexes;
 
-    /// <summary>Room load: no enemy is scheduled until the first pass prepares the window.</summary>
-    internal void ResetForRoomLoad()
-    {
-        _activeEnemyIndexes.Clear();
-        _interactiveEnemyIndexes.Clear();
-    }
-
     /// <summary>
     /// Runs the bank-$88 morph-ball eye beam HDMA object, then
     /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).

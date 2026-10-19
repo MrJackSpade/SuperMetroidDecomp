@@ -224,10 +224,4 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 (cue, _) => ApplySkulteraCue(slot, state, cue));
         state.Program = cursor;
     }
-
-    /// <inheritdoc/>
-    /// <remarks>Each Skultera's initializer creates its state, so a room load has nothing to reset.</remarks>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
 }

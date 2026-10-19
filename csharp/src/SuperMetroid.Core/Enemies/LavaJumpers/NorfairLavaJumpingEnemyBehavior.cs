@@ -38,12 +38,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public SoundEffectId? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
-    /// <summary>Discards prior room state and its pending jump sound.</summary>
-    internal void ResetNorfairLavaJumpingEnemyRoomState()
-    {
-        LastNorfairLavaJumpingEnemySoundEffect = null;
-    }
-
     /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
@@ -268,12 +262,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyNorfairLavaJumperCue(state, cue));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetNorfairLavaJumpingEnemyRoomState();
     }
 
     /// <inheritdoc/>

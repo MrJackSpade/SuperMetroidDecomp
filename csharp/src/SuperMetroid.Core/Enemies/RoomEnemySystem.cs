@@ -146,12 +146,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>The <see cref="EnemyPresentation"/> owner of this RoomEnemySystem.</summary>
     internal EnemyPresentation Presentation { get; }
 
-    /// <summary>The gameplay OBJ character table's bindings that enemy-format sprites draw from.</summary>
-    public ObjCharacterUploads ObjCharacters
-    {
-        get => Presentation.ObjCharacters;
-    }
-
     /// <summary>The <see cref="EnemySlotTable"/> owner of this RoomEnemySystem.</summary>
     internal EnemySlotTable SlotTable { get; }
 
@@ -450,25 +444,24 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>The loaded room's address space, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; }
 
-    /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
-    public EscapeTypewriterPresentation? EscapeTypewriterPresentation
+    /// <summary>
+    /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host installs
+    /// it (as after a debugger restore).
+    /// </summary>
+    /// <param name="value">The installed escape-warning text, or null when none is installed.</param>
+    internal void RebindEscapeTypewriters(EscapeTypewriterPresentation? value)
     {
-        get => Presentation.EscapeTypewriterPresentation;
-        set
+        EscapeTypewriterState? active = MotherBrainEncounter.MotherBrain?.EscapeTypewriter;
+        if (active?.ProgramId == EscapeTypewriterProgramId.Zebes)
         {
-            Presentation.EscapeTypewriterPresentation = value;
-            EscapeTypewriterState? active = MotherBrainEncounter.MotherBrain?.EscapeTypewriter;
-            if (active?.ProgramId == EscapeTypewriterProgramId.Zebes)
-            {
-                if (value is null) active.UnbindProgram();
-                else active.BindProgram(value.Get(EscapeTypewriterProgramId.Zebes));
-            }
-            EscapeTypewriterState? ceres = RidleyEncounter.Ridley?.CeresEscapeTypewriter;
-            if (ceres?.ProgramId == EscapeTypewriterProgramId.Ceres)
-            {
-                if (value is null) ceres.UnbindProgram();
-                else ceres.BindProgram(value.Get(EscapeTypewriterProgramId.Ceres));
-            }
+            if (value is null) active.UnbindProgram();
+            else active.BindProgram(value.Get(EscapeTypewriterProgramId.Zebes));
+        }
+        EscapeTypewriterState? ceres = RidleyEncounter.Ridley?.CeresEscapeTypewriter;
+        if (ceres?.ProgramId == EscapeTypewriterProgramId.Ceres)
+        {
+            if (value is null) ceres.UnbindProgram();
+            else ceres.BindProgram(value.Get(EscapeTypewriterProgramId.Ceres));
         }
     }
 
@@ -542,9 +535,25 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <inheritdoc/>
     public EnemyFrameResult LastEnemyFrame => FrameResults.Build();
 
-    /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
+    /// <summary>
+    /// Creates a session's first room's enemy system: all 32 stable physical slot objects, with no residue and the
+    /// door-transition gates clear, without loading a population or binding memory, graphics, random-number, or
+    /// gameplay services.
+    /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
     public RoomEnemySystem(EnemySession session)
+        : this(session, EnemyRoomResidue.None)
+    {
+    }
+
+    /// <summary>
+    /// Creates a room's enemy system: all 32 stable physical slot objects, starting from the words the replaced room's
+    /// enemies left, with the door-transition gates clear, without loading a population or binding memory, graphics,
+    /// random-number, or gameplay services.
+    /// </summary>
+    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    /// <param name="residue">The words the replaced room's enemies leave behind.</param>
+    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue residue)
     {
         Room = new EnemyRoomBinding(session);
         // Shared collaborators first: every species owner receives the ones it uses.
@@ -750,6 +759,18 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
         SlotTable.InstallSlots(Species);
+        Ensure.NotNull(residue).ApplyTo(this);
+    }
+
+    /// <summary>
+    /// Re-asserts the door-transition gates over the loaded room: the population initialized with them clear, and the
+    /// door-transition code that owns them keeps them for the rest of the transition.
+    /// </summary>
+    /// <param name="gates">The gates the room the load replaced held.</param>
+    internal void ResumeDoorTransitionGates(EnemyDoorTransitionGates gates)
+    {
+        RoomStatus.EnemyDoorTransitionActive = gates.EnemyDoorTransitionActive;
+        ElevatorBehavior.ElevatorDoorTransitionActive = gates.ElevatorDoorTransitionActive;
     }
 
     /// <summary>Collision words read from the current slots after their AI has run.</summary>
@@ -765,6 +786,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         get => Room.Session.TileArtwork;
         set => Room.Session.TileArtwork = value;
     }
+    /// <summary>Whether <see cref="Load"/> has loaded this room's population; a room loads it once.</summary>
+    private bool _populationLoaded;
+
     /// <summary>Whether an address-space dependency has been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
     public bool IsLoaded => Room.IsLoaded;
 
@@ -775,6 +799,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public void Load(IRoomEnemyLoad request)
     {
         Ensure.NotNull(request);
+        if (_populationLoaded)
+            throw new InvalidOperationException("A room's enemy system loads its population once; each room builds its own.");
+        _populationLoaded = true;
         IRoomEnemyDefinitionSource definitions = request.Definitions;
         Room.Definitions = definitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
@@ -786,38 +813,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Room.Services = request.Services;
         Presentation.BindVram(request.Vram);
         Presentation.BindCgram(request.Cgram);
-        SlotTable.EnemyCount = 0;
-        RoomStatus.EnemiesKilled = 0;
-        RoomStatus.BossId = 0;
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();
-        // Each species resets its own room state, in the original order; the slots drop the species states they hold.
-        foreach (RoomEnemySlot slot in SlotTable.Slots)
-            slot.ClearSpeciesStates();
-        foreach (IEnemySpecies species in _species)
-            species.ResetForRoomLoad(request);
-        GunshipBehavior.GunshipSavePromptPending = false;
-        GunshipBehavior.GunshipSaveRequested = false;
-        RoomStatus.EnemyDoorTransitionActive = false;
-        Projectiles.LastEnemyProjectileDudSoundEffect = null;
-        RoomStatus.FirefleaDarknessLevel = 0;
-        Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
-        Earthquake.EarthquakeType = 0;
-        Earthquake.LastRoomShake = default;
-        RidleyEncounter.Ridley = null;
-        FrameContext.EndFullSweep();
-        SpriteObjects.ResetForRoom();
-        // Enemy projectiles live in a separate native bank-$86 pool, but room loading
-        // destroys them just as decisively as it clears bank-$A0 enemy slots. Without
-        // this reset, leaving Ridley's room could carry a fireball (and its stale room
-        // collision coordinates) into the destination room.
-        Projectiles.ResetForRoom();
-        ProcessingWindow.ResetForRoomLoad();
-        _interactiveCollisionBodies.Clear();
-        PopulationLoader.ResetForRoomLoad();
-        Drawing.Clear();
-        foreach (RoomEnemySlot slot in SlotTable.Slots)
-            slot.Clear();
+        // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
+        RinkaBehavior.SetRinkaCamera(request.Camera);
+        ShuttersBehavior.BeginShutterFrame(request.Camera);
 
         // $A0:8A6D does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
@@ -1499,18 +1499,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
 }
 
-    /// <summary>Binds every enemy-owned color, HUD and escape asset from one host map catalog.</summary>
-    public void BindMapPresentation(IGameplayPresentationContent? maps)
-    {
-        Presentation.MotherBrainHealthColors = maps?.MotherBrainHealthPalette;
-        Presentation.MotherBrainRainbowColors = maps?.MotherBrainRainbowPalette;
-        Presentation.MotherBrainRoomColors = maps?.MotherBrainRoomColors;
-        Presentation.CeresRidleyColors = maps?.CeresRidleyColors;
-        Presentation.CeresRidleyMode7Colors = maps?.CeresRidleyMode7Colors;
-        Presentation.EscapeTimerArtwork = maps?.EscapeTimerTiles;
-        EscapeTypewriterPresentation = maps?.EscapeTypewriter;
-        Presentation.HudTileArtwork = maps?.HudTiles;
-    }
 
     /// <summary>
     /// Publishes enemy-authored target colors to the current room-fade owner. Only written

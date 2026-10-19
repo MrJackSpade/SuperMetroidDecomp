@@ -2217,13 +2217,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon { get; internal set; }
 
-    /// <summary>Discards prior encounter state and pending flame-drop requests on room load.</summary>
-    internal void ResetPhantoonRoomState()
-    {
-        Phantoon = null;
-        PhantoonFlameDropRequests.Clear();
-    }
-
     /// <summary>Requires the native slot-zero body before handling another Phantoon part.</summary>
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
@@ -2240,20 +2233,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Phantoon is not null)
-        {
-            Phantoon.LastMaterializationSound = null;
-            Phantoon.LastCombatSoundEffect = null;
-            Phantoon.MusicRequest = null;
-        }
-        ResetPhantoonRoomState();
-    }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -16,8 +17,11 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+    /// <summary>The session that holds every room's installed enemy artwork.</summary>
+    public required EnemySession EnemySession { get; init; }
+
+    /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
+    public required ActiveRoomState Room { get; init; }
 
     /// <summary>Hud.</summary>
     public required HudState Hud { get; init; }

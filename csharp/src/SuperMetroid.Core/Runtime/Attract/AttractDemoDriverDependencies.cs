@@ -23,8 +23,9 @@ internal sealed record AttractDemoDriverDependencies
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+
+    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
+    public required EnemySession EnemySession { get; init; }
 
     /// <summary>Hud setup.</summary>
     public required GameplayHudSetup HudSetup { get; init; }

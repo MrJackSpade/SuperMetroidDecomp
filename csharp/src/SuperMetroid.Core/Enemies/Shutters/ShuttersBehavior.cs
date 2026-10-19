@@ -536,13 +536,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public SoundEffectId? LastShutterSoundEffect { get; private set; }
 
-    /// <summary>Clears every shutter slot state and sound request on room change.</summary>
-    internal void ResetShutterRoomState(Position16<RoomPixels> camera)
-    {
-        _shutterCamera = camera;
-        LastShutterSoundEffect = null;
-    }
-
     /// <summary>Captures the current camera and clears the prior frame's activation sound.</summary>
     internal void BeginShutterFrame(Position16<RoomPixels> camera)
     {
@@ -1095,12 +1088,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetShutterRoomState(request.Camera);
     }
 
     /// <inheritdoc/>

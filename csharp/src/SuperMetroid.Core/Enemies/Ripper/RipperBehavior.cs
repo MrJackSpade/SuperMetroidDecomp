@@ -34,13 +34,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RipperExtensionWords[] NewExtensions() =>
         [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
 
-    /// <summary>Clears variant patrol endpoints, AI state and loops before loading another room.</summary>
-    internal void ResetRipperVariantRoomState()
-    {
-        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
-            Extensions[slotIndex] = new RipperExtensionWords();
-    }
-
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
     internal void InitializeGRipper(RoomEnemySlot slot)
     {
@@ -292,11 +285,5 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = (c, _) => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
         });
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetRipperVariantRoomState();
     }
 }

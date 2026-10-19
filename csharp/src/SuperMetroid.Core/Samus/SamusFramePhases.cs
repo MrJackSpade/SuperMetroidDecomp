@@ -32,8 +32,6 @@ internal sealed class SamusFramePhases
     private readonly SnesCgram _cgram;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Provides enemy collision and grapple targets for Samus movement.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Preserves the enemy-main ordering seam relative to Samus movement.</summary>
     private readonly EnemyFramePhase _enemyPhase;
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
@@ -68,7 +66,6 @@ internal sealed class SamusFramePhases
         _xray = dependencies.Xray;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
-        _enemies = dependencies.Enemies;
         _enemyPhase = dependencies.EnemyPhase;
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
@@ -96,7 +93,7 @@ internal sealed class SamusFramePhases
     /// connected and release functions own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
-    private bool RunGrappleBeamHandler(SamusBetaHandler beta, RoomPlmSystem plms, SamusProjectileSystem projectiles)
+    private bool RunGrappleBeamHandler(SamusBetaHandler beta, RoomPlmSystem plms, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (_player.Samus is null || _room.LevelData is null)
             throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
@@ -115,7 +112,7 @@ internal sealed class SamusFramePhases
                 _player.Samus,
                 _controller1.Current,
                 plms,
-                _enemies.GrappleTargets.ResolveGrappleEndpoint,
+                room.Enemies.GrappleTargets.ResolveGrappleEndpoint,
                 deferConnectionPoseChange: true);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
@@ -131,7 +128,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, Plms = plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, _enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, Plms = plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -238,7 +235,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// The beta handler installed for this beta: the first of death, the suit's empty beta, command zero, command six,
     /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
     /// </summary>
-    private SamusBetaHandler DeriveBetaHandler(SamusHandlerFrame frame, SamusState samus)
+    private SamusBetaHandler DeriveBetaHandler(SamusHandlerFrame frame, SamusState samus, RoomScope room)
     {
         if (frame.DeathOwnsSamus)
             return SamusBetaHandler.Fatal;
@@ -250,7 +247,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             return SamusBetaHandler.RefillStation;
         if (_attractDemo.IsAttractDemo)
             return SamusBetaHandler.TitleDemo;
-        if (_enemies.Gunship.HealthHandlerActive)
+        if (room.Enemies.Gunship.HealthHandlerActive)
             return SamusBetaHandler.Gunship;
         return samus.InputLocked ? SamusBetaHandler.Locked : SamusBetaHandler.Normal;
     }
@@ -262,7 +259,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
-        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms);
+        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms, room);
         frame.MovementEnabled = _player.GroundedSamusMovementEnabled;
         if (frame.MovementEnabled)
             RunAlphaTail(frame, gameState, samus, camera, room);
@@ -326,7 +323,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // still runs cooldown, HUD switching and the HUD handler; only its
         // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
-        frame.AlphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_enemies.Elevator.ElevatorDoorTransitionActive;
+        frame.AlphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive;
         if (frame.AlphaRuns)
         {
             // `$90:C4E7` runs before the movement-type HUD projectile producer.
@@ -374,7 +371,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         }
 
-        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta, room.Plms, room.Projectiles);
+        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta, room.Plms, room.Projectiles, room);
 
         if (frame.AlphaRuns)
         {
@@ -420,7 +417,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Re-samples what EnemyMain can change before beta dispatches: a cancelled prospective pose ($90:F093), the
     /// stationary-script lock, updated beam hits and the contact-damage index beta clears.
     /// </summary>
-    internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles)
+    internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (!frame.MovementEnabled)
             return;
@@ -433,9 +430,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         }
         // Actor commands replace beta before its dispatch in this same update.
         frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
-        frame.Mode = frame.Mode with { Beta = DeriveBetaHandler(frame, samus) };
+        frame.Mode = frame.Mode with { Beta = DeriveBetaHandler(frame, samus, room) };
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
-            _enemyPhase.ResolveUpdatedBeamHits(bombProjectiles, projectiles);
+            // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
+            room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
 
         // EnemyMain consumes the preceding frame's contact-damage index.
         // Only beta clears it, before movement republishes the current value.
@@ -714,7 +712,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // state $20 waits at the Ceres elevator.
         else if (samus.InputLocked &&
             !(SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-              _enemies.Elevator.ElevatorRunsSamusMovement))
+              room.Enemies.Elevator.ElevatorRunsSamusMovement))
         {
             // Elevator command seven installs the moving beta handler for departure.
             // HandleTransition reinstalls it only on downward arrival. Upward arrival
@@ -739,14 +737,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // No positional movement.
         }
         else
-            RunPoseMovement(samus, room.Plms);
+            RunPoseMovement(samus, room.Plms, room);
     }
 
     /// <summary>
     /// Runs the pose's normal movement-table entry ($90:A337). Every pose the retail producers reach has a branch; any
     /// other pose is corrupt state.
     /// </summary>
-    private void RunPoseMovement(SamusState samus, RoomPlmSystem plms)
+    private void RunPoseMovement(SamusState samus, RoomPlmSystem plms, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -755,7 +753,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         {
             case SamusPoseId.ForwardFacingPowerSuitPose:
             case SamusPoseId.ForwardFacingSuitedPose:
-                StepForwardFacingMovement(samus, plms);
+                StepForwardFacingMovement(samus, plms, room);
                 break;
             case SamusPoseId.FacingRightNormalPose:
             case SamusPoseId.StandingAimUpRightPose:
@@ -995,7 +993,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>Runs forward-facing <c>$00/$9B</c> movement, including the elevator's one-pixel downward block scan.</summary>
-    private void StepForwardFacingMovement(SamusState samus, RoomPlmSystem plms)
+    private void StepForwardFacingMovement(SamusState samus, RoomPlmSystem plms, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1010,11 +1008,11 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             samus,
             _clock.Counter,
             elevatorIsMoving:
-                _enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive,
+                room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive,
             plms: plms,
             publishDoorSideEffects:
                 RoomMainRoutines.ShouldPublishFacingForwardElevatorDoorSideEffects(
-                    _enemies.Elevator.ElevatorStatus));
+                    room.Enemies.Elevator.ElevatorStatus));
     }
 
     /// <summary>Runs a turn pose's movement through its movement-type byte: ground turning, or turning in the air.</summary>
@@ -1091,7 +1089,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// refresh, pose-input lookup and the lookup-failure pose ($91:82D9).
     /// </summary>
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
-        FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomPlmSystem plms)
+        FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomPlmSystem plms, RoomScope room)
     {
         // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
         // setup/beam/deactivation state before alpha so state five can restore the
@@ -1129,7 +1127,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // alpha ($90:E713) has no SetSamusRadius, so e.g. an elevator ride keeps
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) &&
-            !samus.DeathSequence.IsActive && !_enemies.Elevator.ElevatorDoorTransitionActive)
+            !samus.DeathSequence.IsActive && !room.Enemies.Elevator.ElevatorDoorTransitionActive)
             samus.PoseMetadata.RefreshCollisionRadii();
         // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
         // affects the next beta, not the animation already owned this frame.
@@ -1151,7 +1149,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.DeathOwnsSamus = samus.DeathSequence.IsActive;
-        frame.Mode = new SamusControlMode(DeriveBetaHandler(frame, samus));
+        frame.Mode = new SamusControlMode(DeriveBetaHandler(frame, samus, room));
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.
@@ -1168,7 +1166,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         frame.BombJumpLocksPoseInput = samus.BombJumpPoseInputLocked;
         frame.ActorLocksPoseInput = frame.AlphaInputLocked(samus) || frame.BombJumpLocksPoseInput ||
             ((samus.InputSnapshot.ShinesparkPoseInputLocked || samus.InputSnapshot.CrystalFlashPoseInputLocked) && !samus.InputSnapshot.AutoJumpInputPending) ||
-            (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && _enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive);
+            (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive);
         // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
         // poses can still have table entries, but reading them here prematurely
         // interrupts crouch/morph animations before their animation command wins.

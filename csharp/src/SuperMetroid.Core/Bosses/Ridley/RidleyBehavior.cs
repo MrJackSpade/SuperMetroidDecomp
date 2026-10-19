@@ -1609,12 +1609,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        RidleyDeathDropRequested = false;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         // These are one-shot publications made by Ridley's current AI call, matching

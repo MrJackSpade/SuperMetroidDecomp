@@ -141,7 +141,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
         current.Slice(192, 16).CopyTo(target.AsSpan(192, 16));
-        session.deathPaletteFade = new CartridgePaletteTransition(target, denominator: 6, session.runtime.Enemies.Presentation.GradualColorChange);
+        session.deathPaletteFade = new CartridgePaletteTransition(target, denominator: 6, session.runtime.EnemySession.GradualColorChange);
     }
 
     /// <summary>

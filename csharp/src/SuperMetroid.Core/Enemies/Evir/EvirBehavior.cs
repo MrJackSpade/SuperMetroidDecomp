@@ -613,14 +613,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastEvirSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<EvirEnemyState>(null);
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastEvirSoundEffect = null;

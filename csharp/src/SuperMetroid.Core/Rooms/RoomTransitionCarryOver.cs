@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -15,5 +16,10 @@ namespace SuperMetroid.Core.Rooms;
 /// The layer-1 position an earlier gameplay owner left in WRAM; the first room's camera takes its fraction words.
 /// </param>
 /// <param name="ProjectileResidue">The words the outgoing room's Samus projectile slots leave behind.</param>
+/// <param name="DoorGates">
+/// The outgoing room's door-transition gates, which door-transition code owns for the whole transition; the
+/// destination's enemies load with them clear and resume them once loaded (owner decision on #1329).
+/// </param>
+/// <param name="EnemyResidue">The words the outgoing room's enemy projectiles and enemy slot table leave behind.</param>
 internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, FixedPosition<RoomPixels> InheritedLayer1Position,
-    SamusProjectileResidue ProjectileResidue);
+    SamusProjectileResidue ProjectileResidue, EnemyDoorTransitionGates DoorGates, EnemyRoomResidue EnemyResidue);

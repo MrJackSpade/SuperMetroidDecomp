@@ -100,7 +100,7 @@ internal static class MotherBrainRoomColorsVerification
             "Mother Brain room-color override changes selected-content identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        AssertTrue(ReferenceEquals(runtime.Enemies.Presentation.MotherBrainRoomColors,
+        AssertTrue(ReferenceEquals(runtime.EnemySession.MotherBrainRoomColors,
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");
         AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,

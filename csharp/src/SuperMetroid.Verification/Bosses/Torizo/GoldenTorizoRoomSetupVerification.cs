@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

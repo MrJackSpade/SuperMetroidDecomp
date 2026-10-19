@@ -62,15 +62,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>OBJ palette row selected by the last eligible block processed by main AI.</summary>
     private int _blueBrinstarFaceBlockPaletteRow;
 
-    /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
-    internal void ResetBlueBrinstarFaceBlockRoomState()
-    {
-        _blueBrinstarFaceBlockPaletteHookInstalled = false;
-        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(0);
-        _blueBrinstarFaceBlockPaletteFrame = 0;
-        _blueBrinstarFaceBlockPaletteRow = 0;
-    }
-
     /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c> at <c>$A8:E82E</c>.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
@@ -228,11 +219,5 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             slot,
             RequireBlueBrinstarFaceBlockState(slot),
             frame.Samus);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetBlueBrinstarFaceBlockRoomState();
     }
 }

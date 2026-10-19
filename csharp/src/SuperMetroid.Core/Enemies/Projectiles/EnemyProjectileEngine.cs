@@ -138,7 +138,7 @@ internal sealed class EnemyProjectileEngine
         _audio = audio;
     }
     /// <summary>Eighteen physical enemy-projectile indices $00..$22 in two-byte steps.</summary>
-    private const int RoomEnemyProjectileSlotCount = 18;
+    internal const int RoomEnemyProjectileSlotCount = 18;
 
     /// <summary>Native pool including inactive entries, traversed from the highest physical slot down.</summary>
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
@@ -254,14 +254,6 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter, 0 through 255.</summary>
     private int _standaloneFrameCounter8;
-
-    /// <summary>Discards every projectile and restarts the standalone clock when a room loads.</summary>
-    internal void ResetForRoom()
-    {
-        _standaloneFrameCounter8 = 0;
-        foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
-            projectile.Clear();
-    }
 
     /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>
     private int AdvanceStandaloneFrameCounter8()

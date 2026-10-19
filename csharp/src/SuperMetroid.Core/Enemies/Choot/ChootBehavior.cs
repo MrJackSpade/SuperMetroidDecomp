@@ -240,11 +240,4 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunChootMain(slot, RequireChootState(slot), frame.Samus);
     }
-
-    /// <summary>Clears every room-slot movement array before a new enemy population loads.</summary>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new ChootExtensionWords();
-    }
 }

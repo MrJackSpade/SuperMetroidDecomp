@@ -25,8 +25,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Enemy phase.</summary>
     public required EnemyFramePhase EnemyPhase { get; init; }

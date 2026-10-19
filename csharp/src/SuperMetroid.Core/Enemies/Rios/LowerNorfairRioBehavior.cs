@@ -42,12 +42,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public SoundEffectId? LastLowerNorfairRioSoundEffect { get; private set; }
 
-    /// <summary>Clears room-local Rio actors and their pending sound witness.</summary>
-    internal void ResetLowerNorfairRioRoomState()
-    {
-        LastLowerNorfairRioSoundEffect = null;
-    }
-
     /// <summary>Ports <c>LowerNorfairRio_Init</c> at $A2:C6F3.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
@@ -353,12 +347,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyLowerNorfairRioCue(state, cue));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetLowerNorfairRioRoomState();
     }
 
     /// <inheritdoc/>

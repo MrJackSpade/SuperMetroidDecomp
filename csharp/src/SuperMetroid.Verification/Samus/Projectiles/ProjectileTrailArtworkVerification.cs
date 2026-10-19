@@ -217,7 +217,7 @@ internal static class ProjectileTrailArtworkVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.BombProjectiles, target.Projectiles, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
             target.Sprites.FinalizeFrame();
             return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }

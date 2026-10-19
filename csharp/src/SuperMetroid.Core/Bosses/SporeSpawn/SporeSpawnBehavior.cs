@@ -76,14 +76,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last sound requested by the boss or one of its instructions in the current enemy frame.</summary>
     public SoundEffectId? LastSporeSpawnSoundEffect { get; private set; }
 
-    /// <summary>Removes boss state and clears pending PLM, sound, and drop publications on room load.</summary>
-    internal void ResetSporeSpawnRoomState()
-    {
-        SporeSpawn = null;
-        LastSporeSpawnSoundEffect = null;
-        SporeSpawnDropRequests.Clear();
-    }
-
     /// <summary>Clears one-frame publications before the next enemy update.</summary>
     internal void BeginSporeSpawnFrame()
     {
@@ -835,12 +827,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             spore.Position.Whole,
             EnemyDefinitionId.SporeSpawnStalk);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetSporeSpawnRoomState();
     }
 
     /// <inheritdoc/>

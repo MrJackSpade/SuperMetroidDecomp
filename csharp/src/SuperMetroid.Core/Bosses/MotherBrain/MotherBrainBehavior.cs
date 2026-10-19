@@ -92,9 +92,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Discards the prior room's shared body/head state before enemy initialization.</summary>
-    internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
-
     /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
     internal readonly MotherBrainExtensionWords[] Extensions = NewExtensions();
 
@@ -4490,12 +4487,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.RainbowPaletteCursor += sizeof(ushort);
         rainbow.ApplyRainbow(_presentation.Cgram, frame);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetMotherBrainRoomState();
     }
 
     /// <inheritdoc/>

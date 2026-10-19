@@ -132,14 +132,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
-    /// <summary>Discards the previous statue, orb requests, and frame-level sound/music publications on room load.</summary>
-    internal void ResetBombTorizoRoomState()
-    {
-        TorizoState = null;
-        TorizoOrbDropRequests.Clear();
-        LastBombTorizoMusicRequest = null;
-    }
-
     /// <summary>
     /// Ports shared <c>Torizo_Init</c> at $AA:C87F for the area-zero Bomb and area-two
     /// Golden definitions. The cartridge indexes parallel two-word tables by area; using
@@ -2173,12 +2165,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetBombTorizoRoomState();
     }
 
     /// <inheritdoc/>

@@ -27,8 +27,6 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Enemy phase.</summary>
     public required EnemyFramePhase EnemyPhase { get; init; }

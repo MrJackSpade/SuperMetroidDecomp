@@ -625,11 +625,4 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BeetomTouch,
             context => ResolveBeetomTouch(context.Slot, RequireBeetomState(context.Slot), context.Samus));
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new BeetomExtensionWords();
-    }
 }

@@ -47,14 +47,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     public TourianStatueAnimationState TourianEntranceStatueAnimationState { get; internal set; }
 
-    /// <summary>Clears the completion, palette-animation, and BG2 displacement latches on room load.</summary>
-    internal void ResetTourianEntranceStatueRoomState()
-    {
-        TourianEntranceStatueFinished = false;
-        TourianEntranceStatueAnimationState = TourianStatueAnimationState.None;
-        TourianEntranceStatueVerticalOffset = 0;
-    }
-
     /// <summary>The words each physical slot keeps across TourianEntranceStatue occupants for the current room.</summary>
     internal readonly TourianEntranceStatueExtensionWords[] Extensions = NewExtensions();
 
@@ -158,14 +150,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void RunTourianEntranceStatueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeTourianEntranceStatue(slot);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
-            Extensions[slotIndex] = new TourianEntranceStatueExtensionWords();
-        ResetTourianEntranceStatueRoomState();
     }
 
     /// <summary>Ports TourianEntranceStatue's main AI.</summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -99,6 +100,20 @@ public sealed class EnemySession
     /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
     [field: NonSerialized]
     internal CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
+
+    /// <summary>Binds every enemy-owned color, HUD and escape asset from one host map catalog.</summary>
+    /// <param name="maps">The host's installed map presentation, or null when none is installed.</param>
+    public void BindMapPresentation(IGameplayPresentationContent? maps)
+    {
+        MotherBrainHealthColors = maps?.MotherBrainHealthPalette;
+        MotherBrainRainbowColors = maps?.MotherBrainRainbowPalette;
+        MotherBrainRoomColors = maps?.MotherBrainRoomColors;
+        CeresRidleyColors = maps?.CeresRidleyColors;
+        CeresRidleyMode7Colors = maps?.CeresRidleyMode7Colors;
+        EscapeTimerArtwork = maps?.EscapeTimerTiles;
+        EscapeTypewriterPresentation = maps?.EscapeTypewriter;
+        HudTileArtwork = maps?.HudTiles;
+    }
 
     /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
     [field: NonSerialized]

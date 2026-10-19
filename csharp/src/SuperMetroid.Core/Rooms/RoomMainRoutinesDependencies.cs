@@ -14,8 +14,6 @@ internal sealed record RoomMainRoutinesDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

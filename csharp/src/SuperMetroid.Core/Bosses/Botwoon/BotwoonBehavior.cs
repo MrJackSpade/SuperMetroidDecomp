@@ -80,14 +80,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
     public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
-    /// <summary>Discards prior-room Botwoon state and all published sound, drop, wall, and music requests.</summary>
-    internal void ResetBotwoonRoomState()
-    {
-        BotwoonState = null;
-        LastBotwoonSoundEffect = null;
-        LastBotwoonMusicRequest = null;
-    }
-
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
     private void InitializeBotwoon(RoomEnemySlot head)
     {
@@ -1125,13 +1117,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             spit.Clear();
         }
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetBotwoonRoomState();
-        LastBotwoonSoundEffect = null;
     }
 
     /// <inheritdoc/>

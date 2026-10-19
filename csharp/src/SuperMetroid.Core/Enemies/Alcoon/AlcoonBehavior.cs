@@ -503,12 +503,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastAlcoonSoundEffect { get; private set; }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastAlcoonSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastAlcoonSoundEffect = null;

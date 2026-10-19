@@ -26,8 +26,6 @@ internal sealed class EnemyFramePhase
     private readonly ControllerInputState _controller1;
     /// <summary>Provides the active Samus Mode 7 transform to the enemy frame.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Runs enemy AI, collision, drawing handoffs, and encounter state for this frame.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Starts the Ceres escape countdown on the EnemyMain transition that requests it.</summary>
@@ -53,7 +51,6 @@ internal sealed class EnemyFramePhase
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeTimer = dependencies.EscapeTimer;
         _freeze = dependencies.Freeze;
@@ -64,24 +61,16 @@ internal sealed class EnemyFramePhase
         _vramWrites = dependencies.VramWrites;
 
     }
-    /// <summary>Resolves Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.</summary>
-    internal void ResolveUpdatedBeamHits(SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles)
-    {
-        _enemies.Ceres.ResolveCeresRidleyProjectileHits(
-            projectiles,
-            bombProjectiles);
-    }
-
     /// <summary>Publishes prior-frame elevator contact and clears Samus's external displacement before enemies add platform motion.</summary>
-    internal void PrepareEnemyFrame()
+    internal void PrepareEnemyFrame(RoomScope room)
     {
-        if (_room.Camera is not null && _enemies.IsLoaded)
+        if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
             // Samus's bank-$94 collision phase follows EnemyMain. A pseudo-door contact
             // published last frame therefore becomes `$0E16=1` immediately before this
             // frame's elevator actor dispatcher, preserving the native producer order.
             if (_room.LevelData?.ConsumeElevatorDoorContact() == true)
-                _enemies.Elevator.PublishElevatorDoorContact();
+                room.Enemies.Elevator.PublishElevatorDoorContact();
             if (_player.Samus is not null)
             {
                 // `$94:9B60-$9B72` clears all four external-displacement words before
@@ -105,10 +94,10 @@ internal sealed class EnemyFramePhase
     /// <param name="room">The loaded room.</param>
     internal void RunEnemyMainPhase(bool processingListPrepared, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room)
     {
-        if (_room.Camera is not null && _enemies.IsLoaded)
+        if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
-            EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx);
+            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, NmiFrameCounter8 = _clock.Counter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = room.BombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms, NmiFrameCounter = _clock.Counter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx, room.Enemies);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
@@ -130,9 +119,9 @@ internal sealed class EnemyFramePhase
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
-            if (!_freeze.TimeIsFrozen && _enemies.MotherBrainEncounter.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
+            if (!_freeze.TimeIsFrozen && room.Enemies.MotherBrainEncounter.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
             {
-                rainbowBrain.RainbowBeamHdma.PresentationColors = _enemies.Presentation.MotherBrainRainbowColors;
+                rainbowBrain.RainbowBeamHdma.PresentationColors = room.Enemies.Presentation.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeamHdma.Step(rainbowBrain.RainbowBeamHdmaActive,
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
@@ -140,7 +129,7 @@ internal sealed class EnemyFramePhase
             // $A7:C85E writes PreviousLayer1XBlock during EnemyMain: every BG1 column streams as new.
             if (result.KraidLayer1XBlockReset)
                 _backgroundScroll.ResetPreviousLayer1XBlock();
-            if (_enemies.PhantoonBehavior.Phantoon is { } phantoon)
+            if (room.Enemies.PhantoonBehavior.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
                 // while eye/tentacle collision follows enemy positions. Publish those
@@ -176,12 +165,12 @@ internal sealed class EnemyFramePhase
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
-            _enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
+            room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _oam,
                 _room.Camera.PixelPosition);
             if (_player.Samus is not null)
             {
-                _player.Samus.Kinematics.InteractiveEnemies = _enemies.InteractiveCollisionBodies;
+                _player.Samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
                 if (result.Gunship == GunshipFrameEvent.EntryStarted)
                 {
                     // MakeSamusFaceForward performs a direct suit-palette reload and the
@@ -189,7 +178,7 @@ internal sealed class EnemyFramePhase
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
                     _player.Samus.Presentation.LoadSuitPalette(_cgram);
-                    _enemies.Elevator.ResetStatus();
+                    room.Enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {

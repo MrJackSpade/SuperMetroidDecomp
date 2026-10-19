@@ -49,10 +49,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Releases every initialized species state before a new room population loads.</summary>
-    internal void ResetPipeBugRoomState() =>
-        _slotTable.ClearSpeciesState<PipeBugEnemyState>();
-
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
@@ -715,11 +711,5 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             RequirePipeBugState(slot),
             frame.Samus,
             frame.Camera);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetPipeBugRoomState();
     }
 }

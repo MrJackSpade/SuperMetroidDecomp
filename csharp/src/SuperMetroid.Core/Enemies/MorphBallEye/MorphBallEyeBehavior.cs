@@ -355,15 +355,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastMorphBallEyeSoundEffect = null;
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<MorphBallEyeEnemyState>(null);
-        MorphBallEyeBeam.Reset();
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMorphBallEyeSoundEffect = null;

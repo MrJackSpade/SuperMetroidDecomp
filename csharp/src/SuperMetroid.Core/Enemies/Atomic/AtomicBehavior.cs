@@ -136,10 +136,4 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
     }
-
-    /// <inheritdoc/>
-    /// <remarks>Each Atomic's initializer creates its state, so a room load has nothing to reset.</remarks>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
 }

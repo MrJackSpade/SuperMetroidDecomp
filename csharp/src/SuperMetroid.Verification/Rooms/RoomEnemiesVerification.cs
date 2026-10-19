@@ -165,8 +165,8 @@ internal static void VerifyRoomEnemyLoading()
         [0xa29100] = primaryTileBytes,
         [0xa39320] = specialTileBytes,
     });
-    tileQueue.DrainTo(vram, seededTiles, enemies.ObjCharacters);
-    AssertEqual(2, enemies.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
+    tileQueue.DrainTo(vram, seededTiles, enemies.Room.Session.ObjCharacters);
+    AssertEqual(2, enemies.Room.Session.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
     AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
     AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
     AssertEqual(0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
@@ -216,7 +216,7 @@ internal static void VerifyRoomEnemyLoading()
     installedEnemies.Load(new RoomEnemyLoadRequest(new EnemyTileSourceReadGuard(bus), bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), installedVram, installedCgram, new StandaloneRoomEnemyServices(() => 0x9999)));
     var installedQueue = new VramWriteQueue();
     installedEnemies.PopulationLoader.QueueGraphicsUploads(installedQueue);
-    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.ObjCharacters);
+    installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters);
     AssertTrue(vram.ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
@@ -235,9 +235,10 @@ internal static void VerifyRoomEnemyLoading()
         installedEnemies.TileArtwork.LoadTo(primaryDefinitionPointer, 0x20, new VramStore(new SnesVram()).All, 0xe000),
         "wrong-size enemy sheet cannot silently truncate its native transfer");
 
-    // Reload the same object with an empty population and a deliberately invalid tileset.
-    // Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
+    // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid
+    // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // first-free/death-quota words untouched even though current enemy counts are cleared.
+    enemies = new RoomEnemySystem(enemies.Room.Session, EnemyRoomResidue.Of(enemies));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     cgram.SetColor(128, Bgr555.FromWord(0x4567));
@@ -897,7 +898,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
-        enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
+        enemies.Room.Session.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;

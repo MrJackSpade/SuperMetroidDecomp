@@ -44,8 +44,8 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Door transition.</summary>
     public required DoorTransitionRunner DoorTransition { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+    /// <summary>The enemy words and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
+    public required EnemySession EnemySession { get; init; }
 
     /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
     public required Bg2TilemapStaging Bg2TilemapStaging { get; init; }

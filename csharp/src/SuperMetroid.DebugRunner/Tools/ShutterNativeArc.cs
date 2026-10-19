@@ -48,7 +48,7 @@ internal static class ShutterNativeArc
     {
         var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
-        var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0];
+        var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
@@ -132,7 +132,7 @@ internal static class ShutterNativeArc
         for (int i = 0; i < 2; i++)
         {
             int offset = i * 64;
-            var slot = runtime.Enemies.SlotTable.Slots[i];
+            var slot = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[i];
             Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
             Word(0xF8E + offset, EnemyFrames.Spritemap(slot.Frame));
             ram[0xFA6 + offset] = slot.Definition.Bank;
@@ -140,7 +140,7 @@ internal static class ShutterNativeArc
             Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
-        var shutter = runtime.Enemies.VerticalShutterStates[0];
+        var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")));
         Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.WholeWord);
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);

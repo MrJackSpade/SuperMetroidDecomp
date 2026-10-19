@@ -42,12 +42,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public SoundEffectId? LastRioSoundEffect { get; private set; }
 
-    /// <summary>Discards prior Rio slot states and pending dive sound.</summary>
-    internal void ResetRioRoomState()
-    {
-        LastRioSoundEffect = null;
-    }
-
     /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
     {
@@ -299,12 +293,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyRioCue(state, cue));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetRioRoomState();
     }
 
     /// <inheritdoc/>

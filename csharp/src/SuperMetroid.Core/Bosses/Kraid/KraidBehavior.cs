@@ -2544,12 +2544,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
     public KraidEnemyState? Kraid { get; internal set; }
 
-    /// <summary>Discards prior room Kraid state.</summary>
-    internal void ResetKraidRoomState()
-    {
-        Kraid = null;
-    }
-
     /// <summary>
     /// Kraid's room state, created by the body's initializer and kept for the room. Parts
     /// read slot zero's words directly, so they keep running after the dead-room body is
@@ -2563,17 +2557,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} requires Kraid's body to have initialized this room.");
         }
         return Kraid;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Kraid is not null)
-            Kraid.MusicRequest = null;
-        ResetKraidRoomState();
-        LastKraidSoundEffect = null;
     }
 
     /// <inheritdoc/>

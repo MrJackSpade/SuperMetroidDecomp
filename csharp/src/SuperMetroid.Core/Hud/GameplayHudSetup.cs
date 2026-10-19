@@ -4,6 +4,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
 
@@ -16,8 +17,8 @@ internal sealed class GameplayHudSetup
     private readonly RuntimeArtwork _artwork;
     /// <summary>Receives the gameplay BG3 character-base selection.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Requeues loaded room enemy graphics after the overlapping standard OBJ upload.</summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>The room whose loaded enemy graphics a HUD initialization requeues.</summary>
+    private readonly ActiveRoomState _room;
     /// <summary>Owns the live HUD tilemap and its palette or map presentation binding.</summary>
     private readonly HudState _hud;
     /// <summary>Supplies Samus state for HUD item and resource display.</summary>
@@ -32,7 +33,7 @@ internal sealed class GameplayHudSetup
     {
         _artwork = dependencies.Artwork;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
+        _room = dependencies.Room;
         _hud = dependencies.Hud;
         _player = dependencies.Player;
         _vram = dependencies.Vram;
@@ -88,8 +89,9 @@ internal sealed class GameplayHudSetup
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
         // room enemy loader has already populated the modeled VRAM for immediate watches;
         // queueing the source records here makes enemy art win again at the accepted NMI.
-        if (_enemies.IsLoaded)
-            _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
+        // Before the gameplay runtime's first room there is no enemy population to upload.
+        if (_room.Scope?.Enemies is { IsLoaded: true } enemies)
+            enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
 
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         if (_artwork.MapPresentation is null)

@@ -38,7 +38,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Resolves an OBJ binding's Crocomire skeleton chunk.</summary>
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCrocomireSkeletonChunk(int entry) =>
-        (_enemies.TileArtwork?.CrocomireSkeleton ?? throw new InvalidOperationException(
+        (_enemySession.TileArtwork?.CrocomireSkeleton ?? throw new InvalidOperationException(
             "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(entry);
 
     /// <summary>The installed HUD atlas <see cref="HudCharacters"/> was built from, so a rebind rebuilds it.</summary>
@@ -71,8 +71,10 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly SnesCgram _cgram;
     /// <summary>Locates the current HUD character base in VRAM.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Receives installed enemy presentation and supplies enemy tile transfers.</summary>
-    private readonly RoomEnemySystem _enemies;
+    /// <summary>Receives enemy artwork and presentation catalogs for every room's enemies.</summary>
+    private readonly EnemySession _enemySession;
+    /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
+    private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
     /// <summary>Receives installed message title, panel, and notice presentation.</summary>
@@ -105,7 +107,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
+        _enemySession = dependencies.EnemySession;
+        _room = dependencies.Room;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
@@ -133,7 +136,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _roomFx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
-            _enemies.BindMapPresentation(value);
+            _enemySession.BindMapPresentation(value);
+            _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
             pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
             if (value is not null)
                 RebindLegacyArtworkTransfers();
@@ -218,10 +222,10 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             return true;
         if (SamusBodyArt?.ArmCannon.TryResolveTile(sourceAddress, byteCount, out data) == true)
             return true;
-        if (_enemies.TileArtwork?.GunshipLiftoff?.TryResolve(
+        if (_enemySession.TileArtwork?.GunshipLiftoff?.TryResolve(
                 sourceAddress, byteCount, out data) == true)
             return true;
-        if (_enemies.TileArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+        if (_enemySession.TileArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
@@ -368,7 +372,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             VramAssetId.GunshipLiftoffThirdTiles or
             VramAssetId.GunshipLiftoffFourthTiles or
             VramAssetId.GunshipLiftoffFifthTiles
-            ? (_enemies.TileArtwork?.GunshipLiftoff ??
+            ? (_enemySession.TileArtwork?.GunshipLiftoff ??
                 throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
             : asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
             VramAssetId.GrapplePointThirdTiles or VramAssetId.GrapplePointFourthTiles or

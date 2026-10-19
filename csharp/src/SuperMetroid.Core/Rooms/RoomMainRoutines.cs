@@ -19,8 +19,6 @@ internal sealed class RoomMainRoutines
 {
     /// <summary>BG1 scroll registers adjusted during Crocomire's hidden-wall rumble.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Enemy owners used by the Crocomire callback and Ceres debris spawn.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Active room callback and area identity used to dispatch room-main work.</summary>
@@ -36,7 +34,6 @@ internal sealed class RoomMainRoutines
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _enemies = dependencies.Enemies;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
@@ -44,15 +41,15 @@ internal sealed class RoomMainRoutines
         _vramWrites = dependencies.VramWrites;
     }
     /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>
-    internal void RunCrocomireComebackRoomMain()
+    internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
-            _enemies.RoomMainHooks.Crocomire is not { } boss ||
+            room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
             boss.DeathSequenceIndex != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
-        var death = _enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
+        var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         _backgroundScroll.SetBg1VerticalScrollRegister(unchecked((ushort)(
             _backgroundScroll.Layer1Position.Y + _backgroundScroll.Bg1Offset.Y + death.RumbleYOffset)));
@@ -114,11 +111,11 @@ internal sealed class RoomMainRoutines
     /// Executes Falling Tile room main <c>$8F:E525-$E550</c>. It samples the existing RNG
     /// word rather than generating a new one, preserving subsequent random consumers.
     /// </summary>
-    internal void RunCeresFallingDebrisRoomMain()
+    internal void RunCeresFallingDebrisRoomMain(RoomScope room)
     {
         if (_room.ActiveRoom?.State.MainCallback !=
                 RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
-            _enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
+            room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 
         // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
@@ -129,7 +126,7 @@ internal sealed class RoomMainRoutines
 
         _room.RoomMainScratch.Countdown = NativeCountdown.Start(8);
         int random = _system.RandomNumber;
-        _enemies.Projectiles.SpawnCeresFallingDebris(
+        room.Enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark: unchecked((short)random) < 0);
     }

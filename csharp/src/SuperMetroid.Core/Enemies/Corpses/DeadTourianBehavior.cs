@@ -45,13 +45,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private static DeadTourianExtensionWords[] NewExtensions() =>
         [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DeadTourianExtensionWords())];
 
-    /// <summary>Discards all corpse program state before loading another room.</summary>
-    internal void ResetDeadTourianCorpseRoomState()
-    {
-        for (int slotIndex = 0; slotIndex < Extensions.Length; slotIndex++)
-            Extensions[slotIndex] = new DeadTourianExtensionWords();
-    }
-
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
@@ -287,12 +280,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         int SourceOffset,
         int DestinationOffset,
         int Length);
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetDeadTourianCorpseRoomState();
-    }
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
     internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)

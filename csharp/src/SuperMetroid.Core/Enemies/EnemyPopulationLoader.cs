@@ -32,9 +32,6 @@ internal sealed class EnemyPopulationLoader
     /// <summary>Resolved graphics records in room-set order, used for DMA scheduling and per-enemy tile/palette indexes.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> GraphicsSet = new();
 
-    /// <summary>Room load: forgets the previous room's graphics set before the new one loads.</summary>
-    internal void ResetForRoomLoad() => GraphicsSet.Clear();
-
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
     public int DeathQuota
     {

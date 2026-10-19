@@ -67,15 +67,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
     public ShitroidMusicRequest? LastShitroidMusicRequest { get; private set; }
 
-    /// <summary>Discards the prior room's actor state, camera, and pending cutscene outputs.</summary>
-    internal void ResetShitroidRoomState()
-    {
-        Shitroid = null;
-        LastShitroidSoundEffectLibrary2 = null;
-        LastShitroidMusicRequest = null;
-        _shitroidCamera = Position16<RoomPixels>.Zero;
-    }
-
     /// <summary>Clears frame-local wall, camera, sound, and music requests before AI dispatch.</summary>
     internal void BeginShitroidFrame()
     {
@@ -946,13 +937,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShitroidTouch,
             context => ResolveShitroidTouch(context.Slot, context.Samus));
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        BeginShitroidFrame();
-        ResetShitroidRoomState();
     }
 
     /// <inheritdoc/>

@@ -38,7 +38,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Samus state owned by the scenario runtime.</summary>
     internal SamusState Samus => Runtime.Player.IntroducedSamus;
     /// <summary>Shutter enemy tracked for position comparison.</summary>
-    internal RoomEnemySlot Platform => Runtime.Enemies.SlotTable.Slots[SlotIndex];
+    internal RoomEnemySlot Platform => Runtime.Room.LoadedScope.Enemies.SlotTable.Slots[SlotIndex];
 
     /// <summary>Places morphed, bomb-equipped Samus on or beside the selected shutter before the recorded sequence.</summary>
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>

@@ -69,12 +69,6 @@ public sealed class RoomEnemySlot
         _clearWithRecord[StateKey<T>()] = Ensure.NotNull(clearWithRecord);
     }
 
-    /// <summary>Drops every species state, at room load.</summary>
-    internal void ClearSpeciesStates()
-    {
-        _speciesStates.Clear();
-        _clearWithRecord.Clear();
-    }
 
     /// <summary>The storage key of a state type.</summary>
     private static string StateKey<T>() => typeof(T).FullName ?? throw new InvalidOperationException("A state type has no name.");

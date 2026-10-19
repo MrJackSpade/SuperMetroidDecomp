@@ -246,12 +246,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastBoyonSoundEffect = null;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastBoyonSoundEffect = null;

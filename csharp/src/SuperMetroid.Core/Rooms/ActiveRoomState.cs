@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -106,6 +107,9 @@ internal sealed class ActiveRoomState
 
     /// <summary>The loading or loaded room's Tourian statues, for the accepted-frame publication.</summary>
     internal TourianStatueSequence? TourianStatues => View(c => c.TourianStatues, s => s.TourianStatues);
+
+    /// <summary>The loading or loaded room's enemies, for the accepted-frame publication.</summary>
+    internal RoomEnemySystem? Enemies => View(c => c.Enemies, s => s.Enemies);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

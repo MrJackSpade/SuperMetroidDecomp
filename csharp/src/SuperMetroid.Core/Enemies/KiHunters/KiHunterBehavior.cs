@@ -94,14 +94,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
-    /// <summary>Discards per-slot typed state and prior sound publication on room load.</summary>
-    internal void ResetKiHunterRoomState()
-    {
-        foreach (RoomEnemySlot cleared in _slotTable.Slots)
-            cleared.SetSpeciesState<KiHunterEnemyState>(null);
-        LastKiHunterSoundEffect = null;
-    }
-
     /// <summary>Ports body initializer <c>$A8:F188</c>.</summary>
     internal static void InitializeKiHunter(RoomEnemySlot body)
     {
@@ -1008,15 +1000,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((short)(accelerated - KiHunterAcidTerminalYSpeed)) >= 0
             ? KiHunterAcidTerminalYSpeed
             : accelerated));
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        LastKiHunterSoundEffect = null;
-        ResetKiHunterRoomState();
     }
 
     /// <inheritdoc/>

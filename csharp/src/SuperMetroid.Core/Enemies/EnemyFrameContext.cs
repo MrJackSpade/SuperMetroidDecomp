@@ -50,8 +50,6 @@ internal sealed class EnemyFrameContext
         SamusProjectiles = null;
     }
 
-    /// <summary>Room load: ends a full sweep a boss requested in the previous room.</summary>
-    internal void EndFullSweep() => ProcessAllEnemies = false;
 
     /// <summary>Forces every enemy slot through the passes that follow, as Draygon and Spore Spawn request.</summary>
     internal void RequestFullSweep() => ProcessAllEnemies = true;

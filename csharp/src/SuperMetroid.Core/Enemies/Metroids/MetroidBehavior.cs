@@ -524,13 +524,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastMetroidSoundEffectLibrary2 = null;
-        MetroidDropRequests.Clear();
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMetroidSoundEffectLibrary2 = null;

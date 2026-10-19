@@ -519,15 +519,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastWorkRobotSoundEffect = null;
-        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(0);
-        WorkRobotPaletteAnimationRecord = 0;
-        WorkRobotPaletteAnimationPaletteRow = 0;
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastWorkRobotSoundEffect = null;

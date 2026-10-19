@@ -16,8 +16,6 @@ internal sealed record TourianStatueSequenceDependencies
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

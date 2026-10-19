@@ -17,8 +17,6 @@ internal sealed record MessageBoxFlowDependencies
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }

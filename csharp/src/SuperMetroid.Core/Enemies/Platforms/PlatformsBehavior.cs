@@ -405,12 +405,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             static _ => { });
     }
 
-    /// <inheritdoc/>
-    /// <remarks>Each platform's initializer creates its state, so a room load has nothing to reset.</remarks>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
     /// <summary>
     /// The frozen Tripper's frame. $A3:9F14-9F25 tests the complete X-movement word for zero: every nonzero value shows
     /// the right-moving frame, including values outside the normal dispatcher domain.

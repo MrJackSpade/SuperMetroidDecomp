@@ -38,10 +38,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-    /// <summary>Discards all segment extensions when the room population changes.</summary>
-    internal void ResetShaktoolRoomState() =>
-        _slotTable.ClearSpeciesState<ShaktoolSegmentState>();
-
     /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
     private static SnesAngle OppositeOrbitStep(SnesAngle angle) =>
         SnesAngle.FromTableIndex(angle.AddRaw(SnesAngle.HalfTurn.RawValue).TableIndex);
@@ -603,11 +599,5 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true);
         _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetShaktoolRoomState();
     }
 }

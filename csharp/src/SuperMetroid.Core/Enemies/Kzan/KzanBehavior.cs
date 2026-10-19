@@ -289,14 +289,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastKzanSoundEffect { get; private set; }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastKzanSoundEffect = null;
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new KzanExtensionWords();
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastKzanSoundEffect = null;

@@ -31,13 +31,6 @@ internal sealed class RoomSpriteObjectPool
     /// <summary>All 32 physical slots, including inactive ones.</summary>
     internal IReadOnlyList<RoomSpriteObjectSlot> Slots => _roomSpriteObjects;
 
-    /// <summary>Clears every slot when a room loads.</summary>
-    internal void ResetForRoom()
-    {
-        foreach (RoomSpriteObjectSlot slot in _roomSpriteObjects)
-            slot.Clear();
-    }
-
     /// <summary>Ports <c>CreateSpriteAtPos</c> at <c>$B4:BC26</c>.</summary>
     internal RoomSpriteObjectSlot? SpawnRoomSpriteObject(
         Position16<RoomPixels> position,

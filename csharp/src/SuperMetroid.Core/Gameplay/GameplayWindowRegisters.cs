@@ -10,15 +10,12 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 internal sealed class GameplayWindowRegisters
 {
-    /// <summary>Supplies Mother Brain's BG2 visibility when preparing main-screen selection.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
 
     /// <summary>Binds room and enemy owners to the window-register coordinator.</summary>
-    internal GameplayWindowRegisters(RoomEnemySystem enemies, ActiveRoomState room)
+    internal GameplayWindowRegisters(ActiveRoomState room)
     {
-        _enemies = enemies;
         _room = room;
     }
 
@@ -66,7 +63,7 @@ internal sealed class GameplayWindowRegisters
         // Seed the same shared byte before a Chainsaw slot-four word store can corrupt it.
         SnesMainScreenLayers mainScreen = _room.DoorTransitionMainScreenLayers ??
             (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
-                (_enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
+                (room.Enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
                     ? SnesMainScreenLayers.None
                     : SnesMainScreenLayers.Bg2));
         registers.MainScreen = mainScreen;

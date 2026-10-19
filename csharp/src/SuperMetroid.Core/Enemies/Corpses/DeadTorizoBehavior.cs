@@ -50,15 +50,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The dust sound requested by a completed corpse row this frame, or null.</summary>
     public SoundEffectId? LastDeadTorizoSoundEffect { get; private set; }
 
-    /// <summary>Clears corpse state, pending VRAM writes, and the last sound event on room load.</summary>
-    internal void ResetDeadTorizoRoomState()
-    {
-        DeadTorizo = null;
-        DeadTorizoProgram = default;
-        DeadTorizoFrameVramTransfers.Clear();
-        LastDeadTorizoSoundEffect = null;
-    }
-
     /// <summary>Ports <c>DeadTorizo_Init</c> at <c>$A9:D308</c>.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
     {
@@ -403,12 +394,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Writes one corpse scratch word at a table-relative word offset.</summary>
     private void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetDeadTorizoRoomState();
-    }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

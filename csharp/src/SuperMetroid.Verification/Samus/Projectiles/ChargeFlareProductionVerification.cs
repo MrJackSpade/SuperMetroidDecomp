@@ -133,7 +133,7 @@ internal static class ChargeFlareProductionVerification
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.BombProjectiles, target.Projectiles, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
             target.Sprites.FinalizeFrame();
             OamBuffer image = target.Sprites.FinalizedAsOam();
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();

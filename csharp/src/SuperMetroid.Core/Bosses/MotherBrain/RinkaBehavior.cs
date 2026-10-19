@@ -100,15 +100,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
-    /// <summary>Clears the shared termination flag and all per-slot/extra-RAM spawn ownership.</summary>
-    internal void ResetRinkaRoomState(Position16<RoomPixels> camera)
-    {
-        Array.Clear(_rinkaOccupiedSpawnResources);
-        _deferredRinkaSpawnSlots.Clear();
-        _rinkaTerminationFlag = false;
-        _rinkaCamera = camera;
-    }
-
     /// <summary>
     /// Captures layer-1 coordinates used by $A2:B8D3/$B8FF. StepFrame refreshes these before
     /// any Rinka AI; Load supplies the already-positioned destination camera for initialization.
@@ -563,12 +554,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
                 ResolveRinkaCombatAfterCommon(context.Slot);
             });
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetRinkaRoomState(request.Camera);
     }
 
     /// <inheritdoc/>

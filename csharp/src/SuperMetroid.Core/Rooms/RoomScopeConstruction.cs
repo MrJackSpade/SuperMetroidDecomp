@@ -80,6 +80,9 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// <summary>The Ceres elevator shaft room main, once the header step has built it.</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; set; }
 
+    /// <summary>The enemy system, once the enemy step has built it.</summary>
+    public RoomEnemySystem? Enemies { get; set; }
+
     /// <summary>The PLM system, once the PLM population step has built it.</summary>
     public RoomPlmSystem? Plms { get; set; }
 
@@ -110,6 +113,7 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
         MaridiaElevatube = MaridiaElevatube ?? throw Missing(nameof(MaridiaElevatube)),
         CeresElevatorShaft = CeresElevatorShaft ?? throw Missing(nameof(CeresElevatorShaft)),
+        Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };

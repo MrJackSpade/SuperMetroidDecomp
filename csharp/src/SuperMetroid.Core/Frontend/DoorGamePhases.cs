@@ -117,10 +117,10 @@ internal sealed class DoorGamePhases(FrontendSession session)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
         // owners run by its enemy/draw pass may refill the rings before the test.
-        foreach (EnemySoundRequest request in source.Enemies.Audio.SoundRequests)
+        foreach (EnemySoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
             session.audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
-        foreach (EnemyMusicRequest request in source.Enemies.Audio.MusicRequests)
+        foreach (EnemyMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
             session.audio.QueueMusicDelayed(request.Command, request.Delay);
         if (source.Player.Samus is { } samus)
             foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
@@ -137,11 +137,11 @@ internal sealed class DoorGamePhases(FrontendSession session)
         if (!session.waitingForDownwardsElevator)
         {
             // $82:E17D: an ordinary door finishes at once.
-            if (session.GameplayRuntime.Enemies.Elevator.ElevatorFlags == ElevatorJourneyFlag.None)
+            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorFlags == ElevatorJourneyFlag.None)
                 return true;
             // Samus command 0 locks Samus; an upward elevator then finishes at once.
             session.GameplayRuntime.Player.IntroducedSamus.InputLocked = true;
-            if (session.GameplayRuntime.Enemies.Elevator.ElevatorTravelsUpward)
+            if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 return true;
             session.downwardsElevatorDelayTimer = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
             session.waitingForDownwardsElevator = true;

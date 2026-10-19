@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Rooms;
@@ -32,6 +34,13 @@ internal static class RoomScopeVerification
         source.Projectiles.Charge.FlareCounter = 30;
         const int heatPhase = 3;
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = heatPhase;
+        source.Enemies.Earthquake.EarthquakeType = 5;
+        source.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
+        source.Enemies.Elevator.ElevatorDoorTransitionActive = true;
+        runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
+        RoomEnemyProjectileSlot sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
+        sourceProjectile.Position = FixedPosition<RoomPixels>.FromWords(0x0140, 0x1234, 0x0090, 0x5678);
+        sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
         SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
         sourceShot.Position = FixedPosition<RoomPixels>.FromWords(0x0120, 0x4321, 0x0080, 0x8765);
         sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
@@ -91,6 +100,20 @@ internal static class RoomScopeVerification
             "the COLDATA shadows and Fireflea state are the session's, shared by both rooms");
         VerificationAssert.AssertEqual(heatPhase, runtime.PaletteFxSession.SamusInHeatPaletteIndex,
             "the palette-FX heat phase survives the load on the session");
+        VerificationAssert.AssertTrue(!ReferenceEquals(source.Enemies, destination.Enemies) &&
+            !ReferenceEquals(source.Enemies.SlotTable, destination.Enemies.SlotTable),
+            "the destination builds its own enemy system and slots");
+        VerificationAssert.AssertEqual(0, destination.Enemies.Earthquake.EarthquakeType, "no enemy earthquake survives the load");
+        VerificationAssert.AssertTrue(destination.Enemies.RoomStatus.EnemyDoorTransitionActive &&
+            destination.Enemies.Elevator.ElevatorDoorTransitionActive,
+            "the door-transition gates carry into the destination's enemies");
+        VerificationAssert.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
+            "Ceres's escape progress survives the load on the enemy session");
+        RoomEnemyProjectileSlot destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
+        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
+            "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
+        VerificationAssert.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
+            "an enemy projectile slot's velocity survives the load");
         SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
         VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0x8765), destinationShot.Position,
             "a slot's position fraction words survive the projectile-data reset; its whole words clear");
@@ -101,7 +124,7 @@ internal static class RoomScopeVerification
         VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
         VerificationAssert.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
         VerificationAssert.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
-        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, keeps the held beam charge and session FX state; its camera carries the fractions, ideal position, speed and previous Samus point.");
+        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system, projectile pools, FX and animated tiles, enemies, keeps the held beam charge, door gates and session FX and enemy state; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 
     /// <summary>Runs the room-scope carry-over confirmation.</summary>

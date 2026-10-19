@@ -50,8 +50,8 @@ internal sealed class DoorTransitionState
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
         runtime.Player.Samus.InputLocked = true;
-        runtime.Enemies.Elevator.ElevatorDoorTransitionActive = true;
-        runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
+        runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = true;
+        runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
         sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
@@ -60,7 +60,7 @@ internal sealed class DoorTransitionState
         PaletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
-            runtime.Enemies.Presentation.GradualColorChange);
+            runtime.EnemySession.GradualColorChange);
         fadedSourcePalette = null;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
@@ -80,7 +80,7 @@ internal sealed class DoorTransitionState
             throw new InvalidOperationException("Door transition has not begun.");
 
         // Derive the native door-owned gate for resumed legacy snapshots as well.
-        runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
+        runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         runtime.Room.LoadedScope.CeresHaze.Step(
             roomFadeIn: Phase == DoorTransitionPhase.FadeInDestinationPalette,
             roomFadeOut: Phase == DoorTransitionPhase.FadeOutSourcePalette);
@@ -171,11 +171,8 @@ internal sealed class DoorTransitionState
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = new CgramPalettes(runtime.Cgram).Image.ToArray();
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
-                // Enemy loading resets room-private host gates. Restore the native
-                // $0795 transition ownership before any destination EnemyMain call;
-                // elevator AI must remain frozen through the final palette fade.
-                runtime.Enemies.Elevator.ElevatorDoorTransitionActive = true;
-                runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
+                // The load re-asserted the door's gates ($0795/$0797) over the destination's
+                // enemies: elevator AI stays frozen through the final palette fade.
                 Bgr555[] destinationTarget = new CgramPalettes(runtime.Cgram).Image.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 // UpdateBeamTilesAndPalette writes live colors during loading, unlike
@@ -197,7 +194,7 @@ internal sealed class DoorTransitionState
                 PaletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
                     denominator: 12,
-                    runtime.Enemies.Presentation.GradualColorChange);
+                    runtime.EnemySession.GradualColorChange);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 
@@ -214,7 +211,7 @@ internal sealed class DoorTransitionState
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
                     DoorTransitionPaletteDefinitions.PublishCompletedScrollVisor(runtime.Cgram);
-                    runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles);
+                    runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }
                 break;
@@ -278,19 +275,19 @@ internal sealed class DoorTransitionState
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
-                runtime.Enemies.ConsumeTargetPaletteWrites(PaletteTransition.SetTargetColor);
+                runtime.Room.LoadedScope.Enemies.ConsumeTargetPaletteWrites(PaletteTransition.SetTargetColor);
                 if (PaletteTransition.Step(runtime.Cgram))
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.
-                    runtime.Enemies.Elevator.ElevatorDoorTransitionActive = false;
-                    runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
+                    runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = false;
+                    runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube door ASM also installs command zero. Native E737
                     // does not replace that handler: release only our temporary door
                     // input gate, never a stationary script's movement ownership.
-                    if (runtime.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
+                    if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
                         runtime.Player.Samus is { } arrivingSamus && !arrivingSamus.ScriptLocks.StationaryScriptControlLocked)
                         arrivingSamus.InputLocked = false;
                     Phase = DoorTransitionPhase.Complete;

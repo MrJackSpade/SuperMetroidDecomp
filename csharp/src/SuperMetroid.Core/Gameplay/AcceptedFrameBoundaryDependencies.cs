@@ -33,8 +33,8 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Sprite frame the NMI makes visible.</summary>
     public required SpriteFrameBuffer DisplayedSprites { get; init; }
 
-    /// <summary>Enemies.</summary>
-    public required RoomEnemySystem Enemies { get; init; }
+    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
+    public required EnemySession EnemySession { get; init; }
 
     /// <summary>Gameplay windows.</summary>
     public required GameplayWindowRegisters GameplayWindows { get; init; }

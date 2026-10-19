@@ -33,8 +33,6 @@ internal sealed class GameplayActorDrawing
     private readonly ControllerInputState _controller1;
     /// <summary>Controls gameplay display modes that can suppress ordinary Samus drawing.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Supplies enemy layers, projectiles, and room-specific post-draw hooks.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
@@ -43,7 +41,10 @@ internal sealed class GameplayActorDrawing
     private readonly OamBuffer _oam;
 
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from, as the table's bindings show it.</summary>
-    private SpriteArtwork ObjectPage => _artwork.GameplayObjectPage(_enemies.ObjCharacters);
+    private SpriteArtwork ObjectPage => _artwork.GameplayObjectPage(_enemySession.ObjCharacters);
+
+    /// <summary>The session's OBJ character table, which the gameplay object page binds.</summary>
+    private readonly EnemySession _enemySession;
     /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
@@ -62,7 +63,7 @@ internal sealed class GameplayActorDrawing
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
+        _enemySession = dependencies.EnemySession;
         _freeze = dependencies.Freeze;
         _clock = dependencies.Clock;
         _oam = dependencies.Sprites.Oam;
@@ -76,7 +77,7 @@ internal sealed class GameplayActorDrawing
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
         _artwork.LoadedBeams);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, bool deathOwnsSamus, bool advanceSamusPalette = true)
+    internal void DrawGameplayActors(RoomScope room, bool deathOwnsSamus, bool advanceSamusPalette = true)
     {
         if (_player.Samus is null || _room.Camera is null) return;
         _artwork.BindGrapplePresentation();
@@ -84,8 +85,8 @@ internal sealed class GameplayActorDrawing
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)
         {
-            bombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
-            projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            room.BombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            room.Projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
         }
 
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
@@ -98,9 +99,9 @@ internal sealed class GameplayActorDrawing
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
             _room.CeresElevatorArrival?.Draw(_sprites, ObjectPage, _room.Camera.PixelPosition);
-            if (_enemies.IsLoaded)
+            if (room.Enemies.IsLoaded)
             {
-                _enemies.Projectiles.DrawHighPriorityEnemyProjectiles(
+                room.Enemies.Projectiles.DrawHighPriorityEnemyProjectiles(
                     _sprites, ObjectPage,
                     _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
             }
@@ -109,10 +110,10 @@ internal sealed class GameplayActorDrawing
         // The global layer loop emits layers zero through two before its phase-three
         // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
         // layer two, so its hull correctly precedes (and can sit behind) Samus OAM.
-        if (!deathOwnsSamus && _enemies.IsLoaded)
+        if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
-            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 0, 2);
+            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 0, 2);
+            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 0, 2);
         }
 
         if (advanceSamusPalette)
@@ -141,11 +142,11 @@ internal sealed class GameplayActorDrawing
                 // selected special Samus palette. Ordinary charged shots paint colors 1-15
                 // white for three calls and restore the ROM suit on call four; Hyper shots
                 // step ten complete bank-$9B palettes on alternating calls before restore.
-                LastBeamChargePaletteStep = projectiles.UpdateBeamChargePalette(
+                LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
                     _cgram,
                     _player.Samus,
                     _display.LayerBlendingDefaultConfig);
-                LastVisorPaletteStep = projectiles.LastVisorPaletteStep;
+                LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
                 // Native carry from HandleBeamChargePalettes bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
@@ -236,7 +237,7 @@ internal sealed class GameplayActorDrawing
             // echoes, and grapple graphics. Projectile drawing remains in the shared
             // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
             bool elevatorOwnsSamusDrawing =
-                ((ushort)_enemies.Elevator.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
+                ((ushort)room.Enemies.Elevator.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
@@ -294,8 +295,8 @@ internal sealed class GameplayActorDrawing
                     // falls through to `$90:EB55`. Grapple's handler never calls this,
                     // including its cancel/release fallback frames.
                     // The flare animates as a simulation phase, then shows what it advanced to.
-                    ChargeFlareComponents flare = projectiles.AdvanceChargeFlare(_player.Samus);
-                    projectiles.DrawChargeFlare(
+                    ChargeFlareComponents flare = room.Projectiles.AdvanceChargeFlare(_player.Samus);
+                    room.Projectiles.DrawChargeFlare(
                         _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
@@ -377,7 +378,7 @@ internal sealed class GameplayActorDrawing
             // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is
             // deliberately after the grapple beam too in the translated composite pass;
             // all live beam art still receives later OAM indices than Samus's body.
-            projectiles.DrawLiveProjectiles(
+            room.Projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,
                 _clock.Counter, ProjectileArtwork);
@@ -385,8 +386,8 @@ internal sealed class GameplayActorDrawing
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
             // Trails animate as a simulation phase, under time freeze too, then show where they are.
-            projectiles.AdvanceTrails(_freeze.TimeIsFrozen, _artwork.TrailArtwork);
-            projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
+            room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen, _artwork.TrailArtwork);
+            room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without
@@ -405,29 +406,29 @@ internal sealed class GameplayActorDrawing
                 _controller1.Current);
         }
 
-        if (!deathOwnsSamus && _enemies.IsLoaded)
+        if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // At phase three Samus/projectiles are emitted before enemy layer three;
+            // At phase three Samus/room.Projectiles are emitted before enemy layer three;
             // ordinary enemy layers four and five follow without another insertion.
-            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 3, 5);
-            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 3, 5);
+            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 3, 5);
+            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 3, 5);
         }
 
-        if (!deathOwnsSamus && _enemies.IsLoaded &&
+        if (!deathOwnsSamus && room.Enemies.IsLoaded &&
             _player.Samus?.Xray.AreEnemyProjectilesSuspended != true)
         {
-            _enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
+            room.Enemies.Projectiles.DrawLowPriorityEnemyProjectiles(
                 _sprites, ObjectPage,
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
         }
 
-        if (!deathOwnsSamus && _enemies.IsLoaded)
+        if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            _enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 6, 7);
-            _enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 6, 7);
+            room.Enemies.Drawing.AdvanceLayers(_room.Camera.PixelPosition, 6, 7);
+            room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 6, 7);
         }
 
-        if (!deathOwnsSamus && _enemies.IsLoaded && _enemies.DisplaySources.Draygon is { } draygon)
+        if (!deathOwnsSamus && room.Enemies.IsLoaded && room.Enemies.DisplaySources.Draygon is { } draygon)
         {
             // Native $A5:9342 runs AFTER drawing enemies. Camera scrolling has already
             // run, so BG2 must use the same final camera as the appendage OAM above.
@@ -442,16 +443,16 @@ internal sealed class GameplayActorDrawing
 
         // Room scrolling must not replace the persistent body-owned register shadows.
         // Mother Brain moves BG2 inversely to her physical posture in bank $A9.
-        if (!deathOwnsSamus && _enemies.DisplaySources.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
+        if (!deathOwnsSamus && room.Enemies.DisplaySources.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
             _backgroundScroll.SetBg2ScrollRegisters(motherBrain.Bg2Scroll);
 
-        if (!deathOwnsSamus && _enemies.IsLoaded)
+        if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
             // CeresRidley_Main installs $A6:A2F2 as EnemyGraphicsDrawnHook. It runs
             // after every ordinary enemy layer and is the only producer of the Baby
             // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
-            _enemies.Ceres.DrawCeresRidleyPostEnemyHook(
+            room.Enemies.Ceres.DrawCeresRidleyPostEnemyHook(
                 _oam,
                 _room.Camera.PixelPosition);
         }

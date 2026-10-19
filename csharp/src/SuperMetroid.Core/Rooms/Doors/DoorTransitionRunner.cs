@@ -27,8 +27,6 @@ internal sealed class DoorTransitionRunner
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Holds active and NMI-published display transforms across transitions.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Runs enemy projectile instructions and checks elevator drawing state.</summary>
-    private readonly RoomEnemySystem _enemies;
     /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
     private readonly EnemyFramePhase _enemyPhase;
     /// <summary>Advances HDMA pre-instructions during the main-loop door prologue.</summary>
@@ -54,7 +52,6 @@ internal sealed class DoorTransitionRunner
         _actorDrawing = dependencies.ActorDrawing;
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
-        _enemies = dependencies.Enemies;
         _enemyPhase = dependencies.EnemyPhase;
         _hdmaPhase = dependencies.HdmaPhase;
         _clock = dependencies.Clock;
@@ -217,11 +214,11 @@ internal sealed class DoorTransitionRunner
         _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (runEnemyProjectiles)
-            RunEnemyProjectileHandler(room.BombProjectiles);
-        _actorDrawing.DrawGameplayActors(room.BombProjectiles, room.Projectiles, deathOwnsSamus: false, advanceSamusPalette: false);
+            RunEnemyProjectileHandler(room.BombProjectiles, room);
+        _actorDrawing.DrawGameplayActors(room, deathOwnsSamus: false, advanceSamusPalette: false);
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
-        if (_enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
+        if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
             _player.Samus.Presentation.Draw(_sprites,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
@@ -231,11 +228,11 @@ internal sealed class DoorTransitionRunner
     /// checks only the enable bit X-ray clears, so its instructions keep running while time
     /// is frozen for a reserve refill.
     /// </summary>
-    internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles)
+    internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
-        _enemies.StepEnemyProjectileInstructions(
+        room.Enemies.StepEnemyProjectileInstructions(
             _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 

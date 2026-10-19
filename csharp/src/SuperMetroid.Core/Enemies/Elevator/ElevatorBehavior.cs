@@ -122,16 +122,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorFlags = ElevatorJourneyFlag.None;
     }
 
-    /// <summary>Clears room-local actors while preserving travel globals across the source and destination rooms.</summary>
-    internal void ResetElevatorRoomActors()
-    {
-        // Do not clear flags/status/direction here. Unlike actor-private state, these words
-        // intentionally survive destruction of the source room and initialization of the
-        // destination room. Elevator_Init itself clears stale values unless status is two.
-        _arrivalPlacementSlot = null;
-        ElevatorDoorTransitionActive = false;
-    }
-
     /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
     internal static ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
         slot.SpeciesState<ElevatorEnemyState>() ?? throw new InvalidOperationException(
@@ -338,11 +328,5 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             frame.Samus,
             frame.NewlyPressedControllerInput,
             frame.SamusProjectiles);
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        ResetElevatorRoomActors();
     }
 }

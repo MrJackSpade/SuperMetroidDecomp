@@ -14,6 +14,7 @@ public interface ISoundAcknowledgementSource
 {
     /// <summary>The acknowledgements the next update's sound handlers read.</summary>
     /// <param name="modeled">The bytes the session's SPC port model published after the previous update.</param>
+    /// <param name="portWrites">The request bytes the sound dispatchers last wrote to the three sound-effect ports (port 0 is zero).</param>
     /// <returns>The bytes to present to the update; only the three sound-effect ports are read.</returns>
-    CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled);
+    CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled, CartridgeAudioAcknowledgements portWrites);
 }

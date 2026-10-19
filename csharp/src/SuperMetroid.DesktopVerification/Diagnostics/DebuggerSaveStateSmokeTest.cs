@@ -30,12 +30,9 @@ public static class DebuggerSaveStateSmokeTest
         {
             GameInstallation installation = GameAssetInstaller.Install(fullRomPath,
                 Path.Combine(temporaryDirectory, "installed"));
-            var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions());
             var maps = installation.LoadMaps();
-            game.BindArtwork(game.Artwork with
-            {
-                MapPresentation = maps,
-            });
+            var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions(),
+                GameArtwork.Unbound with { MapPresentation = maps });
             game.BindAudio(installation.LoadAudioClips());
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);
@@ -90,10 +87,7 @@ public static class DebuggerSaveStateSmokeTest
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
             // The real hosts rebind nonserialized installed catalogs after restoration.
             // The audit must use that contract too, not an implicit cartridge fallback.
-            loaded.Game.BindArtwork(loaded.Game.Artwork with
-            {
-                MapPresentation = maps,
-            });
+            GameSessionComposer.Rebind(loaded.Game, GameArtwork.Unbound with { MapPresentation = maps });
 
             GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
                 new string('D', 64),

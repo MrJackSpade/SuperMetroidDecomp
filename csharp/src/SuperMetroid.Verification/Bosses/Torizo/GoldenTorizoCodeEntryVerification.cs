@@ -21,7 +21,7 @@ internal static class GoldenTorizoCodeEntryVerification
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.
         var installation = RepositoryInstallation.Installation;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false);
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false, SuperMetroidGameHostServices.Default);
         PrepareRomFreeBindings(installation)(game, false);
         game.InitializeDirectRoomVerification();
         var runtime = game.GameplayRuntimeForVerification;

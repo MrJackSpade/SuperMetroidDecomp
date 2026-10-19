@@ -50,7 +50,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                         ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
-                    session.CreateGameplayRuntime(forAttractDemo: true);
+                    session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
                     session.runtime.AttractDemo.InitializeAttractDemo(scene);
                     session.demoFramesRemaining = scene.Duration;
                     session.demoScene++;

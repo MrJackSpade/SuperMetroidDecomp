@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Runtime;
 /// palette fade, source-camera alignment, black-screen opening scroll, music drain, final
 /// nudge ownership, and destination palette fade-in.
 /// </remarks>
-public sealed class DoorTransitionState
+internal sealed class DoorTransitionState
 {
     /// <summary>The door's palette transition, which exists from the start of the door fade.</summary>
     [AllowNull]

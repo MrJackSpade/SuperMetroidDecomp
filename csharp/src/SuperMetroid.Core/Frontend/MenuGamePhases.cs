@@ -297,7 +297,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     /// </summary>
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
-        session.CreateGameplayRuntime();
+        session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         session.runtime.RoomLoader.RestoreSavedPlayerState(slot, session.ConfiguredOptions.ResetBossesOnLoad);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room

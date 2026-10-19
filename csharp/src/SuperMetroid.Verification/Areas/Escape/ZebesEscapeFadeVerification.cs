@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks the gunship takeoff fade while state $26 continues normal gameplay updates.</summary>
 internal static class ZebesEscapeFadeVerification
@@ -15,7 +16,7 @@ internal static class ZebesEscapeFadeVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-        game.Session.CreateGameplayRuntime(false);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

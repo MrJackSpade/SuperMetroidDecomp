@@ -36,8 +36,8 @@ internal static class ParameterContractsTests
             "_ = new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } };");
         VerifyContract("runtime frame audio has no public delegate members",
             "_ = RuntimeFrameAudio.Deferred.QueueEchoSound;", "CS1061");
-        VerifyContract("runtime frames no longer take hook parameters",
-            "runtime.StepFrame(0, advanceGameTime: false);", "CS1739");
+        VerifyContract("the gameplay runtime is reachable only from Core and its friends (#1327)",
+            "SuperMetroidRuntime? hidden = null;", "CS0122");
 
         Console.WriteLine("#633: parameter contracts compose child capabilities and reject unrelated or omitted ones.");
     }
@@ -61,7 +61,7 @@ internal static class ParameterContractsTests
             {
                 void Run(IRoomEnemyServices enemies, IChozoStatueRoomServices chozo, IMotherBrainRoomServices motherBrain,
                     IRoomPlmEnemyEffects effects, INoobTubeProjectileSpawner noobTube, IAreaBossFlags bosses,
-                    IAreaBossFlagReader bossReader, IRoomSamusAccess samus, SuperMetroidRuntime runtime,
+                    IAreaBossFlagReader bossReader, IRoomSamusAccess samus,
                     DemoInputState demo, ISnesAddressSpace bus)
                 {
                     {{statement}}

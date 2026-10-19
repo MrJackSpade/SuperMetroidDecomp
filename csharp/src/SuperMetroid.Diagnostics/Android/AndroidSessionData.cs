@@ -54,12 +54,11 @@ internal sealed class AndroidSessionData : IDisposable
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
         saves = AndroidFileImport.ActivatePendingSave(root, savePath, maps) ?? saves;
-        Game = new SuperMetroidGame(saves, Options);
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(maps, projectiles);
-        Game.BindArtwork(artwork);
+        Game = GameSessionComposer.Create(saves, Options, artwork);
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
         assets = audioDirectory is null
@@ -135,7 +134,7 @@ internal sealed class AndroidSessionData : IDisposable
         recorder.Dispose();
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
-        Game.BindArtwork(artwork);
+        GameSessionComposer.Rebind(Game, artwork);
         Game.SaveRamChanged += PersistSave;
         Generation++;
         recorder = StartRecorder();

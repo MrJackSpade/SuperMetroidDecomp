@@ -35,8 +35,11 @@ internal sealed class FrontendSession
     /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited; verification hosts may skip them.</param>
-    internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames)
+    /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
+    internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames,
+        SuperMetroidGameHostServices hostServices)
     {
+        HostServices = Ensure.NotNull(hostServices);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         display = new FrontendDisplay(renderGameplayFrames);
         this.saves = Ensure.NotNull(saves);
@@ -157,8 +160,10 @@ internal sealed class FrontendSession
     internal void RaiseSaveRamChanged() => saveRamChanged?.Invoke();
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
+    /// <summary>The hardware-timing policies fixed at construction; production uses the lag-free defaults.</summary>
+    internal SuperMetroidGameHostServices HostServices { get; }
     /// <summary>How far the cartridge's door loader has progressed; see <see cref="IDoorLoaderProgressSource"/>.</summary>
-    public IDoorLoaderProgressSource DoorLoaderProgress { get; set; } = LagFreeDoorLoaderProgress.Instance;
+    internal IDoorLoaderProgressSource DoorLoaderProgress => HostServices.DoorLoaderProgress;
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.
     /// </summary>
@@ -328,72 +333,31 @@ internal sealed class FrontendSession
         screenFade.Reload();
     }
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
+    /// <param name="purpose">Whether the runtime plays a selected game, which takes the host and menu options, or an attract demo.</param>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
-    internal void CreateGameplayRuntime(bool forAttractDemo = false)
+    internal void CreateGameplayRuntime(GameplayRuntimePurpose purpose)
     {
         int incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
             menuLayer1.RetainFrom(runtime);
-        runtime = new SuperMetroidRuntime(ConfiguredOptions.RuntimeOverrides(forAttractDemo), Artwork.GameplayBasePalettes, frameClock, mode7QueueResidue);
-        // Runtime allocation is a managed ownership change, not Vector_RESET.
-        // Publish before room initialization so random-consuming enemies see it too.
-        runtime.System.SetRandomNumber(incomingRandom);
-        runtime.System.MainGameLoopCarry = bootMainLoopCarry;
-        menuLayer1.PublishTo(runtime);
-        runtime.Artwork.MapPresentation = Artwork.MapPresentation;
-        runtime.Artwork.StandardObjectArt = Artwork.StandardObjectArt;
-        runtime.Artwork.SamusBodyArt = Artwork.SamusBodyArt;
-        runtime.Artwork.RoomCharacterArt = Artwork.RoomCharacterArt;
-        runtime.Artwork.RoomPaletteArt = Artwork.RoomPaletteArt;
-        runtime.Artwork.RoomMetatileArt = Artwork.RoomMetatileArt;
-        runtime.Artwork.RoomVisualLayouts = Artwork.RoomVisualLayouts;
-        runtime.Artwork.RoomLevelStreams = Artwork.RoomLevelStreams;
-        runtime.ShotBlockVisuals.RoomPlmShotBlockVisuals = Artwork.RoomPlmShotBlockVisuals;
-        runtime.ShotBlockVisuals.RoomPlmGrappleBlockVisuals = Artwork.RoomPlmGrappleBlockVisuals;
-        runtime.ShotBlockVisuals.RoomPlmStationVisuals = Artwork.RoomPlmStationVisuals;
-        runtime.ShotBlockVisuals.RoomPlmBlueDoorVisuals = Artwork.RoomPlmBlueDoorVisuals;
-        runtime.ShotBlockVisuals.RoomPlmColoredDoorVisuals = Artwork.RoomPlmColoredDoorVisuals;
-        runtime.ShotBlockVisuals.RoomPlmGreyDoorVisuals = Artwork.RoomPlmGreyDoorVisuals;
-        runtime.ShotBlockVisuals.RoomPlmEyeDoorVisuals = Artwork.RoomPlmEyeDoorVisuals;
-        runtime.ShotBlockVisuals.RoomPlmMotherBrainGlassVisuals = Artwork.RoomPlmMotherBrainGlassVisuals;
-        runtime.ShotBlockVisuals.RoomPlmNoobTubeVisuals = Artwork.RoomPlmNoobTubeVisuals;
-        runtime.ShotBlockVisuals.RoomPlmDownwardGateVisuals = Artwork.RoomPlmDownwardGateVisuals;
-        runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = Artwork.RoomPlmElevatorPlatformVisuals;
-        runtime.ShotBlockVisuals.RoomPlmEscapeGateVisuals = Artwork.RoomPlmEscapeGateVisuals;
-        runtime.ShotBlockVisuals.RoomPlmBombTorizoHandVisuals = Artwork.RoomPlmBombTorizoHandVisuals;
-        runtime.ShotBlockVisuals.RoomPlmDraygonCannonVisuals = Artwork.RoomPlmDraygonCannonVisuals;
-        runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals = Artwork.RoomPlmChozoStatueVisuals;
-        runtime.ShotBlockVisuals.RoomPlmLinkedRestoreVisuals = Artwork.RoomPlmLinkedRestoreVisuals;
-        runtime.ShotBlockVisuals.RoomPlmTourianAccessVisuals = Artwork.RoomPlmTourianAccessVisuals;
-        runtime.ShotBlockVisuals.RoomPlmSpeedBoosterVisuals = Artwork.RoomPlmSpeedBoosterVisuals;
-        runtime.ShotBlockVisuals.RoomPlmMaridiaElevatubeVisuals = Artwork.RoomPlmMaridiaElevatubeVisuals;
-        runtime.ShotBlockVisuals.RoomPlmSporeSpawnCeilingVisuals = Artwork.RoomPlmSporeSpawnCeilingVisuals;
-        runtime.ShotBlockVisuals.RoomPlmSamusEaterVisuals = Artwork.RoomPlmSamusEaterVisuals;
-        runtime.ShotBlockVisuals.RoomPlmBotwoonWallVisuals = Artwork.RoomPlmBotwoonWallVisuals;
-        runtime.ShotBlockVisuals.RoomPlmKraidVisuals = Artwork.RoomPlmKraidVisuals;
-        runtime.ShotBlockVisuals.RoomPlmCrocomireVisuals = Artwork.RoomPlmCrocomireVisuals;
-        runtime.ShotBlockVisuals.RoomPlmMotherBrainFakeDeathVisuals = Artwork.RoomPlmMotherBrainFakeDeathVisuals;
-        runtime.ShotBlockVisuals.RoomPlmCollectibleVisuals = Artwork.RoomPlmCollectibleVisuals;
-        runtime.ShotBlockVisuals.RoomPlmDynamicCollectibleArt = Artwork.RoomPlmDynamicCollectibleArt;
-        runtime.Xray.XrayRevealVisuals = Artwork.XrayRevealVisuals;
-        runtime.Artwork.RoomBackgroundTilemapArt = Artwork.RoomBackgroundTilemapArt;
-        runtime.Artwork.RoomSkyTilemapArt = Artwork.RoomSkyTilemapArt;
-        runtime.Artwork.ProjectileCompositions = Artwork.ProjectileCompositions;
-        runtime.Artwork.ProjectileFrameBindings = Artwork.ProjectileFrameBindings;
-        runtime.Artwork.TrailArtwork = Artwork.TrailArtwork;
-        runtime.Artwork.SamusOverreads = Artwork.SamusOverreads;
-        runtime.Artwork.ChargeFlarePlacement = Artwork.ChargeFlarePlacement;
-        runtime.Artwork.ChargeFlareCompositions = Artwork.ChargeFlareCompositions;
-        runtime.Artwork.GrappleArtwork = Artwork.GrappleArtwork;
-        runtime.Artwork.BeamArtwork = Artwork.BeamArtwork;
-        runtime.Enemies.TileArtwork = Artwork.EnemyTileArtwork;
-        // Attract scripts retain the default controls and options of their private runtime.
-        if (forAttractDemo)
-            return;
-        runtime.JapaneseText = options?.JapaneseText ?? false;
-        runtime.Options.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
-        runtime.Options.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;
-        runtime.Options.IconCancelEnabled = options?.IconCancelEnabled ?? false;
+        bool attract = purpose == GameplayRuntimePurpose.AttractDemo;
+        runtime = GameplayRuntimeFactory.Create(new GameplayRuntimeStart
+        {
+            Purpose = purpose,
+            Overrides = ConfiguredOptions.RuntimeOverrides(attract),
+            IncomingRandom = incomingRandom,
+            MainGameLoopCarry = bootMainLoopCarry,
+            Layer1 = menuLayer1,
+            Artwork = Artwork,
+            Clock = frameClock,
+            Mode7QueueResidue = mode7QueueResidue,
+            // Attract scripts retain the default controls and options of their private runtime.
+            Selected = attract ? null : new SelectedGameplayOptions(
+                options?.JapaneseText ?? false,
+                options?.ControllerBindings ?? ControllerBindings.Default,
+                options?.MoonwalkEnabled ?? false,
+                options?.IconCancelEnabled ?? false),
+        });
     }
     /// <summary>Applies live menu controller and gameplay choices to a newly created runtime.</summary>
     internal void ApplySelectedGameOptions()
@@ -427,7 +391,7 @@ internal sealed class FrontendSession
     /// <summary>Builds fresh Ceres or saved-game runtime state, including the selected HUD and room.</summary>
     internal bool SetupSelectedGame()
     {
-        CreateGameplayRuntime();
+        CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
 
         if (spacetimeIntroRestartSlot is { } restartSlot)
         {

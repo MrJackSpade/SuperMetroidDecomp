@@ -13,6 +13,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Reproduces special Rinka placement during the door scroll into Mother Brain's room.</summary>
 internal static class MotherBrainRinkaDoorSpawnVerification
@@ -36,10 +37,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.InputLocked = true;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+            hostServices: SuperMetroidGameHostServices.Default with { DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c) });
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.Session.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;

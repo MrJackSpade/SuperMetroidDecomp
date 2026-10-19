@@ -31,6 +31,9 @@ public sealed class CartridgeAudioState
     internal readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Request byte currently awaiting each SPC library's acknowledgement.</summary>
     internal readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+
+    /// <summary>The request bytes the three sound dispatchers last wrote to their APU ports; port 0 is zero.</summary>
+    internal CartridgeAudioAcknowledgements SoundPortWrites => new(0, _currentSounds[0], _currentSounds[1], _currentSounds[2]);
     /// <summary>Two-frame hold before a recognized SFX request is cleared from the APU port.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];

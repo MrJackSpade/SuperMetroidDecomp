@@ -50,7 +50,8 @@ internal static class DoorMusicTimingVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance });
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
@@ -60,7 +61,6 @@ internal static class DoorMusicTimingVerification
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);
         AssertEqual((byte)9, audio.MusicDataIndex, "source music data is active");
         AssertEqual((byte)5, audio.MusicTrackIndex, "source track is active");
-        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(audio);
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {

@@ -53,11 +53,9 @@ internal static class KiHunterSpitAudioVerification
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
-        game.Session.runtime = runtime;
-        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.GameState = SuperMetroidGameState.MainGameplay;
-        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(game.Session.audio);
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
+            hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance });
+        game.EnterMainGameplay(runtime);
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
         int requests = 0, starts = 0;
         void Step()

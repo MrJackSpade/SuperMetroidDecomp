@@ -73,18 +73,19 @@ public sealed class SuperMetroidGame
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>
-    /// Binds installed artwork at startup and after debugger-state restoration. Each catalog whose reference
-    /// changed reaches the live runtime and scenes that hold it; unchanged catalogs are left alone.
+    /// Binds installed artwork at startup and after debugger-state restoration (<see cref="GameSessionComposer"/>). Each
+    /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
+    /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
-    public void BindArtwork(GameArtwork artwork)
+    internal void BindArtwork(GameArtwork artwork)
     {
         Ensure.NotNull(artwork);
         GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
+        Session.runtime?.BindArtwork(artwork, previous);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
         {
             Session.saves.BindMapPresentation(artwork.MapPresentation);
-            if (Session.runtime is not null) Session.runtime.Artwork.MapPresentation = artwork.MapPresentation;
             Session.ceresDestruction?.BindFixedColors(artwork.MapPresentation?.PowerBombFixedColors);
             Session.ceresDestruction?.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
             Session.pauseMenu?.BindMapPresentation(artwork.MapPresentation);
@@ -103,14 +104,6 @@ public sealed class SuperMetroidGame
             Session.endingCredits?.BindEndingFont(artwork.MapPresentation?.EndingFont);
             Session.endingCredits?.BindStaffCredits(artwork.MapPresentation?.StaffCredits);
         }
-        if (!ReferenceEquals(previous.GameplayBasePalettes, artwork.GameplayBasePalettes))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
-        }
-        if (!ReferenceEquals(previous.StandardObjectArt, artwork.StandardObjectArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.StandardObjectArt = artwork.StandardObjectArt;
-        }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
         {
             Session.intro?.BindCharacterArtwork(artwork.IntroCinematicArt);
@@ -119,7 +112,6 @@ public sealed class SuperMetroidGame
         }
         if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
         {
-            if (Session.runtime is not null) Session.runtime.Artwork.SamusBodyArt = artwork.SamusBodyArt;
             Session.intro?.BindSamusBodyArtwork(artwork.SamusBodyArt);
         }
         if (!ReferenceEquals(previous.EndingMode7Art, artwork.EndingMode7Art))
@@ -134,159 +126,16 @@ public sealed class SuperMetroidGame
         {
             Session.endingCredits?.BindPaletteArtwork(artwork.EndingPaletteArt);
         }
-        if (!ReferenceEquals(previous.RoomCharacterArt, artwork.RoomCharacterArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomCharacterArt = artwork.RoomCharacterArt;
-        }
-        if (!ReferenceEquals(previous.RoomPaletteArt, artwork.RoomPaletteArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomPaletteArt = artwork.RoomPaletteArt;
-        }
-        if (!ReferenceEquals(previous.RoomMetatileArt, artwork.RoomMetatileArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomMetatileArt = artwork.RoomMetatileArt;
-        }
-        if (!ReferenceEquals(previous.RoomVisualLayouts, artwork.RoomVisualLayouts))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomVisualLayouts = artwork.RoomVisualLayouts;
-        }
-        if (!ReferenceEquals(previous.RoomLevelStreams, artwork.RoomLevelStreams))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomLevelStreams = artwork.RoomLevelStreams;
-        }
-        if (!ReferenceEquals(previous.RoomPlmShotBlockVisuals, artwork.RoomPlmShotBlockVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmShotBlockVisuals = artwork.RoomPlmShotBlockVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmGrappleBlockVisuals, artwork.RoomPlmGrappleBlockVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmGrappleBlockVisuals = artwork.RoomPlmGrappleBlockVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmStationVisuals, artwork.RoomPlmStationVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmStationVisuals = artwork.RoomPlmStationVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmBlueDoorVisuals, artwork.RoomPlmBlueDoorVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmBlueDoorVisuals = artwork.RoomPlmBlueDoorVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmColoredDoorVisuals, artwork.RoomPlmColoredDoorVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmColoredDoorVisuals = artwork.RoomPlmColoredDoorVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmGreyDoorVisuals, artwork.RoomPlmGreyDoorVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmGreyDoorVisuals = artwork.RoomPlmGreyDoorVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmEyeDoorVisuals, artwork.RoomPlmEyeDoorVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmEyeDoorVisuals = artwork.RoomPlmEyeDoorVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmMotherBrainGlassVisuals, artwork.RoomPlmMotherBrainGlassVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmMotherBrainGlassVisuals = artwork.RoomPlmMotherBrainGlassVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmNoobTubeVisuals, artwork.RoomPlmNoobTubeVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmNoobTubeVisuals = artwork.RoomPlmNoobTubeVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmDownwardGateVisuals, artwork.RoomPlmDownwardGateVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmDownwardGateVisuals = artwork.RoomPlmDownwardGateVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmElevatorPlatformVisuals, artwork.RoomPlmElevatorPlatformVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = artwork.RoomPlmElevatorPlatformVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmEscapeGateVisuals, artwork.RoomPlmEscapeGateVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmEscapeGateVisuals = artwork.RoomPlmEscapeGateVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmBombTorizoHandVisuals, artwork.RoomPlmBombTorizoHandVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmBombTorizoHandVisuals = artwork.RoomPlmBombTorizoHandVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmDraygonCannonVisuals, artwork.RoomPlmDraygonCannonVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmDraygonCannonVisuals = artwork.RoomPlmDraygonCannonVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmChozoStatueVisuals, artwork.RoomPlmChozoStatueVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals = artwork.RoomPlmChozoStatueVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmLinkedRestoreVisuals, artwork.RoomPlmLinkedRestoreVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmLinkedRestoreVisuals = artwork.RoomPlmLinkedRestoreVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmTourianAccessVisuals, artwork.RoomPlmTourianAccessVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmTourianAccessVisuals = artwork.RoomPlmTourianAccessVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmSpeedBoosterVisuals, artwork.RoomPlmSpeedBoosterVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmSpeedBoosterVisuals = artwork.RoomPlmSpeedBoosterVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmMaridiaElevatubeVisuals, artwork.RoomPlmMaridiaElevatubeVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmMaridiaElevatubeVisuals = artwork.RoomPlmMaridiaElevatubeVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmSporeSpawnCeilingVisuals, artwork.RoomPlmSporeSpawnCeilingVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmSporeSpawnCeilingVisuals = artwork.RoomPlmSporeSpawnCeilingVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmSamusEaterVisuals, artwork.RoomPlmSamusEaterVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmSamusEaterVisuals = artwork.RoomPlmSamusEaterVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmBotwoonWallVisuals, artwork.RoomPlmBotwoonWallVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmBotwoonWallVisuals = artwork.RoomPlmBotwoonWallVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmKraidVisuals, artwork.RoomPlmKraidVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmKraidVisuals = artwork.RoomPlmKraidVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmCrocomireVisuals, artwork.RoomPlmCrocomireVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmCrocomireVisuals = artwork.RoomPlmCrocomireVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmMotherBrainFakeDeathVisuals, artwork.RoomPlmMotherBrainFakeDeathVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmMotherBrainFakeDeathVisuals = artwork.RoomPlmMotherBrainFakeDeathVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmCollectibleVisuals, artwork.RoomPlmCollectibleVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmCollectibleVisuals = artwork.RoomPlmCollectibleVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomPlmDynamicCollectibleArt, artwork.RoomPlmDynamicCollectibleArt))
-        {
-            if (Session.runtime is not null) Session.runtime.ShotBlockVisuals.RoomPlmDynamicCollectibleArt = artwork.RoomPlmDynamicCollectibleArt;
-        }
-        if (!ReferenceEquals(previous.XrayRevealVisuals, artwork.XrayRevealVisuals))
-        {
-            if (Session.runtime is not null) Session.runtime.Xray.XrayRevealVisuals = artwork.XrayRevealVisuals;
-        }
-        if (!ReferenceEquals(previous.RoomBackgroundTilemapArt, artwork.RoomBackgroundTilemapArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomBackgroundTilemapArt = artwork.RoomBackgroundTilemapArt;
-        }
-        if (!ReferenceEquals(previous.RoomSkyTilemapArt, artwork.RoomSkyTilemapArt))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.RoomSkyTilemapArt = artwork.RoomSkyTilemapArt;
-        }
         if (!ReferenceEquals(previous.ProjectileCompositions, artwork.ProjectileCompositions))
         {
-            if (Session.runtime is not null) Session.runtime.Artwork.ProjectileCompositions = artwork.ProjectileCompositions;
             if (Session.intro is not null) Session.intro.ProjectileCompositions = artwork.ProjectileCompositions;
         }
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
         {
-            if (Session.runtime is not null) Session.runtime.Artwork.ProjectileFrameBindings = artwork.ProjectileFrameBindings;
             if (Session.intro is not null) Session.intro.ProjectileFrameBindings = artwork.ProjectileFrameBindings;
         }
         if (!ReferenceEquals(previous.BeamArtwork, artwork.BeamArtwork))
         {
-            if (Session.runtime is not null) Session.runtime.Artwork.BeamArtwork = artwork.BeamArtwork;
             // A completed intro remains in a restored object graph, but its VRAM
             // and beam DMA are no longer displayed or advanced during gameplay.
             // Rebinding that dormant scene would replay an unrelated cartridge
@@ -294,33 +143,9 @@ public sealed class SuperMetroidGame
             if (Session.GameState == SuperMetroidGameState.IntroCinematic)
                 Session.intro?.BindBeamArtwork(artwork.BeamArtwork);
         }
-        if (!ReferenceEquals(previous.EnemyTileArtwork, artwork.EnemyTileArtwork))
-        {
-            if (Session.runtime is not null)
-            {
-                Session.runtime.Enemies.TileArtwork = artwork.EnemyTileArtwork;
-                Session.runtime.Room.CeresElevatorArrival?.BindProjectileSpritemaps(
-                    artwork.EnemyTileArtwork?.ProjectileSpritemaps);
-            }
-        }
         if (!ReferenceEquals(previous.TrailArtwork, artwork.TrailArtwork))
         {
-            if (Session.runtime is not null) Session.runtime.Artwork.TrailArtwork = artwork.TrailArtwork;
             if (Session.intro is not null) Session.intro.TrailArtwork = artwork.TrailArtwork;
-        }
-        if (!ReferenceEquals(previous.SamusOverreads, artwork.SamusOverreads) && Session.runtime is not null)
-            Session.runtime.Artwork.SamusOverreads = artwork.SamusOverreads;
-        if (!ReferenceEquals(previous.ChargeFlarePlacement, artwork.ChargeFlarePlacement))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.ChargeFlarePlacement = artwork.ChargeFlarePlacement;
-        }
-        if (!ReferenceEquals(previous.ChargeFlareCompositions, artwork.ChargeFlareCompositions))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.ChargeFlareCompositions = artwork.ChargeFlareCompositions;
-        }
-        if (!ReferenceEquals(previous.GrappleArtwork, artwork.GrappleArtwork))
-        {
-            if (Session.runtime is not null) Session.runtime.Artwork.GrappleArtwork = artwork.GrappleArtwork;
         }
     }
 
@@ -333,7 +158,7 @@ public sealed class SuperMetroidGame
     public SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null)
-        : this(saves, gameOptions, renderGameplayFrames: true)
+        : this(saves, gameOptions, renderGameplayFrames: true, SuperMetroidGameHostServices.Default)
     {
     }
 
@@ -346,12 +171,17 @@ public sealed class SuperMetroidGame
     /// compositors. The expensive room compositor is skipped only after a runtime exists;
     /// production callers always enter through the public rendering constructor above.
     /// </remarks>
+    /// <param name="saves">The battery-backed saves the session owns.</param>
+    /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
+    /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
+    /// <param name="hostServices">The hardware-timing policies; replay verification supplies recorded evidence here.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions,
-        bool renderGameplayFrames)
+        bool renderGameplayFrames,
+        SuperMetroidGameHostServices hostServices)
     {
-        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames);
+        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames, hostServices);
     }
 
     /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
@@ -385,8 +215,6 @@ public sealed class SuperMetroidGame
     /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than 1,600 samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
-    /// <summary>The SPC acknowledgements each update's sound handlers read; see <see cref="ISoundAcknowledgementSource"/>.</summary>
-    public ISoundAcknowledgementSource SoundAcknowledgements { get; set; } = ModeledSoundAcknowledgements.Instance;
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.GameState = value; }
@@ -410,8 +238,6 @@ public sealed class SuperMetroidGame
     /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
     public CartridgeDoorHeader? GameplayActiveDoor => Session.runtime?.Room.ActiveDoor;
 
-    /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
-    public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(SnesButton controllerInput)
@@ -440,7 +266,7 @@ public sealed class SuperMetroidGame
         // SendAPUData stalls a door dispatch while door IRQs keep NMIs accepted; nothing
         // between this update's own NMI and the upload reads the counters.
         if (doorAudioDispatch && prologueMusicCommands.Any(command => command.Kind == CartridgeAudioCommandKind.Upload))
-            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
+            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = NativeWordCounter.IncrementWord(FrameNumber);
         if (Session.runtime is null)
@@ -474,7 +300,7 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = Session.audio.AdvanceFrame(SoundAcknowledgements.ForNextFrame(Session.audioSession.Acknowledgements),
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextFrame(Session.audioSession.Acknowledgements, Session.audio.SoundPortWrites),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands

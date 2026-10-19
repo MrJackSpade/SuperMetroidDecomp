@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Pause;
+﻿using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using System.Globalization;
@@ -114,18 +114,28 @@ internal static class FullMovieReplayVerification
 
         NativeCheckpointMemory memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
             "The converted replay has no native checkpoint before its first update.");
+        // The replay's hardware-timing evidence is fixed for the game's lifetime, across console resets.
+        var uploadNmis = new EvidencedDoorMusicUploadNmis();
+        var loaderProgress = new EvidencedDoorLoaderProgress();
+        var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
+        var hostServices = new SuperMetroidGameHostServices
+        {
+            DoorMusicUploadNmis = uploadNmis,
+            DoorLoaderProgress = loaderProgress,
+            SoundAcknowledgements = soundAcknowledgements,
+        };
         SuperMetroidGame game;
         if (movie.Snapshot is not null)
         {
             // The first input boundary completes the snapshot's frame. Its WRAM is the movie's
             // one initial-state import, alongside the snapshot's own cartridge SRAM.
-            game = ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam).Game;
+            game = ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam, hostServices).Game;
         }
         else
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             game = CreateRetailGameFixture(SuperMetroid.Core.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-                renderGameplayFrames: video is not null);
+                renderGameplayFrames: video is not null, hostServices: hostServices);
             video?.Attach(game);
         }
         // Recording presents each update exactly as the host does; otherwise frames are not rasterized.
@@ -139,12 +149,6 @@ internal static class FullMovieReplayVerification
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
         ushort[] frameInputs = movie.FrameInputs;
         var recentInputs = new Queue<string>();
-        var uploadNmis = new EvidencedDoorMusicUploadNmis();
-        game.DoorMusicUploadNmis = uploadNmis;
-        var loaderProgress = new EvidencedDoorLoaderProgress();
-        game.Session.DoorLoaderProgress = loaderProgress;
-        var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
-        game.SoundAcknowledgements = soundAcknowledgements;
         int excludedBefore = 0, uncheckpointedUpdates = 0;
         for (int update = 1; update <= lastUpdate; update++)
         {
@@ -238,11 +242,8 @@ internal static class FullMovieReplayVerification
             bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
             if (consoleReset)
             {
-                game = CreateRetailGameFixture(game.Saves, renderGameplayFrames: video is not null);
+                game = CreateRetailGameFixture(game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
                 video?.Attach(game);
-                game.DoorMusicUploadNmis = uploadNmis;
-                game.Session.DoorLoaderProgress = loaderProgress;
-                game.SoundAcknowledgements = soundAcknowledgements;
                 Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                     $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");
             }

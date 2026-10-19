@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation;
 
@@ -47,12 +48,15 @@ internal static class RepositoryInstallation
         }
     });
 
-    /// <summary>Builds host catalog bindings once, then applies them to each fresh or restored runtime.</summary>
-    private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeBindings =
-        new(() => InstalledRuntimeBindings.Create(Installation));
+    /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
+    private static readonly Lazy<GameArtwork> artwork =
+        new(() => Installation.LoadGameArtwork(Installation.LoadMaps(), Installation.LoadProjectiles()));
 
     /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;
+
+    /// <summary>The installation's presentation catalogs, shared by every fixture in the process.</summary>
+    internal static GameArtwork Artwork => artwork.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
@@ -65,6 +69,6 @@ internal static class RepositoryInstallation
     }
 
     /// <summary>Rebinds the host catalogs to a runtime restored from a debugger state, which omits them.</summary>
-    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtimeBindings.Value(runtime);
+    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtime.BindArtwork(Artwork, previous: null);
 }
 

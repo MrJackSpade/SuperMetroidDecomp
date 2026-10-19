@@ -13,6 +13,7 @@ public sealed class ModeledSoundAcknowledgements : ISoundAcknowledgementSource
 
     /// <summary>Returns the modeled acknowledgements unchanged.</summary>
     /// <param name="modeled">The bytes the session's SPC port model published after the previous update.</param>
+    /// <param name="portWrites">Unused: the model already echoes what was written.</param>
     /// <returns><paramref name="modeled"/>.</returns>
-    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) => modeled;
+    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled, CartridgeAudioAcknowledgements portWrites) => modeled;
 }

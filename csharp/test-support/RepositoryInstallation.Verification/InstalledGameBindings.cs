@@ -11,7 +11,9 @@ internal static class InstalledGameBindings
     internal static Action<SuperMetroidGame> Create(GameInstallation installation)
     {
         Ensure.NotNull(installation);
-        GameArtwork artwork = installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles());
+        GameArtwork artwork = ReferenceEquals(installation, RepositoryInstallation.Installation)
+            ? RepositoryInstallation.Artwork
+            : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles());
         return game => game.BindArtwork(artwork);
     }
 }

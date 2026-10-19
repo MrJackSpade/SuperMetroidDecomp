@@ -45,9 +45,10 @@ internal static class NativeSnapshotImportVerification
     /// </summary>
     /// <param name="memory">The 128 KiB native WRAM image at the movie's first input boundary.</param>
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
+    /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static (CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus, SuperMetroidGame Game)
-        ImportNativeSnapshot(byte[] memory, byte[] saveRam)
+        ImportNativeSnapshot(byte[] memory, byte[] saveRam, SuperMetroidGameHostServices? hostServices = null)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -312,7 +313,7 @@ internal static class NativeSnapshotImportVerification
         samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
-        var game = CreateRetailGameFixture(saves, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);

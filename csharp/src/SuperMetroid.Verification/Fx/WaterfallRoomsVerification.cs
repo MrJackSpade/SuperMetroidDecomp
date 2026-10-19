@@ -23,7 +23,7 @@ internal static class WaterfallRoomsVerification
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(false);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();

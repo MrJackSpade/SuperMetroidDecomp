@@ -25,7 +25,7 @@ internal static class TorizoLandingLifetimeVerification
         var bus=(installation ?? throw new InvalidOperationException("Verification requires installation.")).OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(false);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();

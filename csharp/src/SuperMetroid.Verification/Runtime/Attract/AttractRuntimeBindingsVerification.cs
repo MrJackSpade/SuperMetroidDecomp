@@ -29,7 +29,7 @@ internal static class AttractRuntimeBindingsVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
-        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(HostGameplayOverrides.None),
+        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: null),
             "omitting installed palettes reproduces the attract runtime construction failure");
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions
             { Invincibility = true, InfiniteAmmo = true, PreventEscapeTimeout = true });
@@ -39,18 +39,17 @@ internal static class AttractRuntimeBindingsVerification
             EnemyTileArtwork = enemyArtwork,
             StandardObjectArt = objects,
         });
-        var create = new Action<bool>(game.Session.CreateGameplayRuntime);
         int incomingRandom = game.DispatcherRandomNumber;
-        create(true);
-        var demo = game.Session.GameplayRuntime;
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
+        var demo = game.GameplayRuntimeForVerification;
         AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
         AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
         AssertTrue(ReferenceEquals(enemyArtwork, demo.Enemies.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,
             "attract runtime ignores host cheats");
-        create(false);
-        var selected = game.Session.GameplayRuntime;
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
+        var selected = game.GameplayRuntimeForVerification;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
         AssertTrue(selected.Cgram.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
         AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,

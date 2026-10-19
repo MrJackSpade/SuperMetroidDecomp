@@ -271,15 +271,14 @@ public sealed class PlayableGameControl : UserControl
         if (gameOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
-        game = new SuperMetroidGame(saves, gameOptions);
-        // The session binds clips in every configuration so a debugger state always carries
-        // its playback state; whether samples reach a device is the host's choice alone.
-        game.BindAudio(selectedAudioAssets);
         projectilePresentation = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation);
-        game.BindArtwork(artwork);
+        game = GameSessionComposer.Create(saves, gameOptions, artwork);
+        // The session binds clips in every configuration so a debugger state always carries
+        // its playback state; whether samples reach a device is the host's choice alone.
+        game.BindAudio(selectedAudioAssets);
         Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
@@ -372,7 +371,7 @@ public sealed class PlayableGameControl : UserControl
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
-        game.BindArtwork(artwork ?? throw new InvalidOperationException(
+        GameSessionComposer.Rebind(game, artwork ?? throw new InvalidOperationException(
             "Restored desktop session has no installed artwork."));
         game.BindAudio(audioAssets ?? throw new InvalidOperationException(
             "Restored desktop session has no installed audio."));

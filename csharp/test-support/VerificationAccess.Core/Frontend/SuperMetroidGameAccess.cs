@@ -59,6 +59,23 @@ internal static class SuperMetroidGameAccess
         }
 
         /// <summary>
+        /// Adopts a prepared runtime as the live game, establishing the dispatcher state a production gameplay entry
+        /// does: the room whose music is already queued and the main-gameplay state.
+        /// </summary>
+        /// <param name="runtime">A runtime with a loaded room.</param>
+        /// <exception cref="InvalidOperationException">The dispatcher has left reset or already holds a runtime.</exception>
+        internal void EnterMainGameplay(SuperMetroidRuntime runtime)
+        {
+            Ensure.NotNull(runtime);
+            if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+                throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
+            CartridgeRoomState roomState = runtime.Room.LoadedRoom.State;
+            self.Session.runtime = runtime;
+            self.Session.lastAudioRoomState = roomState;
+            self.GameState = SuperMetroidGameState.MainGameplay;
+        }
+
+        /// <summary>
         /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>

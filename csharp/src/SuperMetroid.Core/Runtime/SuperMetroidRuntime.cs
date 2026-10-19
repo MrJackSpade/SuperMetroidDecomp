@@ -42,7 +42,7 @@ namespace SuperMetroid.Core.Runtime;
 /// currently translated main-thread logic runs. Future bank ports can be added to the logic
 /// phase without changing every tool or viewer that wants to step one frame.
 /// </remarks>
-public sealed class SuperMetroidRuntime
+internal sealed class SuperMetroidRuntime
 {
     /// <summary>The <see cref="HdmaObjectPhase"/> owner of this SuperMetroidRuntime.</summary>
     internal HdmaObjectPhase HdmaPhase { get; }
@@ -137,12 +137,13 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
-    /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
+    /// <param name="artwork">The installed catalogs; their initial palette is loaded into CGRAM during construction, and <see cref="BindArtwork"/> binds the rest.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
-    internal SuperMetroidRuntime(HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt,
+    internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
         FrameClock clock, SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue)
     {
+        Ensure.NotNull(artwork);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
         Room = new ActiveRoomState();
@@ -181,7 +182,7 @@ public sealed class SuperMetroidRuntime
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Player = Player, Room = Room, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, SuitPickup = SuitPickup, Xray = Xray, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyPhase = EnemyPhase, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomPaletteFx = RoomPaletteFx, System = System });
 
-        Artwork.InitialPaletteArt = initialPaletteArt;
+        Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
         Tester.GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
         Tester.UnlockTourianEnabled = overrides.UnlockTourian;
         Options.PlayerInvincibilityEnabled = overrides.PlayerInvincibilityEnabled;
@@ -199,6 +200,80 @@ public sealed class SuperMetroidRuntime
         // PPU here produces the same starting colors while that fade pipeline is ported.
         (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Gameplay requires the installed initial palette catalog.")).LoadInitial(Cgram);
+    }
+
+    /// <summary>
+    /// Binds the installed catalogs to the runtime's owners: every catalog when <paramref name="previous"/> is null (a new
+    /// or restored runtime, whose catalogs are never serialized), otherwise only the catalogs whose reference changed.
+    /// </summary>
+    /// <remarks>
+    /// The map presentation binds first: its setter pushes the HUD, message-box, layer-3 and Samus palette bindings and
+    /// rebinds queued transfers that later catalogs' setters may read.
+    /// </remarks>
+    /// <param name="artwork">The catalogs to bind.</param>
+    /// <param name="previous">The catalogs bound before, or <see langword="null"/> to bind every catalog.</param>
+    internal void BindArtwork(IGameplayArtwork artwork, IGameplayArtwork? previous)
+    {
+        Ensure.NotNull(artwork);
+        void Bind<T>(Func<IGameplayArtwork, T?> catalog, Action<T?> bind) where T : class
+        {
+            T? value = catalog(artwork);
+            if (previous is null || !ReferenceEquals(catalog(previous), value))
+                bind(value);
+        }
+
+        Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
+        Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
+        Bind(a => a.StandardObjectArt, value => Artwork.StandardObjectArt = value);
+        Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
+        Bind(a => a.RoomCharacterArt, value => Artwork.RoomCharacterArt = value);
+        Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);
+        Bind(a => a.RoomMetatileArt, value => Artwork.RoomMetatileArt = value);
+        Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
+        Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
+        Bind(a => a.RoomPlmShotBlockVisuals, value => ShotBlockVisuals.RoomPlmShotBlockVisuals = value);
+        Bind(a => a.RoomPlmGrappleBlockVisuals, value => ShotBlockVisuals.RoomPlmGrappleBlockVisuals = value);
+        Bind(a => a.RoomPlmStationVisuals, value => ShotBlockVisuals.RoomPlmStationVisuals = value);
+        Bind(a => a.RoomPlmBlueDoorVisuals, value => ShotBlockVisuals.RoomPlmBlueDoorVisuals = value);
+        Bind(a => a.RoomPlmColoredDoorVisuals, value => ShotBlockVisuals.RoomPlmColoredDoorVisuals = value);
+        Bind(a => a.RoomPlmGreyDoorVisuals, value => ShotBlockVisuals.RoomPlmGreyDoorVisuals = value);
+        Bind(a => a.RoomPlmEyeDoorVisuals, value => ShotBlockVisuals.RoomPlmEyeDoorVisuals = value);
+        Bind(a => a.RoomPlmMotherBrainGlassVisuals, value => ShotBlockVisuals.RoomPlmMotherBrainGlassVisuals = value);
+        Bind(a => a.RoomPlmNoobTubeVisuals, value => ShotBlockVisuals.RoomPlmNoobTubeVisuals = value);
+        Bind(a => a.RoomPlmDownwardGateVisuals, value => ShotBlockVisuals.RoomPlmDownwardGateVisuals = value);
+        Bind(a => a.RoomPlmElevatorPlatformVisuals, value => ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = value);
+        Bind(a => a.RoomPlmEscapeGateVisuals, value => ShotBlockVisuals.RoomPlmEscapeGateVisuals = value);
+        Bind(a => a.RoomPlmBombTorizoHandVisuals, value => ShotBlockVisuals.RoomPlmBombTorizoHandVisuals = value);
+        Bind(a => a.RoomPlmDraygonCannonVisuals, value => ShotBlockVisuals.RoomPlmDraygonCannonVisuals = value);
+        Bind(a => a.RoomPlmChozoStatueVisuals, value => ShotBlockVisuals.RoomPlmChozoStatueVisuals = value);
+        Bind(a => a.RoomPlmLinkedRestoreVisuals, value => ShotBlockVisuals.RoomPlmLinkedRestoreVisuals = value);
+        Bind(a => a.RoomPlmTourianAccessVisuals, value => ShotBlockVisuals.RoomPlmTourianAccessVisuals = value);
+        Bind(a => a.RoomPlmSpeedBoosterVisuals, value => ShotBlockVisuals.RoomPlmSpeedBoosterVisuals = value);
+        Bind(a => a.RoomPlmMaridiaElevatubeVisuals, value => ShotBlockVisuals.RoomPlmMaridiaElevatubeVisuals = value);
+        Bind(a => a.RoomPlmSporeSpawnCeilingVisuals, value => ShotBlockVisuals.RoomPlmSporeSpawnCeilingVisuals = value);
+        Bind(a => a.RoomPlmSamusEaterVisuals, value => ShotBlockVisuals.RoomPlmSamusEaterVisuals = value);
+        Bind(a => a.RoomPlmBotwoonWallVisuals, value => ShotBlockVisuals.RoomPlmBotwoonWallVisuals = value);
+        Bind(a => a.RoomPlmKraidVisuals, value => ShotBlockVisuals.RoomPlmKraidVisuals = value);
+        Bind(a => a.RoomPlmCrocomireVisuals, value => ShotBlockVisuals.RoomPlmCrocomireVisuals = value);
+        Bind(a => a.RoomPlmMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomPlmMotherBrainFakeDeathVisuals = value);
+        Bind(a => a.RoomPlmCollectibleVisuals, value => ShotBlockVisuals.RoomPlmCollectibleVisuals = value);
+        Bind(a => a.RoomPlmDynamicCollectibleArt, value => ShotBlockVisuals.RoomPlmDynamicCollectibleArt = value);
+        Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
+        Bind(a => a.RoomBackgroundTilemapArt, value => Artwork.RoomBackgroundTilemapArt = value);
+        Bind(a => a.RoomSkyTilemapArt, value => Artwork.RoomSkyTilemapArt = value);
+        Bind(a => a.ProjectileCompositions, value => Artwork.ProjectileCompositions = value);
+        Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
+        Bind(a => a.TrailArtwork, value => Artwork.TrailArtwork = value);
+        Bind(a => a.SamusOverreads, value => Artwork.SamusOverreads = value);
+        Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
+        Bind(a => a.ChargeFlareCompositions, value => Artwork.ChargeFlareCompositions = value);
+        Bind(a => a.GrappleArtwork, value => Artwork.GrappleArtwork = value);
+        Bind(a => a.BeamArtwork, value => Artwork.BeamArtwork = value);
+        Bind(a => a.EnemyTileArtwork, value =>
+        {
+            Enemies.TileArtwork = value;
+            Room.CeresElevatorArrival?.BindProjectileSpritemaps(value?.ProjectileSpritemaps);
+        });
     }
 
     /// <summary>

@@ -53,7 +53,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) =>
+    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled, CartridgeAudioAcknowledgements portWrites) =>
         captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
 
     /// <summary>

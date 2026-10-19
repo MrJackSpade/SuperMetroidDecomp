@@ -25,7 +25,7 @@ internal static class TourianStatueWaterVerification
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(false);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();

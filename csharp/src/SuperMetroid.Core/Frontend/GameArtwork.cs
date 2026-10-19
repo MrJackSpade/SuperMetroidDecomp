@@ -10,6 +10,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -18,13 +20,16 @@ namespace SuperMetroid.Core.Frontend;
 /// enemy and projectile artwork. Hosts load one set from an installation and bind it with
 /// <see cref="SuperMetroidGame.BindArtwork"/>; a restored debugger state rebinds the same set.
 /// </summary>
-public sealed record GameArtwork
+public sealed record GameArtwork : IGameplayArtwork
 {
     /// <summary>No catalog bound: the state of a new game, or of a restored one before its host rebinds.</summary>
     public static GameArtwork Unbound { get; } = new();
 
     /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
     public AreaMapPresentationCatalog? MapPresentation { get; init; }
+
+    /// <inheritdoc/>
+    IGameplayPresentationContent? IGameplayArtwork.MapPresentation => MapPresentation;
 
     /// <summary>Gameplay base palettes a new runtime starts from.</summary>
     public GameplayBasePaletteCatalog? GameplayBasePalettes { get; init; }

@@ -70,7 +70,7 @@ internal static class SamusHudDefinitionsVerification
             byte movement = rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
             samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
-            var shots = new SamusProjectileSystem();
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);

@@ -81,10 +81,12 @@ public sealed class SamusProjectileSystem
         }
     }
 
-    /// <summary>Creates the five projectile slots, eighteen trail slots and the owners that run them.</summary>
-    public SamusProjectileSystem()
+    /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
+    /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
+    /// <param name="residue">The words the previous room's projectile slots leave behind.</param>
+    internal SamusProjectileSystem(BeamChargeState charge, SamusProjectileResidue residue)
     {
-        Charge = new BeamChargeState();
+        Charge = Ensure.NotNull(charge);
         SlotTable = new ProjectileSlotTable();
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
@@ -97,6 +99,7 @@ public sealed class SamusProjectileSystem
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails);
         Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
+        Ensure.NotNull(residue).ApplyTo(SlotTable.Slots);
     }
     /// <summary>Native ordinary-projectile capacity; bombs occupy the other five slots.</summary>
     public const int SlotCount = 5;
@@ -111,10 +114,18 @@ public sealed class SamusProjectileSystem
     public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable.Slots;
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
-    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
+    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep
+    {
+        get => Charge.LastBeamChargePaletteStep;
+        private set => Charge.LastBeamChargePaletteStep = value;
+    }
 
     /// <summary>Nested `$91:D83F` result when inactive charging falls through to visor handling.</summary>
-    public SamusVisorPaletteStepResult LastVisorPaletteStep { get; private set; }
+    public SamusVisorPaletteStepResult LastVisorPaletteStep
+    {
+        get => Charge.LastVisorPaletteStep;
+        private set => Charge.LastVisorPaletteStep = value;
+    }
 
     /// <summary>The last alpha-pass result, retained for debugger watches and verification.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
@@ -722,11 +733,11 @@ public sealed class SamusProjectileSystem
     /// <summary>
     /// Fully clears projectile storage and held-charge presentation for session resets
     /// and forced owners such as elevator boarding. Ordinary room transitions must use
-    /// <see cref="ResetForRoomTransition"/> because native projectile deletion preserves charge.
+    /// <see cref="ClearProjectileData"/> because native projectile deletion preserves charge.
     /// </summary>
     public void Reset(SamusState? samus = null)
     {
-        ResetForRoomTransition(samus);
+        ClearProjectileData(samus);
         Charge.FlareCounter = 0;
         Charge.PreviousBeamChargeCounter = 0;
         Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
@@ -742,7 +753,7 @@ public sealed class SamusProjectileSystem
     /// flare animation words or charge palette state. Full session/elevator reset
     /// callers still use <see cref="Reset"/> when those owners must also be cleared.
     /// </summary>
-    public void ResetForRoomTransition(SamusState? samus = null)
+    public void ClearProjectileData(SamusState? samus = null)
     {
         if (samus is not null)
         {

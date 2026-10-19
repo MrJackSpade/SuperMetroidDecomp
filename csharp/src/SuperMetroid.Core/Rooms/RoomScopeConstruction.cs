@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -38,6 +39,12 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// <summary>The Landing Site entry, if any.</summary>
     public LandingSiteEntryState? LandingSiteEntry { get; set; }
 
+    /// <summary>Samus's projectiles, once the teardown step has built them.</summary>
+    public SamusProjectileSystem? Projectiles { get; set; }
+
+    /// <summary>Samus's bombs, once the teardown step has built them.</summary>
+    public SamusBombProjectileSystem? BombProjectiles { get; set; }
+
     /// <summary>The PLM system, once the PLM population step has built it.</summary>
     public RoomPlmSystem? Plms { get; set; }
 
@@ -56,6 +63,8 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         BackgroundStreamer = BackgroundStreamer ?? throw Missing(nameof(BackgroundStreamer)),
         ScrollingSky = ScrollingSky,
         LandingSiteEntry = LandingSiteEntry,
+        Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
+        BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };

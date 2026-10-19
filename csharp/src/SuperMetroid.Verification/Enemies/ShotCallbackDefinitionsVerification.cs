@@ -143,7 +143,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Bank = (byte)(callback >> 16),
                 ShotAiPointer = unchecked((ushort)callback),
             });
-            var projectiles = new SamusProjectileSystem();
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             SamusProjectileSlot projectile = projectiles.Slots[0];
             projectile.Type = 0x8000;
             projectile.Damage = 20;

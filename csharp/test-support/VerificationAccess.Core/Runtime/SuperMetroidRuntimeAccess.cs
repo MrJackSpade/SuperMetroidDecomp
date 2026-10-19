@@ -45,6 +45,12 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>The loaded room's PLM system, which each room builds with its scope.</summary>
         internal RoomPlmSystem Plms => self.Room.LoadedScope.Plms;
 
+        /// <summary>The loaded room's Samus projectiles.</summary>
+        internal SamusProjectileSystem Projectiles => self.Room.LoadedScope.Projectiles;
+
+        /// <summary>The loaded room's bombs.</summary>
+        internal SamusBombProjectileSystem BombProjectiles => self.Room.LoadedScope.BombProjectiles;
+
 
         /// <summary>
         /// Creates pose-$01 Samus on a supported Landing Site floor beneath world X=$0440 and

@@ -42,8 +42,6 @@ internal sealed class RoomLoader
     private readonly BackgroundScrollPhase _backgroundPhase;
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Resets bomb and projectile actors when constructing a destination room.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Owns the Ceres elevator shaft's room-specific startup state.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
     /// <summary>Owns the haze effect installed by Ceres room loading.</summary>
@@ -83,9 +81,11 @@ internal sealed class RoomLoader
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
     private readonly PlmShotBlockVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
-    private readonly SamusProjectileSystem _projectiles;
+    private readonly BeamChargeState _beamCharge;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
+    private readonly GameplayWindowRegisters _gameplayWindows;
     /// <summary>Installs layer-three effects selected by the room state.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Starts palette effects belonging to the destination room.</summary>
@@ -116,7 +116,6 @@ internal sealed class RoomLoader
         _artwork = dependencies.Artwork;
         _backgroundPhase = dependencies.BackgroundPhase;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _ceresElevatorShaft = dependencies.CeresElevatorShaft;
         _ceresHaze = dependencies.CeresHaze;
         _cgram = dependencies.Cgram;
@@ -135,8 +134,9 @@ internal sealed class RoomLoader
         _options = dependencies.Options;
         _player = dependencies.Player;
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
-        _projectiles = dependencies.Projectiles;
+        _beamCharge = dependencies.BeamCharge;
         _room = dependencies.Room;
+        _gameplayWindows = dependencies.GameplayWindows;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _roomPaletteFx = dependencies.RoomPaletteFx;
         _roomSpikes = dependencies.RoomSpikes;
@@ -857,7 +857,8 @@ internal sealed class RoomLoader
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
-        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position);
+        var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position,
+            _room.Scope is { } outgoing ? SamusProjectileResidue.Of(outgoing.Projectiles) : SamusProjectileResidue.None);
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets);
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
@@ -987,12 +988,23 @@ internal sealed class RoomLoader
                 _display.SelectKraidHudCharacterBase();
         }
 
-        // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.
-        // Resetting these owners before Load/beam upload prevents stale projectile indices
-        // from addressing a different room's new arrays on the first visible frame; the
-        // destination's PLM system is built new with its scope below.
-        _bombProjectiles.Reset();
-        _projectiles.ResetForRoomTransition(_player.Samus);
+        // `$82:E43A-$E472` destroys room-owned objects before constructing the destination: the
+        // destination's projectiles and bombs are built new here, before Load/beam upload, so no
+        // stale index addresses its arrays; its PLM system is built with the population below.
+        // The held beam charge survives on the session; Samus's own echo storage is cleared.
+        if (_player.Samus is { } loadingSamus)
+        {
+            loadingSamus.HorizontalSpeed.ResetSpeedEchoPositionsForRoomTransition();
+            loadingSamus.Shinespark.ResetProjectileEchoStorage();
+        }
+        var bombs = new SamusBombProjectileSystem();
+        var projectiles = new SamusProjectileSystem(_beamCharge, carryOver.ProjectileResidue);
+        scope.BombProjectiles = bombs;
+        scope.Projectiles = projectiles;
+        _artwork.BindProjectiles(projectiles, bombs);
+        projectiles.Earthquakes.BindRoomEarthquakeOwner(_enemies);
+        _gameplayWindows.BindGameplayWindowRegisters(projectiles);
+        _player.Samus?.Shinespark.BindProjectileOwners(projectiles, bombs.PowerBombExplosion);
 
         // `$82:EB6C` walks this zero-terminated list once. Each six-byte record allocates
         // the highest free one of forty IDs before its bank-$84 setup executes. Immediate
@@ -1017,6 +1029,7 @@ internal sealed class RoomLoader
         };
         var plms = new RoomPlmSystem(new PlmRoomBindings(plmRoom, plmBindings), _shotBlockVisuals);
         scope.Plms = plms;
+        plms.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, _backgroundScroll, progress);
         scope.Services = areaServices;
         plms.PopulationLoader.LoadRoomPopulation(plmRoom, room.State.PlmPopulation, plmBindings);

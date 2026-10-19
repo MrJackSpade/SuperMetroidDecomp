@@ -160,7 +160,7 @@ public sealed class IntroCinematicState
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
-    internal readonly SamusProjectileSystem flashbackProjectiles = new();
+    internal readonly SamusProjectileSystem flashbackProjectiles = new(new BeamChargeState(), SamusProjectileResidue.None);
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     /// <summary>Staging words for progressively written BG3 narration pages.</summary>

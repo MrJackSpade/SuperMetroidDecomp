@@ -349,7 +349,7 @@ internal static class CoreAccess
         /// <summary>Rejects skipped frames and infers a newly allocated slot from consecutive snapshots.</summary>
         internal int? Observe(SuperMetroidGame game)
         {
-            SamusProjectileSystem? projectiles = game.RuntimeForVerification?.Projectiles;
+            SamusProjectileSystem? projectiles = game.RuntimeForVerification?.Room.Scope?.Projectiles;
             if (projectiles is null)
             {
                 _projectiles = null;

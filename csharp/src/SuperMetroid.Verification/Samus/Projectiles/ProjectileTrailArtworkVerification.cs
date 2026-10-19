@@ -18,6 +18,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
@@ -44,7 +45,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(); var authoredSystem = new SamusProjectileSystem();
+            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
                 var pair = system.TrailSlots[0];
@@ -92,7 +93,7 @@ internal static class ProjectileTrailArtworkVerification
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
-            var system = new SamusProjectileSystem();
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(3);
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
@@ -120,7 +121,7 @@ internal static class ProjectileTrailArtworkVerification
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(catalog, edited));
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
-        var animation = new SamusProjectileSystem();
+        var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
@@ -216,7 +217,7 @@ internal static class ProjectileTrailArtworkVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(false, false);
+            target.ActorDrawing.DrawGameplayActors(target.BombProjectiles, target.Projectiles, false, false);
             target.Sprites.FinalizeFrame();
             return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }

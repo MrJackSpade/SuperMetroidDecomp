@@ -16,8 +16,6 @@ internal sealed record MessageBoxFlowDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Enemies.</summary>
     public required RoomEnemySystem Enemies { get; init; }

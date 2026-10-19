@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -13,4 +14,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="InheritedLayer1Position">
 /// The layer-1 position an earlier gameplay owner left in WRAM; the first room's camera takes its fraction words.
 /// </param>
-internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, FixedPosition<RoomPixels> InheritedLayer1Position);
+/// <param name="ProjectileResidue">The words the outgoing room's Samus projectile slots leave behind.</param>
+internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera, FixedPosition<RoomPixels> InheritedLayer1Position,
+    SamusProjectileResidue ProjectileResidue);

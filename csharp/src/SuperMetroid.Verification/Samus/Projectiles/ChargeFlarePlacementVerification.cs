@@ -24,6 +24,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks editable charge-flare offsets against native OAM placement and the production rendering paths.</summary>
 internal static class ChargeFlarePlacementVerification
@@ -41,7 +42,7 @@ internal static class ChargeFlarePlacementVerification
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value.")).Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
-        var system = new SamusProjectileSystem();
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
@@ -98,7 +99,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {
-            var originalSystem = new SamusProjectileSystem(); var editedSystem = new SamusProjectileSystem();
+            var originalSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             foreach (var target in new[] { originalSystem, editedSystem })
             {
                 target.Charge.FlareCounter = (ushort)30;
@@ -176,7 +177,7 @@ internal static class ChargeFlarePlacementVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(false, false);
+            target.ActorDrawing.DrawGameplayActors(target.BombProjectiles, target.Projectiles, false, false);
             target.Sprites.FinalizeFrame();
             return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }

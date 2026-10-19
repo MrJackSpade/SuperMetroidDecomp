@@ -29,8 +29,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Ceres elevator shaft.</summary>
     public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
@@ -86,11 +84,14 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The host's installed PLM artwork each room's PLM system draws with.</summary>
     public required PlmShotBlockVisuals ShotBlockVisuals { get; init; }
 
-    /// <summary>Projectiles.</summary>
-    public required SamusProjectileSystem Projectiles { get; init; }
+    /// <summary>The held beam charge, flare and charge palette, which each room's projectile system shares.</summary>
+    public required BeamChargeState BeamCharge { get; init; }
 
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
+
+    /// <summary>The shared window-register cache each room's Chainsaw callback writes.</summary>
+    public required GameplayWindowRegisters GameplayWindows { get; init; }
 
     /// <summary>Room layer3 fx.</summary>
     public required RoomLayer3FxState RoomLayer3Fx { get; init; }

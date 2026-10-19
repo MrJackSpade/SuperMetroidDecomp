@@ -260,27 +260,27 @@ internal sealed class FrontendSession
                 audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 6);
         }
 
-        if (runtime.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
+        if (runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
         {
             audio.QueueSoundAndGetAccumulator(
                 projectileSound,
-                runtime.Projectiles.LastFrameResult.QueuedSoundMaximum,
-                soundSuppressed: runtime.Projectiles.LastFrameResult.QueuedSoundSuppressed);
+                runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundMaximum,
+                soundSuppressed: runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundSuppressed);
         }
 
         foreach (SamusSoundRequest request in
-            runtime.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
+            runtime.Room.LoadedScope.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
         {
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
         }
 
-        foreach (SamusSoundRequest request in runtime.Projectiles.ImpactAudio.ImpactSoundRequests)
+        foreach (SamusSoundRequest request in runtime.Room.LoadedScope.Projectiles.ImpactAudio.ImpactSoundRequests)
             audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
                 soundSuppressed: request.SoundSuppressed);
 
         foreach (SamusSoundRequest request in
-            runtime.BombProjectiles.LastFrameResult.SoundRequests ?? [])
+            runtime.Room.LoadedScope.BombProjectiles.LastFrameResult.SoundRequests ?? [])
         {
             audio.QueueSoundAndGetAccumulator(
                 request.SoundEffect,

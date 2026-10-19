@@ -205,7 +205,7 @@ internal static class GrappleFlarePresentationVerification
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(false, false);
+            target.ActorDrawing.DrawGameplayActors(target.BombProjectiles, target.Projectiles, false, false);
             OamBuffer image = target.Sprites.FinalizeAsOam();
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }

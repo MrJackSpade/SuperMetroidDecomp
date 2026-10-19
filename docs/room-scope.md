@@ -60,7 +60,11 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 - **Camera tracking state and fraction words** survive door loading (`ScrollBoundaryCamera.InheritTrackingState`,
   `RetainSubpositions`; 80cc097fc, #1266). `InheritedLayer1Position` supplies them when there is no previous camera.
 - **Samus velocity** survives; only `ExtraDisplacement` is cleared.
-- **Beam charge, flare counters and the charge palette** survive `ResetProjectileData`.
+- **Beam charge, flare counters and the charge palette** survive `ResetProjectileData`: they live on the session
+  `BeamChargeState`, which each room's `SamusProjectileSystem` receives at construction.
+- **Projectile slot residue**: the projectile-data reset clears a slot's whole position words but not its fraction
+  words, and leaves the Spazer special-attack phase (`$0CA4`). `RoomTransitionCarryOver.ProjectileResidue` carries
+  both into the next room's slots; the 100% movie diverges at update 23200 without them.
 - **X-ray direct G-mode** is demoted, not reset.
 - **Elevatube script movement ownership** survives the door fade (3f9fbfb58, #391).
 - **Door and elevator transition gates** are re-asserted after `RoomEnemySystem.Load`; the Etecoon fanfare depends on
@@ -69,7 +73,10 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 
 ## Deliberate resets
 
-- **Room PLMs never survive** a door (`RoomPlmSystem.Reset`).
+- **Room PLMs never survive** a door: each room builds its own `RoomPlmSystem`.
+- **Samus projectiles and bombs never survive** a door: each room builds its own `SamusProjectileSystem` and
+  `SamusBombProjectileSystem` at the teardown step, before the beam upload, and the installed projectile artwork is
+  bound to them there. Samus's speed and shinespark echo storage is cleared at the same step.
 - **Enemy projectiles are destroyed** (`EnemyProjectileEngine.ResetForRoom`, added with its comment in 9d81b919c).
 - **Stale Mode 7 math is cleared** on ordinary doors.
 - **Order-sensitive**: gate requests created during PLM setup are applied after `RoomEnemySystem.Load` clears the
@@ -89,7 +96,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
 | `RoomPlmSystem` | slots, sounds, gate requests, bindings, tilemap updates, station events, Chozo references | room |
 | `SamusBombProjectileSystem` | slots, bomb counter, cooldown, power-bomb explosion | room |
 | `SamusProjectileSystem` | slots, trails, counter, combo, earthquake | room |
-| `SamusProjectileSystem` | charge, flare, charge palette | session carry-over |
+| `BeamChargeState` | charge, flare, charge palette | session carry-over |
 | `RoomLayer3FxState`, `RoomPaletteFxSystem`, sand/spike/treadmill tiles | FX state | room |
 | Treadmill, elevatube and Ceres shaft room mains | active flag, script state | room, with the elevatube exit carried |
 | `CeresHazeState`, `TourianStatueSequence` | presentation and sequence | room |

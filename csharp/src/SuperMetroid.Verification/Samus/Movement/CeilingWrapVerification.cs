@@ -19,7 +19,7 @@ internal static class CeilingWrapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
-        var system = new SamusProjectileSystem();
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var powerBomb = new SamusPowerBombExplosionState();
         int cursor = 0, mismatches = 0;
         for (int tileX = 63; tileX <= 65; tileX++)

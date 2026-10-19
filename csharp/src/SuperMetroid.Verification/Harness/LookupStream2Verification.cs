@@ -1398,7 +1398,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
+            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads }; var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
             foreach (var system in new[] { nativeSystem, authoredSystem })
             {
                 var pair = system.TrailSlots[0];
@@ -1486,7 +1486,7 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end, InstalledFixtures.SamusOverreads), "Trail selector rejects the following word");
         for (int selection = 0; selection < 64; selection++)
         {
-            var projectiles = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = (ushort)selection,
@@ -2060,7 +2060,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
-            var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);
@@ -2104,7 +2104,7 @@ internal static class LookupStream2Verification
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
-            var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);

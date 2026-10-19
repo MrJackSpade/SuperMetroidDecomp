@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -37,6 +38,12 @@ internal sealed record RoomScope
 
     /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
     public required LandingSiteEntryState? LandingSiteEntry { get; init; }
+
+    /// <summary>Samus's beam and missile projectiles in this room; the held charge lives on the session.</summary>
+    public required SamusProjectileSystem Projectiles { get; init; }
+
+    /// <summary>Samus's bombs, power bombs and the shared projectile cooldown in this room.</summary>
+    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>The room's PLM population and the family owners that run it.</summary>
     public required RoomPlmSystem Plms { get; init; }

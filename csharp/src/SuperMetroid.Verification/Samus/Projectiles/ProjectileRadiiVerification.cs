@@ -111,7 +111,7 @@ internal static class ProjectileRadiiVerification
                     ? replacementSprites[1] : replacementSprites[0]);
         var edited = ProjectileFrameBindingCatalog.Load(
             new MemoryStream(ProjectileFrameBindingCatalog.Write(editedDocument)));
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var bombs = new SamusBombProjectileSystem();
         int bombFrames = 0;
         foreach (int address in addresses)

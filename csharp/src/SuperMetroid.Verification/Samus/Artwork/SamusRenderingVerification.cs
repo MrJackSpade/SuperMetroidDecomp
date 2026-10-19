@@ -708,7 +708,7 @@ internal static void VerifySamusVisorPalette()
     // This integration assertion prevents the exact state machine from becoming orphaned.
     var integratedSamus = new SamusState();
     integratedSamus.VisorPalette.PresentationColors = visorColors;
-    var projectiles = new SamusProjectileSystem();
+    var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
     SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
         cgram, integratedSamus,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);

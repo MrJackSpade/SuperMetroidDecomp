@@ -18,8 +18,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Attract demo.</summary>
     public required IAttractSamusInput AttractDemo { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }
@@ -49,8 +47,6 @@ internal sealed record SamusFramePhasesDependencies
     public required SamusFrameState Player { get; init; }
 
 
-    /// <summary>Projectiles.</summary>
-    public required SamusProjectileSystem Projectiles { get; init; }
 
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }

@@ -35,8 +35,6 @@ internal sealed class AcceptedFrameBoundary
     private readonly ControllerInputState _controller1;
     /// <summary>Physical controller-1 latch, for code that reads raw <c>$8B/$8F</c> bits.</summary>
     private readonly ControllerInputState _physicalController1;
-    /// <summary>Supplies the power-bomb explosion whose COLDATA color is latched.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Retains the accepted-NMI display latch.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each accepted NMI.</summary>
@@ -73,7 +71,6 @@ internal sealed class AcceptedFrameBoundary
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _controller1 = dependencies.Controller1;
         _physicalController1 = dependencies.PhysicalController1;
         _display = dependencies.Display;
@@ -219,10 +216,13 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>COLDATA shadows the HDMA pre-instructions wrote during the previous main loop.</summary>
     private GameplayLatchedFixedColors CaptureFixedColors()
     {
-        SamusPowerBombExplosionState explosion = _bombProjectiles.PowerBombExplosion;
+        // Before the first room exists there is no explosion; its COLDATA shadow is the cleared one.
+        FixedColorRegisterSnapshot powerBomb = _room.BombProjectiles?.PowerBombExplosion is { } explosion
+            ? new(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue)
+            : default;
         return new(
             _roomLayer3Fx.FixedColors.Snapshot(),
-            new FixedColorRegisterSnapshot(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue),
+            powerBomb,
             new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
             _enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);
     }

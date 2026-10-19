@@ -22,8 +22,6 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Ceres elevator shaft.</summary>
     public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }

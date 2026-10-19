@@ -25,8 +25,6 @@ internal sealed class DoorTransitionRunner
     private readonly GameplayActorDrawing _actorDrawing;
     /// <summary>Provides scroll state to the enemy projectile pass.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Supplies shared bomb state and Power Bomb audio during door dispatch.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Clears the Ceres elevator Mode 7 room state on its exit door.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
     /// <summary>Holds active and NMI-published display transforms across transitions.</summary>
@@ -63,7 +61,6 @@ internal sealed class DoorTransitionRunner
     {
         _actorDrawing = dependencies.ActorDrawing;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _ceresElevatorShaft = dependencies.CeresElevatorShaft;
         _display = dependencies.Display;
         _enemies = dependencies.Enemies;
@@ -131,19 +128,19 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards,plms);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, plms);
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
-                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards,plms);
+                StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, plms);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
-                SetUpMaridiaElevatube(fromSouth: true,plms);
+                SetUpMaridiaElevatube(fromSouth: true, plms);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
-                SetUpMaridiaElevatube(fromSouth: false,plms);
+                SetUpMaridiaElevatube(fromSouth: false, plms);
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
@@ -198,10 +195,10 @@ internal sealed class DoorTransitionRunner
         _ = plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
-    public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomPlmSystem plms)
+    public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomScope room)
     {
-        RunDoorSoundWaitPrologue(controllerInput,plms);
-        DrawDoorTransitionActors(runEnemyProjectiles: false, plms);
+        RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles);
+        DrawDoorTransitionActors(runEnemyProjectiles: false, room);
     }
 
     /// <summary>
@@ -210,9 +207,9 @@ internal sealed class DoorTransitionRunner
     /// runs while Samus is locked. On the entry frame it precedes the state handler, so
     /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms)
+    public void RunDoorSoundWaitPrologue(SnesButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
     {
-        plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
+        plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, plms);
     }
@@ -222,18 +219,18 @@ internal sealed class DoorTransitionRunner
     /// True for the destination fade-in ($82:E743); the source waits ($E29E/$E2DB) run
     /// enemies and drawing without Enemy_Projectile_Handler.
     /// </param>
-    /// <param name="plms">The loaded room's PLM system.</param>
-    internal void DrawDoorTransitionActors(bool runEnemyProjectiles, RoomPlmSystem plms)
+    /// <param name="room">The loaded room.</param>
+    internal void DrawDoorTransitionActors(bool runEnemyProjectiles, RoomScope room)
     {
         _sprites.BeginFrame();
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
-        _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(_bombProjectiles.PowerBombExplosion);
-        _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint, plms);
+        _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(room.BombProjectiles.PowerBombExplosion);
+        _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (runEnemyProjectiles)
-            RunEnemyProjectileHandler();
-        _actorDrawing.DrawGameplayActors(deathOwnsSamus: false, advanceSamusPalette: false);
+            RunEnemyProjectileHandler(room.BombProjectiles);
+        _actorDrawing.DrawGameplayActors(room.BombProjectiles, room.Projectiles, deathOwnsSamus: false, advanceSamusPalette: false);
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (_enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
@@ -246,12 +243,12 @@ internal sealed class DoorTransitionRunner
     /// checks only the enable bit X-ray clears, so its instructions keep running while time
     /// is frozen for a reserve refill.
     /// </summary>
-    internal void RunEnemyProjectileHandler()
+    internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles)
     {
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
         _enemies.StepEnemyProjectileInstructions(
-            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, _bombProjectiles, _backgroundScroll, _clock.Counter);
+            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>

@@ -20,8 +20,6 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles, owner of the power-bomb explosion.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

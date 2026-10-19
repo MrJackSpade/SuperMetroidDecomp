@@ -1674,7 +1674,7 @@ internal static class LookupStream1Verification
         }
         var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
-        var system = new SamusProjectileSystem();
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
@@ -2748,7 +2748,7 @@ internal static class LookupStream1Verification
             if (edited)
                 foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameName(pointer)] = "sprite_A117";
             var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
-            var shots = new SamusProjectileSystem { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             foreach (ushort pointer in expected)
             {
@@ -2830,7 +2830,7 @@ internal static class LookupStream1Verification
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
-            var shots = new SamusProjectileSystem { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = 0x0500 };

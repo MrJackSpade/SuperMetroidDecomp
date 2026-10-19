@@ -72,7 +72,7 @@ internal static class EnemyDropsVerification
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
-        var projectiles = new SamusProjectileSystem();
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");

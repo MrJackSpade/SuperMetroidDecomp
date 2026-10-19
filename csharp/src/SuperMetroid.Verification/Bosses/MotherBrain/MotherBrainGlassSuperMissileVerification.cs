@@ -42,7 +42,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
         var installation = GameAssetInstaller.EnsureInstalled(root) ??
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
-        var shots = new SamusProjectileSystem { Animation = { FrameBindings = installation.LoadProjectiles().FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = installation.LoadProjectiles().FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.

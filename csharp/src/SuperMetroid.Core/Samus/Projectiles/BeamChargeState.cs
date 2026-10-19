@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Palettes;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam charge state: the flare counter $0CD0, the previous charge $0DC2, the charged-shot glow timer $0B18, the charge palette index $0B62 and the three flare components' frames and timers.</summary>
@@ -35,6 +37,12 @@ internal sealed class BeamChargeState
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
+
+    /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result, which survives room loads.</summary>
+    internal SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; set; }
+
+    /// <summary>The nested `$91:D83F` visor palette result, which survives room loads.</summary>
+    internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
 
     /// <summary>Current animation frame for each of the three flare components.</summary>
     internal readonly ushort[] FlareFrames = new ushort[3];

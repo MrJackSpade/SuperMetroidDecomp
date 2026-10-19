@@ -76,11 +76,11 @@ internal sealed class SamusPoseTransitionPhase
             samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition();
 
         animationTransitionApplied = ApplyInterruptionTransitions(frame, samus, animationTransitionApplied,
-            hitInterruptionExpiryPending,plms);
-        animationTransitionApplied = ApplyCollisionTransitions(frame, samus, animationTransitionApplied,plms);
+            hitInterruptionExpiryPending, plms);
+        animationTransitionApplied = ApplyCollisionTransitions(frame, samus, animationTransitionApplied, plms);
 
         if (!animationTransitionApplied && _player.ProspectiveSamusPose is { } inputTransition)
-            ApplyInputTransition(frame, samus, inputTransition,plms);
+            ApplyInputTransition(frame, samus, inputTransition, plms);
         else if (!animationTransitionApplied)
             ApplyLookupFailureCommand(frame, samus);
 
@@ -504,8 +504,8 @@ internal sealed class SamusPoseTransitionPhase
         // Reinitializing frame zero would prevent $F8 from ever being reached.
         if (targetPose == frame.PoseAtFrameStart)
             return;
-        if (!TryApplySpecialBodyTransition(frame, samus, targetPose,plms) && !TryApplyAimRunOrTurnTransition(frame, samus, targetPose))
-            ApplyJumpCrouchOrPostureTransition(frame, samus, targetPose,plms);
+        if (!TryApplySpecialBodyTransition(frame, samus, targetPose, plms) && !TryApplyAimRunOrTurnTransition(frame, samus, targetPose))
+            ApplyJumpCrouchOrPostureTransition(frame, samus, targetPose, plms);
     }
 
     /// <summary>

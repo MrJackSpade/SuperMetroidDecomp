@@ -16,8 +16,6 @@ internal sealed record EnemyFramePhaseDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }
@@ -50,8 +48,6 @@ internal sealed record EnemyFramePhaseDependencies
     public required SamusFrameState Player { get; init; }
 
 
-    /// <summary>Projectiles.</summary>
-    public required SamusProjectileSystem Projectiles { get; init; }
 
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }

@@ -65,12 +65,12 @@ internal sealed class EnemyRoomEffects
     /// </remarks>
     internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, RoomPlmSystem plms)
     {
-        ApplyPendingBotwoonWallPlm(requests,plms);
-        ApplyPendingSporeSpawnCeilingPlm(requests,plms);
-        ApplyPendingCrocomireArenaPlms(requests,plms);
-        ApplyPendingKraidPlms(requests,plms);
-        ApplyPendingMotherBrainPlms(requests,plms);
-        ApplyPendingShitroidWallPlms(requests,plms);
+        ApplyPendingBotwoonWallPlm(requests, plms);
+        ApplyPendingSporeSpawnCeilingPlm(requests, plms);
+        ApplyPendingCrocomireArenaPlms(requests, plms);
+        ApplyPendingKraidPlms(requests, plms);
+        ApplyPendingMotherBrainPlms(requests, plms);
+        ApplyPendingShitroidWallPlms(requests, plms);
         ApplyPendingChozoStatuePlms(plms);
     }
 

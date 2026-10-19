@@ -18,8 +18,6 @@ internal sealed record PlmFramePhaseDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }

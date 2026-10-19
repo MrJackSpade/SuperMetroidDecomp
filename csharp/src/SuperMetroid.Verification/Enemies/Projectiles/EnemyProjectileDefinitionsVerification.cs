@@ -125,7 +125,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = 0;
-            var shots = new SamusProjectileSystem();
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             SamusProjectileSlot shot = shots.Slots[0];
             shot.Type = 1;
             shot.Damage = 1;

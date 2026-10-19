@@ -87,7 +87,7 @@ internal sealed class DoorTransitionState
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:
-                runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope.Plms);
+                runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope);
                 publishSoundWaitAudio?.Invoke();
                 if (!audio.HasQueuedSounds)
                     Phase = DoorTransitionPhase.FadeOutSourcePalette;
@@ -106,7 +106,7 @@ internal sealed class DoorTransitionState
                 }
                 else
                 {
-                    runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false, runtime.Room.LoadedScope.Plms);
+                    runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false, runtime.Room.LoadedScope);
                 }
                 break;
 
@@ -214,7 +214,7 @@ internal sealed class DoorTransitionState
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
                     DoorTransitionPaletteDefinitions.PublishCompletedScrollVisor(runtime.Cgram);
-                    runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms);
+                    runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }
                 break;
@@ -274,7 +274,7 @@ internal sealed class DoorTransitionState
                 // E737 runs the animated-tile objects, then enemy/draw owners, on every
                 // fade step, without Samus's movement/animation handler or the camera streamer.
                 runtime.RoomMains.RunAnimatedTilesObjectHandler();
-                runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: true, runtime.Room.LoadedScope.Plms);
+                runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: true, runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.

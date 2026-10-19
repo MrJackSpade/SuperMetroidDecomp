@@ -20,8 +20,6 @@ internal sealed class PlmFramePhase
     private readonly RuntimeArtwork _artwork;
     /// <summary>BG1 offset supplied to PLM view calculations.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Power Bomb explosion status read by triggered PLMs.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Live palette memory updated after beam collection.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Current and newly pressed buttons passed to PLM and message handlers.</summary>
@@ -53,7 +51,6 @@ internal sealed class PlmFramePhase
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _enemies = dependencies.Enemies;
@@ -77,7 +74,7 @@ internal sealed class PlmFramePhase
     /// door/elevator freeze flag is set. This call is the cartridge's one exception: it
     /// advances freshly loaded room setup lists once before the destination fades in.
     /// </remarks>
-    internal void RunDoorTransitionPlmHandler(RoomPlmSystem plms)
+    internal void RunDoorTransitionPlmHandler(RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
     {
         // The explicit transition-time call still enters the common bank-$84 handler,
         // whose first instruction returns while native PLM word `$1C23` is disabled.
@@ -85,7 +82,7 @@ internal sealed class PlmFramePhase
         if (_player.Samus?.Xray.ArePlmsSuspended == true)
             return;
 
-        RunPlmHandlerCore(controllerNewInput: 0,plms);
+        RunPlmHandlerCore(controllerNewInput: 0, plms, bombProjectiles);
 
         // Setup-time PLMs do not have Samus contact/input available. If a future
         // translation publishes a player-facing event here, fail at the exact ownership
@@ -106,7 +103,7 @@ internal sealed class PlmFramePhase
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private void RunPlmHandlerCore(SnesButton controllerNewInput, RoomPlmSystem plms)
+    private void RunPlmHandlerCore(SnesButton controllerNewInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null || _player.Samus is null)
         {
@@ -114,7 +111,7 @@ internal sealed class PlmFramePhase
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
+        IReadOnlyList<PlmTilemapUpdate> updates = plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = bombProjectiles.PowerBombExplosion.Status });
         foreach (PlmTilemapUpdate update in updates)
             update.ExecuteTo(_vram);
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(plms);
@@ -129,7 +126,7 @@ internal sealed class PlmFramePhase
     }
 
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
-    internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus, RoomPlmSystem plms)
+    internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
     {
         // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
         // enemy-projectile passes but before MainScrollingRoutine. A grapple block
@@ -138,7 +135,7 @@ internal sealed class PlmFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.ArePlmsSuspended)
         {
-            RunPlmHandlerCore(_controller1.NewlyPressed,plms);
+            RunPlmHandlerCore(_controller1.NewlyPressed, plms, bombProjectiles);
 
             // Item PLMs publish acquisition only after their native trigger and
             // handler pass. Apply the hardware-facing consequences at that same seam:

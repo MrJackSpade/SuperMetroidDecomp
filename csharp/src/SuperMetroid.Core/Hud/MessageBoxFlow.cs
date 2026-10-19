@@ -20,8 +20,6 @@ internal sealed class MessageBoxFlow
 {
     /// <summary>Supplies BG1 offset when resumed PLMs publish tilemap updates.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Suppresses pickup and HUD sounds while a Power Bomb explosion is active.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Handles gunship prompts and save-station electricity on accepted saves.</summary>
     private readonly RoomEnemySystem _enemies;
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
@@ -47,7 +45,6 @@ internal sealed class MessageBoxFlow
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _enemies = dependencies.Enemies;
         _freeze = dependencies.Freeze;
         _hud = dependencies.Hud;
@@ -114,7 +111,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms)
+    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles)
     {
 
         if (_enemies.Gunship.SavePromptPending)
@@ -176,7 +173,7 @@ internal sealed class MessageBoxFlow
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
             _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
-                soundSuppressed: _bombProjectiles.PowerBombExplosion.IsActive);
+                soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
         if (!frameSuspended)
             _hud.QueueUpload(_vramWrites);
 
@@ -195,7 +192,7 @@ internal sealed class MessageBoxFlow
                 _player.Samus,
                 _room.Camera.PixelPosition,
                 pendingSuit,
-                soundSuppressed: _bombProjectiles.PowerBombExplosion.IsActive);
+                soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
             _pendingSuitPickup = null;
         }
         return;

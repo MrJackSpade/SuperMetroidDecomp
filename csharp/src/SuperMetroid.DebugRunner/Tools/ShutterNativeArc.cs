@@ -29,7 +29,7 @@ internal static class ShutterNativeArc
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame < ShutterBombArcScenario.FirstArcFrame)
                 continue;
-            foreach (var bomb in scenario.Runtime.BombProjectiles.Slots)
+            foreach (var bomb in scenario.Runtime.Room.LoadedScope.BombProjectiles.Slots)
             {
                 bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
                 bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);

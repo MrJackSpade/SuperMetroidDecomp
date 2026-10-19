@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Gameplay;
 /// <summary>The collaborators a <see cref="RuntimeArtwork"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record RuntimeArtworkDependencies
 {
-    /// <summary>Bomb projectiles.</summary>
-    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Cgram.</summary>
     public required SnesCgram Cgram { get; init; }
@@ -30,8 +28,6 @@ internal sealed record RuntimeArtworkDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>Projectiles.</summary>
-    public required SamusProjectileSystem Projectiles { get; init; }
 
     /// <summary>Room layer3 fx.</summary>
     public required RoomLayer3FxState RoomLayer3Fx { get; init; }

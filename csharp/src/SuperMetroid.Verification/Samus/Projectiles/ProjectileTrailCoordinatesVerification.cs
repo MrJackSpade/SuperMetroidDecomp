@@ -56,7 +56,7 @@ internal static class ProjectileTrailCoordinatesVerification
             .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
-        var system = new SamusProjectileSystem { Overreads = InstalledFixtures.SamusOverreads };
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 37, 0x100, 0x200 })

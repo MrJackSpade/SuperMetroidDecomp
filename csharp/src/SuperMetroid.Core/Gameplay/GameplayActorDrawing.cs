@@ -27,8 +27,6 @@ internal sealed class GameplayActorDrawing
     private readonly IAttractDemoState _attractSession;
     /// <summary>Supplies active background offsets for the drawing phase.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Draws bomb effects before the enemy layer pass, following native OAM order.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Receives the palette writes that the software PPU will read for this frame.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Supplies the current input state used by presentation handlers.</summary>
@@ -50,8 +48,6 @@ internal sealed class GameplayActorDrawing
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies beam palette updates and player-projectile effects.</summary>
-    private readonly SamusProjectileSystem _projectiles;
     /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Receives actor graphics transfers requested during presentation.</summary>
@@ -63,7 +59,6 @@ internal sealed class GameplayActorDrawing
         _artwork = dependencies.Artwork;
         _attractSession = dependencies.AttractSession;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _bombProjectiles = dependencies.BombProjectiles;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
@@ -73,7 +68,6 @@ internal sealed class GameplayActorDrawing
         _oam = dependencies.Sprites.Oam;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
-        _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
     }
@@ -82,7 +76,7 @@ internal sealed class GameplayActorDrawing
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
         _artwork.LoadedBeams);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(bool deathOwnsSamus, bool advanceSamusPalette = true)
+    internal void DrawGameplayActors(SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, bool deathOwnsSamus, bool advanceSamusPalette = true)
     {
         if (_player.Samus is null || _room.Camera is null) return;
         _artwork.BindGrapplePresentation();
@@ -90,8 +84,8 @@ internal sealed class GameplayActorDrawing
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)
         {
-            _bombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
-            _projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            bombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            projectiles.DrawExplosions(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
         }
 
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
@@ -147,11 +141,11 @@ internal sealed class GameplayActorDrawing
                 // selected special Samus palette. Ordinary charged shots paint colors 1-15
                 // white for three calls and restore the ROM suit on call four; Hyper shots
                 // step ten complete bank-$9B palettes on alternating calls before restore.
-                LastBeamChargePaletteStep = _projectiles.UpdateBeamChargePalette(
+                LastBeamChargePaletteStep = projectiles.UpdateBeamChargePalette(
                     _cgram,
                     _player.Samus,
                     _display.LayerBlendingDefaultConfig);
-                LastVisorPaletteStep = _projectiles.LastVisorPaletteStep;
+                LastVisorPaletteStep = projectiles.LastVisorPaletteStep;
                 // Native carry from HandleBeamChargePalettes bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
@@ -300,8 +294,8 @@ internal sealed class GameplayActorDrawing
                     // falls through to `$90:EB55`. Grapple's handler never calls this,
                     // including its cancel/release fallback frames.
                     // The flare animates as a simulation phase, then shows what it advanced to.
-                    ChargeFlareComponents flare = _projectiles.AdvanceChargeFlare(_player.Samus);
-                    _projectiles.DrawChargeFlare(
+                    ChargeFlareComponents flare = projectiles.AdvanceChargeFlare(_player.Samus);
+                    projectiles.DrawChargeFlare(
                         _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
@@ -383,7 +377,7 @@ internal sealed class GameplayActorDrawing
             // `$90:EB3B` draws Samus first and immediately calls `$93:8254`. This is
             // deliberately after the grapple beam too in the translated composite pass;
             // all live beam art still receives later OAM indices than Samus's body.
-            _projectiles.DrawLiveProjectiles(
+            projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,
                 _clock.Counter, ProjectileArtwork);
@@ -391,8 +385,8 @@ internal sealed class GameplayActorDrawing
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
             // Trails animate as a simulation phase, under time freeze too, then show where they are.
-            _projectiles.AdvanceTrails(_freeze.TimeIsFrozen, _artwork.TrailArtwork);
-            _projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
+            projectiles.AdvanceTrails(_freeze.TimeIsFrozen, _artwork.TrailArtwork);
+            projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without

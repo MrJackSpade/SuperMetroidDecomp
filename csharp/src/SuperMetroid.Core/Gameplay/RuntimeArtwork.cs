@@ -67,8 +67,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Resolves a typed VRAM asset from its currently bound artwork catalog.</summary>
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveVramAsset(asset);
 
-    /// <summary>Supplies Power Bomb presentation colors on artwork rebind.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Receives selected beam palettes during a safe rebind.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Locates the current HUD character base in VRAM.</summary>
@@ -81,8 +79,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Receives compiled projectile frame composition bindings.</summary>
-    private readonly SamusProjectileSystem _projectiles;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Destination for accepted-NMI artwork refresh transfers.</summary>
@@ -90,17 +86,29 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Pending DMA records rebound from native source addresses to installed assets.</summary>
     private readonly VramWriteQueue _vramWrites;
 
+    /// <summary>
+    /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
+    /// and again whenever the host rebinds artwork.
+    /// </summary>
+    internal void BindProjectiles(SamusProjectileSystem projectiles, SamusBombProjectileSystem bombs)
+    {
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(bombs);
+        projectiles.Animation.FrameBindings = ProjectileFrameBindings;
+        projectiles.Overreads = SamusOverreads;
+        bombs.FrameBindings = ProjectileFrameBindings;
+        bombs.PowerBombExplosion.PresentationColors = MapPresentation?.PowerBombFixedColors;
+    }
+
     /// <summary>Captures the runtime owners that consume host-installed visual assets.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
-        _bombProjectiles = dependencies.BombProjectiles;
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
         _enemies = dependencies.Enemies;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
         _player = dependencies.Player;
-        _projectiles = dependencies.Projectiles;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
@@ -124,7 +132,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _roomLayer3Fx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             _roomLayer3Fx.Layer3Tilemaps = value?.RoomFxLayer3Tilemaps;
             _roomLayer3Fx.PaletteBlendColors = value?.RoomFxPaletteBlends;
-            _bombProjectiles.PowerBombExplosion.PresentationColors = value?.PowerBombFixedColors;
             BindSamusPalettePresentation();
             _enemies.BindMapPresentation(value);
             pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
@@ -265,12 +272,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
     {
         get;
-        set
-        {
-            field = value;
-            _projectiles.Animation.FrameBindings = value;
-            _bombProjectiles.FrameBindings = value;
-        }
+        set;
     }
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
     [field: NonSerialized]
@@ -307,7 +309,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     public SamusOverreadCatalog? SamusOverreads
     {
         get;
-        set { field = value; _projectiles.Overreads = value; }
+        set;
     }
 
     /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>

@@ -28,8 +28,6 @@ internal sealed class SamusFramePhases
     private readonly RuntimeArtwork _artwork;
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input word.</summary>
     private readonly IAttractSamusInput _attractDemo;
-    /// <summary>Provides bomb occupancy and cooldown state for HUD X-ray admission.</summary>
-    private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Receives Samus and grapple palette writes at their gameplay phase.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
@@ -48,8 +46,6 @@ internal sealed class SamusFramePhases
     private readonly GameplayOptions _options;
     /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies projectile and beam-charge state for Samus phase dispatch.</summary>
-    private readonly SamusProjectileSystem _projectiles;
     /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Tracks the palette effect that ends Samus's saved-game load appearance.</summary>
@@ -72,7 +68,6 @@ internal sealed class SamusFramePhases
         _attractDemo = dependencies.AttractDemo;
         _suitPickup = dependencies.SuitPickup;
         _xray = dependencies.Xray;
-        _bombProjectiles = dependencies.BombProjectiles;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _enemies = dependencies.Enemies;
@@ -82,7 +77,6 @@ internal sealed class SamusFramePhases
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
@@ -105,7 +99,7 @@ internal sealed class SamusFramePhases
     /// connected and release functions own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
-    private bool RunGrappleBeamHandler(SamusBetaHandler beta, RoomPlmSystem plms)
+    private bool RunGrappleBeamHandler(SamusBetaHandler beta, RoomPlmSystem plms, SamusProjectileSystem projectiles)
     {
         if (_player.Samus is null || _room.LevelData is null)
             throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
@@ -144,7 +138,7 @@ internal sealed class SamusFramePhases
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
-                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, _projectiles.Overreads)) &&
+                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.Overreads)) &&
                  ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & SnesButton.X) != 0)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the
@@ -198,7 +192,7 @@ internal sealed class SamusFramePhases
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool deferActivation)
+    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool deferActivation, SamusBombProjectileSystem bombProjectiles)
     {
         if (_player.Samus is null || !_player.GroundedSamusMovementEnabled || _room.LevelData is null)
         {
@@ -211,7 +205,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = _bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = _bombProjectiles.CooldownTimer, BombCounter = _bombProjectiles.BombCounter }, deferActivation);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, deferActivation);
     }
 
     /// <summary>
@@ -269,23 +263,23 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// the tail. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
     internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
-        ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomPlmSystem plms)
+        ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
-        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, plms);
+        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms);
         frame.MovementEnabled = _player.GroundedSamusMovementEnabled;
         if (frame.MovementEnabled)
-            RunAlphaTail(frame, gameState, samus, camera,plms);
+            RunAlphaTail(frame, gameState, samus, camera, room);
     }
 
     /// <summary>
     /// Runs the frame handler's beta (SamusNewStateHandler, $0A44): beta movement when Samus movement is enabled, then
     /// the tail.
     /// </summary>
-    internal void RunBeta(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomPlmSystem plms)
+    internal void RunBeta(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomScope room)
     {
         if (frame.MovementEnabled)
-            RunBetaMovement(frame, samus, camera,plms);
-        RunBetaTail(frame, samus, audio, plms);
+            RunBetaMovement(frame, samus, camera, room);
+        RunBetaTail(frame, samus, audio, room.Plms);
     }
 
     /// <summary>
@@ -293,7 +287,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-alpha movement snapshot ($90:EB30).
     /// </summary>
     private void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
-        ScrollBoundaryCamera camera, RoomPlmSystem plms)
+        ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -323,7 +317,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         if (!_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) && _room.ActiveRoom is { } insideRoom)
             SamusInsideBlockReactions.PrepareFrame(_room.LevelData, samus, insideRoom.AreaIndex,
-                _system.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), plms);
+                _system.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), room.Plms);
 
         // Alpha order is cooldown -> movement-type HUD projectile producer ->
         // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
@@ -351,7 +345,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
-                _projectiles.Firing.CancelChargeForHudSelection();
+                room.Projectiles.Firing.CancelChargeForHudSelection();
                 samus.ProjectileFlareCounter = 0;
                 samus.Presentation.LoadSuitPalette(_cgram);
             }
@@ -362,28 +356,28 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 (_controller1.Current & SnesButton.B) != 0 &&
-                TryBeginXrayFromSelectedHudItem(gameState, deferActivation: true))
+                TryBeginXrayFromSelectedHudItem(gameState, deferActivation: true, room.BombProjectiles))
             {
                 frame.XrayActivatedThisFrame = true;
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
 
-            // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
+            // `$91:E231-$E23D` disables enemy room.Projectiles, PLMs, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
-            BombProjectileFrameResult bombFrame = _bombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = plms }, samus, _controller1.Current, _controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
+            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, _controller1.Current, _controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
 
             if (bombFrame.BeamChargeConsumed)
             {
-                _projectiles.Firing.CancelChargeForBombSpread();
+                room.Projectiles.Firing.CancelChargeForBombSpread();
                 samus.ProjectileFlareCounter = 0;
                 samus.Presentation.LoadSuitPalette(_cgram);
             }
 
         }
 
-        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta,plms);
+        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta, room.Plms, room.Projectiles);
 
         if (frame.AlphaRuns)
         {
@@ -397,13 +391,13 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // writes, then reclaim ownership only when such a write occurred.
             var progressionMirror = _progressionMirror;
             _system.WritePersistentMirror(progressionMirror);
-            SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = plms,
-                ProgressionMirror = progressionMirror }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
+            SamusProjectileFrameResult projectileFrame = room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms,
+                ProgressionMirror = progressionMirror }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
             if (projectileFrame.PersistentMemoryCorrupted)
                 _system.LoadPersistentMirror(progressionMirror);
 
             if (!_freeze.TimeIsFrozen)
-                _bombProjectiles.ResolveSamusOverlap(samus, _projectiles.Firing.ProjectileInvincibilityTimer.RawValue);
+                room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer.RawValue);
 
             // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
             // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -415,7 +409,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // `$0CD0` is one shared WRAM word, not independent projectile/movement
             // state. Samus's spin/wall-jump contact-damage handlers run in beta and
             // must see the counter that `$90:B80D` just updated during alpha.
-            samus.ProjectileFlareCounter = _projectiles.Charge.FlareCounter;
+            samus.ProjectileFlareCounter = room.Projectiles.Charge.FlareCounter;
         }
 
         // Samus_Func10 ($90:EB30) snapshots movement at the end of alpha,
@@ -429,7 +423,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Re-samples what EnemyMain can change before beta dispatches: a cancelled prospective pose ($90:F093), the
     /// stationary-script lock, updated beam hits and the contact-damage index beta clears.
     /// </summary>
-    internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus)
+    internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles)
     {
         if (!frame.MovementEnabled)
             return;
@@ -444,7 +438,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
         frame.Mode = frame.Mode with { Beta = DeriveBetaHandler(frame, samus) };
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
-            _enemyPhase.ResolveUpdatedBeamHits();
+            _enemyPhase.ResolveUpdatedBeamHits(bombProjectiles, projectiles);
 
         // EnemyMain consumes the preceding frame's contact-damage index.
         // Only beta clears it, before movement republishes the current value.
@@ -456,7 +450,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Runs beta's movement ($90:E725): clears the frame's movement results, runs the grapple-release mover, publishes
     /// grapple's corrected camera point and the dispatch pose, then runs the installed movement owner.
     /// </summary>
-    private void RunBetaMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomPlmSystem plms)
+    private void RunBetaMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -498,7 +492,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus,
                 _controller1.Current,
                 _clock.Counter,
-                plms);
+                room.Plms);
             frame.GrappleOwnsMovement = true;
         }
 
@@ -513,7 +507,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         frame.PoseAtBetaMovement = samus.Pose;
 
-        RunBetaMovementOwner(frame, samus, camera,plms);
+        RunBetaMovementOwner(frame, samus, camera, room);
     }
 
     /// <summary>
@@ -521,7 +515,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, drained, Shinespark, the locked beta, frozen
     /// time and the special type, and otherwise the pose's normal movement-table entry ($90:A337).
     /// </summary>
-    private void RunBetaMovementOwner(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomPlmSystem plms)
+    private void RunBetaMovementOwner(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -609,7 +603,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _room.LevelData,
                 samus,
                 _clock.Counter,
-                plms);
+                room.Plms);
         }
         // Special command three replaces both handlers. Preserve the retained
         // pose while input is locked; the late-rise helper can restore input
@@ -633,7 +627,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                     _room.LevelData,
                     samus,
                     _clock.Counter,
-                    plms);
+                    room.Plms);
         }
         // `$90:D5A2` installs one of three Crystal Flash movement pointers and an
         // RTS pose-input handler. Mother Brain's rainbow command keeps those words,
@@ -657,7 +651,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
                 // pass occurs after bomb alpha, so the retained type-`$0300` slot
                 // observes the released flag and deletes on the following frame.
-                _bombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
+                room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
             }
         }
         // Drained controller functions install movement-type-$1B poses whose normal
@@ -695,7 +689,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 // InitializeSamusPose_1, and $90:A337 keeps dispatching the cached
                 // $0A1F movement type. An airborne Samus therefore keeps her jump
                 // physics in the drained pose until a real initializer runs.
-                StepUninitializedPoseMovement(plms);
+                StepUninitializedPoseMovement(room.Plms);
             }
         }
         // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
@@ -706,7 +700,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // Determine_Samus_YAcceleration supplies the environment-selected pair
             // used as spark acceleration. Projectile_Func7 does not replace it.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = _projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = _projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = room.Projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
                 // The movement handler publishes an interrupted vertical pose. That
@@ -717,7 +711,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             }
         }
         // SamusCode_00 installs an alpha handler which advances existing
-        // projectiles but a beta handler which performs no movement at all. All
+        // room.Projectiles but a beta handler which performs no movement at all. All
         // translated special movement owners above take priority; an otherwise
         // locked standing body must not run generic ground collision or drift while
         // state $20 waits at the Ceres elevator.
@@ -748,7 +742,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // No positional movement.
         }
         else
-            RunPoseMovement(samus,plms);
+            RunPoseMovement(samus, room.Plms);
     }
 
     /// <summary>
@@ -764,7 +758,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         {
             case SamusPoseId.ForwardFacingPowerSuitPose:
             case SamusPoseId.ForwardFacingSuitedPose:
-                StepForwardFacingMovement(samus,plms);
+                StepForwardFacingMovement(samus, plms);
                 break;
             case SamusPoseId.FacingRightNormalPose:
             case SamusPoseId.StandingAimUpRightPose:
@@ -830,7 +824,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.MoonwalkTurnJumpAimUpRightPose:
             case SamusPoseId.MoonwalkTurnJumpAimDownLeftPose:
             case SamusPoseId.MoonwalkTurnJumpAimDownRightPose:
-                StepTurningPoseMovement(samus,plms);
+                StepTurningPoseMovement(samus, plms);
                 break;
             case SamusPoseId.NormalLandingRightPose:
             case SamusPoseId.NormalLandingLeftPose:
@@ -950,7 +944,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 break;
             case SamusPoseId.KnockbackRightPose:
             case SamusPoseId.KnockbackLeftPose:
-                StepKnockbackEndingMovement(samus,plms);
+                StepKnockbackEndingMovement(samus, plms);
                 break;
             case SamusPoseId.CrouchingTransitionRightPose:
             case SamusPoseId.CrouchingTransitionLeftPose:

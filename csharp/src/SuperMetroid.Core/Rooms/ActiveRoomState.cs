@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -97,6 +98,9 @@ internal sealed class ActiveRoomState
 
     /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
     public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
+
+    /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
+    internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);
 
     /// <summary>
     /// The layer-one position an earlier gameplay owner left in WRAM. Only its fraction words

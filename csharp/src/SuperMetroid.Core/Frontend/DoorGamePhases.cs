@@ -41,13 +41,13 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
         // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
         // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms, session.GameplayRuntime.Room.LoadedScope.BombProjectiles);
         PublishDoorEntryRoomFxSounds(session.GameplayRuntime);
         // $82:E1BB sets the door/enemy pause flags, then $82:E1CA-E1D6 run the source
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's
         // sound on this frame is queued before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
-        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false, session.GameplayRuntime.Room.LoadedScope.Plms);
+        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false, session.GameplayRuntime.Room.LoadedScope);
         CollectDoorSoundWaitAudioRequests(session.GameplayRuntime);
         // $82:E26B calls $84:8250, which runs Samus code $1D, then $82:E272 queues
         // library-two $71 so movement/charge loops terminate rather than leaking
@@ -66,7 +66,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         }
         // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & SnesButton.X) == 0 &&
-            session.GameplayRuntime.Projectiles.Charge.FlareCounter < 16)
+            session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
             session.audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
                 maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
@@ -153,7 +153,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.waitingForDownwardsElevator = false;
             return true;
         }
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope);
         session.display.PublishGameplay(session.GameplayRuntime);
         return false;
     }

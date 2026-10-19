@@ -12,18 +12,15 @@ internal sealed class GameplayWindowRegisters
 {
     /// <summary>Supplies Mother Brain's BG2 visibility when preparing main-screen selection.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Owns the Chainsaw callback that writes shared gameplay window registers.</summary>
-    private readonly SamusProjectileSystem _projectiles;
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies waterfall blend configuration for window preparation.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
 
-    /// <summary>Binds room, enemy, projectile, and layer-three owners to the window-register coordinator.</summary>
-    internal GameplayWindowRegisters(RoomEnemySystem enemies, SamusProjectileSystem projectiles, ActiveRoomState room, RoomLayer3FxState roomLayer3Fx)
+    /// <summary>Binds room, enemy and layer-three owners to the window-register coordinator.</summary>
+    internal GameplayWindowRegisters(RoomEnemySystem enemies, ActiveRoomState room, RoomLayer3FxState roomLayer3Fx)
     {
         _enemies = enemies;
-        _projectiles = projectiles;
         _room = room;
         _roomLayer3Fx = roomLayer3Fx;
     }
@@ -55,8 +52,8 @@ internal sealed class GameplayWindowRegisters
     /// The cache itself is presentation hardware and is republished from a clean layer-
     /// blending baseline on the next main-loop pass.
     /// </summary>
-    internal void BindGameplayWindowRegisters() =>
-        _projectiles.Chainsaw.BindGameplayWindowRegisters(Cache);
+    internal void BindGameplayWindowRegisters(SamusProjectileSystem projectiles) =>
+        projectiles.Chainsaw.BindGameplayWindowRegisters(Cache);
 
     /// <summary>
     /// Models the window/screen subset of the ordinary layer-blending initializer before

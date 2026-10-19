@@ -41,7 +41,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(directory, overrides).ContentIdentity,
             "all four head replacements survive catalog reload");
         int frames = 0, ticks = 0, callbacks = 0, collisions = 0;
-        var shot = new SamusProjectileSystem().Slots[0];
+        var shot = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None).Slots[0];
         shot.Radius = new(2, 2);
         int programsRun = 0;
         foreach (KraidHeadProgram program in Enum.GetValues<KraidHeadProgram>())

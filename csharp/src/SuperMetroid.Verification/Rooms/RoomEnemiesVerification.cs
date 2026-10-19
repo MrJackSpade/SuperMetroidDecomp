@@ -355,7 +355,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = 0;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem();
+    var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
     SamusProjectileSlot owner = shots.Slots[0];
     owner.Type = 0x8200;
     owner.Damage = 0x012c;

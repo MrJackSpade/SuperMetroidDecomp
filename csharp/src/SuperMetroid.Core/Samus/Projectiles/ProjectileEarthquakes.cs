@@ -42,7 +42,7 @@ internal sealed class ProjectileEarthquakes
     public int EarthquakeType { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
     /// <summary>
     /// Duration in frames of the most recent Super Missile impact quake request, not a ticking countdown: zero, or
-    /// the Super Missile quake duration. Cleared by <see cref="SamusProjectileSystem.ResetForRoomTransition"/> and
+    /// the Super Missile quake duration. Cleared by <see cref="SamusProjectileSystem.ClearProjectileData"/> and
     /// published immediately to the shared room earthquake owner, whose countdown starts at it, when bound.
     /// </summary>
     public int EarthquakeTimer { get; internal set; }

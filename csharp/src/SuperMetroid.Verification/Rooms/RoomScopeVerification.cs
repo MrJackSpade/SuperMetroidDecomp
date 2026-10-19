@@ -4,11 +4,12 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Rooms;
 
-/// <summary>Confirms #1329's room scope: a door load builds a new scope and carries only the named camera state.</summary>
+/// <summary>Confirms #1329's room scope: a door load builds a new scope and carries only the named camera state and beam charge.</summary>
 internal static class RoomScopeVerification
 {
     /// <summary>
@@ -28,6 +29,10 @@ internal static class RoomScopeVerification
         previous.IdealPosition = new Position16<RoomPixels>(0x0123, 0x0456);
         previous.Speed = FixedVector<RoomPixels>.FromWords(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(0x0300, 0x1111, 0x0400, 0x2222));
+        source.Projectiles.Charge.FlareCounter = 30;
+        SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
+        sourceShot.Position = FixedPosition<RoomPixels>.FromWords(0x0120, 0x4321, 0x0080, 0x8765);
+        sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
 
         CartridgeRoomHeader parlor = runtime.RoomLoader.LoadCartridgeRoomHeader(RoomHeaderDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);
@@ -55,12 +60,29 @@ internal static class RoomScopeVerification
             "no PLM slot survives the load: the destination builds its own PLM system");
         VerificationAssert.AssertTrue(ReferenceEquals(destination.Plms, runtime.Plms),
             "the runtime's PLM system is the loaded room's");
+        VerificationAssert.AssertTrue(!ReferenceEquals(source.Projectiles, destination.Projectiles) &&
+            !ReferenceEquals(source.BombProjectiles, destination.BombProjectiles) &&
+            !ReferenceEquals(source.BombProjectiles.PowerBombExplosion, destination.BombProjectiles.PowerBombExplosion),
+            "the destination builds its own projectile and bomb systems");
+        VerificationAssert.AssertTrue(destination.Projectiles.Slots.All(slot => !slot.IsActive) &&
+            destination.BombProjectiles.Slots.All(slot => !slot.IsActive) && destination.Projectiles.SlotTable.ProjectileCounter == 0 &&
+            destination.BombProjectiles.BombCounter == 0,
+            "the destination's projectile pools are empty");
+        VerificationAssert.AssertTrue(ReferenceEquals(source.Projectiles.Charge, destination.Projectiles.Charge) &&
+            ReferenceEquals(runtime.BeamCharge, destination.Projectiles.Charge),
+            "the held beam charge is the session's, shared by both rooms");
+        VerificationAssert.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
+        SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
+        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0x8765), destinationShot.Position,
+            "a slot's position fraction words survive the projectile-data reset; its whole words clear");
+        VerificationAssert.AssertEqual(SpazerComboPhase.FlyingUpTowardsPoint, destinationShot.AuxiliaryPhase,
+            "a slot's Spazer phase survives the projectile-data reset");
         VerificationAssert.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
         VerificationAssert.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
         VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");
         VerificationAssert.AssertEqual(previous.Speed, destination.Camera.Speed, "camera speed carried");
         VerificationAssert.AssertEqual(previous.PreviousSamusPoint, destination.Camera.PreviousSamusPoint, "previous Samus point carried");
-        Console.WriteLine("Room scope: a streamed door load builds a new scope and PLM system; its camera carries the fractions, ideal position, speed and previous Samus point.");
+        Console.WriteLine("Room scope: a streamed door load builds a new scope, PLM system and projectile pools, keeps the held beam charge; its camera carries the fractions, ideal position, speed and previous Samus point.");
     }
 
     /// <summary>Runs the room-scope carry-over confirmation.</summary>

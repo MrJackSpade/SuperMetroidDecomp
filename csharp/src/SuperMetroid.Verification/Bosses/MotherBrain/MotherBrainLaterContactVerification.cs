@@ -60,7 +60,7 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body.NativeIndex);
         foreach (ushort type in new ushort[] { 0x8000, 0x8100 })
         {
-            var shots = new SamusProjectileSystem();
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);

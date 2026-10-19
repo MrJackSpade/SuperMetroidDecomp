@@ -23,7 +23,7 @@ internal static class ChargeFlareDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => ChargeFlareAnimationDefinitions.ReadByte(address),
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
-        var system = new SamusProjectileSystem();
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var advance = new Action<int>(system.Animation.AdvanceFlareComponent);
         var frames = system.Charge.FlareFrames;
         var timers = system.Charge.FlareTimers;

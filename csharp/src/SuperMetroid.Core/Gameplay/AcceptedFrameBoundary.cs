@@ -147,16 +147,12 @@ internal sealed class AcceptedFrameBoundary
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _gameplayWindows.Cache.LatchNmi();
-        var bg2Window = Displays?.Draygon is { } boss
-            ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,
-                boss.Body.Properties.HasAny(EnemyProperties.Deleted))
-            : (First: 32, End: 224);
         var ppu = new GameplayPpuRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
             // Before the first room no enemy earthquake shakes the room.
-            _room.Enemies?.Earthquake.LastRoomShake ?? default, bg2Window.First, bg2Window.End);
+            _room.Enemies?.Earthquake.LastRoomShake ?? default);
         RoomLayer3FxRenderSnapshot? roomLayer3Fx = _room.Layer3Fx?.CaptureForDisplay();
         Displays?.Phantoon?.Wave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
@@ -222,6 +218,9 @@ internal sealed class AcceptedFrameBoundary
             ridley,
             Displays?.KraidBody,
             Displays?.EnemyBg2,
+            Displays?.Draygon is { } draygon
+                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyBg2Scroll, draygon.Body.Properties.HasAny(EnemyProperties.Deleted))
+                : null,
             Displays?.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });

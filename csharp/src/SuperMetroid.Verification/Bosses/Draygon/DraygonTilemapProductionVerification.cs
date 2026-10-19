@@ -48,8 +48,10 @@ internal static class DraygonTilemapProductionVerification
         // or queue construction; it isolates the downstream tilemap/DMA producer.
         var staging = Enumerable.Repeat((ushort)0x0338, 2048).ToArray();
         var expectedVram = staging.ToArray();
+        // Draygon's body draws into his published enemy BG2 image (#1354), not VRAM.
+        ushort Shown(int word) => enemies.Presentation.RequireBg2Image().Publish().Words[word];
         for (int word = 0; word < expectedVram.Length; word++)
-            AssertEqual(expectedVram[word], vram.ReadWord(0x4800 + word), "fresh Draygon BG2 starts entirely blank before any draw");
+            AssertEqual(expectedVram[word], Shown(word), "fresh Draygon BG2 starts entirely blank before any draw");
         var destinations = new HashSet<int>(); var streams = new HashSet<int>();
         var functions = new HashSet<DraygonAiFunction>();
         int commands = 0, transfers = 0; long comparisons = 0;
@@ -93,7 +95,7 @@ internal static class DraygonTilemapProductionVerification
             oam.BeginFrame(); enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
             for (int word = 0; word < expectedVram.Length; word++)
             {
-                ushort actual = vram.ReadWord(0x4800 + word);
+                ushort actual = Shown(word);
                 if (expectedVram[word] != actual)
                     throw new InvalidOperationException($"Fresh Draygon frame {frame}, BG2 word {word:X3}: native staging/DMA {expectedVram[word]:X4}, actual {actual:X4}; published={queuedTransfer}.");
                 comparisons++;

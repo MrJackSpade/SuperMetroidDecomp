@@ -90,12 +90,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Cgram);
 
-        // $7E:2000 is the enemy BG2 staging surface and the following NMI copies it to
-        // VRAM word $4800. Fill all $800 words, not merely the currently visible page.
-        byte[] bg2Bytes = new byte[2 * EnemyBg2SurfaceDefinitions.WordCount];
-        for (int byteIndex = 0; byteIndex < bg2Bytes.Length; byteIndex += 2)
-            BinaryPrimitives.WriteUInt16LittleEndian(bg2Bytes.AsSpan(byteIndex), EnemyBg2SurfaceDefinitions.BlankTile.Raw);
-        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Load(bg2Bytes);
+        // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.
+        // Draygon owns that image (#1354); his body frames draw into it and it publishes as his body on BG2.
+        _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile.Raw));
 
         body.PaletteIndex = EnemyPaletteBits.Palette7;
         body.InstructionTimer = NativeCountdown.Start(1);

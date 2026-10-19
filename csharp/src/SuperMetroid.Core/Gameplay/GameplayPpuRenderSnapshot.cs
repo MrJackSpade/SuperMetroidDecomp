@@ -9,11 +9,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bg1Scroll">The latched BG1HOFS/BG1VOFS mirrors.</param>
 /// <param name="Bg2Scroll">The latched BG2HOFS/BG2VOFS mirrors.</param>
 /// <param name="RoomShake">The room shake displayed with this frame.</param>
-/// <param name="Bg2FirstScanline">The first scanline of the BG2 main-screen window.</param>
-/// <param name="Bg2EndScanline">The scanline that ends the BG2 main-screen window.</param>
 public readonly record struct GameplayPpuRenderSnapshot(
     Position16<RoomPixels> Layer1Position,
     Position16<RoomPixels> Bg1Scroll,
     Position16<Bg2Pixels> Bg2Scroll,
-    RoomShakeFrameResult RoomShake,
-    int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
+    RoomShakeFrameResult RoomShake);

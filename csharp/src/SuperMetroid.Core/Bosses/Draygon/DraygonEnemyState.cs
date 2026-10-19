@@ -80,6 +80,12 @@ public sealed class DraygonEnemyState
     public Offset16<Bg2Pixels> BodyGraphicsDisplacement { get; internal set; }
 
     /// <summary>
+    /// The BG2 scroll that places the body image (#1354), derived after enemies draw from the final camera, the body
+    /// position and <see cref="BodyGraphicsDisplacement"/>; it is Draygon's own, never the room's BG2 scroll.
+    /// </summary>
+    public Position16<Bg2Pixels> BodyBg2Scroll { get; internal set; }
+
+    /// <summary>
     /// The native table at $7E:9002 is written every four bytes and addressed by a byte
     /// offset. This dense view stores those meaningful words at <c>offset / 4</c>.
     /// </summary>

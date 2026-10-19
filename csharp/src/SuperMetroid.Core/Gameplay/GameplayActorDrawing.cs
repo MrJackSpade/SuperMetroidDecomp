@@ -428,14 +428,15 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus && room.Enemies.IsLoaded && room.Enemies.DisplaySources.Draygon is { } draygon)
         {
             // Native $A5:9342 runs AFTER drawing enemies. Camera scrolling has already
-            // run, so BG2 must use the same final camera as the appendage OAM above.
-            // Publishing during enemy AI instead detaches the torso whenever scrolling
-            // changes the camera between AI and drawing (especially during a grab).
-            _backgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
+            // run, so the body must use the same final camera as the appendage OAM above.
+            // Placing it during enemy AI instead detaches the torso whenever scrolling
+            // changes the camera between AI and drawing (especially during a grab). The
+            // placement is Draygon's own published body position (#1354), not BG2's registers.
+            draygon.BodyBg2Scroll = new Position16<Bg2Pixels>(
                 unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
                     draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin)),
                 unchecked((ushort)(draygon.BodyGraphicsDisplacement.Y + _room.Camera.PixelPosition.Y -
-                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin))));
+                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin)));
         }
 
         // Room scrolling must not replace the persistent body-owned register shadows.

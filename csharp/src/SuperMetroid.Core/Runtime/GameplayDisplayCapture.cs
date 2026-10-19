@@ -96,7 +96,8 @@ public static class GameplayDisplayCapture
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = ppu.RoomShake;
         Position16<RoomPixels> bg1Scroll = ppu.Bg1Scroll + shake.Bg1;
-        Position16<Bg2Pixels> bg2Scroll = ppu.Bg2Scroll + shake.Bg2;
+        // Draygon places his body image with his own BG2 scroll (#1354), which the room's water waves then displace.
+        Position16<Bg2Pixels> bg2Scroll = (bosses.DraygonBody?.Scroll ?? ppu.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
@@ -113,6 +114,8 @@ public static class GameplayDisplayCapture
         ushort[]? lavaY = fx is { } vertical
             ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
         BossBg2Layer? kraidBody = bosses.KraidBody;
+        // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
+        (int First, int End) bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? (32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ushort character = scene.UsesCeresRidleyCharacterBase ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
@@ -135,7 +138,7 @@ public static class GameplayDisplayCapture
                 (bosses.MotherBrainDeathBg2Hidden
                     ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                     : displayedMainScreen),
-            ppu.Bg2FirstScanline, ppu.Bg2EndScanline,
+            bg2Lines.First, bg2Lines.End,
             Windows: displayedWindows.Windows,
             MainScreenWindowMask:
                 displayedWindows.MainScreenWindow & TmLayerBits,

@@ -6,15 +6,15 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
 /// The shader's <c>SpriteDraws</c> buffer: one frame's whole-frame sprite draws packed as Objects.hlsli reads them.
-/// Word 0 holds the part count, then four words per part in front-to-back order, then each bound artwork's
+/// Word 0 holds the part count, then three words per part in front-to-back order, then each bound artwork's
 /// characters once. The GPU buffer grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
     /// <summary>Words of the header holding the part count.</summary>
     private const int HeaderWords = 1;
-    /// <summary>Words per packed part: position, shape and flags, OAM ordinal, first character word.</summary>
-    private const int PartWords = 4;
+    /// <summary>Words per packed part: position, shape and flags, first character word.</summary>
+    private const int PartWords = 3;
     /// <summary>Words per four-bit planar character.</summary>
     private const int CharacterWords = SpriteArtwork.CharacterByteCount / sizeof(uint);
     /// <summary>Allocation for a frame with no or few draws; larger frames grow it.</summary>
@@ -46,16 +46,16 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     internal ID3D11ShaderResourceView View { get; private set; }
 
     /// <summary>Packs a frame's draws in emission order, growing the buffer first when they do not fit.</summary>
-    internal void Pack(ReadOnlySpan<OrderedSpriteDraw> draws)
+    internal void Pack(ReadOnlySpan<SpriteDraw> draws)
     {
         int parts = 0;
         var artworkWords = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
-        foreach (OrderedSpriteDraw draw in draws)
-            parts += draw.Draw.Frame.Parts.Length;
+        foreach (SpriteDraw draw in draws)
+            parts += draw.Frame.Parts.Length;
         int words = HeaderWords + parts * PartWords;
-        foreach (OrderedSpriteDraw draw in draws)
-            if (artworkWords.TryAdd(draw.Draw.Artwork, words))
-                words += draw.Draw.Artwork.CharacterCount * CharacterWords;
+        foreach (SpriteDraw draw in draws)
+            if (artworkWords.TryAdd(draw.Artwork, words))
+                words += draw.Artwork.CharacterCount * CharacterWords;
         if (words > Upload.Length)
         {
             Dispose();
@@ -66,18 +66,17 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         upload.Clear();
         upload[0] = (uint)parts;
         int record = HeaderWords;
-        foreach (OrderedSpriteDraw draw in draws)
+        foreach (SpriteDraw draw in draws)
         {
-            int artwork = artworkWords[draw.Draw.Artwork];
-            for (int index = 0; index < draw.Draw.Frame.Parts.Length; index++)
+            int artwork = artworkWords[draw.Artwork];
+            for (int index = 0; index < draw.Frame.Parts.Length; index++)
             {
-                SpriteScreenPart part = draw.Draw.Place(index);
+                SpriteScreenPart part = draw.Place(index);
                 upload[record] = D3D11ConstantPacking.Halves(unchecked((ushort)part.Position.X), unchecked((ushort)part.Position.Y));
                 byte flags = (byte)((part.FlipX ? FlipXFlag : 0) | (part.FlipY ? FlipYFlag : 0)
                     | part.Palette << PaletteShift | part.Priority << PriorityShift);
                 upload[record + 1] = D3D11ConstantPacking.Bytes(checked((byte)part.Size.X), checked((byte)part.Size.Y), flags, 0);
-                upload[record + 2] = (uint)draw.OamOrdinal;
-                upload[record + 3] = (uint)(artwork + part.Character * CharacterWords);
+                upload[record + 2] = (uint)(artwork + part.Character * CharacterWords);
                 record += PartWords;
             }
         }

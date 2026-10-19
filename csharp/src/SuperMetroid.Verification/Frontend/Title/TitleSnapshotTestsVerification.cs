@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
 using SuperMetroid.Core.Frontend.Title;
@@ -15,7 +14,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Compares title-scene render snapshots with the independent live-memory renderer.</summary>
 internal static class TitleSnapshotTestsVerification
 {
-    /// <summary>Checks constructed and available retail scenes across phase changes, packet round-trips, and retained snapshots.</summary>
+    /// <summary>Checks constructed and available retail scenes across phase changes and retained snapshots.</summary>
     internal static void VerifyTitleRenderSnapshots()
     {
         Verify(CreateConstructedTitleRom(), "constructed");
@@ -50,12 +49,12 @@ internal static class TitleSnapshotTestsVerification
                         new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet), reusable);
                     AssertTrue(ReferenceEquals(reusable, reused), "title caller-owned output retained");
                     Match(expected, reused, frame, phase);
-                    Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
-                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet))), frame, phase);
+                    Match(expected, SoftwareFrameSnapshotRenderer.Render(
+                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet)), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Mode7ObjRenderSnapshot repeat = scene.CaptureRenderSnapshot();
-                    AssertTrue(packet.Memory.Oam.SequenceEqual(repeat.Memory.Oam), "repeat title OAM capture");
+                    AssertTrue(packet.Memory.SpriteParts().SequenceEqual(repeat.Memory.SpriteParts()), "repeat title OAM capture");
                     Match(control.Render(), expected, frame, phase);
                     comparisons++;
 

@@ -39,10 +39,10 @@ internal static class WaterfallTests
         vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 8, 1);
         vram.ExecuteWordTransfer(new ushort[] { 0 }, 0x5c00 + 8 * 32 + 8, 1);
         vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg1TilemapWord + 8 * 32 + 14, 1);
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 80; oam[1] = 64; oam[3] = 0x36;
         oam[4] = 96; oam[5] = 64; oam[7] = 0x38;
-        var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 2);
+        var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 2, 0);
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000, WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new Bg2BppColorMathRenderLayer(0x5c00, 0x1000, 32, 32,
@@ -59,9 +59,7 @@ internal static class WaterfallTests
         Check(112, 19, 13, 7, "backdrop participates");
         var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
         PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "waterfall source/priority/color math");
-        var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-        PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "combined subscreen packet round trip");
-        Console.WriteLine($"{device.Kind}: waterfall priority, colors, OBJ exemptions and packet round trip passed.");
+        Console.WriteLine($"{device.Kind}: waterfall priority, colors and OBJ exemptions passed.");
 
         void Check(int x, int red, int green, int blue, string property)
         {

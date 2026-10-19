@@ -54,9 +54,7 @@ internal static class EndingWavySamusTests
                 var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4c00, CharacterBaseWord = 0x5000 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(256, 224), TilemapSize = new Extent16<TilemapCells>(32, 32) });
                 var sub = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, 0x2400, 0x2000, rowCount: 32, transparentColorZero: true);
                 var expected = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-                var oam = new OamBuffer();
-                oam.LoadUploadPayload(snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
-                SnesLayerCompositor.Composite(expected, SnesObjRenderer.Render(oam, vram, cgram, 0));
+                SnesLayerCompositor.Composite(expected, SnesObjRenderer.Render(snapshot.Memory.SpriteDraws, cgram));
                 int changed = 0;
                 for (int y = 0; y < 224; y++)
                 for (int x = 0; x < 256; x++)
@@ -70,20 +68,10 @@ internal static class EndingWavySamusTests
                 Require(changed > 0, "Native artwork must visibly add the blue transformation effect");
                 var packet = new RenderFrameSnapshot(new(age + 1, 1, (ushort)age), snapshot);
                 PixelComparison.Verify(packet, expected, scene.Presentation.Render(), "Ending direct render matches native BG3 addition");
-                var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-                PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "Ending wave packet and GPU match native BG3 addition");
-                PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "Repeated wave rendering does not advance simulation");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Ending wave frame on the GPU matches native BG3 addition");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Repeated wave rendering does not advance simulation");
                 if (age == 0)
                 {
-                    // Version 28 ends this uniform subscreen descriptor after its two
-                    // object flags; it has no line-scroll-presence byte.
-                    var uniform = new LayeredRenderSnapshot(snapshot.Memory,
-                        [(wave.MainCoverage ?? throw new InvalidOperationException("Verification requires wave.MainCoverage.")), new BgSubscreenAddRenderLayer(0x2400, 0x2000, wave.MainCoverage)], 0, 15);
-                    byte[] oldBytes = RenderFrameSnapshotWriter.Serialize(new RenderFrameSnapshot(new(1, 1, 0), uniform));
-                    Array.Resize(ref oldBytes, oldBytes.Length - 1);
-                    oldBytes[8] = 28; oldBytes[9] = 0;
-                    var oldPacket = RenderFrameSnapshotCodec.Deserialize(oldBytes);
-                    PixelComparison.Verify(oldPacket, expected, renderer.RenderForReadback(oldPacket), "Version-28 uniform subscreen coverage remains compatible");
                     var supplied = wave.Scrolls.ToArray();
                     var owned = wave.WithScrolls(supplied);
                     supplied[0] = new(123, 123);
@@ -96,7 +84,7 @@ internal static class EndingWavySamusTests
         }
         Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
         Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
-        Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels, BG2-only addition, 180-frame lifecycle and packet round trip passed.");
+        Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels, BG2-only addition and 180-frame lifecycle passed.");
 
         ushort NativeX(int age, int line)
         {

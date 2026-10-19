@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -148,19 +147,10 @@ internal static class EndingSnapshotTestsVerification
                             : EndingCreditsRomData.Rendering.RewardObjectSelection,
                         jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
-                    // The live ending also appends the restored shooting stars.
-                    // Compare the reference jump actors, including packed X/size bits,
-                    // without treating those additional actors as uninitialized OAM.
-                    int actorBytes = expectedOam.LastFinalizedSpriteCount * 4;
-                    AssertTrue(expectedOam.LowTable[..actorBytes].SequenceEqual(jumpFrame.Memory.Oam[..actorBytes]),
-                        "live reward preserves native actor positions, tile indices and palettes on every jump frame");
-                    for (int actor = 0; actor < expectedOam.LastFinalizedSpriteCount; actor++)
-                    {
-                        int shift = (actor % 4) * 2;
-                        AssertEqual((expectedOam.HighTable[actor / 4] >> shift) & 3,
-                            (jumpFrame.Memory.Oam[OamBuffer.LowTableByteCount + actor / 4] >> shift) & 3,
-                            "live reward preserves native actor X-high and size bits");
-                    }
+                    // The live ending also appends the restored shooting stars after the reference jump actors.
+                    PlacedSpritePart[] jumpParts = PlacedSpritePart.OfOam(expectedOam, jumpFrame.ObjectSelection);
+                    AssertTrue(jumpFrame.Memory.SpriteParts().Take(jumpParts.Length).SequenceEqual(jumpParts),
+                        "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame");
                     AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
@@ -281,9 +271,8 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
                     var memory = legacy.Presentation.CaptureRenderSnapshot().Memory;
-                    for (int sprite = 0; sprite < memory.ModeledSpriteCount; sprite++)
-                        AssertTrue(((memory.Oam[sprite * 4 + 3] >> 1) & 7) <= 2,
-                            "explosion actors delete before operation text, leaving only text OBJ palettes");
+                    AssertTrue(memory.SpriteParts().All(part => part.Part.Palette <= 2),
+                        "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
                 if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
                 {
@@ -293,12 +282,9 @@ internal static class EndingSnapshotTestsVerification
                     starOnlyOam.BeginFrame();
                     stars?.Draw(starOnlyOam);
                     starOnlyOam.FinalizeFrame();
-                    var actual = legacy.Presentation.CaptureRenderSnapshot().Memory;
-                    AssertEqual(starOnlyOam.LastFinalizedSpriteCount, actual.ModeledSpriteCount,
+                    var actual = legacy.Presentation.CaptureRenderSnapshot();
+                    AssertTrue(PlacedSpritePart.OfOam(starOnlyOam, actual.ObjectSelection).SequenceEqual(actual.Memory.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
-                    AssertTrue(starOnlyOam.LowTable.SequenceEqual(actual.Oam[..OamBuffer.LowTableByteCount]) &&
-                        starOnlyOam.HighTable.SequenceEqual(actual.Oam[OamBuffer.LowTableByteCount..]),
-                        "final percentage OAM contains the star field with no retained cinematic actors");
                 }
                 if (legacy.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
                 {
@@ -337,7 +323,7 @@ internal static class EndingSnapshotTestsVerification
                     {
 
                     }
-                    packet = RoundTripRenderPacket(new(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot()));
+                    packet = new(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot());
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
                 }

@@ -79,7 +79,7 @@ internal static class GunshipEscapeTimerVerification
         return 0;
 
         (byte, byte, byte) Time() => (runtime.EscapeTimer.Minutes.Raw, runtime.EscapeTimer.Seconds.Raw, runtime.EscapeTimer.Centiseconds.Raw);
-        bool TimerSpritesPresent() => runtime.Sprites.Draws.Any(draw => draw.Draw.Source.Kind == SpriteSourceKind.EscapeTimer);
+        bool TimerSpritesPresent() => runtime.Sprites.Draws.Any(draw => draw.Source.Kind == SpriteSourceKind.EscapeTimer);
     }
 
     /// <summary>Runs the gunship boarding escape-timer reproduction.</summary>

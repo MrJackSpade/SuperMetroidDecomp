@@ -130,6 +130,7 @@ public sealed class FileSelectAreaMapGraphics
     // Owned frame: valid until this map renders again.
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: FileSelectAreaMapGraphics.PrepareLabels until #1358 moves it onto sprite entries")]
     private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
@@ -168,7 +169,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         OamBuffer oam = PrepareLabels(usedStationMasks);
         var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
-        return new(PpuMemorySnapshot.Capture(Vram, Cgram, oam), new RenderLayer[] {
+        return new(PpuMemorySnapshot.CaptureFrontend(Vram, Cgram, oam, FileSelectMapRomData.ObjectSelection), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
                 FileSelectMapRomData.AreaBackgroundCharacters, includeBackdropInColorMath ? null : foreground),

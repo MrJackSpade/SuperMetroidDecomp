@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus;
@@ -16,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks retained scanline color windows for haze, suit pickup, and Power Bomb effects.</summary>
 internal static class ColorWindowSnapshotTestsVerification
 {
-    /// <summary>Compares raster effects to serialized window packets through phases and retained lifetimes.</summary>
+    /// <summary>Compares raster effects to captured window layers through phases and retained lifetimes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyColorWindowSnapshots()
     {
@@ -24,7 +23,7 @@ internal static class ColorWindowSnapshotTestsVerification
         var cgram = new SnesCgram();
         cgram.SetColor(0, Bgr555.FromWord(0x396b));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.Capture(new SnesVram(), cgram, oam);
+        var memory = PpuMemorySnapshot.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         foreach (bool dead in new[] { false, true })
@@ -95,18 +94,13 @@ internal static class ColorWindowSnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new ScanlineColorAddRenderLayer(new ColorAddWindow[223]),
             "window operation rejects incomplete scanline table");
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { owned }, 3, 15));
-        byte[] bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet)[..^1]), "truncated window table rejected");
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
-            RenderPacketFormat.OrdinaryGameplayLayerVersion);
-        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "old format rejects color windows");
-        Console.WriteLine($"  Color window snapshots: {samples} suit/haze/Power Bomb comparisons, clipping, lifetime and codec agree.");
+        Console.WriteLine($"  Color window snapshots: {samples} suit/haze/Power Bomb comparisons, clipping and lifetime agree.");
 
         void Compare(Rgba32[] expected, ScanlineColorAddRenderLayer layer)
         {
             var frame = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
-            AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
+            AssertTrue(expected.SequenceEqual(RenderForComparison(frame)),
                 $"color window snapshot sample {samples}");
         }
     }

@@ -38,7 +38,7 @@ internal static class CrystalFlashVisualsVerification
         var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
         var colors = packet.Memory.Cgram.ToArray();
         Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
-        var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.Oam, packet.Memory.ModeledSpriteCount);
+        var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.SpriteDraws);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
             packet.Layers, packet.ObjectSelection, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;

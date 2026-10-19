@@ -152,8 +152,8 @@ internal static class CeresDestructionArtworkVerification
             stockReveal.Step();
             movedReveal.Step();
         }
-        AssertTrue(!stockReveal.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                movedReveal.CaptureRenderSnapshot().Memory.Oam),
+        AssertTrue(!stockReveal.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                movedReveal.CaptureRenderSnapshot().Memory.SpriteParts()),
             "edited planet placement changes production OAM, not just JSON parsing");
         File.WriteAllBytes(actorsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -216,8 +216,8 @@ internal static class CeresDestructionArtworkVerification
         AssertEqual(unchecked((ushort)(stockDestructionActors[0].WholePosition.X + 16)),
             movedDestructionActors[0].WholePosition.X,
             "edited destruction layout moves the actual asteroid actor by one tile");
-        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                movedDestruction.CaptureRenderSnapshot().Memory.Oam),
+        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                movedDestruction.CaptureRenderSnapshot().Memory.SpriteParts()),
             "edited destruction placement changes production OAM");
         File.WriteAllBytes(destructionActorsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -257,7 +257,7 @@ internal static class CeresDestructionArtworkVerification
         LayeredRenderSnapshot beforeSprites = spriteState.CaptureRenderSnapshot();
         spriteState.BindArtwork(editedSprites);
         LayeredRenderSnapshot afterSprites = spriteState.CaptureRenderSnapshot();
-        AssertTrue(!beforeSprites.Memory.Oam.SequenceEqual(afterSprites.Memory.Oam) &&
+        AssertTrue(!beforeSprites.Memory.SpriteParts().SequenceEqual(afterSprites.Memory.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
             "edited Ceres destruction composition changes production OAM and visible pixels");
@@ -276,8 +276,8 @@ internal static class CeresDestructionArtworkVerification
             ?? throw new InvalidOperationException("Ceres destruction sprite repair lost installation.");
         var repairedSpriteState = CreateRetailDestructionFixture(artwork: repaired.LoadIntroCinematicArt());
         for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
-        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                afterSprites.Memory.Oam),
+        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                afterSprites.Memory.SpriteParts()),
             "Ceres destruction sprite override survives stock repair and remains visible");
         File.Delete(spritesOverride);
 

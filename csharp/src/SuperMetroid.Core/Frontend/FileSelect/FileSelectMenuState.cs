@@ -205,6 +205,7 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow OBJ list from menu phase.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: FileSelectMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private void PrepareRenderOam()
     {
         oam.BeginFrame();

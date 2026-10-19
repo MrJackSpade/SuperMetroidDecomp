@@ -19,7 +19,7 @@ internal static class EscapeTimerDrawChecks
         new byte[EscapeTimerTileAtlasFormat.TileCount * SpriteArtwork.CharacterByteCount]);
 
     /// <summary>Draws the timer into a fresh sprite frame and returns its finalized draws.</summary>
-    internal static IReadOnlyList<OrderedSpriteDraw> Draw(EscapeTimer timer, EscapeTimerPresentation presentation,
+    internal static IReadOnlyList<SpriteDraw> Draw(EscapeTimer timer, EscapeTimerPresentation presentation,
         SpriteArtwork? artwork = null)
     {
         var sprites = new SpriteFrameBuffer();
@@ -30,7 +30,7 @@ internal static class EscapeTimerDrawChecks
     }
 
     /// <summary>Asserts that the draws stand for exactly the OAM sprites appended to <paramref name="native"/>, in order.</summary>
-    internal static void AssertSameSprites(OamBuffer native, IReadOnlyList<OrderedSpriteDraw> draws, string message)
+    internal static void AssertSameSprites(OamBuffer native, IReadOnlyList<SpriteDraw> draws, string message)
     {
         var expected = new List<Sprite>();
         for (int index = 0; index < native.AppendedSpriteCount; index++)
@@ -41,12 +41,12 @@ internal static class EscapeTimerDrawChecks
                 entry.TileNumber, entry.Palette, entry.Priority, entry.FlipX, entry.FlipY));
         }
         var actual = new List<Sprite>();
-        foreach (OrderedSpriteDraw ordered in draws)
+        foreach (SpriteDraw draw in draws)
         {
-            AssertEqual(SpriteSourceKind.EscapeTimer, ordered.Draw.Source.Kind, message + ": draw source");
-            for (int index = 0; index < ordered.Draw.Frame.Parts.Length; index++)
+            AssertEqual(SpriteSourceKind.EscapeTimer, draw.Source.Kind, message + ": draw source");
+            for (int index = 0; index < draw.Frame.Parts.Length; index++)
             {
-                SpriteScreenPart part = ordered.Draw.Place(index);
+                SpriteScreenPart part = draw.Place(index);
                 AssertEqual(part.Size.X, part.Size.Y, message + ": timer parts are square");
                 actual.Add(new(part.Position, part.Size.X, part.Character + EscapeTimerPresentationDefinitions.FirstCharacter,
                     part.Palette, part.Priority, part.FlipX, part.FlipY));

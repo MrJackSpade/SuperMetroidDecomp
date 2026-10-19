@@ -274,8 +274,8 @@ internal static class EndingObjectArtworkVerification
             LayeredRenderSnapshot beforeCloudEdit = cloudScene.Presentation.CaptureRenderSnapshot();
             cloudScene.BindObjectArtwork(editedCloudSprites);
             LayeredRenderSnapshot afterCloudEdit = cloudScene.Presentation.CaptureRenderSnapshot();
-            visibleCloudEdit = !beforeCloudEdit.Memory.Oam.SequenceEqual(
-                    afterCloudEdit.Memory.Oam) &&
+            visibleCloudEdit = !beforeCloudEdit.Memory.SpriteParts().SequenceEqual(
+                    afterCloudEdit.Memory.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterCloudEdit));
             if (!visibleCloudEdit)

@@ -35,9 +35,9 @@ internal static class XrayGameplayTests
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)2, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5C00, 1);
-            var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
-            var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
+            var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
@@ -68,23 +68,6 @@ internal static class XrayGameplayTests
             Check(pixels[64 * 256 + 160], reveal ? new(0, 165, 0, 255) : new(255, 0, 0, 255), "inside layer selection/no math");
             Check(pixels[0], new(24, 24, 24, 255), "unchanged HUD");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), $"{device.Kind}: source-aware X-ray {count}");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-            PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "source-aware X-ray packet round trip");
-            // The version-24 single-X-ray-layer packet ends after its optional BG3
-            // child. Remove only version 25's trailing BG2 selector and restore the
-            // historical header, checking that old packets still select no BG2 operand.
-            // The ordinary-only packet has the same header/memory/first-layer prefix and
-            // ends with the gameplay tail version 24 lacks: version 26's mosaic byte and the
-            // empty main-screen HDMA table flag of RenderPacketFormat.GameplayMainScreenHdmaVersion.
-            const int gameplayTailBytes = 2;
-            int mosaicOffset = RenderFrameSnapshotWriter.Serialize(new RenderFrameSnapshot(packet.Identity,
-                new LayeredRenderSnapshot(memory, [layer.Gameplay], 0, 15))).Length - gameplayTailBytes;
-            byte[] currentBytes = RenderFrameSnapshotWriter.Serialize(packet);
-            byte[] legacyBytes = [.. currentBytes.AsSpan(0, mosaicOffset),
-                .. currentBytes.AsSpan(mosaicOffset + gameplayTailBytes, currentBytes.Length - mosaicOffset - gameplayTailBytes - 1)];
-            legacyBytes[8] = 24; legacyBytes[9] = 0;
-            var legacy = RenderFrameSnapshotCodec.Deserialize(legacyBytes);
-            PixelComparison.Verify(legacy, pixels, renderer.RenderForReadback(legacy), "version-24 subscreen compatibility");
             if (!reveal && !sub && !half && !subtract)
             {
                 // Native Phantoon configuration adds BG2 to main BG1/eligible OBJ,
@@ -97,15 +80,14 @@ internal static class XrayGameplayTests
                 {
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = Bgr555.Black;
-                    var addScene = new LayeredRenderSnapshot(new(vram.Bytes, bodyColors, oam, 1), [additive], 0, 15);
+                    var addScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 0, 15);
                     var addPixels = SoftwareLayeredSnapshotRenderer.Render(addScene);
                     var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
                     Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
                     Check(addPixels[0], pixels[0], "BG2 subscreen preserves HUD");
                     var addPacket = new RenderFrameSnapshot(new(++count, 1, 0), addScene);
-                    var addRestored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(addPacket));
-                    PixelComparison.Verify(addRestored, addPixels, renderer.RenderForReadback(addRestored), "BG2 subscreen positive colors and black identity");
+                    PixelComparison.Verify(addPacket, addPixels, renderer.RenderForReadback(addPacket), "BG2 subscreen positive colors and black identity");
                 }
             }
             if (!reveal && !sub && !half && !subtract && palette == 0)
@@ -116,7 +98,7 @@ internal static class XrayGameplayTests
                 vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, GameplayVramLayout.Bg1TilemapWord + 8 * 32 + 8, 1);
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
                 var dark = new GameplayColorMathRenderLayer(new(registers), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = 18, FixedGreen = 18, FixedBlue = 18 });
-                var darkScene = new LayeredRenderSnapshot(new(vram.Bytes, cgram.Colors, oam, 1), new RenderLayer[] { dark }, 0, 15);
+                var darkScene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new RenderLayer[] { dark }, 0, 15);
                 var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
@@ -130,9 +112,9 @@ internal static class XrayGameplayTests
         for (int frame = 0; frame < 32; frame++)
         {
             var bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
-            var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
+            var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-            var memory = new PpuMemorySnapshot(bytes, colors, oam, 128);
+            // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(Word(), Word()), new Position16<Bg2Pixels>(Word(), Word()),
                 frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64), Word(), Word(), Word(), Word(),
@@ -145,14 +127,14 @@ internal static class XrayGameplayTests
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
             var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = bg2Subscreen || frame % 3 != 0, FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, bg2Subscreen ? null : bg3, bg2Subscreen);
-            var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, (byte)random.Next(256), (byte)(frame % 16));
+            byte obsel = (byte)random.Next(256);
+            var memory = PpuMemorySnapshot.FromOam(bytes, colors, oam, 128, obsel);
+            var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, obsel, (byte)(frame % 16));
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-            PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "patterned X-ray round trip");
         }
-        Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, priority/scroll/flip patterns and packet round trips.");
+        Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, and priority/scroll/flip patterns.");
 
         static void Check(Rgba32 actual, Rgba32 expected, string context)
         {

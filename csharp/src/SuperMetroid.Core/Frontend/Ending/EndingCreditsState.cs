@@ -1165,7 +1165,7 @@ internal sealed class EndingCreditsState
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(PpuMemorySnapshot.Capture(vram, cgram, Presentation.PrepareSprites()), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, Presentation.PrepareSprites(), EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
             EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
 
         static Bg4BppRenderLayer Plane(ushort map, bool high) => new(map,
@@ -1190,7 +1190,7 @@ internal sealed class EndingCreditsState
                 EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(PpuMemorySnapshot.Capture(vram, cgram, Presentation.PrepareSprites()), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, Presentation.PrepareSprites(), EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
             EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
     }
 

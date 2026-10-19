@@ -1192,12 +1192,14 @@ level, samus, NmiFrameWord(elapsedUpdates));
     /// <summary>
     /// Prepares Mother Brain OAM once per display; trail drawing advances state, so a captured frame cannot be redrawn through this path.
     /// </summary>
+    [PpuLayoutBoundary("frontend OAM writer: IntroCinematicState.PrepareMotherBrainOam until #1358 moves it onto sprite entries")]
     internal SpriteFrameBuffer PrepareMotherBrainOam()
     {
         // Both direct rendering and detached capture enter here once per display.
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        OamBuffer oam = sprites.Oam;
+        var oam = new OamBuffer();
+        oam.BeginFrame();
         // $8B:8E2D: a negative $1A57 draws Samus and both projectile passes before the
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
@@ -1227,23 +1229,29 @@ level, samus, NmiFrameWord(elapsedUpdates));
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
+        oam.FinalizeFrame();
+        FrontendOamDraws.Append(sprites, oam, vram, MenuRenderDefinitions.ObjectSelection);
         sprites.FinalizeFrame();
 
         return sprites;
     }
 
     /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing OBJ data.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: IntroCinematicState.PrepareBabyDiscoveryOam until #1358 moves it onto sprite entries")]
     internal SpriteFrameBuffer PrepareBabyDiscoveryOam()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        OamBuffer oam = sprites.Oam;
         // $8B:8E2D orders Samus against the cinematic objects by $1A57's sign.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(sprites);
+        var oam = new OamBuffer();
+        oam.BeginFrame();
         BabyDiscovery.DrawActors(oam, characterArtwork?.EggEffectSprites,
             characterArtwork?.DiscoveryActorSprites);
+        oam.FinalizeFrame();
+        FrontendOamDraws.Append(sprites, oam, vram, MenuRenderDefinitions.ObjectSelection);
         if (display == IntroSamusDisplay.ObjectsFirst)
             DrawBabyDiscoverySamus(sprites);
         sprites.FinalizeFrame();
@@ -1262,22 +1270,28 @@ level, samus, NmiFrameWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: IntroCinematicState.PrepareScientistOam until #1358 moves it onto sprite entries")]
     internal SpriteFrameBuffer PrepareScientistOam()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        OamBuffer oam = sprites.Oam;
+        var oam = new OamBuffer();
+        oam.BeginFrame();
         ScientistCutscene.Draw(oam, characterArtwork?.ScientistSprites);
+        oam.FinalizeFrame();
+        FrontendOamDraws.Append(sprites, oam, vram, MenuRenderDefinitions.ObjectSelection);
         sprites.FinalizeFrame();
         return sprites;
     }
 
     /// <summary>Collects the persistent caret and illustrated-page cinematic objects in display order.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: IntroCinematicState.PrepareIllustratedPageOam until #1358 moves it onto sprite entries")]
     internal SpriteFrameBuffer PrepareIllustratedPageOam()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        OamBuffer oam = sprites.Oam;
+        var oam = new OamBuffer();
+        oam.BeginFrame();
         // The caret's blank pose, shown while it blinks off, draws nothing.
         if (Objects.CaretPose is { } caretPose &&
             CinematicSpritePoseDefinitions.Spritemap(caretPose) is var caretSpritemap && caretSpritemap != 0)
@@ -1291,6 +1305,8 @@ level, samus, NmiFrameWord(elapsedUpdates));
                 caretSpritemap, oam, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
+        oam.FinalizeFrame();
+        FrontendOamDraws.Append(sprites, oam, vram, MenuRenderDefinitions.ObjectSelection);
         sprites.FinalizeFrame();
 
         return sprites;

@@ -64,8 +64,8 @@ internal static class EndingCloudPlacementVerification
             oam.FinalizeFrame();
             var actual = ending.Presentation.CaptureRenderSnapshot();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
-            var expectedMemory = new PpuMemorySnapshot(actual.Memory.Vram, actual.Memory.Cgram,
-                oamBytes, oam.LastFinalizedSpriteCount);
+            var expectedMemory = PpuMemorySnapshot.FromOam(actual.Memory.Vram, actual.Memory.Cgram,
+                oamBytes, oam.LastFinalizedSpriteCount, actual.ObjectSelection);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
                 actual.ObjectSelection, actual.Brightness));
             var pixels = ending.Presentation.Render();
@@ -119,7 +119,7 @@ internal static class EndingCloudPlacementVerification
             if (color != 0) wrappedBackground[y * 256 + x] = memory.Cgram.GetRgba(color);
         }
         if (checkWrapping) background = wrappedBackground;
-        var objects = SnesObjRenderer.RenderResolved(memory.Sprites.Oam, memory.Vram, memory.Cgram, checked((byte)snapshot.ObjectSelection));
+        var objects = SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram);
         var expected = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
         // D6xx: TM=BG1|OBJ, TS=BG1, CGWSEL=2, CGADSUB=BG1|OBJ.
         // All four cloud actors use palette five, which is eligible for OBJ math.

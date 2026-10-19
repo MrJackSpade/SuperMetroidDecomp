@@ -6,7 +6,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,7 +18,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks rendered cinematic snapshots and packet round trips against live scene rendering.</summary>
+/// <summary>Checks rendered cinematic snapshots against live scene rendering.</summary>
 internal static class CinematicSnapshotTestsVerification
 {
     /// <summary>Samples Ceres flight, destruction, and game-over phases before and after simulation advances.</summary>
@@ -110,11 +109,11 @@ internal static class CinematicSnapshotTestsVerification
             AssertEqual(chooseNo, menu.TitleRequested, "game-over no outcome");
             AssertEqual(!chooseNo, menu.ContinueRequested, "game-over yes outcome");
         }
-        Console.WriteLine($"  Cinematic snapshots: {samples} Ceres/Zebes frames ({phases.Count} phases) and {menuSamples} game-over frames match, including packet round trips.");
+        Console.WriteLine($"  Cinematic snapshots: {samples} Ceres/Zebes frames ({phases.Count} phases) and {menuSamples} game-over frames match.");
 
         static void Compare(Rgba32[] expected, LayeredRenderSnapshot snapshot, int tick)
         {
-            RenderFrameSnapshot roundTrip = RoundTripRenderPacket(new(new(tick + 1, 1, (ushort)tick), snapshot));
+            RenderFrameSnapshot roundTrip = new(new(tick + 1, 1, (ushort)tick), snapshot);
             Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(roundTrip);
             AssertEqual(expected.Length, pixels.Length, "cinematic snapshot dimensions");
             for (int i = 0; i < pixels.Length; i++)
@@ -147,7 +146,7 @@ internal static class CinematicSnapshotTestsVerification
             bool sample = newPhase || tick % 31 == 0;
             if (sample)
             {
-                RenderFrameSnapshot packet = RoundTripRenderPacket(new(new(tick + 1, 1, (ushort)tick), snapshot));
+                RenderFrameSnapshot packet = new(new(tick + 1, 1, (ushort)tick), snapshot);
                 AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;

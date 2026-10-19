@@ -99,6 +99,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>Draws active logo actors into supplied OAM or a newly finalized frame buffer.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingLogo.Draw until #1358 moves it onto sprite entries")]
     public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();

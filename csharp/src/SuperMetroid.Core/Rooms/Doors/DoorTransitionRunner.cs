@@ -37,8 +37,6 @@ internal sealed class DoorTransitionRunner
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Collects transition actor sprites for the current frame.</summary>
-    private readonly OamBuffer _oam;
     /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Holds destination room data, camera, and background streamer.</summary>
@@ -57,7 +55,6 @@ internal sealed class DoorTransitionRunner
         _clock = dependencies.Clock;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
-        _oam = _sprites.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;

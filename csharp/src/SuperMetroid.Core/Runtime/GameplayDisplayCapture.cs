@@ -360,7 +360,7 @@ public static class GameplayDisplayCapture
         var colors = basis.Memory.Cgram.ToArray();
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
         if (!settingUp) colors[0] = restoring ? Bgr555.Black : XrayRoomDisplayRules.ActiveBackdrop;
-        var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.Oam, basis.Memory.ModeledSpriteCount, basis.Memory.SpriteDraws);
+        var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.SpriteDraws);
         // Releasing Run merely advances the native dispatcher to phase three. That
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.

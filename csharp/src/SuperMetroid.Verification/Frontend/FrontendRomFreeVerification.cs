@@ -32,6 +32,7 @@ namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Compares installed ROM-free frontend execution with a cartridge-backed reference.</summary>
 internal static class FrontendRomFreeVerification
@@ -493,11 +494,11 @@ internal static class FrontendRomFreeVerification
                 ReadOnlySpan<byte> installedVram = installed.GameplayRuntimeForVerification.Vram.Bytes;
                 while (firstVram < nativeVram.Length && nativeVram[firstVram] == installedVram[firstVram])
                     firstVram++;
-                int firstOam = 0;
-                ReadOnlySpan<byte> nativeOam = native.GameplayRuntimeForVerification.DisplayedSprites.Oam.LowTable;
-                ReadOnlySpan<byte> installedOam = installed.GameplayRuntimeForVerification.DisplayedSprites.Oam.LowTable;
-                while (firstOam < nativeOam.Length && nativeOam[firstOam] == installedOam[firstOam])
-                    firstOam++;
+                int firstPart = 0;
+                PlacedSpritePart[] nativeParts = PlacedSpritePart.Of(native.GameplayRuntimeForVerification.DisplayedSprites.Draws);
+                PlacedSpritePart[] installedParts = PlacedSpritePart.Of(installed.GameplayRuntimeForVerification.DisplayedSprites.Draws);
+                while (firstPart < Math.Min(nativeParts.Length, installedParts.Length) && nativeParts[firstPart] == installedParts[firstPart])
+                    firstPart++;
                 throw new InvalidOperationException(
                     $"Installed Ceres input pixels differ at frame {frame}, pixel " +
                     $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
@@ -508,7 +509,7 @@ internal static class FrontendRomFreeVerification
                     $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
                     $"pose ${(int)installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
                     $"top {installedSamus.Presentation.TopSpritemapIndex}/bottom {installedSamus.Presentation.BottomSpritemapIndex}; " +
-                    $"first VRAM diff={firstVram}, first OAM diff={firstOam}.");
+                    $"first VRAM diff={firstVram}, first sprite part diff={firstPart}.");
             }
             fired |= installed.GameplayLastFiredProjectileSlot is not null;
             firedDuringSustainedInput |= frame >= 60 &&

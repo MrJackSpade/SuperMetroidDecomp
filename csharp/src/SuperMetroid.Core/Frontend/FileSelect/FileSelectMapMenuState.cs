@@ -214,8 +214,8 @@ public sealed class FileSelectMapMenuState
         {
             LayeredRenderSnapshot areaScene = Area();
             Bgr555[] palette = areaScene.Memory.Cgram.ToArray(); palette[0] = Bgr555.Black;
-            var black = new LayeredRenderSnapshot(new PpuMemorySnapshot(areaScene.Memory.Vram, palette,
-                areaScene.Memory.Oam, 0), [], areaScene.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
+            var black = new LayeredRenderSnapshot(new PpuMemorySnapshot(areaScene.Memory.Vram, palette, []), [],
+                areaScene.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }

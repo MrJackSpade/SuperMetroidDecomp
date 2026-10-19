@@ -19,7 +19,7 @@ internal static class MenuRenderSnapshotCapture
             new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null),
             new ObjRenderLayer(),
         ];
-        return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(ppu.Vram, ppu.Cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
             MenuRenderDefinitions.ObjectSelection, brightness);
     }
 }

@@ -16,7 +16,7 @@ internal static class ProjectileDrawEntriesVerification
         frame.BeginFrame();
         draw(frame);
         frame.FinalizeFrame();
-        return [.. frame.Draws.Select(ordered => ordered.Draw)];
+        return [.. frame.Draws];
     }
 
     /// <summary>

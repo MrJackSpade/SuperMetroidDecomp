@@ -38,7 +38,6 @@ internal static class RetailCeresQuakeTests
                 if (shake != default) { shaking++; offsets.Add(shake); }
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Ceres quake room={room.Name}, tick={tick}, shake={shake}");
             }

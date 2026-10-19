@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// PPU OAM in one DMA at <c>$80:933A</c>.
 /// </remarks>
 [PpuLayoutBoundary("backend: OAM low/high-table construction and packing")]
+[PpuLayoutAccess]
 public sealed class OamBuffer
 {
     /// <summary>Number of hardware OBJ records representable by one OAM image.</summary>
@@ -25,26 +26,15 @@ public sealed class OamBuffer
     private const ushort ParkedX = 384;
     /// <summary>The Y that hides an unused or wrapped sprite below the visible screen.</summary>
     private const byte HiddenY = 240;
-    /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
-    [PpuLayoutAccess]
-    public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
     /// <summary>Each low-OAM sprite stores X, Y, tile, and attributes in four bytes.</summary>
-    private const int LowRecordByteCount = 4;
+    internal const int LowRecordByteCount = 4;
     /// <summary>Four sprites share one high-OAM byte of X-high and size pairs.</summary>
     private const int HighPairsPerByte = 4;
     /// <summary>Mutable low-OAM bytes staged before the next hardware upload.</summary>
-    private readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    internal readonly byte[] LowTableBytes = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
     /// <summary>Mutable two-bit sprite pairs staged after the low table.</summary>
-    private readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
-
-    /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
-    [PpuLayoutAccess]
-    public ReadOnlySpan<byte> LowTable => _lowTable;
-
-    /// <summary>Raw 32-byte high OAM table used by PPU DMA.</summary>
-    [PpuLayoutAccess]
-    public ReadOnlySpan<byte> HighTable => _highTable;
+    internal readonly byte[] HighTableBytes = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>
     /// Byte offset of the next low-table record, equivalent to WRAM <c>$0590</c>. It moves
@@ -53,14 +43,11 @@ public sealed class OamBuffer
     [PpuLayoutAccess]
     public int NextByteOffset { get; internal set; }
 
-    /// <summary>Sprites appended since <see cref="BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
-    public int AppendedSpriteCount => NextByteOffset / LowRecordByteCount;
-
     /// <summary>
     /// Number of sprites written before the most recent <see cref="FinalizeFrame"/> reset.
     /// This host-side diagnostic has no separate original WRAM field.
     /// </summary>
-    public int LastFinalizedSpriteCount { get; private set; }
+    public int LastFinalizedSpriteCount { get; internal set; }
 
     /// <summary>
     /// Starts the game-logic OAM construction phase. This ports the main-loop calls to
@@ -68,7 +55,7 @@ public sealed class OamBuffer
     /// </summary>
     public void BeginFrame()
     {
-        Array.Clear(_highTable);
+        Array.Clear(HighTableBytes);
         NextByteOffset = 0;
     }
 
@@ -105,8 +92,8 @@ public sealed class OamBuffer
 
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = (byte)calculatedX;
-        _lowTable[lowOffset + 1] = (byte)calculatedY;
+        LowTableBytes[lowOffset] = (byte)calculatedX;
+        LowTableBytes[lowOffset + 1] = (byte)calculatedY;
         WriteAttributes(lowOffset, finalAttributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
         NextByteOffset += 4;
@@ -125,8 +112,8 @@ public sealed class OamBuffer
     {
         int spriteIndex = NextByteOffset >> 2;
         int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = unchecked((byte)position.X);
-        _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
+        LowTableBytes[lowOffset] = unchecked((byte)position.X);
+        LowTableBytes[lowOffset + 1] = unchecked((byte)position.Y);
         WriteAttributes(lowOffset, attributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(position.X, isLarge: false));
         NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
@@ -145,7 +132,7 @@ public sealed class OamBuffer
         // the same writes without hiding the important rule: only each record's Y byte is
         // changed, leaving its other stale bytes harmless while it is parked off-screen.
         for (int spriteIndex = usedSpriteCount; spriteIndex < SpriteCount; spriteIndex++)
-            _lowTable[spriteIndex * 4 + 1] = HiddenY;
+            LowTableBytes[spriteIndex * 4 + 1] = HiddenY;
 
         NextByteOffset = 0;
     }
@@ -159,60 +146,20 @@ public sealed class OamBuffer
         int lowOffset = spriteIndex * 4;
         int highShift = (spriteIndex & 3) * 2;
         var highPair = new SnesOamHighTablePair(unchecked((byte)(
-            (_highTable[spriteIndex >> 2] >> highShift) & 3)));
+            (HighTableBytes[spriteIndex >> 2] >> highShift) & 3)));
         SnesObjAttributeWord attributes = (ushort)(
-            SnesLittleEndian.Word(_lowTable[lowOffset + 2], _lowTable[lowOffset + 3]));
+            SnesLittleEndian.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]));
 
         return new OamEntry(
             Position: new Position16<OamPixels>(
-                checked((ushort)(_lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0))),
-                _lowTable[lowOffset + 1]),
+                checked((ushort)(LowTableBytes[lowOffset] + (highPair.XHigh ? ByteRange : 0))),
+                LowTableBytes[lowOffset + 1]),
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
             Priority: attributes.Priority,
             FlipX: attributes.FlipHorizontally,
             FlipY: attributes.FlipVertically,
             IsLarge: highPair.IsLarge);
-    }
-
-    /// <summary>
-    /// Restores a complete physical OAM image for a software render consumer. The
-    /// physical image has no construction cursor. Retain the producer's modeled
-    /// sprite count because existing raster kernels deliberately stop at that count.
-    /// </summary>
-    [PpuLayoutAccess]
-    public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)
-    {
-        if ((uint)modeledSpriteCount > SpriteCount)
-            throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
-        Ensure.LengthEqual(payload, UploadByteCount);
-        payload[..LowTableByteCount].CopyTo(_lowTable);
-        payload[LowTableByteCount..].CopyTo(_highTable);
-        NextByteOffset = 0;
-        LastFinalizedSpriteCount = modeledSpriteCount;
-    }
-
-    /// <summary>
-    /// Copies a finalized 544-byte staging image into a second OAM model, corresponding to
-    /// DMA channel 0 in <c>UpdateOAM_CGRAM</c> at <c>$80:933A</c>.
-    /// </summary>
-    /// <remarks>
-    /// Super Metroid builds OAM during the main loop and the following NMI makes that image
-    /// PPU-visible. A distinct destination matters for animated Samus: her staged spritemap
-    /// and staged graphics definition must become visible in the same NMI, not one on either
-    /// side of a desktop renderer call.
-    /// </remarks>
-    public void CopyFinalizedFrom(OamBuffer stagingBuffer)
-    {
-        Ensure.NotNull(stagingBuffer);
-
-        stagingBuffer._lowTable.CopyTo(_lowTable, 0);
-        stagingBuffer._highTable.CopyTo(_highTable, 0);
-        LastFinalizedSpriteCount = stagingBuffer.LastFinalizedSpriteCount;
-
-        // Hardware OAM has no construction cursor. Keeping the displayed model at zero
-        // prevents callers from accidentally appending logic records to the uploaded copy.
-        NextByteOffset = 0;
     }
 
     /// <summary>Replaces one sprite's two-bit high-OAM pair without disturbing its three neighbors.</summary>
@@ -225,14 +172,14 @@ public sealed class OamBuffer
 
         // The ROM only ORs these bits because ClearHighOAM ran earlier. Clear-and-replace
         // is equivalent for a fresh frame and prevents stale debugger edits from leaking.
-        _highTable[byteIndex] = (byte)((_highTable[byteIndex] & ~pairMask) | pairValue);
+        HighTableBytes[byteIndex] = (byte)((HighTableBytes[byteIndex] & ~pairMask) | pairValue);
     }
 
     /// <summary>Stores one typed packed attribute word in the low-OAM record.</summary>
     internal void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
     {
-        _lowTable[lowOffset + 2] = unchecked((byte)attributes.Raw);
-        _lowTable[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
+        LowTableBytes[lowOffset + 2] = unchecked((byte)attributes.Raw);
+        LowTableBytes[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
     }
 
     /// <summary>Implements the native carry and sign test for hiding vertically wrapped generic parts.</summary>

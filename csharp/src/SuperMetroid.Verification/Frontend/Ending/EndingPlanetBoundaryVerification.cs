@@ -16,27 +16,27 @@ internal static class EndingPlanetBoundaryVerification
 {
     /// <summary>
     /// Compares sampled finale frames with the pinned upstream PPU (csharp/test-fixtures/ending-native-ppu).
-    /// The planet-boundary pass writes each requested frame's <c>.smframe</c> into this call's scratch
-    /// directory; the probe rasterizes it with retail <c>$8B:F2FA</c> (or <c>$8B:F2B7</c> burst) registers
-    /// into a <c>.bgra</c> beside it. The scratch directory is deleted when the comparison ends.
+    /// The planet-boundary pass writes each requested frame's PPU memory dump (<c>.ppu</c>) into this call's scratch
+    /// directory and keeps its capture; the probe rasterizes the dump with retail <c>$8B:F2FA</c> (or <c>$8B:F2B7</c>
+    /// burst) registers into a <c>.bgra</c> beside it. The scratch directory is deleted when the comparison ends.
     /// </summary>
     internal static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
     {
         using var scratch = new TestScratchDirectory("ending-native-ppu-frames");
-        var capture = new PlanetFrameCapture(scratch.Root, frames.ToHashSet());
+        var capture = new PlanetFrameCapture(scratch.Root, frames.ToHashSet(), []);
         Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary(capture));
         string probe = EnsureEndingNativeProbe();
         foreach (int frame in capture.Frames.Order())
         {
             string prefix = Path.Combine(scratch.Root, $"later-{frame:D4}-ZebesExplosionAnimation");
             RunNativeTool(probe, burst
-                ? [prefix + ".smframe", prefix + ".bgra", "burst"]
-                : [prefix + ".smframe", prefix + ".bgra"]);
+                ? [prefix + ".ppu", prefix + ".bgra", "burst"]
+                : [prefix + ".ppu", prefix + ".bgra"]);
             byte[] bgra = File.ReadAllBytes(prefix + ".bgra");
             AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
             var native = new Rgba32[256 * 224];
             for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
-            var actual = SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(prefix + ".smframe")));
+            var actual = SoftwareLayeredSnapshotRenderer.Render(capture.Snapshots[frame]);
             int differences = actual.Zip(native).Count(pair => pair.First != pair.Second);
             Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
             AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup");
@@ -78,8 +78,31 @@ internal static class EndingPlanetBoundaryVerification
         return output;
     }
 
-    /// <summary>Planet-explosion frames to serialize for the native PPU comparison, into a caller-owned scratch directory.</summary>
-    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
+    /// <summary>
+    /// Planet-explosion frames to dump for the native PPU comparison, into a caller-owned scratch directory, with the
+    /// capture each dump was written from.
+    /// </summary>
+    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames, Dictionary<int, LayeredRenderSnapshot> Snapshots);
+
+    /// <summary>
+    /// The probe's input (csharp/test-fixtures/ending-native-ppu/probe.c): VRAM, CGRAM as little-endian words, the
+    /// screen's 544-byte OAM upload, then OBSEL and brightness.
+    /// </summary>
+    [PpuLayoutBoundary("exact hardware test: dumps native VRAM, CGRAM and OAM tables for the pinned native PPU")]
+    private static byte[] NativeProbeInput(LayeredRenderSnapshot snapshot, OamBuffer oam)
+    {
+        var input = new List<byte>(SnesPpuLayout.VramByteCount + SnesPpuLayout.CgramColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
+        input.AddRange(snapshot.Memory.Vram);
+        foreach (Bgr555 color in snapshot.Memory.Cgram)
+        {
+            input.Add(SnesLittleEndian.LowByte(color.ToWord()));
+            input.Add(SnesLittleEndian.HighByte(color.ToWord()));
+        }
+        input.AddRange(oam.CreateUploadPayload());
+        input.Add(checked((byte)snapshot.ObjectSelection));
+        input.Add(checked((byte)snapshot.Brightness));
+        return [.. input];
+    }
 
     /// <summary>Reconstructs native explosion DMA ranges and compares crossfade and flyaway pixels frame by frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
@@ -113,7 +136,7 @@ internal static class EndingPlanetBoundaryVerification
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
             RenderLayer[] nativeLayers = [new Mode7RenderLayer(projection.Registers with { WrapOutsideMap = true }),
                 new ObjRenderLayer(AddToScreen: true)];
-            var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
+            var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.SpriteDraws);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers,
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actual = ending.Presentation.Render();
@@ -129,14 +152,16 @@ internal static class EndingPlanetBoundaryVerification
             var live = ending.Presentation.CaptureRenderSnapshot();
             byte[] reconstructed = live.Memory.Vram.ToArray();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
-            var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.Oam, live.Memory.ModeledSpriteCount);
+            var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.SpriteDraws);
             var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.ObjectSelection, live.Brightness));
             differences += ending.Presentation.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
             if (capture is not null && capture.Frames.Contains(frame))
             {
-                // The native comparison replays exactly this sample's graphics, registers and layers.
-                File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.smframe"),
-                    RenderFrameSnapshotWriter.Serialize(new(new(frame + 1, 1, 0), ending.Presentation.CaptureRenderSnapshot())));
+                // The native comparison replays exactly this sample's graphics and OAM under the retail registers.
+                LayeredRenderSnapshot sample = ending.Presentation.CaptureRenderSnapshot();
+                capture.Snapshots[frame] = sample;
+                File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.ppu"),
+                    NativeProbeInput(sample, ending.Presentation.PrepareSprites()));
             }
             ending.Step();
             audio.AdvanceFrame(default);

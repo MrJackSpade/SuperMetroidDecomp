@@ -228,11 +228,12 @@ public sealed class GameOverMenuState
         PrepareRenderOam();
         RenderLayer[] layers = [new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0,
             new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null), new ObjRenderLayer()];
-        return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(ppu.Vram, ppu.Cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Builds the scene's Baby, egg, and selected-answer cursor OAM from installed art.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: GameOverMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private void PrepareRenderOam()
     {
         oam.BeginFrame();

@@ -84,7 +84,7 @@ internal static class InstalledPowerBombIsolationTests
                         if (second is not null)
                         {
                             var memoryImage = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount],
-                                new Bgr555[SnesPpuLayout.CgramColorCount], new byte[SnesPpuLayout.OamUploadByteCount], 0);
+                                new Bgr555[SnesPpuLayout.CgramColorCount], []);
                             var packet = new RenderFrameSnapshot(new(framesToRender.Count + 1, 1, 0),
                                 new LayeredRenderSnapshot(memoryImage, new RenderLayer[] { second }, 0, 15));
                             framesToRender.Add((packet, context));
@@ -122,11 +122,11 @@ internal static class InstalledPowerBombIsolationTests
                 using var renderer = new D3D11FrameRenderer(device);
                 foreach (var sample in framesToRender)
                 {
-                    var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(sample.Frame));
+                    var restored = sample.Frame;
                     PixelComparison.Verify(restored, SoftwareFrameSnapshotRenderer.Render(restored),
                         renderer.RenderForReadback(restored), $"{kind}: {sample.Context}");
                 }
-                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match software after packet round trip.");
+                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match software.");
             }
             Console.WriteLine($"Power Bomb/Crystal Flash isolation: {comparisons} full mutable-state/window comparisons, " +
                 $"{changedColors} changed color observations; disk selection/removal verified. No ROM or player data used.");

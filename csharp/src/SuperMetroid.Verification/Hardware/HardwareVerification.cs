@@ -669,13 +669,7 @@ internal static void VerifyOamSpritemapPacking()
     AssertEqual(2, oam.LastFinalizedSpriteCount, "OAM finalized used count");
     AssertEqual(0xf0, oam.GetEntry(2).Position.Y, "OAM first unused sprite parked offscreen");
     AssertEqual(0, oam.NextByteOffset, "OAM finalization resets stack pointer");
-    AssertEqual(OamBuffer.UploadByteCount, oam.CreateUploadPayload().Length, "OAM DMA payload size");
-
-    // The main loop's finalized buffer does not become PPU-visible until accepted NMI.
-    var displayedOam = new OamBuffer();
-    displayedOam.CopyFinalizedFrom(oam);
-    AssertEqual(2, displayedOam.LastFinalizedSpriteCount, "NMI OAM copy retains used count");
-    AssertEqual(first, displayedOam.GetEntry(0), "NMI OAM copy retains split low/high record");
+    AssertEqual(OamBufferConstants.UploadByteCount, oam.CreateUploadPayload().Length, "OAM DMA payload size");
 
     // A positive Y offset reaching $E0 takes the explicit X=$180/Y=$E0 hide path.
     SeedVerticallyClippedCommonSpritemap(bus);

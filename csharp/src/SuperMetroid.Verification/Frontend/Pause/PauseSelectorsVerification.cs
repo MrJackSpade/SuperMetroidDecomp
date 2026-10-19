@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks pause equipment selector placement, animation, editable art, and restored-state rebinding.</summary>
@@ -51,7 +52,7 @@ internal static class PauseSelectorsVerification
                 native.Step(0, 0); pause.Step(0, 0);
                 AssertEqual(native.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "real selector phase and timer follow native decrement/advance order");
                 var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                AssertTrue(nativeInputs.Memory.Oam.SequenceEqual(portInputs.Memory.Oam) && nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) &&
+                AssertTrue(nativeInputs.Memory.SpriteParts().SequenceEqual(portInputs.Memory.SpriteParts()) && nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) &&
                     nativeInputs.Memory.Vram.SequenceEqual(portInputs.Memory.Vram) && nativeInputs.Brightness == portInputs.Brightness,
                     "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
@@ -91,10 +92,12 @@ internal static class PauseSelectorsVerification
             customMenu.Step(0, 0);
             AssertEqual((expectedFrame, expectedTimer), customMenu.ItemSelectorAnimationState, "authored animation obeys exact initial and loop timing");
             var snapshot = customMenu.CaptureRenderSnapshot();
-            AssertEqual(expectedFrame == 0 ? 0 : 2, snapshot.Memory.ModeledSpriteCount, "explicit hidden and visible phases reach real OAM");
+            var oam = new OamBuffer(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, PauseEquipmentCategory.Beams, 0, expectedFrame); oam.FinalizeFrame();
+            AssertEqual(expectedFrame == 0, snapshot.Memory.SpriteParts().Length == 0, "explicit hidden and visible phases reach the frame");
+            AssertTrue(PlacedSpritePart.OfOam(oam, snapshot.ObjectSelection).SequenceEqual(snapshot.Memory.SpriteParts()),
+                "the frame shows exactly the authored selector phase");
             if (expectedFrame == 1)
             {
-                var oam = new OamBuffer(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, PauseEquipmentCategory.Beams, 0, expectedFrame);
                 AssertEqual((byte)112, oam.LowTable[0], "authored selector anchor plus X offset");
                 AssertEqual((byte)86, oam.LowTable[1], "authored selector anchor plus Y offset");
                 var attributes = new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(oam.LowTable[2], oam.LowTable[3])));
@@ -124,7 +127,7 @@ internal static class PauseSelectorsVerification
         AssertEqual(12, oldTiming.Frame, "short-cycle fixture reaches a stock-only phase");
         shortened.BindMapPresentation(edited);
         AssertEqual(oldTiming, shortened.ItemSelectorAnimationState, "shorter content does not rewrite saved timer/phase at bind");
-        AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.ModeledSpriteCount, "short cycle safely projects saved phase modulo its new length");
+        AssertEqual(0, shortened.CaptureRenderSnapshot().Memory.SpriteParts().Length, "short cycle safely projects saved phase modulo its new length");
         for (int tick = 0; tick < oldTiming.Timer; tick++) shortened.Step(0, 0);
         AssertEqual((1, 3), shortened.ItemSelectorAnimationState, "next expiry advances into the authored short cycle");
         var empty = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
@@ -132,7 +135,7 @@ internal static class PauseSelectorsVerification
         var emptyTiming = empty.ItemSelectorAnimationState;
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
         AssertEqual(emptyTiming, empty.ItemSelectorAnimationState, "empty inventory retains native animation gating");
-        AssertEqual(0, empty.CaptureRenderSnapshot().Memory.ModeledSpriteCount, "custom selector cannot appear without any available equipment");
+        AssertEqual(0, empty.CaptureRenderSnapshot().Memory.SpriteParts().Length, "custom selector cannot appear without any available equipment");
         void Reject(PauseSelectorDocument invalid) => AssertThrows<InvalidDataException>(() => PauseSelectorPresentation.Write(new MemoryStream(), invalid), "invalid selector document rejected");
         Reject(document with { Version = 2 }); Reject(document with { InitialDurationTicks = 0 }); Reject(document with { Palette = 8 });
         Reject(document with { Anchors = [] }); Reject(document with { Frames = [] }); Reject(document with { Animation = [] });

@@ -105,10 +105,8 @@ internal static class IntroCinematicStateAccess
             Rgba32[] sprites = new Rgba32[IntroCinematicStateConstants.ScreenWidth * IntroCinematicStateConstants.ScreenHeight];
             SnesObjRendererConstants.Render(
                 sprites,
-                ObjSpriteImage.Of(objects),
-                self.vram,
+                objects.Draws,
                 self.cgram,
-                obsel: 3,
                 size: new Extent16<ScreenPixels>(IntroCinematicStateConstants.ScreenWidth, IntroCinematicStateConstants.ScreenHeight),
                 priority: priority);
             SnesLayerCompositor.Composite(pixels, sprites);

@@ -4,13 +4,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Hud;
 
-/// <summary>Checks gameplay message snapshots, reveal geometry, packet ownership, and codec validation.</summary>
+/// <summary>Checks gameplay message snapshots, reveal geometry and frame ownership.</summary>
 internal static class MessageSnapshotTestsVerification
 {
     /// <summary>Compares every retail message's changing overlay with captured packets and checks retained and malformed packets.</summary>
@@ -25,7 +24,7 @@ internal static class MessageSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 101 & 32767)));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        var memory = PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
@@ -51,7 +50,7 @@ internal static class MessageSnapshotTestsVerification
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
                         new LayeredRenderSnapshot(memory, layers, 3, 15));
-                    AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
+                    AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
                     {
@@ -82,7 +81,7 @@ internal static class MessageSnapshotTestsVerification
         // intersection of the art's centered extent and the half-open reveal window.
         vram = new SnesVram();
         for (int y = 0; y < 8; y++) vram.LoadBytes(GameplayVramLayout.HudCharacterWord * 2 + y * 2, [255, 0]);
-        memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        memory = PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, 3);
         for (int rows = 3; rows <= 6; rows++)
         for (int radius = 0; radius <= 24; radius++)
         {
@@ -90,7 +89,7 @@ internal static class MessageSnapshotTestsVerification
             var layer = GameplayMessageBoxRendererConstants.Layer(tiles, radius, vram.CaptureImage());
             Array.Clear(tiles);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
-            Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
+            Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(packet);
             int top = 124 - Math.Min(radius, rows * 4), bottom = 124 + Math.Min(radius, rows * 4);
             Rgba32 ink = GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32();
             for (int y = 0; y < 224; y++)
@@ -98,15 +97,10 @@ internal static class MessageSnapshotTestsVerification
                     $"message geometry {rows} rows, radius {radius}, line {y}");
             if (rows == 3 && radius == 0)
             {
-                byte[] bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-                AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet)[..^1]), "truncated message rejected");
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
-                    RenderPacketFormat.ScanlineColorLayerVersion);
-                AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "older format rejects message operation");
             }
         }
         AssertThrows<ArgumentException>(() => GameplayMessageBoxRendererConstants.Layer(new ushort[95], 1, vram.CaptureImage()), "partial message row rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageBoxRendererConstants.Layer(new ushort[96], 25, vram.CaptureImage()), "invalid reveal radius rejected");
-        Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window comparisons and ownership/codec checks agree.");
+        Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window comparisons and ownership checks agree.");
     }
 }

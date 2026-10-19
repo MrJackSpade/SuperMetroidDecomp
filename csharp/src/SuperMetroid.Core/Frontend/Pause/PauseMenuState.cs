@@ -285,11 +285,12 @@ internal sealed class PauseMenuState
             new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
-        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, PauseMenuLayout.ObjectSelection), layers,
             PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific OAM order.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: PauseMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private void PrepareRenderOam()
     {
         oam.BeginFrame();

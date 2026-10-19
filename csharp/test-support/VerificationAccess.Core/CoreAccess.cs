@@ -174,7 +174,7 @@ internal static class CoreAccess
         [PpuLayoutBoundary("codec: OAM low/high-table DMA upload payload")]
         internal byte[] CreateUploadPayload()
         {
-            var payload = new byte[OamBuffer.UploadByteCount];
+            var payload = new byte[OamBufferConstants.UploadByteCount];
             oam.LowTable.CopyTo(payload);
             oam.HighTable.CopyTo(payload.AsSpan(OamBuffer.LowTableByteCount));
             return payload;

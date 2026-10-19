@@ -11,7 +11,7 @@ internal sealed class SoftwarePpuSnapshotMemory
     internal SnesVram Vram { get; } = new();
     /// <summary>Palette copy populated color by color from the current snapshot.</summary>
     internal SnesCgram Cgram { get; } = new();
-    /// <summary>Sprite tables, modeled sprite count and whole-frame draws restored from the snapshot.</summary>
+    /// <summary>Whole-frame sprite draws restored from the snapshot.</summary>
     internal SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>Creates scratch PPU memory already populated from one render snapshot.</summary>
@@ -24,7 +24,6 @@ internal sealed class SoftwarePpuSnapshotMemory
         Vram.LoadBytes(0, snapshot.Vram);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             Cgram.SetColor(index, snapshot.Cgram[index]);
-        Sprites.Oam.LoadUploadPayload(snapshot.Oam, snapshot.ModeledSpriteCount);
         Sprites.LoadDraws(snapshot.SpriteDraws);
     }
 }

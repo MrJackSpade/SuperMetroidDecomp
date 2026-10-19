@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -21,9 +20,9 @@ internal static class Mode7GameplaySnapshotTestsVerification
     {
         var random = new Random(32109);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);
-        byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
+        byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => (ushort)random.Next(32768)).ToArray();
-        var memory = new PpuMemorySnapshot(bytes, ToColors(palette), oam, 128);
+        var memory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), oam, 128, 3);
         var live = new SoftwarePpuSnapshotMemory(memory);
         int samples = 0;
         foreach (short matrix in new short[] { 0, 128, 256, -256, 511, short.MinValue })
@@ -38,16 +37,11 @@ internal static class Mode7GameplaySnapshotTestsVerification
                 ? SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
                 : SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
-            var restored = RoundTripRenderPacket(packet);
-            AssertTrue(expected.SequenceEqual(RenderForComparison(restored)),
+            AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"Mode-7 gameplay full pixel parity matrix {matrix}, scroll {scroll}, floor {floorEnabled}");
-            AssertEqual(layer, (Mode7GameplayRenderLayer)(restored.Layers ?? throw new InvalidOperationException("Verification requires restored.Layers.")).Layers[0], "Mode-7 band codec preserves all register fields");
+            AssertEqual(layer, (Mode7GameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
             if (samples == 1)
             {
-                byte[] old = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(old.AsSpan(RenderPacketFormat.Signature.Length),
-                    RenderPacketFormat.BgColorMathLayerVersion);
-                AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old), "old format rejects Mode-7 bands");
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
                     new RenderLayer[] { new ObjRenderLayer(), layer }, 3, 15), "Mode-7 base cannot erase earlier layers");
             }
@@ -68,7 +62,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
-        var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
+        var retained = new RenderFrameSnapshot(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.Mode7Active = false; getaway.Mode7MatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);

@@ -26,4 +26,6 @@ public enum SpriteArtworkKind
     IntroObjects,
     /// <summary>The gameplay OBJ character table as its uploads bind it, which enemy-format sprites draw from.</summary>
     GameplayObjects,
+    /// <summary>The OBJ characters a frontend screen's OAM records name in its VRAM, until #1358.</summary>
+    FrontendObjects,
 }

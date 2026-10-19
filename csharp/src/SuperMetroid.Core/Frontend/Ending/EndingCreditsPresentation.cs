@@ -17,6 +17,7 @@ internal sealed class EndingCreditsPresentation
         _ending = owner;
     }
     /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingCreditsPresentation.CaptureRenderSnapshot until #1358 moves it onto sprite entries")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         if (_ending.UsesExplosionFinaleDisplay) return _ending.CaptureExplosionFinale();
@@ -30,8 +31,8 @@ internal sealed class EndingCreditsPresentation
                     new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
             layers.Add(new ObjRenderLayer(_ending.endingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer());
-            return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram,
-                PrepareSprites()), layers.ToArray(), 3, checked((byte)_ending.brightness));
+            return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram,
+                PrepareSprites(), 3), layers.ToArray(), 3, checked((byte)_ending.brightness));
         }
         if (_ending.postShot is not null)
         {
@@ -42,7 +43,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, PrepareSprites()), layers.ToArray(),
+            return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, PrepareSprites(), ObjectSelection(CurrentRewardObjectSheet)), layers.ToArray(),
                 ObjectSelection(CurrentRewardObjectSheet), checked((byte)_ending.brightness));
         }
         if (_ending.Phase == EndingCreditsPhase.Credits)
@@ -102,7 +103,7 @@ internal sealed class EndingCreditsPresentation
             if (_ending.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingCreditsState.WhiteAddition(_ending.whiteFlashColor));
         }
-        return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, oam), layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
+        return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, oam, objectSelection), layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
@@ -175,6 +176,7 @@ internal sealed class EndingCreditsPresentation
     }
 
     /// <summary>Builds scene OAM at the simulation display boundary without advancing sprite state.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingCreditsPresentation.PrepareSprites until #1358 moves it onto sprite entries")]
     internal OamBuffer PrepareSprites()
     {
         var oam = new OamBuffer();

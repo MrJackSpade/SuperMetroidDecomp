@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
@@ -50,12 +49,12 @@ internal static class PauseSnapshotTestsVerification
         {
             Rgba32[] expected = pause.Render();
             LayeredRenderSnapshot packet = pause.CaptureRenderSnapshot();
-            Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
-                new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet))), frame);
+            Match(expected, SoftwareFrameSnapshotRenderer.Render(
+                new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet)), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
             LayeredRenderSnapshot repeated = pause.CaptureRenderSnapshot();
-            AssertTrue(packet.Memory.Oam.SequenceEqual(repeated.Memory.Oam), "repeat pause capture OAM");
+            AssertTrue(packet.Memory.SpriteParts().SequenceEqual(repeated.Memory.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
             SnesButton input = frame == 8 ? SnesButton.R

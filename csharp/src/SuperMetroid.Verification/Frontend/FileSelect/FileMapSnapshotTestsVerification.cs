@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -95,35 +94,29 @@ internal static class FileMapSnapshotTestsVerification
 
         void Compare(Rgba32[] expected, LayeredRenderSnapshot captured, string name)
         {
-            var packet = RoundTripRenderPacket(new(new(++samples, 1, 0), captured));
+            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), captured);
             AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), name);
         }
     }
 
-    /// <summary>Checks window replacement pixels, round-trip serialization, and malformed nested-scene rejection.</summary>
+    /// <summary>Checks window replacement pixels and malformed nested-scene rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;
-        var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var red = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
         palette[0] = 31 << 10;
-        var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var blue = new PpuMemorySnapshot(new byte[SnesPpuLayout.VramByteCount], ToColors(palette), []);
         var child = new LayeredRenderSnapshot(blue, new RenderLayer[] { new ObjRenderLayer() }, 3, 15);
         var window = new WindowedSceneRenderLayer(child, 127, 111, 130, 113);
         var parent = new LayeredRenderSnapshot(red, new RenderLayer[] { window }, 3, 15);
         var packet = new RenderFrameSnapshot(new(1, 1, 0), parent);
-        Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
+        Rgba32[] pixels = SoftwareFrameSnapshotRenderer.Render(packet);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
             AssertEqual(x >= 127 && x < 130 && y >= 111 && y < 113 ? new Rgba32(0, 0, 255) : new Rgba32(255, 0, 0),
                 pixels[y * 256 + x], "window replacement includes child backdrop and excludes outside pixels");
         AssertThrows<ArgumentException>(() => new WindowedSceneRenderLayer(parent, 0, 0, 1, 1), "nested scene rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => new WindowedSceneRenderLayer(child, 0, 0, 257, 224), "invalid window rejected");
-        byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
-        bytes[^1] = (byte)RenderPacketLayerKind.WindowedScene;
-        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "nested on-disk scene rejected before recursive parsing");
-        bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7GameplayLayerVersion);
-        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "old header rejects window operation");
     }
 }

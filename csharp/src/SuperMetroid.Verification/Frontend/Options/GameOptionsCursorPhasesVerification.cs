@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks the options cursor's native phase selection and visible OAM transitions.</summary>
 internal static class GameOptionsCursorPhasesVerification
@@ -84,14 +85,14 @@ internal static class GameOptionsCursorPhasesVerification
 
     }
 
-    /// <summary>Reads the final OAM entry because the cursor follows the heading; native X=$0180 hides it.</summary>
+    /// <summary>
+    /// The final sprite part's nine-bit OAM X, because the cursor follows the heading; native X=$0180 hides it.
+    /// </summary>
     internal static int LastSpriteX(LayeredRenderSnapshot frame)
     {
-        int sprite = frame.Memory.ModeledSpriteCount - 1;
-        AssertTrue(sprite >= 0, "options has a cursor OAM entry");
-        ReadOnlySpan<byte> oam = frame.Memory.Oam;
-        int highBits = oam[512 + sprite / 4] >> (2 * (sprite % 4));
-        return SnesLittleEndian.Word(oam[sprite * 4], (byte)(highBits & 1));
+        PlacedSpritePart[] parts = frame.Memory.SpriteParts();
+        AssertTrue(parts.Length > 0, "options has a cursor sprite");
+        return parts[^1].Part.Position.X & 511;
     }
 
     /// <summary>Runs the native cursor-phase and rendered OAM check.</summary>

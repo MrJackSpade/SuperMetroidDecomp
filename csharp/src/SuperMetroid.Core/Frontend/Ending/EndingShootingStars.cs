@@ -59,6 +59,7 @@ internal sealed class EndingShootingStars
     }
 
     /// <summary>Draws only active stars with a nonzero animation frame into the supplied OAM buffer.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingShootingStars.Draw until #1358 moves it onto sprite entries")]
     internal void Draw(OamBuffer oam)
     {
         foreach (var star in stars)

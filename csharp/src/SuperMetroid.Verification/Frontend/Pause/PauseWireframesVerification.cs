@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks imported pause equipment wireframes and isolated artwork replacement across menu states.</summary>
@@ -64,7 +65,7 @@ internal static class PauseWireframesVerification
                     native.Step(input, input); pause.Step(input, input);
                     var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
                     AssertTrue(nativeInputs.Memory.Vram.SequenceEqual(portInputs.Memory.Vram), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
-                    AssertTrue(nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) && nativeInputs.Memory.Oam.SequenceEqual(portInputs.Memory.Oam) &&
+                    AssertTrue(nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) && nativeInputs.Memory.SpriteParts().SequenceEqual(portInputs.Memory.SpriteParts()) &&
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>

@@ -61,19 +61,18 @@ internal sealed class RenderScratch : IDisposable
         return memory;
     }
 
-    /// <summary>OAM resolved into scratch color and priority planes.</summary>
-    public ResolvedObjFrame ResolveObjects(SoftwarePpuSnapshotMemory memory, byte objectSelection) =>
-        ResolveObjects(memory.Sprites, memory.Vram, memory.Cgram, objectSelection);
+    /// <summary>The frame's sprite draws resolved into scratch color and priority planes.</summary>
+    public ResolvedObjFrame ResolveObjects(SoftwarePpuSnapshotMemory memory) =>
+        ResolveObjects(memory.Sprites, memory.Cgram);
 
-    /// <summary>OAM resolved into scratch color and priority planes.</summary>
-    public ResolvedObjFrame ResolveObjects(SpriteFrameBuffer sprites, Hardware.SnesVram vram, Hardware.SnesCgram cgram,
-        byte objectSelection)
+    /// <summary>The frame's sprite draws resolved into scratch color and priority planes.</summary>
+    public ResolvedObjFrame ResolveObjects(SpriteFrameBuffer sprites, Hardware.SnesCgram cgram)
     {
         Extent16<ScreenPixels> screen = Hardware.SnesPpuLayout.ScreenSize;
         int count = screen.X * screen.Y;
         Rgba32[] pixels = Colors(count);
         byte[] priorities = Bytes(count);
-        SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(sprites), vram, cgram, objectSelection, new ObjRasterTargets(pixels, priorities), screen);
+        SnesObjRenderer.RenderResolved(sprites.Draws, cgram, new ObjRasterTargets(pixels, priorities), screen);
         return new ResolvedObjFrame(pixels, priorities);
     }
 

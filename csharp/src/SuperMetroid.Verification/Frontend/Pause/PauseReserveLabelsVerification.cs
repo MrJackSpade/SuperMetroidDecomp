@@ -58,7 +58,7 @@ internal static class PauseReserveLabelsVerification
                     }
             }
             var expectedMemory = new PpuMemorySnapshot(expectedVram, snapshot.Memory.Cgram,
-                snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
+                snapshot.Memory.SpriteDraws);
             var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, snapshot.Layers,
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actualPixels = pause.Render();

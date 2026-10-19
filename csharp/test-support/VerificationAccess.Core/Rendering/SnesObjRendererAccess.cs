@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -26,17 +27,17 @@ internal static class SnesObjRendererAccess
             Ensure.NotNull(cgram);
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
             var output = new Rgba32[frame.X * frame.Y];
-            SnesObjRendererConstants.Render(output, ObjSpriteImageConstants.OamOnly(oam), vram, cgram, obsel, frame, priority);
+            SnesObjRendererConstants.Render(output, FrontendOamDraws.Draws(oam, vram, obsel), cgram, frame, priority);
             return output;
         }
 
         /// <summary>
         /// Resolves the winning OBJ and its BG-relative priority for every output pixel in one
-        /// OAM walk.
+        /// walk of the OAM's draws.
         /// </summary>
         /// <remarks>
         /// Ordinary gameplay needs to interleave four OBJ priority groups with BG1 and BG2.
-        /// Calling <see cref="Render"/> four times is correct but needlessly decodes every
+        /// Rendering one priority plane four times is correct but needlessly decodes every
         /// sprite tile four times and allocates four RGBA canvases. This form performs the
         /// expensive character decode once, stores only the winning color plus its priority,
         /// and lets the PPU compositor place that winner at the appropriate point in its BG
@@ -56,8 +57,28 @@ internal static class SnesObjRendererAccess
 
             var pixels = new Rgba32[frame.X * frame.Y];
             var priorities = new byte[pixels.Length];
-            SnesObjRenderer.RenderResolved(ObjSpriteImageConstants.OamOnly(oam), vram, cgram, obsel, new ObjRasterTargets(pixels, priorities), frame);
+            SnesObjRenderer.RenderResolved(FrontendOamDraws.Draws(oam, vram, obsel), cgram, new ObjRasterTargets(pixels, priorities), frame);
 
+            return new ResolvedObjFrame(pixels, priorities);
+        }
+
+        /// <summary>Renders the draws over a transparent canvas; color index zero stays transparent.</summary>
+        internal static Rgba32[] Render(ImmutableArray<SpriteDraw> draws, SnesCgram cgram, Extent16<ScreenPixels>? size = null)
+        {
+            Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
+            var output = new Rgba32[frame.X * frame.Y];
+            SnesObjRendererConstants.Render(output, draws, cgram, frame);
+            return output;
+        }
+
+        /// <summary>Resolves the winning draw and its BG-relative priority for every output pixel.</summary>
+        internal static ResolvedObjFrame RenderResolved(ImmutableArray<SpriteDraw> draws, SnesCgram cgram,
+            Extent16<ScreenPixels>? size = null)
+        {
+            Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
+            var pixels = new Rgba32[frame.X * frame.Y];
+            var priorities = new byte[pixels.Length];
+            SnesObjRenderer.RenderResolved(draws, cgram, new ObjRasterTargets(pixels, priorities), frame);
             return new ResolvedObjFrame(pixels, priorities);
         }
     }

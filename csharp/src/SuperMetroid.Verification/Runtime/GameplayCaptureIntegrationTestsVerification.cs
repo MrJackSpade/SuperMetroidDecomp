@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -63,7 +62,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
-        var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
+        var retained = new RenderFrameSnapshot(new(1, 1, 0), captured);
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(SnesButton.A);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);

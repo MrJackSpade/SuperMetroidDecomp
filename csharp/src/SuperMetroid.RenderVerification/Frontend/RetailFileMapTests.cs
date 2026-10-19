@@ -24,8 +24,7 @@ internal static class RetailFileMapTests
         int samples = 0;
         void Compare(Rgba32[] expected, LayeredRenderSnapshot scene, string context)
         {
-            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(
-                new RenderFrameSnapshot(new(++samples, 1, 0), scene)));
+            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: file map {context}");
         }
         for (int area = 0; area < 6; area++)

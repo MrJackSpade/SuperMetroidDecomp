@@ -16,6 +16,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>
@@ -44,13 +45,13 @@ internal static class PauseReserveTankAssetsVerification
                 nativeSamus.ReserveEnergy = installedSamus.ReserveEnergy = supply;
                 native.Step(0, 0, nmiFrameCounter8: phase); installed.Step(0, 0, nmiFrameCounter8: phase);
                 var expected = native.CaptureRenderSnapshot(); var actual = installed.CaptureRenderSnapshot();
-                AssertTrue(expected.Memory.Oam.SequenceEqual(actual.Memory.Oam), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
+                AssertTrue(expected.Memory.SpriteParts().SequenceEqual(actual.Memory.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
                 AssertTrue(native.Render().SequenceEqual(installed.Render()), "every legal reserve supply/flicker state matches native pixels");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindMapPresentation(catalog);
-                    AssertTrue(actual.Memory.Oam.SequenceEqual(restored.CaptureRenderSnapshot().Memory.Oam), "restored nonzero fill flicker phase retains exact OAM");
+                    AssertTrue(actual.Memory.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Memory.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
                     AssertTrue(restored.Render().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
                 }
                 comparisons++;
@@ -69,11 +70,15 @@ internal static class PauseReserveTankAssetsVerification
         var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
-        int last = (snapshot.Memory.ModeledSpriteCount - 1) * 4;
-        AssertEqual((byte)132, snapshot.Memory.Oam[last], "actual menu uses custom tank X");
-        AssertEqual((byte)136, snapshot.Memory.Oam[last + 1], "actual menu uses custom tank Y");
-        AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical).Raw,
-            (ushort)(SnesLittleEndian.Word(snapshot.Memory.Oam[last + 2], snapshot.Memory.Oam[last + 3])), "actual tank tile/palette/priority/flips");
+        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, palette 5, priority 3, both flips.
+        var tankOam = new OamBuffer();
+        tankOam.BeginFrame();
+        tankOam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
+            SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));
+        tankOam.FinalizeFrame();
+        PlacedSpritePart[] tank = PlacedSpritePart.OfOam(tankOam, snapshot.ObjectSelection);
+        AssertTrue(snapshot.Memory.SpriteParts()[^tank.Length..].SequenceEqual(tank),
+            "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
         var editedPixels = menu.Render();
         AssertTrue(editedPixels.SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
         using (var state = new MemoryStream())

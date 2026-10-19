@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -59,7 +58,7 @@ internal static class AttractCaptureTestsVerification
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(RoundTripRenderPacket(actual.Snapshot))),
+                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }

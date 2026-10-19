@@ -36,11 +36,6 @@ internal sealed record D3D11TileDispatch
     /// <summary>Blue.</summary>
     public uint Blue { get; init; } = 0;
 
-    /// <summary>Object count.</summary>
-    public uint ObjectCount { get; init; } = 0;
-
-    /// <summary>Object selection.</summary>
-    public uint ObjectSelection { get; init; } = 0;
 
     /// <summary>First scanline.</summary>
     public uint FirstScanline { get; init; } = 0;

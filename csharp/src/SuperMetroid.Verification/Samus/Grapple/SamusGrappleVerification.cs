@@ -703,7 +703,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple selects the native first endpoint tile");
     AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
-    AssertTrue(grappleOamFrame.Draws.All(draw => draw.Draw.Artwork.Id.Variant ==
+    AssertTrue(grappleOamFrame.Draws.All(draw => draw.Artwork.Id.Variant ==
             SpriteFrameTestArtwork.BlankGrapple.Tiles(samus.Grapple.PointAnimationFrame, samus.Grapple.Angle).Id.Variant),
         "grapple draws bind that endpoint and segment selection");
     AssertEqual(2, samus.Grapple.FlareCounter,

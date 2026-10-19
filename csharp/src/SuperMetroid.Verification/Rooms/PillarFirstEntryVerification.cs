@@ -82,7 +82,7 @@ internal static class PillarFirstEntryVerification
             // head-local windows, and the two owners are separated by 320 pixels.
             var memory = snapshot.Memory;
             var withoutObjects = new LayeredRenderSnapshot(
-                new PpuMemorySnapshot(memory.Vram, memory.Cgram, memory.Oam, modeledSpriteCount: 0),
+                new PpuMemorySnapshot(memory.Vram, memory.Cgram, []),
                 snapshot.Layers, snapshot.ObjectSelection, snapshot.Brightness);
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)

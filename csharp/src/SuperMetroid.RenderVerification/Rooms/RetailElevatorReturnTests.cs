@@ -54,7 +54,6 @@ internal static class RetailElevatorReturnTests
             var capture = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidOperationException("Elevator return omitted its display capture.");
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples), capture);
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: upward elevator {phase}, sample={samples}");
         }

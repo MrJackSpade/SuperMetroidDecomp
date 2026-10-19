@@ -13,15 +13,18 @@ internal static class WindowSceneSmokeTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32116);
-        PpuMemorySnapshot Memory()
+        PpuMemorySnapshot Memory(byte obsel)
         {
             var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
-            var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
+            var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-            return new(vram, palette, oam, 128);
+            return PpuMemorySnapshot.FromOam(vram, palette, oam, 128, obsel);
         }
-        var parentMemory = Memory(); var childMemory = Memory();
+        var parentMemory = Memory(3); var childMemory = Memory(7);
         int count = 0;
+        // Each scene render uploads its memory, sprite-draw and BG-layer buffers once. The two draw buffers upload their
+        // grown capacity, so a frame's bytes are fixed per window shape rather than computable from the scene alone.
+        var bytesByChildren = new Dictionary<int, long>();
         foreach (var edges in new[] { (0,0,256,224), (0,0,0,224), (1,1,255,223),
             (17,32,219,200), (255,223,256,224), (0,0,1,1), (0,224,256,224) })
         for (byte brightness = 0; brightness <= 15; brightness++)
@@ -39,10 +42,16 @@ internal static class WindowSceneSmokeTests
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
             int children = edges.Item1 == edges.Item3 || edges.Item2 == edges.Item4 ? 0 : 2;
-            long expectedBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
+            long memoryAndConstantBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
                 + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);
-            if (after.Bytes - before.Bytes != expectedBytes || after.Calls - before.Calls != 9 + children * 6)
-                throw new InvalidOperationException("Upload counters omitted or duplicated parent/child transfers.");
+            long expectedCalls = (1 + children) * 3 + 8 + children * 5;
+            long bytes = after.Bytes - before.Bytes;
+            long firstBytes = bytesByChildren.TryGetValue(children, out long seen) ? seen : bytesByChildren[children] = bytes;
+            if (after.Calls - before.Calls != expectedCalls || bytes <= memoryAndConstantBytes || bytes != firstBytes)
+                throw new InvalidOperationException(
+                    $"Upload counters omitted or duplicated parent/child transfers: {bytes} bytes in "
+                    + $"{after.Calls - before.Calls} calls, expected {expectedCalls} calls and the {firstBytes} bytes of this "
+                    + $"window shape's first frame, above {memoryAndConstantBytes} (scene window {count}, edges {edges}).");
             if (after.CpuMilliseconds < before.CpuMilliseconds)
                 throw new InvalidOperationException("Cumulative upload CPU time regressed.");
         }

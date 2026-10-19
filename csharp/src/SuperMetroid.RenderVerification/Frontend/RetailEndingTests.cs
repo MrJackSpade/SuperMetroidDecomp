@@ -34,8 +34,7 @@ internal static class RetailEndingTests
                 if (phases.Add(legacy.Phase) || tick % 97 == 0)
                 {
                     var expected = legacy.Presentation.Render();
-                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(
-                        new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot())));
+                    var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot());
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                         $"{device.Kind}: ending hours={hours}, tick={tick}, phase={legacy.Phase}");
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "ending repeated GPU rendering");

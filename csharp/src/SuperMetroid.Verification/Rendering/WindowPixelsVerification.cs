@@ -5,12 +5,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks hardware window masking against independently composed layer pixels and packet round trips.</summary>
+/// <summary>Checks hardware window masking against independently composed layer pixels.</summary>
 internal static class WindowPixelsVerification
 {
     /// <summary>Compares windowed frames for layer admission masks and validates legacy packet defaults.</summary>
@@ -21,9 +20,9 @@ internal static class WindowPixelsVerification
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount];
         random.NextBytes(bytes);
         ushort[] palette = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
-        byte[] objects = new byte[SnesPpuLayout.OamUploadByteCount];
+        byte[] objects = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(objects);
-        var capturedMemory = new PpuMemorySnapshot(bytes, ToColors(palette), objects, 128);
+        var capturedMemory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), objects, 128, 3);
         var memory = new SoftwarePpuSnapshotMemory(capturedMemory);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         var reference = new Dictionary<SnesMainScreenLayers, Rgba32[]>();
@@ -46,31 +45,11 @@ internal static class WindowPixelsVerification
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
                 new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
-            var restored = RoundTripRenderPacket(packet);
-            var restoredRegisters = ((OrdinaryGameplayRenderLayer)(restored.Layers ?? throw new InvalidOperationException("Verification requires restored.Layers.")).Layers[0]).Registers;
-            AssertEqual(windows, restoredRegisters.Windows, "window register bytes survive packet round trip");
-            AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "TMW survives packet round trip");
-            AssertTrue(actual.SequenceEqual(RenderForComparison(restored)),
+            var restoredRegisters = ((OrdinaryGameplayRenderLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0]).Registers;
+            AssertEqual(windows, restoredRegisters.Windows, "the frame keeps its window registers");
+            AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "the frame keeps its TMW");
+            AssertTrue(actual.SequenceEqual(RenderForComparison(packet)),
                 "windowed packet renders exact direct-composition pixels");
-            if (operation == 0 && mask == 0)
-            {
-                // A single-layer v20 packet is the identical prefix without v21's
-                // nine window bytes, TMW, v26's mosaic byte and the later
-                // per-line main-screen presence flag (empty in this fixture). It must decode
-                // with windowing and mosaic disabled.
-                byte[] modern = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-                byte[] old = modern.AsSpan(0, modern.Length - 12).ToArray();
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
-                    old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
-                var legacy = RenderFrameSnapshotCodec.Deserialize(old);
-                AssertEqual(default(SnesWindowRegisters), ((OrdinaryGameplayRenderLayer)(legacy.Layers ?? throw new InvalidOperationException("Verification requires legacy.Layers.")).Layers[0]).Registers.Windows,
-                    "v20 gameplay has no invented window registers");
-                AssertTrue(reference[layers].SequenceEqual(RenderForComparison(legacy)),
-                    "v20 gameplay pixels remain unchanged");
-                byte[] current = RenderFrameSnapshotWriter.Serialize(packet);
-                AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(current.AsSpan(0, current.Length - 1)),
-                    "truncated current gameplay data remains a loud error");
-            }
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)
             {

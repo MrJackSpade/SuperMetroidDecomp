@@ -32,6 +32,7 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
     /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingAnimalEscapeDefinitions.Draw until #1358 moves it onto sprite entries")]
     public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;

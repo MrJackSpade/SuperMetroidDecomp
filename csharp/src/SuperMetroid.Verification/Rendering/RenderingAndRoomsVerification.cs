@@ -109,8 +109,8 @@ internal static void VerifyObjRendering()
 
     // The production timer's first tile is $1E0 under OBSEL=$03. This assertion fixes
     // the important reverse-engineered relationship: character data starts at word $7E00.
-    AssertEqual(0xfc00, SnesObjRenderer.ResolveTileByteAddress(0x1e0, 0x03), "timer tile $1E0 VRAM byte address");
-    AssertEqual(0xff00, SnesObjRenderer.ResolveTileByteAddress(0x1f8, 0x03), "timer tile $1F8 VRAM byte address");
+    AssertEqual(0xfc00, FrontendOamDraws.ResolveTileByteAddress(0x1e0, 0x03), "timer tile $1E0 VRAM byte address");
+    AssertEqual(0xff00, FrontendOamDraws.ResolveTileByteAddress(0x1f8, 0x03), "timer tile $1F8 VRAM byte address");
 
     Console.WriteLine("  OBJ: OBSEL addressing, planar pixels, CGRAM, transparency, and cross-priority OAM ownership agree.");
 }

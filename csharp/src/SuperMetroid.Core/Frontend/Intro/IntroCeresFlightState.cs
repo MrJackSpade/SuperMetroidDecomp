@@ -228,11 +228,12 @@ internal sealed class IntroCeresFlightState
             byte flash = checked((byte)flashIntensity);
             layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
         }
-        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(),
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, MenuRenderDefinitions.ObjectSelection), layers.ToArray(),
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Draws the front stars or surviving rear-view actors into the current OAM pass.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: IntroCeresFlightState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private OamBuffer PrepareRenderOam()
     {
         var oam = new OamBuffer();

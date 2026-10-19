@@ -100,7 +100,7 @@ internal static class XrayInputVerification
             AssertEqual(frozenMap[i], (ushort)(SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1])), "captured BG2 is the setup-owned reveal map");
         }
 
-        var beforeRelease = RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured));
+        byte[] beforeRelease = captured.Memory.Vram.ToArray();
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(releaseEdge.Layers[0] is GameplayColorMathRenderLayer,
@@ -129,8 +129,8 @@ internal static class XrayInputVerification
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
-        AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured))),
-            "a queued X-ray packet retains its reveal memory after gameplay resumes");
+        AssertTrue(beforeRelease.SequenceEqual(captured.Memory.Vram.ToArray()),
+            "a queued X-ray frame retains its reveal memory after gameplay resumes");
         foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);

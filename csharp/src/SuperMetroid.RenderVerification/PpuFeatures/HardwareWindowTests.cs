@@ -15,9 +15,9 @@ internal static class HardwareWindowTests
     {
         var random = new Random(396);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         var colors = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new PpuMemorySnapshot(vram, colors, oam, 128);
+        var memory = PpuMemorySnapshot.FromOam(vram, colors, oam, 128, 3);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         int sequence = 0;
         foreach (bool empty in new[] { false, true })
@@ -32,10 +32,9 @@ internal static class HardwareWindowTests
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
-            frame = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(frame));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: native windows operation={operation}, TMW={admission}, empty={empty}");
         }
-        Console.WriteLine($"{device.Kind}: {sequence} hardware-window frames match software after packet round trip.");
+        Console.WriteLine($"{device.Kind}: {sequence} hardware-window frames match software.");
     }
 }

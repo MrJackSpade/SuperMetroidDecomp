@@ -255,6 +255,7 @@ public sealed class GameOptionsMenuState
     }
 
     /// <summary>Draws the current page heading and animated cursor in OAM.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: GameOptionsMenuState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private void PrepareRenderOam()
     {
         oam.BeginFrame();

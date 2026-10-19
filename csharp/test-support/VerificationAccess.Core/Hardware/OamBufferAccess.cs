@@ -6,17 +6,15 @@ internal static class OamBufferAccess
     /// <summary>Exposes <see cref="OamBuffer"/> state that only verification reads.</summary>
     extension(OamBuffer self)
     {
+        /// <summary>The low table as the native oracles write it.</summary>
+        internal Span<byte> WritableLowTable() => self.LowTableBytes;
+
         /// <summary>
         /// Emits an authored projectile visual part using the $81:8A4B/$81:8A2B tail:
         /// preserve source attributes, wrap Y and wrap the write position after 128 OBJs.
         /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.
         /// The caller owns whole-projectile viewport admission.
         /// </summary>
-        /// <summary>The low table as the native oracles write it; production only reads it.</summary>
-        internal Span<byte> WritableLowTable() =>
-            System.Runtime.InteropServices.MemoryMarshal.CreateSpan(
-                ref System.Runtime.InteropServices.MemoryMarshal.GetReference(self.LowTable), self.LowTable.Length);
-
         [PpuLayoutBoundary("exact hardware test: native OAM oracle for projectile parts")]
         public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
             SnesObjAttributeWord attributes, Position16<OamPixels> origin)
@@ -120,6 +118,30 @@ internal static class OamBufferAccess
             self.WriteAttributes(lowOffset, finalAttributes);
             self.SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
             self.NextByteOffset = (self.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
+        }
+        /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
+        [PpuLayoutAccess]
+        public ReadOnlySpan<byte> LowTable => self.LowTableBytes;
+        /// <summary>Raw 32-byte high OAM table used by PPU DMA.</summary>
+        [PpuLayoutAccess]
+        public ReadOnlySpan<byte> HighTable => self.HighTableBytes;
+        /// <summary>Sprites appended since <see cref="OamBuffer.BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
+        public int AppendedSpriteCount => self.NextByteOffset / OamBuffer.LowRecordByteCount;
+        /// <summary>
+        /// Restores a complete physical OAM image for a software render consumer. The
+        /// physical image has no construction cursor. Retain the producer's modeled
+        /// sprite count because existing raster kernels deliberately stop at that count.
+        /// </summary>
+        [PpuLayoutAccess]
+        public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)
+        {
+            if ((uint)modeledSpriteCount > OamBuffer.SpriteCount)
+                throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
+            Ensure.LengthEqual(payload, OamBufferConstants.UploadByteCount);
+            payload[..OamBuffer.LowTableByteCount].CopyTo(self.LowTableBytes);
+            payload[OamBuffer.LowTableByteCount..].CopyTo(self.HighTableBytes);
+            self.NextByteOffset = 0;
+            self.LastFinalizedSpriteCount = modeledSpriteCount;
         }
     }
 

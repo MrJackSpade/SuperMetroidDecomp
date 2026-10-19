@@ -69,14 +69,14 @@ internal static class CeresFlightSpriteArtworkVerification
         AssertTrue(original.Memory.Vram.SequenceEqual(replacement.Memory.Vram) &&
                 original.Memory.Cgram.SequenceEqual(replacement.Memory.Cgram),
             "Ceres sprite composition edit does not change characters or palette");
-        AssertTrue(!original.Memory.Oam.SequenceEqual(replacement.Memory.Oam) &&
+        AssertTrue(!original.Memory.SpriteParts().SequenceEqual(replacement.Memory.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(original).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(replacement)),
             "Ceres star composition edit changes production OAM and visible pixels");
 
         stockFlight.BindArtwork(edited);
-        AssertTrue(stockFlight.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                replacement.Memory.Oam),
+        AssertTrue(stockFlight.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                replacement.Memory.SpriteParts()),
             "restored Ceres flight rebinds the selected actor composition without restarting");
 
         document.Frames.Remove("stars");
@@ -95,8 +95,8 @@ internal static class CeresFlightSpriteArtworkVerification
             repaired.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
             repairedFlight.StepFrame();
-        AssertTrue(repairedFlight.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                replacement.Memory.Oam),
+        AssertTrue(repairedFlight.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                replacement.Memory.SpriteParts()),
             "Ceres sprite override survives stock extraction repair");
         File.Delete(overridePath);
         Console.WriteLine("  Ceres flight sprites: six native OAM frames, visible edit, rebind, strict validation, and repair preservation pass.");

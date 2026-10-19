@@ -95,8 +95,7 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 7);
         enemies.Projectiles.DrawEnemyProjectilePass(sprites, page, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
         sprites.FinalizeFrame();
-        SpriteDraw[] draws = [.. sprites.Draws.Select(ordered => ordered.Draw)];
-        AssertEqual(0, sprites.Oam.LastFinalizedSpriteCount, "Enemy-format actors write no OAM");
+        SpriteDraw[] draws = [.. sprites.Draws];
         AssertTrue(draws.All(draw => ReferenceEquals(page, draw.Artwork)), "Every entry binds the room's OBJ page");
 
         spritemaps.TryGetDisplay(ordinaryFrame.Bank, ordinaryFrame.Pointer, out EnemySpritemapParts ordinaryParts);
@@ -131,7 +130,7 @@ internal static class EnemyFormatDrawEntriesVerification
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer.RawValue, "A drawn frame consumes the same shake tick");
-        AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Draw.Origin, "The drawn frame shows the shaken origin");
+        AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
         Console.WriteLine($"Enemy-format draws: ordinary, {entry - 2}-component extended and projectile entries over the bound enemy tile page; shake advance independent of display.");
 
         static void AssertEntry(SpriteDraw draw, SpriteSource source, SpriteFrame frame, Position16<ScreenPixels> origin, byte palette, string subject)

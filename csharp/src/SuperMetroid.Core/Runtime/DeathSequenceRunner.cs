@@ -24,8 +24,6 @@ internal sealed class DeathSequenceRunner
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Frame-local OBJ buffer shared by Samus pose and explosion drawing.</summary>
-    private readonly OamBuffer _oam;
     /// <summary>Owns Samus and records the last death-sequence step result.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies the active layer-1 camera for death drawing.</summary>
@@ -42,7 +40,6 @@ internal sealed class DeathSequenceRunner
         _display = dependencies.Display;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
-        _oam = _sprites.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;

@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Options;
@@ -83,8 +82,8 @@ internal static class FileMenuSnapshotTestsVerification
         {
             Rgba32[] expected = legacy();
             LayeredRenderSnapshot snapshot = capture();
-            Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
-                new RenderFrameSnapshot(new(comparisons + 1, 1, (ushort)comparisons), snapshot))));
+            Match(expected, SoftwareFrameSnapshotRenderer.Render(
+                new RenderFrameSnapshot(new(comparisons + 1, 1, (ushort)comparisons), snapshot)));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(snapshot));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(capture()));
             step();

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 
@@ -125,14 +126,14 @@ internal static class GameOverPresentationVerification
             originalMenu.Step(0);
         int? stepBeforeRebind = originalMenu.BabyStep;
         GameOverMenuPhase phaseBeforeRebind = originalMenu.Phase;
-        byte babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Memory.Oam[0];
+        int babyXBeforeRebind = originalMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
         originalMenu.BindMapPresentation(edited);
         AssertEqual(stepBeforeRebind, originalMenu.BabyStep,
             "game-over content rebind preserves Baby animation phase");
         AssertEqual(phaseBeforeRebind, originalMenu.Phase,
             "game-over content rebind preserves menu phase");
-        AssertEqual(unchecked((byte)(babyXBeforeRebind + 8)),
-            originalMenu.CaptureRenderSnapshot().Memory.Oam[0],
+        AssertEqual(babyXBeforeRebind + 8,
+            (int)originalMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X,
             "game-over rebind applies edited Baby anchor without resetting live timing");
 
         File.WriteAllText(replacement, "{ broken game-over JSON");

@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks ending flyaway OAM priority when the afterglow competes with both starfields.</summary>
@@ -33,13 +34,13 @@ internal static class EndingExplosionSlotOrderVerification
         afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
-        var actual = ending.Presentation.CaptureRenderSnapshot().Memory;
-        AssertTrue(actual.Oam[..(37 * 4)].SequenceEqual(expected.LowTable[..(37 * 4)]),
-            "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
         var snapshot = ending.Presentation.CaptureRenderSnapshot();
+        var actual = snapshot.Memory;
+        PlacedSpritePart[] afterglowParts = PlacedSpritePart.OfOam(expected, snapshot.ObjectSelection);
+        AssertTrue(actual.SpriteParts().Take(afterglowParts.Length).SequenceEqual(afterglowParts),
+            "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
         var background = snapshot.LayersOf<Mode7RenderLayer>().Single();
-        AssertTrue(Enumerable.Range(0, actual.ModeledSpriteCount).All(index =>
-            (actual.Oam[index * 4 + 3] & 0x30) == 0), "live flyaway actors use native priority zero");
+        AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
         var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
         var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,

@@ -1,6 +1,6 @@
 # X-ray live capture (#348)
 
-`horizontal.png` and `horizontal.smframe` are captures from the translated runtime,
+`horizontal.png` is a capture from the translated runtime,
 not emulator screenshots. The room is the retail X-ray Scope chamber ($8F:A2CE).
 The fixture places standing Samus on its open floor at (128,139), then uses normal
 Select/Run input to activate the Scope and widen the beam.
@@ -22,15 +22,8 @@ Regenerate with:
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --xray-input
 ```
 
-Generated diagnostics go under `csharp/test-temp/issue-348-xray`. Compare this
-retained packet on either backend with:
-
-```powershell
-dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --frame-fixtures
-```
-
-Both comparisons pass exactly. This verifies backend consistency, not an
-independent emulator image comparison.
+Generated diagnostics go under `csharp/test-temp/issue-348-xray`. This verifies
+the translated runtime's own capture, not an independent emulator image comparison.
 
 Fireflea coverage now runs with `--fireflea-fx` (also included in the full suite).
 It checks the native six-frame flashing cycle, all seven reachable darkness

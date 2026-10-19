@@ -107,13 +107,13 @@ internal static class EscapeTimerPresentationVerification
         var native = new OamBuffer();
         native.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
-        IReadOnlyList<OrderedSpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, tileAtlas.Artwork);
+        IReadOnlyList<SpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, tileAtlas.Artwork);
         EscapeTimerDrawChecks.AssertSameSprites(native, installed, "installed timer label/digits match the native OAM sprites");
         AssertEqual(7, installed.Count, "timer publishes the label and six digits as whole-frame draws");
-        AssertTrue(installed.All(draw => ReferenceEquals(tileAtlas.Artwork, draw.Draw.Artwork)),
+        AssertTrue(installed.All(draw => ReferenceEquals(tileAtlas.Artwork, draw.Artwork)),
             "every timer draw binds the installed timer artwork");
         AssertEqual("Label|Digit.0|Digit.1|Digit.2|Digit.3|Digit.4|Digit.5",
-            string.Join('|', installed.Select(draw => draw.Draw.Frame.Name)), "01:23:45 publishes its label and digit frames in order");
+            string.Join('|', installed.Select(draw => draw.Frame.Name)), "01:23:45 publishes its label and digit frames in order");
 
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(extracted,
             ArtworkJson.Options);
@@ -129,12 +129,12 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
 
-        IReadOnlyList<OrderedSpriteDraw> moved = EscapeTimerDrawChecks.Draw(timer, edited.EscapeTimer, tileAtlas.Artwork);
+        IReadOnlyList<SpriteDraw> moved = EscapeTimerDrawChecks.Draw(timer, edited.EscapeTimer, tileAtlas.Artwork);
         // Draw 0 is the TIME label; draws 1 and 2 are the minute tens and ones.
-        AssertEqual(installed[0].Draw.Origin, moved[0].Draw.Origin, "editing minute anchor leaves TIME label untouched");
-        AssertEqual(installed[1].Draw.Origin.X + 1, (int)moved[1].Draw.Origin.X,
+        AssertEqual(installed[0].Origin, moved[0].Origin, "editing minute anchor leaves TIME label untouched");
+        AssertEqual(installed[1].Origin.X + 1, (int)moved[1].Origin.X,
             "edited minute anchor reaches the minute tens draw");
-        AssertEqual(installed[2].Draw.Origin.X + 1, (int)moved[2].Draw.Origin.X,
+        AssertEqual(installed[2].Origin.X + 1, (int)moved[2].Origin.X,
             "edited minute anchor reaches the minute ones draw");
 
         File.WriteAllText(replacement, "{ broken timer JSON");

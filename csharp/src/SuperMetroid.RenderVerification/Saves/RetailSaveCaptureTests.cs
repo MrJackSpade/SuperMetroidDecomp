@@ -63,7 +63,6 @@ internal static class RetailSaveCaptureTests
             }
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
             var current = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
             if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.InputLocked)

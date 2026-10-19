@@ -30,6 +30,7 @@ public sealed class PauseReserveTankPresentation
     /// <param name="nativeIdentity">The native bank-$82 spritemap identity selecting one of the ten visual roles.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
     /// <exception cref="InvalidDataException">The native visual identity is unknown.</exception>
+    [PpuLayoutBoundary("frontend OAM writer: PauseReserveTankPresentation.Draw until #1358 moves it onto sprite entries")]
     public void Draw(OamBuffer oam, PauseReserveTankVisual nativeIdentity, int index)
     {
         var anchor = Anchor(index);

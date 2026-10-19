@@ -14,6 +14,7 @@ public sealed class MapSpriteCatalog
     /// <summary>Retains validated compositions and the decoded indexed character atlas.</summary>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: MapSpriteCatalog.Draw until #1358 moves it onto sprite entries")]
     public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         var label = GetWorldLabel(id);

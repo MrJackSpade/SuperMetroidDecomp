@@ -19,6 +19,7 @@ namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
@@ -90,34 +91,37 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupFirstIllustratedPage();
         var caret = intro.objects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
-        var actual = intro.PrepareIllustratedPageOam().FinalizedAsOam();
+        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageOam().Draws);
         expected = new OamBuffer();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
             new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
-        EqualOam(expected, actual, "illustrated-page caret owner parity");
+        EqualParts(PlacedSpritePart.OfOam(expected, MenuRenderDefinitions.ObjectSelection), actualParts, "illustrated-page caret owner parity");
 
         intro.SetupMotherBrainFlashback();
         var motherBrain = intro.flashbackMotherBrain;
         (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
-        actual = intro.PrepareMotherBrainOam().FinalizedAsOam();
+        actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainOam().Draws);
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
         (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
-        DrawImportedSpritemap(reference, expectedFrame.Oam,
+        var motherBrainOam = new OamBuffer();
+        motherBrainOam.BeginFrame();
+        DrawImportedSpritemap(reference, motherBrainOam,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
+        motherBrainOam.FinalizeFrame();
         expectedFrame.FinalizeFrame();
-        expected = expectedFrame.FinalizedAsOam();
-        EqualOam(expected, actual, "Mother Brain owner preserves actor order and exact OAM");
+        EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOam(motherBrainOam, MenuRenderDefinitions.ObjectSelection)],
+            actualParts, "Mother Brain owner preserves actor order and exact sprite parts");
 
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
-        actual = new OamBuffer(); actual.BeginFrame();
+        var actual = new OamBuffer(); actual.BeginFrame();
         explosions.Draw(actual, introArtwork.MotherBrainExplosionSprites);
         actual.FinalizeFrame();
         expected = new OamBuffer();
@@ -163,6 +167,12 @@ internal static class GenericSpriteArtworkVerification
         {
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
             AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
+        }
+
+        static void EqualParts(PlacedSpritePart[] expected, PlacedSpritePart[] actual, string context)
+        {
+            AssertEqual(expected.Length, actual.Length, context + " part count");
+            AssertTrue(expected.SequenceEqual(actual), context + " parts");
         }
     }
 

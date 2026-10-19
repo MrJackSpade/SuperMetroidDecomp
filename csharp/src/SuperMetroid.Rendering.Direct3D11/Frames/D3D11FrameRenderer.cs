@@ -277,7 +277,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
-        data[13] = (uint)scene.Memory.ModeledSpriteCount; data[14] = (uint)scene.ObjectSelection;
         data[16] = (uint)r.Bg2TilemapWord; data[17] = (uint)r.HudCharacterWord;
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
@@ -419,7 +418,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Uploads BG subscreen scroll and main-coverage data for color addition.</summary>
-    private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer, uint objectCount, byte objectSelection)
+    private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
@@ -429,7 +428,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[27] = layer.FourBpp ? 1u : 0u;
         data[10] = layer.IncludeObjects ? 1u : 0u;
         data[11] = layer.MainObjects ? 1u : 0u;
-        data[13] = objectCount; data[14] = objectSelection;
         if (layer.MainCoverage is { } coverage)
         {
             // Subscreen operations do not use the Mode-7 matrix header. Keep coverage
@@ -465,7 +463,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         var memory = memoryUpload;
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
         for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i].ToWord();
-        MemoryMarshal.Cast<byte, uint>(scene.Memory.Oam).CopyTo(memory.AsSpan(D3D11ShaderLayout.OamPackedWordOffset));
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
         spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan());
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
@@ -486,7 +483,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
         bool needsObjects = false;
         foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or BgSubscreenAddRenderLayer { IncludeObjects: true };
-        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch { ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
+        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch());
         foreach (RenderLayer layer in scene.Layers)
         {
             switch (layer)
@@ -504,7 +501,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchMessage(message);
                     break;
                 case BgSubscreenAddRenderLayer sub:
-                    DispatchSubscreen(sub, (uint)scene.Memory.ModeledSpriteCount, checked((byte)scene.ObjectSelection));
+                    DispatchSubscreen(sub);
                     break;
                 case Bg2BppColorMathRenderLayer math:
                     DispatchBackgroundMath(math);
@@ -516,14 +513,13 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchMode7Gameplay(gameplay);
                     break;
                 case Mode7RenderLayer mode7:
-                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen,
-                        objectCount: scene.Memory.ModeledSpriteCount, objectSelection: checked((byte)scene.ObjectSelection));
+                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen);
                     break;
                 case ObjRenderLayer objLayer:
-                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
                     break;
                 case ObjPriorityRenderLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = (uint)scene.ObjectSelection });
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
                     break;
                 case Bg4BppRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = (uint)bg.TilemapWord, Characters = (uint)bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority) });
@@ -539,7 +535,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
             }
         }
-        if (!gradient.IsEmpty) DispatchTitleGradient(gradient, scene.Memory.ModeledSpriteCount, checked((byte)scene.ObjectSelection));
+        if (!gradient.IsEmpty) DispatchTitleGradient(gradient);
         DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)scene.Brightness });
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = level });
     }
@@ -556,7 +552,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)operation; data[1] = tile.Map; data[2] = tile.Characters; data[3] = tile.Scroll.X;
         data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
-        data[13] = tile.ObjectCount; data[14] = tile.ObjectSelection;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
         SetWindowConstants(data, tile.Windows, tile.WindowMask, tile.WindowTarget);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
@@ -568,13 +563,12 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>Uploads signed Mode 7 matrix, center, scroll, overflow, and optional color math.</summary>
     private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
-        bool subtractObj = false, bool addBg1 = false, int objectCount = 0, byte objectSelection = 0)
+        bool subtractObj = false, bool addBg1 = false)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
-        data[13] = objectCount; data[14] = objectSelection;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.Center.X; data[21] = registers.Center.Y;
@@ -588,10 +582,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Applies authored RGB/control values across title scanlines after tile composition.</summary>
-    private unsafe void DispatchTitleGradient(ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> lines, int objects, byte selection)
+    private unsafe void DispatchTitleGradient(ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> lines)
     {
         var data = ClearUploadConstants();
-        data[13] = (uint)objects; data[14] = selection; data[26] = 224;
+        data[26] = 224;
         for (int y = 0; y < lines.Length; y++)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;

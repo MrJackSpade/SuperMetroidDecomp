@@ -28,9 +28,9 @@ internal static class BackgroundMosaicTests
         vram.LoadBytes(0, character);
         for (int row = 0; row < 8; row++) vram.LoadBytes(32 + row * 2, new byte[] { 255, 0 });
         cgram.SetColor(241, new Bgr555(0, 0, 31));
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
-        var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
+        var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         ushort[] horizontal = Enumerable.Range(0, 192).Select(y => (ushort)(y * 3 + 7)).ToArray();
         ushort[] vertical = Enumerable.Range(0, 192).Select(y => (ushort)(65530 + y)).ToArray();
         int cases = 0;
@@ -64,10 +64,9 @@ internal static class BackgroundMosaicTests
                 if (actual[y * 256 + x] != cgram.GetRgba(expectedColor))
                     throw new InvalidDataException($"Mosaic size {size}, mode {mode}: wrong pixel ({x},{y}).");
             }
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-            PixelComparison.Verify(restored, actual, SoftwareFrameSnapshotRenderer.Render(restored), "mosaic packet round trip");
-            PixelComparison.Verify(restored, actual, renderer.RenderForReadback(restored), $"{device.Kind}: mosaic size {size}, mode {mode}");
+            PixelComparison.Verify(packet, actual, SoftwareFrameSnapshotRenderer.Render(packet), "mosaic software rendering");
+            PixelComparison.Verify(packet, actual, renderer.RenderForReadback(packet), $"{device.Kind}: mosaic size {size}, mode {mode}");
         }
-        Console.WriteLine($"{device.Kind}: {cases} mosaic frames match independent pixels and packet round trips (ordinary, main BG2, additive BG2; HUD/OBJ/BG1 unaffected).");
+        Console.WriteLine($"{device.Kind}: {cases} mosaic frames match independent pixels (ordinary, main BG2, additive BG2; HUD/OBJ/BG1 unaffected).");
     }
 }

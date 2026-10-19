@@ -14,10 +14,10 @@ internal static class Mode7SmokeTests
     {
         var random = new Random(32113);
         var vram = new byte[SnesPpuLayout.VramByteCount];
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram); random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new PpuMemorySnapshot(vram, palette, oam, 128);
+        var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, 128, 3);
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })

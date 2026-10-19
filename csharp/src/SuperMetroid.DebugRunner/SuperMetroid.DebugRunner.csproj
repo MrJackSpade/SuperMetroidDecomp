@@ -13,5 +13,4 @@
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
   <Import Project="../../test-support/ScenarioFixtures.projitems" />
   <Import Project="../../test-support/CatalogInventories.projitems" />
-  <Import Project="../../test-support/FrameCapture.projitems" />
 </Project>

@@ -262,7 +262,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.RedTowerHeroVerificatio
 using static SuperMetroid.Verification.Rooms.Plms.RefillStationLockVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.ReleasedSamusFallsOffDraygonVerification;
 using static SuperMetroid.Verification.Rendering.RenderFrameHandoffTestsVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Rendering.RenderPresentationGateTestsVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
 using static SuperMetroid.Verification.Harness.ReplayTraceCompactionVerification;
@@ -413,7 +412,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFileMenuRenderSnapshots), () => VerifyFileMenuRenderSnapshots()),
         new(nameof(VerifyRenderFrameHandoff), () => VerifyRenderFrameHandoff()),
         new(nameof(VerifyRenderPresentationGate), () => VerifyRenderPresentationGate()),
-        new(nameof(VerifyRenderPacketCodec), () => VerifyRenderPacketCodec()),
         new(nameof(VerifyFrontendRenderCapture), () => VerifyFrontendRenderCapture()),
         new(nameof(VerifyCinematicRenderSnapshots), () => VerifyCinematicRenderSnapshots()),
         new(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots()),

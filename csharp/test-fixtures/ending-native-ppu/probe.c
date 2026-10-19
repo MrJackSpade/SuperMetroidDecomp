@@ -1,25 +1,21 @@
-// Headless independent raster check for #506. Reads the raw memory prefix of an
-// SMFRAME layered packet; display registers come from retail $8B:F2FA, not its
-// C# layer descriptors. Does not run SDL or modify the ROM/game state.
+// Headless independent raster check for #506. Reads a PPU memory dump written by
+// --ending-native-ppu (VRAM, CGRAM, the 544-byte OAM upload, OBSEL, brightness);
+// display registers come from retail $8B:F2FA. Does not run SDL or modify the ROM/game state.
 #include "../../../upstream-sm/src/snes/ppu.h"
 #include <windows.h>
 bool g_new_ppu = false;
 int main(int argc, char **argv) {
   SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-  if (argc != 3 && argc != 4) { fprintf(stderr, "usage: probe input.smframe output.bgra [offset-check]\n"); return 2; }
+  if (argc != 3 && argc != 4) { fprintf(stderr, "usage: probe input.ppu output.bgra [offset-check]\n"); return 2; }
   FILE *f = fopen(argv[1], "rb");
   if (!f) return 3;
-  unsigned char signature[8]; unsigned short version; unsigned int fades;
-  if (fread(signature, 1, 8, f) != 8 || memcmp(signature, "SMFRAME\0", 8)) return 4;
-  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 29) return 5; /* v27-29 change only layer data after this prefix */
-  fseek(f, 18, SEEK_CUR);
-  if (fread(&fades, 4, 1, f) != 1 || fades != 0 || fgetc(f) != 3) return 6;
   Snes snes = {0};
   Ppu *ppu = ppu_init(&snes); ppu_reset(ppu);
   if (fread(ppu->vram, 1, 65536, f) != 65536 || fread(ppu->cgram, 1, 512, f) != 512 ||
       fread(ppu->oam, 1, 512, f) != 512 || fread(ppu->highOam, 1, 32, f) != 32) return 7;
-  fseek(f, 4, SEEK_CUR); // modeled OAM count: native PPU always reads all slots
-  int obsel = fgetc(f), brightness = fgetc(f); fclose(f);
+  int obsel = fgetc(f), brightness = fgetc(f);
+  if (obsel != 3 || brightness == EOF || fgetc(f) != EOF) return 6;
+  fclose(f);
   ppu_write(ppu, 0x00, (unsigned char)brightness);
   ppu_write(ppu, 0x01, (unsigned char)obsel);
   ppu_write(ppu, 0x05, 1);

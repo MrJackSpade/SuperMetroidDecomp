@@ -15,7 +15,7 @@ internal static class ColorWindowSmokeTests
         var random = new Random(32114);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         Bgr555[] palette = Enumerable.Range(0, 256).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = new PpuMemorySnapshot(vram, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var memory = new PpuMemorySnapshot(vram, palette, []);
         int count = 0;
         for (int sample = 0; sample < 64; sample++)
         {

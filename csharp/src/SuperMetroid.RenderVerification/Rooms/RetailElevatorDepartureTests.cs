@@ -42,7 +42,6 @@ internal static class RetailElevatorDepartureTests
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()) ?? throw new InvalidOperationException("Missing elevator capture."));
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: downward elevator {phase}, sample={samples}");
         }

@@ -339,7 +339,7 @@ public sealed class TitleSequenceState
     {
         PrepareRenderOam();
         short scale = unchecked((short)zoom);
-        return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector),
             mode7BackgroundEnabled
                 ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
@@ -358,6 +358,7 @@ public sealed class TitleSequenceState
     }
 
     /// <summary>Draws the active title spritemap and stage-dependent copyright into finalized OAM.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: TitleSequenceState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     internal void PrepareRenderOam()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation

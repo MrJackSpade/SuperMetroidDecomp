@@ -110,7 +110,7 @@ internal static void VerifyTypedNativeWords()
         "gameplay viewport excludes the 32-line HUD");
     AssertEqual(0x10000, SnesPpuLayout.VramByteCount, "PPU VRAM byte capacity");
     AssertEqual(512, SnesPpuLayout.CgramByteCount, "PPU CGRAM byte capacity");
-    AssertEqual(544, SnesPpuLayout.OamUploadByteCount, "PPU OAM upload size");
+    AssertEqual(544, SnesPpuLayoutConstants.OamUploadByteCount, "PPU OAM upload size");
     AssertEqual(0x0400, SnesPpuLayout.TilemapPageWordCount,
         "PPU 32-by-32 tilemap page size");
     AssertEqual((ushort)0x5000, GameplayVramLayout.Bg1TilemapWord,

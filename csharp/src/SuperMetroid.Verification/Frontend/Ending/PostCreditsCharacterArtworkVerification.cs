@@ -112,7 +112,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         {
                             installed.BindObjectArtwork(editedLogo);
                             LayeredRenderSnapshot changed = installed.Presentation.CaptureRenderSnapshot();
-                            visibleLogoEdit |= !actual.Memory.Oam.SequenceEqual(changed.Memory.Oam) &&
+                            visibleLogoEdit |= !actual.Memory.SpriteParts().SequenceEqual(changed.Memory.SpriteParts()) &&
                                 !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
                             installed.BindObjectArtwork(stock);

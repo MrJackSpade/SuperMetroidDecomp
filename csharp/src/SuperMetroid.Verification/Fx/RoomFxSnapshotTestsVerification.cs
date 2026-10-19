@@ -2,16 +2,15 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks room FX color math capture and packet round-tripping against direct rendering.</summary>
+/// <summary>Checks room FX color math capture against direct rendering.</summary>
 internal static class RoomFxSnapshotTestsVerification
 {
-    /// <summary>Compares liquid and weather effects while checking HUD exclusion, scroll ownership, and codec failures.</summary>
+    /// <summary>Compares liquid and weather effects while checking HUD exclusion and scroll ownership.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyRoomFxSnapshots()
     {
@@ -21,7 +20,7 @@ internal static class RoomFxSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord(checked((ushort)((ushort)random.Next(32768)))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        var memory = PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         var configurations = new[]
@@ -46,7 +45,7 @@ internal static class RoomFxSnapshotTestsVerification
             Bg2BppColorMathRenderLayer? layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0),
                 new LayeredRenderSnapshot(memory, layer is null ? [] : new RenderLayer[] { layer }, 3, 15));
-            Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
+            Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(packet);
             AssertTrue(expected.SequenceEqual(actual), $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY}");
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)), "room FX preserves HUD band");
         }
@@ -59,13 +58,8 @@ internal static class RoomFxSnapshotTestsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,
             (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, [owned], 3, 15));
-        byte[] data = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(encoded);
-        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(encoded)[..^1]), "truncated FX packet rejected");
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(data.AsSpan(RenderPacketFormat.Signature.Length),
-            RenderPacketFormat.MessageLayerVersion);
-        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(data), "older version rejects BG math");
         AssertThrows<InvalidDataException>(() => SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(
             new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue))), "capture preserves invalid water configuration failure");
-        Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion, ownership and codec agree.");
+        Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

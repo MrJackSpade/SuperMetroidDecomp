@@ -74,6 +74,7 @@ internal sealed class WorldMapLabelComposition
     }
 
     /// <summary>Draws authored parts or reconstructs the area's glyph sequence with the caller's palette.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: WorldMapLabelComposition.Draw until #1358 moves it onto sprite entries")]
     internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }

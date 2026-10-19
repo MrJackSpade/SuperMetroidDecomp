@@ -61,7 +61,7 @@ internal static class GrappleTileBindingVerification
             target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
             target.Sprites.FinalizeFrame();
             SamusGrappleState grapple = target.Player.IntroducedSamus.Grapple;
-            SpriteDraw[] grappleDraws = [.. target.Sprites.Draws.Select(ordered => ordered.Draw)
+            SpriteDraw[] grappleDraws = [.. target.Sprites.Draws
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];
             AssertTrue(grappleDraws.Length > 0, context + ": the grapple beam is drawn");
             SpriteArtwork expected = atlas.OnStandardObjects(target.Artwork.StandardObjects ?? throw new InvalidOperationException(

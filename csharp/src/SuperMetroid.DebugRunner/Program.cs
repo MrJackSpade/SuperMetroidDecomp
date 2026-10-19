@@ -24,8 +24,6 @@ internal static class Program
                 return toolExit;
             if (IntegrationTools.Run(args) is int integrationToolExit)
                 return integrationToolExit;
-            if (RenderTools.Run(args) is int renderToolExit)
-                return renderToolExit;
             if (args.Length > 0 && args[0] == "assets")
                 return AssetCommands.Run(args[1..]);
 

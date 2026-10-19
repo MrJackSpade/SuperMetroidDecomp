@@ -14,7 +14,7 @@ internal static class ObjectSmokeTests
     {
         var random = new Random(32112);
         var vram = new byte[SnesPpuLayout.VramByteCount];
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram);
         random.NextBytes(oam);
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
@@ -24,8 +24,8 @@ internal static class ObjectSmokeTests
         foreach (int count in new[] { 0, 1, 37, 128 })
         foreach (byte selection in new byte[] { 0, 11, 31 })
         {
-            var memory = new PpuMemorySnapshot(vram, palette, oam, count);
             byte obsel = (byte)((size << 5) | selection);
+            var memory = PpuMemorySnapshot.FromOam(vram, palette, oam, count, obsel);
             Check(memory, obsel, new RenderLayer[] { new ObjRenderLayer() });
             Check(memory, obsel, new RenderLayer[] {
                 new ObjPriorityRenderLayer(0),
@@ -42,7 +42,7 @@ internal static class ObjectSmokeTests
         for (int row = 0; row < 8; row++) vram[row * 2] = 0x7f;
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
-        var overlap = new PpuMemorySnapshot(vram, palette, oam, 2);
+        var overlap = PpuMemorySnapshot.FromOam(vram, palette, oam, 2, 0);
         Check(overlap, 0, new RenderLayer[] { new ObjRenderLayer() });
         for (byte priority = 0; priority < 4; priority++)
             Check(overlap, 0, new RenderLayer[] { new ObjPriorityRenderLayer(priority) });
@@ -53,7 +53,7 @@ internal static class ObjectSmokeTests
             var frame = new RenderFrameSnapshot(new(++cases, 1, 0),
                 new LayeredRenderSnapshot(memory, layers, obsel, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame),
-                renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, count {memory.ModeledSpriteCount}");
+                renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");
         }
     }
 }

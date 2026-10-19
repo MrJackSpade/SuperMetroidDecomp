@@ -248,8 +248,8 @@ internal static class CeresFlightArtworkVerification
             original.StepFrame();
             changed.StepFrame();
         }
-        AssertTrue(!original.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                changed.CaptureRenderSnapshot().Memory.Oam),
+        AssertTrue(!original.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                changed.CaptureRenderSnapshot().Memory.SpriteParts()),
             "edited rear-view placement changes production OAM");
 
         File.WriteAllBytes(stockPath, [0]);

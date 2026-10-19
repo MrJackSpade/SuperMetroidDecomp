@@ -110,7 +110,7 @@ internal static class TitleGradientVerification
             Mode7ObjRenderSnapshot native = stock.CaptureRenderSnapshot();
             Mode7ObjRenderSnapshot extracted = installed.CaptureRenderSnapshot();
             if (stock.Phase != installed.Phase ||
-                !native.Memory.Oam.SequenceEqual(extracted.Memory.Oam))
+                !native.Memory.SpriteParts().SequenceEqual(extracted.Memory.SpriteParts()))
                 throw new InvalidDataException($"Installed title sprite composition differs at frame {frame} ({stock.Phase}).");
             if (stock.Phase == TitleSequencePhase.TitleScreen)
             {
@@ -170,8 +170,8 @@ internal static class TitleGradientVerification
             editedTitle.Step(0);
             if (originalTitle.Phase != editedTitle.Phase)
                 throw new InvalidDataException("Title sprite edit altered the native title timing.");
-            if (!originalTitle.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
-                    editedTitle.CaptureRenderSnapshot().Memory.Oam))
+            if (!originalTitle.CaptureRenderSnapshot().Memory.SpriteParts().SequenceEqual(
+                    editedTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
             {
                 editVisible = true;
                 pixelChanged |= !originalTitle.Render().SequenceEqual(editedTitle.Render());
@@ -183,12 +183,12 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
         var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
-        byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
+        PlacedSpritePart[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts();
         reboundTitle.BindTitleGraphics(editedPresentation);
-        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
             throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
         reboundTitle.BindTitleGraphics(presentation);
-        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.SpriteParts()))
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
@@ -521,7 +521,7 @@ internal static class TitleGradientVerification
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)(palette << 9));
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
             oam.FinalizeFrame();
-            SnesObjRenderer.RenderResolved(ObjSpriteImageConstants.OamOnly(oam), vram, cgram, 0, new ObjRasterTargets(pixels, priorities, palettes));
+            SnesObjRenderer.RenderResolved(FrontendOamDraws.Draws(oam, vram, 0), cgram, new ObjRasterTargets(pixels, priorities, palettes));
             AssertEqual(palette, palettes[0], "winning OBJ palette survives equal-color overlap");
             AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
             AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),

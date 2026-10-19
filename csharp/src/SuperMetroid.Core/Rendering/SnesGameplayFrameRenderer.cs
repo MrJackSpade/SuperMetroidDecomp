@@ -61,7 +61,7 @@ public static class SnesGameplayFrameRenderer
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(sprites), vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
+            SnesObjRenderer.RenderResolved(sprites.Draws, cgram, new ObjRasterTargets(objectPixels, objectPriorities));
             CompositeOrdinaryGameplayViewport(output, vram, cgram, objectPixels, objectPriorities, layer, windowMasks);
         }
         finally

@@ -12,4 +12,10 @@ internal static class SnesPpuLayoutConstants
         /// <inheritdoc cref="SnesPpuLayoutConstants.GameplayViewportHeightPixels"/>
         internal static int GameplayViewportHeightPixels => SnesPpuLayoutConstants.GameplayViewportHeightPixels;
     }
+    /// <summary>Size of OAM's two-bits-per-OBJ high table.</summary>
+    [PpuLayoutAccess]
+    public const int OamHighTableByteCount = SnesPpuLayout.OamSpriteCount / 4;
+    /// <summary>Complete low-plus-high OAM DMA payload.</summary>
+    [PpuLayoutAccess]
+    public const int OamUploadByteCount = SnesPpuLayout.OamLowTableByteCount + OamHighTableByteCount;
 }

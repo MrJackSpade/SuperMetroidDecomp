@@ -31,12 +31,14 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         // The display reads the state the NMI latches (#1307); latch the loaded room's darkness once, as its first frame would.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        runtime.Enemies.Drawing.DrawLayersAsOam(oam, new(cameraX, cameraY), 0, 7);
-        oam.FinalizeFrame();
-        AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
-        var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        runtime.Enemies.Drawing.AdvanceLayers(new(cameraX, cameraY), 0, 7);
+        runtime.Enemies.Drawing.DrawLayers(sprites, runtime.Artwork.GameplayObjectPage(runtime.EnemySession.ObjCharacters),
+            new(cameraX, cameraY), 0, 7);
+        sprites.FinalizeFrame();
+        AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
+        var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, sprites);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");
@@ -45,7 +47,7 @@ internal static class FirefleaEyeVerification
         // retail graphics/palette and the production source-aware color-math kernel.
         var palette = memory.Cgram.ToArray();
         palette[0] = Bgr555.Black;
-        memory = new(memory.Vram, palette, memory.Oam, memory.ModeledSpriteCount);
+        memory = new(memory.Vram, palette, memory.SpriteDraws);
         var objects = new OrdinaryGameplayRenderLayer(baseLayer.Registers with { MainScreenLayers = SnesMainScreenLayers.Obj });
         Rgba32[]? bright = null;
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })

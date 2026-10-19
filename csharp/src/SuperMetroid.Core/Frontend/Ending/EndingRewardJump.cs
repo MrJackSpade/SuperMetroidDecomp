@@ -76,6 +76,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>Draws the active head and body into a supplied frame or a newly finalized OAM buffer.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingRewardJump.Draw until #1358 moves it onto sprite entries")]
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();

@@ -1909,11 +1909,19 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEncounter.cs",
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoBehavior.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/ObjCharacterUploads.cs",
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathTileAtlas.cs",
         "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVramLayout.cs",
-        "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Areas/Escape/Artwork/EscapeTimerPresentationVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Bosses/BossSpriteEntriesVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainCorpseArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Bosses/Torizo/Artwork/TorizoInstructionVramArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs",
+        "csharp/test-support/VerificationOracles/ObjCharacterVramImage.cs"
       ]
     },
     {

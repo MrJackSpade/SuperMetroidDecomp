@@ -2,11 +2,12 @@
 
 This headless probe compiles the pinned upstream `src/snes/ppu.c` separately.
 It does not launch SDL, change the ROM, modify upstream sources, or load a player
-save. It consumes the memory prefix of a generated `.smframe` and supplies the
-retail `$8B:F2FA` Mode-1 finale registers independently of C# layer descriptors.
+save. It consumes a PPU memory dump (`.ppu`: VRAM, CGRAM, the 544-byte OAM upload,
+OBSEL and brightness) written by the verification, and supplies the retail
+`$8B:F2FA` Mode-1 finale registers independently of C# layer descriptors.
 It is a raster oracle, **not** a complete native cinematic playback oracle.
 
-Each flag regenerates its inputs: it runs `--ending-planet-boundary` for the `.smframe`
+Each flag regenerates its inputs: it runs `--ending-planet-boundary` for the `.ppu`
 samples, builds the probe once with `build.cmd` (the Visual Studio C++ tools are required),
 and writes each `.bgra` raster before comparing. From the repository root:
 
@@ -21,7 +22,7 @@ The following controlled experiment sets **non-retail** BG1/BG2 VOFS=-1 to
 compensate for the native renderer's physical scanline-one sampling:
 
 ```powershell
-& csharp/.cache/ending-native-ppu/probe.exe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.smframe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.offset-check.bgra offset-check
+& csharp/.cache/ending-native-ppu/probe.exe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.ppu csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.offset-check.bgra offset-check
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-native-offset-check
 ```
 
@@ -50,6 +51,6 @@ independent reconstruction of the upper VRAM DMA ranges, including the exact
 $1000 font upload at byte $A000: zero byte differences and zero changed pixels.
 This rules out the suspected font-overwrite explanation for these captured frames.
 
-Generated images, memory packets and raw BGRA outputs remain in `csharp/test-temp`;
+Generated images, memory dumps and raw BGRA outputs remain in `csharp/test-temp`;
 the built probe and its compiler artifacts are a reusable build cache in ignored
 `csharp/.cache/ending-native-ppu`. Only diagnostic source is committed.

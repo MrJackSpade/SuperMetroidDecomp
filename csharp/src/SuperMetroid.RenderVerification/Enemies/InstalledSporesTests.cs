@@ -27,7 +27,7 @@ internal static class InstalledSporesTests
     private static readonly int[] ObjPriorityLayers =
         [0, 1, 4, 7];
 
-    /// <summary>Loads stock and edited spores presentation, checks owner state and pixels, then round-trips packets through each D3D11 device kind.</summary>
+    /// <summary>Loads stock and edited spores presentation, checks owner state and pixels, then renders each frame on both D3D11 device kinds.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
@@ -50,11 +50,10 @@ internal static class InstalledSporesTests
                 using var renderer = new D3D11FrameRenderer(device);
                 foreach (RenderFrameSnapshot packet in packets)
                 {
-                    RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-                    PixelComparison.Verify(restored, SoftwareFrameSnapshotRenderer.Render(restored),
-                        renderer.RenderForReadback(restored), $"{kind}: spores case {packet.Identity}");
+                    PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet),
+                        renderer.RenderForReadback(packet), $"{kind}: spores case {packet.Identity}");
                 }
-                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority packets match software exactly after round trip.");
+                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match software exactly.");
             }
             CheckFileFailures(maps, overrides);
             foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
@@ -144,7 +143,7 @@ internal static class InstalledSporesTests
                         layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredRenderSnapshot(
-                        new(editedVram.Bytes, editedColors.Colors, new byte[SnesPpuLayout.OamUploadByteCount], 0), [layer], 0, 15)));
+                        new(editedVram.Bytes, editedColors.Colors, []), [layer], 0, 15)));
                 }
                 comparisons++;
             }
@@ -355,7 +354,7 @@ internal static class InstalledSporesTests
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)(2 | (bg2High ? 0x2000 : 0)), 2048).ToArray(),
                 GameplayVramLayout.Bg2TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
-            var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(objPriority << 4 | palette << 1);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
@@ -363,7 +362,7 @@ internal static class InstalledSporesTests
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
-            var scene = new LayeredRenderSnapshot(new(vram.Bytes, colors.Colors, oam, 1), [layer], 0, 15);
+            var scene = new LayeredRenderSnapshot(PpuMemorySnapshot.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.

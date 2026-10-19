@@ -185,7 +185,7 @@ internal static class IntroProjectileArtworkVerification
             shot.Type = 0x10; shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
             SpriteArtwork page = scene.PrepareMotherBrainOam().Draws
-                .First(entry => entry.Draw.Source.Kind == SpriteSourceKind.SamusProjectile).Draw.Artwork;
+                .First(entry => entry.Source.Kind == SpriteSourceKind.SamusProjectile).Artwork;
             scene.flashbackProjectiles.Reset();
             return page;
         }

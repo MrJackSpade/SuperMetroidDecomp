@@ -84,7 +84,7 @@ internal static class GrappleEndpointGeometryVerification
             runtime.Sprites.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, false, false);
             runtime.Sprites.FinalizeFrame();
-            int endpoints = runtime.Sprites.Draws.Count(draw => draw.Draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
+            int endpoints = runtime.Sprites.Draws.Count(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
             AssertEqual((int)pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)pose:X2}");
         }
     }

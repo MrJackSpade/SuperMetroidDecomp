@@ -62,7 +62,6 @@ internal static class RetailRoomPublicationTests
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
                     GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 if (fx == PublishedFx.Heat &&
                     ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not OrdinaryGameplayRenderLayer heat ||
                     heat.Bg2LineScrolls.Vertical.CountDistinct() != 3))

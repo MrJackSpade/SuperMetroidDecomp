@@ -154,28 +154,9 @@ internal static class Program
                 SimulationProfile.Run();
                 return;
             }
-            // Every archived reported frame renders identically in software and on both D3D11 devices.
-            if (args is ["--frame-fixtures"])
-            {
-                string[] frames = Directory.GetFiles(Path.Combine("csharp", "test-fixtures"), "*.smframe", SearchOption.AllDirectories);
-                if (frames.Length == 0) throw new InvalidDataException("No archived .smframe fixtures were found.");
-                foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
-                {
-                    using var device = new D3D11RenderDevice(kind);
-                    using var renderer = new D3D11FrameRenderer(device);
-                    foreach (string path in frames)
-                    {
-                        var frame = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(path));
-                        PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
-                            $"{kind}: {device.AdapterDescription}; {Path.GetFullPath(path)}");
-                    }
-                    Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frames.Length} archived frames.");
-                }
-                return;
-            }
             // No argument runs the device contract suite: shader failure, readback, solid compute and threading.
             if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--sprite-draw-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
-                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --sprite-draw-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --frame-fixtures]");
+                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --sprite-draw-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio]");
             foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
             {
                 using var device = new D3D11RenderDevice(kind);

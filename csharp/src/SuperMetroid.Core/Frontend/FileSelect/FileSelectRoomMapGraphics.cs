@@ -87,6 +87,7 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native OAM order without advancing animations.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: FileSelectRoomMapGraphics.PrepareIcons until #1358 moves it onto sprite entries")]
     private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {
@@ -122,7 +123,7 @@ public sealed class FileSelectRoomMapGraphics
             layers.Add(new ObjRenderLayer());
         }
         else { oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame(); }
-        return new(PpuMemorySnapshot.Capture(Vram, Cgram, oam), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
+        return new(PpuMemorySnapshot.CaptureFrontend(Vram, Cgram, oam, FileSelectMapRomData.ObjectSelection), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness);
     }
 }

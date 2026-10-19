@@ -163,9 +163,8 @@ RTX 3090 and WARP, plus wrong-thread rejection, in Debug and Release. These resu
 are functional checks, not performance gates or a claim that the game renders on GPU.
 
 `--tile-smoke` additionally checks 108 geometry/priority/scroll/transparency/color
-cases plus a focused packed-byte regression on both devices. `--frame-fixtures` (every archived `.smframe`)
---device hardware|warp` compares a portable fixture on the explicitly selected device.
-Failures write the packet, expected/actual/difference PNGs, first pixel, mismatch count
+cases plus a focused packed-byte regression on both devices.
+Failures write expected/actual/difference PNGs, first pixel, mismatch count
 and bounding rectangle into a unique `csharp/test-temp/render-comparison` directory.
 Unsupported layer types fail before GPU submission; there is no raster fallback.
 

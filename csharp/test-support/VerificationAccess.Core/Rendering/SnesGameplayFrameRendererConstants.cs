@@ -27,7 +27,7 @@ internal static class SnesGameplayFrameRendererConstants
     /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
     /// conspicuous failure this dedicated path prevents.
     /// </remarks>
-    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, byte obsel = SnesGameplayFrameRenderer.DefaultObjectSelection, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = SnesGameplayFrameRenderer.CreateBackdrop(cgram, outputBuffer);
         SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
@@ -37,7 +37,7 @@ internal static class SnesGameplayFrameRendererConstants
         // DrawHudAndObjects replaces its upper band with BG3 rather than cropping a separate
         // 192-line transform whose Y coordinate would incorrectly restart at zero.
 
-        DrawHudAndObjects(output, vram, cgram, sprites, obsel);
+        DrawHudAndObjects(output, vram, cgram, sprites);
         return output;
     }
     /// <summary>
@@ -57,7 +57,7 @@ internal static class SnesGameplayFrameRendererConstants
         using var scratch = new RenderScratch();
         Rgba32[] mode7 = scratch.Colors(SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height);
         SnesMode7Renderer.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
-        ResolvedObjFrame objects = scratch.ResolveObjects(sprites, vram, cgram, obsel);
+        ResolvedObjFrame objects = scratch.ResolveObjects(sprites, cgram);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
         // scanlines 32..207 in Mode 7 with BG1/BG2/OBJ selected. The existing Mode-7
@@ -396,8 +396,7 @@ internal static class SnesGameplayFrameRendererConstants
         Rgba32[] output,
         SnesVram vram,
         SnesCgram cgram,
-        SpriteFrameBuffer sprites,
-        byte obsel)
+        SpriteFrameBuffer sprites)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -414,7 +413,7 @@ internal static class SnesGameplayFrameRendererConstants
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(sprites), vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
+            SnesObjRenderer.RenderResolved(sprites.Draws, cgram, new ObjRasterTargets(objectPixels, objectPriorities));
             for (int pixel = SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width; pixel < output.Length; pixel++)
             {
                 // Every resolved OBJ priority is above Mode 7 in this PPU configuration.

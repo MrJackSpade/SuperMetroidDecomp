@@ -54,4 +54,6 @@ public enum SpriteSourceKind
     MotherBrainBrain,
     /// <summary>A Mother Brain neck joint; the instance is the joint, 0 nearest the brain through 4 at the body.</summary>
     MotherBrainNeck,
+    /// <summary>A frontend screen's OAM records, converted until #1358 moves the frontend writers onto sprite entries.</summary>
+    FrontendObjects,
 }

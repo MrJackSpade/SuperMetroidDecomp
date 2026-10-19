@@ -1063,7 +1063,7 @@ internal static class RidleyFullMovieVerification
                     if (cannon.SpriteWritten)
                         AssertTrue(ContainsMovieCannonSprite(portImage.LowTable, portImage.HighTable, cannon),
                             $"update {frame}: port frame contains reference cannon sprite");
-                    SpriteDraw[] covers = [.. runtime.Sprites.Draws.Select(ordered => ordered.Draw)
+                    SpriteDraw[] covers = [.. runtime.Sprites.Draws
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)

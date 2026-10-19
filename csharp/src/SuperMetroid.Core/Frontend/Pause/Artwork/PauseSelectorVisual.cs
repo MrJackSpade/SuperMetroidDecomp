@@ -64,6 +64,7 @@ internal sealed class PauseSelectorVisual
     }
 
     /// <summary>Draws the recognized selector in native OAM order or delegates an edited composition, applying caller palette bits.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: PauseSelectorVisual.DrawOnScreen until #1358 moves it onto sprite entries")]
     internal void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }

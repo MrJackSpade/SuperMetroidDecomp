@@ -9,7 +9,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks Mother Brain ascent's per-line layer mask, floor occlusion, and CPU/GPU packet parity.</summary>
 internal static class MotherBrainAscentMaskTests
 {
-    /// <summary>Compares ascent and ordinary visibility at representative band and floor pixels after packet round-trip.</summary>
+    /// <summary>Compares ascent and ordinary visibility at representative band and floor pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -25,9 +25,9 @@ internal static class MotherBrainAscentMaskTests
         }
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x2002, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
-        var oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
-        var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
+        var memory = PpuMemorySnapshot.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
@@ -43,8 +43,6 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
-            PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "ascent mask packet round trip");
             var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.None, AddSubscreen = false, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 });
             var mathScene = new LayeredRenderSnapshot(memory, [math], 0, 15);
             var mathPacket = new RenderFrameSnapshot(new(2, 1, 0), mathScene);
@@ -57,6 +55,6 @@ internal static class MotherBrainAscentMaskTests
                     throw new InvalidDataException($"Mother Brain {property} at {x},{y}: expected palette {color}.");
             }
         }
-        Console.WriteLine($"{device.Kind}: Mother Brain ascent bands, floor occlusion, removal and packet round trip passed.");
+        Console.WriteLine($"{device.Kind}: Mother Brain ascent bands, floor occlusion and removal passed.");
     }
 }

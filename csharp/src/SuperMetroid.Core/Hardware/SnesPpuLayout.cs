@@ -74,12 +74,4 @@ public static class SnesPpuLayout
     /// <summary>Size of OAM's four-byte-per-OBJ low table.</summary>
     [PpuLayoutAccess]
     public const int OamLowTableByteCount = OamSpriteCount * 4;
-
-    /// <summary>Size of OAM's two-bits-per-OBJ high table.</summary>
-    [PpuLayoutAccess]
-    public const int OamHighTableByteCount = OamSpriteCount / 4;
-
-    /// <summary>Complete low-plus-high OAM DMA payload.</summary>
-    [PpuLayoutAccess]
-    public const int OamUploadByteCount = OamLowTableByteCount + OamHighTableByteCount;
 }

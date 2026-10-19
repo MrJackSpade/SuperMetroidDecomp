@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -27,9 +26,9 @@ internal static class GameplaySnapshotTestsVerification
         random.NextBytes(bytes);
         ushort[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount)
             .Select(_ => (ushort)random.Next(32768)).ToArray();
-        byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
+        byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(oam);
-        var memory = new PpuMemorySnapshot(bytes, ToColors(palette), oam, 128);
+        var memory = PpuMemorySnapshot.FromOam(bytes, ToColors(palette), oam, 128, 3);
         var live = new SoftwarePpuSnapshotMemory(memory);
         int samples = 0;
         foreach (Extent16<TilemapCells> mapSize in new Extent16<TilemapCells>[] { new(64, 32), new(32, 64), new(64, 64) })
@@ -52,15 +51,10 @@ internal static class GameplaySnapshotTestsVerification
             Array.Fill(y, (ushort)5678);
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
-            AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
+            AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
-                byte[] old = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
-                    old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Bg2ViewportLayerVersion);
-                AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old),
-                    "older format cannot contain gameplay layer");
                 AssertThrows<ArgumentException>(() => new Bg2HdmaScrollTables(new ushort[1], default),
                     "reject partial gameplay HDMA");
                 AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,

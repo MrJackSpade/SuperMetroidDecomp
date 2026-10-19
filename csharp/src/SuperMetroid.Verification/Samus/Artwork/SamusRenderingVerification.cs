@@ -147,7 +147,7 @@ internal static void VerifySamusRenderingSlice()
     // spritemap origin, bound to the body characters this frame's transfers select.
     SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.TileTransfers.Artwork?.Spritemaps
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
-    SpriteDraw[] body = [.. oamFrame.Draws.Select(ordered => ordered.Draw).Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
+    SpriteDraw[] body = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
     foreach ((SpriteDraw draw, int index, int instance) in new[] {
         (body[0], samus.Presentation.TopSpritemapIndex, 0), (body[1], samus.Presentation.BottomSpritemapIndex, 1) })
@@ -257,7 +257,7 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep binding the bottom
     // characters the previous frame selected (characters 8-15 and 24-31), as retained VRAM did natively.
-    SpriteArtwork suitedBody = oamFrame.Draws.First(ordered => ordered.Draw.Source.Kind == SpriteSourceKind.Samus).Draw.Artwork;
+    SpriteArtwork suitedBody = oamFrame.Draws.First(draw => draw.Source.Kind == SpriteSourceKind.Samus).Artwork;
     int halfRow = SpriteArtwork.CharactersPerRow / 2 * SpriteArtwork.CharacterByteCount;
     foreach (int bottomHalf in new[] { 1, 3 })
         AssertTrue(suitedBody.Characters.Slice(bottomHalf * halfRow, halfRow).SequenceEqual(
@@ -592,7 +592,7 @@ internal static void VerifySamusArmCannon()
     AssertTrue(!cover.FlipX && !cover.FlipY, "direction two attributes leave cover unflipped");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
     // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw binds that tile directly.
-    SpriteArtwork coverTile = coverFrame.Draws[0].Draw.Artwork;
+    SpriteArtwork coverTile = coverFrame.Draws[0].Artwork;
     AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
             SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
         "pose record selects direction two, whose frame three binds the third cover tile");

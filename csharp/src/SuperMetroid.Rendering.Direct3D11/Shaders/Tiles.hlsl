@@ -13,7 +13,7 @@ cbuffer TileParameters : register(b0)
     uint Operation, TilemapWord, CharacterWord, HorizontalScroll;
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
-    uint AddB, ObjectCount, ObjectSelection, Reserved3;
+    uint AddB, MessageDarkIndex, Reserved14, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FillCharacterZero, FirstScanline, EndScanline;
@@ -135,7 +135,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         uint index = BgLayerColor(TilemapWord, id.xy);
         if (index == 0) return;
-        if (index == AddB || index == ObjectCount)
+        if (index == AddB || index == MessageDarkIndex)
         {
             uint word = index == AddB ? AddR : AddG;
             uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);

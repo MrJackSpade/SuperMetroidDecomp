@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
@@ -107,14 +108,14 @@ internal static class GameOptionsPresentationVerification
 
         GameOptionsPhase phaseBeforeRebind = stockMenu.Phase;
         int selectedBeforeRebind = stockMenu.SelectedItem;
-        byte cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Memory.Oam[0];
+        int cursorXBeforeRebind = stockMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X;
         stockMenu.BindMapPresentation(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "options content rebind preserves menu phase");
         AssertEqual(selectedBeforeRebind, stockMenu.SelectedItem,
             "options content rebind preserves selected row");
-        AssertEqual(unchecked((byte)(cursorXBeforeRebind + 8)),
-            stockMenu.CaptureRenderSnapshot().Memory.Oam[0],
+        AssertEqual(cursorXBeforeRebind + 8,
+            (int)stockMenu.CaptureRenderSnapshot().Memory.SpriteParts()[0].Part.Position.X,
             "options rebind applies edited cursor anchor without resetting state");
 
         stockMenu.Step(SnesButton.A);

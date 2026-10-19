@@ -8,7 +8,7 @@ internal static class SoftwareMode7GameplayRenderer
 {
     /// <summary>Composes backdrop, Mode-7 room, priority-ordered floor and OBJ bands, then writes the opaque BG3 HUD at physical scanlines.</summary>
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
-        Mode7GameplayRenderLayer layer, byte objectSelection, Rgba32[]? outputBuffer = null)
+        Mode7GameplayRenderLayer layer, Rgba32[]? outputBuffer = null)
     {
         const int width = SnesPpuLayout.ScreenWidthPixels;
         const int height = SnesPpuLayout.ScreenHeightPixels;
@@ -17,7 +17,7 @@ internal static class SoftwareMode7GameplayRenderer
         Rgba32[] mode7 = scratch.Colors(width * height);
         SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram, m);
         // Resolve the winning OAM record once, before choosing its layer priority.
-        ResolvedObjFrame objects = scratch.ResolveObjects(memory, objectSelection);
+        ResolvedObjFrame objects = scratch.ResolveObjects(memory);
         int floorStart = layer.Floor?.FirstScanline ?? height;
         for (int i = layer.HudScanlines * width; i < floorStart * width; i++)
         {

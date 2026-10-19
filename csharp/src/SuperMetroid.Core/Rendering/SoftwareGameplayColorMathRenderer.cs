@@ -10,7 +10,7 @@ public static class SoftwareGameplayColorMathRenderer
 {
     /// <summary>Renders gameplay color math using pooled OBJ and priority scratch arrays.</summary>
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
-        byte objectSelection, Rgba32[]? outputBuffer)
+        Rgba32[]? outputBuffer)
     {
         if (layer.Gameplay.Registers.MainScreenWindowMask != SnesMainScreenLayers.None)
             throw new NotSupportedException("Combining captured hardware windows with gameplay color math is not translated.");
@@ -25,7 +25,7 @@ public static class SoftwareGameplayColorMathRenderer
             try
             {
                 var palettes = ArrayPool<byte>.Shared.Rent(count);
-                try { return RenderWithScratch(memory, layer, objectSelection, output, objects, priorities, palettes); }
+                try { return RenderWithScratch(memory, layer, output, objects, priorities, palettes); }
                 finally { ArrayPool<byte>.Shared.Return(palettes); }
             }
             finally { ArrayPool<byte>.Shared.Return(priorities); }
@@ -35,7 +35,7 @@ public static class SoftwareGameplayColorMathRenderer
 
     /// <summary>Resolves Mode-1 main layers, reveal windows, subscreen operands, and fixed-color arithmetic per pixel.</summary>
     private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
-        byte objectSelection, Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
+        Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
     {
         var r = layer.Gameplay.Registers;
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
@@ -52,7 +52,7 @@ public static class SoftwareGameplayColorMathRenderer
             r.Bg2CharacterWord, r.Bg2MapSize, true);
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
             subLayer.TilemapWord, subLayer.CharacterWord, new Extent16<TilemapCells>(32, checked((ushort)subLayer.MapHeightTiles)), false) : null;
-        SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram, objectSelection, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
+        SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
             output[y * width + x] = hud.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), opaqueZero: true).Color;

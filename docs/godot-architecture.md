@@ -392,8 +392,8 @@ Repainting or attaching a view must not advance simulation or rerun draw side ef
 When stock rendering semantics depend on sprite priority, palette arithmetic,
 windows, scanline effects, or Mode 7, prefer a presentation backend that implements
 those semantics explicitly. Ordinary Godot sprite composition is suitable only
-where it preserves the required result. Existing software output and
-[render packets](../csharp/RENDER_PACKET_FORMAT.md) are useful staged boundaries.
+where it preserves the required result. Existing software output and the published
+frame description (whole-frame sprite entries bound to their artwork) are useful staged boundaries.
 
 ## Sprite and animation migration
 

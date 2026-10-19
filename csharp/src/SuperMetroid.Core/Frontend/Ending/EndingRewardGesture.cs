@@ -41,6 +41,7 @@ internal sealed class EndingRewardGesture
     }
 
     /// <summary>Draws current actors into a supplied OAM frame or creates and finalizes a standalone frame.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: EndingRewardGesture.Draw until #1358 moves it onto sprite entries")]
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();

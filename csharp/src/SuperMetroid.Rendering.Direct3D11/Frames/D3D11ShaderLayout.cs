@@ -2,7 +2,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>CPU/HLSL upload-layout identities; changes require matching shader and verification changes.</summary>
-[PpuLayoutBoundary("codec: GPU upload layout of the VRAM/CGRAM/OAM render snapshot")]
+[PpuLayoutBoundary("codec: GPU upload layout of the VRAM/CGRAM render snapshot")]
 internal static class D3D11ShaderLayout
 {
     /// <summary>Four control words precede the variable brightness-pass levels in the solid shader buffer.</summary>
@@ -35,8 +35,6 @@ internal static class D3D11ShaderLayout
     internal const string DisplayPixelResourceName = "SuperMetroid.Shaders.DisplayPixel.cso";
     /// <summary>Number of 32-bit upload words occupied by the VRAM snapshot.</summary>
     internal const int VramPackedWords = Core.Hardware.SnesPpuLayout.VramByteCount / sizeof(uint);
-    /// <summary>Start of the OAM snapshot after packed VRAM and one word per CGRAM color.</summary>
-    internal const int OamPackedWordOffset = VramPackedWords + Core.Hardware.SnesPpuLayout.CgramColorCount;
-    /// <summary>Total upload words needed for VRAM, CGRAM, and packed OAM.</summary>
-    internal const int PpuMemoryWords = OamPackedWordOffset + Core.Hardware.SnesPpuLayout.OamUploadByteCount / sizeof(uint);
+    /// <summary>Total upload words needed for VRAM and one word per CGRAM color.</summary>
+    internal const int PpuMemoryWords = VramPackedWords + Core.Hardware.SnesPpuLayout.CgramColorCount;
 }

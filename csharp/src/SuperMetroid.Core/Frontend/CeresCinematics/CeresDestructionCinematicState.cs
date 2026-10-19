@@ -886,7 +886,7 @@ internal sealed class CeresDestructionCinematicState
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
+        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
@@ -896,6 +896,7 @@ internal sealed class CeresDestructionCinematicState
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 
     /// <summary>Draws live actors into OAM, retaining native slot order when Ceres explosions recycle slots.</summary>
+    [PpuLayoutBoundary("frontend OAM writer: CeresDestructionCinematicState.PrepareRenderOam until #1358 moves it onto sprite entries")]
     private OamBuffer PrepareRenderOam()
     {
         var oam = new OamBuffer();

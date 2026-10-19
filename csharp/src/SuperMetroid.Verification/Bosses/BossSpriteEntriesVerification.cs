@@ -37,11 +37,10 @@ internal static class BossSpriteEntriesVerification
         sprites.BeginFrame();
         enemies.DeadTorizoBehavior.DrawDeadTorizoHook(sprites, EnemyFormatDrawAccess.BlankObjectPage, DeadTorizoCamera);
         sprites.FinalizeFrame();
-        AssertEqual(0, sprites.Oam.LastFinalizedSpriteCount, "Dead Torizo's hook writes no OAM");
-        OrderedSpriteDraw corpse = sprites.Draws.Single();
-        AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoHook), corpse.Draw.Source, "Dead Torizo's hook names its source");
-        AssertTrue(ReferenceEquals(EnemyFormatDrawAccess.BlankObjectPage, corpse.Draw.Artwork), "Dead Torizo's hook draws over the OBJ page");
-        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Draw.Origin,
+        SpriteDraw corpse = sprites.Draws.Single();
+        AssertEqual(new SpriteSource(SpriteSourceKind.DeadTorizoHook), corpse.Source, "Dead Torizo's hook names its source");
+        AssertTrue(ReferenceEquals(EnemyFormatDrawAccess.BlankObjectPage, corpse.Artwork), "Dead Torizo's hook draws over the OBJ page");
+        AssertEqual(new Position16<ScreenPixels>(unchecked((ushort)(296 - DeadTorizoCamera.X)), unchecked((ushort)(187 - DeadTorizoCamera.Y))), corpse.Origin,
             "Dead Torizo's hook frame sits at its fixed room point");
 
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
@@ -108,12 +107,11 @@ internal static class BossSpriteEntriesVerification
         sprites.BeginFrame();
         enemies.CeresRidleyBehavior.DrawRidleySupplementalSprites(sprites, EnemyFormatDrawAccess.BlankObjectPage, slot, Position16<RoomPixels>.Zero);
         sprites.FinalizeFrame();
-        AssertEqual(0, sprites.Oam.LastFinalizedSpriteCount, "Ridley's supplements write no OAM");
         SpriteSource[] expected = [.. new[] { 6, 5, 4, 3, 2, 1, 0 }.Select(segment => new SpriteSource(SpriteSourceKind.RidleyTail, segment)),
             new SpriteSource(SpriteSourceKind.RidleyWings)];
-        AssertTrue(sprites.Draws.Select(draw => draw.Draw.Source).SequenceEqual(expected),
+        AssertTrue(sprites.Draws.Select(draw => draw.Source).SequenceEqual(expected),
             "Ridley publishes the tail tip, then segments five to the base, then the wings");
-        AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Draw.Origin, "The tail tip sits at its segment's screen point");
+        AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
         CeresEscapeTileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeTileCharacters characters = CeresEscapeTileCharacters.ForTransfer(warning.SourceAddress + 64, 128)

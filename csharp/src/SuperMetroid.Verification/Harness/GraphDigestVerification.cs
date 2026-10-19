@@ -92,12 +92,4 @@ internal static class GraphDigestVerification
     /// <summary>Renders a layered scene into shared scratch pixels for an immediate comparison.</summary>
     internal static SuperMetroid.Core.Hardware.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredRenderSnapshot frame) =>
         SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
-    /// <summary>SHA-256 of a render packet's encoding, streamed without a serialized copy.</summary>
-    internal static byte[] PacketDigest(SuperMetroid.Core.Rendering.RenderFrameSnapshot frame)
-    {
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        using (var stream = new HashingStream(hash))
-            SuperMetroid.TestSupport.RepositoryInstallation.Verification.RenderFrameSnapshotWriter.Serialize(frame, stream);
-        return hash.GetHashAndReset();
-    }
 }

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Areas.Maridia;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -73,6 +74,12 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
     /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>
     public TourianStatueSequence? TourianStatues { get; set; }
 
+    /// <summary>The elevatube room main, once the header step has built it.</summary>
+    public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; set; }
+
+    /// <summary>The Ceres elevator shaft room main, once the header step has built it.</summary>
+    public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; set; }
+
     /// <summary>The PLM system, once the PLM population step has built it.</summary>
     public RoomPlmSystem? Plms { get; set; }
 
@@ -101,6 +108,8 @@ internal sealed class RoomScopeConstruction(CartridgeDoorHeader door, CartridgeR
         TreadmillTiles = TreadmillTiles ?? throw Missing(nameof(TreadmillTiles)),
         WreckedShipTreadmill = WreckedShipTreadmill ?? throw Missing(nameof(WreckedShipTreadmill)),
         TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
+        MaridiaElevatube = MaridiaElevatube ?? throw Missing(nameof(MaridiaElevatube)),
+        CeresElevatorShaft = CeresElevatorShaft ?? throw Missing(nameof(CeresElevatorShaft)),
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),
     };

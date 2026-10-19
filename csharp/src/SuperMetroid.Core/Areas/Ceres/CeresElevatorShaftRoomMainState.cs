@@ -42,10 +42,12 @@ public sealed class CeresElevatorShaftRoomMainState
     public SamusMode7Transform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
-    /// Selects whether this room owns <c>$89:ACC3</c>. An active entry is the elevator door,
-    /// whose ASM <c>$8F:E4E0</c> writes the rotation index and timer.
+    /// Builds one room's shaft owner, selecting whether the room owns <c>$89:ACC3</c>. An active entry is the elevator
+    /// door, whose ASM <c>$8F:E4E0</c> writes the rotation index and timer.
     /// </summary>
-    public void Reset(bool active, RoomMainScratchState scratch)
+    /// <param name="active">Whether the room's main routine is the shaft and its entry door uses Mode 7.</param>
+    /// <param name="scratch">The session's RoomMainASMVar1, which receives the initial rotation index.</param>
+    public CeresElevatorShaftRoomMainState(bool active, RoomMainScratchState scratch)
     {
         Ensure.NotNull(scratch);
         IsActive = active;
@@ -54,10 +56,12 @@ public sealed class CeresElevatorShaftRoomMainState
             scratch.Var1 = InitialRotationIndex;
             RotationTimer = NativeCountdown.Start(InitialRotationTimer);
         }
-        DepartureRequested = false;
-        DepartureRequestedThisFrame = false;
-        Transform = CreateInitialTransform();
     }
+
+    /// <summary>
+    /// Door setup code leaving the elevator's Mode-7 rendering: the destination's shaft no longer owns the room.
+    /// </summary>
+    public void Deactivate() => IsActive = false;
 
     /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>

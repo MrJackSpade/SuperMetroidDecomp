@@ -23,8 +23,6 @@ internal sealed record DoorTransitionRunnerDependencies
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
-    /// <summary>Ceres elevator shaft.</summary>
-    public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
@@ -38,8 +36,6 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Hdma phase.</summary>
     public required HdmaObjectPhase HdmaPhase { get; init; }
 
-    /// <summary>Maridia elevatube.</summary>
-    public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
     public required FrameClock Clock { get; init; }

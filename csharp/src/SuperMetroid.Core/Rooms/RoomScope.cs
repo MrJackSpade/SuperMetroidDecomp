@@ -9,6 +9,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Areas.Maridia;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -72,6 +73,12 @@ internal sealed record RoomScope
 
     /// <summary>The room's Tourian statue tile programs and descent, enabled only in the statue room.</summary>
     public required TourianStatueSequence TourianStatues { get; init; }
+
+    /// <summary>The room's Maridia elevatube room main, active only in the elevatube.</summary>
+    public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
+
+    /// <summary>The room's Ceres elevator shaft room main, active only when the elevator door enters it.</summary>
+    public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
     /// <summary>The room's PLM population and the family owners that run it.</summary>
     public required RoomPlmSystem Plms { get; init; }

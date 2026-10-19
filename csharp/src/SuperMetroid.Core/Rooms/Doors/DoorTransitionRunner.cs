@@ -25,8 +25,6 @@ internal sealed class DoorTransitionRunner
     private readonly GameplayActorDrawing _actorDrawing;
     /// <summary>Provides scroll state to the enemy projectile pass.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Clears the Ceres elevator Mode 7 room state on its exit door.</summary>
-    private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
     /// <summary>Holds active and NMI-published display transforms across transitions.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Runs enemy projectile instructions and checks elevator drawing state.</summary>
@@ -35,8 +33,6 @@ internal sealed class DoorTransitionRunner
     private readonly EnemyFramePhase _enemyPhase;
     /// <summary>Advances HDMA pre-instructions during the main-loop door prologue.</summary>
     private readonly HdmaObjectPhase _hdmaPhase;
-    /// <summary>Sets and resets the Maridia elevatube room behavior at its doors.</summary>
-    private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
     /// <summary>Provides native frame counters to enemy projectile processing.</summary>
     private readonly FrameClock _clock;
     /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
@@ -57,12 +53,10 @@ internal sealed class DoorTransitionRunner
     {
         _actorDrawing = dependencies.ActorDrawing;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _ceresElevatorShaft = dependencies.CeresElevatorShaft;
         _display = dependencies.Display;
         _enemies = dependencies.Enemies;
         _enemyPhase = dependencies.EnemyPhase;
         _hdmaPhase = dependencies.HdmaPhase;
-        _maridiaElevatube = dependencies.MaridiaElevatube;
         _clock = dependencies.Clock;
         _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
@@ -81,7 +75,7 @@ internal sealed class DoorTransitionRunner
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
-    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
+    internal void RunDoorSetupCode(CartridgeDoorHeader door, RoomPlmSystem plms, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -118,7 +112,7 @@ internal sealed class DoorTransitionRunner
                 // the cartridge routine that owns the transition back to normal rendering.
                 _display.ActiveSamusMode7Transform = null;
                 _display.PublishDoorMode7(null);
-                _ceresElevatorShaft.Reset(active: false, _room.RoomMainScratch);
+                ceresElevatorShaft.Deactivate();
                 return;
 
             case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
@@ -130,16 +124,16 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
-                SetUpMaridiaElevatube(fromSouth: true, plms);
+                SetUpMaridiaElevatube(fromSouth: true, plms, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
-                SetUpMaridiaElevatube(fromSouth: false, plms);
+                SetUpMaridiaElevatube(fromSouth: false, plms, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
             case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
-                _maridiaElevatube.ResetOnExit(_player.Samus ?? throw new InvalidOperationException(
+                maridiaElevatube.ResetOnExit(_player.Samus ?? throw new InvalidOperationException(
                     "Maridia elevatube exit setup requires an active Samus state."));
                 return;
 
@@ -172,7 +166,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
-    private void SetUpMaridiaElevatube(bool fromSouth, RoomPlmSystem plms)
+    private void SetUpMaridiaElevatube(bool fromSouth, RoomPlmSystem plms, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
@@ -180,9 +174,9 @@ internal sealed class DoorTransitionRunner
             "Maridia elevatube setup requires an active Samus state.");
 
         if (fromSouth)
-            _maridiaElevatube.SetUpFromSouth(samus);
+            maridiaElevatube.SetUpFromSouth(samus);
         else
-            _maridiaElevatube.SetUpFromNorth(samus);
+            maridiaElevatube.SetUpFromNorth(samus);
 
         // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
         // occupied. Retaining the bool-returning allocator preserves that cartridge edge.

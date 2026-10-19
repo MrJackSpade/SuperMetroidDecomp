@@ -72,6 +72,12 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>The loaded room's Wrecked Ship treadmill tiles.</summary>
         internal WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill => self.Room.LoadedScope.WreckedShipTreadmill;
 
+        /// <summary>The loaded room's Maridia elevatube room main.</summary>
+        internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube;
+
+        /// <summary>The loaded room's Ceres elevator shaft room main.</summary>
+        internal CeresElevatorShaftRoomMainState CeresElevatorShaft => self.Room.LoadedScope.CeresElevatorShaft;
+
         /// <summary>The loaded room's Tourian statue sequence.</summary>
         internal TourianStatueSequence TourianStatues => self.Room.LoadedScope.TourianStatues;
 

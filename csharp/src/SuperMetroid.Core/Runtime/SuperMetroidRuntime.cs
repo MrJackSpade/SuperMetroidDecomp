@@ -167,10 +167,10 @@ internal sealed class SuperMetroidRuntime
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Clock = Clock, Oam = Oam, Player = Player, Room = Room, VramWrites = VramWrites});
         HdmaPhase = new HdmaObjectPhase(Freeze, System);
-        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Enemies, Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, CeresElevatorShaft = CeresElevatorShaft, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, GameplayWindows = GameplayWindows, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, Vram = Vram, VramWrites = VramWrites});
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites});
@@ -376,19 +376,11 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room's layer-3 FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
-    /// <summary>
-    /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
-    /// debugger watches can inspect its signed rotation phase, but every room load resets
-    /// and explicitly activates or deactivates it from the cartridge room-state pointer.
-    /// </summary>
-    public CeresElevatorShaftRoomMainState CeresElevatorShaft { get; } = new();
 
 
 
 
 
-    /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
-    public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
 
 
     /// <summary>The held beam charge, flare and charge palette, which survive room loads; each room's projectiles share it.</summary>
@@ -960,11 +952,11 @@ internal sealed class SuperMetroidRuntime
 
         // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
         // It runs at the common room-main seam after gameplay drawing and before shaking.
-        if (MaridiaElevatube.IsActive)
+        if (Room.LoadedScope.MaridiaElevatube.IsActive)
         {
             if (Room.LevelData is null)
                 throw new InvalidOperationException("Maridia elevatube has no active room level.");
-            _ = MaridiaElevatube.Step(
+            _ = Room.LoadedScope.MaridiaElevatube.Step(
 
                 Room.LevelData,
                 Player.Samus,
@@ -977,7 +969,7 @@ internal sealed class SuperMetroidRuntime
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres routine publishes a matrix for the following frame's presentation and may
         // change the outer dispatcher to state $20 only when its caller is state eight.
-        RoomMains.LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
+        RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: policy.AllowCeresElevatorDeparture,

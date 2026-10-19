@@ -31,10 +31,11 @@ public sealed class MaridiaElevatubeRoomMainState
     public SnesSignedEightEight Acceleration { get; private set; }
 
     /// <summary>
-    /// Selects whether $E2B6 owns this room. Room loading leaves the room-main words as they
-    /// were; the door callbacks initialize the ones this routine reads.
+    /// Builds one room's elevatube owner, selecting whether $E2B6 owns the room. The door callbacks initialize the
+    /// room-main words this routine reads.
     /// </summary>
-    public void Reset(bool active) => IsActive = active;
+    /// <param name="active">Whether the room state names main routine $8F:E2B6.</param>
+    public MaridiaElevatubeRoomMainState(bool active) => IsActive = active;
 
     /// <summary>Applies door callback $8F:E26C for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)

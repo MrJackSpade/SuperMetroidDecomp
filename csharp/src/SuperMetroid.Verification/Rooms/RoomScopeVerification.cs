@@ -81,6 +81,10 @@ internal static class RoomScopeVerification
             !ReferenceEquals(source.WreckedShipTreadmill, destination.WreckedShipTreadmill) &&
             !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
             "the destination builds its own FX, animated tiles, haze and statue sequence");
+        VerificationAssert.AssertTrue(!ReferenceEquals(source.MaridiaElevatube, destination.MaridiaElevatube) &&
+            !ReferenceEquals(source.CeresElevatorShaft, destination.CeresElevatorShaft) &&
+            !destination.MaridiaElevatube.IsActive && !destination.CeresElevatorShaft.IsActive,
+            "the destination builds its own room mains, inactive in a room that does not select them");
         VerificationAssert.AssertTrue(ReferenceEquals(source.Layer3Fx.FixedColors, destination.Layer3Fx.FixedColors) &&
             ReferenceEquals(source.Layer3Fx.Fireflea, destination.Layer3Fx.Fireflea) &&
             ReferenceEquals(runtime.RoomFx.FixedColors, destination.Layer3Fx.FixedColors),

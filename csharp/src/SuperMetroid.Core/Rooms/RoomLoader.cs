@@ -42,8 +42,6 @@ internal sealed class RoomLoader
     private readonly BackgroundScrollPhase _backgroundPhase;
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Owns the Ceres elevator shaft's room-specific startup state.</summary>
-    private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
     /// <summary>Receives room and player palette data during a load.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
@@ -66,8 +64,6 @@ internal sealed class RoomLoader
     private readonly HudState _hud;
     /// <summary>Initializes the HUD presentation after room assets are available.</summary>
     private readonly GameplayHudSetup _hudSetup;
-    /// <summary>Owns Maridia elevatube room setup during a load.</summary>
-    private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
     /// <summary>Receives the door IRQ's request to advance the NMI counter.</summary>
     private readonly FrameClock _clock;
     /// <summary>Restores the saved controller and movement options.</summary>
@@ -106,7 +102,6 @@ internal sealed class RoomLoader
         _artwork = dependencies.Artwork;
         _backgroundPhase = dependencies.BackgroundPhase;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _ceresElevatorShaft = dependencies.CeresElevatorShaft;
         _cgram = dependencies.Cgram;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
@@ -118,7 +113,6 @@ internal sealed class RoomLoader
         _gameTime = dependencies.GameTime;
         _hud = dependencies.Hud;
         _hudSetup = dependencies.HudSetup;
-        _maridiaElevatube = dependencies.MaridiaElevatube;
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
@@ -850,12 +844,14 @@ internal sealed class RoomLoader
         _hudSetup.SelectGameplayHudCharacterBase();
         var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
-        _maridiaElevatube.Reset(
+        var maridiaElevatube = new MaridiaElevatubeRoomMainState(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
-        _ceresElevatorShaft.Reset(
+        scope.MaridiaElevatube = maridiaElevatube;
+        var ceresElevatorShaft = new CeresElevatorShaftRoomMainState(
             active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
                 door.UsesCeresElevatorMode7,
             _room.RoomMainScratch);
+        scope.CeresElevatorShaft = ceresElevatorShaft;
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
@@ -1029,7 +1025,7 @@ internal sealed class RoomLoader
         // those programs rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetupCode(door, plms, wreckedShipTreadmill);
+        _doorTransition.RunDoorSetupCode(door, plms, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
         if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomPlm)
             plms.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)

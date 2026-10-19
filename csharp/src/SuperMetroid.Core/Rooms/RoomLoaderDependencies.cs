@@ -30,8 +30,6 @@ internal sealed record RoomLoaderDependencies
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
-    /// <summary>Ceres elevator shaft.</summary>
-    public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
 
     /// <summary>Cgram.</summary>
@@ -67,8 +65,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Hud setup.</summary>
     public required GameplayHudSetup HudSetup { get; init; }
 
-    /// <summary>Maridia elevatube.</summary>
-    public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
     public required FrameClock Clock { get; init; }

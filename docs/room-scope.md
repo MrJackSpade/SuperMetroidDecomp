@@ -86,6 +86,9 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   (`RoomPaletteFxSystem.ForRoom`); the header step builds the Wrecked Ship treadmill tiles a door's setup code may
   start; the post-enemy step builds the statue sequence. Owners that loaded in place have only construction-time
   loading now, so none can be reloaded. The host tester's Tourian unlock restarts the live room's statue sequence.
+- **Room mains never survive**: the header step builds the Maridia elevatube and Ceres elevator shaft owners, active
+  only where the room state selects them. Their room-main words other than `RoomMainASMVar1` are written before they
+  are read, so a fresh owner is the cartridge's state; door setup code acts on the destination's owners.
 - **Enemy projectiles are destroyed** (`EnemyProjectileEngine.ResetForRoom`, added with its comment in 9d81b919c).
 - **Stale Mode 7 math is cleared** on ordinary doors.
 - **Order-sensitive**: gate requests created during PLM setup are applied after `RoomEnemySystem.Load` clears the

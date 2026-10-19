@@ -15,9 +15,8 @@ internal static class CeresShaftRotationVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
-        var state = new CeresElevatorShaftRoomMainState();
         var scratch = new RoomMainScratchState();
-        state.Reset(active: true, scratch);
+        var state = new CeresElevatorShaftRoomMainState(active: true, scratch);
         var empty = new TestAddressSpace();
         ushort phaseWord = 34, timer = 60;
         int updates = 0;

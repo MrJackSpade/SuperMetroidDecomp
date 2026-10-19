@@ -128,9 +128,8 @@ internal static class CeresEscapeHandoffVerification
         // No rotation bytes are installed in this address space. The live matrix
         // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
-        var state = new CeresElevatorShaftRoomMainState();
         var scratch = new RoomMainScratchState();
-        state.Reset(active: true, scratch);
+        var state = new CeresElevatorShaftRoomMainState(active: true, scratch);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(32, 100));
@@ -165,9 +164,8 @@ internal static class CeresEscapeHandoffVerification
         Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
-        var trigger = new CeresElevatorShaftRoomMainState();
         var triggerScratch = new RoomMainScratchState();
-        trigger.Reset(active: true, triggerScratch);
+        var trigger = new CeresElevatorShaftRoomMainState(active: true, triggerScratch);
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));

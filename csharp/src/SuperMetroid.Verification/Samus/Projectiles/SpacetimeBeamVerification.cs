@@ -106,28 +106,20 @@ internal static class SpacetimeBeamVerification
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         projectiles.Overreads = InstalledFixtures.SamusOverreads;
-        var mirror = new SaveMirrorImage();
-        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
-        AssertTrue(!held.PersistentMemoryCorrupted,
-            "initial inherited Y=$0038 does not enter the palette-copy loop");
         AssertEqual((ushort)0x9137, projectiles.Slots[0].InstructionPointer,
             "native frame-zero next animation record");
-        AssertEqual(0xa11546b9u, HashProgression(mirror),
+        AssertEqual(0xa11546b9u, HashProgression(system),
             "native frame-zero progression hash");
 
-        system.WritePersistentMirror(mirror);
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = mirror }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
-        AssertTrue(released.PersistentMemoryCorrupted,
-            "prior shot's inherited Y=$912F crosses the persistent mirror");
-        system.LoadPersistentMirror(mirror);
-        AssertEqual(0x601b9b2cu, HashProgression(mirror),
+        AssertEqual(0x601b9b2cu, HashProgression(system),
             "retail frame-one progression hash");
         AssertEqual((ushort)0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
@@ -142,13 +134,13 @@ internal static class SpacetimeBeamVerification
             "save retains invalid SpaceTime equipment");
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        AssertTrue(saved.EventBytes.SequenceEqual(mirror.Events.ToArray()),
+        AssertTrue(saved.EventBytes.SequenceEqual(OwnedBytes(Bank80SystemState.EventByteCount, system.GetEventByteRaw)),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.SequenceEqual(mirror.BossBits.ToArray()),
+        AssertTrue(saved.BossBytes.SequenceEqual(OwnedBytes(Bank80SystemState.AreaCount, system.GetBossBitsRaw)),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.SequenceEqual(mirror.CollectedItemBits.ToArray()),
+        AssertTrue(saved.CollectedItemBytes.SequenceEqual(OwnedBytes(Bank80SystemState.ItemBitByteCount, system.GetCollectedItemByteRaw)),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(mirror.OpenedDoorBits.ToArray()),
+        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(OwnedBytes(Bank80SystemState.DoorBitByteCount, system.GetOpenedDoorByteRaw)),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
@@ -184,15 +176,23 @@ internal static class SpacetimeBeamVerification
                 "installed SpaceTime copy source agrees with supported cartridge");
     }
 
+    /// <summary>The <paramref name="count"/> bytes <paramref name="read"/> returns, in index order.</summary>
+    private static byte[] OwnedBytes(int count, Func<int, byte> read) => [.. Enumerable.Range(0, count).Select(read)];
+
     /// <summary>
     /// FNV-1a hash of the owned progression bytes from the event bitset through the map stations, in native mirror
-    /// order. The retail probe's hash also covered the eight unowned bytes after the door bits, which no game logic reads.
+    /// order. The retail probe's hash also covered the eight padding bytes after the door bits, which no game logic reads.
     /// </summary>
-    private static uint HashProgression(SaveMirrorImage mirror)
+    private static uint HashProgression(Bank80SystemState system)
     {
         uint hash = 2166136261;
-        foreach (byte value in (byte[])[.. mirror.Events, .. mirror.BossBits, .. mirror.RoomChozoBits,
-            .. mirror.CollectedItemBits, .. mirror.OpenedDoorBits, .. mirror.UsedSaveStations, .. mirror.MapStations])
+        foreach (byte value in (byte[])[.. OwnedBytes(Bank80SystemState.EventByteCount, system.GetEventByteRaw),
+            .. OwnedBytes(Bank80SystemState.AreaCount, system.GetBossBitsRaw),
+            .. OwnedBytes(Bank80SystemState.RoomChozoBitByteCount, system.GetRoomChozoByteRaw),
+            .. OwnedBytes(Bank80SystemState.ItemBitByteCount, system.GetCollectedItemByteRaw),
+            .. OwnedBytes(Bank80SystemState.DoorBitByteCount, system.GetOpenedDoorByteRaw),
+            .. OwnedBytes(Bank80SystemState.UsedSaveStationByteCount, system.GetUsedSaveStationByteRaw),
+            .. OwnedBytes(Bank80SystemState.MapStationByteCount, system.GetMapStationByteRaw)])
         {
             hash ^= value;
             hash *= 16777619;

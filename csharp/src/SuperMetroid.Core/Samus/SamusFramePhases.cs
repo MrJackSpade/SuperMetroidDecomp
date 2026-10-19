@@ -54,8 +54,6 @@ internal sealed class SamusFramePhases
     private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>
     private readonly SamusPoseTransitionPhase _transitions;
-    /// <summary>Opens the live persistent-progress mirror that malformed projectile callbacks may write.</summary>
-    private readonly SuperMetroid.Core.Saves.SaveMirrorImage _progressionMirror = new();
 
     /// <summary>Binds the frame owners required to preserve Samus's alpha, beta, and presentation ordering.</summary>
     internal SamusFramePhases(SamusFramePhasesDependencies dependencies)
@@ -379,16 +377,11 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // `$90:DD31` then dispatches the humanoid HUD producer before the same
             // HandleProjectile pass. Passing the live layer-1 position also gives
             // `$90:B16A` its exact off-screen deletion window.
-            // Bank-$80's typed progression owners and the cartridge's live SRAM
-            // mirror are normally equivalent. Publish them before bank-$90 alpha
-            // so malformed callback-table entries can perform their raw mirror
-            // writes, then reclaim ownership only when such a write occurred.
-            var progressionMirror = _progressionMirror;
-            _system.WritePersistentMirror(progressionMirror);
+            // A malformed callback-table entry (SpaceTime) stores raw bytes straight
+            // into bank-$80's progression owners during this pass, so later
+            // consumers this frame, and saves, observe them.
             SamusProjectileFrameResult projectileFrame = room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms,
-                ProgressionMirror = progressionMirror }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
-            if (projectileFrame.PersistentMemoryCorrupted)
-                _system.LoadPersistentMirror(progressionMirror);
+                Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
 
             if (!_freeze.TimeIsFrozen)
                 room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer.RawValue);

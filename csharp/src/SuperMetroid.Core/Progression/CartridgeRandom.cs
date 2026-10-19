@@ -9,10 +9,6 @@ public sealed class CartridgeRandom
     /// <summary>Creates the word with the game's power-on seed.</summary>
     public CartridgeRandom() => State = CartridgeRandomRomData.PowerOnState;
 
-    /// <summary>Creates the word with a chosen seed, so every input state can be checked against the original algorithm.</summary>
-    /// <param name="seed">The starting word, 0 through 65535.</param>
-    public CartridgeRandom(int seed) => State = new SharedRandomState(seed);
-
     /// <summary>The current state.</summary>
     public SharedRandomState State { get; private set; }
 

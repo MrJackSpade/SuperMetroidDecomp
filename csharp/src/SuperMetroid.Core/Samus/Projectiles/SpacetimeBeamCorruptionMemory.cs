@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -8,31 +8,27 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// progression and level data. Owner decision on #1318: only the progression slice (<c>$7E:D820-D91B</c>) is kept,
 /// exactly; the other regions are not replicated.
 /// </summary>
-internal readonly struct SpacetimeBeamCorruptionMemory(SaveMirrorImage progressionMirror, SamusOverreadCatalog overreads)
+internal readonly struct SpacetimeBeamCorruptionMemory(Bank80SystemState progression, SamusOverreadCatalog overreads)
 {
     /// <summary>
     /// Copies one word from <c>[$00],Y</c> (Y = <paramref name="sourceIndex"/>) to <c>$7E:C1C0,X</c> (X =
     /// <paramref name="destinationIndex"/>) with the native 24-bit address wrap, writing only the bytes that land in the
-    /// progression slice. Those are reached only with a large inherited Y, so their sources are bank-$00 cartridge bytes,
-    /// which the installed overread catalog holds.
+    /// progression slice, straight into their owners. Those are reached only with a large inherited Y, so their sources
+    /// are bank-$00 cartridge bytes, which the installed overread catalog holds.
     /// </summary>
-    /// <returns>True when the written word touched a translated persistent-progression or saved-entry byte.</returns>
-    internal bool CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
+    internal void CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
     {
         int sourceAddress = (SpacetimeBeamCorruptionLayout.SourceLongPointerValue + sourceIndex) & SnesCpuAddressLayout.AddressMask;
         int destinationAddress = (SpacetimeBeamCorruptionLayout.SpritePaletteSixAddress + destinationIndex) & SnesCpuAddressLayout.AddressMask;
-        bool progression = false;
         for (int offset = 0; offset < sizeof(ushort); offset++)
         {
             int destination = (destinationAddress + offset) & SnesCpuAddressLayout.AddressMask;
-            int mirrorOffset = destination - SpacetimeBeamCorruptionLayout.ProgressionMirrorAddress;
-            if (!SaveMirrorImage.HoldsOffset(mirrorOffset))
+            int sliceOffset = destination - SpacetimeBeamCorruptionLayout.ProgressionSliceAddress;
+            if (!Bank80SystemState.ProgressionSliceHolds(sliceOffset))
                 continue;
-            progressionMirror.WriteRawByte(mirrorOffset,
+            progression.WriteProgressionSliceByte(sliceOffset,
                 overreads.SpacetimeCopySourceByte(
                     ((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask) - SpacetimeBeamCopyDefinitions.FirstSourceAddress));
-            progression = true;
         }
-        return progression;
     }
 }

@@ -218,11 +218,8 @@ internal sealed class BeamCombos
     /// an irrelevant compare. It then increments the projectile loop's X and inherited Y
     /// before conditionally falling back into LoadBeamPalette's copy loop at $90:AD12.
     /// </summary>
-    /// <returns>
-    /// True when the copy touched a translated persistent-progression or saved-entry byte.
-    /// </returns>
-    internal static bool RunSpacetimePaletteCopyTail(
-        SuperMetroid.Core.Saves.SaveMirrorImage? progressionMirror,
+    internal static void RunSpacetimePaletteCopyTail(
+        SuperMetroid.Core.Progression.Bank80SystemState? progression,
         SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {
@@ -233,20 +230,16 @@ internal sealed class BeamCombos
                 SpacetimeBeamCorruptionLayout.AnimationRecordByteCount));
         ushort x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
         ushort y = unchecked((ushort)(inheritedY + sizeof(ushort)));
-        bool persistentMemoryCorrupted = false;
-
         while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
         {
-            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(
-                progressionMirror ?? throw new InvalidOperationException(
-                    "SpaceTime's palette-copy overwrite writes the progression mirror; the frame must pass it."),
+            new SpacetimeBeamCorruptionMemory(
+                progression ?? throw new InvalidOperationException(
+                    "SpaceTime's palette-copy overwrite writes progression; the frame must pass it."),
                 overreads ?? throw new InvalidOperationException(
                     "SpaceTime's palette-copy overwrite reads cartridge bytes; the Samus overread catalog must be installed.")).CopyPaletteWord(x, y);
             x = unchecked((ushort)(x + sizeof(ushort)));
             y = unchecked((ushort)(y + sizeof(ushort)));
         }
-
-        return persistentMemoryCorrupted;
     }
     /// <summary>Runs $90:DB06/$DC9C, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal ushort StepSpazerCombo(SamusState samus,

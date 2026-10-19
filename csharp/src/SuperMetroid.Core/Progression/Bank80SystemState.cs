@@ -121,13 +121,6 @@ public sealed class Bank80SystemState
     {
     }
 
-    /// <summary>Creates the bank-$80 state over its own random-number word with a chosen seed.</summary>
-    /// <param name="randomNumberSeed">The starting word, 0 through 65535.</param>
-    public Bank80SystemState(int randomNumberSeed)
-        : this(new CartridgeRandom(randomNumberSeed))
-    {
-    }
-
     /// <summary>Creates the bank-$80 state over the session's random-number word.</summary>
     /// <param name="random">The session's random-number word, which this state reads and advances.</param>
     public Bank80SystemState(CartridgeRandom random) => Random = Ensure.NotNull(random);
@@ -157,45 +150,47 @@ public sealed class Bank80SystemState
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The loaded-item count is a save field.");
     }
 
-    /// <summary>
-    /// Publishes the progression owners into the native mirror slice that malformed callbacks overwrite as raw
-    /// bytes. Bytes no owner holds are left as they are.
-    /// </summary>
-    public void WritePersistentMirror(SaveMirrorImage mirror)
-    {
-        _events.CopyTo(mirror.Events);
-        Span<byte> bossBytes = mirror.BossBits;
-        for (int area = 0; area < AreaCount; area++)
-            bossBytes[area] = _bossBitsByArea[area].ToNativeByte();
-        RoomChozoBits.CopyTo(mirror.RoomChozoBits);
-        _collectedItemBits.CopyTo(mirror.CollectedItemBits);
-        _openedDoorBits.CopyTo(mirror.OpenedDoorBits);
-        _usedSaveStationsAndElevators.CopyTo(mirror.UsedSaveStations);
-        _mapStations.CopyTo(mirror.MapStations);
-        mirror.LoadingGameState = SavedLoadingGameState;
-    }
+    /// <summary>Whether <paramref name="offset"/> from the event bitset lies in the persistent-progress slice.</summary>
+    internal static bool ProgressionSliceHolds(int offset) => offset is >= 0 and < ProgressionSliceLayout.ByteCount;
 
     /// <summary>
-    /// Reclaims the owners from the native mirror slice after a raw overwrite. This is a raw load, not bitwise
-    /// gameplay API use: every cartridge-written bit must survive.
+    /// Stores one raw byte at <paramref name="offset"/> from the event bitset into the persistent-progress slice
+    /// (<c>$7E:D820-$D91B</c>), in the native layout. SpaceTime's malformed palette copy overwrites progression this way
+    /// (#1318, #1330); every written bit survives. The padding after the opened-door bits is not state (owner decision
+    /// on #1330), so a store there changes nothing.
     /// </summary>
-    public void LoadPersistentMirror(SaveMirrorImage mirror)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> lies outside the slice.</exception>
+    internal void WriteProgressionSliceByte(int offset, byte value)
     {
-        mirror.Events.CopyTo(_events);
-        LoadBossBytes(mirror.BossBits);
-        mirror.RoomChozoBits.CopyTo(RoomChozoBits);
-        mirror.CollectedItemBits.CopyTo(_collectedItemBits);
-        mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
-        mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
-        mirror.MapStations.CopyTo(_mapStations);
-        SavedLoadingGameState = mirror.LoadingGameState;
+        if (!ProgressionSliceHolds(offset))
+            throw new ArgumentOutOfRangeException(nameof(offset), offset, "The offset lies outside the progression slice.");
+        if (offset < ProgressionSliceLayout.BossBitsOffset)
+            _events[offset - ProgressionSliceLayout.EventsOffset] = value;
+        else if (offset < ProgressionSliceLayout.RoomChozoBitsOffset)
+            _bossBitsByArea[offset - ProgressionSliceLayout.BossBitsOffset] = BossBitsCodec.FromNativeByte(value);
+        else if (offset < ProgressionSliceLayout.CollectedItemBitsOffset)
+            RoomChozoBits[offset - ProgressionSliceLayout.RoomChozoBitsOffset] = value;
+        else if (offset < ProgressionSliceLayout.OpenedDoorBitsOffset)
+            _collectedItemBits[offset - ProgressionSliceLayout.CollectedItemBitsOffset] = value;
+        else if (offset < ProgressionSliceLayout.PaddingOffset)
+            _openedDoorBits[offset - ProgressionSliceLayout.OpenedDoorBitsOffset] = value;
+        else if (offset < ProgressionSliceLayout.UsedSaveStationsOffset)
+            return;
+        else if (offset < ProgressionSliceLayout.MapStationsOffset)
+            _usedSaveStationsAndElevators[offset - ProgressionSliceLayout.UsedSaveStationsOffset] = value;
+        else if (offset < ProgressionSliceLayout.LoadingGameStateOffset)
+            _mapStations[offset - ProgressionSliceLayout.MapStationsOffset] = value;
+        else
+        {
+            ushort word = SaveFieldValue.Encode(SavedLoadingGameState, nameof(SavedLoadingGameState));
+            SavedLoadingGameState = offset == ProgressionSliceLayout.LoadingGameStateOffset
+                ? SnesLittleEndian.Word(value, SnesLittleEndian.HighByte(word))
+                : SnesLittleEndian.Word(SnesLittleEndian.LowByte(word), value);
+        }
     }
 
     /// <summary>The session's random-number word, WRAM <c>$05E5</c>.</summary>
     public CartridgeRandom Random { get; }
-
-    /// <summary>The shared RNG state, corresponding to WRAM <c>$05E5</c>.</summary>
-    public SharedRandomState RandomState => Random.State;
 
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();
@@ -257,7 +252,7 @@ public sealed class Bank80SystemState
     /// does, preserving the two byte-multiply results, high-byte addition carry,
     /// and final 16-bit wrapping addition. Every caller observes the updated seed.
     /// </summary>
-    /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="RandomState"/>.</returns>
+    /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>
     public int NextRandom() => Random.Generate();
 
     /// <summary>

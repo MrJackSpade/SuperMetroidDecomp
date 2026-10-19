@@ -416,7 +416,6 @@ public sealed class SamusProjectileSystem
             SlotTable.Slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
-        bool persistentMemoryCorrupted = false;
         List<SamusSoundRequest>? comboSounds = null;
 
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
@@ -499,7 +498,7 @@ public sealed class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.ProgressionMirror, Overreads, slot);
+                BeamCombos.RunSpacetimePaletteCopyTail(terrain.Progression, Overreads, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {
@@ -546,8 +545,7 @@ public sealed class SamusProjectileSystem
             queuedSound,
             queuedSoundMaximum,
             comboSounds?.ToArray(),
-            soundSuppressedAtProduction,
-            persistentMemoryCorrupted);
+            soundSuppressedAtProduction);
         return LastFrameResult;
     }
 

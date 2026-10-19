@@ -17,8 +17,8 @@ public readonly record struct SamusTerrain
     public RoomPlmSystem? Plms { get; init; }
 
     /// <summary>
-    /// The progression mirror SpaceTime's malformed palette copy overwrites (#1318), until #1330 gives progression a
-    /// single owner. Only the gameplay projectile frame passes it; SpaceTime fails loudly without it.
+    /// The session's progression, which SpaceTime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only
+    /// the gameplay projectile frame passes it; SpaceTime fails loudly without it.
     /// </summary>
-    public SuperMetroid.Core.Saves.SaveMirrorImage? ProgressionMirror { get; init; }
+    public SuperMetroid.Core.Progression.Bank80SystemState? Progression { get; init; }
 }

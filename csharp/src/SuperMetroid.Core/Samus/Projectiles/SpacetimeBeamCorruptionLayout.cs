@@ -16,8 +16,8 @@ public static class SpacetimeBeamCorruptionLayout
     /// </summary>
     public const int SpritePaletteSixAddress = 0x7ec1c0;
 
-    /// <summary>$7E:D820, the event bitset that starts the progression slice of the live SRAM mirror.</summary>
-    public const int ProgressionMirrorAddress = 0x7ed820;
+    /// <summary>$7E:D820, the event bitset that starts the persistent-progress slice of the SRAM mirror.</summary>
+    public const int ProgressionSliceAddress = 0x7ed820;
 
     /// <summary>$90:AD1C compares inherited Y against $0020 after incrementing it.</summary>
     public const ushort PaletteByteCount = 0x0020;

@@ -220,10 +220,12 @@ internal static class CrocomireMeltingDefinitionsVerification
             {
                 upload(state);
                 int source = record.SourceWord - 0x4000;
+                // The melt binds its characters (#1355); the image a capture shows composes them.
+                byte[] shown = BgArtworkFixtures.Composed(vram);
                 for (int index = 0; index < record.ByteCount; index++)
                 {
                     AssertEqual(expectedGraphics[source + index],
-                        vram.ReadByte(record.DestinationWord * 2 + index),
+                        shown[record.DestinationWord * 2 + index],
                         $"Crocomire melt pass ${pass.HeaderOffset:X4} VRAM byte {index}");
                 }
             }
@@ -316,9 +318,10 @@ internal static class CrocomireMeltingDefinitionsVerification
         {
             upload(state);
             int source = record.SourceWord - 0x4000;
+            byte[] shown = BgArtworkFixtures.Composed(vram);
             for (int index = 0; index < record.ByteCount; index++)
                 AssertEqual(scratch[source + index],
-                    vram.ReadByte(record.DestinationWord * 2 + index),
+                    shown[record.DestinationWord * 2 + index],
                     $"installed Crocomire melt pass ${pass.HeaderOffset:X4} VRAM {index}");
         }
         upload(state);
@@ -341,6 +344,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.CrocomireBehavior.CrocomireDeath = death;
+        // Crocomire's initialization attaches the enemy BG2 image his transfers draw into (#1355).
+        enemies.Presentation.AttachBg2Image(new EnemyBg2Image(CrocomireMeltingTilemap.BlankGlyph.Raw));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
@@ -367,11 +372,8 @@ internal static class CrocomireMeltingDefinitionsVerification
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");
-            int vramByte = (0x4800 + 32 + index) * 2;
-            AssertEqual((byte)result[index], vram.ReadByte(vramByte),
-                $"installed Crocomire tilemap ${sourceAddress:X6} VRAM low {index}");
-            AssertEqual(SnesLittleEndian.HighByte(result[index]), vram.ReadByte(vramByte + 1),
-                $"installed Crocomire tilemap ${sourceAddress:X6} VRAM high {index}");
+            AssertEqual(result[index], enemies.Presentation.RequireBg2Image().Publish().Words[32 + index],
+                $"installed Crocomire tilemap ${sourceAddress:X6} shown word {index}");
         }
         return result;
     }

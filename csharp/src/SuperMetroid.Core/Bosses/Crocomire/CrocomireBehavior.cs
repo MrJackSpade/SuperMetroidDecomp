@@ -131,6 +131,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Crocomire = state;
         CrocomireDeath = new CrocomireDeathState();
         ClearCrocomireBg2WorkingTilemap();
+        // The room's library background uploads this cleared staging image to BG2. Crocomire owns that image
+        // (#1355): his body frames and staged transfers draw into it and it publishes as his body on BG2.
+        _presentation.AttachBg2Image(new EnemyBg2Image(CrocomireBlankBg2Tile));
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
@@ -571,7 +574,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         tilemap.Fill(CrocomireBlankBg2Tile);
     }
 
-    /// <summary>Copies a bounded working-map span into the corresponding BG2 VRAM area.</summary>
+    /// <summary>Copies a bounded working-map span into the corresponding words of the shown enemy BG2 image (#1355).</summary>
     private void TransferCrocomireBg2Words(int startWord, int wordCount)
     {
         if (startWord < 0 || wordCount < 0 ||
@@ -580,8 +583,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new ArgumentOutOfRangeException(nameof(startWord));
         }
 
-        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(
-            RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount), startWord);
+        _presentation.RequireBg2Image().Write(startWord, RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount));
     }
 
     /// <summary>Writes a uniform vertical offset to the per-scanline BG2 scroll table.</summary>
@@ -1915,7 +1917,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         death.MeltingTransferOffset += 8;
     }
 
-    /// <summary>Writes one compiled melting graphics record to its native VRAM destination.</summary>
+    /// <summary>
+    /// Binds one compiled melting graphics record's slice of the masked image at its native VRAM destination (#1355):
+    /// the melt shows through background artwork bindings, not VRAM writes.
+    /// </summary>
     [PpuLayoutBoundary("codec: Crocomire melting VRAM transfer records' native destinations")]
     private void UploadCrocomireMeltingRecord(CrocomireMeltingUpload upload)
     {
@@ -1933,7 +1938,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         int sourceOffset = unchecked((ushort)(source - CrocomireMeltingTransferDefinitions.ScratchStart));
         if (sourceOffset < 0 || sourceOffset + byteCount > death.MeltingGraphics.Length)
             throw new InvalidDataException("Crocomire melting VRAM record exceeds the scratch image.");
-        _presentation.Vram.LoadBytes(destinationWord * 2, death.MeltingGraphics.Slice(sourceOffset, byteCount));
+        _presentation.Backgrounds.Bind(new BgArtworkIdentity($"Crocomire melting characters ${destinationWord:X4}"), destinationWord,
+            death.MeltingGraphics.Slice(sourceOffset, byteCount));
     }
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>

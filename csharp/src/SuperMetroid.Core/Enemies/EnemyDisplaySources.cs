@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -39,7 +40,7 @@ internal sealed class EnemyDisplaySources(
     public RidleyEnemyState? CeresRidley => ridley.CeresRidley;
 
     /// <inheritdoc/>
-    public KraidEnemyState? Kraid => kraid.Kraid;
+    public BossBg2Layer? KraidBody => kraid.CaptureBodyLayer();
 
     /// <inheritdoc/>
     public Position16<Bg2Pixels>? CrocomireBg2Scroll => crocomire.Crocomire is not null ? crocomire.CrocomireBg2Scroll : null;

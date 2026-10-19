@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Fx;
@@ -113,7 +112,7 @@ public static class GameplayDisplayCapture
             ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(lava, bg2Scroll) : null;
         ushort[]? lavaY = fx is { } vertical
             ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
-        Position16<Bg2Pixels>? kraidBg2Scroll = bosses.KraidBg2Scroll;
+        BossBg2Layer? kraidBody = bosses.KraidBody;
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ushort character = scene.UsesCeresRidleyCharacterBase ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
@@ -121,16 +120,16 @@ public static class GameplayDisplayCapture
         SnesMainScreenLayers displayedMainScreen =
             displayedWindows.MainScreen & TmLayerBits;
         var registers = new OrdinaryGameplayRegisters(bg1Scroll,
-            new Position16<Bg2Pixels>(kraidBg2Scroll is { } kraidX ? Add(kraidX.X, shake.Bg2.X)
+            new Position16<Bg2Pixels>(kraidBody is { } kraidX ? Add(kraidX.Scroll.X, shake.Bg2.X)
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
-                kraidBg2Scroll is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
+                kraidBody is { } kraidY ? Add(kraidY.Scroll.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
                 : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
-            kraidBg2Scroll is not null ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
+            kraidBody is { } kraidMap ? kraidMap.Tilemap.Size
                 : bosses.MotherBrainBg2ScrollOverride ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
-            kraidBg2Scroll is not null ? KraidBackgroundRomData.LiveBg2TilemapWord : GameplayVramLayout.Bg2TilemapWord,
+            GameplayVramLayout.Bg2TilemapWord,
             character, character, scene.HudCharacterWord,
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainDeathBg2Hidden
@@ -144,9 +143,13 @@ public static class GameplayDisplayCapture
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Scrolls;
-        // A sky room shows the sky's rows on BG2 (#1347).
+        // A sky room shows the sky's rows on BG2 (#1347); Kraid shows his body there while he owns it (#1352).
         RoomBackgrounds rooms = (latched.Rooms
-            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with { Sky = live.ScrollingSky?.Tilemap };
+            ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
+            {
+                Sky = live.ScrollingSky?.Tilemap,
+                BossBg2 = kraidBody?.Tilemap,
+            };
         var layer = new OrdinaryGameplayRenderLayer(registers, rooms, new Bg2HdmaScrollTables(
             VisibleLines(phantoonScrolls ?? lavaX ?? waterX ?? skyX),
             VisibleLines(crocomireBg2Scroll is not null ? live.CrocomireMeltingScrolls : lavaY)),

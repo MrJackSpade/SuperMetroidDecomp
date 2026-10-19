@@ -939,16 +939,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "KraidBg2Tilemap",
-      "region": "Vram",
-      "offset": "$4000",
-      "count": 4096,
-      "encoding": "BG tilemap words (64x64)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": []
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
       "name": "KraidBg3Restore",
       "region": "Vram",
       "offset": "$4000",
@@ -961,36 +951,12 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "KraidBottomPage",
-      "region": "Vram",
-      "offset": "$4800",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "EnemyVramLayout.KraidBg2Tilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
       "name": "KraidRoomBackgroundTiles",
       "region": "Vram",
       "offset": "$3F00",
       "count": 256,
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "KraidTopPage",
-      "region": "Vram",
-      "offset": "$4000",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "EnemyVramLayout.KraidBg2Tilemap",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
       ]
@@ -1793,7 +1759,6 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
         "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
@@ -2292,7 +2257,6 @@
       "encoding": "VRAM words (u16 little-endian)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVramLayout.cs",

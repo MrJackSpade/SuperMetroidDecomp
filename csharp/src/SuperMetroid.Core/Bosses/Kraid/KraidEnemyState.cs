@@ -91,12 +91,16 @@ public sealed class KraidEnemyState
     private const int MaximumPendingMouthReopens = 255;
 
     /// <summary>
-    /// Native $7E:2000-$2FFF combined BG2 tilemap. Keeping this surface separate from
-    /// VRAM is essential because rise, growth, head animation, and sinking upload only
-    /// selected portions of it on their authored frames.
+    /// What the upper half of native $7E:2000-$2FFF, Kraid's working BG2 map, holds (#1352). Rise, growth, head
+    /// animation and sinking upload its pages only on their authored frames, so the shown body lags it.
     /// </summary>
-    internal ushort[] BackgroundTilemapWords { get; } =
-        new ushort[KraidBackgroundRomData.WorkingTilemapWords];
+    internal KraidBodyPage WorkingTop { get; set; }
+
+    /// <summary>What the lower half of Kraid's working BG2 map holds.</summary>
+    internal KraidBodyPage WorkingBottom { get; set; }
+
+    /// <summary>The body frame Kraid's uploads last showed on BG2 (#1352).</summary>
+    internal KraidBodyFrame DisplayedBody { get; set; } = KraidBodyFrame.Blank;
 
     /// <summary>True after `$A7:AAC6` prepared Kraid's two decompressed BG2 tilemaps.</summary>
     public bool BackgroundTilemapsPrepared { get; internal set; }

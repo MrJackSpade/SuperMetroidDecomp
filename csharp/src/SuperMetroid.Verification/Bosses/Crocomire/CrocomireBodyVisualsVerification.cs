@@ -210,7 +210,7 @@ internal static class CrocomireBodyVisualsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
             var vram = new SnesVram();
-            enemies.Presentation.BindVram(vram);
+            enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);

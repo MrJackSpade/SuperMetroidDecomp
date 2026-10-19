@@ -55,6 +55,22 @@ internal static class OrdinarySmokeTests
                 GpuTimingTests.Run(device, renderer, frame);
             }
         }
+        // A boss body's BG2 tilemap (#1352) at the 64x64 map its registers select, with and without HDMA scrolls.
+        var boss = rooms with
+        {
+            Bg2 = null,
+            BossBg2 = new BossBg2Tilemap([.. Enumerable.Range(0, 64 * 64).Select(_ => (ushort)random.Next(65536))], new(64, 64)),
+        };
+        for (int hdma = 0; hdma < 4; hdma++)
+        {
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                new Extent16<TilemapCells>(64, 64), 0x4800, 0, 0x6000, 0x4000, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
+            var layer = new OrdinaryGameplayRenderLayer(registers, boss, new Bg2HdmaScrollTables(
+                (hdma & 1) != 0 ? x : default, (hdma & 2) != 0 ? y : default));
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");
     }
 }

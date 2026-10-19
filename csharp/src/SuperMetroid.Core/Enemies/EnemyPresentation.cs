@@ -70,8 +70,19 @@ internal sealed class EnemyPresentation
         get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
         private set;
     }
-    /// <summary>Room load: binds the VRAM the room's enemy artwork transfers write.</summary>
-    internal void BindVram(SnesVram vram) => Vram = Ensure.NotNull(vram);
+    /// <summary>The room's background artwork bindings, through which enemy background characters show (#1352).</summary>
+    internal BgArtworkBindings Backgrounds
+    {
+        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound background artwork; the room's video memory must be bound first.");
+        private set;
+    }
+
+    /// <summary>Room load: binds the room's background artwork and the VRAM it composes over, which enemy artwork transfers write.</summary>
+    internal void BindVram(BgArtworkBindings backgrounds)
+    {
+        Backgrounds = Ensure.NotNull(backgrounds);
+        Vram = backgrounds.Vram;
+    }
 
     /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
     internal void BindCgram(SnesCgram cgram) => Cgram = Ensure.NotNull(cgram);

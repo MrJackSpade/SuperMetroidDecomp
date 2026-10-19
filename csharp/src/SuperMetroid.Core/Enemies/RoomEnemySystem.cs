@@ -800,7 +800,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
-        Presentation.BindVram(request.Vram);
+        Presentation.BindVram(request.Backgrounds);
         Presentation.BindCgram(request.Cgram);
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();

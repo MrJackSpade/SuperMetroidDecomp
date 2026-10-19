@@ -93,7 +93,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
-    /// <summary>Kraid's and Mother Brain's BG2 register shadows publish with the accepted NMI's latch.</summary>
+    /// <summary>Kraid's body on BG2 (#1352) and Mother Brain's BG2 register shadows publish with the accepted NMI's latch.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyBossBackgroundTiming(SuperMetroidRuntime runtime)
     {
@@ -101,10 +101,10 @@ internal static class GameplayDisplayFrameTestsVerification
         var kraid = new KraidEnemyState { OwnsBg2Tilemap = true, Bg2Scroll = new Position16<Bg2Pixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Kraid = kraid;
         MarkMainLoopWrite(runtime);
-        AssertPending(runtime, registers => registers.Bg2TilemapWord == before.Bg2TilemapWord &&
-            registers.Bg2Scroll == before.Bg2Scroll, "Kraid BG2SC/BG2HOFS/BG2VOFS");
-        AssertPublished(runtime, registers => registers.Bg2TilemapWord == KraidBackgroundRomData.LiveBg2TilemapWord &&
-            registers.Bg2Scroll == kraid.Bg2Scroll, "Kraid BG2SC/BG2HOFS/BG2VOFS");
+        AssertPending(runtime, registers => registers.Bg2MapSize == before.Bg2MapSize &&
+            registers.Bg2Scroll == before.Bg2Scroll, "Kraid's body on BG2");
+        AssertPublished(runtime, registers => registers.Bg2MapSize == new Extent16<TilemapCells>(64, 64) &&
+            registers.Bg2Scroll == kraid.Bg2Scroll, "Kraid's body on BG2");
         runtime.Enemies.KraidBehavior.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 

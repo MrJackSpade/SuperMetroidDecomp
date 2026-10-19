@@ -195,7 +195,7 @@ internal static class PpuLayoutBoundaryVerification
     private static void VerifyPpuViewBounds()
     {
         var vram = new SnesVram();
-        VramRegion hud = new GameplayVram(vram).Bg2Tilemap;
+        VramRegion hud = new VramRegion(vram, GameplayVramLayout.Bg2Tilemap);
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(hud.WordCount), "a region rejects the word past its end");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(-1), "a region rejects a negative word");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Load(new byte[hud.ByteCount + 2]), "a load cannot run past the region");
@@ -228,7 +228,7 @@ internal static class PpuLayoutBoundaryVerification
     private static void VerifyVramIncrementAndWrap()
     {
         var vram = new SnesVram();
-        VramRegion bg2 = new GameplayVram(vram).Bg2Tilemap;
+        VramRegion bg2 = new VramRegion(vram, GameplayVramLayout.Bg2Tilemap);
         ReadOnlySpan<ushort> column3 = [0x1111, 0x2222, 0x3333];
         bg2.Write(column3, wordOffset: 5, VramIncrement.Column);
         AssertEqual((ushort)0x1111, bg2.ReadWord(5), "column increment: first word");

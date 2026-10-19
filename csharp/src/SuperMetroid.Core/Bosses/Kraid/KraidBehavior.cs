@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -98,7 +99,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
             LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossPalettes.KraidRoomBackdrop);
-            state.BackgroundTilemapWords.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
+            state.WorkingTop = state.WorkingBottom = KraidBodyPage.Blank;
             state.BackgroundTilemapsPrepared = true;
             UploadKraidRoomBackgroundTiles();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
@@ -579,133 +580,124 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
             });
     }
-    /// <summary>Ports the working-map construction performed by <c>$A7:AAC6</c>.</summary>
+    /// <summary>
+    /// Ports the working-map construction performed by <c>$A7:AAC6</c>: the installed body composes once and is kept
+    /// beside the state, which records only that the working map now holds the body (#1352).
+    /// </summary>
     internal void InitializeKraidBackground(KraidEnemyState state)
     {
-        KraidBackgroundArtwork art = _room.Artwork?.KraidBackground ?? throw new InvalidOperationException(
-            "Kraid BG2 requires installed enemy artwork.");
-        byte[] upper = art.Upper.Transfer.ToArray();
-        byte[] lower = art.Lower.Transfer.ToArray();
-        if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||
-            lower.Length != KraidBackgroundRomData.DecompressedTilemapBytes)
-        {
-            throw new InvalidDataException(
-                $"Kraid BG2 sources must each decompress to " +
-                $"${KraidBackgroundRomData.DecompressedTilemapBytes:X} bytes; " +
-                $"upper=${upper.Length:X}, lower=${lower.Length:X}.");
-        }
-
-        Span<ushort> working = state.BackgroundTilemapWords;
-        // The lower stream is decompressed directly over `$7E:2000-$2FFF`, which is also
-        // Kraid's working tilemap. `$A7:AB19` then copies only its first $600 bytes upward
-        // to `$2800` before the upper stream replaces `$2000-$27FF`. The untouched
-        // `$2E00-$2FFF` tail therefore remains lower-stream data. Priority is cleared only
-        // in the copied regions, not that untouched tail. Clearing the managed buffer
-        // first left those eight rows as tile word zero; once growth raised BG2 and
-        // enabled priority, character zero became a conspicuous repeated rectangle above
-        // Kraid's head.
-        for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
-            working[word] = ReadLittleEndianWord(lower, word);
-        for (int word = 0; word < KraidBackgroundRomData.LowerSourceCopyWords; word++)
-        {
-            working[KraidBackgroundRomData.WorkingLowerHalfWord + word] =
-                WithoutKraidBg2Priority(working[word]);
-        }
-        for (int word = 0; word < KraidBackgroundRomData.VisiblePageWords; word++)
-            working[word] = WithoutKraidBg2Priority(ReadLittleEndianWord(upper, word));
-        working.Slice(KraidBackgroundRomData.BlankRowWorkingWord, 32)
-            .Fill(KraidBackgroundRomData.BlankTile);
-
+        _ = WorkingMap();
+        state.WorkingTop = state.WorkingBottom = KraidBodyPage.Body;
         state.BackgroundTilemapsPrepared = true;
         state.OwnsBg2Tilemap = true;
     }
 
-    /// <summary>Uploads the upper 32x32 page exactly as <c>$A7:C874</c> requests.</summary>
-    internal void TransferKraidTopTilemap(KraidEnemyState state)
+    /// <summary>Shows the upper working page exactly as <c>$A7:C874</c> uploads it, covering any head drawn over it.</summary>
+    internal static void TransferKraidTopTilemap(KraidEnemyState state)
     {
-        new EnemyVram(_presentation.Vram).KraidTopPage.Write(
-            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords));
+        state.DisplayedBody = state.DisplayedBody with { Top = state.WorkingTop, Head = null };
         state.TopTilemapUploadCount++;
     }
 
-    /// <summary>Uploads the lower 32x32 page exactly as <c>$A7:C8B6</c> requests.</summary>
-    internal void TransferKraidBottomTilemap(KraidEnemyState state)
+    /// <summary>Shows the lower working page exactly as <c>$A7:C8B6</c> uploads it.</summary>
+    internal static void TransferKraidBottomTilemap(KraidEnemyState state)
     {
-        new EnemyVram(_presentation.Vram).KraidBottomPage.Write(
-            state.BackgroundTilemapWords.AsSpan(
-                KraidBackgroundRomData.WorkingLowerHalfWord,
-                KraidBackgroundRomData.VisiblePageWords));
+        state.DisplayedBody = state.DisplayedBody with { Bottom = state.WorkingBottom };
         state.BottomTilemapUploadCount++;
     }
 
     /// <summary>
-    /// Installs the 704-byte head tilemap selected by Kraid's private eight-byte
-    /// instruction record at <c>$A7:AF3D</c>.
+    /// Draws the head pose Kraid's private eight-byte instruction record at <c>$A7:AF3D</c> selected over the upper
+    /// page. <c>$A7:AF5D</c> sends it straight to the display; mirroring it into the working map would change later
+    /// growth and sink uploads, which is not native behavior.
     /// </summary>
-    internal void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
+    internal static void TransferKraidHeadTilemap(KraidEnemyState state, KraidHeadFrame frame)
     {
-        ReadOnlySpan<ushort> source;
-        if (sourcePointer < KraidBackgroundRomData.HeadRomWindowStart)
-            throw new InvalidDataException($"Kraid head tilemap $A7:{sourcePointer:X4} is not an authored head record.");
-        KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
-            ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
-        source = art.HeadWords(sourcePointer);
-        // $A7:AF5D queues this source directly to VRAM. Mirroring it into the
-        // body's WRAM map changes later growth/sink uploads and is not native behavior.
-        new EnemyVram(_presentation.Vram).KraidTopPage.Write(source);
+        state.DisplayedBody = state.DisplayedBody with { Head = frame };
         state.HeadTilemapUploadCount++;
     }
 
-    /// <summary>Uploads the fixed 4-bpp room backdrop characters at the native VRAM word.</summary>
+    /// <summary>
+    /// The body tilemap Kraid shows while he owns BG2, at his BG2 scroll (#1352); null when he does not. Resolved from
+    /// his installed artwork once per distinct body frame.
+    /// </summary>
+    internal BossBg2Layer? CaptureBodyLayer()
+    {
+        if (Kraid is not { OwnsBg2Tilemap: true } state)
+            return null;
+        if (bodyTilemap is not { } cached || cached.Frame != state.DisplayedBody)
+        {
+            KraidBackgroundArtwork art = RequireBackgroundArtwork();
+            bodyTilemap = cached = (state.DisplayedBody, KraidBodyTilemap.Resolve(state.DisplayedBody, WorkingMap(), art));
+        }
+        return new BossBg2Layer(cached.Tilemap, state.Bg2Scroll);
+    }
+
+    /// <summary>The last body frame resolved, and its tilemap.</summary>
+    [NonSerialized]
+    private (KraidBodyFrame Frame, BossBg2Tilemap Tilemap)? bodyTilemap;
+
+    /// <summary>Kraid's working map composed from his installed artwork, and that artwork.</summary>
+    [NonSerialized]
+    private (KraidBackgroundArtwork Art, ushort[] Words)? workingMap;
+
+    /// <summary>The body the installed artwork composes; a rebound installation recomposes it.</summary>
+    private ushort[] WorkingMap()
+    {
+        KraidBackgroundArtwork art = RequireBackgroundArtwork();
+        if (workingMap is { } composed && ReferenceEquals(composed.Art, art))
+            return composed.Words;
+        ushort[] words = KraidBodyTilemap.ComposeWorkingMap(art);
+        workingMap = (art, words);
+        bodyTilemap = null;
+        return words;
+    }
+
+    /// <summary>Kraid's installed BG2 artwork.</summary>
+    private KraidBackgroundArtwork RequireBackgroundArtwork() =>
+        _room.Artwork?.KraidBackground ?? throw new InvalidOperationException("Kraid BG2 requires installed enemy artwork.");
+
+    /// <summary>Binds the fixed 4-bpp room backdrop characters at their native VRAM word (#1352).</summary>
     internal void UploadKraidRoomBackgroundTiles()
     {
         KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        art.RoomBackgroundTiles.LoadTo(new EnemyVram(_presentation.Vram).KraidRoomBackgroundTiles);
+        EnemyVram.BindKraidRoomBackgroundTiles(_presentation.Backgrounds, KraidRoomBackgroundIdentity, art.RoomBackgroundTiles.Transfer.Span);
     }
 
-    /// <summary>Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase.</summary>
+    /// <summary>The room backdrop characters Kraid reveals.</summary>
+    private static readonly BgArtworkIdentity KraidRoomBackgroundIdentity = new("Kraid room background characters");
+
+    /// <summary>
+    /// Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase. It runs only on the composed body; a defeated
+    /// room's blank map never reaches growth.
+    /// </summary>
     private static void SetKraidBg2Priority(KraidEnemyState state)
     {
-        Span<ushort> working = state.BackgroundTilemapWords;
-        for (int word = 0; word < working.Length; word++)
-            working[word] |= KraidBackgroundRomData.PriorityBit;
+        state.WorkingTop = WithPriority(state.WorkingTop);
+        state.WorkingBottom = WithPriority(state.WorkingBottom);
         state.Bg2PriorityBitsSet = true;
+
+        static KraidBodyPage WithPriority(KraidBodyPage page) => page == KraidBodyPage.Body
+            ? KraidBodyPage.PriorityBody
+            : throw new InvalidOperationException($"Kraid's priority pass reached a working page holding {page}.");
     }
 
     /// <summary>
-    /// Restores the ordinary-room BG2 base used after the body has sunk. Native clears
-    /// the two visible 32x32 pages on consecutive frames before reloading BG3 graphics.
+    /// Restores the ordinary-room BG2 base after the body has sunk: the room's BG2 shows again (#1352). Native clears
+    /// the two visible 32x32 pages of the ordinary map on consecutive frames; they hold the blank tile the library
+    /// background filled, and the one-frame strip of body between the two clears is not reproduced.
     /// </summary>
-    private void ClearKraidTopTilemapForDeath(KraidEnemyState state)
+    private static void ClearKraidTopTilemapForDeath(KraidEnemyState state)
     {
-        state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords)
-            .Fill(KraidBackgroundRomData.BlankTile);
-        new GameplayVram(_presentation.Vram).Bg2Tilemap.Write(
-            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2));
+        state.WorkingTop = KraidBodyPage.Blank;
         state.OwnsBg2Tilemap = false;
         state.TopTilemapUploadCount++;
     }
 
     /// <summary>Clears the second half of the restored ordinary 32x32 BG2 map.</summary>
-    private void ClearKraidBottomTilemapForDeath(KraidEnemyState state)
-    {
-        new GameplayVram(_presentation.Vram).Bg2Tilemap.Write(
-            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2),
-            KraidBackgroundRomData.VisiblePageWords / 2);
-        state.BottomTilemapUploadCount++;
-    }
+    private static void ClearKraidBottomTilemapForDeath(KraidEnemyState state) => state.BottomTilemapUploadCount++;
 
-    /// <summary>Clears the BG2 priority bit from a Kraid background tile word.</summary>
-    private static ushort WithoutKraidBg2Priority(ushort word) =>
-        unchecked((ushort)(word & ~KraidBackgroundRomData.PriorityBit));
-
-    /// <summary>Reads one indexed little-endian word from an imported byte span.</summary>
-    private static ushort ReadLittleEndianWord(ReadOnlySpan<byte> source, int word)
-    {
-        int offset = checked(word * 2);
-        return unchecked((ushort)(SnesLittleEndian.Word(source[offset], source[offset + 1])));
-    }
     /// <summary>
     /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c> at `$A7:B0CB`, called by the
     /// arm hitbox callback at `$A7:94B6`. Super Missiles select native dust animation `$1D`;
@@ -1192,7 +1184,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case AnimationProgramAdvanceKind.Show:
                 state.Parts[body.SlotIndex].HeadTimer = checked((ushort)advance.Duration);
                 state.DisplayedHeadFrame = advance.Frame;
-                TransferKraidHeadTilemap(state, KraidHeadFrameDefinitions.PresentationKey(advance.Frame));
+                TransferKraidHeadTilemap(state, advance.Frame);
                 return 1;
 
             case AnimationProgramAdvanceKind.Wait:
@@ -1613,15 +1605,16 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // records so NMI owns visibility. Isolated enemy audits have no NMI/queue owner;
         // executing that one frame's transfer directly preserves the identical bytes and
         // keeps their per-frame sequencing observable without fabricating a host queue.
+        // The restored characters are background artwork bound at the NMI (#1352).
         HudTileAtlas hud = _presentation.HudTileArtwork ?? throw new InvalidDataException(
             "Installed Kraid death restoration has no standard BG3 artwork.");
         if (vramWriteQueue is not null)
-            vramWriteQueue.EnqueueAsset(
+            vramWriteQueue.EnqueueBackgroundAsset(
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
                 KraidBackgroundRomData.StandardBg3TransferBytes, EnemyVram.KraidBg3RestoreDma(destinationWord));
         else
-            new EnemyVram(_presentation.Vram).KraidBg3Restore.Load(hud.KraidRestoreQuarter(transferIndex).Span,
-                destinationWord * sizeof(ushort));
+            EnemyVram.BindKraidBg3Restore(_presentation.Backgrounds, new BgArtworkIdentity($"standard BG3 characters quarter {transferIndex}"),
+                destinationWord, hud.KraidRestoreQuarter(transferIndex).Span);
 
         state.DeathBg3TransferCount++;
         state.Parts[body.SlotIndex].Function = next;

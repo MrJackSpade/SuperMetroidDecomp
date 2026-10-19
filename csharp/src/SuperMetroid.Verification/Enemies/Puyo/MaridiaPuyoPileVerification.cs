@@ -19,7 +19,7 @@ internal static class MaridiaPuyoPileVerification
         var assets = LoadFixtureRoomAssets(room);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
         // These are the six literal retail population records, not a constructed pile.
         (ushort X, ushort Y, ushort Delay)[] population =
             [(87,156,0x0f00), (98,156,0x0f00), (105,156,0x0f00),

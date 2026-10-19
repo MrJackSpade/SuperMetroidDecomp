@@ -401,10 +401,10 @@ internal static class SymbolRelocator
             case IFieldSymbol { IsStatic: true }:
                 return Placement.AdapterMember;
             case IMethodSymbol { MethodKind: MethodKind.Ordinary, IsStatic: false, IsAbstract: false, IsVirtual: false, IsOverride: false } method
-                when method.ExplicitInterfaceImplementations.IsEmpty && !MutatesStruct(owner, node):
+                when method.ExplicitInterfaceImplementations.IsEmpty && !MutatesStruct(owner, node) && !ReadsPrimaryConstructorParameter(owner, node):
             case IPropertySymbol { IsStatic: false, IsIndexer: false, IsAbstract: false, IsVirtual: false, IsOverride: false, SetMethod: null } property
                 when property.ExplicitInterfaceImplementations.IsEmpty && !MutatesStruct(owner, node)
-                    && !HasBackingField(property):
+                    && !HasBackingField(property) && !ReadsPrimaryConstructorParameter(owner, node):
                 return Placement.ExtensionMember;
             default:
                 return null;
@@ -414,6 +414,19 @@ internal static class SymbolRelocator
     /// <summary>Rejects auto-properties whose compiler-generated storage cannot move as an extension.</summary>
     private static bool HasBackingField(IPropertySymbol property) => property.ContainingType.GetMembers()
         .OfType<IFieldSymbol>().Any(f => Comparer.Equals(f.AssociatedSymbol, property));
+
+    /// <summary>
+    /// Rejects members that read a primary-constructor parameter the owner captures: an extension outside the type cannot
+    /// reach it. A same-named local is rejected too, which only leaves the member for manual relocation.
+    /// </summary>
+    private static bool ReadsPrimaryConstructorParameter(INamedTypeSymbol owner, SyntaxNode node)
+    {
+        HashSet<string> parameters = owner.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
+            .OfType<TypeDeclarationSyntax>().SelectMany(type => type.ParameterList?.Parameters ?? [])
+            .Select(parameter => parameter.Identifier.ValueText).ToHashSet(StringComparer.Ordinal);
+        return parameters.Count != 0 && node.DescendantNodes().OfType<IdentifierNameSyntax>()
+            .Any(name => parameters.Contains(name.Identifier.ValueText));
+    }
 
     /// <summary>Rejects struct members that assign into state because an extension receiver would copy it.</summary>
     private static bool MutatesStruct(INamedTypeSymbol owner, SyntaxNode node) =>

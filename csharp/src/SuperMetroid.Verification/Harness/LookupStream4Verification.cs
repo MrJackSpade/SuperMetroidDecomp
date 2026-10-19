@@ -1311,7 +1311,7 @@ internal static class LookupStream4Verification
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { Presentation = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
+        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.Room.Session.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
@@ -2456,7 +2456,7 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
-                enemies.Presentation.BindCgram(actual); enemies.Presentation.BindVram(vram);
+                enemies.Presentation.BindCgram(actual); enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
                 AssertEqual(true,(enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");

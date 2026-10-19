@@ -436,17 +436,16 @@ internal static class FrontendRomFreeVerification
         AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
             installedRoom.GameplayRuntimeForVerification.Display.GameplayHudCharacterBaseWord,
             "restored Kraid room selects the relocated HUD character base");
-        int bg2Byte = KraidBackgroundRomData.LiveBg2TilemapWord * sizeof(ushort);
-        int bg2Bytes = KraidBackgroundRomData.WorkingTilemapWords * sizeof(ushort);
-        AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
-            "restored Kraid BG2 pages match before the first accepted NMI");
+        // Kraid's body is a published frame (#1352), not VRAM pages.
+        static ushort[] Body(SuperMetroidGame game) =>
+            [.. game.GameplayRuntimeForVerification.Enemies.KraidBehavior.CaptureBodyLayer()?.Tilemap.Words ?? []];
+        AssertTrue(Body(nativeRoom).Length != 0 && Body(nativeRoom).SequenceEqual(Body(installedRoom)),
+            "restored Kraid body matches before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
         Rgba32[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
-        AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
-            "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
+        AssertTrue(Body(nativeRoom).SequenceEqual(Body(installedRoom)),
+            "restored Kraid body remains intact after the deferred HUD refresh");
         AssertTrue(actualPixels.SequenceEqual(expectedPixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
         Console.WriteLine("Frontend ROM-free Kraid restore: relocated HUD refresh preserves both BG2 pages and stock pixels.");

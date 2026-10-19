@@ -26,12 +26,13 @@ StructuredBuffer<uint> Memory : register(t0);
 StructuredBuffer<uint> BgLayers : register(t2);
 // Room level planes (D3D11RoomLevelBuffer): BG1, BG2 and door-source plane records, the door window, the BG1 overlay.
 StructuredBuffer<uint> RoomLevels : register(t3);
-// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows, or
-// the BG3 plane. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
+// RoomSource: 0 samples the VRAM tilemap; otherwise the room's BG1 or BG2 as level data shows it, the sky's rows,
+// the BG3 plane, or a boss body's BG2 tilemap. RoomSourceBg2Overlay added to it lays words written over BG2 on top.
 static const uint RoomSourceBg1 = 1, RoomSourceBg2 = 2, RoomSourceSky = 3, RoomSourceBg3 = 4, RoomSourceMode7Map = 5;
+static const uint RoomSourceBossBg2 = 6;
 static const uint RoomSourceBg2Overlay = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
-static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23;
+static const uint RoomBg3Word = 21, RoomBg2OverlayWord = 22, RoomMode7MapWord = 23, RoomBossBg2Word = 24;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> Objects : register(u1);
 
@@ -347,6 +348,16 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     else if (source == RoomSourceBg3)
         entry = Bg3Word(TilemapWord, MapHeight, scrolled, within);
+    else if (source == RoomSourceBossBg2)
+    {
+        // A boss body's tilemap (BossBg2Tilemap) in the hardware's screen order, at the pass's map size.
+        uint x = scrolled.x & (MapWidth * 8 - 1);
+        uint y = scrolled.y & (MapHeight * 8 - 1);
+        uint tileX = x >> 3, tileY = y >> 3;
+        uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
+        entry = RoomLevels[RoomLevels[RoomBossBg2Word] + page + (tileY & 31) * 32 + (tileX & 31)];
+        within = uint2(x & 7, y & 7);
+    }
     else if (source != 0)
     {
         if (!RoomTile(source, scrolled, entry, within)) return;

@@ -14,14 +14,14 @@ internal static class KraidInstalledPresentationOracleVerification
     /// invoke the production constructor or give its cartridge source to gameplay.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the Kraid upper and lower BG2 tilemaps")]
-    internal static KraidEnemyState ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
+    internal static ushort[] ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
     {
         byte[] upper = RomDataReader.Decompress(source, KraidBackgroundRomData.UpperTilemap,
             KraidBackgroundRomData.DecompressedTilemapBytes);
         byte[] lower = RomDataReader.Decompress(source, KraidBackgroundRomData.LowerTilemap,
             KraidBackgroundRomData.DecompressedTilemapBytes);
-        var result = new KraidEnemyState { BackgroundTilemapsPrepared = true, OwnsBg2Tilemap = true };
-        for (int word = 0; word < result.BackgroundTilemapWords.Length; word++)
+        var result = new ushort[KraidBackgroundRomData.WorkingTilemapWords];
+        for (int word = 0; word < result.Length; word++)
         {
             // Native copies only the first $600 lower bytes up to $2800. The
             // untouched $2E00-$2FFF tail still contains its decompressed lower data.
@@ -29,28 +29,30 @@ internal static class KraidInstalledPresentationOracleVerification
                 word < KraidBackgroundRomData.PreservedLowerTailFirstWord ? word - KraidBackgroundRomData.WorkingLowerHalfWord : word;
             byte[] bytes = word < KraidBackgroundRomData.VisiblePageWords ? upper : lower;
             ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(selected * 2));
-            result.BackgroundTilemapWords[word] = word >= KraidBackgroundRomData.BlankRowWorkingWord
+            result[word] = word >= KraidBackgroundRomData.BlankRowWorkingWord
                 ? KraidBackgroundRomData.BlankTile : word >= KraidBackgroundRomData.PreservedLowerTailFirstWord
                 ? value : (ushort)(value & ~KraidBackgroundRomData.PriorityBit);
         }
         return result;
     }
 
-    /// <summary>Copies one native head tilemap transfer into reference VRAM
-    /// without changing the body map that later updates from working memory.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>
+    /// The BG2 tilemap one native head transfer shows over blank pages (#1352): $A7:AF5D sends the head source straight
+    /// to the display without changing the body map that later rise/growth/sink requests upload from WRAM.
+    /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
-    internal static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
+    internal static (KraidEnemyState State, ushort[] Tilemap) ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {
-        byte[] words = RomDataReader.ReadFixedBank(source, KraidBackgroundRomData.NativeBank | pointer,
+        byte[] bytes = RomDataReader.ReadFixedBank(source, KraidBackgroundRomData.NativeBank | pointer,
             KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
+        var head = new ushort[KraidBackgroundRomData.HeadTilemapWords];
+        for (int word = 0; word < head.Length; word++)
+            head[word] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(word * 2));
         var state = new KraidEnemyState { HeadTilemapUploadCount = 1 };
-        // $A7:AF5D queues the head source directly to VRAM. It does not touch
-        // the body map that later rise/growth/sink requests upload from WRAM.
-        var vram = new SnesVram();
-        vram.LoadBytes(KraidBackgroundRomData.LiveBg2TilemapWord * 2, words);
-        return (state, vram);
+        return (state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
+
+        static ushort[] Blank() => Enumerable.Repeat(KraidBackgroundRomData.BlankTile, KraidBackgroundRomData.VisiblePageWords).ToArray();
     }
 
     /// <summary>Checks every typed head step and cursor read against the authored control words before the RAM-only clock fixture runs.</summary>

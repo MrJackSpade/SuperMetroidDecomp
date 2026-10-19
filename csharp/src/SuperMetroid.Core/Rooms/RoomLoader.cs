@@ -1017,7 +1017,7 @@ internal sealed class RoomLoader
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
-            _vram,
+            _backgrounds,
             _cgram)
         {
             Level = assets.LevelData,

@@ -10,9 +10,6 @@ public readonly struct GameplayVram(SnesVram vram)
     /// <summary>The standard BG3 upload: HUD characters followed by the cleared BG2 tilemap.</summary>
     public VramRegion HudCharacterUpload => new(vram, GameplayVramLayout.HudCharacterUpload);
 
-    /// <summary>BG2's background tilemap.</summary>
-    public VramRegion Bg2Tilemap => new(vram, GameplayVramLayout.Bg2Tilemap);
-
     /// <summary>The queued-DMA destination <paramref name="wordOffset"/> words into the BG3 HUD tilemap.</summary>
     public static VramDmaDestination HudTilemapDma(int wordOffset = 0) => VramDmaDestination.At(GameplayVramLayout.HudTilemap, wordOffset);
 

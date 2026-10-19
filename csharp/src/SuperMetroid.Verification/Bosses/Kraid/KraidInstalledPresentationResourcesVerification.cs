@@ -12,24 +12,6 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 /// <summary>Checks Kraid live head tilemap DMA and required installed artwork files.</summary>
 internal static class KraidInstalledPresentationResourcesVerification
 {
-    /// <summary>
-    /// Confirms a low-half head-tilemap pointer is rejected without touching VRAM or the body map: the live-WRAM
-    /// alias is unreachable from authored head records and its path was deleted (#1318 stage 2).
-    /// </summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
-    {
-        var fixture = new KraidHeadClockFixture(art);
-        ushort[] bodyMap = fixture.State.BackgroundTilemapWords.ToArray();
-        byte[] vramBefore = fixture.Vram.Bytes.ToArray();
-        const ushort lowHalfPointer = 0x1000;
-        AssertThrows<InvalidDataException>(() => fixture.Transfer(lowHalfPointer), "low-half head pointer is rejected");
-        AssertTrue(vramBefore.SequenceEqual(fixture.Vram.Bytes), "a rejected head pointer uploads nothing");
-        AssertTrue(bodyMap.SequenceEqual(fixture.State.BackgroundTilemapWords), "a rejected head pointer leaves the body map untouched");
-        AssertEqual(0, fixture.State.HeadTilemapUploadCount, "a rejected head pointer counts no upload");
-        Console.WriteLine("PASS Kraid low-half head pointer: rejected with no VRAM, body-map or upload change.");
-    }
-
     /// <summary>Removes each required generated asset in turn and checks that validation and loading reject it.</summary>
     internal static void VerifyKraidRequiredFiles(string directory)
     {

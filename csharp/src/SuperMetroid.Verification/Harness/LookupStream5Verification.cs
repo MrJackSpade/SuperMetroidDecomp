@@ -357,7 +357,7 @@ internal static class LookupStream5Verification
             int destination = CeresDoorVisualRomData.Mode7DestinationWord;
             byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
             vram.LoadBytes((destination - 1) * 2, initial);
-            system.Presentation.BindVram(vram);
+            system.Presentation.BindVram(BgArtworkFixtures.For(vram));
             system.Presentation.BindCgram(new SnesCgram());
             var slots = (RoomEnemySlot[])system.SlotTable.Slots;
             foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
@@ -2120,7 +2120,7 @@ internal static class LookupStream5Verification
             var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
             var cgram = new SnesCgram();
             system.Presentation.BindCgram(cgram);
-            system.Presentation.BindVram(new SnesVram());
+            system.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
             Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
             foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })
             {

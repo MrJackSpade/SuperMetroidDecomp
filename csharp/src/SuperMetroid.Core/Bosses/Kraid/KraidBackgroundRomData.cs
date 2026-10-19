@@ -10,9 +10,6 @@ public static class KraidBackgroundRomData
     /// <summary>Bank-$A7 base used by Kraid's private instruction-list pointers.</summary>
     public const int NativeBank = 0xa70000;
 
-    /// <summary>First bank-$A7 ROM pointer; lower pointers alias mutable SNES memory.</summary>
-    public const ushort HeadRomWindowStart = 0x8000;
-
     /// <summary>Compressed upper-body tilemap consumed by <c>$A7:AAC6</c>.</summary>
     public const int UpperTilemap = 0xb9fa38;
 
@@ -36,9 +33,6 @@ public static class KraidBackgroundRomData
 
     /// <summary>Number of animated head words copied by <c>$A7:AF3D</c>.</summary>
     public const int HeadTilemapWords = 0x0160;
-
-    /// <summary>BG2 tilemap word base selected by native BG2SC value $43.</summary>
-    public const ushort LiveBg2TilemapWord = 0x4000;
 
     /// <summary>
     /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions

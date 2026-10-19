@@ -211,7 +211,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// Boss BG register shadows: Ceres Ridley's M7A..M7Y (written by room main <c>$A6:AAAF</c>,
-    /// uploaded with BGMODE's fake Mode 7 HDMA byte by <c>$80:91EE</c>), Kraid's and Crocomire's
+    /// uploaded with BGMODE's fake Mode 7 HDMA byte by <c>$80:91EE</c>), Kraid's body on BG2 (#1352), Crocomire's
     /// BG2SC/BG2HOFS/BG2VOFS, and Mother Brain's BG2SC and TM BG2 bit.
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
@@ -220,7 +220,7 @@ internal sealed class AcceptedFrameBoundary
         var motherBrain = Displays?.MotherBrain;
         return new(
             ridley,
-            Displays?.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
+            Displays?.KraidBody,
             Displays?.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });

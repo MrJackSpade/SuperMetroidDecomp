@@ -31,7 +31,7 @@ internal static class YardTrajectoriesVerification
         {
             var random = new Bank80SystemState();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }) { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[focus];
             var state = enemies.YardStates[focus];
             var samus = new SamusState { Health = 999, MaxHealth = 999,
@@ -66,7 +66,7 @@ internal static class YardTrajectoriesVerification
         foreach (ushort facing in new ushort[] { 0, 1 })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));

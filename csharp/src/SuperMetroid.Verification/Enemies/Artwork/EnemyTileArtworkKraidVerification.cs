@@ -30,8 +30,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
-    /// <summary>Matches Kraid's working BG2 map and both visible VRAM pages, then checks an edited tile.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>Matches Kraid's working BG2 map and both shown body pages, then checks an edited tile.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
@@ -47,18 +46,18 @@ internal static class EnemyTileArtworkKraidVerification
                 KraidBackgroundRomData.DecompressedTilemapBytes)),
             "installed Kraid lower BG2 tile references preserve source words");
 
-        KraidEnemyState native = ReadImportedKraidWorkingMap(rom);
-        KraidEnemyState installed = BuildKraidWorkingMap(stock);
-        AssertTrue(installed.BackgroundTilemapWords.SequenceEqual(native.BackgroundTilemapWords),
+        ushort[] native = ReadImportedKraidWorkingMap(rom);
+        AssertTrue(BuildKraidWorkingMap(stock).SequenceEqual(native),
             "installed Kraid BG2 construction preserves all native working words");
-        AssertEqual(native.BackgroundTilemapsPrepared, installed.BackgroundTilemapsPrepared,
-            "Kraid BG2 initialization state remains unchanged");
-        AssertEqual(native.OwnsBg2Tilemap, installed.OwnsBg2Tilemap,
-            "Kraid BG2 ownership remains unchanged");
-        SnesVram nativeVram = TransferKraidVisiblePages(native);
-        SnesVram installedVram = TransferKraidVisiblePages(installed);
-        AssertTrue(installedVram.ImageEquals(nativeVram),
-            "installed Kraid BG2 sources preserve both live VRAM pages");
+        KraidEnemyState initialized = InitializeKraidBackground(stock);
+        AssertTrue(initialized.BackgroundTilemapsPrepared && initialized.OwnsBg2Tilemap,
+            "Kraid BG2 initialization prepares the map and takes BG2");
+        AssertTrue(initialized.WorkingTop == KraidBodyPage.Body && initialized.WorkingBottom == KraidBodyPage.Body,
+            "Kraid BG2 initialization fills both working pages with the body");
+        ushort[] nativeShown = KraidBodyFixtures.Tilemap(native.AsSpan(0, KraidBackgroundRomData.VisiblePageWords), [],
+            native.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords));
+        AssertTrue(ShowKraidVisiblePages(stock).SequenceEqual(nativeShown),
+            "installed Kraid BG2 sources preserve both shown body pages");
 
         string upperPath = Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName);
         byte[] original = File.ReadAllBytes(upperPath);
@@ -76,19 +75,14 @@ internal static class EnemyTileArtworkKraidVerification
             RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages },
                 KraidBackgroundRomData.DecompressedTilemapBytes);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        KraidEnemyState changed = BuildKraidWorkingMap(edited);
-        AssertEqual((ushort)(native.BackgroundTilemapWords[0] ^ 1),
-            changed.BackgroundTilemapWords[0],
+        ushort[] changed = BuildKraidWorkingMap(edited);
+        AssertEqual((ushort)(native[0] ^ 1), changed[0],
             "edited Kraid BG2 reference changes the visible working-map cell");
-        AssertTrue(changed.BackgroundTilemapWords.AsSpan(1)
-                .SequenceEqual(native.BackgroundTilemapWords.AsSpan(1)),
+        AssertTrue(changed.AsSpan(1).SequenceEqual(native.AsSpan(1)),
             "edited Kraid BG2 cell leaves the remaining live map unchanged");
-        SnesVram editedVram = TransferKraidVisiblePages(changed);
-        AssertEqual((byte)(nativeVram.ReadByte(KraidBackgroundRomData.LiveBg2TilemapWord * 2) ^ 1),
-            editedVram.ReadByte(KraidBackgroundRomData.LiveBg2TilemapWord * 2),
-            "edited Kraid BG2 reference changes the transferred VRAM tile word");
-        AssertTrue(BuildKraidWorkingMap(EnemyTileArtworkFiles.Load(directory, overrides))
-            .BackgroundTilemapWords.SequenceEqual(changed.BackgroundTilemapWords),
+        AssertEqual((ushort)(nativeShown[0] ^ 1), ShowKraidVisiblePages(edited)[0],
+            "edited Kraid BG2 reference changes the shown tile word");
+        AssertTrue(BuildKraidWorkingMap(EnemyTileArtworkFiles.Load(directory, overrides)).SequenceEqual(changed),
             "Kraid BG2 override survives catalog reload");
 
         File.WriteAllBytes(upperPath, [0]);
@@ -101,8 +95,7 @@ internal static class EnemyTileArtworkKraidVerification
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
-    /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches live VRAM.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches the shown body.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
@@ -119,13 +112,12 @@ internal static class EnemyTileArtworkKraidVerification
                 AssertEqual((ushort)(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1])),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
 
-            (KraidEnemyState baseline, SnesVram nativeVram) = ReadImportedKraidHeadFrame(rom, pointer);
-            (KraidEnemyState selected, SnesVram installedVram) = RunKraidHeadFrame(stock, pointer);
-            AssertTrue(selected.BackgroundTilemapWords.SequenceEqual(
-                    baseline.BackgroundTilemapWords),
-                $"Kraid head ${pointer:X4} preserves the live working map");
-            AssertTrue(installedVram.ImageEquals(nativeVram),
-                $"Kraid head ${pointer:X4} preserves the actual VRAM transfer");
+            (KraidEnemyState baseline, ushort[] nativeShown) = ReadImportedKraidHeadFrame(rom, pointer);
+            (KraidEnemyState selected, ushort[] installedShown) = RunKraidHeadFrame(stock, pointer);
+            AssertTrue(selected.WorkingTop == baseline.WorkingTop && selected.WorkingBottom == baseline.WorkingBottom,
+                $"Kraid head ${pointer:X4} leaves the working map");
+            AssertTrue(installedShown.SequenceEqual(nativeShown),
+                $"Kraid head ${pointer:X4} preserves the shown head");
             AssertEqual(baseline.HeadTilemapUploadCount, selected.HeadTilemapUploadCount,
                 $"Kraid head ${pointer:X4} preserves upload count");
         }
@@ -145,17 +137,15 @@ internal static class EnemyTileArtworkKraidVerification
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document with { Cells = cells }, CamelCaseIndentedJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        (_, SnesVram changedVram) = RunKraidHeadFrame(edited, editedPointer);
-        (_, SnesVram stockVram) = ReadImportedKraidHeadFrame(rom, editedPointer);
-        int address = KraidBackgroundRomData.LiveBg2TilemapWord * 2;
-        AssertEqual((byte)(stockVram.ReadByte(address) ^ 1), changedVram.ReadByte(address),
-            "edited Kraid head tile changes the first live VRAM reference");
-        AssertTrue(stockVram.Bytes[(address + 1)..]
-                .SequenceEqual(changedVram.Bytes[(address + 1)..]),
-            "Kraid head edit leaves all later VRAM bytes unchanged");
-        (_, SnesVram reloadedVram) = RunKraidHeadFrame(
+        (_, ushort[] changedShown) = RunKraidHeadFrame(edited, editedPointer);
+        (_, ushort[] stockShown) = ReadImportedKraidHeadFrame(rom, editedPointer);
+        AssertEqual((ushort)(stockShown[0] ^ 1), changedShown[0],
+            "edited Kraid head tile changes the first shown reference");
+        AssertTrue(stockShown.AsSpan(1).SequenceEqual(changedShown.AsSpan(1)),
+            "Kraid head edit leaves every later shown word unchanged");
+        (_, ushort[] reloadedShown) = RunKraidHeadFrame(
             EnemyTileArtworkFiles.Load(directory, overrides), editedPointer);
-        AssertTrue(reloadedVram.ImageEquals(changedVram),
+        AssertTrue(reloadedShown.SequenceEqual(changedShown),
             "Kraid head tilemap edit survives a catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -278,7 +268,7 @@ internal static class EnemyTileArtworkKraidVerification
             Presentation = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
+        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         Action<RoomEnemySlot, KraidEnemyState, int,
                 KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -301,7 +291,8 @@ internal static class EnemyTileArtworkKraidVerification
             AssertEqual(quarter + 1, state.DeathBg3TransferCount,
                 $"Kraid BG3 quarter {quarter} retains death coroutine cadence");
         }
-        return vram;
+        // The restored characters are bound (#1352); the image a capture shows composes them.
+        return BgArtworkFixtures.ComposedVram(vram);
     }
 
     /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
@@ -355,32 +346,31 @@ internal static class EnemyTileArtworkKraidVerification
             "malformed Kraid room-background PNG override fails at load");
     }
 
-    /// <summary>Captures the live room-background VRAM upload using a cartridge-free Kraid owner.</summary>
+    /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>
     private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
+        enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.UploadKraidRoomBackgroundTiles;
         upload();
-        return vram;
+        return BgArtworkFixtures.ComposedVram(vram);
     }
 
-    /// <summary>Transfers a selected installed head tilemap into a fresh VRAM buffer.</summary>
-    private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
-        EnemyTileArtworkCatalog artwork, ushort pointer)
+    /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>
+    private static (KraidEnemyState State, ushort[] Shown) RunKraidHeadFrame(EnemyTileArtworkCatalog artwork, ushort pointer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
-        var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
-        Action<KraidEnemyState, ushort> transfer = enemies.KraidBehavior.TransferKraidHeadTilemap;
+        KraidHeadFrame frame = KraidHeadFrame.ByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState();
-        transfer(state, pointer);
-        return (state, vram);
+        KraidBehavior.TransferKraidHeadTilemap(state, frame);
+        return (state, KraidBodyFixtures.Shown(artwork, state));
     }
+
+    /// <summary>Kraid's working map as his installed art composes it, without cartridge reads.</summary>
+    internal static ushort[] BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork) => KraidBodyFixtures.WorkingMap(artwork);
 
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
-    internal static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
+    private static KraidEnemyState InitializeKraidBackground(EnemyTileArtworkCatalog artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         Action<KraidEnemyState> initialize = enemies.KraidBehavior.InitializeKraidBackground;
@@ -389,17 +379,14 @@ internal static class EnemyTileArtworkKraidVerification
         return state;
     }
 
-    /// <summary>Uploads both BG2 working-map pages and records their native transfer counts.</summary>
-    private static SnesVram TransferKraidVisiblePages(KraidEnemyState state)
+    /// <summary>Shows both BG2 working-map pages and checks their native upload counts.</summary>
+    private static ushort[] ShowKraidVisiblePages(EnemyTileArtworkCatalog artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
-        var vram = new SnesVram();
-        enemies.Presentation.BindVram(vram);
-        enemies.KraidBehavior.TransferKraidTopTilemap(state);
-        enemies.KraidBehavior.TransferKraidBottomTilemap(state);
+        KraidEnemyState state = InitializeKraidBackground(artwork);
+        KraidBehavior.TransferKraidTopTilemap(state);
+        KraidBehavior.TransferKraidBottomTilemap(state);
         AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");
         AssertEqual(1, state.BottomTilemapUploadCount, "Kraid lower page transfer count");
-        return vram;
+        return KraidBodyFixtures.Shown(artwork, state);
     }
-
 }

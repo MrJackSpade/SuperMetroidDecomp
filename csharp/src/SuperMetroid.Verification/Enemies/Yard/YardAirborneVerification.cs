@@ -50,7 +50,7 @@ internal static class YardAirborneVerification
         foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));

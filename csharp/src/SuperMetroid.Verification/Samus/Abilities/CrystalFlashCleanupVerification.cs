@@ -17,6 +17,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Hardware;
 
 /// <summary>Checks Crystal Flash activation, contact, visibility, resource drain, and movement cleanup in production runtime.</summary>
 internal static class CrystalFlashCleanupVerification
@@ -95,7 +96,7 @@ internal static class CrystalFlashCleanupVerification
                 // header damage and the runtime's ordinary collision ordering. A
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
-                runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), new RoomEnemyLoadRequest(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), CrystalFlashContactPopulation.ReadEnemyGraphicsSet(CrystalFlashContactDefinitions.Pointer), runtime.Vram, runtime.Cgram));
+                runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), new RoomEnemyLoadRequest(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), CrystalFlashContactPopulation.ReadEnemyGraphicsSet(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram), runtime.Cgram));
                 contactEnemy = runtime.Enemies.SlotTable.Slots[0];
                 (contactEnemy.SpeciesState<RipperEnemyState>()
                     ?? throw new InvalidOperationException("The contact Ripper has no state.")).XVelocity = SnesSignedSixteenSixteen.Zero;

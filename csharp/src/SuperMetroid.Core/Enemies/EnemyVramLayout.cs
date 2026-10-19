@@ -8,20 +8,6 @@ namespace SuperMetroid.Core.Enemies;
 [PpuLayoutBoundary("catalog: enemy and boss VRAM")]
 public static class EnemyVramLayout
 {
-    /// <summary>
-    /// VMADD $4000-$4FFF: Kraid's private 64x64 BG2 tilemap selected by BG2SC=$43. It overwrites
-    /// the HUD characters and the ordinary BG2 tilemap until Kraid's death restores them.
-    /// </summary>
-    public static readonly PpuLayoutCell KraidBg2Tilemap = new(nameof(KraidBg2Tilemap), PpuLayoutRegion.Vram,
-        KraidBackgroundRomData.LiveBg2TilemapWord, 0x1000, "BG tilemap words (64x64)", PpuMemoryLayout.Vram);
-
-    /// <summary>VMADD $4000-$43FF: the upper visible 32x32 page of Kraid's BG2 (<c>$A7:C874</c>), also the head target.</summary>
-    public static readonly PpuLayoutCell KraidTopPage = new(nameof(KraidTopPage), PpuLayoutRegion.Vram,
-        KraidBackgroundRomData.LiveBg2TilemapWord, KraidBackgroundRomData.VisiblePageWords, "BG tilemap words (32x32)", KraidBg2Tilemap);
-
-    /// <summary>VMADD $4800-$4BFF: the lower visible 32x32 page of Kraid's BG2 (<c>$A7:C8B6</c>).</summary>
-    public static readonly PpuLayoutCell KraidBottomPage = new(nameof(KraidBottomPage), PpuLayoutRegion.Vram,
-        0x4800, KraidBackgroundRomData.VisiblePageWords, "BG tilemap words (32x32)", KraidBg2Tilemap);
 
     /// <summary>
     /// VMADD $4000-$47FF: the standard BG3 characters Kraid's death restores in four $0400-byte

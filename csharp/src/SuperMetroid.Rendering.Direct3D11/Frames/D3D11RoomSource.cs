@@ -15,4 +15,6 @@ internal enum D3D11RoomSource : uint
     Bg3 = 4,
     /// <summary>A Ceres room's Mode 7 map (#1349).</summary>
     Mode7Map = 5,
+    /// <summary>A boss body's BG2 tilemap (#1352).</summary>
+    BossBg2 = 6,
 }

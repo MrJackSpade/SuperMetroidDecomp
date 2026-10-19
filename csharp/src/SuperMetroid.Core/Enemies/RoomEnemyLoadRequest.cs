@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Enemies;
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
-    /// <summary>Creates a load of <paramref name="population"/>.</summary>
+    /// <summary>Creates a load of <paramref name="population"/> into the room's <paramref name="backgrounds"/> and their VRAM.</summary>
     public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population,
-        RoomEnemyGraphicsSetDefinition graphicsSet, SnesVram vram, SnesCgram cgram)
+        RoomEnemyGraphicsSetDefinition graphicsSet, BgArtworkBindings backgrounds, SnesCgram cgram)
     {
         Population = Ensure.NotNull(population);
         GraphicsSet = Ensure.NotNull(graphicsSet);
-        Vram = Ensure.NotNull(vram);
+        Backgrounds = Ensure.NotNull(backgrounds);
         Cgram = Ensure.NotNull(cgram);
     }
 
@@ -27,7 +27,10 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <inheritdoc />
-    public SnesVram Vram { get; }
+    public SnesVram Vram => Backgrounds.Vram;
+
+    /// <inheritdoc />
+    public BgArtworkBindings Backgrounds { get; }
 
     /// <inheritdoc />
     public SnesCgram Cgram { get; }

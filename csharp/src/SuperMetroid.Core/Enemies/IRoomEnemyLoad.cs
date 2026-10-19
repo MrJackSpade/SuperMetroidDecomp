@@ -13,4 +13,7 @@ public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorCon
 
     /// <summary>Whether camera reads made at load time are deferred because the room streams in through a door.</summary>
     bool DeferLoaderTimeCameraReads { get; }
+
+    /// <summary>The room's background artwork bindings, over the VRAM its enemies load into (#1352).</summary>
+    BgArtworkBindings Backgrounds { get; }
 }

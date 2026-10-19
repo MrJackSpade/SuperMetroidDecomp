@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("backend: composes background artwork bindings over the VRAM image in write order")]
 public sealed class BgArtworkBindings(SnesVram vram)
 {
-    /// <summary>The VRAM whose write clock orders bindings against its writes; it tracks write order from now on.</summary>
-    private readonly SnesVram vram = Tracked(vram);
+    /// <summary>The VRAM the bindings compose over, whose write clock orders them against its writes; it tracks write order from now on.</summary>
+    internal SnesVram Vram { get; } = Tracked(vram);
 
     /// <summary>The live bindings, oldest first.</summary>
     private readonly List<BgArtworkBinding> bindings = [];
@@ -27,7 +27,7 @@ public sealed class BgArtworkBindings(SnesVram vram)
         owned ??= [];
         if (!owned.TryGetValue(identity, out byte[]? copy) || !bytes.SequenceEqual(copy))
             owned[identity] = copy = bytes.ToArray();
-        var binding = new BgArtworkBinding(firstWord, copy, vram.NextWriteStamp());
+        var binding = new BgArtworkBinding(firstWord, copy, Vram.NextWriteStamp());
         // A binding a newer one covers entirely can no longer show.
         bindings.RemoveAll(older => older.FirstWord >= binding.FirstWord &&
             older.FirstWord + older.WordCount <= binding.FirstWord + binding.WordCount);
@@ -51,7 +51,7 @@ public sealed class BgArtworkBindings(SnesVram vram)
             for (int word = 0; word < binding.WordCount; word++)
             {
                 int address = binding.FirstWord + word;
-                if (vram.WriteStampAt(address) > binding.Stamp)
+                if (Vram.WriteStampAt(address) > binding.Stamp)
                     continue;
                 image[address * 2] = bytes[word * 2];
                 image[address * 2 + 1] = bytes[word * 2 + 1];

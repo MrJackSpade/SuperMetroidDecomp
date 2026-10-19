@@ -53,9 +53,9 @@ internal static class KraidInstalledPresentationHeadClockVerification
             baseline.State.Parts[0].HeadTimer = changed.State.Parts[0].HeadTimer = 1;
             int nextEvent = 0, cursor = 0, soundCount = 0, uploadCount = 0;
             ushort outer = 0, inner = 0, physical = 0;
-            var expectedStock = baseline.Vram.Bytes.ToArray();
-            var expectedEdited = changed.Vram.Bytes.ToArray();
-            ushort[] workingBody = baseline.State.BackgroundTilemapWords.ToArray();
+            ushort[] expectedStock = baseline.Shown();
+            ushort[] expectedEdited = changed.Shown();
+            (KraidBodyPage Top, KraidBodyPage Bottom) workingBody = (baseline.State.WorkingTop, baseline.State.WorkingBottom);
             for (int tick = 0; ; tick++)
             {
                 ushort stockResult = baseline.Step(), editedResult = changed.Step();
@@ -65,8 +65,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertAnimationValues(baseline.State, changed.State, "Kraid head tick " + tick);
                 AssertEqual(baseline.State.DisplayedHeadFrame, changed.State.DisplayedHeadFrame,
                     "Kraid head tick " + tick + " displayed head frame is not editable");
-                AssertTrue(workingBody.SequenceEqual(baseline.State.BackgroundTilemapWords) &&
-                    workingBody.SequenceEqual(changed.State.BackgroundTilemapWords),
+                AssertTrue(workingBody == (baseline.State.WorkingTop, baseline.State.WorkingBottom) &&
+                    workingBody == (changed.State.WorkingTop, changed.State.WorkingBottom),
                     "head DMA must not overwrite the WRAM body-map source");
                 AssertEqual(baseline.Enemies.KraidBehavior.LastKraidSoundEffect, changed.Enemies.KraidBehavior.LastKraidSoundEffect,
                     "head art does not alter sound publication");
@@ -86,8 +86,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                         AssertEqual(ushort.MaxValue, stockResult, "terminator on the exact sum-of-durations tick");
                         AssertEqual(admission.Cursor, baseline.State.HeadProgram, "termination retains native cursor");
                         AssertEqual((ushort)0, baseline.State.Parts[0].HeadTimer, "termination consumes the last timer tick");
-                        AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes) &&
-                            expectedEdited.SequenceEqual(changed.Vram.Bytes), "termination emits no tilemap upload");
+                        AssertTrue(expectedStock.SequenceEqual(baseline.Shown()) &&
+                            expectedEdited.SequenceEqual(changed.Shown()), "termination emits no tilemap upload");
                         break;
                     }
                     AssertEqual((ushort)1, stockResult, "frame admission result");
@@ -96,7 +96,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     uploadCount++; frames++;
                     KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
-                    AssertTrue(!baseline.Vram.ImageEquals(changed.Vram), "replacement head is actually visible");
+                    AssertTrue(!baseline.Shown().SequenceEqual(changed.Shown()), "replacement head is actually visible");
                 }
                 AssertEqual((ushort)(nextEvent - tick), baseline.State.Parts[0].HeadTimer, "native countdown on every hold tick");
                 KraidHeadNativeRecord displayed = commands.Take(cursor).Last(item => item.IsPose);
@@ -109,8 +109,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
                 AssertEqual(uploadCount, baseline.State.HeadTilemapUploadCount, "no extra head upload during hold");
-                AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes), "exact stock head DMA and untouched VRAM");
-                AssertTrue(expectedEdited.SequenceEqual(changed.Vram.Bytes), "exact authored head DMA and untouched VRAM");
+                AssertTrue(expectedStock.SequenceEqual(baseline.Shown()), "exact stock head and untouched body");
+                AssertTrue(expectedEdited.SequenceEqual(changed.Shown()), "exact authored head and untouched body");
                 // Actual mouth collision method, including the strict bottom-edge -1,
                 // not a radius-only approximation or equality of endpoint state.
                 foreach (ushort hitbox in new[] { outer, inner }.Where(value => value != ushort.MaxValue))
@@ -141,8 +141,6 @@ internal static class KraidInstalledPresentationHeadClockVerification
         internal RoomEnemySlot Body => Enemies.SlotTable.Slots[0];
         /// <summary>Kraid state holding selected head art and mouth hitbox identities.</summary>
         internal KraidEnemyState State { get; }
-        /// <summary>Sentinel-filled VRAM receiving head tilemap uploads.</summary>
-        internal SnesVram Vram { get; } = new();
         /// <summary>Cartridge-free address space used for the production head clock.</summary>
         internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
             SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -150,34 +148,28 @@ internal static class KraidInstalledPresentationHeadClockVerification
         private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
         /// <summary>Bound production mouth-versus-projectile overlap check.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
-        /// <summary>Bound production head tilemap transfer.</summary>
-        private readonly Action<KraidEnemyState, ushort> transfer;
+        /// <summary>The selected art, from which the shown body resolves.</summary>
+        private readonly EnemyTileArtworkCatalog art;
 
-        /// <summary>Initializes Kraid with selected art and a sentinel VRAM image.</summary>
-        [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
+        /// <summary>Initializes Kraid's background with selected art.</summary>
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
+            this.art = art;
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
-            State = BuildKraidWorkingMap(art);
-            Enemies.Presentation.BindVram(Vram);
+            State = new KraidEnemyState();
+            Enemies.KraidBehavior.InitializeKraidBackground(State);
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
             hit = CoreAccess.KraidMouthHitboxOverlapsShot;
-            transfer = new Action<KraidEnemyState, ushort>(Enemies.KraidBehavior.TransferKraidHeadTilemap);
             Body.Position = Body.Position.WithWhole(new(512, 512));
-            byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }
 
         /// <summary>Advances one head instruction tick using the production interpreter.</summary>
         internal ushort Step() => step(Body, State);
-        /// <summary>Uploads a selected head tilemap through production behavior.</summary>
-        internal void Transfer(ushort pointer) => transfer(State, pointer);
+        /// <summary>The BG2 tilemap words Kraid's body frame shows.</summary>
+        internal ushort[] Shown() => KraidBodyFixtures.Shown(art, State);
         /// <summary>Tests a projectile against the selected physical mouth hitbox.</summary>
         internal bool Hit(ushort pointer, SamusProjectileSlot shot) => hit(Body, pointer, shot);
-        /// <summary>Updates an expected VRAM image with one head tilemap DMA payload.</summary>
-        internal static void ExpectedUpload(byte[] destination, ReadOnlySpan<ushort> words)
-        {
-            for (int word = 0; word < words.Length; word++)
-                BinaryPrimitives.WriteUInt16LittleEndian(destination.AsSpan(KraidBackgroundRomData.LiveBg2TilemapWord * 2 + word * 2), words[word]);
-        }
+        /// <summary>Updates an expected shown tilemap with one head tilemap's words over the upper page.</summary>
+        internal static void ExpectedUpload(ushort[] destination, ReadOnlySpan<ushort> words) => words.CopyTo(destination);
     }
 }

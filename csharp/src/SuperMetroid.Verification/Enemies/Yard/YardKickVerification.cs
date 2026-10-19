@@ -22,7 +22,7 @@ internal static class YardKickVerification
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, new SnesVram(), new SnesCgram()));
+            enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,

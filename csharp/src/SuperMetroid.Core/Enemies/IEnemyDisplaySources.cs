@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -26,8 +27,8 @@ internal interface IEnemyDisplaySources
     /// <summary>Ceres Ridley, if loaded.</summary>
     RidleyEnemyState? CeresRidley { get; }
 
-    /// <summary>The loaded Kraid, if any.</summary>
-    KraidEnemyState? Kraid { get; }
+    /// <summary>Kraid's body on BG2 while he owns it (#1352); otherwise null.</summary>
+    BossBg2Layer? KraidBody { get; }
 
     /// <summary>Crocomire's BG2 scroll while Crocomire is loaded; otherwise null.</summary>
     Position16<Bg2Pixels>? CrocomireBg2Scroll { get; }
